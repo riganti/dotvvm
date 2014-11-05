@@ -1,0 +1,211 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2865B545-E469-417A-B14F-E2CCDD4B6267}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Redwood.Framework</RootNamespace>
+    <AssemblyName>Redwood.Framework</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeAnalysis">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.0.7.4091001-beta\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.0.7.4091001-beta\lib\net45\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Desktop">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.0.7.4091001-beta\lib\net45\Microsoft.CodeAnalysis.CSharp.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Desktop">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.0.7.4091001-beta\lib\net45\Microsoft.CodeAnalysis.Desktop.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin">
+      <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin">
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable">
+      <HintPath>..\packages\Microsoft.Bcl.Immutable.1.1.20-beta\lib\portable-net45+win8\System.Collections.Immutable.dll</HintPath>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reflection.Metadata">
+      <HintPath>..\packages\Microsoft.Bcl.Metadata.1.0.12-alpha\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Binding\BindingExpression.cs" />
+    <Compile Include="Binding\CommandBindingExpression.cs" />
+    <Compile Include="Binding\CommandResolver.cs" />
+    <Compile Include="Binding\ControlStateBindingExpression.cs" />
+    <Compile Include="Binding\ExpressionEvaluator.cs" />
+    <Compile Include="Binding\ValueBindingExpression.cs" />
+    <Compile Include="Configuration\RedwoodConfiguration.cs" />
+    <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
+    <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
+    <Compile Include="Controls\Button.cs" />
+    <Compile Include="Controls\DataItemContainer.cs" />
+    <Compile Include="Controls\HtmlGenericControl.cs" />
+    <Compile Include="Controls\HtmlWriter.cs" />
+    <Compile Include="Controls\IControlWithHtmlAttributes.cs" />
+    <Compile Include="Controls\IHtmlWriter.cs" />
+    <Compile Include="Controls\IntegrationScripts.cs" />
+    <Compile Include="Controls\ITemplate.cs" />
+    <Compile Include="Controls\LinkButton.cs" />
+    <Compile Include="Controls\Literal.cs" />
+    <Compile Include="Controls\MappingMode.cs" />
+    <Compile Include="Controls\RedwoodView.cs" />
+    <Compile Include="Controls\RedwoodBindableControl.cs" />
+    <Compile Include="Controls\RedwoodControl.cs" />
+    <Compile Include="Controls\RedwoodControlCollection.cs" />
+    <Compile Include="Controls\Placeholder.cs" />
+    <Compile Include="Controls\RedwoodProperty.cs" />
+    <Compile Include="Controls\RedwoodStatefulControl.cs" />
+    <Compile Include="Controls\RenderContext.cs" />
+    <Compile Include="Controls\MarkupOptionsAttribute.cs" />
+    <Compile Include="Controls\DelegateTemplate.cs" />
+    <Compile Include="Controls\Repeater.cs" />
+    <Compile Include="Controls\TextBox.cs" />
+    <Compile Include="Hosting\DefaultControlBuilderFactory.cs" />
+    <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
+    <Compile Include="Hosting\DefaultOutputRenderer.cs" />
+    <Compile Include="Hosting\DefaultViewModelLocator.cs" />
+    <Compile Include="Hosting\ErrorPageTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ErrorPageTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Hosting\FileReader.cs" />
+    <Compile Include="Hosting\IControlBuilderFactory.cs" />
+    <Compile Include="Hosting\IMarkupFileLoader.cs" />
+    <Compile Include="Hosting\IOutputRenderer.cs" />
+    <Compile Include="Hosting\IRedwoodPresenter.cs" />
+    <Compile Include="Hosting\IViewModelLoader.cs" />
+    <Compile Include="Hosting\IViewModelSerializer.cs" />
+    <Compile Include="Hosting\MarkupFile.cs" />
+    <Compile Include="Hosting\RedwoodHttpException.cs" />
+    <Compile Include="Hosting\RedwoodMiddleware.cs" />
+    <Compile Include="Hosting\RedwoodPresenter.cs" />
+    <Compile Include="Hosting\RedwoodRequestContext.cs" />
+    <Compile Include="Hosting\ViewModelSerializer.cs" />
+    <Compile Include="KnockoutHelper.cs" />
+    <Compile Include="Parser\ParserException.cs" />
+    <Compile Include="Parser\IReader.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlAttributeNode.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlBindingNode.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlDirectiveNode.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlElementNode.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlLiteralNode.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlNode.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlNodeWithContent.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlParser.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlRootNode.cs" />
+    <Compile Include="Parser\RwHtml\Tokenizer\RwHtmlToken.cs" />
+    <Compile Include="Parser\RwHtml\Tokenizer\RwHtmlTokenizer.cs" />
+    <Compile Include="Parser\RwHtml\Tokenizer\RwHtmlTokenType.cs" />
+    <Compile Include="Parser\StringReader.cs" />
+    <Compile Include="Parser\TokenBase.cs" />
+    <Compile Include="Parser\TokenizerBase.cs" />
+    <Compile Include="Parser\Translation\ExpressionTranslator.cs" />
+    <Compile Include="Binding\ExpressionEvaluationVisitor.cs" />
+    <Compile Include="Parser\Translation\ExpressionTranslatorVisitor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\Controls.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Controls.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Parser.RwHtml.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Parser.RwHtml.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Routing\RedwoodRoute.cs" />
+    <Compile Include="Routing\RedwoodRouteComponent.cs" />
+    <Compile Include="Routing\RedwoodRouteTable.cs" />
+    <Compile Include="Routing\RouteBase.cs" />
+    <Compile Include="Runtime\ControlResolverMetadata.cs" />
+    <Compile Include="Runtime\ControlResolverPropertyMetadata.cs" />
+    <Compile Include="Runtime\DefaultControlResolver.cs" />
+    <Compile Include="Runtime\DefaultViewCompiler.cs" />
+    <Compile Include="Runtime\DefaultViewCompilerCodeEmitter.cs" />
+    <Compile Include="Runtime\EmitterMethodInfo.cs" />
+    <Compile Include="Runtime\IControlBuilder.cs" />
+    <Compile Include="Runtime\IControlResolver.cs" />
+    <Compile Include="Runtime\IViewCompiler.cs" />
+    <Compile Include="Runtime\RoslynExtensionMethods.cs" />
+    <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="ViewModel\BindAttribute.cs" />
+    <Compile Include="ViewModel\ClientCommandAttribute.cs" />
+    <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
+    <Compile Include="ViewModel\Direction.cs" />
+    <Compile Include="ViewModel\IRedwoodViewModel.cs" />
+    <Compile Include="ViewModel\IViewModelSerializationHandler.cs" />
+    <Compile Include="ViewModel\KeyPropertyAttribute.cs" />
+    <Compile Include="ViewModel\PropertyOptionsAttribute.cs" />
+    <Compile Include="ViewModel\RedwoodViewModelBase.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Controls.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Controls.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Parser.RwHtml.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Parser.RwHtml.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Hosting\ErrorPageTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
+    </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

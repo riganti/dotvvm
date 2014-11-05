@@ -1,0 +1,42 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Framework", "Redwood.Framework\Redwood.Framework.csproj", "{2865B545-E469-417A-B14F-E2CCDD4B6267}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B760209E-57D7-4AEF-A726-69F73BBE52C0}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Framework.Tests", "Redwood.Framework.Tests\Redwood.Framework.Tests.csproj", "{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{13011738-A4B3-47B0-9E50-C0323EB19F76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Samples.BasicSamples", "Redwood.Samples.BasicSamples\Redwood.Samples.BasicSamples.csproj", "{BDF78B2F-9C1F-4481-B80A-1537139994F4}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{2865B545-E469-417A-B14F-E2CCDD4B6267}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2865B545-E469-417A-B14F-E2CCDD4B6267}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2865B545-E469-417A-B14F-E2CCDD4B6267}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2865B545-E469-417A-B14F-E2CCDD4B6267}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BDF78B2F-9C1F-4481-B80A-1537139994F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BDF78B2F-9C1F-4481-B80A-1537139994F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BDF78B2F-9C1F-4481-B80A-1537139994F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BDF78B2F-9C1F-4481-B80A-1537139994F4}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24} = {B760209E-57D7-4AEF-A726-69F73BBE52C0}
+		{BDF78B2F-9C1F-4481-B80A-1537139994F4} = {13011738-A4B3-47B0-9E50-C0323EB19F76}
+	EndGlobalSection
+EndGlobal
