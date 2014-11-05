@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Redwood.Framework.Parser.RwHtml;
 using Redwood.Framework.Resources;
 
 namespace Redwood.Framework.Parser
@@ -11,8 +10,8 @@ namespace Redwood.Framework.Parser
     {
 
         public const char NullChar = '\0';
-        private readonly IReader reader;
-        private readonly string fileName;
+        private IReader reader;
+        private string fileName;
 
 
         /// <summary>
@@ -78,10 +77,8 @@ namespace Redwood.Framework.Parser
         /// <summary>
         /// Initializes a new instance of the <see cref="TokenizerBase"/> class.
         /// </summary>
-        public TokenizerBase(IReader reader, string fileName)
+        public TokenizerBase()
         {
-            this.reader = reader;
-            this.fileName = fileName;
             CurrentTokenChars = new StringBuilder();
             Tokens = new List<TToken>();
             Errors = new List<ParserException>();
@@ -91,8 +88,11 @@ namespace Redwood.Framework.Parser
         /// <summary>
         /// Tokenizes the input.
         /// </summary>
-        public void Tokenize()
+        public void Tokenize(IReader reader, string fileName)
         {
+            this.reader = reader;
+            this.fileName = fileName;
+
             try
             {
                 CurrentLine = 1;

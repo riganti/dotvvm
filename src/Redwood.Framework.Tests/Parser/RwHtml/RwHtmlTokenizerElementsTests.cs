@@ -20,8 +20,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var input = @"<html>aaa</html>";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -41,8 +41,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var input = @"<html/>aaa";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -59,8 +59,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var input = @" tr <html xmlns=hello />";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -83,8 +83,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var input = @"<html><body lang=cs><h1 class=alert size=big>Test</h1>  </body></html>";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -138,8 +138,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var input = @" tr <html xmlns='hello dolly' />";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -164,8 +164,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var input = @" tr <html xmlns=""hello dolly"" />";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -190,8 +190,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var input = @" tr <input value=""{binding: FirstName}"" />";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -223,8 +223,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var input = @"tr {{binding: FirstName}}"" />";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;

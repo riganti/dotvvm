@@ -19,7 +19,7 @@ namespace Redwood.Framework.Hosting
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+    #line 1 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "12.0.0.0")]
     public partial class ErrorPageTemplate : ErrorPageTemplateBase
     {
@@ -47,168 +47,168 @@ span.current-line { color: red; }
 		<h1>Server Error in Application</h1>
 		<h2>HTTP ");
             
-            #line 23 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 23 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ErrorCode));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 23 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 23 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ErrorDescription)));
             
             #line default
             #line hidden
             this.Write("</h2>\r\n\t\t<p><strong>");
             
-            #line 24 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 24 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Exception.GetType().FullName));
             
             #line default
             #line hidden
             this.Write(": ");
             
-            #line 24 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 24 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Exception.Message)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n\r\n");
             
-            #line 26 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 26 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  if (Url != null) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Request URL: <strong>");
             
-            #line 27 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 27 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Verb));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 27 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 27 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Url)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 28 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 28 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 30 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 30 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  if (ClassName != null) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Source Class: <strong>");
             
-            #line 31 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 31 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ClassName.AssemblyQualifiedName)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 32 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 32 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 34 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 34 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  if (!string.IsNullOrEmpty(FileName)) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Source File: <strong>");
             
-            #line 35 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 35 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(FileName)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 36 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 36 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 38 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 38 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  if (LineNumber > 0) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Line: <strong>");
             
-            #line 39 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 39 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LineNumber));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 40 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 40 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 42 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 42 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  if (!string.IsNullOrEmpty(CurrentUserName)) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Current User: <strong>");
             
-            #line 43 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 43 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(CurrentUserName)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 44 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 44 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 46 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 46 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  if (!string.IsNullOrEmpty(IpAddress)) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Client IP: <strong>");
             
-            #line 47 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 47 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(IpAddress)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 48 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 48 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 50 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 50 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
  
 	var sourceLines = GetSourceLines();
     if (sourceLines != null)
@@ -219,7 +219,7 @@ span.current-line { color: red; }
             #line hidden
             this.Write("\t\t<p>&nbsp;</p>\r\n\t\t<h3>Source Location</h3>\r\n");
             
-            #line 57 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 57 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
 
         this.Write("<pre>");
         foreach (var line in sourceLines)
@@ -253,7 +253,7 @@ span.current-line { color: red; }
             #line hidden
             this.Write("\t\t\r\n\t\t<p>&nbsp;</p>\r\n\t\t<h3>Stack Trace</h3>\r\n");
             
-            #line 88 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 88 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
 
     this.Write("<pre>");
     using (var sr = new StringReader(Exception.ToString()))
@@ -274,7 +274,7 @@ span.current-line { color: red; }
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 109 "D:\Riganti\External\Redwood_My\Redwood\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
+        #line 109 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\ErrorPageTemplate.tt"
 
 	public int ErrorCode { get; set; }
 

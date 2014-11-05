@@ -151,8 +151,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
         private static RwHtmlRootNode ParseMarkup(string markup)
         {
-            var tokenizer = new RwHtmlTokenizer(new StringReader(markup), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(markup), null);
             var parser = new RwHtmlParser(tokenizer.Tokens, null);
             var node = parser.Parse();
             return node;

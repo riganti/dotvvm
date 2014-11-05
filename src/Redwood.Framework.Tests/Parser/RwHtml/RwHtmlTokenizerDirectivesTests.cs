@@ -22,8 +22,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 this is a test content";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
 
@@ -55,8 +55,8 @@ this is a test content";
 this is a test content";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
 
@@ -72,8 +72,8 @@ this is a test content";
             var input = @"this is a test content";
 
             // parse
-            var tokenizer = new RwHtmlTokenizer(new StringReader(input), null);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
             CheckForErrors(tokenizer, input.Length);
 
 

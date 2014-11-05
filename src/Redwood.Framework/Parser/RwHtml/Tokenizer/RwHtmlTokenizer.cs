@@ -14,8 +14,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
         /// <summary>
         /// Initializes a new instance of the <see cref="RwHtmlTokenizer"/> class.
         /// </summary>
-        public RwHtmlTokenizer(IReader reader, string fileName)
-            : base(reader, fileName)
+        public RwHtmlTokenizer()
         {
         }
 

@@ -38,8 +38,8 @@ namespace Redwood.Framework.Runtime
             emitter = new DefaultViewCompilerCodeEmitter();
 
             // parse the document
-            var tokenizer = new RwHtmlTokenizer(reader, fileName);
-            tokenizer.Tokenize();
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(reader, fileName);
             var parser = new RwHtmlParser(tokenizer.Tokens, fileName);
             var node = parser.Parse();
 

@@ -18,6 +18,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		..\README.md = ..\README.md
 	EndProjectSection
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VisualStudio", "VisualStudio", "{0BD7B542-16CE-40C8-9B2D-D3D2C6A3E5FD}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2013Extension", "Redwood.VS2013Extension\Redwood.VS2013Extension.csproj", "{772E47BF-A251-44F7-92C4-157D9F083A6F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -36,6 +40,10 @@ Global
 		{BDF78B2F-9C1F-4481-B80A-1537139994F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BDF78B2F-9C1F-4481-B80A-1537139994F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BDF78B2F-9C1F-4481-B80A-1537139994F4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{772E47BF-A251-44F7-92C4-157D9F083A6F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{772E47BF-A251-44F7-92C4-157D9F083A6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{772E47BF-A251-44F7-92C4-157D9F083A6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{772E47BF-A251-44F7-92C4-157D9F083A6F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -43,5 +51,6 @@ Global
 	GlobalSection(NestedProjects) = preSolution
 		{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24} = {B760209E-57D7-4AEF-A726-69F73BBE52C0}
 		{BDF78B2F-9C1F-4481-B80A-1537139994F4} = {13011738-A4B3-47B0-9E50-C0323EB19F76}
+		{772E47BF-A251-44F7-92C4-157D9F083A6F} = {0BD7B542-16CE-40C8-9B2D-D3D2C6A3E5FD}
 	EndGlobalSection
 EndGlobal
