@@ -4,7 +4,7 @@
 <head>
     <title>Hello from Redwood!</title>
 	<link rel="stylesheet" href="Content/bootstrap/bootstrap.min.css" />
-	<script src="Scripts/jquery-1.9.0.min.js"></script>
+	<script src="Scripts/jquery-2.1.1.min.js"></script>
 	<script src="Scripts/bootstrap.min.js"></script>
 	<style>
 	.completed {
@@ -26,8 +26,7 @@
 		<p>&nbsp;</p>
 
 		<table class="table">
-			<tbody>
-			<rw:Repeater DataContext="{value: Tasks}">
+			<rw:Repeater DataContext="{value: Tasks}" WrapperTagName="tbody">
 				<ItemTemplate>
 					<tr class="{value: IsCompleted ? "completed" : ""}">
 						<td>{{value: Title}}</td>
@@ -40,7 +39,6 @@
 					</tr>
 				</ItemTemplate>
 			</rw:Repeater>
-			</tbody>
 		</table>
 	</div>
 

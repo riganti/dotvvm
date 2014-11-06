@@ -34,11 +34,6 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public override object Evaluate(RedwoodBindableControl control, RedwoodProperty property)
         {
-            if (property != RedwoodBindableControl.DataContextProperty)
-            {
-                throw new Exception("Server evaluation of properties other than DataContext, is not allowed!");   // TODO: exception handling
-            }
-
             var parentValue = control.Parent.GetValue(RedwoodBindableControl.DataContextProperty);
             return evaluator.Evaluate(Expression, parentValue);
         }

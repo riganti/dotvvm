@@ -115,7 +115,18 @@ namespace Redwood.Framework.Parser.Translation
         /// </summary>
         public override string VisitIdentifierName(IdentifierNameSyntax node)
         {
-            return node.Identifier.Text + "()";
+            if (node.Identifier.Text == "_parent")
+            {
+                return "$parent";
+            }
+            else if (node.Identifier.Text == "_root")
+            {
+                return "$root";
+            }
+            else
+            {
+                return node.Identifier.Text + "()";
+            }
         }
 
         /// <summary>

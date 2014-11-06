@@ -79,6 +79,7 @@
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
     <Compile Include="Controls\Button.cs" />
+    <Compile Include="Controls\CheckBox.cs" />
     <Compile Include="Controls\DataItemContainer.cs" />
     <Compile Include="Controls\HtmlGenericControl.cs" />
     <Compile Include="Controls\HtmlWriter.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Controls\LinkButton.cs" />
     <Compile Include="Controls\Literal.cs" />
     <Compile Include="Controls\MappingMode.cs" />
+    <Compile Include="Controls\RadioButton.cs" />
     <Compile Include="Controls\RedwoodView.cs" />
     <Compile Include="Controls\RedwoodBindableControl.cs" />
     <Compile Include="Controls\RedwoodControl.cs" />

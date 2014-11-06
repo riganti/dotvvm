@@ -39,6 +39,19 @@ namespace Redwood.Framework.Controls
 
 
         /// <summary>
+        /// Gets or sets the name of the tag that wraps the Repeater.
+        /// </summary>
+        public string WrapperTagName
+        {
+            get { return (string)GetValue(WrapperTagNameProperty); }
+            set { SetValue(WrapperTagNameProperty, value); }
+        }
+
+        public static readonly RedwoodProperty WrapperTagNameProperty =
+            RedwoodProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
+
+
+        /// <summary>
         /// Renders the children.
         /// </summary>
         protected override void RenderChildren(IHtmlWriter writer, RenderContext context)
@@ -70,7 +83,8 @@ namespace Redwood.Framework.Controls
                 {
                     throw new Exception("The DataContext property must contain a binding!");    // TODO: exception handling
                 }
-                writer.WriteKnockoutDataBindComment("foreach", dataContextBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("foreach", dataContextBinding as ValueBindingExpression);
+                writer.RenderBeginTag(WrapperTagName);
 
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
@@ -80,7 +94,7 @@ namespace Redwood.Framework.Controls
                 placeholder.Render(writer, context);
                 context.PathFragments.Pop();
 
-                writer.WriteKnockoutDataBindEndComment();
+                writer.RenderEndTag();
             }
         }
     }

@@ -22,6 +22,7 @@ namespace Redwood.Samples.BasicSamples
                 ApplicationPhysicalPath = applicationPhysicalPath
             };
             redwoodConfiguration.RouteTable.Add("Sample1", "Sample1", "sample1.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("Sample2", "Sample2", "sample2.rwhtml", null);
             app.Use<RedwoodMiddleware>(redwoodConfiguration);
 
             // use static files
