@@ -78,6 +78,9 @@
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
+    <Compile Include="Controls\Bootstrap\FormGroup.cs" />
+    <Compile Include="Controls\Bootstrap\GlyphIcon.cs" />
+    <Compile Include="Controls\Bootstrap\HorizontalForm.cs" />
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\CheckBox.cs" />
     <Compile Include="Controls\ComboBox.cs" />

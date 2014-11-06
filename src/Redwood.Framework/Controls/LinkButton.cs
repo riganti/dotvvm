@@ -26,7 +26,8 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<Action, Button>(t => t.Click, null);
 
 
-        public LinkButton() : base("a")
+        public LinkButton()
+            : base("a")
         {
         }
 
@@ -37,13 +38,30 @@ namespace Redwood.Framework.Controls
             {
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding as CommandBindingExpression, context));
             }
+
+            var textBinding = GetBinding(TextProperty);
+            if (textBinding != null)
+            {
+                writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression);
+            }
             writer.AddAttribute("href", "#");
+
             base.Render(writer, context);
         }
 
         protected override void RenderChildren(IHtmlWriter writer, RenderContext context)
         {
-            writer.WriteText(Text);
+            var textBinding = GetBinding(TextProperty);
+            if (textBinding == null && !string.IsNullOrEmpty(Text))
+            {
+                // render Text property
+                writer.WriteText(Text);
+            }
+            else
+            {
+                // render control contents
+                base.RenderChildren(writer, context);
+            }
         }
     }
 }

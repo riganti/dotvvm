@@ -43,6 +43,21 @@ namespace Redwood.Framework.Controls
         }
 
 
+
+        /// <summary>
+        /// Renders the children.
+        /// </summary>
+        public override void Render(IHtmlWriter writer, RenderContext context)
+        {
+            if (!RenderOnServer)
+            {
+                var dataSourceBinding = GetDataSourceBinding();
+                writer.AddKnockoutDataBind("foreach", dataSourceBinding as ValueBindingExpression);
+            }
+
+            base.Render(writer, context);
+        }
+
         /// <summary>
         /// Renders the children.
         /// </summary>
@@ -54,7 +69,7 @@ namespace Redwood.Framework.Controls
             {
                 // render on server
                 var index = 0;
-                foreach (var item in (IEnumerable)DataContext)
+                foreach (var item in DataSource)
                 {
                     var placeholder = new DataItemContainer { DataContext = item };
                     ItemTemplate.BuildContent(placeholder);
@@ -78,26 +93,7 @@ namespace Redwood.Framework.Controls
                 placeholder.Render(writer, context);
                 context.PathFragments.Pop();
                 context.PathFragments.Pop();
-
             }
-        }
-
-        /// <summary>
-        /// Renders the children.
-        /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
-        {
-            if (!RenderOnServer)
-            {
-                var dataSourceBinding = GetBinding(DataSourceProperty);
-                if (dataSourceBinding == null)
-                {
-                    throw new Exception("The DataSource property must contain a binding!");    // TODO: exception handling
-                }
-                writer.AddKnockoutDataBind("foreach", dataSourceBinding as ValueBindingExpression);
-            }
-
-            base.Render(writer, context);
         }
     }
 }

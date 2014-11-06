@@ -66,9 +66,24 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         public ExpressionSyntax EmitValue(object value)
         {
+            if (value == null)
+            {
+                return EmitIdentifier("null");
+            }
             if (value is string)
             {
                 return EmitStringLiteral(value as string);
+            }
+
+            var type = value.GetType();
+            if (type.IsEnum)
+            {
+                return
+                    SyntaxFactory.MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        SyntaxFactory.ParseTypeName(type.FullName),
+                        SyntaxFactory.IdentifierName(value.ToString())
+                    );
             }
             throw new NotSupportedException();
         }

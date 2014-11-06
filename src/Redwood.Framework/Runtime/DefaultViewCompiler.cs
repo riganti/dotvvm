@@ -278,7 +278,7 @@ namespace Redwood.Framework.Runtime
                 else
                 {
                     // hard-coded value in markup
-                    var value = Convert.ChangeType(attribute.Literal.Value, property.PropertyInfo.PropertyType);
+                    var value = ReflectionUtils.ConvertValue(attribute.Literal.Value, property.PropertyInfo.PropertyType);
                     emitter.EmitSetProperty(currentObjectName, property.Options.Name, emitter.EmitValue(value));
                 }
             }

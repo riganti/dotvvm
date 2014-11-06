@@ -136,6 +136,10 @@ namespace Redwood.Framework.Binding
                 Hierarchy.Clear();
                 return Root;
             }
+            else if (propertyName == "_this")
+            {
+                return target;
+            }
             else
             {
                 Hierarchy.Push(target);

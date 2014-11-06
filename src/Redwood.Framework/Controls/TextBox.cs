@@ -6,7 +6,7 @@ using Redwood.Framework.Utils;
 
 namespace Redwood.Framework.Controls
 {
-    public class TextBox : RedwoodBindableControl
+    public class TextBox : HtmlGenericControl
     {
 
         public string Text
@@ -17,6 +17,10 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty TextProperty =
             RedwoodProperty.Register<string, TextBox>(t => t.Text, "");
 
+        public TextBox() : base("input")
+        {
+            
+        }
 
 
         public override void Render(IHtmlWriter writer, RenderContext context)
@@ -32,7 +36,7 @@ namespace Redwood.Framework.Controls
             }
 
             writer.AddAttribute("type", "text");
-            writer.RenderSelfClosingTag("input");    
+            base.Render(writer, context);
         }
     }
 }

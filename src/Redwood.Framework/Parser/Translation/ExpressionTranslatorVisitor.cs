@@ -123,6 +123,10 @@ namespace Redwood.Framework.Parser.Translation
             {
                 return "$root";
             }
+            else if (node.Identifier.Text == "_this")
+            {
+                return "$data";
+            }
             else
             {
                 return node.Identifier.Text + "()";

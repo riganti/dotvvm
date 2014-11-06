@@ -28,6 +28,14 @@ namespace Redwood.Framework.Configuration
                     {
                         "Redwood.Framework.Controls"
                     }
+                },
+                new RedwoodControlConfiguration()
+                {
+                    TagPrefix = "bootstrap",
+                    Namespaces =
+                    {
+                        "Redwood.Framework.Controls.Bootstrap"
+                    }
                 }
             };
         }

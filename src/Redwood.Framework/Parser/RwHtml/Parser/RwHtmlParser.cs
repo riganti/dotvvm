@@ -71,11 +71,11 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                         else
                         {
                             // close tag
-                            if (elementHierarchy.Count == 1
-                                || ((RwHtmlElementNode)elementHierarchy.Peek()).FullTagName != element.FullTagName)
+                            var beginTagName = ((RwHtmlElementNode)elementHierarchy.Peek()).FullTagName;
+                            if (elementHierarchy.Count == 1 || beginTagName != element.FullTagName)
                             {
                                 // TODO: try to recover on tag crossing etc.
-                                throw new ParserException(Parser_RwHtml.Parser_ClosingTagHasNoMatchingOpenTag, fileName, Peek().LineNumber, Peek().ColumnNumber);
+                                throw new ParserException(string.Format(Parser_RwHtml.Parser_ClosingTagHasNoMatchingOpenTag, beginTagName), fileName, Peek().LineNumber, Peek().ColumnNumber);
                             }
                             elementHierarchy.Pop();
                         }
