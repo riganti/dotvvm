@@ -15,7 +15,7 @@ namespace Redwood.Framework.Controls
         /// Gets the tag name.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public string TagName { get; private set; }
+        public string TagName { get; protected set; }
 
         /// <summary>
         /// Gets the attributes.

@@ -80,6 +80,7 @@
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\ComboBox.cs" />
     <Compile Include="Controls\DataItemContainer.cs" />
     <Compile Include="Controls\HtmlGenericControl.cs" />
     <Compile Include="Controls\HtmlWriter.cs" />
@@ -87,6 +88,7 @@
     <Compile Include="Controls\IHtmlWriter.cs" />
     <Compile Include="Controls\IntegrationScripts.cs" />
     <Compile Include="Controls\ITemplate.cs" />
+    <Compile Include="Controls\ItemsControl.cs" />
     <Compile Include="Controls\LinkButton.cs" />
     <Compile Include="Controls\Literal.cs" />
     <Compile Include="Controls\MappingMode.cs" />

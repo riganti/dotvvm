@@ -58,7 +58,7 @@
 					<legend>Data-bound RadioButtons</legend>
 
 					<p>
-						<rw:Repeater DataContext="{value: DBRBChoices}">
+						<rw:Repeater DataSource="{value: DBRBChoices}">
 							<ItemTemplate>
 								<rw:RadioButton Text="{value: Title}" GroupName="group2" CheckedItem="{value: _parent.DBRB}" CheckedValue="{value: Id}" /> 
 								&nbsp; &nbsp;

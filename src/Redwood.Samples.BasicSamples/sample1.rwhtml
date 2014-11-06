@@ -26,7 +26,7 @@
 		<p>&nbsp;</p>
 
 		<table class="table">
-			<rw:Repeater DataContext="{value: Tasks}" WrapperTagName="tbody">
+			<rw:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
 				<ItemTemplate>
 					<tr class="{value: IsCompleted ? "completed" : ""}">
 						<td>{{value: Title}}</td>

@@ -34,7 +34,18 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public override object Evaluate(RedwoodBindableControl control, RedwoodProperty property)
         {
-            var parentValue = control.Parent.GetValue(RedwoodBindableControl.DataContextProperty);
+            object parentValue;
+            if (property == RedwoodBindableControl.DataContextProperty)
+            {
+                // DataContext evaluates in the parent's DataContext
+                parentValue = control.Parent.GetValue(RedwoodBindableControl.DataContextProperty);
+            }
+            else
+            {
+                // other properties evaluate in the current DataContext
+                parentValue = control.GetValue(RedwoodBindableControl.DataContextProperty);
+            }
+
             return evaluator.Evaluate(Expression, parentValue);
         }
 
