@@ -22,6 +22,14 @@ Why it is better than WebForms?
 + **Clean HTML** - Redwood controls generate clean and simple HTML that can be fully styled using CSS. No more hours spent by persuading asp:Calendar to not render inline styles with hard coded colors.
 
 
+More Info
+---------
+
+You can find more info and the basic explanation in the following document:
+
+[Redwood.docx](https://github.com/riganti/redwood/blob/master/Redwood.docx)
+
+
 Roadmap
 -------
 

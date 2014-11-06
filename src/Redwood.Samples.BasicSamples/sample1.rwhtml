@@ -24,7 +24,7 @@
 			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>
 		</fieldset>
 		<p>&nbsp;</p>
-
+		
 		<table class="table">
 			<rw:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
 				<ItemTemplate>
