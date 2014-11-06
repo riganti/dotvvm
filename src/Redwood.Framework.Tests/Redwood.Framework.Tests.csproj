@@ -14,7 +14,7 @@
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
+    <IsCodedUITest>True</IsCodedUITest>
     <TestProjectType>UnitTest</TestProjectType>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -41,6 +41,10 @@
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="WindowsBase" />
   </ItemGroup>
   <Choose>
     <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
@@ -65,12 +69,32 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Routing\RedwoodRouteTests.cs" />
     <Compile Include="Runtime\DefaultViewCompilerTests.cs" />
+    <Compile Include="Samples\Sample2Tests.cs" />
+    <Compile Include="Samples\Sample1Tests.cs" />
+    <Compile Include="Samples\Sample1UIMap.cs">
+      <DependentUpon>Sample1UIMap.uitest</DependentUpon>
+    </Compile>
+    <Compile Include="Samples\Sample1UIMap.Designer.cs">
+      <DependentUpon>Sample1UIMap.uitest</DependentUpon>
+    </Compile>
+    <Compile Include="Samples\Sample2UIMap.cs">
+      <DependentUpon>Sample2UIMap.uitest</DependentUpon>
+    </Compile>
+    <Compile Include="Samples\Sample2UIMap.Designer.cs">
+      <DependentUpon>Sample2UIMap.uitest</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Redwood.Framework\Redwood.Framework.csproj">
       <Project>{2865B545-E469-417A-B14F-E2CCDD4B6267}</Project>
       <Name>Redwood.Framework</Name>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Samples\Sample1UIMap.uitest">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="Samples\Sample2UIMap.uitest" />
   </ItemGroup>
   <Choose>
     <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
