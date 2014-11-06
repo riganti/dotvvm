@@ -17,6 +17,11 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Classification
         private IClassificationType bindingBrace, bindingContent;
         private RwHtmlTokenizer tokenizer;
 
+        public IList<RwHtmlToken> Tokens
+        {
+            get { return tokenizer.Tokens; }
+        } 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RwHtmlClassifier"/> class.
         /// </summary>
