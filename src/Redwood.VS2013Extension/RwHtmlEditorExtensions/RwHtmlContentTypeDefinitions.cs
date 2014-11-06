@@ -1,11 +1,10 @@
-﻿using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.Utilities;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using Microsoft.VisualStudio.Utilities;
 
-namespace Redwood.VS2013Extension
+namespace Redwood.VS2013Extension.RwHtmlEditorExtensions
 {
 
     public class RwHtmlContentTypeDefinitions

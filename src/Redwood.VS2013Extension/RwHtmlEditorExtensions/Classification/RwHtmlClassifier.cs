@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Text.Classification;
 using Redwood.Framework.Parser;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 
-namespace Redwood.VS2013Extension
+namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Classification
 {
     /// <summary>
     /// A classifier that highlights bindings and directives in RwHtml file.

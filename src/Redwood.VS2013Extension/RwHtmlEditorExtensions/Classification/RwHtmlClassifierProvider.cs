@@ -6,7 +6,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Utilities;
 
-namespace Redwood.VS2013Extension
+namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Classification
 {
     [Export(typeof(IClassifierProvider))]
     [ContentType("htmlx")]
