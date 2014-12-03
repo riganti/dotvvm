@@ -2,31 +2,27 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UITesting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Redwood.Framework.Tests.Samples.Sample3UIMapClasses;
+using Redwood.Samples.Tests.Sample1UIMapClasses;
 
 
-namespace Redwood.Framework.Tests.Samples
+namespace Redwood.Samples.Tests
 {
     [CodedUITest]
-    public class Sample3Tests
+    public class Sample1Tests
     {
-        public Sample3Tests()
+        public Sample1Tests()
         {
         }
 
         [TestMethod]
-        public void Sample3_BasicTest()
+        public void Sample1_BasicTest()
         {
             this.UIMap.LaunchSample();
-            this.UIMap.ChangePrice();
-            this.UIMap.CheckChangedPrice();
-            this.UIMap.AddAndFillThreeLines();
-            this.UIMap.Recalculate();
-            this.UIMap.VerifyPriceExpectedValues.UIItem463PaneInnerText = "496";
-            this.UIMap.VerifyPrice();
-            this.UIMap.RemoveSecondLine();
-            this.UIMap.VerifyPriceExpectedValues.UIItem463PaneInnerText = "463";
-            this.UIMap.VerifyPrice();
+            this.UIMap.AddTask();
+            this.UIMap.FinishLastTask();
+            this.UIMap.VerifyLastTaskFinished();
+            this.UIMap.FinishFirstTask();
+            this.UIMap.VerifyFirstTaskFinished();
             this.UIMap.CloseBrowser();
         }
 
@@ -43,19 +39,19 @@ namespace Redwood.Framework.Tests.Samples
         }
         private TestContext testContextInstance;
 
-        public Sample3UIMap UIMap
+        public Sample1UIMap UIMap
         {
             get
             {
                 if ((this.map == null))
                 {
-                    this.map = new Sample3UIMap();
+                    this.map = new Sample1UIMap();
                 }
 
                 return this.map;
             }
         }
 
-        private Sample3UIMap map;
+        private Sample1UIMap map;
     }
 }

@@ -8,7 +8,7 @@
 //  </auto-generated>
 // ------------------------------------------------------------------------------
 
-namespace Redwood.Framework.Tests.Samples.Sample3UIMapClasses
+namespace Redwood.Samples.Tests.Sample3UIMapClasses
 {
     using System;
     using System.CodeDom.Compiler;
