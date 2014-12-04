@@ -340,6 +340,11 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // read open brace
             Debug.Assert(Peek() == '{');
             Read();
+            if (!doubleCloseBrace && Peek() == '{')
+            {
+                doubleCloseBrace = true;
+                Read();
+            }
             CreateToken(RwHtmlTokenType.OpenBinding);
 
             // read binding name
