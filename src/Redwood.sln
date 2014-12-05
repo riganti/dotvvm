@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.30723.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.22310.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Framework", "Redwood.Framework\Redwood.Framework.csproj", "{2865B545-E469-417A-B14F-E2CCDD4B6267}"
 EndProject
@@ -22,6 +22,8 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "VisualStudio", "VisualStudio", "{0BD7B542-16CE-40C8-9B2D-D3D2C6A3E5FD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2013Extension", "Redwood.VS2013Extension\Redwood.VS2013Extension.csproj", "{772E47BF-A251-44F7-92C4-157D9F083A6F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Samples.Tests", "Redwood.Samples.Tests\Redwood.Samples.Tests.csproj", "{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -45,6 +47,10 @@ Global
 		{772E47BF-A251-44F7-92C4-157D9F083A6F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{772E47BF-A251-44F7-92C4-157D9F083A6F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{772E47BF-A251-44F7-92C4-157D9F083A6F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -53,5 +59,6 @@ Global
 		{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24} = {B760209E-57D7-4AEF-A726-69F73BBE52C0}
 		{BDF78B2F-9C1F-4481-B80A-1537139994F4} = {13011738-A4B3-47B0-9E50-C0323EB19F76}
 		{772E47BF-A251-44F7-92C4-157D9F083A6F} = {0BD7B542-16CE-40C8-9B2D-D3D2C6A3E5FD}
+		{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2} = {B760209E-57D7-4AEF-A726-69F73BBE52C0}
 	EndGlobalSection
 EndGlobal

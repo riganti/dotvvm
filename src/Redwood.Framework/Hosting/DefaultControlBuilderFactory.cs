@@ -14,7 +14,8 @@ namespace Redwood.Framework.Hosting
     public class DefaultControlBuilderFactory : IControlBuilderFactory
     {
         private readonly IViewCompiler compiler;
-        private ConcurrentDictionary<MarkupFile, Func<RedwoodControl>> controlBuilders;
+        // TODO: this cache may cause problems when multiple incompatible compilers are used on the same view
+        private static ConcurrentDictionary<MarkupFile, Func<RedwoodControl>> controlBuilders = new ConcurrentDictionary<MarkupFile, Func<RedwoodControl>>();
 
 
         /// <summary>
@@ -23,7 +24,6 @@ namespace Redwood.Framework.Hosting
         public DefaultControlBuilderFactory(IViewCompiler compiler)
         {
             this.compiler = compiler;
-            this.controlBuilders = new ConcurrentDictionary<MarkupFile, Func<RedwoodControl>>();
         }
 
         /// <summary>

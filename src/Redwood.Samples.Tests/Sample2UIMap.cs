@@ -1,4 +1,4 @@
-﻿namespace Redwood.Framework.Tests.Samples.Sample2UIMapClasses
+﻿namespace Redwood.Samples.Tests.Sample2UIMapClasses
 {
     using System;
     using System.Collections.Generic;
