@@ -12,10 +12,7 @@ namespace Redwood.Framework.Hosting
 {
     public class RedwoodPresenter : IRedwoodPresenter
     {
-
-        public IMarkupFileLoader MarkupFileLoader { get; private set; }
-
-        public IControlBuilderFactory ControlBuilderFactory { get; private set; }
+        public IRedwoodViewBuilder RedwoodViewBuilder { get; private set; }
 
         public IViewModelLoader ViewModelLoader { get; private set; }
 
@@ -28,15 +25,13 @@ namespace Redwood.Framework.Hosting
         /// Initializes a new instance of the <see cref="RedwoodPresenter"/> class.
         /// </summary>
         public RedwoodPresenter(
-            IMarkupFileLoader markupFileLoader,
-            IControlBuilderFactory controlBuilderFactory,
+            IRedwoodViewBuilder redwoodViewBuilder,
             IViewModelLoader viewModelLoader,
             IViewModelSerializer viewModelSerializer,
             IOutputRenderer outputRenderer
         )
         {
-            MarkupFileLoader = markupFileLoader;
-            ControlBuilderFactory = controlBuilderFactory;
+            RedwoodViewBuilder = redwoodViewBuilder;
             ViewModelLoader = viewModelLoader;
             ViewModelSerializer = viewModelSerializer;
             OutputRenderer = outputRenderer;
@@ -105,13 +100,9 @@ namespace Redwood.Framework.Hosting
                 return;
             }
 
-            // get the page markup
-            var markup = MarkupFileLoader.GetMarkup(context);
-
-            // build the page
-            var pageBuilder = ControlBuilderFactory.GetControlBuilder(markup);
-            var page = pageBuilder() as RedwoodView;
-
+            // build the page view
+            var page = RedwoodViewBuilder.BuildView(context);
+            
             // locate and create the view model
             var viewModel = ViewModelLoader.InitializeViewModel(context, page);
             page.DataContext = viewModel;

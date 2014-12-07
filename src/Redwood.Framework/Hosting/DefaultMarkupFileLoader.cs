@@ -8,8 +8,9 @@ namespace Redwood.Framework.Hosting
     public class DefaultMarkupFileLoader : IMarkupFileLoader
     {
 
+
         /// <summary>
-        /// Loads the markup.
+        /// Gets the markup file from the current request URL.
         /// </summary>
         public MarkupFile GetMarkup(RedwoodRequestContext context)
         {
@@ -20,12 +21,25 @@ namespace Redwood.Framework.Hosting
                 throw new Exception("The view must be a file with the .rwhtml extension!");     // TODO: exception handling
             }
 
+            return GetMarkupCore(context, fileName);
+        }
+
+        /// <summary>
+        /// Gets the markup file for the specified virtual path.
+        /// </summary>
+        public MarkupFile GetMarkup(RedwoodRequestContext context, string virtualPath)
+        {
+            return GetMarkupCore(context, virtualPath);
+        }
+
+        private static MarkupFile GetMarkupCore(RedwoodRequestContext context, string fileName)
+        {
             // check that we are not outside application directory
             var fullPath = Path.Combine(context.Configuration.ApplicationPhysicalPath, fileName);
             fullPath = Path.GetFullPath(fullPath);
             if (!fullPath.StartsWith(context.Configuration.ApplicationPhysicalPath, StringComparison.CurrentCultureIgnoreCase))
             {
-                throw new Exception("The view cannot be located outside the website directory!");
+                throw new Exception("The view cannot be located outside the website directory!");     // TODO: exception handling
             }
 
             // load the file

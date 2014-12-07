@@ -31,8 +31,10 @@ namespace Redwood.Framework.Routing
         public IRedwoodPresenter CreateDefaultPresenter()
         {
             return new RedwoodPresenter(
-                new DefaultMarkupFileLoader(),
-                new DefaultControlBuilderFactory(new DefaultViewCompiler(new DefaultControlResolver(configuration))),
+                new DefaultRedwoodViewBuilder( 
+                    new DefaultMarkupFileLoader(),
+                    new DefaultControlBuilderFactory(new DefaultViewCompiler(new DefaultControlResolver(configuration)))
+                ),
                 new DefaultViewModelLoader(),
                 new ViewModelSerializer(),
                 new DefaultOutputRenderer()

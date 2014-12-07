@@ -164,6 +164,9 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="sample3.rwhtml" />
+    <Content Include="sample4.rwhtml" />
+    <Content Include="sample4_parent.rwhtml" />
+    <Content Include="sample4_root.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
