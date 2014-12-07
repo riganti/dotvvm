@@ -84,6 +84,8 @@
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\CheckBox.cs" />
     <Compile Include="Controls\ComboBox.cs" />
+    <Compile Include="Controls\Content.cs" />
+    <Compile Include="Controls\ContentPlaceHolder.cs" />
     <Compile Include="Controls\DataItemContainer.cs" />
     <Compile Include="Controls\HtmlGenericControl.cs" />
     <Compile Include="Controls\HtmlWriter.cs" />
@@ -111,6 +113,7 @@
     <Compile Include="Hosting\DefaultControlBuilderFactory.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\DefaultOutputRenderer.cs" />
+    <Compile Include="Hosting\DefaultRedwoodViewBuilder.cs" />
     <Compile Include="Hosting\DefaultViewModelLocator.cs" />
     <Compile Include="Hosting\ErrorPageTemplate.cs">
       <AutoGen>True</AutoGen>
@@ -122,6 +125,7 @@
     <Compile Include="Hosting\IMarkupFileLoader.cs" />
     <Compile Include="Hosting\IOutputRenderer.cs" />
     <Compile Include="Hosting\IRedwoodPresenter.cs" />
+    <Compile Include="Hosting\IRedwoodViewBuilder.cs" />
     <Compile Include="Hosting\IViewModelLoader.cs" />
     <Compile Include="Hosting\IViewModelSerializer.cs" />
     <Compile Include="Hosting\MarkupFile.cs" />
@@ -131,6 +135,7 @@
     <Compile Include="Hosting\RedwoodRequestContext.cs" />
     <Compile Include="Hosting\ViewModelSerializer.cs" />
     <Compile Include="KnockoutHelper.cs" />
+    <Compile Include="Parser\Constants.cs" />
     <Compile Include="Parser\ParserException.cs" />
     <Compile Include="Parser\IReader.cs" />
     <Compile Include="Parser\RwHtml\Parser\RwHtmlAttributeNode.cs" />

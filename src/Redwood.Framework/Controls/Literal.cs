@@ -1,3 +1,6 @@
+using System;
+using System.Linq;
+using System.Net;
 using Redwood.Framework.Binding;
 
 namespace Redwood.Framework.Controls
@@ -75,6 +78,14 @@ namespace Redwood.Framework.Controls
             }
         }
 
-        
+
+        /// <summary>
+        /// Determines whether the literal contains only white space.
+        /// </summary>
+        public bool IsWhiteSpaceOnly()
+        {
+            var unencodedValue = HtmlEncode ? Text : WebUtility.HtmlDecode(Text);
+            return unencodedValue.All(char.IsWhiteSpace);
+        }
     }
 }
