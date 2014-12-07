@@ -12,6 +12,7 @@ namespace Redwood.Framework.Hosting
     public class RedwoodRequestContext
     {
 
+
         public IOwinContext OwinContext { get; internal set; }
         
         public IRedwoodPresenter Presenter { get; internal set; }
@@ -21,5 +22,7 @@ namespace Redwood.Framework.Hosting
         public RouteBase Route { get; internal set; }
 
         public bool IsPostBack { get; internal set; }
+
+        public IDictionary<string, object> Parameters { get; set; }
     }
 }

@@ -132,23 +132,25 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             }
         }
 
-        
 
+        static readonly HashSet<char> EnabledIdentifierChars = new HashSet<char>()
+        {
+            ':', '_', '-', '.'
+        };
         /// <summary>
         /// Reads the identifier.
         /// </summary>
         private bool ReadIdentifier(params char[] stopChars)
         {
+            // read first character
+
+            if (!char.IsLetter(Peek()) && Peek() != '_' && !stopChars.Contains(Peek()))
+                return false;
+
             // read identifier
-            var length = 0;
-            while (Char.IsLetterOrDigit(Peek()) && !stopChars.Contains(Peek()))
+            while ((Char.IsLetterOrDigit(Peek()) || EnabledIdentifierChars.Contains(Peek())) && !stopChars.Contains(Peek()))
             {
                 Read();
-                length++;
-            }
-            if (length == 0)
-            {
-                return false;
             }
             CreateToken(RwHtmlTokenType.Text);
 
@@ -338,6 +340,11 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // read open brace
             Debug.Assert(Peek() == '{');
             Read();
+            if (!doubleCloseBrace && Peek() == '{')
+            {
+                doubleCloseBrace = true;
+                Read();
+            }
             CreateToken(RwHtmlTokenType.OpenBinding);
 
             // read binding name

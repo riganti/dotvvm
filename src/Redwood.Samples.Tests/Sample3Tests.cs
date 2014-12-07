@@ -2,32 +2,31 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UITesting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Redwood.Framework.Tests.Samples.Sample2UIMapClasses;
+using Redwood.Samples.Tests.Sample3UIMapClasses;
 
 
-namespace Redwood.Framework.Tests.Samples
+namespace Redwood.Samples.Tests
 {
     [CodedUITest]
-    public class Sample2Tests
+    public class Sample3Tests
     {
-        public Sample2Tests()
+        public Sample3Tests()
         {
         }
 
         [TestMethod]
-        public void Sample2_BasicTest()
+        public void Sample3_BasicTest()
         {
             this.UIMap.LaunchSample();
-            this.UIMap.CheckSCB();
-            this.UIMap.VerifySCB();
-            this.UIMap.CheckMCB1();
-            this.UIMap.VerifyMCB1();
-            this.UIMap.CheckMCB2();
-            this.UIMap.VerifyMCB2();
-            this.UIMap.CheckRB1();
-            this.UIMap.VerifyRB1();
-            this.UIMap.CheckRB2();
-            this.UIMap.VerifyRB2();
+            this.UIMap.ChangePrice();
+            this.UIMap.CheckChangedPrice();
+            this.UIMap.AddAndFillThreeLines();
+            this.UIMap.Recalculate();
+            this.UIMap.VerifyPriceExpectedValues.UIItem463PaneInnerText = "496";
+            this.UIMap.VerifyPrice();
+            this.UIMap.RemoveSecondLine();
+            this.UIMap.VerifyPriceExpectedValues.UIItem463PaneInnerText = "463";
+            this.UIMap.VerifyPrice();
             this.UIMap.CloseBrowser();
         }
 
@@ -44,19 +43,19 @@ namespace Redwood.Framework.Tests.Samples
         }
         private TestContext testContextInstance;
 
-        public Sample2UIMap UIMap
+        public Sample3UIMap UIMap
         {
             get
             {
                 if ((this.map == null))
                 {
-                    this.map = new Sample2UIMap();
+                    this.map = new Sample3UIMap();
                 }
 
                 return this.map;
             }
         }
 
-        private Sample2UIMap map;
+        private Sample3UIMap map;
     }
 }

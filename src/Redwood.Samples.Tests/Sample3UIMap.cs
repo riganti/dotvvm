@@ -1,4 +1,4 @@
-﻿namespace Redwood.Framework.Tests.Samples.Sample1UIMapClasses
+﻿namespace Redwood.Samples.Tests.Sample3UIMapClasses
 {
     using System;
     using System.Collections.Generic;
@@ -14,7 +14,7 @@
     using System.Text.RegularExpressions;
     
     
-    public partial class Sample1UIMap
+    public partial class Sample3UIMap
     {
     }
 }

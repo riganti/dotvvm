@@ -145,9 +145,25 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             Assert.AreEqual("test", ((RwHtmlElementNode)nodes[1]).Attributes[0].Literal.Value);
         }
 
-        // TODO: add test for this double braces - it crashes on assert, possible bug in tokenizer <a href='{{value: test}}'/>
+        [TestMethod]
+        public void RwHtmlParser_Valid_DoubleBraceBindingInAttributeValue()
+        {
+            var markup = @"this <a href='{{value: test}}'/>";
+            var nodes = ParseMarkup(markup).Content;
 
+            Assert.AreEqual(2, nodes.Count);
 
+            Assert.IsInstanceOfType(nodes[0], typeof(RwHtmlLiteralNode));
+            Assert.AreEqual("this ", ((RwHtmlLiteralNode)nodes[0]).Value);
+
+            Assert.IsInstanceOfType(nodes[1], typeof(RwHtmlElementNode));
+            Assert.AreEqual("a", ((RwHtmlElementNode)nodes[1]).FullTagName);
+            Assert.AreEqual(0, ((RwHtmlElementNode)nodes[1]).Content.Count);
+
+            Assert.AreEqual("href", ((RwHtmlElementNode)nodes[1]).Attributes[0].Name);
+            Assert.AreEqual("value", ((RwHtmlBindingNode)((RwHtmlElementNode)nodes[1]).Attributes[0].Literal).Name);
+            Assert.AreEqual("test", ((RwHtmlElementNode)nodes[1]).Attributes[0].Literal.Value);
+        }
 
         private static RwHtmlRootNode ParseMarkup(string markup)
         {

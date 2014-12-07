@@ -2,27 +2,32 @@
 using System.Collections.Generic;
 using Microsoft.VisualStudio.TestTools.UITesting;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Redwood.Framework.Tests.Samples.Sample1UIMapClasses;
+using Redwood.Samples.Tests.Sample2UIMapClasses;
 
 
-namespace Redwood.Framework.Tests.Samples
+namespace Redwood.Samples.Tests
 {
     [CodedUITest]
-    public class Sample1Tests
+    public class Sample2Tests
     {
-        public Sample1Tests()
+        public Sample2Tests()
         {
         }
 
         [TestMethod]
-        public void Sample1_BasicTest()
+        public void Sample2_BasicTest()
         {
             this.UIMap.LaunchSample();
-            this.UIMap.AddTask();
-            this.UIMap.FinishLastTask();
-            this.UIMap.VerifyLastTaskFinished();
-            this.UIMap.FinishFirstTask();
-            this.UIMap.VerifyFirstTaskFinished();
+            this.UIMap.CheckSCB();
+            this.UIMap.VerifySCB();
+            this.UIMap.CheckMCB1();
+            this.UIMap.VerifyMCB1();
+            this.UIMap.CheckMCB2();
+            this.UIMap.VerifyMCB2();
+            this.UIMap.CheckRB1();
+            this.UIMap.VerifyRB1();
+            this.UIMap.CheckRB2();
+            this.UIMap.VerifyRB2();
             this.UIMap.CloseBrowser();
         }
 
@@ -39,19 +44,19 @@ namespace Redwood.Framework.Tests.Samples
         }
         private TestContext testContextInstance;
 
-        public Sample1UIMap UIMap
+        public Sample2UIMap UIMap
         {
             get
             {
                 if ((this.map == null))
                 {
-                    this.map = new Sample1UIMap();
+                    this.map = new Sample2UIMap();
                 }
 
                 return this.map;
             }
         }
 
-        private Sample1UIMap map;
+        private Sample2UIMap map;
     }
 }

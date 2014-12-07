@@ -30,7 +30,7 @@ namespace Redwood.Framework.Hosting
         {
             // try resolve the route
             var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
-            IDictionary<string, object> parameters;
+            IDictionary<string, object> parameters = null;
             var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
 
             if (route != null)
@@ -40,7 +40,8 @@ namespace Redwood.Framework.Hosting
                 {
                     Route = route,
                     OwinContext = context, 
-                    Configuration = configuration
+                    Configuration = configuration,
+                    Parameters = parameters
                 });
             }
             else
