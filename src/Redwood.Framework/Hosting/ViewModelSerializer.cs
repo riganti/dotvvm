@@ -5,6 +5,9 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Controls;
+using Redwood.Framework.ViewModel;
+using System.Text;
+using System.IO;
 
 namespace Redwood.Framework.Hosting
 {
@@ -20,7 +23,14 @@ namespace Redwood.Framework.Hosting
         {
             // TODO: add the control state to the view model map
 
-            return JsonConvert.SerializeObject(viewModel);
+            var serializer = new JsonSerializer();
+            serializer.Converters.Add(new ViewModelJsonConverter());
+            var sb = new StringBuilder();
+            using(var jw = new StringWriter(sb))
+            {
+                serializer.Serialize(jw, viewModel);
+            }
+            return sb.ToString();
         }
 
         /// <summary>

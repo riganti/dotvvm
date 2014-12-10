@@ -185,12 +185,18 @@
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
+    <Compile Include="ViewModel\CryptoSettings.cs" />
     <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IRedwoodViewModel.cs" />
     <Compile Include="ViewModel\IViewModelSerializationHandler.cs" />
     <Compile Include="ViewModel\KeyPropertyAttribute.cs" />
     <Compile Include="ViewModel\PropertyOptionsAttribute.cs" />
     <Compile Include="ViewModel\RedwoodViewModelBase.cs" />
+    <Compile Include="ViewModel\ViewModelJsonConverter.cs" />
+    <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
+    <Compile Include="ViewModel\ViewModelSerializationMap.cs" />
+    <Compile Include="ViewModel\ViewModelSerializationMapper.cs" />
+    <Compile Include="ViewModel\ViewModelSerializationSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -213,6 +219,7 @@
     </None>
     <None Include="packages.config" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
