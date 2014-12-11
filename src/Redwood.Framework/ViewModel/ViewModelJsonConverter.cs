@@ -23,12 +23,20 @@ namespace Redwood.Framework.ViewModel
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            return Maps[objectType].Reader(JObject.Load(reader), serializer);
+            var map = Maps[objectType];
+            var instance = map.Construct();
+            map.Reader(JObject.Load(reader), serializer, instance);
+            return instance;
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             Maps[value.GetType()].Writer(writer, value, serializer);
+        }
+
+        public virtual void Populate(JObject jobj, JsonSerializer serializer, object value)
+        {
+            Maps[value.GetType()].Reader(jobj, serializer, value);
         }
     }
 }

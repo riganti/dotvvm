@@ -31,7 +31,7 @@ namespace Redwood.Framework.ViewModel
             return Convert.ToBase64String(encrypted);
         }
 
-        public static object DecryptSerialize(string data, Type type = null)
+        public static object DecryptDeserialize(string data, Type type = null)
         {
             var encrypted = Convert.FromBase64String(data);
             var encoded = DecryptInternal(encrypted, 0, encrypted.Length);
@@ -62,10 +62,13 @@ namespace Redwood.Framework.ViewModel
                     using (var cs = new CryptoStream(ms, encryptor, CryptoStreamMode.Write))
                     {
                         cs.Write(message, offset, length);
+
+                        cs.FlushFinalBlock();
+
+                        // write mac
+                        var mac = MacInternal(ms.ToArray(), offset, (int)ms.Position);
+                        ms.Write(mac, 0, mac.Length);
                     }
-                    // write mac
-                    var mac = MacInternal(message, offset, length);
-                    ms.Write(mac, 0, mac.Length);
                     return ms.ToArray();
                 }
             }
@@ -82,12 +85,13 @@ namespace Redwood.Framework.ViewModel
             {
                 aes.Key = EncryptionKey;
                 aes.Mode = CipherMode.CBC;
-
+                var iv = new byte[16];
                 // read Initialization vector
-                for (int i = 0; i < aes.IV.Length; i++)
+                for (int i = 0; i < iv.Length; i++)
                 {
-                    aes.IV[i] = cipherText[i];
+                    iv[i] = cipherText[i];
                 }
+                aes.IV = iv;
 
                 using (var plaintext = new MemoryStream())
                 {
@@ -130,7 +134,7 @@ namespace Redwood.Framework.ViewModel
         {
             using (var m = new HMACSHA512(MacKey))
             {
-                return m.ComputeHash(message);
+                return m.ComputeHash(message, offset, length);
             }
         }
     }

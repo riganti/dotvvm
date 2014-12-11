@@ -13,26 +13,41 @@ namespace Redwood.Framework.ViewModel
     {
         public Type Type { get; set; }
         public IEnumerable<ViewModelPropertyMap> Properties = new List<ViewModelPropertyMap>();
-        Func<JObject, JsonSerializer, object> readerFn;
-        public Func<JObject, JsonSerializer, object> Reader
+
+        Action<JObject, JsonSerializer, object> readerFn;
+        public Action<JObject, JsonSerializer, object> Reader
         {
             get { return readerFn ?? (readerFn = CreateReader()); }
         }
+
         Action<JsonWriter, object, JsonSerializer> writerFn;
         public Action<JsonWriter, object, JsonSerializer> Writer
         {
             get { return writerFn ?? (writerFn = CreateWriter()); }
         }
 
-        public Func<JObject, JsonSerializer, object> CreateReader()
+        Func<object> constructFn;
+        public Func<object> Construct
+        {
+            get { return constructFn ?? (constructFn = CreateConstructor()); }
+        }
+
+        public Func<object> CreateConstructor()
+        {
+            var ex = Expression.Lambda<Func<object>>(Expression.New(Type));
+            return ex.Compile();
+        }
+
+        public Action<JObject, JsonSerializer, object> CreateReader()
         {
             var block = new List<Expression>();
             var returnTarget = Expression.Label();
             var jobj = Expression.Parameter(typeof(JObject), "jobj");
             var serializer = Expression.Parameter(typeof(JsonSerializer), "serializer");
+            var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var value = Expression.Variable(Type, "value");
             // value = new {Type}();
-            block.Add(Expression.Assign(value, Expression.New(Type)));
+            block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
             block.AddRange(Properties.Select(p =>
             {
@@ -43,7 +58,13 @@ namespace Redwood.Framework.ViewModel
                             typeof(JObject).GetProperty("Item", typeof(JObject), new[] { typeof(string) }), Expression.Constant(p.Name)),
                         "CreateReader", Type.EmptyTypes);
 
-                var callDeserialize = Expression.Call(serializer, typeof(JsonSerializer).GetMethod("Deserialize", new [] { typeof(JsonReader), typeof(Type) }), propReader, Expression.Constant(p.Type));
+                Expression callDeserialize;
+                if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
+                    callDeserialize = Expression.Call(typeof(CryptoSerializer).GetMethod("DecryptDeserialize"), Expression.Call(propReader, "ReadAsString", Type.EmptyTypes), Expression.Constant(p.Type));
+
+                else callDeserialize = Expression.Call(serializer, typeof(JsonSerializer).GetMethod("Deserialize", new[] { typeof(JsonReader), typeof(Type) }), propReader, Expression.Constant(p.Type));
+
+
 
                 // value.{p.Name} = 
                 return Expression.Call(
@@ -59,7 +80,7 @@ namespace Redwood.Framework.ViewModel
             //block.Add(Expression.Label(returnTarget));
             block.Add(value);
 
-            var ex = Expression.Lambda<Func<JObject, JsonSerializer, object>>(Expression.Convert(Expression.Block(Type, new[] { value }, block), typeof(object)), jobj, serializer);
+            var ex = Expression.Lambda<Action<JObject, JsonSerializer, object>>(Expression.Convert(Expression.Block(Type, new[] { value }, block), typeof(object)), jobj, serializer, valueParam);
             return ex.Compile();
         }
 
@@ -80,8 +101,14 @@ namespace Redwood.Framework.ViewModel
                 // writer.WritePropertyName("{p.Name"});
                 block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(p.Name)));
 
-                // serializer.Serialize(writer, value.{p.Name});
-                block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, Expression.Property(value, p.Name)));
+                var prop = Expression.Convert(Expression.Property(value, p.Name), typeof(object));
+
+                if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
+                    // writer.WriteValue(CryptoSerializer.EncryptSerialize(value.{p.Name}));
+                    block.Add(Expression.Call(writer, typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }), Expression.Call(typeof(CryptoSerializer).GetMethod("EncryptSerialize"), prop)));
+                else
+                    // serializer.Serialize(writer, value.{p.Name});
+                    block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
             }
 
             block.Add(Expression.Call(writer, "WriteEndObject", Type.EmptyTypes));
@@ -91,7 +118,6 @@ namespace Redwood.Framework.ViewModel
 
             return ex.Compile();
         }
-
 
     }
 }

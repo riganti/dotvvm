@@ -26,7 +26,7 @@ namespace Redwood.Framework.Hosting
             var serializer = new JsonSerializer();
             serializer.Converters.Add(new ViewModelJsonConverter());
             var sb = new StringBuilder();
-            using(var jw = new StringWriter(sb))
+            using (var jw = new StringWriter(sb))
             {
                 serializer.Serialize(jw, viewModel);
             }
@@ -44,8 +44,13 @@ namespace Redwood.Framework.Hosting
 
             // populate the view model map
             var serializer = new JsonSerializer();
-            serializer.Converters.Add(new ViewModelJsonConverter());
-            serializer.Populate(data["viewModel"].CreateReader(), viewModel);
+            var vmconv = new ViewModelJsonConverter();
+            serializer.Converters.Add(vmconv);
+
+            if (vmconv.CanConvert(viewModel.GetType()))
+                vmconv.Populate(data["viewModel"] as JObject, serializer, viewModel);
+            else
+                serializer.Populate(data["viewModel"].CreateReader(), viewModel);
 
             // TODO: restore control state
 

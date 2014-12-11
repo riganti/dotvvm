@@ -65,9 +65,9 @@ namespace Redwood.Framework.ViewModel
         /// <returns></returns>
         public static IEnumerable<Type> GetAllViewModels()
         {
-            var redwoodAssembly = typeof(IRedwoodViewModel).Assembly.GetName();
+            var redwoodAssembly = typeof(IRedwoodViewModel).Assembly.FullName;
             // include assemblies with redwood referenced to improve performance
-            return AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetReferencedAssemblies().Contains(redwoodAssembly)).SelectMany(GetAllViewModels);
+            return AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetReferencedAssemblies().Any(r => r.FullName == redwoodAssembly)).SelectMany(GetAllViewModels);
         }
 
         public static IEnumerable<ViewModelSerializationMap> MapAllViewModels()

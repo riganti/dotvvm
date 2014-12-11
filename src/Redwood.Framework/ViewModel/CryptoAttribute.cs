@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace Redwood.Framework.ViewModel
 {
     [AttributeUsage(AttributeTargets.Property, Inherited = false, AllowMultiple = false)]
-    sealed class CryptoAttribute : Attribute
+    public sealed class CryptoAttribute : Attribute
     {
         public CryptoSettings Settings { get; private set; }
 
