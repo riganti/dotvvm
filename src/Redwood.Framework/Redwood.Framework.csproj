@@ -185,6 +185,8 @@
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
+    <Compile Include="ViewModel\CryptoAttribute.cs" />
+    <Compile Include="ViewModel\CryptoSerializer.cs" />
     <Compile Include="ViewModel\CryptoSettings.cs" />
     <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IRedwoodViewModel.cs" />

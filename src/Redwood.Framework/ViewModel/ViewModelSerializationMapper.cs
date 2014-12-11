@@ -28,11 +28,21 @@ namespace Redwood.Framework.ViewModel
 
                 var map = new ViewModelPropertyMap();
                 map.Name = p.Name;
-                // TODO: realy read attributes
                 map.Crypto = CryptoSettings.None;
                 map.Type = p.PropertyType;
                 map.TransferToClient = true;
                 map.TransferToServer = true;
+
+                var bind = p.GetCustomAttribute<BindAttribute>();
+                if(bind != null && bind.Direction != Direction.TwoWay)
+                {
+                    map.TransferToClient = bind.Direction == Direction.OneWay;
+                    map.TransferToServer = bind.Direction == Direction.OneWayToSource;
+                }
+
+                var crypto = p.GetCustomAttribute<CryptoAttribute>();
+                if (crypto != null) map.Crypto = crypto.Settings;
+
                 yield return map;
             }
         }

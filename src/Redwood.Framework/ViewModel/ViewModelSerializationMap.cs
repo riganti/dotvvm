@@ -75,21 +75,13 @@ namespace Redwood.Framework.ViewModel
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
 
 
-            foreach (var p in Properties)
+            foreach (var p in Properties.Where(map => map.TransferToClient))
             {
                 // writer.WritePropertyName("{p.Name"});
                 block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(p.Name)));
 
-                block.Add(Expression.Call(typeof(Debug).GetMethod("WriteLine", new Type[] { typeof(string) }), Expression.Constant("serializing " + p.Name)));
-
                 // serializer.Serialize(writer, value.{p.Name});
-                block.Add(Expression.Call(
-                    serializer,
-                    "Serialize",
-                    Type.EmptyTypes,
-                    writer,
-                    Expression.Property(value, p.Name)
-                ));
+                block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, Expression.Property(value, p.Name)));
             }
 
             block.Add(Expression.Call(writer, "WriteEndObject", Type.EmptyTypes));
@@ -99,5 +91,7 @@ namespace Redwood.Framework.ViewModel
 
             return ex.Compile();
         }
+
+
     }
 }
