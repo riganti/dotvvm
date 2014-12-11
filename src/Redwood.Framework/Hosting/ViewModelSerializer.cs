@@ -44,6 +44,7 @@ namespace Redwood.Framework.Hosting
 
             // populate the view model map
             var serializer = new JsonSerializer();
+            serializer.Converters.Add(new ViewModelJsonConverter());
             serializer.Populate(data["viewModel"].CreateReader(), viewModel);
 
             // TODO: restore control state
