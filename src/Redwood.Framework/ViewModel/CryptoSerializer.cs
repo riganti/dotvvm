@@ -42,6 +42,25 @@ namespace Redwood.Framework.ViewModel
         }
 
         /// <summary>
+        /// returns base64 encoded HMAC SHA512 MAC of object
+        /// </summary>
+        public static string MacSerialize(object obj)
+        {
+            var json = JsonConvert.SerializeObject(obj);
+            var encoded = Encoding.UTF8.GetBytes(json);
+            var mac = MacInternal(encoded, 0, encoded.Length);
+            return Convert.ToBase64String(mac);
+        }
+
+        public static void CheckObjectMac(object obj, string macb64)
+        {
+            var json = JsonConvert.SerializeObject(obj);
+            var encoded = Encoding.UTF8.GetBytes(json);
+            var mac = Convert.FromBase64String(macb64);
+            if (!CheckMac(encoded, 0, encoded.Length, mac, 0)) throw new CryptographicException("invalid mac");
+        }
+
+        /// <summary>
         /// Encrypts the message using AES CBC mode and adds HMAC SHA512 mac
         /// </summary>
         /// <returns></returns>
@@ -117,12 +136,22 @@ namespace Redwood.Framework.ViewModel
             var macIndex = message.Length - 64;
             var mac = MacInternal(message, 0, macIndex);
 
+            return CheckMac(message, 0, macIndex, message, macIndex);
+        }
+
+        /// <summary>
+        /// Check if mac is correct for message
+        /// </summary>
+        static bool CheckMac(byte[] message, int msgOffset, int msgLen, byte[] mac, int macOffset)
+        {
+            var msgMac = MacInternal(message, msgOffset, msgLen);
+
             int result = 0;
-            for (int i = 0; i < mac.Length; i++)
+            for (int i = 0; i < msgMac.Length; i++)
             {
                 // TODO: check if compiler is not optimizing this
                 // this should switch some bits in result to 1, iff mac is wrong
-                result |= mac[i] ^ message[macIndex + i];
+                result |= msgMac[i] ^ mac[macOffset + i];
             }
             return result == 0;
         }

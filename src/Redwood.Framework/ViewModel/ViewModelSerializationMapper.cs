@@ -41,7 +41,8 @@ namespace Redwood.Framework.ViewModel
                 }
 
                 var crypto = p.GetCustomAttribute<CryptoAttribute>();
-                if (crypto != null) map.Crypto = crypto.Settings;
+                if (crypto != null)
+                    map.Crypto = crypto.Settings;
 
                 yield return map;
             }

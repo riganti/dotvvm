@@ -49,7 +49,7 @@ namespace Redwood.Framework.ViewModel
             // value = new {Type}();
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
-            foreach(var p in Properties)
+            foreach (var p in Properties)
             {
                 var propInfo = Type.GetProperty(p.Name);
                 // when client should not send it or does not contain set method skip it
@@ -70,8 +70,6 @@ namespace Redwood.Framework.ViewModel
                         Expression.Call(propReader, "ReadAsString", Type.EmptyTypes),
                         Expression.Constant(p.Type));
 
-                else if (p.Crypto == CryptoSettings.Mac) throw new NotImplementedException("MACing is currently not supported");
-
                 else callDeserialize = Expression.Call(serializer,
                     typeof(JsonSerializer).GetMethod("Deserialize", new[] { typeof(JsonReader), typeof(Type) }),
                     propReader, Expression.Constant(p.Type));
@@ -84,11 +82,19 @@ namespace Redwood.Framework.ViewModel
                         Type.GetProperty(p.Name).SetMethod,
                         Expression.Convert(callDeserialize, p.Type)
                 )));
+
+                if (p.Crypto == CryptoSettings.Mac)
+                {
+                    block.Add(Expression.Call(typeof(CryptoSerializer).GetMethod("CheckObjectMac"),
+                        Expression.Property(value, p.Name),
+                        Expression.Convert(Expression.Property(jobj,
+                            typeof(JObject).GetProperty("Item", typeof(JObject), new[] { typeof(string) }),
+                            Expression.Constant(p.Name + "$mac")), typeof(string))
+
+                    ));
+                }
             };
 
-            // return value;
-            //block.Add(Expression.Return(returnTarget, Expression.Convert(value, typeof(object))));
-            //block.Add(Expression.Label(returnTarget));
             block.Add(value);
 
             var ex = Expression.Lambda<Action<JObject, JsonSerializer, object>>(Expression.Convert(Expression.Block(Type, new[] { value }, block), typeof(object)), jobj, serializer, valueParam);
@@ -117,10 +123,19 @@ namespace Redwood.Framework.ViewModel
                 if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
                     // writer.WriteValue(CryptoSerializer.EncryptSerialize(value.{p.Name}));
                     block.Add(Expression.Call(writer, typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }), Expression.Call(typeof(CryptoSerializer).GetMethod("EncryptSerialize"), prop)));
-                else if (p.Crypto == CryptoSettings.Mac) throw new NotImplementedException();
-                else if (p.TransferToClient) // write only if transfer to client
+                else
                     // serializer.Serialize(writer, value.{p.Name});
                     block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
+
+                // write MAC
+                if (p.Crypto == CryptoSettings.Mac)
+                {
+                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(p.Name + "$mac")));
+                    block.Add(Expression.Call(writer,
+                        typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }),
+                        Expression.Call(typeof(CryptoSerializer).GetMethod("MacSerialize"),
+                        prop)));
+                }
             }
 
             block.Add(Expression.Call(writer, "WriteEndObject", Type.EmptyTypes));

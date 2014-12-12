@@ -11,6 +11,9 @@ namespace Redwood.Samples.BasicSamples.ViewModels
         [CryptoAttribute(CryptoSettings.AuthenticatedEncrypt)]
         public string Secret { get; set; }
 
+        [Crypto(CryptoSettings.Mac)]
+        public string ReadOnly { get; set; }
+
         public string NewTaskTitle { get; set; }
 
         public List<TaskViewModel> Tasks { get; set; }
@@ -24,6 +27,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
         {
             if (!Context.IsPostBack)
             {
+                ReadOnly = "MACed data.";
                 Secret = "Realy secret internal data";
                 Tasks.Add(new TaskViewModel() { IsCompleted = false, TaskId = Guid.NewGuid(), Title = "Do the laundry" });
                 Tasks.Add(new TaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Wash the car" });
