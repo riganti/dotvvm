@@ -30,8 +30,8 @@ namespace Redwood.Framework.ViewModel
                 map.Name = p.Name;
                 map.Crypto = CryptoSettings.None;
                 map.Type = p.PropertyType;
-                map.TransferToClient = true;
-                map.TransferToServer = true;
+                map.TransferToClient = p.GetMethod != null;
+                map.TransferToServer = p.SetMethod != null;
 
                 var bind = p.GetCustomAttribute<BindAttribute>();
                 if(bind != null && bind.Direction != Direction.TwoWay)

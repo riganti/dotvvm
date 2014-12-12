@@ -49,31 +49,42 @@ namespace Redwood.Framework.ViewModel
             // value = new {Type}();
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
-            block.AddRange(Properties.Select(p =>
+            foreach(var p in Properties)
             {
-                // jobj["{p.Name}"].CreateReader()
-                var propReader =
-                    Expression.Call(
-                        Expression.Property(jobj,
-                            typeof(JObject).GetProperty("Item", typeof(JObject), new[] { typeof(string) }), Expression.Constant(p.Name)),
-                        "CreateReader", Type.EmptyTypes);
+                var propInfo = Type.GetProperty(p.Name);
+                // when client should not send it or does not contain set method skip it
+                if (!p.TransferToServer || propInfo.SetMethod == null) continue;
+
+                // jobj["{p.Name}"]
+                var jsonProp = Expression.Property(jobj,
+                            typeof(JObject).GetProperty("Item", typeof(JObject), new[] { typeof(string) }),
+                            Expression.Constant(p.Name));
+                // jobj["{p.Name}"].CreateReader();
+                var propReader = Expression.Call(jsonProp, "CreateReader", Type.EmptyTypes);
 
                 Expression callDeserialize;
                 if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
-                    callDeserialize = Expression.Call(typeof(CryptoSerializer).GetMethod("DecryptDeserialize"), Expression.Call(propReader, "ReadAsString", Type.EmptyTypes), Expression.Constant(p.Type));
+                    // CryptoSerializer.DecryptDeserialize(jobj["{p.Name}"].CreateReader().ReadAsString(), {p.Type})
+                    callDeserialize = Expression.Call(
+                        typeof(CryptoSerializer).GetMethod("DecryptDeserialize"),
+                        Expression.Call(propReader, "ReadAsString", Type.EmptyTypes),
+                        Expression.Constant(p.Type));
 
-                else callDeserialize = Expression.Call(serializer, typeof(JsonSerializer).GetMethod("Deserialize", new[] { typeof(JsonReader), typeof(Type) }), propReader, Expression.Constant(p.Type));
+                else if (p.Crypto == CryptoSettings.Mac) throw new NotImplementedException("MACing is currently not supported");
 
+                else callDeserialize = Expression.Call(serializer,
+                    typeof(JsonSerializer).GetMethod("Deserialize", new[] { typeof(JsonReader), typeof(Type) }),
+                    propReader, Expression.Constant(p.Type));
 
-
-                // value.{p.Name} = 
-                return Expression.Call(
-                    value,
-                    Type.GetProperty(p.Name).SetMethod,
-                    // serializer.Deserialize();
-                    Expression.Convert(callDeserialize, p.Type)
-                );
-            }));
+                // if (jobj["{p.Name}"] != null) value.{p.Name} = deserialize();
+                block.Add(
+                    Expression.IfThen(Expression.NotEqual(jsonProp, Expression.Constant(null)),
+                        Expression.Call(
+                        value,
+                        Type.GetProperty(p.Name).SetMethod,
+                        Expression.Convert(callDeserialize, p.Type)
+                )));
+            };
 
             // return value;
             //block.Add(Expression.Return(returnTarget, Expression.Convert(value, typeof(object))));
@@ -106,7 +117,8 @@ namespace Redwood.Framework.ViewModel
                 if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
                     // writer.WriteValue(CryptoSerializer.EncryptSerialize(value.{p.Name}));
                     block.Add(Expression.Call(writer, typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }), Expression.Call(typeof(CryptoSerializer).GetMethod("EncryptSerialize"), prop)));
-                else
+                else if (p.Crypto == CryptoSettings.Mac) throw new NotImplementedException();
+                else if (p.TransferToClient) // write only if transfer to client
                     // serializer.Serialize(writer, value.{p.Name});
                     block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
             }

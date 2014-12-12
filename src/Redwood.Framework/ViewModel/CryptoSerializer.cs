@@ -79,7 +79,7 @@ namespace Redwood.Framework.ViewModel
         /// </summary>
         static byte[] DecryptInternal(byte[] cipherText, int offset, int length)
         {
-            if (!CheckMac(cipherText)) throw new InvalidDataException("mac of message is incorrect");
+            if (!CheckMac(cipherText)) throw new CryptographicException("mac of message is incorrect");
 
             using (var aes = new RijndaelManaged())
             {
