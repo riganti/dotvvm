@@ -83,6 +83,8 @@
     <Compile Include="Controls\Bootstrap\HorizontalForm.cs" />
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\HtmlResource.cs" />
+    <Compile Include="Controls\ResourceManager.cs" />
     <Compile Include="Controls\ComboBox.cs" />
     <Compile Include="Controls\Content.cs" />
     <Compile Include="Controls\ContentPlaceHolder.cs" />
@@ -109,6 +111,7 @@
     <Compile Include="Controls\MarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />
+    <Compile Include="Controls\ScriptResource.cs" />
     <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Hosting\DefaultControlBuilderFactory.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />

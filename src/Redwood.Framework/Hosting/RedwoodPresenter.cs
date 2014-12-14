@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ViewModel;
+using System.Diagnostics;
 
 namespace Redwood.Framework.Hosting
 {
