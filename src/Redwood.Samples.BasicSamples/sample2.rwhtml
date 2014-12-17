@@ -6,6 +6,8 @@
 	<link rel="stylesheet" href="Content/bootstrap/bootstrap.min.css" />
 	<script src="Scripts/jquery-2.1.1.min.js"></script>
 	<script src="Scripts/bootstrap.min.js"></script>
+
+	<rw:ResourceLinks />
 </head>
 <body>
 	<div class="container">
@@ -73,7 +75,5 @@
 			</div>
 		</div>
 	</div>
-
-	<rw:IntegrationScripts />
 </body>
 </html>

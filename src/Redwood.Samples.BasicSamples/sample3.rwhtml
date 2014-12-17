@@ -12,6 +12,7 @@
 		text-decoration: line-through;
 	}
 	</style>
+	<rw:ResourceLinks />
 </head>
 <body>
 	<div class="container">
@@ -97,7 +98,5 @@
 			</div>
 		</div>
 	</div>
-
-	<rw:IntegrationScripts />
 </body>
 </html>

@@ -12,6 +12,8 @@ namespace Redwood.Framework.Controls
 
         internal Dictionary<RedwoodProperty, object> Properties = new Dictionary<RedwoodProperty, object>();
 
+        protected List<HtmlResource> ResourceDependencies = new List<HtmlResource>();
+
 
         /// <summary>
         /// Gets the parent control.
@@ -111,6 +113,22 @@ namespace Redwood.Framework.Controls
             foreach (var child in Children)
             {
                 child.Render(writer, context);
+            }
+        }
+
+        /// <summary>
+        /// prepares rendering (registers resources)
+        /// </summary>
+        /// <param name="renderContext"></param>
+        public virtual void PrepareRender(RenderContext renderContext)
+        {
+            foreach (var resource in ResourceDependencies)
+            {
+                renderContext.ResourceManager.AddResource(resource);
+            }
+            foreach (var child in Children)
+            {
+                child.PrepareRender(renderContext);
             }
         }
 

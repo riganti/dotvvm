@@ -17,7 +17,9 @@ namespace Redwood.Framework.Hosting
                 RedwoodRequestContext = context,
                 SerializedViewModel = serializedViewModel
             };
-            
+            // prepare view to rendering
+            view.PrepareRender(renderContext);
+
             // get the HTML
             using (var textWriter = new StringWriter())
             {

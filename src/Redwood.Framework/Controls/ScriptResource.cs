@@ -9,15 +9,17 @@ namespace Redwood.Framework.Controls
     public class ScriptResource: HtmlResource
     {
         public string LoadCheckObject { get; set; }
-        public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, IEnumerable<HtmlResource> prereq = null)
+        public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, IEnumerable<HtmlResource> prereq)
         {
             this.Prerequisities = prereq ?? new HtmlResource[0];
             this.LocalUri = localAddr;
             this.CdnUri = cdnAddr;
             this.LoadCheckObject = loadCheckObject;
         }
+        public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, params HtmlResource[] prereq) : this(localAddr, cdnAddr, loadCheckObject, prereq as IEnumerable<HtmlResource>) { }
 
-        public ScriptResource(string localAddr, IEnumerable<HtmlResource> prereq = null) : this(localAddr, null, null, prereq) { }
+        public ScriptResource(string localAddr, IEnumerable<HtmlResource> prereq) : this(localAddr, null, null, prereq) { }
+        public ScriptResource(string localAddr, params HtmlResource[] prereq) : this(localAddr, null, null, prereq) { }
 
         private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'></script>\"";
         public override void Render(IHtmlWriter writer)

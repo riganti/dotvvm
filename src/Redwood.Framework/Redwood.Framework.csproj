@@ -93,7 +93,7 @@
     <Compile Include="Controls\HtmlWriter.cs" />
     <Compile Include="Controls\IControlWithHtmlAttributes.cs" />
     <Compile Include="Controls\IHtmlWriter.cs" />
-    <Compile Include="Controls\IntegrationScripts.cs" />
+    <Compile Include="Controls\ResourceLinks.cs" />
     <Compile Include="Controls\ITemplate.cs" />
     <Compile Include="Controls\ItemsControl.cs" />
     <Compile Include="Controls\LinkButton.cs" />

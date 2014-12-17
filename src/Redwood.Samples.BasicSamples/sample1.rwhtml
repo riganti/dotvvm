@@ -12,6 +12,7 @@
 		text-decoration: line-through;
 	}
 	</style>
+	<rw:ResourceLinks />
 </head>
 <body>
 	<div class="container">
@@ -41,7 +42,5 @@
 			</rw:Repeater>
 		</table>
 	</div>
-
-	<rw:IntegrationScripts />
 </body>
 </html>

@@ -85,11 +85,6 @@ namespace Redwood.Framework.Controls
             //render childs
             base.Render(writer, context);
 
-            //render resource (script, css) links in head
-            if (TagName == "head")
-            {
-
-            }
             writer.RenderEndTag();
         }
     }

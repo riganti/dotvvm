@@ -21,6 +21,7 @@ namespace Redwood.Framework.Controls
             foreach (var r in _resourceList)
             {
                 r.Render(writer);
+                writer.WriteUnencodedText("\r\n");
             }
         }
         /// <summary>
@@ -48,7 +49,9 @@ namespace Redwood.Framework.Controls
             AddResource(GetResource(name));
         }
 
-        private static readonly Dictionary<string, HtmlResource> ResourceRepo = new Dictionary<string, HtmlResource>();
+        private static readonly Dictionary<string, HtmlResource> ResourceRepo = new Dictionary<string, HtmlResource>(){
+            { "redwood", new ScriptResource("/Scripts/Redwood.js", new ScriptResource("/Scripts/knockout-3.2.0.js"), new ScriptResource("/Scripts/knockout.mapping-latest.js")) }
+        };
         /// <summary>
         /// registers globaly available resource
         /// you can get it using GetResource method
