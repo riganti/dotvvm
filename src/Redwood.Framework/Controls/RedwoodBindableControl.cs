@@ -39,9 +39,9 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets the value of a specified property.
         /// </summary>
-        public override object GetValue(RedwoodProperty property)
+        public override object GetValue(RedwoodProperty property, bool inherit = true)
         {
-            var value = base.GetValue(property);
+            var value = base.GetValue(property, inherit);
             if (value is BindingExpression)
             {
                 // handle binding
@@ -71,9 +71,9 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets the binding set to a specified property.
         /// </summary>
-        public BindingExpression GetBinding(RedwoodProperty property)
+        public BindingExpression GetBinding(RedwoodProperty property, bool inherit = true)
         {
-            return base.GetValue(property) as BindingExpression;
+            return base.GetValue(property, inherit) as BindingExpression;
         }
 
         /// <summary>
@@ -91,7 +91,7 @@ namespace Redwood.Framework.Controls
         public override void Render(IHtmlWriter writer, RenderContext context)
         {
             // handle datacontext hierarchy
-            var dataContextBinding = GetBinding(DataContextProperty);
+            var dataContextBinding = GetBinding(DataContextProperty, false);
             if (dataContextBinding != null)
             {
                 context.PathFragments.Push(dataContextBinding.Expression);

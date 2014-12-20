@@ -43,9 +43,9 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets the value of a specified property.
         /// </summary>
-        public virtual object GetValue(RedwoodProperty property)
+        public virtual object GetValue(RedwoodProperty property, bool inherit = true)
         {
-            return property.GetValue(this);
+            return property.GetValue(this, inherit);
         }
 
         /// <summary>

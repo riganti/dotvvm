@@ -1,4 +1,4 @@
-var Redwood = (function () {
+﻿var Redwood = (function () {
     function Redwood() {
         this.viewModels = {};
     }
@@ -7,6 +7,7 @@ var Redwood = (function () {
         this.viewModels[viewModelName] = viewModel;
         ko.applyBindings(viewModel);
     };
+
     Redwood.prototype.postBack = function (viewModelName, sender, path, command) {
         var _this = this;
         var viewModel = this.viewModels[viewModelName];
@@ -22,8 +23,10 @@ var Redwood = (function () {
             alert(error.responseText);
         });
     };
+
     Redwood.prototype.updateDynamicPathFragments = function (sender, path) {
         var context = ko.contextFor(sender);
+
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i] == "[$index]") {
                 path[i] = "[" + context.$index() + "]";
@@ -31,6 +34,7 @@ var Redwood = (function () {
             context = context.$parent;
         }
     };
+
     Redwood.prototype.postJSON = function (url, method, postData, success, error) {
         var xhr = XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
         xhr.open(method, url, true);
@@ -40,8 +44,7 @@ var Redwood = (function () {
                 return;
             if (xhr.status < 400) {
                 success(xhr);
-            }
-            else {
+            } else {
                 error(xhr);
             }
         };
@@ -49,5 +52,6 @@ var Redwood = (function () {
     };
     return Redwood;
 })();
+
 var redwood = new Redwood();
 //# sourceMappingURL=Redwood.js.map

@@ -58,14 +58,14 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
-        internal object GetValue(RedwoodControl redwoodControl)
+        internal object GetValue(RedwoodControl redwoodControl, bool inherit = true)
         {
             object value;
             if (redwoodControl.Properties.TryGetValue(this, out value))
             {
                 return value;
             }
-            if (IsValueInherited && redwoodControl.Parent != null)
+            if (IsValueInherited && inherit && redwoodControl.Parent != null)
             {
                 return GetValue(redwoodControl.Parent);
             }
