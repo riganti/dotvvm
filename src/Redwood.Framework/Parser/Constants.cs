@@ -10,5 +10,11 @@ namespace Redwood.Framework.Parser
     {
         public const string ViewModelDirectiveName = "viewmodel";
         public const string MasterPageDirective = "masterpage";
+        public const string BaseTypeDirective = "basetype";
+
+
+        public const string ValueBinding = "value";
+        public const string CommandBinding = "command";
+        public const string ControlStateBinding = "controlstate";
     }
 }

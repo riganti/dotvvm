@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Reflection;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Hosting;
+using Redwood.Framework.Parser;
 
 namespace Redwood.Framework.Runtime
 {
@@ -16,49 +18,69 @@ namespace Redwood.Framework.Runtime
     {
 
         private readonly RedwoodConfiguration configuration;
+        private readonly IControlBuilderFactory controlBuilderFactory;
+        private readonly IMarkupFileLoader markupFileLoader;
 
-        private ConcurrentDictionary<string, ControlResolverMetadata> cachedControlMetadata = new ConcurrentDictionary<string, ControlResolverMetadata>();
-
+        private ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>();
+        private ConcurrentDictionary<Type, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<Type, ControlResolverMetadata>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlResolver"/> class.
         /// </summary>
-        public DefaultControlResolver(RedwoodConfiguration configuration)
+        public DefaultControlResolver(RedwoodConfiguration configuration, IMarkupFileLoader markupFileLoader, IControlBuilderFactory controlBuilderFactory)
         {
             this.configuration = configuration;
-            cachedControlMetadata[string.Empty] = BuildControlMetadata(typeof(HtmlGenericControl));
+            this.controlBuilderFactory = controlBuilderFactory;
+            this.markupFileLoader = markupFileLoader;
         }
 
 
         /// <summary>
-        /// Resolves the type of a control.
+        /// Resolves the metadata for specified element.
         /// </summary>
         public ControlResolverMetadata ResolveControl(string tagPrefix, string tagName, out object[] activationParameters)
         {
+            // html element has no prefix
             if (string.IsNullOrEmpty(tagPrefix))
             {
                 activationParameters = new object[] { tagName };
-                return cachedControlMetadata[string.Empty];
+                return ResolveControl(typeof (HtmlGenericControl));
             }
 
+            // find cached value
+            var searchKey = GetSearchKey(tagPrefix, tagName);
             activationParameters = null;
-            return FindControlMetadata(tagPrefix, tagName);
+            var controlType = cachedTagMappings.GetOrAdd(searchKey, _ => FindControlMetadata(tagPrefix, tagName));
+            return ResolveControl(controlType.Type, controlType.ControlBuilderType);
         }
-        
+
+        private static string GetSearchKey(string tagPrefix, string tagName)
+        {
+            return tagPrefix + ":" + tagName;
+        }
+
+        /// <summary>
+        /// Resolves the control metadata for specified type.
+        /// </summary>
+        public ControlResolverMetadata ResolveControl(Type type, Type controlBuilderType = null)
+        {
+            return cachedMetadata.GetOrAdd(type, _ => BuildControlMetadata(type, controlBuilderType));
+        }
+
         /// <summary>
         /// Resolves the binding type.
         /// </summary>
         public Type ResolveBinding(string bindingType)
         {
-            if (bindingType == "value")
+            if (bindingType == Constants.ValueBinding)
             {
                 return typeof (ValueBindingExpression);
             }
-            else if (bindingType == "command")
+            else if (bindingType == Constants.CommandBinding)
             {
                 return typeof (CommandBindingExpression);
             }
-            else if (bindingType == "controlState")
+            else if (bindingType == Constants.ControlStateBinding)
             {
                 return typeof (ControlStateBindingExpression);
             }
@@ -71,48 +93,52 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Finds the control metadata.
         /// </summary>
-        private ControlResolverMetadata FindControlMetadata(string tagPrefix, string tagName)
+        private ControlType FindControlMetadata(string tagPrefix, string tagName)
         {
-            // try to find cached control metadata in specified namespace
-            var namespaces = configuration.Markup.Controls.Where(c => c.TagPrefix == tagPrefix).SelectMany(c => c.Namespaces).ToList();
-            foreach (var type in namespaces.Select(c => c + "." + tagName))
+            // try to match the tag prefix and tag name
+            var rule = configuration.Markup.Controls.FirstOrDefault(r => r.IsMatch(tagPrefix, tagName));
+            if (rule == null)
             {
-                // get control metadata
-                ControlResolverMetadata metadata;
-                if (cachedControlMetadata.TryGetValue(type, out metadata))
-                {
-                    return metadata;
-                }
+                throw new Exception(string.Format(Resources.Controls.ControlResolver_ControlNotFound, tagPrefix, tagName));
             }
 
-            // try to find the type in all namespaces and build metadata
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            foreach (var type in namespaces.Select(c => c + "." + tagName))
-            {
-                var foundTypes = assemblies
-                    .Select(a => a.GetType(type))
-                    .Where(a => a != null)
-                    .ToList();
+            // validate the rule
+            rule.Validate();
 
-                if (foundTypes.Count == 1)
-                {
-                    // build and store the metadata
-                    var metadata = BuildControlMetadata(foundTypes[0]);
-                    cachedControlMetadata[tagPrefix + "." + tagName] = metadata;
-                    return metadata;
-                }
-                if (foundTypes.Count > 1)
-                {
-                    throw new Exception(string.Format(Resources.Controls.ControlResolver_DuplicateControlRegistration, tagPrefix, tagName));
-                }
+            if (string.IsNullOrEmpty(rule.TagName))
+            {
+                // find the code only control
+                return FindCompiledControl(tagName, rule.Namespace, rule.Assembly);
             }
-            throw new Exception(string.Format(Resources.Controls.ControlResolver_ControlNotFound, tagPrefix, tagName));
+            else
+            {
+                // find the markup control
+                return FindMarkupControl(rule.Src);
+            }
+        }
+
+        /// <summary>
+        /// Finds the compiled control.
+        /// </summary>
+        private ControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName)
+        {
+            return new ControlType(Type.GetType(namespaceName + "." + tagName + ", " + assemblyName, true));
+        }
+
+        /// <summary>
+        /// Finds the markup control.
+        /// </summary>
+        private ControlType FindMarkupControl(string file)
+        {
+            var markupFile = markupFileLoader.GetMarkup(configuration, file);
+            var controlBuilder = controlBuilderFactory.GetControlBuilder(markupFile);
+            return new ControlType(controlBuilder.BuildControl().GetType(), controlBuilder.GetType());
         }
 
         /// <summary>
         /// Gets the control metadata.
         /// </summary>
-        private ControlResolverMetadata BuildControlMetadata(Type controlType)
+        private ControlResolverMetadata BuildControlMetadata(Type controlType, Type controlBuilderType)
         {
             var metadata = new ControlResolverMetadata()
             {
@@ -120,16 +146,17 @@ namespace Redwood.Framework.Runtime
                 Namespace = controlType.Namespace,
                 HasHtmlAttributesCollection = typeof(IControlWithHtmlAttributes).IsAssignableFrom(controlType),
                 Type = controlType,
+                ControlBuilderType = controlBuilderType,
                 Properties = controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                     .Select(p => new ControlResolverPropertyMetadata()
                     {
                         Options = p.GetCustomAttribute<MarkupOptionsAttribute>() ?? new MarkupOptionsAttribute()
-                            {
-                                AllowBinding = true,
-                                AllowHardCodedValue = true,
-                                MappingMode = MappingMode.Attribute,
-                                Name = p.Name
-                            },
+                        {
+                            AllowBinding = true,
+                            AllowHardCodedValue = true,
+                            MappingMode = MappingMode.Attribute,
+                            Name = p.Name
+                        },
                         PropertyInfo = p
                     })
                     .Select(p =>

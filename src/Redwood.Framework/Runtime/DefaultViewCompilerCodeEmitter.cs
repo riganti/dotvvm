@@ -27,6 +27,13 @@ namespace Redwood.Framework.Runtime
         public SyntaxTree SyntaxTree { get; private set; }
 
 
+        private List<Type> usedControlBuilderTypes = new List<Type>();
+        public List<Type> UsedControlBuilderTypes
+        {
+            get { return usedControlBuilderTypes; }
+        }
+
+
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
@@ -51,6 +58,63 @@ namespace Redwood.Framework.Runtime
                                             constructorArguments.Select(a => SyntaxFactory.Argument(EmitValue(a)))
                                         )
                                     )
+                                )
+                            )
+                        )
+                    )
+                )
+            );
+
+            return name;
+        }
+
+        /// <summary>
+        /// Emits the control builder invocation.
+        /// </summary>
+        public string EmitInvokeControlBuilder(Type controlType, Type controlBuilderType)
+        {
+            usedControlBuilderTypes.Add(controlBuilderType);
+
+            var builderName = "c" + CurrentControlIndex + "_builder";
+            var untypedName = "c" + CurrentControlIndex + "_untyped";
+            var name = "c" + CurrentControlIndex;
+            CurrentControlIndex++;
+
+            CurrentStatements.Add(
+                SyntaxFactory.LocalDeclarationStatement(
+                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
+                        SyntaxFactory.VariableDeclarator(builderName).WithInitializer(
+                            SyntaxFactory.EqualsValueClause(
+                                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(controlBuilderType.FullName))
+                                    .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()))
+                            )
+                        )
+                    )
+                )
+            );
+            CurrentStatements.Add(
+                SyntaxFactory.LocalDeclarationStatement(
+                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
+                        SyntaxFactory.VariableDeclarator(untypedName).WithInitializer(
+                            SyntaxFactory.EqualsValueClause(
+                                SyntaxFactory.InvocationExpression(
+                                    SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, 
+                                        SyntaxFactory.IdentifierName(builderName),
+                                        SyntaxFactory.IdentifierName("BuildControl")
+                                    )
+                                ).WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()))
+                            )
+                        )
+                    )
+                )
+            );
+            CurrentStatements.Add(
+                SyntaxFactory.LocalDeclarationStatement(
+                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
+                        SyntaxFactory.VariableDeclarator(name).WithInitializer(
+                            SyntaxFactory.EqualsValueClause(
+                                SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(controlType.FullName),
+                                    SyntaxFactory.IdentifierName(untypedName)
                                 )
                             )
                         )
@@ -284,6 +348,7 @@ namespace Redwood.Framework.Runtime
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName(namespaceName)).WithMembers(
                     SyntaxFactory.ClassDeclaration(className)
+                        .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                         .WithBaseList(SyntaxFactory.BaseList(
                             SyntaxFactory.SeparatedList(new[] { SyntaxFactory.ParseTypeName(typeof(IControlBuilder).FullName) })
                         ))
@@ -301,7 +366,10 @@ namespace Redwood.Framework.Runtime
                     )
                 )
             ).NormalizeWhitespace();
-            SyntaxTree = CSharpSyntaxTree.Create(root);
+
+            // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
+            // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
+            SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
             return new[] { SyntaxTree };
         }
 

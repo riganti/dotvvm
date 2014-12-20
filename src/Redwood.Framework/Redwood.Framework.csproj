@@ -98,6 +98,7 @@
     <Compile Include="Controls\Literal.cs" />
     <Compile Include="Controls\MappingMode.cs" />
     <Compile Include="Controls\RadioButton.cs" />
+    <Compile Include="Controls\RedwoodMarkupControl.cs" />
     <Compile Include="Controls\RedwoodView.cs" />
     <Compile Include="Controls\RedwoodBindableControl.cs" />
     <Compile Include="Controls\RedwoodControl.cs" />
@@ -110,6 +111,7 @@
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />
     <Compile Include="Controls\TextBox.cs" />
+    <Compile Include="Hosting\CompiledAssemblyCache.cs" />
     <Compile Include="Hosting\DefaultControlBuilderFactory.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\DefaultOutputRenderer.cs" />
@@ -135,6 +137,7 @@
     <Compile Include="Hosting\RedwoodRequestContext.cs" />
     <Compile Include="Hosting\ViewModelSerializer.cs" />
     <Compile Include="KnockoutHelper.cs" />
+    <Compile Include="OwinExtensions.cs" />
     <Compile Include="Parser\Constants.cs" />
     <Compile Include="Parser\ParserException.cs" />
     <Compile Include="Parser\IReader.cs" />
@@ -173,6 +176,7 @@
     <Compile Include="Routing\RouteBase.cs" />
     <Compile Include="Runtime\ControlResolverMetadata.cs" />
     <Compile Include="Runtime\ControlResolverPropertyMetadata.cs" />
+    <Compile Include="Runtime\ControlType.cs" />
     <Compile Include="Runtime\DefaultControlResolver.cs" />
     <Compile Include="Runtime\DefaultViewCompiler.cs" />
     <Compile Include="Runtime\DefaultViewCompilerCodeEmitter.cs" />
@@ -199,6 +203,7 @@
     <EmbeddedResource Include="Resources\Controls.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Controls.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Parser.RwHtml.resx">
       <Generator>ResXFileCodeGenerator</Generator>

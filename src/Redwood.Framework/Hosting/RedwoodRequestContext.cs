@@ -24,5 +24,6 @@ namespace Redwood.Framework.Hosting
         public bool IsPostBack { get; internal set; }
 
         public IDictionary<string, object> Parameters { get; set; }
+
     }
 }

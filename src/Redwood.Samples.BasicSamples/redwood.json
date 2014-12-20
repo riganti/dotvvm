@@ -1,0 +1,9 @@
+﻿{
+    "markup": {
+        "controls": [
+            { "tagPrefix": "rw", "namespace": "Redwood.Framework.Controls", "assembly": "Redwood.Framework" },
+            { "tagPrefix": "bootstrap", "namespace": "Redwood.Framework.Controls.Bootstrap", "assembly": "Redwood.Framework" },
+            { "tagPrefix": "sample5", "tagName": "TestControl", "src": "sample5_control.rwhtml" }
+        ]
+    }
+}

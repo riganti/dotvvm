@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Runtime
 {
@@ -12,6 +13,8 @@ namespace Redwood.Framework.Runtime
         public string Name { get; set; }
 
         public Type Type { get; set; }
+
+        public Type ControlBuilderType { get; set; }
 
         public bool HasHtmlAttributesCollection { get; set; }
 
