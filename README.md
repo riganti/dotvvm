@@ -33,11 +33,13 @@ You can find more info and the basic explanation in the following document:
 Roadmap
 -------
 
-+ **Version 0.1 (current)**: First working demo. Basic controls, postback support.
-+ **Version 0.11**: Few samples, basic Visual Studio integration.
-+ **Version 0.2**: Stateful controls, master pages and server-side rendering (analogy of WebForms UpdatePanel).
-+ **Version 0.3**: Validation, Xamarin support for hosting Redwood in mobile apps
-+ **Version 0.4**: More controls (Bootstrap support), translation of C# viewmodel commands to javascript
++ **Version 0.1**: First working demo. Basic controls, postback support.
++ **Version 0.2 (current)**: Few basic samples, master pages, simple stateless markup controls.
++ **Version 0.3**: Stateful controls, Render.UpdateOnPostback property.
++ **Version 0.4**: Basic Visual Studio integration, Validation.
++ **Version 0.5**: More controls (Bootstrap support).
++ **Version 0.6**: Xamarin support for hosting Redwood in mobile apps.
++ **Version 0.7**: Automated translation of C# ViewModel commands to javascript.
 
 
 
