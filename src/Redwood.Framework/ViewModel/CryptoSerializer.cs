@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace Redwood.Framework.ViewModel
 {
@@ -57,7 +56,10 @@ namespace Redwood.Framework.ViewModel
             var json = JsonConvert.SerializeObject(obj);
             var encoded = Encoding.UTF8.GetBytes(json);
             var mac = Convert.FromBase64String(macb64);
-            if (!CheckMac(encoded, 0, encoded.Length, mac, 0)) throw new CryptographicException("invalid mac");
+            if (!CheckMac(encoded, 0, encoded.Length, mac, 0))
+            {
+                throw new CryptographicException("The viewmodel was modified on the client side!");
+            }
         }
 
         /// <summary>
