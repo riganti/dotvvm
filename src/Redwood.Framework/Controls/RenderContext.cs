@@ -14,14 +14,15 @@ namespace Redwood.Framework.Controls
 
         public Stack<string> PathFragments { get; set; }
 
-        public ResourceManager ResourceManager { get; protected set; }
+        public RwResourceManager ResourceManager { get; protected set; }
 
 
-        public RenderContext()
+        public RenderContext(Hosting.RedwoodRequestContext request)
         {
+            this.RedwoodRequestContext = request;
             CurrentPageArea = "root";
             PathFragments = new Stack<string>();
-            ResourceManager = new ResourceManager();
+            ResourceManager = new RwResourceManager(request.Configuration.ResourceRepo.Nest());
         }
     }
 }

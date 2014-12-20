@@ -12,7 +12,7 @@ namespace Redwood.Framework.Controls
 
         internal Dictionary<RedwoodProperty, object> Properties = new Dictionary<RedwoodProperty, object>();
 
-        protected List<HtmlResource> ResourceDependencies = new List<HtmlResource>();
+        protected List<string> ResourceDependencies = new List<string>();
 
 
         /// <summary>
@@ -93,7 +93,7 @@ namespace Redwood.Framework.Controls
                 yield return ancestor;
                 ancestor = ancestor.Parent;
             }
-        } 
+        }
 
 
         /// <summary>

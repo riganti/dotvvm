@@ -24,6 +24,7 @@ namespace Redwood.Framework.Configuration
         /// </summary>
         public RedwoodRouteTable RouteTable { get; private set; }
 
+        public Controls.RwResourceRepository ResourceRepo { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodConfiguration"/> class.
@@ -32,6 +33,7 @@ namespace Redwood.Framework.Configuration
         {
             Markup = new RedwoodMarkupConfiguration();
             RouteTable = new RedwoodRouteTable(this);
+            ResourceRepo = new Controls.RwResourceRepository();
         }
     }
 }

@@ -10,7 +10,7 @@ namespace Redwood.Framework.Controls
         public override void Render(IHtmlWriter writer, RenderContext context)
         {
             // render resource links
-            context.ResourceManager.RenderLinks(writer);
+            context.ResourceManager.Render(writer);
 
             // render the serialized viewmodel
             writer.RenderBeginTag("script");

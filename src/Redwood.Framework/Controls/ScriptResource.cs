@@ -6,20 +6,20 @@ using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls
 {
-    public class ScriptResource: HtmlResource
+    public class ScriptResource: RwResource
     {
         public string LoadCheckObject { get; set; }
-        public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, IEnumerable<HtmlResource> prereq)
+        public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, IEnumerable<string> prereq)
         {
-            this.Prerequisities = prereq ?? new HtmlResource[0];
+            this.Dependencies = prereq ?? new string[0];
             this.LocalUri = localAddr;
             this.CdnUri = cdnAddr;
             this.LoadCheckObject = loadCheckObject;
         }
-        public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, params HtmlResource[] prereq) : this(localAddr, cdnAddr, loadCheckObject, prereq as IEnumerable<HtmlResource>) { }
+        public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, params string[] prereq) : this(localAddr, cdnAddr, loadCheckObject, prereq as IEnumerable<string>) { }
 
-        public ScriptResource(string localAddr, IEnumerable<HtmlResource> prereq) : this(localAddr, null, null, prereq) { }
-        public ScriptResource(string localAddr, params HtmlResource[] prereq) : this(localAddr, null, null, prereq) { }
+        public ScriptResource(string localAddr, IEnumerable<string> prereq) : this(localAddr, null, null, prereq) { }
+        public ScriptResource(string localAddr, params string[] prereq) : this(localAddr, null, null, prereq) { }
 
         private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'></script>\"";
         public override void Render(IHtmlWriter writer)
@@ -44,18 +44,6 @@ namespace Redwood.Framework.Controls
                 writer.RenderBeginTag("script");
                 writer.RenderEndTag();
             }
-        }
-
-        public override bool Equals(object obj)
-        {
-            var s = obj as ScriptResource;
-            return s.CdnUri == CdnUri &&
-                s.LocalUri == LocalUri;
-        }
-
-        public override int GetHashCode()
-        {
-            return (CdnUri ?? "").GetHashCode() ^ (LocalUri ?? "").GetHashCode();
         }
     }
 }

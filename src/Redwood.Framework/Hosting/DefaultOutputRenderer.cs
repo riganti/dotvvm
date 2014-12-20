@@ -12,9 +12,8 @@ namespace Redwood.Framework.Hosting
     {
         public async Task RenderPage(RedwoodRequestContext context, RedwoodView view, string serializedViewModel)
         {
-            var renderContext = new RenderContext()
+            var renderContext = new RenderContext(context)
             {
-                RedwoodRequestContext = context,
                 SerializedViewModel = serializedViewModel
             };
             // prepare view to rendering
