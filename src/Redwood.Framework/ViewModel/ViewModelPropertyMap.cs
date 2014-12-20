@@ -9,7 +9,7 @@ namespace Redwood.Framework.ViewModel
     {
         public string Name { get; set; } 
 
-        public CryptoSettings Crypto { get; set; }
+        public ViewModelProtectionSettings ViewModelProtection { get; set; }
 
         public Type Type { get; set; }
 

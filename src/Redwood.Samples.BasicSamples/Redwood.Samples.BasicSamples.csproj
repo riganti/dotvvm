@@ -170,6 +170,7 @@
     <Content Include="redwood.json" />
     <Content Include="sample5.rwhtml" />
     <Content Include="sample5_control.rwhtml" />
+    <Content Include="sample6.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -183,6 +184,7 @@
     <Compile Include="Controls\Sample5_TestControl.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\Sample6ViewModel.cs" />
     <Compile Include="ViewModels\Sample1ViewModel.cs" />
     <Compile Include="ViewModels\Sample2ViewModel.cs" />
     <Compile Include="ViewModels\Sample5ViewModel.cs" />

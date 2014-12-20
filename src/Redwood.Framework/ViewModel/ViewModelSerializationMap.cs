@@ -2,10 +2,8 @@
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace Redwood.Framework.ViewModel
 {
@@ -63,7 +61,7 @@ namespace Redwood.Framework.ViewModel
                 var propReader = Expression.Call(jsonProp, "CreateReader", Type.EmptyTypes);
 
                 Expression callDeserialize;
-                if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
+                if (p.ViewModelProtection == ViewModelProtectionSettings.EnryptData)
                     // CryptoSerializer.DecryptDeserialize(jobj["{p.Name}"].CreateReader().ReadAsString(), {p.Type})
                     callDeserialize = Expression.Call(
                         typeof(CryptoSerializer).GetMethod("DecryptDeserialize"),
@@ -83,7 +81,7 @@ namespace Redwood.Framework.ViewModel
                         Expression.Convert(callDeserialize, p.Type)
                 )));
 
-                if (p.Crypto == CryptoSettings.Mac)
+                if (p.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
                     block.Add(Expression.Call(typeof(CryptoSerializer).GetMethod("CheckObjectMac"),
                         Expression.Property(value, p.Name),
@@ -120,7 +118,7 @@ namespace Redwood.Framework.ViewModel
 
                 var prop = Expression.Convert(Expression.Property(value, p.Name), typeof(object));
 
-                if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
+                if (p.ViewModelProtection == ViewModelProtectionSettings.EnryptData)
                     // writer.WriteValue(CryptoSerializer.EncryptSerialize(value.{p.Name}));
                     block.Add(Expression.Call(writer, typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }), Expression.Call(typeof(CryptoSerializer).GetMethod("EncryptSerialize"), prop)));
                 else
@@ -128,7 +126,7 @@ namespace Redwood.Framework.ViewModel
                     block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
 
                 // write MAC
-                if (p.Crypto == CryptoSettings.Mac)
+                if (p.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
                     block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(p.Name + "$mac")));
                     block.Add(Expression.Call(writer,

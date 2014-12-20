@@ -28,7 +28,7 @@ namespace Redwood.Framework.ViewModel
 
                 var map = new ViewModelPropertyMap();
                 map.Name = p.Name;
-                map.Crypto = CryptoSettings.None;
+                map.ViewModelProtection = ViewModelProtectionSettings.None;
                 map.Type = p.PropertyType;
                 map.TransferToClient = p.GetMethod != null;
                 map.TransferToServer = p.SetMethod != null;
@@ -40,9 +40,9 @@ namespace Redwood.Framework.ViewModel
                     map.TransferToServer = bind.Direction == Direction.OneWayToSource;
                 }
 
-                var crypto = p.GetCustomAttribute<CryptoAttribute>();
+                var crypto = p.GetCustomAttribute<ViewModelProtectionAttribute>();
                 if (crypto != null)
-                    map.Crypto = crypto.Settings;
+                    map.ViewModelProtection = crypto.Settings;
 
                 yield return map;
             }
