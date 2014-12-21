@@ -9,11 +9,28 @@ namespace Redwood.Framework.Controls
     /// </summary>
     public abstract class RedwoodControl
     {
+        private Dictionary<string, string> controlState;
 
-        internal Dictionary<RedwoodProperty, object> Properties = new Dictionary<RedwoodProperty, object>();
 
+        protected internal Dictionary<RedwoodProperty, object> properties;
 
         /// <summary>
+        /// Gets the collection of control property values.
+        /// </summary>
+        protected internal Dictionary<RedwoodProperty, object> Properties
+        {
+            get
+            {
+                if (properties == null)
+                {
+                    properties = new Dictionary<RedwoodProperty, object>();
+                }
+                return properties;
+            }
+        }
+
+
+            /// <summary>
         /// Gets the parent control.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
@@ -40,9 +57,29 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<string, RedwoodControl>(c => c.ID, isValueInherited: false);
 
 
+        /// <summary>
+        /// Gets the collection of properties used to persist control state for postbacks.
+        /// </summary>
+        [MarkupOptions(MappingMode = MappingMode.Exclude)]
+        public Dictionary<string, string> ControlState
+        {
+            get
+            {
+                if (controlState == null)
+                {
+                    controlState = new Dictionary<string, string>();
+                }
+                return controlState;
+            }
+        }
 
-
-
+        /// <summary>
+        /// Gets a value indication whether the control has some items in its control state.
+        /// </summary>
+        public bool HasControlState
+        {
+            get { return controlState != null && controlState.Count > 0; }
+        }
 
 
         /// <summary>

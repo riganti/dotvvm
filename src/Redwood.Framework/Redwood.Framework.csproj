@@ -106,7 +106,6 @@
     <Compile Include="Controls\RedwoodControlCollection.cs" />
     <Compile Include="Controls\Placeholder.cs" />
     <Compile Include="Controls\RedwoodProperty.cs" />
-    <Compile Include="Controls\RedwoodStatefulControl.cs" />
     <Compile Include="Controls\RenderContext.cs" />
     <Compile Include="Controls\MarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DelegateTemplate.cs" />
@@ -195,7 +194,6 @@
     <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
     <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IRedwoodViewModel.cs" />
-    <Compile Include="ViewModel\IViewModelSerializationHandler.cs" />
     <Compile Include="ViewModel\KeyPropertyAttribute.cs" />
     <Compile Include="ViewModel\PropertyOptionsAttribute.cs" />
     <Compile Include="ViewModel\RedwoodViewModelBase.cs" />

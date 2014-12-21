@@ -61,7 +61,7 @@ namespace Redwood.Framework.Controls
         internal object GetValue(RedwoodControl redwoodControl, bool inherit = true)
         {
             object value;
-            if (redwoodControl.Properties.TryGetValue(this, out value))
+            if (redwoodControl.properties != null && redwoodControl.properties.TryGetValue(this, out value))
             {
                 return value;
             }
