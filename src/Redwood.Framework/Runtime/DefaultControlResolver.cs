@@ -84,6 +84,14 @@ namespace Redwood.Framework.Runtime
             {
                 return typeof (ControlStateBindingExpression);
             }
+            else if (bindingType == Constants.ControlPropertyBinding)
+            {
+                return typeof (ControlPropertyBindingExpression);
+            }
+            else if (bindingType == Constants.ControlCommandBinding)
+            {
+                return typeof(ControlCommandBindingExpression);
+            }
             else
             {
                 throw new NotSupportedException("Unknown binding type!");   // TODO: exception handling

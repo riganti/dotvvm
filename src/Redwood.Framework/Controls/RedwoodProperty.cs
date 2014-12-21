@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -95,14 +96,34 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public static RedwoodProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false)
         {
-            return new RedwoodProperty()
+            var fullName = typeof (TDeclaringType).FullName + "." + propertyName;
+
+            return registeredProperties.GetOrAdd(fullName, _ => new RedwoodProperty()
             {
                 Name = propertyName,
                 DefaultValue = defaultValue,
                 DeclaringType = typeof(TDeclaringType),
                 PropertyType = typeof(TPropertyType),
                 IsValueInherited = isValueInherited
-            };
+            });
+        }
+
+        private static ConcurrentDictionary<string, RedwoodProperty> registeredProperties = new ConcurrentDictionary<string, RedwoodProperty>(); 
+
+        /// <summary>
+        /// Resolves the <see cref="RedwoodProperty"/> by the declaring type and name.
+        /// </summary>
+        public static RedwoodProperty ResolveProperty(Type type, string name)
+        {
+            var fullName = type.FullName + "." + name;
+
+            RedwoodProperty property;
+            while (!registeredProperties.TryGetValue(fullName, out property) && type.BaseType != null)
+            {
+                type = type.BaseType;
+                fullName = type.FullName + "." + name;
+            }
+            return property;
         }
     }
 }

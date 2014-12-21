@@ -9,13 +9,14 @@
         ko.applyBindings(viewModel);
     }
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string): void {
         var viewModel = this.viewModels[viewModelName];
         this.updateDynamicPathFragments(sender, path);
         var data = {
             viewModel: ko.mapping.toJS(viewModel),
             currentPath: path,
-            command: command
+            command: command,
+            controlUniqueId: controlUniqueId
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), result => {
             ko.mapping.fromJSON(result.responseText, {}, this.viewModels[viewModelName]);

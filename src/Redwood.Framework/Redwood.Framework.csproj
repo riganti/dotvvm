@@ -72,6 +72,8 @@
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
+    <Compile Include="Binding\ControlCommandBindingExpression.cs" />
+    <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
     <Compile Include="Binding\ControlStateBindingExpression.cs" />
     <Compile Include="Binding\ExpressionEvaluator.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />

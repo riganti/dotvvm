@@ -41,6 +41,7 @@ namespace Redwood.Framework.Hosting
             var data = JObject.Parse(serializedPostData);
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
+            var controlUniqueId = data["controlUniqueId"].Value<string>();
 
             // populate the view model map
             var serializer = new JsonSerializer();
@@ -54,8 +55,20 @@ namespace Redwood.Framework.Hosting
 
             // TODO: restore control state
 
-            // resolve the command
-            invokedCommand = commandResolver.GetFunction(viewModel, path, command);
+            // find the command target
+            if (!string.IsNullOrEmpty(controlUniqueId))
+            {
+                var target = view.FindControl(controlUniqueId);
+                if (target == null)
+                {
+                    throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
+                }
+                invokedCommand = commandResolver.GetFunction(target, viewModel, path, command);
+            }
+            else
+            {
+                invokedCommand = commandResolver.GetFunction(viewModel, path, command);
+            }
         }
     }
 }

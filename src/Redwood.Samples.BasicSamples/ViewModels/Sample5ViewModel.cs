@@ -12,7 +12,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
         public Sample5TestControlViewModel ViewModel1 { get; set; }
 
         public Sample5TestControlViewModel ViewModel2 { get; set; }
-
+        
 
         public override Task Init()
         {

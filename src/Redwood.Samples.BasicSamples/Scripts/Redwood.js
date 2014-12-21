@@ -8,14 +8,15 @@
         ko.applyBindings(viewModel);
     };
 
-    Redwood.prototype.postBack = function (viewModelName, sender, path, command) {
+    Redwood.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId) {
         var _this = this;
         var viewModel = this.viewModels[viewModelName];
         this.updateDynamicPathFragments(sender, path);
         var data = {
             viewModel: ko.mapping.toJS(viewModel),
             currentPath: path,
-            command: command
+            command: command,
+            controlUniqueId: controlUniqueId
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), function (result) {
             ko.mapping.fromJSON(result.responseText, {}, _this.viewModels[viewModelName]);

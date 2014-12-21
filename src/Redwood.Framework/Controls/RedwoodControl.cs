@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Redwood.Framework.Controls
@@ -159,7 +160,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Ensures that the control has ID. The method can auto-generate it, if specified.
         /// </summary>
-        public void EnsureControlHasId(bool autoGenerate = false)
+        public void EnsureControlHasId(bool autoGenerate = true)
         {
             if (autoGenerate && string.IsNullOrEmpty(ID))
             {
@@ -195,6 +196,20 @@ namespace Redwood.Framework.Controls
             } 
             while (control != null);
             return id;
+        }
+
+
+        /// <summary>
+        /// Finds the control by its ID.
+        /// </summary>
+        public RedwoodControl FindControl(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new ArgumentNullException("id");
+            }
+
+            return GetAllDescendants().SingleOrDefault(c => c.ID == id);
         }
     }
 }

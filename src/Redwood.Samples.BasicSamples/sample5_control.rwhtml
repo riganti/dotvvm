@@ -1,5 +1,6 @@
-﻿@basetype: Redwood.Samples.BasicSamples.Controls.Sample5_TestControl, Redwood.Samples.BasicSamples
+﻿@baseType: Redwood.Samples.BasicSamples.Controls.Sample5_TestControl, Redwood.Samples.BasicSamples
 
+<h2>{{controlProperty: Name}}</h2>
 <p>
 	<rw:TextBox Text="{value: Value}" />
 	<rw:Button Text="Up" Click="{command: Up()}" />

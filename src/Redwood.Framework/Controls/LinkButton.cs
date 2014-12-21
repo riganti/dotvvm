@@ -36,7 +36,8 @@ namespace Redwood.Framework.Controls
             var clickBinding = GetBinding(ClickProperty);
             if (clickBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding as CommandBindingExpression, context));
+                EnsureControlHasId();
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding as CommandBindingExpression, context, ID));
             }
 
             var textBinding = GetBinding(TextProperty);

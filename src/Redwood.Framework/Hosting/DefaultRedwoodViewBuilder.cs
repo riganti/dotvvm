@@ -119,7 +119,7 @@ namespace Redwood.Framework.Hosting
             // check that no placeholder is nested in another one and that each one has valid ID
             foreach (var placeHolder in placeHolders)
             {
-                placeHolder.EnsureControlHasId();
+                placeHolder.EnsureControlHasId(autoGenerate: false);
                 if (placeHolder.GetAllAncestors().Intersect(placeHolders).Any())
                 {
                     throw new Exception(string.Format("The ContentPlaceHolder with ID '{0}' cannot be nested in another ContentPlaceHolder!", placeHolder.ID)); // TODO: exception handling
