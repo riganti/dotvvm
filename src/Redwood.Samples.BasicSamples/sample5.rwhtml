@@ -12,7 +12,7 @@
 		<h1>User Controls Sample</h1>
 		
 		<sample5:TestControl DataContext="{value: ViewModel1}" Name="First Control" />
-		<sample5:TestControl DataContext="{value: ViewModel2}" Name="Second Control" />
+		<sample5:TestControl DataContext="{value: ViewModel2}" Name="{value: SecondControlName}" />
 	</div>
 
 	<rw:IntegrationScripts />

@@ -27,6 +27,7 @@ namespace Redwood.Framework.Controls
         public RedwoodMarkupControl()
         {
             SetValue(Internal.IsNamingContainerProperty, true);
+            SetValue(Internal.IsControlBindingTargetProperty, true);
         }
 
 

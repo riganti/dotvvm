@@ -188,7 +188,7 @@ namespace Redwood.Framework.Controls
             var id = control.GetValue(Internal.UniqueIDProperty).ToString();
             do
             {
-                if (control.GetValue(Internal.IsNamingContainerProperty) as bool? == true)
+                if ((bool)control.GetValue(Internal.IsNamingContainerProperty))
                 {
                     id = control.GetValue(Internal.UniqueIDProperty) + "_" + id;
                 }

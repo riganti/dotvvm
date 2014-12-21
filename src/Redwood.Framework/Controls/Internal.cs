@@ -13,7 +13,9 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<string, Internal>("UniqueID", isValueInherited: false);
 
         public static readonly RedwoodProperty IsNamingContainerProperty =
-            RedwoodProperty.Register<string, Internal>("IsNamingContainer", isValueInherited: false);
+            RedwoodProperty.Register<bool, Internal>("IsNamingContainer", defaultValue: false, isValueInherited: false);
 
+        public static readonly RedwoodProperty IsControlBindingTargetProperty =
+            RedwoodProperty.Register<bool, Internal>("IsControlBindingTarget", defaultValue: false, isValueInherited: false);
     }
 }
