@@ -80,6 +80,7 @@
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
+    <Compile Include="Configuration\RedwoodSecurityConfiguration.cs" />
     <Compile Include="Controls\Bootstrap\FormGroup.cs" />
     <Compile Include="Controls\Bootstrap\GlyphIcon.cs" />
     <Compile Include="Controls\Bootstrap\HorizontalForm.cs" />
@@ -192,7 +193,7 @@
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
     <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
-    <Compile Include="ViewModel\CryptoSerializer.cs" />
+    <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
     <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
     <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IRedwoodViewModel.cs" />

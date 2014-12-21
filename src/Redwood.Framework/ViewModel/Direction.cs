@@ -4,10 +4,11 @@ using System.Linq;
 
 namespace Redwood.Framework.ViewModel
 {
+    [Flags]
     public enum Direction
     {
-        OneWay,
-        OneWayToSource,
-        TwoWay
+        ServerToClient = 1,
+        ClientToServer = 2,
+        Both = 3
     }
 }

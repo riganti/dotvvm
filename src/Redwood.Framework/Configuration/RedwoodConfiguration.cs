@@ -29,6 +29,11 @@ namespace Redwood.Framework.Configuration
         [JsonIgnore()]
         public RedwoodRouteTable RouteTable { get; private set; }
 
+        /// <summary>
+        /// Gets the security.
+        /// </summary>
+        public RedwoodSecurityConfiguration Security { get; private set; }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodConfiguration"/> class.
@@ -37,6 +42,7 @@ namespace Redwood.Framework.Configuration
         {
             Markup = new RedwoodMarkupConfiguration();
             RouteTable = new RedwoodRouteTable(this);
+            Security = new RedwoodSecurityConfiguration();
         }
 
         /// <summary>

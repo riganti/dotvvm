@@ -23,6 +23,7 @@ namespace Redwood.Framework.Hosting
         {
             // TODO: add the control state to the view model map
 
+            // serialize the ViewModel
             var serializer = new JsonSerializer();
             serializer.Converters.Add(new ViewModelJsonConverter());
             var sb = new StringBuilder();
@@ -38,20 +39,18 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public void PopulateViewModel(object viewModel, RedwoodView view, string serializedPostData, out Action invokedCommand)
         {
+            // get properties
             var data = JObject.Parse(serializedPostData);
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"].Value<string>();
 
-            // populate the view model map
+            // populate the ViewModel
             var serializer = new JsonSerializer();
-            var vmconv = new ViewModelJsonConverter();
-            serializer.Converters.Add(vmconv);
-
-            if (vmconv.CanConvert(viewModel.GetType()))
-                vmconv.Populate(data["viewModel"] as JObject, serializer, viewModel);
-            else
-                serializer.Populate(data["viewModel"].CreateReader(), viewModel);
+            var viewModelConverter = new ViewModelJsonConverter();
+            serializer.Converters.Add(viewModelConverter);
+            viewModelConverter.Populate(data["viewModel"] as JObject, serializer, viewModel);
+            
 
             // TODO: restore control state
 

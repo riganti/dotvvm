@@ -20,7 +20,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Initializes a new instance of the <see cref="BindAttribute"/> class.
         /// </summary>
-        public BindAttribute(Direction direction = Direction.TwoWay)
+        public BindAttribute(Direction direction = Direction.Both)
         {
             Direction = direction;
         }

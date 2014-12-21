@@ -5,7 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Redwood.Framework.Configuration;
-using Redwood.Framework.Routing;
+using Redwood.Framework.ViewModel;
 
 namespace Redwood.Framework.Hosting
 {
@@ -22,6 +22,8 @@ namespace Redwood.Framework.Hosting
         public RedwoodMiddleware(OwinMiddleware next, RedwoodConfiguration configuration) : base(next)
         {
             this.configuration = configuration;
+
+            ViewModelProtectionHelper.Configuration = configuration;
         }
         
         /// <summary>
