@@ -136,7 +136,11 @@ namespace Redwood.Framework.Runtime
             }
             if (value is string)
             {
-                return EmitStringLiteral(value as string);
+                return EmitStringLiteral((string)value);
+            }
+            if (value is bool)
+            {
+                return EmitBooleanLiteral((bool)value);
             }
 
             var type = value.GetType();
@@ -150,6 +154,14 @@ namespace Redwood.Framework.Runtime
                     );
             }
             throw new NotSupportedException();
+        }
+
+        /// <summary>
+        /// Emits the boolean literal.
+        /// </summary>
+        private ExpressionSyntax EmitBooleanLiteral(bool value)
+        {
+            return SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
         }
 
         /// <summary>
@@ -211,6 +223,40 @@ namespace Redwood.Framework.Runtime
                                     ),
                                     SyntaxFactory.Argument(
                                         SyntaxFactory.IdentifierName(variableName)
+                                    )
+                                }
+                            )
+                        )
+                    )
+                )
+            );
+        }
+
+        /// <summary>
+        /// Emits the set attached property.
+        /// </summary>
+        public void EmitSetAttachedProperty(string controlName, string propertyType, string propertyName, object value)
+        {
+            CurrentStatements.Add(
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName(controlName),
+                            SyntaxFactory.IdentifierName("SetValue")
+                        ),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList(
+                                new[] { 
+                                    SyntaxFactory.Argument(
+                                        SyntaxFactory.MemberAccessExpression(
+                                            SyntaxKind.SimpleMemberAccessExpression,
+                                            SyntaxFactory.ParseTypeName(propertyType),
+                                            SyntaxFactory.IdentifierName(propertyName + "Property")
+                                        )
+                                    ),
+                                    SyntaxFactory.Argument(
+                                        EmitValue(value)
                                     )
                                 }
                             )
@@ -392,5 +438,6 @@ namespace Redwood.Framework.Runtime
         {
             outputMethods.Add(methods.Pop());
         }
+
     }
 }

@@ -110,10 +110,6 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)placeholder.Children[2]).Text));
         }
 
-
-
-
-
         private static RedwoodControl CompileMarkup(string markup)
         {
             var redwoodViewBuilder = new DefaultRedwoodViewBuilder(RedwoodConfiguration.CreateDefault());

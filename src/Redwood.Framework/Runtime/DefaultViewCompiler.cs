@@ -289,6 +289,7 @@ namespace Redwood.Framework.Runtime
             {
                 // compiled control
                 currentObjectName = emitter.EmitCreateObject(controlMetadata.Type, constructorParameters);
+                emitter.EmitSetAttachedProperty(currentObjectName, typeof (Internal).FullName, Internal.UniqueIDProperty.Name, currentObjectName);
             }
             else
             {

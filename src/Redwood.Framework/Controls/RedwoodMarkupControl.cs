@@ -21,6 +21,14 @@ namespace Redwood.Framework.Controls
             get { return "div"; }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedwoodMarkupControl"/> class.
+        /// </summary>
+        public RedwoodMarkupControl()
+        {
+            SetValue(Internal.IsNamingContainerProperty, true);
+        }
+
 
         /// <summary>
         /// Renders the control into the specified writer.

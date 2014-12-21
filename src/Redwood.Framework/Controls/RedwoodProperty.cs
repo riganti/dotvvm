@@ -87,9 +87,17 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public static RedwoodProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName, object defaultValue = null, bool isValueInherited = false)
         {
+            return Register<TPropertyType, TDeclaringType>(ReflectionUtils.GetPropertyNameFromExpression(propertyName), defaultValue, isValueInherited);
+        }
+
+        /// <summary>
+        /// Registers the specified Redwood property.
+        /// </summary>
+        public static RedwoodProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false)
+        {
             return new RedwoodProperty()
             {
-                Name = ReflectionUtils.GetPropertyNameFromExpression(propertyName),
+                Name = propertyName,
                 DefaultValue = defaultValue,
                 DeclaringType = typeof(TDeclaringType),
                 PropertyType = typeof(TPropertyType),

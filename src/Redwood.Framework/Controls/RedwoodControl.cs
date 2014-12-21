@@ -40,6 +40,11 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<string, RedwoodControl>(c => c.ID, isValueInherited: false);
 
 
+
+
+
+
+
         /// <summary>
         /// Gets the value of a specified property.
         /// </summary>
@@ -119,19 +124,40 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public void EnsureControlHasId(bool autoGenerate = false)
         {
-            if (string.IsNullOrWhiteSpace(ID))
+            if (autoGenerate && string.IsNullOrEmpty(ID))
             {
-                throw new Exception(string.Format("The control of type '{0}' must have ID!", GetType().FullName));      // TODO: exception handling
+                ID = AutoGenerateControlId();
             }
-            if (!Regex.IsMatch(ID, "^[a-zA-Z_][a-zA-Z0-9_]*$"))
+            else
             {
-                throw new Exception(string.Format("The control ID '{0}' is not valid! It can contain only characters, numbers and the underscore character, and it cannot start with a number!", ID));      // TODO: exception handling
+                if (string.IsNullOrWhiteSpace(ID))
+                {
+                    throw new Exception(string.Format("The control of type '{0}' must have ID!", GetType().FullName)); // TODO: exception handling
+                }
+                if (!Regex.IsMatch(ID, "^[a-zA-Z_][a-zA-Z0-9_]*$"))
+                {
+                    throw new Exception(string.Format("The control ID '{0}' is not valid! It can contain only characters, numbers and the underscore character, and it cannot start with a number!", ID)); // TODO: exception handling
+                }
             }
+        }
 
-            if (autoGenerate)
+        /// <summary>
+        /// Generates unique control ID automatically.
+        /// </summary>
+        private string AutoGenerateControlId()
+        {
+            var control = this;
+            var id = control.GetValue(Internal.UniqueIDProperty).ToString();
+            do
             {
-                // TODO: auto-generation of the control ID
-            }
+                if (control.GetValue(Internal.IsNamingContainerProperty) as bool? == true)
+                {
+                    id = control.GetValue(Internal.UniqueIDProperty) + "_" + id;
+                }
+                control = control.Parent;
+            } 
+            while (control != null);
+            return id;
         }
     }
 }

@@ -98,6 +98,7 @@
     <Compile Include="Controls\Literal.cs" />
     <Compile Include="Controls\MappingMode.cs" />
     <Compile Include="Controls\RadioButton.cs" />
+    <Compile Include="Controls\Internal.cs" />
     <Compile Include="Controls\RedwoodMarkupControl.cs" />
     <Compile Include="Controls\RedwoodView.cs" />
     <Compile Include="Controls\RedwoodBindableControl.cs" />
