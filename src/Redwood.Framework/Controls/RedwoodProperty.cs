@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Redwood.Framework.Binding;
 using Redwood.Framework.Utils;
 
 namespace Redwood.Framework.Controls
@@ -10,10 +11,9 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// Represents a property of Redwood controls.
     /// </summary>
-    public sealed class RedwoodProperty
+    public class RedwoodProperty
     {
-
-
+        
         /// <summary>
         /// Gets or sets the name of the property.
         /// </summary>
@@ -51,7 +51,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Prevents a default instance of the <see cref="RedwoodProperty"/> class from being created.
         /// </summary>
-        private RedwoodProperty()
+        internal RedwoodProperty()
         {
         }
 
@@ -59,7 +59,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
-        internal object GetValue(RedwoodControl redwoodControl, bool inherit = true)
+        internal virtual object GetValue(RedwoodControl redwoodControl, bool inherit = true)
         {
             object value;
             if (redwoodControl.properties != null && redwoodControl.properties.TryGetValue(this, out value))
@@ -76,11 +76,10 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Sets the value of the property.
         /// </summary>
-        internal void SetValue(RedwoodControl redwoodControl, object value)
+        internal virtual void SetValue(RedwoodControl redwoodControl, object value)
         {
             redwoodControl.Properties[this] = value;
         }
-
 
 
         /// <summary>
@@ -97,7 +96,7 @@ namespace Redwood.Framework.Controls
         public static RedwoodProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false)
         {
             var fullName = typeof (TDeclaringType).FullName + "." + propertyName;
-
+            
             return registeredProperties.GetOrAdd(fullName, _ => new RedwoodProperty()
             {
                 Name = propertyName,
@@ -107,6 +106,23 @@ namespace Redwood.Framework.Controls
                 IsValueInherited = isValueInherited
             });
         }
+
+        /// <summary>
+        /// Registers the specified Redwood property.
+        /// </summary>
+        public static RedwoodProperty RegisterControlStateProperty<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName)
+        {
+            return RegisterControlStateProperty<TPropertyType, TDeclaringType>(ReflectionUtils.GetPropertyNameFromExpression(propertyName));
+        }
+
+        /// <summary>
+        /// Registers the specified Redwood property.
+        /// </summary>
+        public static RedwoodProperty RegisterControlStateProperty<TPropertyType, TDeclaringType>(string propertyName)
+        {
+            return Register<TPropertyType, TDeclaringType>(propertyName, defaultValue: new ControlStateBindingExpression(propertyName));
+        }
+
 
         private static ConcurrentDictionary<string, RedwoodProperty> registeredProperties = new ConcurrentDictionary<string, RedwoodProperty>(); 
 

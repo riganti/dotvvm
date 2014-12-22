@@ -10,9 +10,7 @@ namespace Redwood.Framework.Controls
     /// </summary>
     public abstract class RedwoodControl
     {
-        private Dictionary<string, string> controlState;
-
-
+       
         protected internal Dictionary<RedwoodProperty, object> properties;
 
         /// <summary>
@@ -58,30 +56,6 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<string, RedwoodControl>(c => c.ID, isValueInherited: false);
 
 
-        /// <summary>
-        /// Gets the collection of properties used to persist control state for postbacks.
-        /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public Dictionary<string, string> ControlState
-        {
-            get
-            {
-                if (controlState == null)
-                {
-                    controlState = new Dictionary<string, string>();
-                }
-                return controlState;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indication whether the control has some items in its control state.
-        /// </summary>
-        public bool HasControlState
-        {
-            get { return controlState != null && controlState.Count > 0; }
-        }
-
 
         /// <summary>
         /// Gets the value of a specified property.
@@ -100,6 +74,7 @@ namespace Redwood.Framework.Controls
         }
 
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodControl"/> class.
         /// </summary>
@@ -107,6 +82,18 @@ namespace Redwood.Framework.Controls
         {
             Children = new RedwoodControlCollection(this);
         }
+
+        /// <summary>
+        /// Gets this control and all of its descendants.
+        /// </summary>
+        public IEnumerable<RedwoodControl> GetThisAndAllDescendants()
+        {
+            yield return this;
+            foreach (var descendant in GetAllDescendants())
+            {
+                yield return descendant;
+            }
+        } 
 
         /// <summary>
         /// Gets all descendant controls of this control.
@@ -184,8 +171,8 @@ namespace Redwood.Framework.Controls
         /// </summary>
         private string AutoGenerateControlId()
         {
-            var control = this;
-            var id = control.GetValue(Internal.UniqueIDProperty).ToString();
+            var id = GetValue(Internal.UniqueIDProperty).ToString();
+            var control = Parent;
             do
             {
                 if ((bool)control.GetValue(Internal.IsNamingContainerProperty))

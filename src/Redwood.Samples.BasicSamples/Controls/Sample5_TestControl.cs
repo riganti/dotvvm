@@ -17,5 +17,27 @@ namespace Redwood.Samples.BasicSamples.Controls
         public static readonly RedwoodProperty NameProperty =
             RedwoodProperty.Register<string, Sample5_TestControl>(c => c.Name, string.Empty);
 
+
+
+        public int Value
+        {
+            get { return (int)GetValue(ValueProperty); }
+            set { SetValue(ValueProperty, value); }
+        }
+
+        public static readonly RedwoodProperty ValueProperty =
+            RedwoodProperty.RegisterControlStateProperty<int, Sample5_TestControl>(c => c.Value);
+
+
+        public override bool RequiresControlState
+        {
+            get { return true; }
+        }
+
+
+        public Sample5_TestControl()
+        {
+            ControlState["Value"] = 0;
+        }
     }
 }

@@ -40,7 +40,7 @@ namespace Redwood.Framework.Controls
             var dataContextBinding = GetBinding(DataContextProperty);
             if (dataContextBinding != null)
             {
-                writer.AddKnockoutDataBind("with", dataContextBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("with", dataContextBinding as ValueBindingExpression, this, DataContextProperty);
             }
             writer.RenderBeginTag(WrapperTagName);
 

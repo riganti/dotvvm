@@ -2,7 +2,7 @@
 
 <h2>{{controlProperty: Name}}</h2>
 <p>
-	<rw:TextBox Text="{value: Value}" />
+	<rw:TextBox Text="{controlProperty: Value}" />
 	<rw:Button Text="Up" Click="{command: Up()}" />
 	<rw:Button Text="Down" Click="{command: Down()}" />
 </p>

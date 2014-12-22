@@ -88,18 +88,18 @@ namespace Redwood.Framework.Controls
             if (checkedBinding != null && checkedItemsBinding == null)
             {
                 // boolean mode
-                writer.AddKnockoutDataBind("checked", checkedBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("checked", checkedBinding as ValueBindingExpression, this, CheckedProperty);
                 writer.AddKnockoutDataBind("checkedValue", "true");
             }
             else if (checkedBinding == null && checkedItemsBinding != null)
             {
                 // collection mode
-                writer.AddKnockoutDataBind("checked", checkedItemsBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("checked", checkedItemsBinding as ValueBindingExpression, this, CheckedItemsProperty);
 
                 var checkedValueBinding = GetBinding(CheckedValueProperty);
                 if (checkedValueBinding != null)
                 {
-                    writer.AddKnockoutDataBind("checkedValue", checkedValueBinding as ValueBindingExpression);
+                    writer.AddKnockoutDataBind("checkedValue", checkedValueBinding as ValueBindingExpression, this, CheckedValueProperty);
                 }
                 else
                 {
@@ -124,7 +124,7 @@ namespace Redwood.Framework.Controls
             {
                 if (textBinding != null)
                 {
-                    writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression);
+                    writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression, this, TextProperty);
                     writer.RenderBeginTag("span");
                     writer.RenderEndTag();
                 }

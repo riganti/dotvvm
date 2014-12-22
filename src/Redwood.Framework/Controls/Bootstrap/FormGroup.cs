@@ -45,7 +45,7 @@ namespace Redwood.Framework.Controls.Bootstrap
             var textBinding = GetBinding(LabelTextProperty);
             if (textBinding != null)
             {
-                writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression, this, LabelTextProperty);
                 writer.RenderBeginTag("label");
                 writer.RenderEndTag();
             }

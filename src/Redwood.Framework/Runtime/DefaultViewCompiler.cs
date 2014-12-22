@@ -58,6 +58,7 @@ namespace Redwood.Framework.Runtime
                 // build the statements
                 emitter.PushNewMethod("BuildControl");
                 var pageName = emitter.EmitCreateObject(wrapperType);
+                emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, pageName);
                 foreach (var child in node.Content)
                 {
                     ProcessNode(child, pageName, controlResolver.ResolveControl(wrapperType));
@@ -289,13 +290,13 @@ namespace Redwood.Framework.Runtime
             {
                 // compiled control
                 currentObjectName = emitter.EmitCreateObject(controlMetadata.Type, constructorParameters);
-                emitter.EmitSetAttachedProperty(currentObjectName, typeof (Internal).FullName, Internal.UniqueIDProperty.Name, currentObjectName);
             }
             else
             {
                 // markup control    
                 currentObjectName = emitter.EmitInvokeControlBuilder(controlMetadata.Type, controlMetadata.ControlBuilderType);
             }
+            emitter.EmitSetAttachedProperty(currentObjectName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, currentObjectName);
 
             // set properties from attributes
             foreach (var attribute in element.Attributes)

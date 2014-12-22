@@ -11,7 +11,7 @@
 	<div class="container">
 		<h1>User Controls Sample</h1>
 		
-		<sample5:TestControl DataContext="{value: ViewModel1}" Name="First Control" />
+		<sample5:TestControl DataContext="{value: ViewModel1}" Value="{value: ViewModel1.Value}" Name="First Control" />
 		<sample5:TestControl DataContext="{value: ViewModel2}" Name="{value: SecondControlName}" />
 	</div>
 

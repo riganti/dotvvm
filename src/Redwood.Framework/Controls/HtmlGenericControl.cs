@@ -63,7 +63,7 @@ namespace Redwood.Framework.Controls
             var visibleBinding = GetBinding(VisibleProperty);
             if (visibleBinding != null)
             {
-                writer.AddKnockoutDataBind("visible", visibleBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("visible", visibleBinding as ValueBindingExpression, this, VisibleProperty);
             }
 
             // render hard-coded HTML attributes
@@ -77,7 +77,7 @@ namespace Redwood.Framework.Controls
                 .Select(a => new KeyValuePair<string, ValueBindingExpression>(a.Key, (ValueBindingExpression)a.Value)).ToList();
             if (propertyValuePairs.Any())
             {
-                writer.AddKnockoutDataBind("attr", propertyValuePairs);
+                writer.AddKnockoutDataBind("attr", propertyValuePairs, this, null);
             }
 
             writer.RenderBeginTag(TagName);

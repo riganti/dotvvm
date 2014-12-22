@@ -61,7 +61,7 @@ namespace Redwood.Framework.Controls
             var textBinding = GetBinding(TextProperty);
             if (textBinding != null)
             {
-                writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", textBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", textBinding as ValueBindingExpression, this, TextProperty);
                 writer.RenderBeginTag("span");
                 writer.RenderEndTag();
             }

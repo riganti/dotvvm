@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -9,16 +11,23 @@ using Redwood.Framework.Parser;
 
 namespace Redwood.Framework.Binding
 {
-    public class ExpressionEvaluator
+    public class ViewModelJTokenEvaluator
     {
 
-        public bool AllowMethods { get; set; }
+        private ViewModelJTokenEvaluationVisitor visitor;
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ViewModelJTokenEvaluator"/> class.
+        /// </summary>
+        public ViewModelJTokenEvaluator(JToken root)
+        {
+            visitor = new ViewModelJTokenEvaluationVisitor(root);
+        }
 
         /// <summary>
         /// Evaluates the specified expression.
         /// </summary>
-        public object Evaluate(string expression, object dataContext)
+        public JToken Evaluate(string expression)
         {
             // parse
             var tree = CSharpSyntaxTree.ParseText(expression, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
@@ -37,7 +46,6 @@ namespace Redwood.Framework.Binding
             var node = expr.ChildNodes().First();
 
             // translate the expression
-            var visitor = new ExpressionEvaluationVisitor { AllowMethods = AllowMethods, DataContext = dataContext, Root = dataContext };
             return visitor.Visit(node);
         }
 

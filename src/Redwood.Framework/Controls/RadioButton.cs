@@ -100,12 +100,12 @@ namespace Redwood.Framework.Controls
             if (checkedItemBinding != null)
             {
                 // selected item mode
-                writer.AddKnockoutDataBind("checked", checkedItemBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("checked", checkedItemBinding as ValueBindingExpression, this, CheckedItemProperty);
 
                 var checkedValueBinding = GetBinding(CheckedValueProperty);
                 if (checkedValueBinding != null)
                 {
-                    writer.AddKnockoutDataBind("checkedValue", checkedValueBinding as ValueBindingExpression);
+                    writer.AddKnockoutDataBind("checkedValue", checkedValueBinding as ValueBindingExpression, this, CheckedValueProperty);
                 }
                 else
                 {
@@ -127,7 +127,7 @@ namespace Redwood.Framework.Controls
             var groupNameBinding = GetBinding(GroupNameProperty);
             if (groupNameBinding != null)
             {
-                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, ValueBindingExpression>("name", groupNameBinding as ValueBindingExpression) });
+                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, ValueBindingExpression>("name", groupNameBinding as ValueBindingExpression) }, this, GroupNameProperty);
             }
             else
             {
@@ -141,7 +141,7 @@ namespace Redwood.Framework.Controls
             {
                 if (textBinding != null)
                 {
-                    writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression);
+                    writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression, this, TextProperty);
                     writer.RenderBeginTag("span");
                     writer.RenderEndTag();
                 }
