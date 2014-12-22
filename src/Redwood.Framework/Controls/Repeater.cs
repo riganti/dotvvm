@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Binding;
@@ -71,7 +70,7 @@ namespace Redwood.Framework.Controls
                 var index = 0;
                 foreach (var item in DataSource)
                 {
-                    var placeholder = new DataItemContainer { DataContext = item };
+                    var placeholder = new DataItemContainer { DataContext = item, DataItemIndex = index };
                     ItemTemplate.BuildContent(placeholder);
 
                     context.PathFragments.Push(dataSourceBinding.Expression);

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Hosting
 {
@@ -11,8 +13,7 @@ namespace Redwood.Framework.Hosting
     /// </summary>
     public class DefaultRedwoodViewBuilder : IRedwoodViewBuilder
     {
-
-
+        
         public IMarkupFileLoader MarkupFileLoader { get; private set; }
 
         public IControlBuilderFactory ControlBuilderFactory { get; private set; }
@@ -22,9 +23,12 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultRedwoodViewBuilder"/> class.
         /// </summary>
-        public DefaultRedwoodViewBuilder(IMarkupFileLoader markupFileLoader, IControlBuilderFactory controlBuilderFactory)
+        public DefaultRedwoodViewBuilder(RedwoodConfiguration configuration)
         {
-            MarkupFileLoader = markupFileLoader;
+            MarkupFileLoader = new DefaultMarkupFileLoader();
+
+            var controlBuilderFactory = new DefaultControlBuilderFactory();
+            controlBuilderFactory.ViewCompilerFactory = () => new DefaultViewCompiler(new DefaultControlResolver(configuration, MarkupFileLoader, controlBuilderFactory), configuration, CompiledAssemblyCache.Instance);
             ControlBuilderFactory = controlBuilderFactory;
         }
 
@@ -38,15 +42,15 @@ namespace Redwood.Framework.Hosting
 
             // build the page
             var pageBuilder = ControlBuilderFactory.GetControlBuilder(markup);
-            var contentPage = pageBuilder() as RedwoodView;
+            var contentPage = pageBuilder.BuildControl() as RedwoodView;
 
             // check for master page and perform composition recursively
             while (IsNestedInMasterPage(contentPage))
             {
                 // load master page
                 var masterPageFile = contentPage.Directives[Constants.MasterPageDirective];
-                var masterPageMarkup = MarkupFileLoader.GetMarkup(context, masterPageFile);
-                var masterPage = (RedwoodView)ControlBuilderFactory.GetControlBuilder(masterPageMarkup)();
+                var masterPageMarkup = MarkupFileLoader.GetMarkup(context.Configuration, masterPageFile);
+                var masterPage = (RedwoodView)ControlBuilderFactory.GetControlBuilder(masterPageMarkup).BuildControl();
 
                 PerformMasterPageComposition(contentPage, masterPage);
                 contentPage = masterPage;
@@ -115,7 +119,7 @@ namespace Redwood.Framework.Hosting
             // check that no placeholder is nested in another one and that each one has valid ID
             foreach (var placeHolder in placeHolders)
             {
-                placeHolder.EnsureControlHasId();
+                placeHolder.EnsureControlHasId(autoGenerate: false);
                 if (placeHolder.GetAllAncestors().Intersect(placeHolders).Any())
                 {
                     throw new Exception(string.Format("The ContentPlaceHolder with ID '{0}' cannot be nested in another ContentPlaceHolder!", placeHolder.ID)); // TODO: exception handling

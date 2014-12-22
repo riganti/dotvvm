@@ -72,12 +72,15 @@
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
+    <Compile Include="Binding\ControlCommandBindingExpression.cs" />
+    <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
     <Compile Include="Binding\ControlStateBindingExpression.cs" />
     <Compile Include="Binding\ExpressionEvaluator.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
+    <Compile Include="Configuration\RedwoodSecurityConfiguration.cs" />
     <Compile Include="Controls\Bootstrap\FormGroup.cs" />
     <Compile Include="Controls\Bootstrap\GlyphIcon.cs" />
     <Compile Include="Controls\Bootstrap\HorizontalForm.cs" />
@@ -98,18 +101,20 @@
     <Compile Include="Controls\Literal.cs" />
     <Compile Include="Controls\MappingMode.cs" />
     <Compile Include="Controls\RadioButton.cs" />
+    <Compile Include="Controls\Internal.cs" />
+    <Compile Include="Controls\RedwoodMarkupControl.cs" />
     <Compile Include="Controls\RedwoodView.cs" />
     <Compile Include="Controls\RedwoodBindableControl.cs" />
     <Compile Include="Controls\RedwoodControl.cs" />
     <Compile Include="Controls\RedwoodControlCollection.cs" />
     <Compile Include="Controls\Placeholder.cs" />
     <Compile Include="Controls\RedwoodProperty.cs" />
-    <Compile Include="Controls\RedwoodStatefulControl.cs" />
     <Compile Include="Controls\RenderContext.cs" />
     <Compile Include="Controls\MarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />
     <Compile Include="Controls\TextBox.cs" />
+    <Compile Include="Hosting\CompiledAssemblyCache.cs" />
     <Compile Include="Hosting\DefaultControlBuilderFactory.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\DefaultOutputRenderer.cs" />
@@ -135,6 +140,7 @@
     <Compile Include="Hosting\RedwoodRequestContext.cs" />
     <Compile Include="Hosting\ViewModelSerializer.cs" />
     <Compile Include="KnockoutHelper.cs" />
+    <Compile Include="OwinExtensions.cs" />
     <Compile Include="Parser\Constants.cs" />
     <Compile Include="Parser\ParserException.cs" />
     <Compile Include="Parser\IReader.cs" />
@@ -173,6 +179,7 @@
     <Compile Include="Routing\RouteBase.cs" />
     <Compile Include="Runtime\ControlResolverMetadata.cs" />
     <Compile Include="Runtime\ControlResolverPropertyMetadata.cs" />
+    <Compile Include="Runtime\ControlType.cs" />
     <Compile Include="Runtime\DefaultControlResolver.cs" />
     <Compile Include="Runtime\DefaultViewCompiler.cs" />
     <Compile Include="Runtime\DefaultViewCompilerCodeEmitter.cs" />
@@ -185,12 +192,11 @@
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
-    <Compile Include="ViewModel\CryptoAttribute.cs" />
-    <Compile Include="ViewModel\CryptoSerializer.cs" />
-    <Compile Include="ViewModel\CryptoSettings.cs" />
+    <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
+    <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
+    <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
     <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IRedwoodViewModel.cs" />
-    <Compile Include="ViewModel\IViewModelSerializationHandler.cs" />
     <Compile Include="ViewModel\KeyPropertyAttribute.cs" />
     <Compile Include="ViewModel\PropertyOptionsAttribute.cs" />
     <Compile Include="ViewModel\RedwoodViewModelBase.cs" />
@@ -198,7 +204,6 @@
     <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMapper.cs" />
-    <Compile Include="ViewModel\ViewModelSerializationSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -207,6 +212,7 @@
     <EmbeddedResource Include="Resources\Controls.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Controls.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Parser.RwHtml.resx">
       <Generator>ResXFileCodeGenerator</Generator>

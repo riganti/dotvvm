@@ -1,79 +1,57 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Reflection;
-using Newtonsoft.Json.Serialization;
 using Newtonsoft.Json;
 
 namespace Redwood.Framework.ViewModel
 {
+    /// <summary>
+    /// Builds serialization maps that are used during the JSON serialization.
+    /// </summary>
     public class ViewModelSerializationMapper
     {
-        public static ViewModelSerializationMap MapClass(Type type)
+
+        /// <summary>
+        /// Creates the serialization map for specified type.
+        /// </summary>
+        public ViewModelSerializationMap CreateMap(Type type)
         {
-            return new ViewModelSerializationMap()
-            {
-                Properties = GetProperties(type),
-                Type = type
-            };
-        }
-
-        public static IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
-        {
-            foreach (var p in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
-            {
-                if (p.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
-
-                var map = new ViewModelPropertyMap();
-                map.Name = p.Name;
-                map.Crypto = CryptoSettings.None;
-                map.Type = p.PropertyType;
-                map.TransferToClient = p.GetMethod != null;
-                map.TransferToServer = p.SetMethod != null;
-
-                var bind = p.GetCustomAttribute<BindAttribute>();
-                if(bind != null && bind.Direction != Direction.TwoWay)
-                {
-                    map.TransferToClient = bind.Direction == Direction.OneWay;
-                    map.TransferToServer = bind.Direction == Direction.OneWayToSource;
-                }
-
-                var crypto = p.GetCustomAttribute<CryptoAttribute>();
-                if (crypto != null)
-                    map.Crypto = crypto.Settings;
-
-                yield return map;
-            }
-        }
-
-        public static bool ContainsSpecialAttribute(MemberInfo m)
-        {
-            return m.GetCustomAttribute<BindAttribute>() != null;
-        }
-
-        public static IEnumerable<Type> GetAllViewModels(Assembly assembly)
-        {
-            return assembly.GetTypes().Where(t =>
-                typeof(IRedwoodViewModel).IsAssignableFrom(t) ||
-                t.GetMembers().Any(ContainsSpecialAttribute));
+            return new ViewModelSerializationMap(type, GetProperties(type));
         }
 
         /// <summary>
-        /// scan all loaded assemblies (with redwood reference) for view models
+        /// Gets the properties of the specified type.
         /// </summary>
-        /// <returns></returns>
-        public static IEnumerable<Type> GetAllViewModels()
+        private IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
         {
-            var redwoodAssembly = typeof(IRedwoodViewModel).Assembly.FullName;
-            // include assemblies with redwood referenced to improve performance
-            return AppDomain.CurrentDomain.GetAssemblies().Where(a => a.GetReferencedAssemblies().Any(r => r.FullName == redwoodAssembly)).SelectMany(GetAllViewModels);
+            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            {
+                if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
+
+                var propertyMap = new ViewModelPropertyMap()
+                {
+                    Name = property.Name,
+                    ViewModelProtection = ViewModelProtectionSettings.None,
+                    Type = property.PropertyType,
+                    TransferToClient = property.GetMethod != null,
+                    TransferToServer = property.SetMethod != null
+                };
+
+                var bindAttribute = property.GetCustomAttribute<BindAttribute>();
+                if (bindAttribute != null)
+                {
+                    propertyMap.TransferToClient = bindAttribute.Direction.HasFlag(Direction.ServerToClient);
+                    propertyMap.TransferToServer = bindAttribute.Direction.HasFlag(Direction.ClientToServer);
+                }
+
+                var viewModelProtectionAttribute = property.GetCustomAttribute<ViewModelProtectionAttribute>();
+                if (viewModelProtectionAttribute != null)
+                    propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
+
+                yield return propertyMap;
+            }
         }
 
-        public static IEnumerable<ViewModelSerializationMap> MapAllViewModels()
-        {
-            return GetAllViewModels().Select(MapClass);
-        }
     }
 }

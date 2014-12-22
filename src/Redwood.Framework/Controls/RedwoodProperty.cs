@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -58,14 +59,14 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
-        internal object GetValue(RedwoodControl redwoodControl)
+        internal object GetValue(RedwoodControl redwoodControl, bool inherit = true)
         {
             object value;
-            if (redwoodControl.Properties.TryGetValue(this, out value))
+            if (redwoodControl.properties != null && redwoodControl.properties.TryGetValue(this, out value))
             {
                 return value;
             }
-            if (IsValueInherited && redwoodControl.Parent != null)
+            if (IsValueInherited && inherit && redwoodControl.Parent != null)
             {
                 return GetValue(redwoodControl.Parent);
             }
@@ -87,14 +88,42 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public static RedwoodProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName, object defaultValue = null, bool isValueInherited = false)
         {
-            return new RedwoodProperty()
+            return Register<TPropertyType, TDeclaringType>(ReflectionUtils.GetPropertyNameFromExpression(propertyName), defaultValue, isValueInherited);
+        }
+
+        /// <summary>
+        /// Registers the specified Redwood property.
+        /// </summary>
+        public static RedwoodProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false)
+        {
+            var fullName = typeof (TDeclaringType).FullName + "." + propertyName;
+
+            return registeredProperties.GetOrAdd(fullName, _ => new RedwoodProperty()
             {
-                Name = ReflectionUtils.GetPropertyNameFromExpression(propertyName),
+                Name = propertyName,
                 DefaultValue = defaultValue,
                 DeclaringType = typeof(TDeclaringType),
                 PropertyType = typeof(TPropertyType),
                 IsValueInherited = isValueInherited
-            };
+            });
+        }
+
+        private static ConcurrentDictionary<string, RedwoodProperty> registeredProperties = new ConcurrentDictionary<string, RedwoodProperty>(); 
+
+        /// <summary>
+        /// Resolves the <see cref="RedwoodProperty"/> by the declaring type and name.
+        /// </summary>
+        public static RedwoodProperty ResolveProperty(Type type, string name)
+        {
+            var fullName = type.FullName + "." + name;
+
+            RedwoodProperty property;
+            while (!registeredProperties.TryGetValue(fullName, out property) && type.BaseType != null)
+            {
+                type = type.BaseType;
+                fullName = type.FullName + "." + name;
+            }
+            return property;
         }
     }
 }

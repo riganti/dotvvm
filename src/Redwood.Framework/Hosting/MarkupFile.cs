@@ -12,7 +12,7 @@ namespace Redwood.Framework.Hosting
 
 
 
-        public IReader ContentsReader { get; set; }
+        public Func<IReader> ContentsReaderFactory { get; set; }
 
         public string FileName { get; set; }
 

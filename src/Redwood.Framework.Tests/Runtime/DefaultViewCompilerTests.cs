@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
 using Redwood.Framework.Runtime;
 
@@ -109,15 +110,13 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)placeholder.Children[2]).Text));
         }
 
-
-
-
-
         private static RedwoodControl CompileMarkup(string markup)
         {
-            var compiler = new DefaultViewCompiler(new DefaultControlResolver(new RedwoodConfiguration()));
-            var factory = compiler.CompileView(new StringReader(markup), "file", "assembly", "ns", "c");
-            return factory();
+            var redwoodViewBuilder = new DefaultRedwoodViewBuilder(RedwoodConfiguration.CreateDefault());
+            var compiler = redwoodViewBuilder.ControlBuilderFactory.ViewCompilerFactory();
+
+            var controlBuilder = compiler.CompileView(new StringReader(markup), "file", "assembly", "ns", "c");
+            return controlBuilder.BuildControl();
         }
     }
 }
