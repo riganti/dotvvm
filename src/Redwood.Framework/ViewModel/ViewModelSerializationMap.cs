@@ -80,7 +80,7 @@ namespace Redwood.Framework.ViewModel
             // value = new {Type}();
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
-            // go through all properties
+            // go through all properties that should be read
             foreach (var property in Properties.Where(p => p.TransferToServer))
             {
                 // jobj["{property.Name}"]

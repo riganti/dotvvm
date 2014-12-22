@@ -18,12 +18,20 @@ namespace Redwood.Framework.ViewModel
 
         private static byte[] EncryptionKey
         {
-            get { return Convert.FromBase64String(Configuration.Security.EncryptionKey); }
+            get { return Configuration.Security.EncryptionKey ?? (Configuration.Security.EncryptionKey = GenerateRandomKey(32)); }
         }
 
         private static byte[] MacKey
         {
-            get { return Convert.FromBase64String(Configuration.Security.SigningKey); }
+            get { return Configuration.Security.SigningKey ?? (Configuration.Security.SigningKey = GenerateRandomKey(64)); }
+        }
+
+        private static byte[] GenerateRandomKey(int len)
+        {
+            var rng = RNGCryptoServiceProvider.Create();
+            var b = new byte[len];
+            rng.GetBytes(b);
+            return b;
         }
 
 
@@ -106,8 +114,11 @@ namespace Redwood.Framework.ViewModel
                         cs.Write(message, offset, length);
                         cs.FlushFinalBlock();
 
-                        // write mac
+                        // I can't dispose CryptoStream now, because it will also close the MemoryStream
+
+                        // compute mac of the encrypted data on stream
                         var mac = MacInternal(ms.ToArray(), offset, (int)ms.Position);
+                        // and append the mac to result
                         ms.Write(mac, 0, mac.Length);
                     }
                     return ms.ToArray();
@@ -169,11 +180,14 @@ namespace Redwood.Framework.ViewModel
         {
             var msgMac = MacInternal(message, msgOffset, msgLen);
 
+            // this has to run exactly the same time in every case to prevent timing attacks
+            // I hope that JIT is not optimizing this
+            int result = 0;
             for (int i = 0; i < msgMac.Length; i++)
             {
-                if (msgMac[i] != mac[macOffset + i]) return false;
+                result |= msgMac[i] ^ mac[macOffset + i];
             }
-            return true;
+            return result == 0;
         }
 
         /// <summary>
@@ -186,6 +200,5 @@ namespace Redwood.Framework.ViewModel
                 return m.ComputeHash(message, offset, length);
             }
         }
-
     }
 }

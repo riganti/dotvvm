@@ -11,14 +11,14 @@ namespace Redwood.Framework.Configuration
     {
 
         /// <summary>
-        /// Gets or sets base-64 encoded 256-bit key for signing.
+        /// Gets or sets base-64 encoded key for signing (128 bytes recommended - for HMACSHA512, long is hashed or short is padded).
         /// </summary>
-        public string SigningKey { get; set; }
+        public byte[] SigningKey { get; set; }
 
         /// <summary>
-        /// Gets or sets base-64 encoded 256-bit key for encryption.
+        /// Gets or sets base-64 encoded key for encryption (128, 192 or 256 key - used for AES).
         /// </summary>
-        public string EncryptionKey { get; set; }
+        public byte[] EncryptionKey { get; set; }
 
     }
 }
