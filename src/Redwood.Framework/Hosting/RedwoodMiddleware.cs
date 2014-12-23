@@ -22,8 +22,6 @@ namespace Redwood.Framework.Hosting
         public RedwoodMiddleware(OwinMiddleware next, RedwoodConfiguration configuration) : base(next)
         {
             this.configuration = configuration;
-
-            ViewModelProtectionHelper.Configuration = configuration;
         }
         
         /// <summary>

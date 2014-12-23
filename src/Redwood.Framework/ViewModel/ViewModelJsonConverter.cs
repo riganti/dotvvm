@@ -21,7 +21,16 @@ namespace Redwood.Framework.ViewModel
 
         private static readonly ViewModelSerializationMapper viewModelSerializationMapper = new ViewModelSerializationMapper();
         private static readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
-        
+
+
+        private ViewModelProtectionHelper protectionHelper;
+
+        public ViewModelJsonConverter(ViewModelProtectionHelper protectionHelper)
+        {
+            this.protectionHelper = protectionHelper;
+        }
+
+
         /// <summary>
         /// Gets the serialization map for specified type.
         /// </summary>
@@ -45,7 +54,7 @@ namespace Redwood.Framework.ViewModel
         {
             var serializationMap = GetSerializationMapForType(objectType);
             var instance = serializationMap.ConstructorFactory();
-            serializationMap.ReaderFactory(JObject.Load(reader), serializer, instance);
+            serializationMap.ReaderFactory(JObject.Load(reader), serializer, instance, this.protectionHelper);
             return instance;
         }
 
@@ -55,7 +64,7 @@ namespace Redwood.Framework.ViewModel
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.WriterFactory(writer, value, serializer);
+            serializationMap.WriterFactory(writer, value, serializer, this.protectionHelper);
         }
 
         /// <summary>
@@ -64,7 +73,7 @@ namespace Redwood.Framework.ViewModel
         public virtual void Populate(JObject jobj, JsonSerializer serializer, object value)
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.ReaderFactory(jobj, serializer, value);
+            serializationMap.ReaderFactory(jobj, serializer, value, this.protectionHelper);
         }
     }
 }

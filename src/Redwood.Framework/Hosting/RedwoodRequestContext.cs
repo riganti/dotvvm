@@ -25,5 +25,12 @@ namespace Redwood.Framework.Hosting
 
         public IDictionary<string, object> Parameters { get; set; }
 
+        public IReadableStringCollection Query
+        {
+            get
+            {
+                return OwinContext.Request.Query;
+            }
+        }
     }
 }
