@@ -114,6 +114,7 @@
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />
     <Compile Include="Controls\TextBox.cs" />
+    <Compile Include="Utils\ExpressionHelper.cs" />
     <Compile Include="Hosting\CompiledAssemblyCache.cs" />
     <Compile Include="Hosting\DefaultControlBuilderFactory.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
