@@ -8,6 +8,7 @@ using Redwood.Framework.Controls;
 using Redwood.Framework.ViewModel;
 using System.Text;
 using System.IO;
+using Redwood.Framework.Configuration;
 
 namespace Redwood.Framework.Hosting
 {
@@ -15,6 +16,13 @@ namespace Redwood.Framework.Hosting
     {
 
         private CommandResolver commandResolver = new CommandResolver();
+        private RedwoodConfiguration configuration;
+
+        public ViewModelSerializer(RedwoodConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
 
         /// <summary>
         /// Serializes the view model for the client.
@@ -25,7 +33,8 @@ namespace Redwood.Framework.Hosting
 
             // serialize the ViewModel
             var serializer = new JsonSerializer();
-            serializer.Converters.Add(new ViewModelJsonConverter());
+            serializer.Converters.Add(
+                new ViewModelJsonConverter(new ViewModelProtectionHelper(configuration.Security, serializer)));
             var sb = new StringBuilder();
             using (var jw = new StringWriter(sb))
             {
@@ -47,7 +56,7 @@ namespace Redwood.Framework.Hosting
 
             // populate the ViewModel
             var serializer = new JsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter();
+            var viewModelConverter = new ViewModelJsonConverter(new ViewModelProtectionHelper(configuration.Security, serializer));
             serializer.Converters.Add(viewModelConverter);
             viewModelConverter.Populate(data["viewModel"] as JObject, serializer, viewModel);
             

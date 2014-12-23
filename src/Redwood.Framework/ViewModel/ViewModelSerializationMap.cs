@@ -30,20 +30,20 @@ namespace Redwood.Framework.ViewModel
         }
 
 
-        private Action<JObject, JsonSerializer, object> readerFactory;
+        private Action<JObject, JsonSerializer, object, ViewModelProtectionHelper> readerFactory;
         /// <summary>
         /// Gets the JSON reader factory.
         /// </summary>
-        public Action<JObject, JsonSerializer, object> ReaderFactory
+        public Action<JObject, JsonSerializer, object, ViewModelProtectionHelper> ReaderFactory
         {
             get { return readerFactory ?? (readerFactory = CreateReaderFactory()); }
         }
 
-        private Action<JsonWriter, object, JsonSerializer> writerFactory;
+        private Action<JsonWriter, object, JsonSerializer, ViewModelProtectionHelper> writerFactory;
         /// <summary>
         /// Gets the JSON writer factory.
         /// </summary>
-        public Action<JsonWriter, object, JsonSerializer> WriterFactory
+        public Action<JsonWriter, object, JsonSerializer, ViewModelProtectionHelper> WriterFactory
         {
             get { return writerFactory ?? (writerFactory = CreateWriterFactory()); }
         }
@@ -69,13 +69,15 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Creates the reader factory.
         /// </summary>
-        public Action<JObject, JsonSerializer, object> CreateReaderFactory()
+        public Action<JObject, JsonSerializer, object, ViewModelProtectionHelper> CreateReaderFactory()
         {
             var block = new List<Expression>();
             var jobj = Expression.Parameter(typeof(JObject), "jobj");
             var serializer = Expression.Parameter(typeof(JsonSerializer), "serializer");
             var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var value = Expression.Variable(Type, "value");
+            var protectionHelper = Expression.Parameter(typeof(ViewModelProtectionHelper), "protectionHelper");
+
 
             // value = new {Type}();
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
@@ -84,7 +86,7 @@ namespace Redwood.Framework.ViewModel
             foreach (var property in Properties.Where(p => p.TransferToServer))
             {
                 // jobj["{property.Name}"]
-                var jsonProp = Expression.Property(jobj, 
+                var jsonProp = Expression.Property(jobj,
                             typeof(JObject).GetProperty("Item", typeof(JObject), new[] { typeof(string) }),
                             Expression.Constant(property.Name));
                 // jobj["{property.Name}"].CreateReader();
@@ -96,14 +98,14 @@ namespace Redwood.Framework.ViewModel
                 {
                     // ViewModelProtectionHelper.DecryptAndDeserialize(jobj["{p.Name}"].CreateReader().ReadAsString(), {p.Type})
                     callDeserialize = Expression.Call(
-                        typeof (ViewModelProtectionHelper).GetMethod("DecryptAndDeserialize"),
+                        protectionHelper, "DecryptAndDeserialize", Type.EmptyTypes,
                         Expression.Call(propReader, "ReadAsString", Type.EmptyTypes),
                         Expression.Constant(property.Type));
                 }
                 else
                 {
                     callDeserialize = Expression.Call(serializer,
-                        typeof (JsonSerializer).GetMethod("Deserialize", new[] { typeof (JsonReader), typeof (Type) }),
+                        typeof(JsonSerializer).GetMethod("Deserialize", new[] { typeof(JsonReader), typeof(Type) }),
                         propReader, Expression.Constant(property.Type));
                 }
 
@@ -119,7 +121,7 @@ namespace Redwood.Framework.ViewModel
                 // check the signature
                 if (property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
-                    block.Add(Expression.Call(typeof(ViewModelProtectionHelper).GetMethod("VerifyHmacSignature"),
+                    block.Add(Expression.Call(protectionHelper, "VerifyHmacSignature", Type.EmptyTypes,
                         Expression.Property(value, property.Name),
                         Expression.Convert(Expression.Property(jobj,
                             typeof(JObject).GetProperty("Item", typeof(JObject), new[] { typeof(string) }),
@@ -132,25 +134,26 @@ namespace Redwood.Framework.ViewModel
             block.Add(value);
 
             // build the lambda expression
-            var ex = Expression.Lambda<Action<JObject, JsonSerializer, object>>(Expression.Convert(Expression.Block(Type, new[] { value }, block), typeof(object)), jobj, serializer, valueParam);
+            var ex = Expression.Lambda<Action<JObject, JsonSerializer, object, ViewModelProtectionHelper>>(Expression.Convert(Expression.Block(Type, new[] { value }, block), typeof(object)), jobj, serializer, valueParam, protectionHelper);
             return ex.Compile();
         }
 
         /// <summary>
         /// Creates the writer factory.
         /// </summary>
-        public Action<JsonWriter, object, JsonSerializer> CreateWriterFactory()
+        public Action<JsonWriter, object, JsonSerializer, ViewModelProtectionHelper> CreateWriterFactory()
         {
             var block = new List<Expression>();
             var writer = Expression.Parameter(typeof(JsonWriter), "writer");
             var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var serializer = Expression.Parameter(typeof(JsonSerializer), "serializer");
             var value = Expression.Variable(Type, "value");
+            var protectionHelper = Expression.Parameter(typeof(ViewModelProtectionHelper), "protectionHelper");
 
             // value = ({Type})valueParam;
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
-            
+
             // go through all properties that should be serialized
             foreach (var property in Properties.Where(map => map.TransferToClient))
             {
@@ -161,9 +164,9 @@ namespace Redwood.Framework.ViewModel
 
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData)
                     // writer.WriteValue(ViewModelProtectionHelper.SerializeAndEncrypt(value.{property.Name}));
-                    block.Add(Expression.Call(writer, 
-                        typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }), 
-                        Expression.Call(typeof(ViewModelProtectionHelper).GetMethod("SerializeAndEncrypt"), prop)));
+                    block.Add(Expression.Call(writer,
+                        typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }),
+                        Expression.Call(protectionHelper, "SerializeAndEncrypt", Type.EmptyTypes, prop)));
                 else
                     // serializer.Serialize(writer, value.{property.Name});
                     block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
@@ -171,18 +174,20 @@ namespace Redwood.Framework.ViewModel
                 // add the signature if needed
                 if (property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
-                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name + "$mac")));
+                    block.Add(Expression.Call(writer,
+                        "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name + "$mac")));
                     block.Add(Expression.Call(writer,
                         typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }),
-                        Expression.Call(typeof(ViewModelProtectionHelper).GetMethod("CalculateHmacSignature"),
-                        prop)));
+                            Expression.Call(protectionHelper, "CalculateHmacSignature", Type.EmptyTypes, prop)
+                        ));
                 }
             }
 
             block.Add(Expression.Call(writer, "WriteEndObject", Type.EmptyTypes));
 
             // compile the expression
-            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer>>(Expression.Block(new[] { value }, block), writer, valueParam, serializer);
+            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, ViewModelProtectionHelper>>(
+                Expression.Block(new[] { value }, block), writer, valueParam, serializer, protectionHelper);
             return ex.Compile();
         }
 

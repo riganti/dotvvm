@@ -7,38 +7,29 @@ using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using Redwood.Framework.Configuration;
+using Newtonsoft.Json.Bson;
 
 namespace Redwood.Framework.ViewModel
 {
-    public static class ViewModelProtectionHelper
+    public class ViewModelProtectionHelper
     {
+        private byte[] EncryptionKey { get; set; }
+        private byte[] MacKey { get; set; }
+        public JsonSerializer Serializer { get; set; }
 
-        internal static RedwoodConfiguration Configuration { get; set; }
-
-
-        private static byte[] EncryptionKey
+        public ViewModelProtectionHelper(RedwoodSecurityConfiguration config, JsonSerializer serializer = null)
         {
-            get { return Configuration.Security.EncryptionKey ?? (Configuration.Security.EncryptionKey = GenerateRandomKey(32)); }
+            if (config.EncryptionKey == null) config.EncryptionKey = GenerateRandomKey(32);
+            if (config.SigningKey == null) config.SigningKey = GenerateRandomKey(128);
+            this.EncryptionKey = config.EncryptionKey;
+            this.MacKey = config.SigningKey;
+            this.Serializer = serializer ?? new JsonSerializer();
         }
-
-        private static byte[] MacKey
-        {
-            get { return Configuration.Security.SigningKey ?? (Configuration.Security.SigningKey = GenerateRandomKey(64)); }
-        }
-
-        private static byte[] GenerateRandomKey(int len)
-        {
-            var rng = RNGCryptoServiceProvider.Create();
-            var b = new byte[len];
-            rng.GetBytes(b);
-            return b;
-        }
-
 
         /// <summary>
         /// Serializes the value and encrypts it.
         /// </summary>
-        public static string SerializeAndEncrypt(object obj)
+        public virtual string SerializeAndEncrypt(object obj)
         {
             var json = JsonConvert.SerializeObject(obj);
             var encoded = Encoding.UTF8.GetBytes(json);
@@ -49,7 +40,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Decrypts the value and deserializes it.
         /// </summary>
-        public static object DecryptAndDeserialize(string data, Type type)
+        public virtual object DecryptAndDeserialize(string data, Type type)
         {
             var encrypted = Convert.FromBase64String(data);
             var encoded = DecryptInternal(encrypted, 0, encrypted.Length);
@@ -61,7 +52,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Calculates HMAC-SHA512 signature of the value after JSON serialization.
         /// </summary>
-        public static string CalculateHmacSignature(object obj)
+        public virtual string CalculateHmacSignature(object obj)
         {
             var json = JsonConvert.SerializeObject(obj);
             var encoded = Encoding.UTF8.GetBytes(json);
@@ -72,7 +63,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Verifies the HMAC signature of the value.
         /// </summary>
-        public static void VerifyHmacSignature(object obj, string base64Signature)
+        public virtual void VerifyHmacSignature(object obj, string base64Signature)
         {
             var json = JsonConvert.SerializeObject(obj);
             var encoded = Encoding.UTF8.GetBytes(json);
@@ -83,18 +74,48 @@ namespace Redwood.Framework.ViewModel
             }
         }
 
+        protected virtual byte[] Serialize(object obj)
+        {
+            using (var ms = new MemoryStream())
+            {
+                var bw = new BsonWriter(ms);
+                Serializer.Serialize(bw, obj);
+                bw.Close();
+                return ms.ToArray();
+            }
+        }
+
+        protected virtual object Deserialize(byte[] data, Type type)
+        {
+            using (var ms = new MemoryStream(data))
+            {
+                var br = new BsonReader(ms);
+                return Serializer.Deserialize(br, type);
+            }
+        }
+
         /// <summary>
         /// Throws the security exception.
         /// </summary>
-        private static void ThrowSecurityException()
+        protected static void ThrowSecurityException()
         {
             throw new SecurityException("The viewmodel was modified on the client side! The signature is invalid!");
+        }
+        /// <summary>
+        /// Generates cryptographicaly random value of specified length
+        /// </summary>
+        protected static byte[] GenerateRandomKey(int length)
+        {
+            var rng = RNGCryptoServiceProvider.Create();
+            var b = new byte[length];
+            rng.GetBytes(b);
+            return b;
         }
 
         /// <summary>
         /// Encrypts the message using AES CBC mode and adds HMAC SHA512 signature.
         /// </summary>
-        private static byte[] EncryptInternal(byte[] message, int offset, int length)
+        protected virtual byte[] EncryptInternal(byte[] message, int offset, int length)
         {
             using (var aes = new RijndaelManaged())
             {
@@ -129,7 +150,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Check the signature and then decrypts the message
         /// </summary>
-        private static byte[] DecryptInternal(byte[] cipherText, int offset, int length)
+        protected virtual byte[] DecryptInternal(byte[] cipherText, int offset, int length)
         {
             if (!CheckMac(cipherText))
             {
@@ -167,7 +188,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Checks if MAC is correct. Mac is last 64 bytes.
         /// </summary>
-        private static bool CheckMac(byte[] message)
+        protected virtual bool CheckMac(byte[] message)
         {
             var macIndex = message.Length - 64;
             return CheckMac(message, 0, macIndex, message, macIndex);
@@ -176,7 +197,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Check if MAC is correct for message
         /// </summary>
-        private static bool CheckMac(byte[] message, int msgOffset, int msgLen, byte[] mac, int macOffset)
+        protected virtual bool CheckMac(byte[] message, int msgOffset, int msgLen, byte[] mac, int macOffset)
         {
             var msgMac = MacInternal(message, msgOffset, msgLen);
 
@@ -193,7 +214,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Calculates the HMAC SHA512 of the message
         /// </summary>
-        private static byte[] MacInternal(byte[] message, int offset, int length)
+        protected virtual byte[] MacInternal(byte[] message, int offset, int length)
         {
             using (var m = new HMACSHA512(MacKey))
             {
