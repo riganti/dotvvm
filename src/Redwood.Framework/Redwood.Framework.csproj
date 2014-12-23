@@ -114,13 +114,13 @@
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />
     <Compile Include="Controls\TextBox.cs" />
-    <Compile Include="Utils\ExpressionHelper.cs" />
+    <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\CompiledAssemblyCache.cs" />
     <Compile Include="Hosting\DefaultControlBuilderFactory.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\DefaultOutputRenderer.cs" />
     <Compile Include="Hosting\DefaultRedwoodViewBuilder.cs" />
-    <Compile Include="Hosting\DefaultViewModelLocator.cs" />
+    <Compile Include="Hosting\DefaultViewModelLoader.cs" />
     <Compile Include="Hosting\ErrorPageTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

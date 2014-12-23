@@ -109,7 +109,7 @@ namespace Redwood.Framework.Utils
                     }
                     else return node;
                 }
-                else if(node.Member.MemberType == MemberTypes.Field)
+                else if (node.Member.MemberType == MemberTypes.Field)
                 {
                     var i = Visit(node.Expression);
                     if (i.NodeType == ExpressionType.Constant)
@@ -139,7 +139,7 @@ namespace Redwood.Framework.Utils
             protected override Expression VisitUnary(UnaryExpression node)
             {
                 var op = Visit(node.Operand);
-                if(op is ConstantExpression)
+                if (op is ConstantExpression)
                 {
                     return Expression.Constant(
                         node.Method.Invoke(null, new object[] { (op as ConstantExpression).Value }), node.Type);

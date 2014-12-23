@@ -86,29 +86,26 @@ namespace Redwood.Framework.ViewModel
             // go through all properties that should be read
             foreach (var property in Properties.Where(p => p.TransferToServer))
             {
-                var jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
-
-                // jobj["{property.Name}"].CreateReader();
-                var propReader = Expression.Call(jsonProp, "CreateReader", Type.EmptyTypes);
-
+                Expression jsonProp = null;
                 // handle serialized properties
                 Expression callDeserialize;
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData)
                 {
+                    jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name + "$encrypted"], jobj);
                     callDeserialize = ExpressionUtils.Replace(
-                        (ViewModelProtectionHelper ph, JObject j) => 
-                        ph.DecryptAndDeserialize((string)j[property.Name], property.Type),
+                        (ViewModelProtectionHelper ph, JObject j) =>
+                        ph.DecryptAndDeserialize((string)j[property.Name + "$encrypted"], property.Type),
                         protectionHelper, jobj);
                     // protectionHelper.DecryptAndDeserialize(jobj["{p.Name}"].CreateReader().ReadAsString(), {p.Type})
                 }
                 else
                 {
-                    // serializer.Deserialize(propReader, typeof({property.Type}));
-                    callDeserialize = ExpressionUtils.Replace((JsonSerializer s, JsonReader pr) =>
-                        s.Deserialize(pr, property.Type), serializer, propReader);
+                    jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
+                    callDeserialize = ExpressionUtils.Replace((JsonSerializer s, JObject j) =>
+                        s.Deserialize(j[property.Name].CreateReader(), property.Type), serializer, jobj);
                 }
 
-                // if (jobj["{p.Name}"] != null) value.{p.Name} = deserialize();
+                // if ({jsonProp} != null) value.{p.Name} = deserialize();
                 block.Add(
                     Expression.IfThen(Expression.NotEqual(jsonProp, Expression.Constant(null)),
                         Expression.Call(
@@ -133,7 +130,7 @@ namespace Redwood.Framework.ViewModel
             var ex = Expression.Lambda<Action<JObject, JsonSerializer, object, ViewModelProtectionHelper>>(
                 Expression.Convert(
                     Expression.Block(Type, new[] { value }, block),
-                    typeof(object)).OptimizeConstants(), 
+                    typeof(object)).OptimizeConstants(),
                 jobj, serializer, valueParam, protectionHelper);
             return ex.Compile();
         }
@@ -158,18 +155,23 @@ namespace Redwood.Framework.ViewModel
             foreach (var property in Properties.Where(map => map.TransferToClient))
             {
                 // writer.WritePropertyName("{property.Name"});
-                block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name)));
 
                 var prop = Expression.Convert(Expression.Property(value, property.Name), typeof(object));
 
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData)
+                {
+                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name + "$encrypted")));
                     // writer.WriteValue(protectionHelper.SerializeAndEncrypt(value.{property.Name}));
                     block.Add(ExpressionUtils.Replace((ViewModelProtectionHelper ph, JsonWriter w, object p) =>
                         w.WriteValue(ph.SerializeAndEncrypt(p)),
                         protectionHelper, writer, prop));
+                }
                 else
+                {
+                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name)));
                     // serializer.Serialize(writer, value.{property.Name});
                     block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
+                }
 
                 // add the signature if needed
                 if (property.ViewModelProtection == ViewModelProtectionSettings.SignData)
@@ -181,7 +183,7 @@ namespace Redwood.Framework.ViewModel
                     block.Add(ExpressionUtils.Replace((ViewModelProtectionHelper ph, JsonWriter w, object p) =>
                         w.WriteValue(ph.CalculateHmacSignature(p)),
                         protectionHelper, writer, prop));
-                    
+
                 }
             }
 
