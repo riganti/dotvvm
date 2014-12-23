@@ -162,6 +162,9 @@
   <data name="Binding_UnsupportedExpression" xml:space="preserve">
     <value>The expression '{0}' is not supported in bindings!</value>
   </data>
+  <data name="Binding_UnsupportedExpressionInDataContext" xml:space="preserve">
+    <value>The expression '{0}' is not supported in bindings in the DataContext property!</value>
+  </data>
   <data name="ControlCollection_ControlAlreadyHasParent" xml:space="preserve">
     <value>The control cannot be added to the collection because it already has a different parent! Remove it from the original collection first.</value>
   </data>

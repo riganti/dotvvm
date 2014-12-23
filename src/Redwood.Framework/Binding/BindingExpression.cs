@@ -22,7 +22,9 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Translates the binding to client script.
         /// </summary>
-        public abstract string TranslateToClientScript();
+        /// <param name="control"></param>
+        /// <param name="property"></param>
+        public abstract string TranslateToClientScript(RedwoodBindableControl control, RedwoodProperty property);
 
 
 

@@ -32,7 +32,9 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Translates the binding to client script.
         /// </summary>
-        public override string TranslateToClientScript()
+        /// <param name="control"></param>
+        /// <param name="property"></param>
+        public override string TranslateToClientScript(RedwoodBindableControl control, RedwoodProperty property)
         {
             return translator.Translate(Expression);
         }

@@ -10,7 +10,7 @@ namespace Redwood.Framework.Controls
         private static readonly string[] scripts =
         {
             "/Scripts/knockout-3.2.0.js",
-            "/Scripts/knockout.mapping-latest.js",
+            "/Scripts/knockout.mapper.js",
             "/Scripts/Redwood.js"
         };
 

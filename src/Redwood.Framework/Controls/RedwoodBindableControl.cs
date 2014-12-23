@@ -10,6 +10,8 @@ namespace Redwood.Framework.Controls
     /// </summary>
     public abstract class RedwoodBindableControl : RedwoodControl
     {
+        private Dictionary<string, object> controlState;
+
 
 
         /// <summary>
@@ -34,6 +36,48 @@ namespace Redwood.Framework.Controls
             get { return dataBindings; }
         }
 
+        /// <summary>
+        /// Gets the collection of properties used to persist control state for postbacks.
+        /// </summary>
+        [MarkupOptions(MappingMode = MappingMode.Exclude)]
+        public Dictionary<string, object> ControlState
+        {
+            get
+            {
+                if (controlState == null)
+                {
+                    controlState = new Dictionary<string, object>();
+                }
+                return controlState;
+            }
+        }
+
+        /// <summary>
+        /// Gets a value indication whether the control requires the control state.
+        /// </summary>
+        public virtual bool RequiresControlState
+        {
+            get { return false; }
+        }
+
+        /// <summary>
+        /// Gets the value from control state.
+        /// </summary>
+        protected internal virtual T GetControlStateValue<T>(string key, T defaultValue = default(T))
+        {
+            if (!RequiresControlState) return defaultValue;
+            object value;
+            return ControlState.TryGetValue(key, out value) ? (T)value : defaultValue;
+        }
+
+        /// <summary>
+        /// Sets the value for specified control state item.
+        /// </summary>
+        protected internal virtual void SetControlStateValue(string key, object value)
+        {
+            ControlState[key] = value;
+        }
+
 
 
         /// <summary>
@@ -56,15 +100,24 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public override void SetValue(RedwoodProperty property, object value)
         {
-            // register data-bindings when they are applied to the property
-            dataBindings.Remove(property);
-            if (value is BindingExpression)
+            object originalValue;
+            if (Properties.TryGetValue(property, out originalValue) && originalValue is IUpdatableBindingExpression && !(value is BindingExpression))
             {
-                dataBindings[property] = (BindingExpression)value;
+                // if the property contains a binding and we are not passing another binding, update the value
+                ((IUpdatableBindingExpression)originalValue).UpdateSource(value, this, property);
             }
             else
             {
-                base.SetValue(property, value);
+                // register data-bindings when they are applied to the property
+                dataBindings.Remove(property);
+                if (value is BindingExpression)
+                {
+                    dataBindings[property] = (BindingExpression)value;
+                }
+                else
+                {
+                    base.SetValue(property, value);
+                }
             }
         }
 
@@ -113,5 +166,57 @@ namespace Redwood.Framework.Controls
             }
         }
 
+
+        /// <summary>
+        /// Gets the data context hierarchy.
+        /// </summary>
+        internal IEnumerable<ValueBindingExpression> GetDataContextHierarchy()
+        {
+            var bindings = new List<ValueBindingExpression>();
+            RedwoodControl current = this;
+            do
+            {
+                if (current is RedwoodBindableControl)
+                {
+                    var binding = ((RedwoodBindableControl)current).GetBinding(DataContextProperty, false) as ValueBindingExpression;
+                    if (binding != null)
+                    {
+                        bindings.Add(binding);
+                    }
+                }
+                current = current.Parent;
+            } 
+            while (current != null);
+
+            bindings.Reverse();
+            return bindings;
+        }
+
+        /// <summary>
+        /// Gets the closest control binding target.
+        /// </summary>
+        public static RedwoodControl GetClosestControlBindingTarget(RedwoodBindableControl control, out int numberOfDataContextChanges)
+        {
+            var current = (RedwoodControl)control;
+            numberOfDataContextChanges = 0;
+            while (current != null)
+            {
+                if (current is RedwoodBindableControl && ((RedwoodBindableControl)current).GetBinding(RedwoodBindableControl.DataContextProperty, false) != null)
+                {
+                    numberOfDataContextChanges++;
+                }
+                if ((bool)current.GetValue(Internal.IsControlBindingTargetProperty))
+                {
+                    break;
+                }
+
+                current = current.Parent;
+            }
+            if (current == null)
+            {
+                throw new Exception("The {controlProperty: ...} binding can be only used in a markup control."); // TODO: exception handling
+            }
+            return current;
+        }
     }
 }

@@ -51,7 +51,7 @@ namespace Redwood.Framework.Controls
             if (!RenderOnServer)
             {
                 var dataSourceBinding = GetDataSourceBinding();
-                writer.AddKnockoutDataBind("foreach", dataSourceBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("foreach", dataSourceBinding as ValueBindingExpression, this, DataSourceProperty);
             }
 
             base.Render(writer, context);

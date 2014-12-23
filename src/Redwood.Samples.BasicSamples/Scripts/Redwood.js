@@ -3,7 +3,7 @@
         this.viewModels = {};
     }
     Redwood.prototype.init = function (viewModelName) {
-        var viewModel = ko.mapping.fromJS(this.viewModels[viewModelName]);
+        var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName]);
         this.viewModels[viewModelName] = viewModel;
         ko.applyBindings(viewModel);
     };
@@ -13,13 +13,13 @@
         var viewModel = this.viewModels[viewModelName];
         this.updateDynamicPathFragments(sender, path);
         var data = {
-            viewModel: ko.mapping.toJS(viewModel),
+            viewModel: ko.mapper.toJS(viewModel),
             currentPath: path,
             command: command,
             controlUniqueId: controlUniqueId
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), function (result) {
-            ko.mapping.fromJSON(result.responseText, {}, _this.viewModels[viewModelName]);
+            ko.mapper.fromJS(JSON.parse(result.responseText), {}, _this.viewModels[viewModelName]);
         }, function (error) {
             alert(error.responseText);
         });

@@ -173,8 +173,7 @@
     <Content Include="Scripts\jquery-2.1.1.min.js" />
     <Content Include="Scripts\knockout-3.2.0.debug.js" />
     <Content Include="Scripts\knockout-3.2.0.js" />
-    <Content Include="Scripts\knockout.mapping-latest.debug.js" />
-    <Content Include="Scripts\knockout.mapping-latest.js" />
+    <Content Include="Scripts\knockout.mapper.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -206,7 +205,7 @@
   </ItemGroup>
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\Redwood.ts" />
-    <TypeScriptCompile Include="Scripts\typings\knockout.mapping\knockout.mapping.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\knockout\knockout.d.ts" />
   </ItemGroup>
   <PropertyGroup>

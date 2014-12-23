@@ -43,7 +43,7 @@ namespace Redwood.Framework.Controls
             var textBinding = GetBinding(TextProperty);
             if (textBinding != null)
             {
-                writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression, this, TextProperty);
             }
             writer.AddAttribute("href", "#");
 

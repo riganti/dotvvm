@@ -61,7 +61,7 @@ namespace Redwood.Framework.Controls
             if (!RenderOnServer)
             {
                 var dataSourceBinding = GetDataSourceBinding();
-                writer.AddKnockoutDataBind("options", dataSourceBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("options", dataSourceBinding as ValueBindingExpression, this, DataSourceProperty);
 
                 if (!string.IsNullOrEmpty(DisplayMember))
                 {
@@ -74,7 +74,7 @@ namespace Redwood.Framework.Controls
                 var selectedValueBinding = GetBinding(SelectedValueProperty);
                 if (selectedValueBinding != null)
                 {
-                    writer.AddKnockoutDataBind("value", selectedValueBinding as ValueBindingExpression);
+                    writer.AddKnockoutDataBind("value", selectedValueBinding as ValueBindingExpression, this, SelectedValueProperty);
                 }
             }
 

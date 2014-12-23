@@ -29,19 +29,20 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public string SerializeViewModel(object viewModel, RedwoodView view)
         {
-            // TODO: add the control state to the view model map
-
             // serialize the ViewModel
             var serializer = new JsonSerializer();
             serializer.Converters.Add(
                 new ViewModelJsonConverter(new ViewModelProtectionHelper(configuration.Security, serializer)));
-            var sb = new StringBuilder();
-            using (var jw = new StringWriter(sb))
-            {
-                serializer.Serialize(jw, viewModel);
-            }
-            return sb.ToString();
+            var writer = new JTokenWriter();
+            serializer.Serialize(writer, viewModel);
+
+            // save the control state
+            var walker = new ViewModelControlTreeWalker(writer.Token, view);
+            walker.ProcessControlTree(walker.SaveControlState);
+
+            return writer.Token.ToString();
         }
+
 
         /// <summary>
         /// Populates the view model from the data received from the request.
@@ -60,8 +61,9 @@ namespace Redwood.Framework.Hosting
             serializer.Converters.Add(viewModelConverter);
             viewModelConverter.Populate(data["viewModel"] as JObject, serializer, viewModel);
             
-
-            // TODO: restore control state
+            // load the control state
+            var walker = new ViewModelControlTreeWalker(data["viewModel"], view);
+            walker.ProcessControlTree(walker.LoadControlState);
 
             // find the command target
             if (!string.IsNullOrEmpty(controlUniqueId))

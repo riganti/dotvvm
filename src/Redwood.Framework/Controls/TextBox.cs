@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Binding;
-using Redwood.Framework.Utils;
 
 namespace Redwood.Framework.Controls
 {
@@ -11,7 +10,7 @@ namespace Redwood.Framework.Controls
 
         public string Text
         {
-            get { return (string)GetValue(TextProperty); }
+            get { return Convert.ToString(GetValue(TextProperty)); }
             set { SetValue(TextProperty, value); }
         }
         public static readonly RedwoodProperty TextProperty =
@@ -28,7 +27,7 @@ namespace Redwood.Framework.Controls
             var textBinding = GetBinding(TextProperty);
             if (textBinding != null)
             {
-                writer.AddKnockoutDataBind("value", textBinding as ValueBindingExpression);
+                writer.AddKnockoutDataBind("value", textBinding as ValueBindingExpression, this, TextProperty);
             }
             else
             {

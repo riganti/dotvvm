@@ -22,25 +22,8 @@ namespace Redwood.Framework.Binding
         public override object Evaluate(RedwoodBindableControl control, RedwoodProperty property)
         {
             // find the parent markup control and calculate number of DataContext changes
-            var current = (RedwoodControl)control;
-            var level = 0;
-            while (current != null)
-            {
-                if (current is RedwoodBindableControl && ((RedwoodBindableControl)current).GetBinding(RedwoodBindableControl.DataContextProperty, false) != null)
-                {
-                    level++;
-                }
-                if ((bool)current.GetValue(Internal.IsControlBindingTargetProperty))
-                {
-                    break;
-                }
-
-                current = current.Parent;
-            }
-            if (current == null)
-            {
-                throw new Exception("The {controlProperty: ...} binding can be only used in a markup control.");        // TODO: exception handling
-            }
+            int numberOfDataContextChanges;
+            var current = RedwoodBindableControl.GetClosestControlBindingTarget(control, out numberOfDataContextChanges);
 
             // get the property
             var sourceProperty = RedwoodProperty.ResolveProperty(current.GetType(), Expression);
@@ -52,11 +35,15 @@ namespace Redwood.Framework.Binding
             // check whether the property contains binding
             if (current is RedwoodBindableControl)
             {
-                // there is a binding, create a new one and add _parent clauses to make it evaluate against the same DataContext
                 var originalBinding = ((RedwoodBindableControl)current).GetBinding(sourceProperty);
-                if (originalBinding != null)
+                if (originalBinding != null && originalBinding.GetType() == typeof(ValueBindingExpression))
                 {
-                    return new ValueBindingExpression(string.Join(".", Enumerable.Range(0, level).Select(i => "_parent").Concat(new[] { originalBinding.Expression })));
+                    // ValueBindingExpression must be modified to be evaluated against the original DataContext
+                    return new ValueBindingExpression(string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => "_parent").Concat(new[] { originalBinding.Expression })));
+                }
+                else if (originalBinding != null)
+                {
+                    return originalBinding;
                 }
             }
 
@@ -64,7 +51,7 @@ namespace Redwood.Framework.Binding
             return current.GetValue(sourceProperty);
         }
 
-        public override string TranslateToClientScript()
+        public override string TranslateToClientScript(RedwoodBindableControl control, RedwoodProperty property)
         {
             throw new InvalidOperationException("The {controlProperty: ...} binding cannot be translated to client script!");
         }
