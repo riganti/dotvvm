@@ -115,6 +115,15 @@ namespace Redwood.Framework.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to The expression &apos;{0}&apos; is not supported in bindings in the DataContext property!.
+        /// </summary>
+        internal static string Binding_UnsupportedExpressionInDataContext {
+            get {
+                return ResourceManager.GetString("Binding_UnsupportedExpressionInDataContext", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to The operator &apos;{0}&apos; is not supported in the binding!.
         /// </summary>
         internal static string Binding_UnsupportedOperator {

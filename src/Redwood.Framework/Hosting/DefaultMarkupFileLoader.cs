@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Redwood.Framework.Configuration;
 
 namespace Redwood.Framework.Hosting
 {
@@ -21,23 +22,23 @@ namespace Redwood.Framework.Hosting
                 throw new Exception("The view must be a file with the .rwhtml extension!");     // TODO: exception handling
             }
 
-            return GetMarkupCore(context, fileName);
+            return GetMarkupCore(context.Configuration, fileName);
         }
 
         /// <summary>
         /// Gets the markup file for the specified virtual path.
         /// </summary>
-        public MarkupFile GetMarkup(RedwoodRequestContext context, string virtualPath)
+        public MarkupFile GetMarkup(RedwoodConfiguration configuration, string virtualPath)
         {
-            return GetMarkupCore(context, virtualPath);
+            return GetMarkupCore(configuration, virtualPath);
         }
-
-        private static MarkupFile GetMarkupCore(RedwoodRequestContext context, string fileName)
+         
+        private static MarkupFile GetMarkupCore(RedwoodConfiguration configuration, string fileName)
         {
             // check that we are not outside application directory
-            var fullPath = Path.Combine(context.Configuration.ApplicationPhysicalPath, fileName);
+            var fullPath = Path.Combine(configuration.ApplicationPhysicalPath, fileName);
             fullPath = Path.GetFullPath(fullPath);
-            if (!fullPath.StartsWith(context.Configuration.ApplicationPhysicalPath, StringComparison.CurrentCultureIgnoreCase))
+            if (!fullPath.StartsWith(configuration.ApplicationPhysicalPath, StringComparison.CurrentCultureIgnoreCase))
             {
                 throw new Exception("The view cannot be located outside the website directory!");     // TODO: exception handling
             }
@@ -45,7 +46,7 @@ namespace Redwood.Framework.Hosting
             // load the file
             return new MarkupFile()
             {
-                ContentsReader = new FileReader(fullPath),
+                ContentsReaderFactory = () => new FileReader(fullPath),
                 FileName = fileName,
                 FullPath = fullPath
             };

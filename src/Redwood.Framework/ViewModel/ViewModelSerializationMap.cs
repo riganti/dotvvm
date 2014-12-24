@@ -1,148 +1,197 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Redwood.Framework.Utils;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Text;
 
 namespace Redwood.Framework.ViewModel
 {
+    /// <summary>
+    /// Performs the JSON serialization for specified type.
+    /// </summary>
     public class ViewModelSerializationMap
     {
-        public Type Type { get; set; }
-        public IEnumerable<ViewModelPropertyMap> Properties = new List<ViewModelPropertyMap>();
+        /// <summary>
+        /// Gets or sets the object type for this serialization map.
+        /// </summary>
+        public Type Type { get; private set; }
 
-        Action<JObject, JsonSerializer, object> readerFn;
-        public Action<JObject, JsonSerializer, object> Reader
+        public IEnumerable<ViewModelPropertyMap> Properties { get; private set; }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ViewModelSerializationMap"/> class.
+        /// </summary>
+        public ViewModelSerializationMap(Type type, IEnumerable<ViewModelPropertyMap> properties)
         {
-            get { return readerFn ?? (readerFn = CreateReader()); }
+            Type = type;
+            Properties = properties.ToList();
         }
 
-        Action<JsonWriter, object, JsonSerializer> writerFn;
-        public Action<JsonWriter, object, JsonSerializer> Writer
+
+        private Action<JObject, JsonSerializer, object, ViewModelProtectionHelper> readerFactory;
+        /// <summary>
+        /// Gets the JSON reader factory.
+        /// </summary>
+        public Action<JObject, JsonSerializer, object, ViewModelProtectionHelper> ReaderFactory
         {
-            get { return writerFn ?? (writerFn = CreateWriter()); }
+            get { return readerFactory ?? (readerFactory = CreateReaderFactory()); }
         }
 
-        Func<object> constructFn;
-        public Func<object> Construct
+        private Action<JsonWriter, object, JsonSerializer, ViewModelProtectionHelper> writerFactory;
+        /// <summary>
+        /// Gets the JSON writer factory.
+        /// </summary>
+        public Action<JsonWriter, object, JsonSerializer, ViewModelProtectionHelper> WriterFactory
         {
-            get { return constructFn ?? (constructFn = CreateConstructor()); }
+            get { return writerFactory ?? (writerFactory = CreateWriterFactory()); }
         }
 
-        public Func<object> CreateConstructor()
+        private Func<object> constructorFactory;
+        /// <summary>
+        /// Gets the constructor factory.
+        /// </summary>
+        public Func<object> ConstructorFactory
+        {
+            get { return constructorFactory ?? (constructorFactory = CreateConstructorFactory()); }
+        }
+
+        /// <summary>
+        /// Creates the constructor for this object.
+        /// </summary>
+        public Func<object> CreateConstructorFactory()
         {
             var ex = Expression.Lambda<Func<object>>(Expression.New(Type));
             return ex.Compile();
         }
 
-        public Action<JObject, JsonSerializer, object> CreateReader()
+        /// <summary>
+        /// Creates the reader factory.
+        /// </summary>
+        public Action<JObject, JsonSerializer, object, ViewModelProtectionHelper> CreateReaderFactory()
         {
             var block = new List<Expression>();
-            var returnTarget = Expression.Label();
             var jobj = Expression.Parameter(typeof(JObject), "jobj");
             var serializer = Expression.Parameter(typeof(JsonSerializer), "serializer");
             var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var value = Expression.Variable(Type, "value");
+            var protectionHelper = Expression.Parameter(typeof(ViewModelProtectionHelper), "protectionHelper");
+
+
             // value = new {Type}();
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
-            foreach (var p in Properties)
+            // go through all properties that should be read
+            foreach (var property in Properties.Where(p => p.TransferToServer))
             {
-                var propInfo = Type.GetProperty(p.Name);
-                // when client should not send it or does not contain set method skip it
-                if (!p.TransferToServer || propInfo.SetMethod == null) continue;
-
-                // jobj["{p.Name}"]
-                var jsonProp = Expression.Property(jobj,
-                            typeof(JObject).GetProperty("Item", typeof(JObject), new[] { typeof(string) }),
-                            Expression.Constant(p.Name));
-                // jobj["{p.Name}"].CreateReader();
-                var propReader = Expression.Call(jsonProp, "CreateReader", Type.EmptyTypes);
-
+                Expression jsonProp = null;
+                // handle serialized properties
                 Expression callDeserialize;
-                if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
-                    // CryptoSerializer.DecryptDeserialize(jobj["{p.Name}"].CreateReader().ReadAsString(), {p.Type})
-                    callDeserialize = Expression.Call(
-                        typeof(CryptoSerializer).GetMethod("DecryptDeserialize"),
-                        Expression.Call(propReader, "ReadAsString", Type.EmptyTypes),
-                        Expression.Constant(p.Type));
+                if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData)
+                {
+                    jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name + "$encrypted"], jobj);
+                    callDeserialize = ExpressionUtils.Replace(
+                        (ViewModelProtectionHelper ph, JObject j) =>
+                        ph.DecryptAndDeserialize((string)j[property.Name + "$encrypted"], property.Type),
+                        protectionHelper, jobj);
+                    // protectionHelper.DecryptAndDeserialize(jobj["{p.Name}"].CreateReader().ReadAsString(), {p.Type})
+                }
+                else
+                {
+                    jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
+                    callDeserialize = ExpressionUtils.Replace((JsonSerializer s, JObject j) =>
+                        s.Deserialize(j[property.Name].CreateReader(), property.Type), serializer, jobj);
+                }
 
-                else callDeserialize = Expression.Call(serializer,
-                    typeof(JsonSerializer).GetMethod("Deserialize", new[] { typeof(JsonReader), typeof(Type) }),
-                    propReader, Expression.Constant(p.Type));
-
-                // if (jobj["{p.Name}"] != null) value.{p.Name} = deserialize();
+                // if ({jsonProp} != null) value.{p.Name} = deserialize();
                 block.Add(
                     Expression.IfThen(Expression.NotEqual(jsonProp, Expression.Constant(null)),
                         Expression.Call(
                         value,
-                        Type.GetProperty(p.Name).SetMethod,
-                        Expression.Convert(callDeserialize, p.Type)
+                        Type.GetProperty(property.Name).SetMethod,
+                        Expression.Convert(callDeserialize, property.Type)
                 )));
 
-                if (p.Crypto == CryptoSettings.Mac)
+                // check the signature
+                if (property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
-                    block.Add(Expression.Call(typeof(CryptoSerializer).GetMethod("CheckObjectMac"),
-                        Expression.Property(value, p.Name),
-                        Expression.Convert(Expression.Property(jobj,
-                            typeof(JObject).GetProperty("Item", typeof(JObject), new[] { typeof(string) }),
-                            Expression.Constant(p.Name + "$mac")), typeof(string))
-
-                    ));
+                    // protectionHelper.VerifyHmacSignature(value.{property.Name}, jobj[{property.Name + "$mac"}] as string)
+                    block.Add(ExpressionUtils.Replace((ViewModelProtectionHelper ph, object vp, JObject jo) =>
+                        ph.VerifyHmacSignature(vp, (string)jo[property.Name + "$mac"]),
+                        protectionHelper, Expression.Property(value, property.Name), jobj));
                 }
-            };
+            }
 
             block.Add(value);
 
-            var ex = Expression.Lambda<Action<JObject, JsonSerializer, object>>(Expression.Convert(Expression.Block(Type, new[] { value }, block), typeof(object)), jobj, serializer, valueParam);
+            // build the lambda expression
+            var ex = Expression.Lambda<Action<JObject, JsonSerializer, object, ViewModelProtectionHelper>>(
+                Expression.Convert(
+                    Expression.Block(Type, new[] { value }, block),
+                    typeof(object)).OptimizeConstants(),
+                jobj, serializer, valueParam, protectionHelper);
             return ex.Compile();
         }
 
-        public Action<JsonWriter, object, JsonSerializer> CreateWriter()
+        /// <summary>
+        /// Creates the writer factory.
+        /// </summary>
+        public Action<JsonWriter, object, JsonSerializer, ViewModelProtectionHelper> CreateWriterFactory()
         {
             var block = new List<Expression>();
             var writer = Expression.Parameter(typeof(JsonWriter), "writer");
             var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var serializer = Expression.Parameter(typeof(JsonSerializer), "serializer");
             var value = Expression.Variable(Type, "value");
+            var protectionHelper = Expression.Parameter(typeof(ViewModelProtectionHelper), "protectionHelper");
+
             // value = ({Type})valueParam;
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
 
-
-            foreach (var p in Properties.Where(map => map.TransferToClient))
+            // go through all properties that should be serialized
+            foreach (var property in Properties.Where(map => map.TransferToClient))
             {
-                // writer.WritePropertyName("{p.Name"});
-                block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(p.Name)));
+                // writer.WritePropertyName("{property.Name"});
 
-                var prop = Expression.Convert(Expression.Property(value, p.Name), typeof(object));
+                var prop = Expression.Convert(Expression.Property(value, property.Name), typeof(object));
 
-                if (p.Crypto == CryptoSettings.AuthenticatedEncrypt)
-                    // writer.WriteValue(CryptoSerializer.EncryptSerialize(value.{p.Name}));
-                    block.Add(Expression.Call(writer, typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }), Expression.Call(typeof(CryptoSerializer).GetMethod("EncryptSerialize"), prop)));
-                else
-                    // serializer.Serialize(writer, value.{p.Name});
-                    block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
-
-                // write MAC
-                if (p.Crypto == CryptoSettings.Mac)
+                if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData)
                 {
-                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(p.Name + "$mac")));
-                    block.Add(Expression.Call(writer,
-                        typeof(JsonWriter).GetMethod("WriteValue", new[] { typeof(string) }),
-                        Expression.Call(typeof(CryptoSerializer).GetMethod("MacSerialize"),
-                        prop)));
+                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name + "$encrypted")));
+                    // writer.WriteValue(protectionHelper.SerializeAndEncrypt(value.{property.Name}));
+                    block.Add(ExpressionUtils.Replace((ViewModelProtectionHelper ph, JsonWriter w, object p) =>
+                        w.WriteValue(ph.SerializeAndEncrypt(p)),
+                        protectionHelper, writer, prop));
+                }
+                else
+                {
+                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name)));
+                    // serializer.Serialize(writer, value.{property.Name});
+                    block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
+                }
+
+                // add the signature if needed
+                if (property.ViewModelProtection == ViewModelProtectionSettings.SignData)
+                {
+                    // writer.WritePropertyName({property.Name + "$mac"});
+                    block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName(property.Name + "$mac"), writer));
+
+                    // writer.WriteValue(protectionHelper.CalculateHmacSignature({prop});
+                    block.Add(ExpressionUtils.Replace((ViewModelProtectionHelper ph, JsonWriter w, object p) =>
+                        w.WriteValue(ph.CalculateHmacSignature(p)),
+                        protectionHelper, writer, prop));
+
                 }
             }
 
-            block.Add(Expression.Call(writer, "WriteEndObject", Type.EmptyTypes));
+            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
 
-
-            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer>>(Expression.Block(new[] { value }, block), writer, valueParam, serializer);
-
+            // compile the expression
+            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, ViewModelProtectionHelper>>(
+                Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, protectionHelper);
             return ex.Compile();
         }
 

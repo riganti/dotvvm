@@ -17,5 +17,6 @@ namespace Redwood.Framework.Controls
             Directives = new Dictionary<string, string>();
             ResourceDependencies.Add("redwood");
         }
+
     }
 }

@@ -15,7 +15,7 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>
-        Func<RedwoodControl> CompileView(IReader reader, string fileName, string assemblyName, string namespaceName, string className);
+        IControlBuilder CompileView(IReader reader, string fileName, string assemblyName, string namespaceName, string className);
 
     }
 }

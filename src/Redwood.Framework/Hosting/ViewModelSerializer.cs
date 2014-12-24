@@ -8,6 +8,7 @@ using Redwood.Framework.Controls;
 using Redwood.Framework.ViewModel;
 using System.Text;
 using System.IO;
+using Redwood.Framework.Configuration;
 
 namespace Redwood.Framework.Hosting
 {
@@ -15,47 +16,69 @@ namespace Redwood.Framework.Hosting
     {
 
         private CommandResolver commandResolver = new CommandResolver();
+        private RedwoodConfiguration configuration;
+
+        public ViewModelSerializer(RedwoodConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
+
 
         /// <summary>
         /// Serializes the view model for the client.
         /// </summary>
         public string SerializeViewModel(object viewModel, RedwoodView view)
         {
-            // TODO: add the control state to the view model map
-
+            // serialize the ViewModel
             var serializer = new JsonSerializer();
-            serializer.Converters.Add(new ViewModelJsonConverter());
-            var sb = new StringBuilder();
-            using (var jw = new StringWriter(sb))
-            {
-                serializer.Serialize(jw, viewModel);
-            }
-            return sb.ToString();
+            serializer.Converters.Add(
+                new ViewModelJsonConverter(new ViewModelProtectionHelper(configuration.Security, serializer)));
+            var writer = new JTokenWriter();
+            serializer.Serialize(writer, viewModel);
+
+            // save the control state
+            var walker = new ViewModelControlTreeWalker(writer.Token, view);
+            walker.ProcessControlTree(walker.SaveControlState);
+
+            return writer.Token.ToString();
         }
+
 
         /// <summary>
         /// Populates the view model from the data received from the request.
         /// </summary>
         public void PopulateViewModel(object viewModel, RedwoodView view, string serializedPostData, out Action invokedCommand)
         {
+            // get properties
             var data = JObject.Parse(serializedPostData);
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
+            var controlUniqueId = data["controlUniqueId"].Value<string>();
 
-            // populate the view model map
+            // populate the ViewModel
             var serializer = new JsonSerializer();
-            var vmconv = new ViewModelJsonConverter();
-            serializer.Converters.Add(vmconv);
+            var viewModelConverter = new ViewModelJsonConverter(new ViewModelProtectionHelper(configuration.Security, serializer));
+            serializer.Converters.Add(viewModelConverter);
+            viewModelConverter.Populate(data["viewModel"] as JObject, serializer, viewModel);
+            
+            // load the control state
+            var walker = new ViewModelControlTreeWalker(data["viewModel"], view);
+            walker.ProcessControlTree(walker.LoadControlState);
 
-            if (vmconv.CanConvert(viewModel.GetType()))
-                vmconv.Populate(data["viewModel"] as JObject, serializer, viewModel);
+            // find the command target
+            if (!string.IsNullOrEmpty(controlUniqueId))
+            {
+                var target = view.FindControl(controlUniqueId);
+                if (target == null)
+                {
+                    throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
+                }
+                invokedCommand = commandResolver.GetFunction(target, viewModel, path, command);
+            }
             else
-                serializer.Populate(data["viewModel"].CreateReader(), viewModel);
-
-            // TODO: restore control state
-
-            // resolve the command
-            invokedCommand = commandResolver.GetFunction(viewModel, path, command);
+            {
+                invokedCommand = commandResolver.GetFunction(viewModel, path, command);
+            }
         }
     }
 }

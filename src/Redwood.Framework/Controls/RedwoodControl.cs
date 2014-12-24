@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text.RegularExpressions;
 
 namespace Redwood.Framework.Controls
@@ -9,13 +10,28 @@ namespace Redwood.Framework.Controls
     /// </summary>
     public abstract class RedwoodControl
     {
+       
+        protected internal Dictionary<RedwoodProperty, object> properties;
 
-        internal Dictionary<RedwoodProperty, object> Properties = new Dictionary<RedwoodProperty, object>();
+        /// <summary>
+        /// Gets the collection of control property values.
+        /// </summary>
+        protected internal Dictionary<RedwoodProperty, object> Properties
+        {
+            get
+            {
+                if (properties == null)
+                {
+                    properties = new Dictionary<RedwoodProperty, object>();
+                }
+                return properties;
+            }
+        }
 
         protected List<string> ResourceDependencies = new List<string>();
 
 
-        /// <summary>
+            /// <summary>
         /// Gets the parent control.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
@@ -42,12 +58,13 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<string, RedwoodControl>(c => c.ID, isValueInherited: false);
 
 
+
         /// <summary>
         /// Gets the value of a specified property.
         /// </summary>
-        public virtual object GetValue(RedwoodProperty property)
+        public virtual object GetValue(RedwoodProperty property, bool inherit = true)
         {
-            return property.GetValue(this);
+            return property.GetValue(this, inherit);
         }
 
         /// <summary>
@@ -59,6 +76,7 @@ namespace Redwood.Framework.Controls
         }
 
 
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodControl"/> class.
         /// </summary>
@@ -66,6 +84,18 @@ namespace Redwood.Framework.Controls
         {
             Children = new RedwoodControlCollection(this);
         }
+
+        /// <summary>
+        /// Gets this control and all of its descendants.
+        /// </summary>
+        public IEnumerable<RedwoodControl> GetThisAndAllDescendants()
+        {
+            yield return this;
+            foreach (var descendant in GetAllDescendants())
+            {
+                yield return descendant;
+            }
+        } 
 
         /// <summary>
         /// Gets all descendant controls of this control.
@@ -135,21 +165,56 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Ensures that the control has ID. The method can auto-generate it, if specified.
         /// </summary>
-        public void EnsureControlHasId(bool autoGenerate = false)
+        public void EnsureControlHasId(bool autoGenerate = true)
         {
-            if (string.IsNullOrWhiteSpace(ID))
+            if (autoGenerate && string.IsNullOrEmpty(ID))
             {
-                throw new Exception(string.Format("The control of type '{0}' must have ID!", GetType().FullName));      // TODO: exception handling
+                ID = AutoGenerateControlId();
             }
-            if (!Regex.IsMatch(ID, "^[a-zA-Z_][a-zA-Z0-9_]*$"))
+            else
             {
-                throw new Exception(string.Format("The control ID '{0}' is not valid! It can contain only characters, numbers and the underscore character, and it cannot start with a number!", ID));      // TODO: exception handling
+                if (string.IsNullOrWhiteSpace(ID))
+                {
+                    throw new Exception(string.Format("The control of type '{0}' must have ID!", GetType().FullName)); // TODO: exception handling
+                }
+                if (!Regex.IsMatch(ID, "^[a-zA-Z_][a-zA-Z0-9_]*$"))
+                {
+                    throw new Exception(string.Format("The control ID '{0}' is not valid! It can contain only characters, numbers and the underscore character, and it cannot start with a number!", ID)); // TODO: exception handling
+                }
+            }
+        }
+
+        /// <summary>
+        /// Generates unique control ID automatically.
+        /// </summary>
+        private string AutoGenerateControlId()
+        {
+            var id = GetValue(Internal.UniqueIDProperty).ToString();
+            var control = Parent;
+            do
+            {
+                if ((bool)control.GetValue(Internal.IsNamingContainerProperty))
+                {
+                    id = control.GetValue(Internal.UniqueIDProperty) + "_" + id;
+                }
+                control = control.Parent;
+            } 
+            while (control != null);
+            return id;
+        }
+
+
+        /// <summary>
+        /// Finds the control by its ID.
+        /// </summary>
+        public RedwoodControl FindControl(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                throw new ArgumentNullException("id");
             }
 
-            if (autoGenerate)
-            {
-                // TODO: auto-generation of the control ID
-            }
+            return GetAllDescendants().SingleOrDefault(c => c.ID == id);
         }
     }
 }

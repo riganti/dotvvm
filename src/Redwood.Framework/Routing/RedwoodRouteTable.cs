@@ -14,6 +14,7 @@ namespace Redwood.Framework.Routing
     public class RedwoodRouteTable : IEnumerable<RouteBase>
     {
         private readonly RedwoodConfiguration configuration;
+        
         private List<KeyValuePair<string, RouteBase>> list = new List<KeyValuePair<string, RouteBase>>();
 
 
@@ -31,12 +32,9 @@ namespace Redwood.Framework.Routing
         public IRedwoodPresenter CreateDefaultPresenter()
         {
             return new RedwoodPresenter(
-                new DefaultRedwoodViewBuilder( 
-                    new DefaultMarkupFileLoader(),
-                    new DefaultControlBuilderFactory(new DefaultViewCompiler(new DefaultControlResolver(configuration)))
-                ),
+                new DefaultRedwoodViewBuilder(configuration),
                 new DefaultViewModelLoader(),
-                new ViewModelSerializer(),
+                new ViewModelSerializer(configuration),
                 new DefaultOutputRenderer()
             );
         }

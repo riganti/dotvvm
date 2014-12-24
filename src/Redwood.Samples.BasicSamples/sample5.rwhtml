@@ -1,0 +1,20 @@
+﻿@viewModel: Redwood.Samples.BasicSamples.ViewModels.Sample5ViewModel, Redwood.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from Redwood!</title>
+	<link rel="stylesheet" href="Content/bootstrap/bootstrap.min.css" />
+	<script src="Scripts/jquery-2.1.1.min.js"></script>
+	<script src="Scripts/bootstrap.min.js"></script>
+</head>
+<body>
+	<div class="container">
+		<h1>User Controls Sample</h1>
+		
+		<sample5:TestControl DataContext="{value: ViewModel1}" Value="{value: ViewModel1.Value}" Name="First Control" />
+		<sample5:TestControl DataContext="{value: ViewModel2}" Name="{value: SecondControlName}" />
+	</div>
+
+	<rw:IntegrationScripts />
+</body>
+</html>

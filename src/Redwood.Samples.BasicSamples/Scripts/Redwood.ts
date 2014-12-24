@@ -4,21 +4,22 @@
 
 
     public init(viewModelName: string): void {
-        var viewModel = ko.mapping.fromJS(this.viewModels[viewModelName]);
+        var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName]);
         this.viewModels[viewModelName] = viewModel;
         ko.applyBindings(viewModel);
     }
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string): void {
         var viewModel = this.viewModels[viewModelName];
         this.updateDynamicPathFragments(sender, path);
         var data = {
-            viewModel: ko.mapping.toJS(viewModel),
+            viewModel: ko.mapper.toJS(viewModel),
             currentPath: path,
-            command: command
+            command: command,
+            controlUniqueId: controlUniqueId
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), result => {
-            ko.mapping.fromJSON(result.responseText, {}, this.viewModels[viewModelName]);
+            ko.mapper.fromJS(JSON.parse(result.responseText), {}, this.viewModels[viewModelName]);
         }, error => {
             alert(error.responseText);
         });

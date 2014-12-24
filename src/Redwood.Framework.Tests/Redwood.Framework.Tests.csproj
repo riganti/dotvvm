@@ -70,6 +70,7 @@
     <Compile Include="ResourceManagementTests.cs" />
     <Compile Include="Routing\RedwoodRouteTests.cs" />
     <Compile Include="Runtime\DefaultViewCompilerTests.cs" />
+    <Compile Include="Runtime\NamingContainersTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Redwood.Framework\Redwood.Framework.csproj">
