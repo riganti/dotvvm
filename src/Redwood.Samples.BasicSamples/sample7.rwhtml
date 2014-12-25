@@ -1,0 +1,55 @@
+﻿@viewModel: Redwood.Samples.BasicSamples.ViewModels.Sample7ViewModel, Redwood.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from Redwood!</title>
+	<link rel="stylesheet" href="Content/bootstrap/bootstrap.min.css" />
+	<script src="Scripts/jquery-2.1.1.min.js"></script>
+	<script src="Scripts/bootstrap.min.js"></script>
+
+	<style>
+		.calendar tr {
+			height: 40px;
+		}
+		.calendar td {
+			width: 40px;
+			text-align: center;
+			vertical-align: middle;
+		}
+		.calendar th {
+			text-align: center;
+		}
+		.calendar td a {
+			color: black;
+		}
+		.calendar td.selected {
+			background-color: #a0b0ff;
+		}
+		.calendar td.today {
+			background-color: #eee8ff;
+		}
+		.calendar td.other a {
+			color: gray;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>Client Side Calendar</h1>
+		
+		<div class="row">
+			<div class="col-md-3">
+				<sample7:Calendar />
+			</div>
+			<div class="col-md-3">
+				<sample7:Calendar />
+			</div>
+			<div class="col-md-3">
+				<sample7:Calendar ID="customId" />
+			</div>
+		</div>
+	</div>
+
+	<rw:IntegrationScripts />
+</body>
+</html>

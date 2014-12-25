@@ -17,6 +17,6 @@ namespace Redwood.Framework.Parser
         public const string CommandBinding = "command";
         public const string ControlStateBinding = "controlState";
         public const string ControlPropertyBinding = "controlProperty";
-        public const string ControlCommandBinding = "controlBinding";
+        public const string ControlCommandBinding = "controlCommand";
     }
 }

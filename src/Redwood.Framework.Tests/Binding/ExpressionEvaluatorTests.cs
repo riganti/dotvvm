@@ -7,11 +7,11 @@ using Redwood.Framework.Binding;
 namespace Redwood.Framework.Tests.Binding
 {
     [TestClass]
-    public class ExpressionEvaluatorTests
+    public class ExpressionEvaluatorStandaloneTests
     {
 
         [TestMethod]
-        public void ExpressionEvaluator_Valid_PropertyAccess()
+        public void ExpressionEvaluator_Standalone_Valid_PropertyAccess()
         {
             var viewModel = new
             {
@@ -22,19 +22,17 @@ namespace Redwood.Framework.Tests.Binding
                     Title = new[] { 1, 2, 3 }
                 }
             };
-
+            
             var evaluator = new ExpressionEvaluator();
             Assert.AreEqual(viewModel.FirstName, evaluator.Evaluate("FirstName", viewModel));
             Assert.AreEqual(viewModel.LastName, evaluator.Evaluate("LastName", viewModel));
             Assert.AreEqual(viewModel.LastName.Name, evaluator.Evaluate("LastName.Name", viewModel));
             Assert.AreEqual(viewModel.LastName.Title[2], evaluator.Evaluate("LastName.Title[2]", viewModel));
             Assert.AreEqual(viewModel.LastName.Title[2], evaluator.Evaluate("_root.LastName.Title[2]", viewModel));
-            Assert.AreEqual(viewModel.LastName, evaluator.Evaluate("_root.LastName.Title[2]._parent", viewModel));
-            Assert.AreEqual(viewModel, evaluator.Evaluate("_root.LastName.Title[2]._parent._parent", viewModel));
         }
 
         [TestMethod]
-        public void ExpressionEvaluator_Valid_MethodResult()
+        public void ExpressionEvaluator_Standalone_Valid_MethodResult()
         {
             var viewModel = new TestA() { TestProp = new TestA() };
 
@@ -43,7 +41,7 @@ namespace Redwood.Framework.Tests.Binding
             Assert.AreEqual(viewModel.GetType().GetMethod("Test"), evaluator.Evaluate("_root.Test", viewModel));
             Assert.AreEqual(viewModel.GetType().GetMethod("Test2"), evaluator.Evaluate("_root.TestProp.Test2", viewModel));
         }
-
+        
         public class TestA
         {
             public void Test(int i)

@@ -21,11 +21,10 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the command called on the RedwoodControl.
         /// </summary>
-        public Action GetFunction(RedwoodControl targetControl, object viewModel, string[] path, string command)
+        public Action GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, object viewModel, string[] path, string command)
         {
             // resolve the path in the view model
-            List<object> hierarchy;
-            var pathObject = ResolveViewModelPath(viewModel, path, out hierarchy);
+            List<object> hierarchy = ResolveViewModelPath(viewModel, viewRootControl, path);
 
             // find the function
             var tree = CSharpSyntaxTree.ParseText(command, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
@@ -33,7 +32,7 @@ namespace Redwood.Framework.Binding
             var node = expr.ChildNodes().First() as InvocationExpressionSyntax;
             if (node == null)
             {
-                throw new ParserException("The expression in command must be a method call!");
+                throw new ParserException("The expression in {command: ...} binding must be a method call!");
             }
             MethodInfo method;
             object target;
@@ -46,11 +45,11 @@ namespace Redwood.Framework.Binding
             else
             {
                 // the function is invoked on the viewmodel
-                method = FindMethodOnViewModel(viewModel, pathObject, hierarchy, node, out target);
+                method = FindMethodOnViewModel(viewModel, viewRootControl, hierarchy, node, out target);
             }
             
             // parse arguments
-            var arguments = EvaluateCommandArguments(viewModel, node, pathObject, hierarchy);
+            var arguments = EvaluateCommandArguments(viewModel, viewRootControl, hierarchy, node);
 
             // return the delegate for further invoke
             return () => method.Invoke(target, arguments);
@@ -60,9 +59,9 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the command called on the ViewModel.
         /// </summary>
-        public Action GetFunction(object viewModel, string[] path, string command)
+        public Action GetFunction(RedwoodControl viewRootControl, object viewModel, string[] path, string command)
         {
-            return GetFunction(null, viewModel, path, command);
+            return GetFunction(null, viewRootControl, viewModel, path, command);
         }
 
 
@@ -71,16 +70,11 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Evaluates the command arguments.
         /// </summary>
-        private static object[] EvaluateCommandArguments(object viewModel, InvocationExpressionSyntax node, object pathObject, List<object> hierarchy)
+        private static object[] EvaluateCommandArguments(object viewModel, RedwoodControl viewRootControl, List<object> hierarchy, InvocationExpressionSyntax node)
         {
             var arguments = node.ArgumentList.Arguments.Select(a =>
             {
-                var evaluator = new ExpressionEvaluationVisitor()
-                {
-                    Root = viewModel,
-                    DataContext = pathObject,
-                    Hierarchy = new Stack<object>(hierarchy)
-                };
+                var evaluator = new ExpressionEvaluationVisitor(viewModel, viewRootControl, hierarchy);
                 return evaluator.Visit(a);
             }).ToArray();
             return arguments;
@@ -89,22 +83,19 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Finds the method on view model.
         /// </summary>
-        private static MethodInfo FindMethodOnViewModel(object viewModel, object pathObject, List<object> hierarchy, InvocationExpressionSyntax node, out object target)
+        private static MethodInfo FindMethodOnViewModel(object viewModel, RedwoodControl viewRootControl, List<object> hierarchy, InvocationExpressionSyntax node, out object target)
         {
             MethodInfo method;
-            var methodEvaluator = new ExpressionEvaluationVisitor()
+            var methodEvaluator = new ExpressionEvaluationVisitor(viewModel, viewRootControl, hierarchy)
             {
-                Root = viewModel,
-                DataContext = pathObject,
-                AllowMethods = true,
-                Hierarchy = new Stack<object>(hierarchy)
+                AllowMethods = true
             };
             method = methodEvaluator.Visit(node.Expression) as MethodInfo;
             if (method == null)
             {
-                throw new Exception("The path was not found!");
+                throw new Exception("The command path was not found!");
             }
-            target = methodEvaluator.Target;
+            target = methodEvaluator.Result;
             return method;
         }
 
@@ -130,44 +121,21 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the path in the view model and returns the target object.
         /// </summary>
-        private object ResolveViewModelPath(object viewModel, string[] path, out List<object> hierarchy)
+        private List<object> ResolveViewModelPath(object viewModel, RedwoodControl viewRootControl, string[] path)
         {
-            object pathObject = viewModel;
-
-            var pathExpression = GetFullCommandPath(path);
-            if (!string.IsNullOrEmpty(pathExpression))
+            var visitor = new ExpressionEvaluationVisitor(viewModel, viewRootControl);
+            foreach (var expression in path)
             {
-                var pathTree = CSharpSyntaxTree.ParseText(pathExpression, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
+                // evaluate path fragment
+                var pathTree = CSharpSyntaxTree.ParseText(expression, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
                 var pathExpr = pathTree.EnsureSingleExpression();
 
-                // find the target on which the function is called
-                var pathExpressionEvaluator = new ExpressionEvaluationVisitor { Root = viewModel, DataContext = viewModel };
-                pathObject = pathExpressionEvaluator.Visit(pathExpr);
-                hierarchy = pathExpressionEvaluator.Hierarchy.Reverse().ToList();
+                var result = visitor.Visit(pathExpr);
+                visitor.BackupCurrentPosition(result, expression);
             }
-            else
-            {
-                hierarchy = new List<object>();
-            }
-            return pathObject;
-        }
-
-
-        /// <summary>
-        /// Gets the full command path.
-        /// </summary>
-        private string GetFullCommandPath(IEnumerable<string> path)
-        {
-            var pathString = new StringBuilder();
-            foreach (var fragment in path)
-            {
-                if (pathString.Length > 0 && !fragment.StartsWith("["))
-                {
-                    pathString.Append(".");
-                }
-                pathString.Append(fragment);
-            }
-            return pathString.ToString();
+            var hierarchy = visitor.Hierarchy.ToList();
+            hierarchy.Reverse();
+            return hierarchy;
         }
     }
 }

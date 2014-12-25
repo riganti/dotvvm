@@ -29,10 +29,10 @@
         var context = ko.contextFor(sender);
 
         for (var i = path.length - 1; i >= 0; i--) {
-            if (path[i] == "[$index]") {
-                path[i] = "[" + context.$index() + "]";
+            if (path[i].indexOf("[$index]")) {
+                path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
             }
-            context = context.$parent;
+            context = context.$parentContext;
         }
     };
 

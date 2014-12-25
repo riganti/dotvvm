@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Redwood.Framework.Binding;
+using Redwood.Framework.Controls;
 
 namespace Redwood.Framework.Tests.Binding
 {
@@ -21,12 +22,13 @@ namespace Redwood.Framework.Tests.Binding
                 },
                 NumberToPass = 16
             };
+            var viewRoot = new RedwoodView() { DataContext = testObject };
 
-            var path = new [] { "A", "[0]" };
+            var path = new [] { "A[0]" };
             var command = "Test(StringToPass, _parent.NumberToPass)";
 
             var resolver = new CommandResolver();
-            resolver.GetFunction(testObject, path, command)();
+            resolver.GetFunction(viewRoot, testObject, path, command)();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
@@ -43,12 +45,13 @@ namespace Redwood.Framework.Tests.Binding
                 },
                 NumberToPass = 16
             };
+            var viewRoot = new RedwoodView() { DataContext = testObject };
 
-            var path = new[] { "A", "[0]", "StringToPass" };
+            var path = new[] { "A[0]", "StringToPass" };
             var command = "_parent.Test(_parent.StringToPass, _root.NumberToPass)";
 
             var resolver = new CommandResolver();
-            resolver.GetFunction(testObject, path, command)();
+            resolver.GetFunction(viewRoot, testObject, path, command)();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);

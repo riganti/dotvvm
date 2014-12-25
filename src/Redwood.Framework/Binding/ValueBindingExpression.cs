@@ -34,29 +34,23 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public override object Evaluate(RedwoodBindableControl control, RedwoodProperty property)
         {
-            object parentValue;
-            if (property == RedwoodBindableControl.DataContextProperty)
-            {
-                // DataContext evaluates in the parent's DataContext
-                parentValue = control.Parent.GetValue(RedwoodBindableControl.DataContextProperty);
-            }
-            else
-            {
-                // other properties evaluate in the current DataContext
-                parentValue = control.GetValue(RedwoodBindableControl.DataContextProperty);
-            }
-
-            return evaluator.Evaluate(Expression, parentValue);
+            return evaluator.Evaluate(this, property, control);
         }
 
         /// <summary>
         /// Translates the binding to client script.
         /// </summary>
-        /// <param name="control"></param>
-        /// <param name="property"></param>
         public override string TranslateToClientScript(RedwoodBindableControl control, RedwoodProperty property)
         {
             return translator.Translate(Expression);
+        }
+
+        /// <summary>
+        /// Gets the view model path expression.
+        /// </summary>
+        public virtual string GetViewModelPathExpression(RedwoodBindableControl control, RedwoodProperty property)
+        {
+            return Expression;
         }
     }
 }

@@ -62,7 +62,7 @@ namespace Redwood.Framework.Controls
         /// </summary>
         protected override void RenderChildren(IHtmlWriter writer, RenderContext context)
         {
-            var dataSourceBinding = GetBinding(DataSourceProperty);
+            var dataSourceBinding = GetBinding(DataSourceProperty) as ValueBindingExpression;
 
             if (RenderOnServer)
             {
@@ -71,12 +71,11 @@ namespace Redwood.Framework.Controls
                 foreach (var item in DataSource)
                 {
                     var placeholder = new DataItemContainer { DataContext = item, DataItemIndex = index };
+                    Children.Add(placeholder);
                     ItemTemplate.BuildContent(placeholder);
 
-                    context.PathFragments.Push(dataSourceBinding.Expression);
-                    context.PathFragments.Push("[" + index + "]");
+                    context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[" + index + "]");
                     placeholder.Render(writer, context);
-                    context.PathFragments.Pop();
                     context.PathFragments.Pop();
                     index++;
                 }
@@ -85,12 +84,11 @@ namespace Redwood.Framework.Controls
             {
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
+                Children.Add(placeholder);
                 ItemTemplate.BuildContent(placeholder);
 
-                context.PathFragments.Push(dataSourceBinding.Expression);
-                context.PathFragments.Push("[$index]");
+                context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[$index]");
                 placeholder.Render(writer, context);
-                context.PathFragments.Pop();
                 context.PathFragments.Pop();
             }
         }

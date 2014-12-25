@@ -99,6 +99,8 @@ namespace Redwood.Framework.Hosting
                 await RenderErrorResponse(context, HttpStatusCode.MethodNotAllowed, new RedwoodHttpException("Only GET and POST methods are supported!"));
                 return;
             }
+            var isPostBack = context.OwinContext.Request.Method == "POST";
+            context.IsPostBack = isPostBack;
 
             // build the page view
             var page = RedwoodViewBuilder.BuildView(context);
@@ -108,13 +110,14 @@ namespace Redwood.Framework.Hosting
             page.DataContext = viewModel;
 
             // init the view model lifecycle
-            var isPostBack = context.OwinContext.Request.Method == "POST";
-            context.IsPostBack = isPostBack;
             if (viewModel is IRedwoodViewModel)
             {
                 ((IRedwoodViewModel)viewModel).Context = context;
                 await ((IRedwoodViewModel)viewModel).Init();
             }
+            
+            // run the init phase in the page
+            InvokePageLifeCycleEventRecursive(context, page, c => c.OnInit(context));
 
             if (!isPostBack)
             {
@@ -123,6 +126,9 @@ namespace Redwood.Framework.Hosting
                 {
                     await ((IRedwoodViewModel)viewModel).Load();
                 }
+
+                // run the load phase in the page
+                InvokePageLifeCycleEventRecursive(context, page, c => c.OnLoad(context));
             }
             else
             {
@@ -137,6 +143,9 @@ namespace Redwood.Framework.Hosting
                     await ((IRedwoodViewModel)viewModel).Load();
                 }
 
+                // run the load phase in the page
+                InvokePageLifeCycleEventRecursive(context, page, c => c.OnLoad(context));
+
                 // invoke the postback command
                 if (invokedCommand != null)
                 {
@@ -149,6 +158,9 @@ namespace Redwood.Framework.Hosting
                 await ((IRedwoodViewModel)viewModel).PreRender();
             }
 
+            // run the load phase in the page
+            InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreRender(context));
+
             // render the output
             var serializedViewModel = ViewModelSerializer.SerializeViewModel(viewModel, page);
             if (!isPostBack)
@@ -160,6 +172,17 @@ namespace Redwood.Framework.Hosting
             {
                 // postback
                 await OutputRenderer.RenderViewModel(context, page, serializedViewModel);
+            }
+        }
+
+        /// <summary>
+        /// Invokes the specified method on all controls in the page control tree.
+        /// </summary>
+        private void InvokePageLifeCycleEventRecursive(RedwoodRequestContext context, RedwoodControl control, Action<RedwoodControl> action)
+        {
+            foreach (var child in control.GetThisAndAllDescendants())
+            {
+                action(child);
             }
         }
     }

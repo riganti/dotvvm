@@ -27,7 +27,7 @@ namespace Redwood.Framework.Binding
 
             // find the parent markup control and calculate number of DataContext changes
             int numberOfDataContextChanges;
-            var current = RedwoodBindableControl.GetClosestControlBindingTarget(control, out numberOfDataContextChanges) as RedwoodBindableControl;
+            var current = control.GetClosestControlBindingTarget(out numberOfDataContextChanges) as RedwoodBindableControl;
 
             if (current == null || !current.RequiresControlState)
             {
@@ -49,10 +49,23 @@ namespace Redwood.Framework.Binding
 
             // find the parent markup control and calculate number of DataContext changes
             int numberOfDataContextChanges;
-            var current = RedwoodBindableControl.GetClosestControlBindingTarget(control, out numberOfDataContextChanges) as RedwoodBindableControl;
+            var current = control.GetClosestControlBindingTarget(out numberOfDataContextChanges) as RedwoodBindableControl;
 
             current.EnsureControlHasId();
             return string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => "$parent").Concat(new[] { "$controlState()", current.ID + "()", Expression }));
+        }
+
+        /// <summary>
+        /// Gets the view model path expression.
+        /// </summary>
+        public override string GetViewModelPathExpression(RedwoodBindableControl control, RedwoodProperty property)
+        {
+            // find the parent markup control and calculate number of DataContext changes
+            int numberOfDataContextChanges;
+            var current = control.GetClosestControlBindingTarget(out numberOfDataContextChanges) as RedwoodBindableControl;
+
+            current.EnsureControlHasId();
+            return string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => "_parent").Concat(new[] { "_controlState_" + current.ID, Expression }));
         }
 
         /// <summary>

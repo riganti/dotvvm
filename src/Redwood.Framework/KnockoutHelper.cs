@@ -33,13 +33,21 @@ namespace Redwood.Framework
             writer.WriteUnencodedText("<!-- /ko -->");
         }
 
-        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, string uniqueControlId)
+        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, RedwoodBindableControl control)
         {
+            var uniqueControlId = "";
+            if (expression is ControlCommandBindingExpression)
+            {
+                var target = control.GetClosestControlBindingTarget();
+                target.EnsureControlHasId();
+                uniqueControlId = target.ID;
+            }
+
             return string.Format("redwood.postBack('{0}', this, [{1}], '{2}', '{3}');return false;",
                 context.CurrentPageArea, 
                 string.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")),
                 expression.Expression,
-                expression is ControlCommandBindingExpression ? uniqueControlId : ""        // the controlCommand binding needs the unique control id
+                uniqueControlId
             );
         }
 

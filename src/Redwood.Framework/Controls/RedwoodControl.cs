@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Controls
 {
@@ -197,6 +198,39 @@ namespace Redwood.Framework.Controls
             }
 
             return GetAllDescendants().SingleOrDefault(c => c.ID == id);
+        }
+
+
+
+        /// <summary>
+        /// Gets the root of the control tree.
+        /// </summary>
+        public RedwoodControl GetRoot()
+        {
+            if (Parent == null) return this;
+            return GetAllAncestors().Last();
+        }
+
+
+        /// <summary>
+        /// Occurs before the viewmodel is applied to the page.
+        /// </summary>
+        protected internal virtual void OnInit(RedwoodRequestContext context)
+        {
+        }
+
+        /// <summary>
+        /// Occurs after the viewmodel is applied to the page and before the commands are executed.
+        /// </summary>
+        protected internal virtual void OnLoad(RedwoodRequestContext context)
+        {
+        }
+
+        /// <summary>
+        /// Occurs after the page commands are executed.
+        /// </summary>
+        protected internal virtual void OnPreRender(RedwoodRequestContext context)
+        {
         }
     }
 }

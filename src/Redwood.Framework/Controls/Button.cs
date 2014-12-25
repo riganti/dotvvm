@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Binding;
+using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Controls
 {
@@ -28,15 +29,14 @@ namespace Redwood.Framework.Controls
 
         public Button() : base("input")
         {
-        }
+        } 
 
         public override void Render(IHtmlWriter writer, RenderContext context)
         {
             var clickBinding = GetBinding(ClickProperty);
             if (clickBinding != null)
             {
-                EnsureControlHasId();
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding as CommandBindingExpression, context, ID));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding as CommandBindingExpression, context, this));
             }
 
             writer.AddAttribute("type", "button");
