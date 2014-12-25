@@ -1,13 +1,14 @@
 using System;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser.Translation;
+using Redwood.Framework.Utils;
 
 namespace Redwood.Framework.Binding
 {
     /// <summary>
     /// A binding that gets the value from a viewmodel property.
     /// </summary>
-    public class ValueBindingExpression : BindingExpression
+    public class ValueBindingExpression : BindingExpression, IUpdatableBindingExpression
     {
 
         private static ExpressionTranslator translator = new ExpressionTranslator();
@@ -51,6 +52,16 @@ namespace Redwood.Framework.Binding
         public virtual string GetViewModelPathExpression(RedwoodBindableControl control, RedwoodProperty property)
         {
             return Expression;
+        }
+
+        /// <summary>
+        /// Updates the viewModel with the new value.
+        /// </summary>
+        public void UpdateSource(object value, RedwoodBindableControl control, RedwoodProperty property)
+        {
+            object target;
+            var propertyInfo = evaluator.EvaluateProperty(this, property, control, out target);
+            propertyInfo.SetValue(target, ReflectionUtils.ConvertValue(value, propertyInfo.PropertyType));
         }
     }
 }

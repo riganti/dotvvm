@@ -44,6 +44,40 @@ namespace Redwood.Framework.Tests.Binding
             Assert.AreEqual("hello", result);
         }
 
+        /// <summary>
+        /// Passes the value to the textbox which has a binding applied.
+        /// </summary>
+        [TestMethod]
+        public void ExpressionEvaluator_UpdateSource_Simple()
+        {
+            var viewModel = new TestViewModel() { SubObject = new TestViewModel2() { Value = "hello" } };
+            var view = new RedwoodView()
+            {
+                DataContext = viewModel,
+                Children =
+                {
+                    new HtmlGenericControl("html")
+                    {
+                        Children =
+                        {
+                            new TextBox()
+                            {
+                                ID = "txb"    
+                            }
+                            .WithBinding(TextBox.TextProperty, new ValueBindingExpression("Value"))
+                        }
+                    }
+                    .WithBinding(RedwoodBindableControl.DataContextProperty, new ValueBindingExpression("SubObject"))
+                }
+            };
+            var textbox = view.FindControl("txb") as TextBox;
+            var binding = textbox.GetBinding(TextBox.TextProperty) as ValueBindingExpression;
+
+            binding.UpdateSource("test", textbox, TextBox.TextProperty);
+
+            Assert.AreEqual("test", viewModel.SubObject.Value);
+        }
+
 
         class TestViewModel
         {

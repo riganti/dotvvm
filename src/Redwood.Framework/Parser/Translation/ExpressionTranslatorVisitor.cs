@@ -115,15 +115,15 @@ namespace Redwood.Framework.Parser.Translation
         /// </summary>
         public override string VisitIdentifierName(IdentifierNameSyntax node)
         {
-            if (node.Identifier.Text == "_parent")
+            if (node.Identifier.Text == Constants.ParentSpecialBindingProperty)
             {
                 return "$parent";
             }
-            else if (node.Identifier.Text == "_root")
+            else if (node.Identifier.Text == Constants.RootSpecialBindingProperty)
             {
                 return "$root";
             }
-            else if (node.Identifier.Text == "_this")
+            else if (node.Identifier.Text == Constants.ThisSpecialBindingProperty)
             {
                 return "$data";
             }

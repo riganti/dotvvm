@@ -151,13 +151,13 @@ namespace Redwood.Framework.Binding
         {
             if (target == null) return null;
 
-            if (propertyName == "_parent")
+            if (propertyName == Constants.ParentSpecialBindingProperty)
             {
                 Hierarchy.Pop();
                 PathHierarchy.Pop();
                 return Result;
             }
-            else if (propertyName == "_root")
+            else if (propertyName == Constants.RootSpecialBindingProperty)
             {
                 while (Hierarchy.Count > 1)
                 {
@@ -166,13 +166,13 @@ namespace Redwood.Framework.Binding
                 }
                 return Result;
             }
-            else if (propertyName == "_this")
+            else if (propertyName == Constants.ThisSpecialBindingProperty)
             {
                 return target;
             }
-            else if (propertyName.StartsWith("_controlState_"))
+            else if (propertyName.StartsWith(Constants.ControlStateSpecialBindingProperty))
             {
-                return GetControlState(propertyName.Substring("_controlState_".Length));
+                return GetControlState(propertyName.Substring(Constants.ControlStateSpecialBindingProperty.Length));
             }
             else if (target is IDictionary<string, object>)
             {
@@ -264,5 +264,15 @@ namespace Redwood.Framework.Binding
             throw new ParserException(string.Format(Parser_RwHtml.Binding_UnsupportedExpression, node));
         }
 
+
+        /// <summary>
+        /// Determines whether the specified property name is a special property in the data binding expressions.
+        /// </summary>
+        public bool IsSpecialPropertyName(string propertyName)
+        {
+            return propertyName == Constants.RootSpecialBindingProperty || propertyName == Constants.ParentSpecialBindingProperty
+                || propertyName == Constants.ThisSpecialBindingProperty || propertyName.StartsWith(Constants.ControlStateSpecialBindingProperty);
+        }
+        
     }
 }
