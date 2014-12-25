@@ -44,7 +44,9 @@ namespace Redwood.Framework.ViewModel
         /// </summary>
         public override bool CanConvert(Type objectType)
         {
-            return !primitiveTypes.Contains(objectType) && !typeof(IEnumerable).IsAssignableFrom(objectType);
+            return !primitiveTypes.Contains(objectType)
+                   && !typeof (IEnumerable).IsAssignableFrom(objectType)
+                   && (!objectType.IsGenericType || objectType.GetGenericTypeDefinition() != typeof (Nullable<>));
         }
 
         /// <summary>

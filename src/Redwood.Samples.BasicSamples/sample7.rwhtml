@@ -42,13 +42,21 @@
 				<sample7:Calendar />
 			</div>
 			<div class="col-md-3">
-				<sample7:Calendar />
+				<sample7:Calendar SelectedDate="{value: SelectedDate}" />
 			</div>
 			<div class="col-md-3">
 				<sample7:Calendar ID="customId" />
 			</div>
 		</div>
 	</div>
+
+	<p><rw:Literal Text="{value: SelectedDate}" /></p>
+
+	<p>
+		Disclaimer: The Calendar control generates the table contents on the server side and passes them to the client in the control state (so you don't have to keep it in the viewmodel).
+		This is only for a demo purposes of how the control state bindings work. In real world you would generate the table contents in javascript on the client side and the control
+		would only remember the VisibleDate (and maybe the SelectedDate) in the control state!
+	</p>
 
 	<rw:IntegrationScripts />
 </body>

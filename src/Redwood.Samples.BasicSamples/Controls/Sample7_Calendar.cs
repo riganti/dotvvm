@@ -34,16 +34,11 @@ namespace Redwood.Samples.BasicSamples.Controls
 
         protected override void OnPreRender(RedwoodRequestContext context)
         {
-            // ensure the values are in control state           // TODO: this should not be necessary
+            // set the visible date default value
             if (!context.IsPostBack)
             {
                 VisibleDate = DateTime.Now;
             }
-            ControlState["VisibleDate"] = VisibleDate;
-            ControlState["SelectedDate"] = SelectedDate;
-            ControlState["Rows"] = Rows.ToList();
-            ControlState["DayNames"] = DayNames.ToArray();
-            ControlState["VisibleMonthText"] = VisibleMonthText;
         }
 
 
@@ -63,32 +58,33 @@ namespace Redwood.Samples.BasicSamples.Controls
 
 
 
-        public IEnumerable<CalendarRow> Rows
+        public IList<CalendarRow> Rows
         {
-            get
-            {
-                var firstMonthDate = new DateTime(VisibleDate.Year, VisibleDate.Month, 1);
-                var date = firstMonthDate.AddDays(-(int)firstMonthDate.DayOfWeek);
-
-                while (date < firstMonthDate.AddMonths(1))
-                {
-                    yield return new CalendarRow()
-                    {
-                        Days = Enumerable.Range(0, 7).Select(i => date.AddDays(i)).Select(d => new CalendarDay()
-                        {
-                            IsOtherMonth = d.Month != VisibleDate.Month,
-                            IsSelected = SelectedDate != null && d == SelectedDate.Value.Date,
-                            IsToday = d == DateTime.Today,
-                            Number = d.Day,
-                            Date = d
-                        }).ToArray()
-                    };
-                    date = date.AddDays(7); 
-                }
-            }    
+            get { return GetRows().ToList(); }  
         }
         public static RedwoodProperty RowsProperty = RedwoodProperty.RegisterControlStateProperty<IEnumerable<CalendarRow>, Sample7_Calendar>(c => c.Rows);
 
+        private IEnumerable<CalendarRow> GetRows()
+        {
+            var firstMonthDate = new DateTime(VisibleDate.Year, VisibleDate.Month, 1);
+            var date = firstMonthDate.AddDays(-(int)firstMonthDate.DayOfWeek);
+
+            while (date < firstMonthDate.AddMonths(1))
+            {
+                yield return new CalendarRow()
+                {
+                    Days = Enumerable.Range(0, 7).Select(i => date.AddDays(i)).Select(d => new CalendarDay()
+                    {
+                        IsOtherMonth = d.Month != VisibleDate.Month,
+                        IsSelected = SelectedDate != null && d == SelectedDate.Value.Date,
+                        IsToday = d == DateTime.Today,
+                        Number = d.Day,
+                        Date = d
+                    }).ToArray()
+                };
+                date = date.AddDays(7);
+            }
+        } 
 
 
         public void GoToPreviousMonth()

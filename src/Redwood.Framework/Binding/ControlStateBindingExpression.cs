@@ -17,6 +17,12 @@ namespace Redwood.Framework.Binding
         }
 
 
+        /// <summary>
+        /// Gets or sets the default value of the binding.
+        /// </summary>
+        public object DefaultValue { get; set; }
+
+
 
         /// <summary>
         /// Evaluates the specified expression.
@@ -36,7 +42,7 @@ namespace Redwood.Framework.Binding
             else
             {
                 object value;
-                return current.ControlState.TryGetValue(Expression, out value) ? value : null;
+                return current.ControlState.TryGetValue(Expression, out value) ? value : DefaultValue;
             }
         }
 
@@ -86,5 +92,6 @@ namespace Redwood.Framework.Binding
                 throw new Exception("The {controlState: ...} binding can only contain a property name!");       // TODO: exception handling
             }
         }
+
     }
 }

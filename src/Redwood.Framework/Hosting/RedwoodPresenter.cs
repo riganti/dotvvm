@@ -104,7 +104,13 @@ namespace Redwood.Framework.Hosting
 
             // build the page view
             var page = RedwoodViewBuilder.BuildView(context);
-            
+
+            // run the preinit phase in the page
+            InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreInit(context));
+
+            // run the init phase in the page
+            InvokePageLifeCycleEventRecursive(context, page, c => c.OnInit(context));
+
             // locate and create the view model
             var viewModel = ViewModelLoader.InitializeViewModel(context, page);
             page.DataContext = viewModel;
@@ -115,10 +121,6 @@ namespace Redwood.Framework.Hosting
                 ((IRedwoodViewModel)viewModel).Context = context;
                 await ((IRedwoodViewModel)viewModel).Init();
             }
-            
-            // run the init phase in the page
-            InvokePageLifeCycleEventRecursive(context, page, c => c.OnInit(context));
-
             if (!isPostBack)
             {
                 // perform standard get
@@ -158,8 +160,11 @@ namespace Redwood.Framework.Hosting
                 await ((IRedwoodViewModel)viewModel).PreRender();
             }
 
-            // run the load phase in the page
+            // run the prerender phase in the page
             InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreRender(context));
+            
+            // run the prerender complete phase in the page
+            InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreRenderComplete(context));
 
             // render the output
             var serializedViewModel = ViewModelSerializer.SerializeViewModel(viewModel, page);

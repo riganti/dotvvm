@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Utils;
 
@@ -38,6 +39,11 @@ namespace Redwood.Framework.Controls
         /// Gets whether the value can be inherited from the parent controls.
         /// </summary>
         public bool IsValueInherited { get; private set; }
+
+        /// <summary>
+        /// Gets or sets the Reflection property information.
+        /// </summary>
+        public PropertyInfo PropertyInfo { get; set; }
 
         /// <summary>
         /// Gets the full name of the property.
@@ -100,31 +106,32 @@ namespace Redwood.Framework.Controls
             return registeredProperties.GetOrAdd(fullName, _ => new RedwoodProperty()
             {
                 Name = propertyName,
-                DefaultValue = defaultValue,
+                DefaultValue = defaultValue ?? default(TPropertyType),
                 DeclaringType = typeof(TDeclaringType),
                 PropertyType = typeof(TPropertyType),
-                IsValueInherited = isValueInherited
+                IsValueInherited = isValueInherited,
+                PropertyInfo = typeof(TDeclaringType).GetProperty(propertyName)
             });
         }
 
         /// <summary>
         /// Registers the specified Redwood property.
         /// </summary>
-        public static RedwoodProperty RegisterControlStateProperty<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName)
+        public static RedwoodProperty RegisterControlStateProperty<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName, object defaultValue = null)
         {
-            return RegisterControlStateProperty<TPropertyType, TDeclaringType>(ReflectionUtils.GetPropertyNameFromExpression(propertyName));
+            return RegisterControlStateProperty<TPropertyType, TDeclaringType>(ReflectionUtils.GetPropertyNameFromExpression(propertyName), defaultValue);
         }
 
         /// <summary>
         /// Registers the specified Redwood property.
         /// </summary>
-        public static RedwoodProperty RegisterControlStateProperty<TPropertyType, TDeclaringType>(string propertyName)
+        public static RedwoodProperty RegisterControlStateProperty<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null)
         {
-            return Register<TPropertyType, TDeclaringType>(propertyName, defaultValue: new ControlStateBindingExpression(propertyName));
+            return Register<TPropertyType, TDeclaringType>(propertyName, defaultValue: new ControlStateBindingExpression(propertyName) { DefaultValue = defaultValue ?? default(TPropertyType) });
         }
 
 
-        private static ConcurrentDictionary<string, RedwoodProperty> registeredProperties = new ConcurrentDictionary<string, RedwoodProperty>(); 
+        private static ConcurrentDictionary<string, RedwoodProperty> registeredProperties = new ConcurrentDictionary<string, RedwoodProperty>();
 
         /// <summary>
         /// Resolves the <see cref="RedwoodProperty"/> by the declaring type and name.
@@ -140,6 +147,55 @@ namespace Redwood.Framework.Controls
                 fullName = type.FullName + "." + name;
             }
             return property;
+        }
+
+        /// <summary>
+        /// Resolves all properties of specified type.
+        /// </summary>
+        public static IReadOnlyList<RedwoodProperty> ResolveProperties(Type type)
+        {
+            var types = new HashSet<Type>();
+            while (type.BaseType != null)
+            {
+                types.Add(type);
+                type = type.BaseType;
+            }
+
+            return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToList();
+        }
+
+        /// <summary>
+        /// Called when a control of the property type is created and initialized.
+        /// </summary>
+        protected internal virtual void OnControlInitialized(RedwoodControl redwoodControl)
+        {
+            if (DefaultValue is ControlStateBindingExpression && redwoodControl is RedwoodBindableControl)
+            {
+                // register the default value to the control state
+                var bindableControl = (RedwoodBindableControl)redwoodControl;
+                if (bindableControl.RequiresControlState)
+                {
+                    var value = ((ControlStateBindingExpression)DefaultValue).DefaultValue;
+                    bindableControl.SetControlStateValue(Name, value);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Called right before the page is rendered.
+        /// </summary>
+        public void OnControlRendering(RedwoodControl redwoodControl)
+        {
+            if (DefaultValue is ControlStateBindingExpression && redwoodControl is RedwoodBindableControl)
+            {
+                // save the property value to the control state
+                var bindableControl = (RedwoodBindableControl)redwoodControl;
+                if (bindableControl.RequiresControlState)
+                {
+                    var value = PropertyInfo.GetValue(redwoodControl);
+                    ((ControlStateBindingExpression)DefaultValue).UpdateSource(value, bindableControl, this);
+                }
+            }
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
@@ -56,6 +57,16 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty IDProperty =
             RedwoodProperty.Register<string, RedwoodControl>(c => c.ID, isValueInherited: false);
 
+
+
+        private static ConcurrentDictionary<Type, IReadOnlyList<RedwoodProperty>> declaredProperties = new ConcurrentDictionary<Type, IReadOnlyList<RedwoodProperty>>();
+        /// <summary>
+        /// Gets all properties declared on this class or on any of its base classes.
+        /// </summary>
+        private IReadOnlyList<RedwoodProperty> GetDeclaredProperties()
+        {
+            return declaredProperties.GetOrAdd(GetType(), RedwoodProperty.ResolveProperties);
+        }
 
 
         /// <summary>
@@ -209,6 +220,29 @@ namespace Redwood.Framework.Controls
         {
             if (Parent == null) return this;
             return GetAllAncestors().Last();
+        }
+
+
+        /// <summary>
+        /// Occurs after the viewmodel tree is complete.
+        /// </summary>
+        internal virtual void OnPreInit(RedwoodRequestContext context)
+        {
+            foreach (var property in GetDeclaredProperties())
+            {
+                property.OnControlInitialized(this);
+            }
+        }
+
+        /// <summary>
+        /// Called right before the rendering shall occur.
+        /// </summary>
+        internal virtual void OnPreRenderComplete(RedwoodRequestContext context)
+        {
+            foreach (var property in GetDeclaredProperties())
+            {
+                property.OnControlRendering(this);
+            }
         }
 
 
