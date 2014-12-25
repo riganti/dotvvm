@@ -6,6 +6,13 @@ Redwood is an OWIN-based ASP.NET framework that allows you to write rich client 
 Redwood is inspired by ASP.NET WebForms, but it is much more modern. It brings full MVVM experience and it uses KnockoutJS on the client side.
 
 
+How to start
+------------
+
+Read the tutorial on our **[WIKI](https://github.com/riganti/redwood/wiki)**.
+
+
+
 Why to use it?
 --------------
 
