@@ -81,6 +81,7 @@
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
+    <Compile Include="ConfigurationHelper.cs" />
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />

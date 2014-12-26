@@ -18,16 +18,8 @@ namespace Redwood.Samples.BasicSamples
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use Redwood
-            RedwoodConfiguration redwoodConfiguration;
-            app.UseRedwood(applicationPhysicalPath, out redwoodConfiguration);
-
-            redwoodConfiguration.ResourceRepo.Register("jquery", new ScriptResource("Scripts/jquery-2.1.1.min.js", "http://notworkingaddress/jquery.js", "window.jQuery"));
-            redwoodConfiguration.ResourceRepo.Register("knockout-core", new ScriptResource("/Scripts/knockout-3.2.0.js", "jquery"));
-            redwoodConfiguration.ResourceRepo.Register("knockout", new ScriptResource("/Scripts/knockout.mapper.js", "knockout-core"));
-            redwoodConfiguration.ResourceRepo.Register("redwood", new ScriptResource("/Scripts/Redwood.js", "knockout"));
-            redwoodConfiguration.ResourceRepo.Register("bootstrap-css", new StyleResource("Content/bootstrap/bootstrap.min.css"));
-            redwoodConfiguration.ResourceRepo.Register("bootstrap", new ScriptResource("Scripts/bootstrap.min.js", new string[] { "bootstrap-css", "jquery" }));
-
+            RedwoodConfiguration redwoodConfiguration = app.UseRedwood(applicationPhysicalPath);
+            redwoodConfiguration.ResourceRepo.RegisterCommonResources();
             redwoodConfiguration.RouteTable.Add("Sample1", "Sample1", "sample1.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample2", "Sample2", "sample2.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample3", "Sample3", "sample3.rwhtml", null);
