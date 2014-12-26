@@ -6,11 +6,23 @@ using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// Reference to Javascript file
+    /// </summary>
     public class ScriptResource : RwResource
     {
-
+        /// <summary>
+        /// address of script on this server
+        /// </summary>
         public string LocalUri { get; set; }
+        /// <summary>
+        /// address of script in some content delivery network
+        /// </summary>
         public string CdnUri { get; set; }
+        /// <summary>
+        /// javascript expression to check if script was loaded (typcaly name of object created by library)
+        /// used to check if script from cdn was loaded and determine whether to load it from local uri
+        /// </summary>
         public string LoadCheckObject { get; set; }
         public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, IEnumerable<string> prereq)
         {
@@ -24,7 +36,7 @@ namespace Redwood.Framework.Controls
         public ScriptResource(string localAddr, IEnumerable<string> prereq) : this(localAddr, null, null, prereq) { }
         public ScriptResource(string localAddr, params string[] prereq) : this(localAddr, null, null, prereq) { }
 
-        private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'></script>\"";
+        private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'></script>);\"";
         public override void Render(IHtmlWriter writer)
         {
             if (CdnUri != null)
@@ -37,7 +49,8 @@ namespace Redwood.Framework.Controls
                 if (LocalUri != null && LoadCheckObject != null)
                 {
                     writer.RenderBeginTag("script");
-                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, LoadCheckObject, LocalUri));
+                    writer.WriteText(string.Format(CdnFallbackScript, LoadCheckObject, LocalUri));
+                    writer.RenderEndTag();
                 }
             }
             else if (LocalUri != null)

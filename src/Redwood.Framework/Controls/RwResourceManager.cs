@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// Manages resources for one page
+    /// </summary>
     public class RwResourceManager
     {
         /// <summary>
@@ -28,6 +31,10 @@ namespace Redwood.Framework.Controls
             get { return _resourceList.AsReadOnly(); }
         }
 
+        /// <summary>
+        /// renders all resources in the list
+        /// </summary>
+        /// <param name="writer"></param>
         public void Render(IHtmlWriter writer)
         {
             foreach (var name in _resourceList)

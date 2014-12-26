@@ -1,5 +1,6 @@
 ﻿
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -7,12 +8,20 @@ using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// repository of resources accessible by name
+    /// </summary>
     public class RwResourceRepository
     {
-        public Dictionary<string, RwResource> Resources { get; private set; }
+        /// <summary>
+        /// Dictionary of resources
+        /// </summary>
+        public ConcurrentDictionary<string, RwResource> Resources { get; private set; }
 
         public RwResourceRepository Parent { get; set; }
-
+        /// <summary>
+        /// returns registered resource
+        /// </summary>
         public RwResource Resolve(string name)
         {
             if (Resources.ContainsKey(name)) return Resources[name];
@@ -24,14 +33,20 @@ namespace Redwood.Framework.Controls
         {
             return Resources.ContainsKey(name) || (Parent != null && Parent.IsRegistered(name));
         }
-
+        /// <summary>
+        /// registers a new resource in collection
+        /// </summary>
         public void Register(string name, RwResource resource, bool replaceIfExists = true)
         {
-            if (Resources.ContainsKey(name) && replaceIfExists)
-                Resources[name] = resource;
-            else Resources.Add(name, resource);
+            if (replaceIfExists)
+                Resources.AddOrUpdate(name, resource, (key, res) => resource);
+            else if (!Resources.TryAdd(name, resource))
+                throw new InvalidOperationException("name already registered");
         }
 
+        /// <summary>
+        /// Creates nested repository. All new registrations in the nested repo will not apply to this.
+        /// </summary>
         public RwResourceRepository Nest()
         {
             return new RwResourceRepository(this);
@@ -39,7 +54,7 @@ namespace Redwood.Framework.Controls
 
         public RwResourceRepository(RwResourceRepository parent)
         {
-            this.Resources = new Dictionary<string, RwResource>();
+            this.Resources = new ConcurrentDictionary<string, RwResource>();
             this.Parent = parent;
         }
 

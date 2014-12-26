@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// Reference to css style file
+    /// </summary>
     public class StyleResource : RwResource
     {
         public string Uri { get; set; }
