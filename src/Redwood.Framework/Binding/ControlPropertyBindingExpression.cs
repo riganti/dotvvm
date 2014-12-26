@@ -23,7 +23,7 @@ namespace Redwood.Framework.Binding
         {
             // find the parent markup control and calculate number of DataContext changes
             int numberOfDataContextChanges;
-            var current = RedwoodBindableControl.GetClosestControlBindingTarget(control, out numberOfDataContextChanges);
+            var current = control.GetClosestControlBindingTarget(out numberOfDataContextChanges);
 
             // get the property
             var sourceProperty = RedwoodProperty.ResolveProperty(current.GetType(), Expression);

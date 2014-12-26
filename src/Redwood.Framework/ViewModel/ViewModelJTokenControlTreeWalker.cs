@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json.Linq;
@@ -10,54 +11,33 @@ namespace Redwood.Framework.ViewModel
     /// <summary>
     /// Goes through the control tree and maps it to the JToken with the ViewModel representation
     /// </summary>
-    public class ViewModelControlTreeWalker
+    public class ViewModelJTokenControlTreeWalker : ControlTreeWalker<JToken>
     {
-        private JToken viewModelToken;
-        private RedwoodView root;
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ViewModelControlTreeWalker"/> class.
+        /// Initializes a new instance of the <see cref="ViewModelJTokenControlTreeWalker"/> class.
         /// </summary>
-        public ViewModelControlTreeWalker(JToken viewModelToken, RedwoodView root)
+        public ViewModelJTokenControlTreeWalker(JToken viewModel, RedwoodControl root)
+            : base(viewModel, root)
         {
-            this.viewModelToken = viewModelToken;
-            this.root = root;
+        }
+
+        /// <summary>
+        /// Creates the expression evaluator.
+        /// </summary>
+        protected override IExpressionEvaluator<JToken> CreateEvaluator(JToken viewModel)
+        {
+            return new ViewModelJTokenEvaluator(viewModel);
         }
 
 
         /// <summary>
-        /// Processes the control tree.
+        /// Determines whether the walker shoulds the process children for current viewModel value.
         /// </summary>
-        public void ProcessControlTree(Action<JToken, RedwoodControl> action)
+        protected override bool ShouldProcessChildren(JToken viewModel)
         {
-            var evaluator = new ViewModelJTokenEvaluator(viewModelToken);
-            ProcessControlTreeCore(evaluator, viewModelToken, root, action);
-        }
-
-        /// <summary>
-        /// Processes the control tree.
-        /// </summary>
-        private void ProcessControlTreeCore(ViewModelJTokenEvaluator evaluator, JToken viewModelToken, RedwoodControl control, Action<JToken, RedwoodControl> action)
-        {
-            action(viewModelToken, control);
-
-            // if there is a DataContext binding, locate the correct token
-            ValueBindingExpression binding;
-            if (control is RedwoodBindableControl && 
-                (binding = ((RedwoodBindableControl)control).GetBinding(RedwoodBindableControl.DataContextProperty, false) as ValueBindingExpression) != null)
-            {
-                viewModelToken = evaluator.Evaluate(binding.Expression);
-            }
-
-            if (viewModelToken is JObject || viewModelToken is JArray)
-            {
-                // go through all children
-                foreach (var child in control.Children)
-                {
-                    ProcessControlTreeCore(evaluator, viewModelToken, child, action);
-                }
-            }
+            return viewModel is JObject || viewModel is JArray;
         }
 
         /// <summary>
@@ -118,6 +98,6 @@ namespace Redwood.Framework.ViewModel
                 }
             }
         }
-        
+
     }
 }

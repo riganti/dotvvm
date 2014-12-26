@@ -82,11 +82,12 @@ namespace Redwood.Framework.Binding
         {
             if (target == null) return null;
 
-            if (propertyName == "_parent")
+            if (propertyName == Constants.ParentSpecialBindingProperty)
             {
-                return hierarchy.Pop();
+                hierarchy.Pop();
+                return hierarchy.Peek();
             }
-            else if (propertyName == "_root")
+            else if (propertyName == Constants.RootSpecialBindingProperty)
             {
                 while (hierarchy.Count > 1)
                 {
@@ -94,7 +95,7 @@ namespace Redwood.Framework.Binding
                 }
                 return hierarchy.Peek();
             }
-            else if (propertyName == "_this")
+            else if (propertyName == Constants.ThisSpecialBindingProperty)
             {
                 return target;
             }

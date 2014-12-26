@@ -42,8 +42,10 @@ namespace Redwood.Framework.Parser.Translation
 
             if (!visitor.IsExpression)
             {
-                Debug.Assert(result.EndsWith("()"));
-                return result.Substring(0, result.Length - 2);
+                if (result.EndsWith("()"))
+                {
+                    return result.Substring(0, result.Length - 2);
+                }
             }
             return result;
         }

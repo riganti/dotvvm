@@ -168,6 +168,8 @@
     <Content Include="sample5.rwhtml" />
     <Content Include="sample5_control.rwhtml" />
     <Content Include="sample6.rwhtml" />
+    <Content Include="sample7_calendar.rwhtml" />
+    <Content Include="sample7.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -178,8 +180,10 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\Sample5_TestControl.cs" />
+    <Compile Include="Controls\Sample7_Calendar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\Sample7ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />
     <Compile Include="ViewModels\Sample1ViewModel.cs" />
     <Compile Include="ViewModels\Sample2ViewModel.cs" />

@@ -3,7 +3,8 @@
         "controls": [
             { "tagPrefix": "rw", "namespace": "Redwood.Framework.Controls", "assembly": "Redwood.Framework" },
             { "tagPrefix": "bootstrap", "namespace": "Redwood.Framework.Controls.Bootstrap", "assembly": "Redwood.Framework" },
-            { "tagPrefix": "sample5", "tagName": "TestControl", "src": "sample5_control.rwhtml" }
+            { "tagPrefix": "sample5", "tagName": "TestControl", "src": "sample5_control.rwhtml" },
+            { "tagPrefix": "sample7", "tagName": "Calendar", "src": "sample7_calendar.rwhtml" }
         ]
     },
     "security": {

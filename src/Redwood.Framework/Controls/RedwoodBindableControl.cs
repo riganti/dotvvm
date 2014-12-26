@@ -195,9 +195,18 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets the closest control binding target.
         /// </summary>
-        public static RedwoodControl GetClosestControlBindingTarget(RedwoodBindableControl control, out int numberOfDataContextChanges)
+        public RedwoodControl GetClosestControlBindingTarget()
         {
-            var current = (RedwoodControl)control;
+            int numberOfDataContextChanges;
+            return GetClosestControlBindingTarget(out numberOfDataContextChanges);
+        }
+
+        /// <summary>
+        /// Gets the closest control binding target.
+        /// </summary>
+        public RedwoodControl GetClosestControlBindingTarget(out int numberOfDataContextChanges)
+        {
+            var current = (RedwoodControl)this;
             numberOfDataContextChanges = 0;
             while (current != null)
             {

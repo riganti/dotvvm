@@ -33,11 +33,5 @@ namespace Redwood.Samples.BasicSamples.Controls
         {
             get { return true; }
         }
-
-
-        public Sample5_TestControl()
-        {
-            ControlState["Value"] = 0;
-        }
     }
 }

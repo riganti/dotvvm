@@ -21,7 +21,7 @@ namespace Redwood.Samples.BasicSamples
             RedwoodConfiguration redwoodConfiguration;
             app.UseRedwood(applicationPhysicalPath, out redwoodConfiguration);
 
-            redwoodConfiguration.ResourceRepo.Register("jquery", new ScriptResource("Scripts/jquery-2.1.1.min.js", "http://notworkingaddress/jquery.js", "jQuery"));
+            redwoodConfiguration.ResourceRepo.Register("jquery", new ScriptResource("Scripts/jquery-2.1.1.min.js", "http://notworkingaddress/jquery.js", "window.jQuery"));
             redwoodConfiguration.ResourceRepo.Register("knockout-core", new ScriptResource("/Scripts/knockout-3.2.0.js", "jquery"));
             redwoodConfiguration.ResourceRepo.Register("knockout", new ScriptResource("/Scripts/knockout.mapper.js", "knockout-core"));
             redwoodConfiguration.ResourceRepo.Register("redwood", new ScriptResource("/Scripts/Redwood.js", "knockout"));
@@ -34,6 +34,7 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample4", "Sample4", "sample4.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample5", "Sample5", "sample5.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample6", "Sample6", "sample6.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("Sample7", "Sample7", "sample7.rwhtml", null);
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

@@ -17,6 +17,12 @@ namespace Redwood.Framework.Binding
         }
 
 
+        /// <summary>
+        /// Gets or sets the default value of the binding.
+        /// </summary>
+        public object DefaultValue { get; set; }
+
+
 
         /// <summary>
         /// Evaluates the specified expression.
@@ -27,7 +33,7 @@ namespace Redwood.Framework.Binding
 
             // find the parent markup control and calculate number of DataContext changes
             int numberOfDataContextChanges;
-            var current = RedwoodBindableControl.GetClosestControlBindingTarget(control, out numberOfDataContextChanges) as RedwoodBindableControl;
+            var current = control.GetClosestControlBindingTarget(out numberOfDataContextChanges) as RedwoodBindableControl;
 
             if (current == null || !current.RequiresControlState)
             {
@@ -36,7 +42,7 @@ namespace Redwood.Framework.Binding
             else
             {
                 object value;
-                return current.ControlState.TryGetValue(Expression, out value) ? value : null;
+                return current.ControlState.TryGetValue(Expression, out value) ? value : DefaultValue;
             }
         }
 
@@ -49,10 +55,23 @@ namespace Redwood.Framework.Binding
 
             // find the parent markup control and calculate number of DataContext changes
             int numberOfDataContextChanges;
-            var current = RedwoodBindableControl.GetClosestControlBindingTarget(control, out numberOfDataContextChanges) as RedwoodBindableControl;
+            var current = control.GetClosestControlBindingTarget(out numberOfDataContextChanges) as RedwoodBindableControl;
 
             current.EnsureControlHasId();
             return string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => "$parent").Concat(new[] { "$controlState()", current.ID + "()", Expression }));
+        }
+
+        /// <summary>
+        /// Gets the view model path expression.
+        /// </summary>
+        public override string GetViewModelPathExpression(RedwoodBindableControl control, RedwoodProperty property)
+        {
+            // find the parent markup control and calculate number of DataContext changes
+            int numberOfDataContextChanges;
+            var current = control.GetClosestControlBindingTarget(out numberOfDataContextChanges) as RedwoodBindableControl;
+
+            current.EnsureControlHasId();
+            return string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => "_parent").Concat(new[] { "_controlState_" + current.ID, Expression }));
         }
 
         /// <summary>
@@ -73,5 +92,6 @@ namespace Redwood.Framework.Binding
                 throw new Exception("The {controlState: ...} binding can only contain a property name!");       // TODO: exception handling
             }
         }
+
     }
 }

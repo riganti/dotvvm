@@ -11,7 +11,7 @@ using Redwood.Framework.Parser;
 
 namespace Redwood.Framework.Binding
 {
-    public class ViewModelJTokenEvaluator
+    public class ViewModelJTokenEvaluator : IExpressionEvaluator<JToken>
     {
 
         private ViewModelJTokenEvaluationVisitor visitor;

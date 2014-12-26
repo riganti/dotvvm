@@ -37,7 +37,7 @@ namespace Redwood.Framework.Hosting
             serializer.Serialize(writer, viewModel);
 
             // save the control state
-            var walker = new ViewModelControlTreeWalker(writer.Token, view);
+            var walker = new ViewModelJTokenControlTreeWalker(writer.Token, view);
             walker.ProcessControlTree(walker.SaveControlState);
 
             return writer.Token.ToString();
@@ -62,7 +62,7 @@ namespace Redwood.Framework.Hosting
             viewModelConverter.Populate(data["viewModel"] as JObject, serializer, viewModel);
             
             // load the control state
-            var walker = new ViewModelControlTreeWalker(data["viewModel"], view);
+            var walker = new ViewModelJTokenControlTreeWalker(data["viewModel"], view);
             walker.ProcessControlTree(walker.LoadControlState);
 
             // find the command target
@@ -73,11 +73,11 @@ namespace Redwood.Framework.Hosting
                 {
                     throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
                 }
-                invokedCommand = commandResolver.GetFunction(target, viewModel, path, command);
+                invokedCommand = commandResolver.GetFunction(target, view, viewModel, path, command);
             }
             else
             {
-                invokedCommand = commandResolver.GetFunction(viewModel, path, command);
+                invokedCommand = commandResolver.GetFunction(view, viewModel, path, command);
             }
         }
     }

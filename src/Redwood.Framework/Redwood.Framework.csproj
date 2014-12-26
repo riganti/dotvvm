@@ -76,6 +76,7 @@
     <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
     <Compile Include="Binding\ControlStateBindingExpression.cs" />
     <Compile Include="Binding\ExpressionEvaluator.cs" />
+    <Compile Include="Binding\IExpressionEvaluator.cs" />
     <Compile Include="Binding\IUpdatableBindingExpression.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
@@ -202,7 +203,10 @@
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
-    <Compile Include="ViewModel\ViewModelControlTreeWalker.cs" />
+    <Compile Include="ViewModel\ControlTreeWalker.cs" />
+    <Compile Include="ViewModel\NonEvaluatingControlTreeWalker.cs" />
+    <Compile Include="ViewModel\NullEvaluator.cs" />
+    <Compile Include="ViewModel\ViewModelJTokenControlTreeWalker.cs" />
     <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
     <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
     <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
