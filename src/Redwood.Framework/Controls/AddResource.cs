@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls
 {
-    class Script : RedwoodControl
+    public class AddResource : RedwoodControl
     {
         public string Name { get; set; }
 

@@ -6,8 +6,11 @@ using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls
 {
-    public class ScriptResource: RwResource
+    public class ScriptResource : RwResource
     {
+
+        public string LocalUri { get; set; }
+        public string CdnUri { get; set; }
         public string LoadCheckObject { get; set; }
         public ScriptResource(string localAddr, string cdnAddr, string loadCheckObject, IEnumerable<string> prereq)
         {
@@ -24,20 +27,20 @@ namespace Redwood.Framework.Controls
         private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'></script>\"";
         public override void Render(IHtmlWriter writer)
         {
-            if(CdnUri != null)
+            if (CdnUri != null)
             {
                 writer.AddAttribute("src", CdnUri);
                 writer.AddAttribute("type", "text/javascript");
                 writer.RenderBeginTag("script");
                 writer.RenderEndTag();
 
-                if(LocalUri != null && LoadCheckObject != null)
+                if (LocalUri != null && LoadCheckObject != null)
                 {
                     writer.RenderBeginTag("script");
                     writer.WriteUnencodedText(string.Format(CdnFallbackScript, LoadCheckObject, LocalUri));
                 }
             }
-            else if(LocalUri != null)
+            else if (LocalUri != null)
             {
                 writer.AddAttribute("src", LocalUri);
                 writer.AddAttribute("type", "text/javascript");

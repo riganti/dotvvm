@@ -119,8 +119,9 @@
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />
     <Compile Include="Controls\RwResourceRepository.cs" />
-    <Compile Include="Controls\Script.cs" />
+    <Compile Include="Controls\AddResource.cs" />
     <Compile Include="Controls\ScriptResource.cs" />
+    <Compile Include="Controls\StyleResource.cs" />
     <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\CompiledAssemblyCache.cs" />

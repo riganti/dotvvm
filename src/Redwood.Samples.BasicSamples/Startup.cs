@@ -20,9 +20,13 @@ namespace Redwood.Samples.BasicSamples
             // use Redwood
             RedwoodConfiguration redwoodConfiguration;
             app.UseRedwood(applicationPhysicalPath, out redwoodConfiguration);
-            redwoodConfiguration.ResourceRepo.Register("knockout-core", new ScriptResource("/Scripts/knockout-3.2.0.js"));
+
+            redwoodConfiguration.ResourceRepo.Register("jquery", new ScriptResource("Scripts/jquery-2.1.1.min.js"));
+            redwoodConfiguration.ResourceRepo.Register("knockout-core", new ScriptResource("/Scripts/knockout-3.2.0.js", "jquery"));
             redwoodConfiguration.ResourceRepo.Register("knockout", new ScriptResource("/Scripts/knockout.mapper.js", "knockout-core"));
             redwoodConfiguration.ResourceRepo.Register("redwood", new ScriptResource("/Scripts/Redwood.js", "knockout"));
+            redwoodConfiguration.ResourceRepo.Register("bootstrap-css", new StyleResource("Content/bootstrap/bootstrap.min.css"));
+            redwoodConfiguration.ResourceRepo.Register("bootstrap", new ScriptResource("Scripts/bootstrap.min.js", new string[] { "bootstrap-css", "jquery" }));
 
             redwoodConfiguration.RouteTable.Add("Sample1", "Sample1", "sample1.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample2", "Sample2", "sample2.rwhtml", null);

@@ -3,9 +3,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from Redwood!</title>
-	<link rel="stylesheet" href="Content/bootstrap/bootstrap.min.css" />
-	<script src="Scripts/jquery-2.1.1.min.js"></script>
-	<script src="Scripts/bootstrap.min.js"></script>
+	<rw:AddResource Name="bootstrap" />
+	<rw:ResourceLinks />
 </head>
 <body>
 	<div class="container">
@@ -15,6 +14,5 @@
 		<sample5:TestControl DataContext="{value: ViewModel2}" Name="{value: SecondControlName}" />
 	</div>
 
-	<rw:IntegrationScripts />
 </body>
 </html>

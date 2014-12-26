@@ -29,6 +29,7 @@ namespace Redwood.Framework.Utils
             return result;
         }
         #region Replace overloads
+
         public static Expression Replace<T1, TRes>(Expression<Func<T1, TRes>> ex, Expression p1)
         {
             return Replace(ex as LambdaExpression, p1);
@@ -131,7 +132,9 @@ namespace Redwood.Framework.Utils
                 var rc = r as ConstantExpression;
                 if (lc != null && rc != null)
                 {
-                    return Expression.Constant(node.Method.Invoke(null, new object[] { lc.Value, rc.Value }));
+                    if (node.Method != null)
+                        return Expression.Constant(node.Method.Invoke(null, new object[] { lc.Value, rc.Value }));
+                    else throw new NotImplementedException("special cases without method not supported now");
                 }
                 else return base.VisitBinary(node);
             }
