@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Controls
 {
@@ -17,10 +18,10 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public string Name { get; set; }
 
-        public override void PrepareRender(RenderContext renderContext)
+        internal override void OnPreRenderComplete(RedwoodRequestContext context)
         {
-            renderContext.ResourceManager.AddResource(Name);
-            base.PrepareRender(renderContext);
+            context.ResourceManager.AddResource(Name);
+            base.OnPreRenderComplete(context);
         }
     }
 }

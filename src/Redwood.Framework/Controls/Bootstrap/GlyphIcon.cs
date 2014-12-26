@@ -18,6 +18,7 @@ namespace Redwood.Framework.Controls.Bootstrap
 
         public GlyphIcon() : base("span")
         {
+            ResourceDependencies.Add("bootstrap-css");
         }
 
         /// <summary>

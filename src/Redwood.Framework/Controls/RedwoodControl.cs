@@ -159,22 +159,6 @@ namespace Redwood.Framework.Controls
         }
 
         /// <summary>
-        /// prepares rendering (registers resources)
-        /// </summary>
-        /// <param name="renderContext"></param>
-        public virtual void PrepareRender(RenderContext renderContext)
-        {
-            foreach (var resource in ResourceDependencies)
-            {
-                renderContext.ResourceManager.AddResource(resource);
-            }
-            foreach (var child in Children)
-            {
-                child.PrepareRender(renderContext);
-            }
-        }
-
-        /// <summary>
         /// Ensures that the control has ID. The method can auto-generate it, if specified.
         /// </summary>
         public void EnsureControlHasId(bool autoGenerate = true)
@@ -257,6 +241,12 @@ namespace Redwood.Framework.Controls
         /// </summary>
         internal virtual void OnPreRenderComplete(RedwoodRequestContext context)
         {
+            // add resource dependencies to manager
+            foreach (var resource in ResourceDependencies)
+            {
+                context.ResourceManager.AddResource(resource);
+            }
+            // events on properties
             foreach (var property in GetDeclaredProperties())
             {
                 property.OnControlRendering(this);

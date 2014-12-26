@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Owin;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Routing;
+using Redwood.Framework.Controls;
 
 namespace Redwood.Framework.Hosting
 {
@@ -24,6 +25,8 @@ namespace Redwood.Framework.Hosting
         public bool IsPostBack { get; internal set; }
 
         public IDictionary<string, object> Parameters { get; set; }
+
+        public RwResourceManager ResourceManager { get; set; }
 
         public IReadableStringCollection Query
         {

@@ -107,10 +107,10 @@ namespace Redwood.Framework.Hosting
             var page = RedwoodViewBuilder.BuildView(context);
 
             // run the preinit phase in the page
-            InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreInit(context));
+            InvokePageLifeCycleEventRecursive(page, c => c.OnPreInit(context));
 
             // run the init phase in the page
-            InvokePageLifeCycleEventRecursive(context, page, c => c.OnInit(context));
+            InvokePageLifeCycleEventRecursive(page, c => c.OnInit(context));
 
             // locate and create the view model
             var viewModel = ViewModelLoader.InitializeViewModel(context, page);
@@ -131,7 +131,7 @@ namespace Redwood.Framework.Hosting
                 }
 
                 // run the load phase in the page
-                InvokePageLifeCycleEventRecursive(context, page, c => c.OnLoad(context));
+                InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
             }
             else
             {
@@ -147,7 +147,7 @@ namespace Redwood.Framework.Hosting
                 }
 
                 // run the load phase in the page
-                InvokePageLifeCycleEventRecursive(context, page, c => c.OnLoad(context));
+                InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
 
                 // invoke the postback command
                 if (invokedCommand != null)
@@ -162,10 +162,10 @@ namespace Redwood.Framework.Hosting
             }
 
             // run the prerender phase in the page
-            InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreRender(context));
+            InvokePageLifeCycleEventRecursive(page, c => c.OnPreRender(context));
             
             // run the prerender complete phase in the page
-            InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreRenderComplete(context));
+            InvokePageLifeCycleEventRecursive(page, c => c.OnPreRenderComplete(context));
 
             // render the output
             var serializedViewModel = ViewModelSerializer.SerializeViewModel(viewModel, page);
@@ -184,7 +184,7 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Invokes the specified method on all controls in the page control tree.
         /// </summary>
-        private void InvokePageLifeCycleEventRecursive(RedwoodRequestContext context, RedwoodControl control, Action<RedwoodControl> action)
+        private void InvokePageLifeCycleEventRecursive(RedwoodControl control, Action<RedwoodControl> action)
         {
             foreach (var child in control.GetThisAndAllDescendants())
             {

@@ -14,7 +14,10 @@ namespace Redwood.Framework.Controls
 
         public Stack<string> PathFragments { get; set; }
 
-        public RwResourceManager ResourceManager { get; protected set; }
+        public RwResourceManager ResourceManager
+        {
+            get { return RedwoodRequestContext.ResourceManager; }
+        }
 
 
         public RenderContext(Hosting.RedwoodRequestContext request)
@@ -22,7 +25,6 @@ namespace Redwood.Framework.Controls
             this.RedwoodRequestContext = request;
             CurrentPageArea = "root";
             PathFragments = new Stack<string>();
-            ResourceManager = new RwResourceManager(request.Configuration.ResourceRepo.Nest());
         }
     }
 }

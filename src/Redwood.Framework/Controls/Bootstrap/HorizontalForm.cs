@@ -11,7 +11,7 @@ namespace Redwood.Framework.Controls.Bootstrap
 
         public HorizontalForm() : base("form")
         {
-            
+            ResourceDependencies.Add("bootstrap-css");
         }
 
         public override void Render(IHtmlWriter writer, RenderContext context)
