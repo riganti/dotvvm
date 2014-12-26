@@ -36,7 +36,7 @@ namespace Redwood.Framework.Controls
         public ScriptResource(string localAddr, IEnumerable<string> prereq) : this(localAddr, null, null, prereq) { }
         public ScriptResource(string localAddr, params string[] prereq) : this(localAddr, null, null, prereq) { }
 
-        private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'></script>);\"";
+        private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'><\\/script>\")";
         public override void Render(IHtmlWriter writer)
         {
             if (CdnUri != null)
@@ -49,7 +49,7 @@ namespace Redwood.Framework.Controls
                 if (LocalUri != null && LoadCheckObject != null)
                 {
                     writer.RenderBeginTag("script");
-                    writer.WriteText(string.Format(CdnFallbackScript, LoadCheckObject, LocalUri));
+                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, LoadCheckObject, LocalUri));
                     writer.RenderEndTag();
                 }
             }
