@@ -156,7 +156,7 @@ namespace Redwood.Framework.Runtime
             {
                 // binding in text
                 var binding = (RwHtmlBindingNode)node;
-                var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { ((RwHtmlLiteralNode)node).Value });
+                var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { ((RwHtmlLiteralNode)node).Value, true });
                 var bindingObjectName = emitter.EmitCreateObject(controlResolver.ResolveBinding(binding.Name), new object[] { binding.Value });
                 emitter.EmitSetBinding(currentObjectName, typeof(Literal), ReflectionUtils.GetPropertyNameFromExpression<Literal>(l => l.Text), bindingObjectName);
                 emitter.EmitAddCollectionItem(parentName, currentObjectName);
