@@ -118,6 +118,7 @@
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />
     <Compile Include="Controls\TextBox.cs" />
+    <Compile Include="Security\NistSP800108DeriveBytes.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\CompiledAssemblyCache.cs" />
     <Compile Include="Hosting\DefaultControlBuilderFactory.cs" />
