@@ -5,6 +5,8 @@ using Microsoft.Owin.StaticFiles;
 using Owin;
 using Redwood.Framework;
 using Redwood.Framework.Configuration;
+using Redwood.Framework.Hosting;
+using Redwood.Framework.Controls;
 
 [assembly: OwinStartup(typeof(Redwood.Samples.BasicSamples.Startup))]
 namespace Redwood.Samples.BasicSamples
@@ -16,8 +18,8 @@ namespace Redwood.Samples.BasicSamples
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use Redwood
-            RedwoodConfiguration redwoodConfiguration;
-            app.UseRedwood(applicationPhysicalPath, out redwoodConfiguration);
+            RedwoodConfiguration redwoodConfiguration = app.UseRedwood(applicationPhysicalPath);
+            redwoodConfiguration.ResourceRepo.RegisterCommonResources();
             redwoodConfiguration.RouteTable.Add("Sample1", "Sample1", "sample1.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample2", "Sample2", "sample2.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample3", "Sample3", "sample3.rwhtml", null);

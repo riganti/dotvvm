@@ -3,15 +3,14 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from Redwood!</title>
-	<link rel="stylesheet" href="Content/bootstrap/bootstrap.min.css" />
-	<script src="Scripts/jquery-2.1.1.min.js"></script>
-	<script src="Scripts/bootstrap.min.js"></script>
+	<rw:AddResource Name="bootstrap" />
 	<style>
 	.completed {
 		color: maroon;
 		text-decoration: line-through;
 	}
 	</style>
+	<rw:ResourceLinks />
 </head>
 <body>
 	<div class="container">
@@ -45,7 +44,5 @@
 		<p>Protected data in viewmodel: <strong>{{value: ReadOnlyData}}</strong></p>
 		<a href="#" onclick="redwood.viewModels.root.ReadOnlyData('hello');alert('done');return false;">Modify protected data using javascript</a>
 	</div>
-
-	<rw:IntegrationScripts />
 </body>
 </html>

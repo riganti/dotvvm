@@ -81,6 +81,7 @@
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
+    <Compile Include="ConfigurationHelper.cs" />
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
@@ -90,6 +91,8 @@
     <Compile Include="Controls\Bootstrap\HorizontalForm.cs" />
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\RwResource.cs" />
+    <Compile Include="Controls\RwResourceManager.cs" />
     <Compile Include="Controls\ComboBox.cs" />
     <Compile Include="Controls\Content.cs" />
     <Compile Include="Controls\ContentPlaceHolder.cs" />
@@ -98,7 +101,7 @@
     <Compile Include="Controls\HtmlWriter.cs" />
     <Compile Include="Controls\IControlWithHtmlAttributes.cs" />
     <Compile Include="Controls\IHtmlWriter.cs" />
-    <Compile Include="Controls\IntegrationScripts.cs" />
+    <Compile Include="Controls\ResourceLinks.cs" />
     <Compile Include="Controls\ITemplate.cs" />
     <Compile Include="Controls\ItemsControl.cs" />
     <Compile Include="Controls\LinkButton.cs" />
@@ -117,6 +120,10 @@
     <Compile Include="Controls\MarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />
+    <Compile Include="Controls\RwResourceRepository.cs" />
+    <Compile Include="Controls\AddResource.cs" />
+    <Compile Include="Controls\ScriptResource.cs" />
+    <Compile Include="Controls\StyleResource.cs" />
     <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\CompiledAssemblyCache.cs" />

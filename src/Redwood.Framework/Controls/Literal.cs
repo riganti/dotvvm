@@ -51,6 +51,15 @@ namespace Redwood.Framework.Controls
             Text = text;
             HtmlEncode = false;
         }
+        
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Literal"/> class.
+        /// </summary>
+        public Literal(string text, bool encode)
+        {
+            Text = text;
+            HtmlEncode = encode;
+        }
 
 
         /// <summary>

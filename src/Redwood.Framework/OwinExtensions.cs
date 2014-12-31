@@ -10,8 +10,9 @@ namespace Redwood.Framework
     public static class OwinExtensions
     {
 
-        public static void UseRedwood(this IAppBuilder app, string applicationRootDirectory, out RedwoodConfiguration configuration)
+        public static RedwoodConfiguration UseRedwood(this IAppBuilder app, string applicationRootDirectory)
         {
+            RedwoodConfiguration configuration;
             var configurationFilePath = Path.Combine(applicationRootDirectory, "redwood.json");
 
             // load or create default configuration
@@ -29,6 +30,8 @@ namespace Redwood.Framework
 
             // add middleware
             app.Use<RedwoodMiddleware>(configuration);
+
+            return configuration;
         }
 
     }

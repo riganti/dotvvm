@@ -14,7 +14,7 @@ namespace Redwood.Framework.Binding
 {
     public class ExpressionEvaluationVisitor : CSharpSyntaxVisitor<object>
     {
-        
+
         /// <summary>
         /// Gets or sets a value whether the evaluator can return a MethodInfo.
         /// </summary>
@@ -68,7 +68,7 @@ namespace Redwood.Framework.Binding
             }
             else
             {
-                Hierarchy = new Stack<object>(hierarchy);                
+                Hierarchy = new Stack<object>(hierarchy);
             }
         }
 
@@ -154,7 +154,8 @@ namespace Redwood.Framework.Binding
             if (propertyName == Constants.ParentSpecialBindingProperty)
             {
                 Hierarchy.Pop();
-                PathHierarchy.Pop();
+                if (PathHierarchy.Any())
+                    PathHierarchy.Pop();
                 return Result;
             }
             else if (propertyName == Constants.RootSpecialBindingProperty)
@@ -162,7 +163,8 @@ namespace Redwood.Framework.Binding
                 while (Hierarchy.Count > 1)
                 {
                     Hierarchy.Pop();
-                    PathHierarchy.Pop();
+                    if (PathHierarchy.Any())
+                        PathHierarchy.Pop();
                 }
                 return Result;
             }
@@ -273,6 +275,6 @@ namespace Redwood.Framework.Binding
             return propertyName == Constants.RootSpecialBindingProperty || propertyName == Constants.ParentSpecialBindingProperty
                 || propertyName == Constants.ThisSpecialBindingProperty || propertyName.StartsWith(Constants.ControlStateSpecialBindingProperty);
         }
-        
+
     }
 }

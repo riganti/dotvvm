@@ -55,7 +55,8 @@ namespace Redwood.Framework.Hosting
                     Route = route,
                     OwinContext = context, 
                     Configuration = configuration,
-                    Parameters = parameters
+                    Parameters = parameters,
+                    ResourceManager = new Controls.RwResourceManager(configuration.ResourceRepo)
                 });
             }
             else

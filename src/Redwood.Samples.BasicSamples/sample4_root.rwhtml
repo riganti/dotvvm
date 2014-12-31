@@ -1,15 +1,14 @@
 ﻿<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Redwood MasterPage Sample</title>
-    <link rel="stylesheet" href="Content/bootstrap/bootstrap.min.css" />
-    <script src="Scripts/jquery-2.1.1.min.js"></script>
-    <script src="Scripts/bootstrap.min.js"></script>
+    <rw:AddResource Name="bootstrap" />
 	<style>
 		.completed {
 			color: maroon;
 			text-decoration: line-through;
 		}
 	</style>
+	<rw:ResourceLinks />
 </head>
 <body>
     
@@ -26,7 +25,5 @@
 			</div>
 		</div>
     </div>
-
-	<rw:IntegrationScripts />
 </body>
 </html>

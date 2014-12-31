@@ -30,6 +30,8 @@ namespace Redwood.Framework.Controls
             }
         }
 
+        protected List<string> ResourceDependencies = new List<string>();
+
 
             /// <summary>
         /// Gets the parent control.
@@ -133,7 +135,7 @@ namespace Redwood.Framework.Controls
                 yield return ancestor;
                 ancestor = ancestor.Parent;
             }
-        } 
+        }
 
 
         /// <summary>
@@ -239,6 +241,12 @@ namespace Redwood.Framework.Controls
         /// </summary>
         internal virtual void OnPreRenderComplete(RedwoodRequestContext context)
         {
+            // add resource dependencies to manager
+            foreach (var resource in ResourceDependencies)
+            {
+                context.ResourceManager.AddResource(resource);
+            }
+            // events on properties
             foreach (var property in GetDeclaredProperties())
             {
                 property.OnControlRendering(this);

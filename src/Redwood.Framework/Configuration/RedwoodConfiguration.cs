@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Routing;
+using Redwood.Framework.Controls;
 
 namespace Redwood.Framework.Configuration
 {
@@ -29,6 +30,7 @@ namespace Redwood.Framework.Configuration
         [JsonIgnore()]
         public RedwoodRouteTable RouteTable { get; private set; }
 
+        public Controls.RwResourceRepository ResourceRepo { get; set; }
         /// <summary>
         /// Gets the security.
         /// </summary>
@@ -42,6 +44,7 @@ namespace Redwood.Framework.Configuration
         {
             Markup = new RedwoodMarkupConfiguration();
             RouteTable = new RedwoodRouteTable(this);
+            ResourceRepo = new RwResourceRepository();
             Security = new RedwoodSecurityConfiguration();
         }
 

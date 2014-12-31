@@ -81,7 +81,10 @@ namespace Redwood.Framework.Controls
             }
 
             writer.RenderBeginTag(TagName);
+
+            //render childs
             base.Render(writer, context);
+
             writer.RenderEndTag();
         }
     }

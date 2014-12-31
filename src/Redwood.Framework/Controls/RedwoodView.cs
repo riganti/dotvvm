@@ -15,6 +15,7 @@ namespace Redwood.Framework.Controls
         public RedwoodView()
         {
             Directives = new Dictionary<string, string>();
+            ResourceDependencies.Add("redwood");
         }
 
     }
