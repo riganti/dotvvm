@@ -3,7 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from Redwood!</title>
-	<rw:AddResource Name="bootstrap" />
 	<style>
 		.calendar tr {
 			height: 40px;
@@ -29,7 +28,6 @@
 			color: gray;
 		}
 	</style>
-	<rw:ResourceLinks />
 </head>
 <body>
 	<div class="container">
@@ -56,5 +54,7 @@
 		would only remember the VisibleDate (and maybe the SelectedDate) in the control state!
 	</p>
 
+	<rw:RequiredResource Name="bootstrap" />
+	<rw:ResourceLinks />
 </body>
 </html>

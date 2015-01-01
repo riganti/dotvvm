@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Parser;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls.Bootstrap
 {
@@ -9,7 +11,7 @@ namespace Redwood.Framework.Controls.Bootstrap
 
         public HorizontalForm() : base("form")
         {
-            ResourceDependencies.Add("bootstrap-css");
+            ResourceDependencies.Add(Constants.BootstrapResourceName);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)

@@ -3,14 +3,12 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from Redwood!</title>
-	<rw:AddResource Name="bootstrap" />
 	<style>
 	.completed {
 		color: maroon;
 		text-decoration: line-through;
 	}
 	</style>
-	<rw:ResourceLinks />
 </head>
 <body>
 	<div class="container">
@@ -40,5 +38,8 @@
 			</rw:Repeater>
 		</table>
 	</div>
+	
+	<rw:RequiredResource Name="bootstrap" />
+	<rw:ResourceLinks />
 </body>
 </html>

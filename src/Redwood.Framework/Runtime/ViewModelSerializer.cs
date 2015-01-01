@@ -4,13 +4,11 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Redwood.Framework.Binding;
+using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
 using Redwood.Framework.ViewModel;
-using System.Text;
-using System.IO;
-using Redwood.Framework.Configuration;
 
-namespace Redwood.Framework.Hosting
+namespace Redwood.Framework.Runtime
 {
     public class ViewModelSerializer : IViewModelSerializer
     {

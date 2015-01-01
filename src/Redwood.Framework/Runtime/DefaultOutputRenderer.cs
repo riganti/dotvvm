@@ -1,12 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.DataAnnotations;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Hosting;
 
-namespace Redwood.Framework.Hosting
+namespace Redwood.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {

@@ -2,6 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Binding;
+using Redwood.Framework.Hosting;
+using Redwood.Framework.Parser;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls.Bootstrap
 {
@@ -19,7 +22,7 @@ namespace Redwood.Framework.Controls.Bootstrap
 
         public GlyphIcon() : base("span")
         {
-            ResourceDependencies.Add("bootstrap-css");
+            ResourceDependencies.Add(Constants.BootstrapResourceName);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)

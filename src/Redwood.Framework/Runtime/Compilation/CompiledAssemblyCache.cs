@@ -5,7 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Microsoft.CodeAnalysis;
 
-namespace Redwood.Framework.Hosting
+namespace Redwood.Framework.Runtime.Compilation
 {
     public class CompiledAssemblyCache
     {

@@ -3,8 +3,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Hosting;
 
-namespace Redwood.Framework.Hosting
+namespace Redwood.Framework.Runtime
 {
     public interface IOutputRenderer
     {

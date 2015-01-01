@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Hosting;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls
 {
@@ -277,8 +278,9 @@ namespace Redwood.Framework.Controls
             // add resource dependencies to manager
             foreach (var resource in ResourceDependencies)
             {
-                context.ResourceManager.AddResource(resource);
+                context.ResourceManager.AddRequiredResource(resource);
             }
+
             // events on properties
             foreach (var property in GetDeclaredProperties())
             {

@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Configuration;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls
 {
@@ -10,10 +12,17 @@ namespace Redwood.Framework.Controls
     public class ResourceLinks : RedwoodControl
     {
 
+        /// <summary>
+        /// Renders the control into the specified writer.
+        /// </summary>
         public override void Render(IHtmlWriter writer, RenderContext context)
         {
             // render resource links
-            context.ResourceManager.Render(writer);
+            var resources = context.ResourceManager.GetResourcesInCorrectOrder();
+            foreach (var resource in resources)
+            {
+                resource.Render(writer);
+            }
 
             // render the serialized viewmodel
             writer.RenderBeginTag("script");
@@ -24,7 +33,7 @@ namespace Redwood.Framework.Controls
             writer.WriteUnencodedText(";\r\n");
 
             // init on load
-            writer.WriteUnencodedText(string.Format("$(function () {{ redwood.init('{0}'); }})", context.CurrentPageArea));
+            writer.WriteUnencodedText(string.Format("redwood.init('{0}');", context.CurrentPageArea));
             writer.RenderEndTag();
         }
     }

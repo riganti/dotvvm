@@ -9,6 +9,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
 using Redwood.Framework.Runtime;
+using Redwood.Framework.Runtime.Compilation;
 
 namespace Redwood.Framework.Binding
 {

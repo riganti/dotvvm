@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Hosting;
 
-namespace Redwood.Framework.Controls
+namespace Redwood.Framework.Runtime
 {
     /// <summary>
     /// Holds context information that are used during the page rendering phase.
@@ -37,9 +37,9 @@ namespace Redwood.Framework.Controls
 
 
         /// <summary>
-        /// Gets the instance of the <see cref="RwResourceManager"/> that contains all resources that the page requires.
+        /// Gets the instance of the <see cref="ResourceManager"/> that contains all resources that the page requires.
         /// </summary>
-        public RwResourceManager ResourceManager
+        public ResourceManager ResourceManager
         {
             get { return RedwoodRequestContext.ResourceManager; }
         }

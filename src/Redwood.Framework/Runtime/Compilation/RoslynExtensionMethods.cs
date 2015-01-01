@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Redwood.Framework.Parser;
 
-namespace Redwood.Framework.Runtime
+namespace Redwood.Framework.Runtime.Compilation
 {
     public static class RoslynExtensionMethods
     {

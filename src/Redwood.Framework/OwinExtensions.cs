@@ -12,22 +12,18 @@ namespace Redwood.Framework
 
         public static RedwoodConfiguration UseRedwood(this IAppBuilder app, string applicationRootDirectory)
         {
-            RedwoodConfiguration configuration;
             var configurationFilePath = Path.Combine(applicationRootDirectory, "redwood.json");
 
             // load or create default configuration
+            var configuration = RedwoodConfiguration.CreateDefault();
             if (File.Exists(configurationFilePath))
             {
                 var fileContents = File.ReadAllText(configurationFilePath);
-                configuration = JsonConvert.DeserializeObject<RedwoodConfiguration>(fileContents);
-            }
-            else
-            {
-                configuration = RedwoodConfiguration.CreateDefault();
+                JsonConvert.PopulateObject(fileContents, configuration);
             }
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
-            configuration.Markup.Assemblies.Add(Assembly.GetCallingAssembly().FullName);
-
+            configuration.Markup.AddAssembly(Assembly.GetCallingAssembly().FullName);
+            
             // add middleware
             app.Use<RedwoodMiddleware>(configuration);
 

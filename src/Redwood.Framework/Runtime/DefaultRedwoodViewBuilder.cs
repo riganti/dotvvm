@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
-using Redwood.Framework.Runtime;
+using Redwood.Framework.Runtime.Compilation;
 
-namespace Redwood.Framework.Hosting
+namespace Redwood.Framework.Runtime
 {
     /// <summary>
     /// Builds the Redwood view and resolves the master pages.

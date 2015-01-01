@@ -3,8 +3,6 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from Redwood!</title>
-	<rw:AddResource Name="bootstrap" />
-	<rw:ResourceLinks />
 </head>
 <body>
 	<div class="container">
@@ -72,5 +70,8 @@
 			</div>
 		</div>
 	</div>
+
+	<rw:RequiredResource Name="bootstrap" />
+	<rw:ResourceLinks />
 </body>
 </html>

@@ -6,7 +6,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Redwood.Framework.Controls;
 
-namespace Redwood.Framework.Runtime
+namespace Redwood.Framework.Runtime.Compilation
 {
     public class DefaultViewCompilerCodeEmitter
     {

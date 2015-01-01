@@ -1,26 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Controls
 {
     /// <summary>
-    /// Adds resource to resource manager
-    /// it will be rendered in rw:ResourceLinks
+    /// Declares a resource that will be rendered in the <see cref="ResourceLinks" /> control later.
     /// </summary>
-    public class AddResource : RedwoodControl
+    public class RequiredResource : RedwoodControl
     {
+
         /// <summary>
-        /// name of the resource
+        /// Gets or sets the name of the resource.
         /// </summary>
         public string Name { get; set; }
 
+
+
+        /// <summary>
+        /// Called right before the rendering shall occur.
+        /// </summary>
         internal override void OnPreRenderComplete(RedwoodRequestContext context)
         {
-            context.ResourceManager.AddResource(Name);
+            context.ResourceManager.AddRequiredResource(Name);
             base.OnPreRenderComplete(context);
         }
     }

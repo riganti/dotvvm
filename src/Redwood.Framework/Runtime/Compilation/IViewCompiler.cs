@@ -1,10 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
 
-namespace Redwood.Framework.Runtime
+namespace Redwood.Framework.Runtime.Compilation
 {
     /// <summary>
     /// Gets the RwHtml view and compiles it into a function.

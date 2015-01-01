@@ -9,13 +9,12 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
-using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
 using Redwood.Framework.Parser.RwHtml.Parser;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 using Redwood.Framework.Utils;
 
-namespace Redwood.Framework.Runtime
+namespace Redwood.Framework.Runtime.Compilation
 {
     public class DefaultViewCompiler : IViewCompiler
     {

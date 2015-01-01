@@ -68,7 +68,7 @@
     <Compile Include="Binding\ExpressionEvaluatorTests.cs" />
     <Compile Include="Parser\Translation\ExpressionTranslatorTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ResourceManagementTests.cs" />
+    <Compile Include="Runtime\ResourceManagerTests.cs" />
     <Compile Include="Routing\RedwoodRouteTests.cs" />
     <Compile Include="Runtime\DefaultViewCompilerTests.cs" />
     <Compile Include="Runtime\NamingContainersTests.cs" />

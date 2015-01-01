@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Redwood.Framework.Parser
 {
@@ -17,12 +15,19 @@ namespace Redwood.Framework.Parser
         public const string CommandBinding = "command";
         public const string ControlStateBinding = "controlState";
         public const string ControlPropertyBinding = "controlProperty";
-        public const string ControlCommandBinding = "controlCommand";
+        public const string ControlCommandBinding = "controlCommand"; 
 
 
         public const string RootSpecialBindingProperty = "_root";
         public const string ParentSpecialBindingProperty = "_parent";
         public const string ThisSpecialBindingProperty = "_this";
         public const string ControlStateSpecialBindingProperty = "_controlState_";
+
+        public const string JQueryResourceName = "jquery";
+        public const string KnockoutJSResourceName = "knockout";
+        public const string KnockoutMapperResourceName = "knockout.mapper";
+        public const string RedwoodResourceName = "redwood";
+        public const string BootstrapResourceName = "bootstrap";
+        public const string BootstrapCssResourceName = "bootstrap-css";
     }
 }

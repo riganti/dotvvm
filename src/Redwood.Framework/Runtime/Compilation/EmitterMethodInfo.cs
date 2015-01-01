@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
-namespace Redwood.Framework.Runtime
+namespace Redwood.Framework.Runtime.Compilation
 {
     public class EmitterMethodInfo
     {

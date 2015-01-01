@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
 
-namespace Redwood.Framework.Hosting
+namespace Redwood.Framework.Runtime
 {
     public class DefaultViewModelLoader : IViewModelLoader
     {

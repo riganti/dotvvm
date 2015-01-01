@@ -29,5 +29,16 @@ namespace Redwood.Framework.Configuration
             Assemblies = new List<string>();
         }
 
+
+        /// <summary>
+        /// Adds the assembly to the list of required assemblies.
+        /// </summary>
+        public void AddAssembly(string assemblyName)
+        {
+            if (!Assemblies.Contains(assemblyName))
+            {
+                Assemblies.Add(assemblyName);
+            }
+        }
     }
 }

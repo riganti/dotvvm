@@ -3,9 +3,10 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using Redwood.Framework.Runtime;
+using Redwood.Framework.Hosting;
+using Redwood.Framework.Runtime.Compilation;
 
-namespace Redwood.Framework.Hosting
+namespace Redwood.Framework.Runtime
 {
     /// <summary>
     /// Provides control builder objects for markup files.

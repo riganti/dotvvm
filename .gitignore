@@ -182,3 +182,4 @@ UpgradeLog*.htm
 # Microsoft Fakes
 FakesAssemblies/
 *.bak
+/src/Redwood.sln.GhostDoc.xml
