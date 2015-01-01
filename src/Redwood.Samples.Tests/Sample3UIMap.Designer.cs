@@ -26,58 +26,9 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
     using MouseButtons = System.Windows.Forms.MouseButtons;
     
     
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
     public partial class Sample3UIMap
     {
-        
-        /// <summary>
-        /// LaunchSample - Use 'LaunchSampleParams' to pass parameters into this method.
-        /// </summary>
-        public void LaunchSample()
-        {
-            #region Variable Declarations
-            BrowserWindow uIRedwoodSamplesHomePaWindow = this.UIRedwoodSamplesHomePaWindow;
-            HtmlHyperlink uISample3InvoiceEditorHyperlink = this.UIRedwoodSamplesHomePaWindow.UIRedwoodSamplesHomePaDocument.UISample3InvoiceEditorHyperlink;
-            #endregion
-
-            // Go to web page 'http://localhost:8628/' using new browser instance
-            this.UIRedwoodSamplesHomePaWindow.LaunchUrl(new System.Uri(this.LaunchSampleParams.UIRedwoodSamplesHomePaWindowUrl));
-
-            // Maximize window 'Redwood Samples HomePage - Internet Explorer'
-            uIRedwoodSamplesHomePaWindow.Maximized = this.LaunchSampleParams.UIRedwoodSamplesHomePaWindowMaximized;
-
-            // Click 'Sample 3 - Invoice Editor' link
-            Mouse.Click(uISample3InvoiceEditorHyperlink, new Point(112, 8));
-        }
-        
-        /// <summary>
-        /// ChangePrice - Use 'ChangePriceParams' to pass parameters into this method.
-        /// </summary>
-        public void ChangePrice()
-        {
-            #region Variable Declarations
-            HtmlEdit uIItemEdit = this.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItemEdit;
-            #endregion
-
-            // Type '18' in text box
-            uIItemEdit.Text = this.ChangePriceParams.UIItemEditText;
-
-            // Type '{Tab}' in text box
-            Keyboard.SendKeys(uIItemEdit, this.ChangePriceParams.UIItemEditSendKeys, ModifierKeys.None);
-        }
-        
-        /// <summary>
-        /// CheckChangedPrice - Use 'CheckChangedPriceExpectedValues' to pass parameters into this method.
-        /// </summary>
-        public void CheckChangedPrice()
-        {
-            #region Variable Declarations
-            HtmlSpan uIItem270Pane = this.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItem270Pane;
-            #endregion
-
-            // Verify that the 'InnerText' property of '270' pane equals '270'
-            Assert.AreEqual(this.CheckChangedPriceExpectedValues.UIItem270PaneInnerText, uIItem270Pane.InnerText);
-        }
         
         /// <summary>
         /// AddAndFillThreeLines - Use 'AddAndFillThreeLinesParams' to pass parameters into this method.
@@ -172,6 +123,68 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
         }
         
         /// <summary>
+        /// CloseBrowser
+        /// </summary>
+        public void CloseBrowser()
+        {
+            #region Variable Declarations
+            WinButton uICloseButton = this.UIHellofromRedwoodInteWindow.UIHellofromRedwoodInteTitleBar.UICloseButton;
+            #endregion
+
+            // Click 'Close' button
+            Mouse.Click(uICloseButton, new Point(17, 11));
+        }
+        
+        /// <summary>
+        /// ChangePrice - Use 'ChangePriceParams' to pass parameters into this method.
+        /// </summary>
+        public void ChangePrice()
+        {
+            #region Variable Declarations
+            HtmlEdit uIItemEdit = this.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItemEdit;
+            #endregion
+
+            // Type '18' in text box
+            uIItemEdit.Text = this.ChangePriceParams.UIItemEditText;
+
+            // Type '{Tab}' in text box
+            Keyboard.SendKeys(uIItemEdit, this.ChangePriceParams.UIItemEditSendKeys, ModifierKeys.None);
+        }
+        
+        /// <summary>
+        /// CheckChangedPrice - Use 'CheckChangedPriceExpectedValues' to pass parameters into this method.
+        /// </summary>
+        public void CheckChangedPrice()
+        {
+            #region Variable Declarations
+            HtmlSpan uIItem270Pane = this.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItem270Pane;
+            #endregion
+
+            // Verify that the 'InnerText' property of '270' pane equals '270'
+            Assert.AreEqual(this.CheckChangedPriceExpectedValues.UIItem270PaneInnerText, uIItem270Pane.InnerText);
+        }
+        
+        /// <summary>
+        /// LaunchSample - Use 'LaunchSampleParams' to pass parameters into this method.
+        /// </summary>
+        public void LaunchSample()
+        {
+            #region Variable Declarations
+            BrowserWindow uIRedwoodSamplesHomePaWindow = this.UIRedwoodSamplesHomePaWindow;
+            HtmlHyperlink uISample3InvoiceEditorHyperlink = this.UIRedwoodSamplesHomePaWindow.UIRedwoodSamplesHomePaDocument.UISample3InvoiceEditorHyperlink;
+            #endregion
+
+            // Go to web page 'http://localhost:8628/' using new browser instance
+            this.UIRedwoodSamplesHomePaWindow.LaunchUrl(new System.Uri(this.LaunchSampleParams.UIRedwoodSamplesHomePaWindowUrl));
+
+            // Maximize window 'Redwood Samples HomePage - Internet Explorer'
+            uIRedwoodSamplesHomePaWindow.Maximized = this.LaunchSampleParams.UIRedwoodSamplesHomePaWindowMaximized;
+
+            // Click 'Sample 3 - Invoice Editor' link
+            Mouse.Click(uISample3InvoiceEditorHyperlink, new Point(112, 8));
+        }
+        
+        /// <summary>
         /// Recalculate
         /// </summary>
         public void Recalculate()
@@ -206,33 +219,21 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
             HtmlSpan uIItem463Pane = this.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItem463Pane;
             #endregion
 
-            // Verify that the 'InnerText' property of '463' pane equals '463'
+            // Wait for 1 seconds for user delay between actions; Verify that the 'InnerText' property of '463' pane equals '463'
+            Playback.Wait(1000);
             Assert.AreEqual(this.VerifyPriceExpectedValues.UIItem463PaneInnerText, uIItem463Pane.InnerText);
         }
         
-        /// <summary>
-        /// CloseBrowser
-        /// </summary>
-        public void CloseBrowser()
-        {
-            #region Variable Declarations
-            WinButton uICloseButton = this.UIHellofromRedwoodInteWindow.UIHellofromRedwoodInteTitleBar.UICloseButton;
-            #endregion
-
-            // Click 'Close' button
-            Mouse.Click(uICloseButton, new Point(17, 11));
-        }
-        
         #region Properties
-        public virtual LaunchSampleParams LaunchSampleParams
+        public virtual AddAndFillThreeLinesParams AddAndFillThreeLinesParams
         {
             get
             {
-                if ((this.mLaunchSampleParams == null))
+                if ((this.mAddAndFillThreeLinesParams == null))
                 {
-                    this.mLaunchSampleParams = new LaunchSampleParams();
+                    this.mAddAndFillThreeLinesParams = new AddAndFillThreeLinesParams();
                 }
-                return this.mLaunchSampleParams;
+                return this.mAddAndFillThreeLinesParams;
             }
         }
         
@@ -260,15 +261,15 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
             }
         }
         
-        public virtual AddAndFillThreeLinesParams AddAndFillThreeLinesParams
+        public virtual LaunchSampleParams LaunchSampleParams
         {
             get
             {
-                if ((this.mAddAndFillThreeLinesParams == null))
+                if ((this.mLaunchSampleParams == null))
                 {
-                    this.mAddAndFillThreeLinesParams = new AddAndFillThreeLinesParams();
+                    this.mLaunchSampleParams = new LaunchSampleParams();
                 }
-                return this.mAddAndFillThreeLinesParams;
+                return this.mLaunchSampleParams;
             }
         }
         
@@ -310,13 +311,13 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
         #endregion
         
         #region Fields
-        private LaunchSampleParams mLaunchSampleParams;
+        private AddAndFillThreeLinesParams mAddAndFillThreeLinesParams;
         
         private ChangePriceParams mChangePriceParams;
         
         private CheckChangedPriceExpectedValues mCheckChangedPriceExpectedValues;
         
-        private AddAndFillThreeLinesParams mAddAndFillThreeLinesParams;
+        private LaunchSampleParams mLaunchSampleParams;
         
         private VerifyPriceExpectedValues mVerifyPriceExpectedValues;
         
@@ -327,64 +328,9 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
     }
     
     /// <summary>
-    /// Parameters to be passed into 'LaunchSample'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
-    public class LaunchSampleParams
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Go to web page 'http://localhost:8628/' using new browser instance
-        /// </summary>
-        public string UIRedwoodSamplesHomePaWindowUrl = "http://localhost:8628/";
-        
-        /// <summary>
-        /// Maximize window 'Redwood Samples HomePage - Internet Explorer'
-        /// </summary>
-        public bool UIRedwoodSamplesHomePaWindowMaximized = true;
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'ChangePrice'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
-    public class ChangePriceParams
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Type '18' in text box
-        /// </summary>
-        public string UIItemEditText = "18";
-        
-        /// <summary>
-        /// Type '{Tab}' in text box
-        /// </summary>
-        public string UIItemEditSendKeys = "{Tab}";
-        #endregion
-    }
-    
-    /// <summary>
-    /// Parameters to be passed into 'CheckChangedPrice'
-    /// </summary>
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
-    public class CheckChangedPriceExpectedValues
-    {
-        
-        #region Fields
-        /// <summary>
-        /// Verify that the 'InnerText' property of '270' pane equals '270'
-        /// </summary>
-        public string UIItem270PaneInnerText = "270";
-        #endregion
-    }
-    
-    /// <summary>
     /// Parameters to be passed into 'AddAndFillThreeLines'
     /// </summary>
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
     public class AddAndFillThreeLinesParams
     {
         
@@ -487,21 +433,76 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
     }
     
     /// <summary>
+    /// Parameters to be passed into 'ChangePrice'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
+    public class ChangePriceParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Type '18' in text box
+        /// </summary>
+        public string UIItemEditText = "18";
+        
+        /// <summary>
+        /// Type '{Tab}' in text box
+        /// </summary>
+        public string UIItemEditSendKeys = "{Tab}";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'CheckChangedPrice'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
+    public class CheckChangedPriceExpectedValues
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Verify that the 'InnerText' property of '270' pane equals '270'
+        /// </summary>
+        public string UIItem270PaneInnerText = "270";
+        #endregion
+    }
+    
+    /// <summary>
+    /// Parameters to be passed into 'LaunchSample'
+    /// </summary>
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
+    public class LaunchSampleParams
+    {
+        
+        #region Fields
+        /// <summary>
+        /// Go to web page 'http://localhost:8628/' using new browser instance
+        /// </summary>
+        public string UIRedwoodSamplesHomePaWindowUrl = "http://localhost:8628/";
+        
+        /// <summary>
+        /// Maximize window 'Redwood Samples HomePage - Internet Explorer'
+        /// </summary>
+        public bool UIRedwoodSamplesHomePaWindowMaximized = true;
+        #endregion
+    }
+    
+    /// <summary>
     /// Parameters to be passed into 'VerifyPrice'
     /// </summary>
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
     public class VerifyPriceExpectedValues
     {
         
         #region Fields
         /// <summary>
-        /// Verify that the 'InnerText' property of '463' pane equals '463'
+        /// Wait for 1 seconds for user delay between actions; Verify that the 'InnerText' property of '463' pane equals '463'
         /// </summary>
         public string UIItem463PaneInnerText = "463";
         #endregion
     }
     
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
     public class UIRedwoodSamplesHomePaWindow : BrowserWindow
     {
         
@@ -538,7 +539,7 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
         #endregion
     }
     
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
     public class UIRedwoodSamplesHomePaDocument : HtmlDocument
     {
         
@@ -588,7 +589,7 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
         #endregion
     }
     
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
     public class UIHellofromRedwoodInteWindow : BrowserWindow
     {
         
@@ -639,7 +640,7 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
         #endregion
     }
     
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
     public class UIHellofromRedwoodDocument : HtmlDocument
     {
         
@@ -1181,13 +1182,10 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
                 {
                     this.mUIItem463Pane = new HtmlSpan(this);
                     #region Search Criteria
-                    this.mUIItem463Pane.SearchProperties[HtmlDiv.PropertyNames.Id] = null;
-                    this.mUIItem463Pane.SearchProperties[HtmlDiv.PropertyNames.Name] = null;
-                    this.mUIItem463Pane.FilterProperties[HtmlDiv.PropertyNames.InnerText] = "463";
-                    this.mUIItem463Pane.FilterProperties[HtmlDiv.PropertyNames.Title] = null;
-                    this.mUIItem463Pane.FilterProperties[HtmlDiv.PropertyNames.Class] = null;
+                    this.mUIItem463Pane.SearchProperties[HtmlDiv.PropertyNames.Id] = "";
+                    this.mUIItem463Pane.SearchProperties[HtmlDiv.PropertyNames.Name] = "";
+                    this.mUIItem463Pane.SearchProperties[HtmlDiv.PropertyNames.TagInstance] = "9";
                     this.mUIItem463Pane.FilterProperties[HtmlDiv.PropertyNames.ControlDefinition] = "data-bind=\"html: Total\"";
-                    this.mUIItem463Pane.FilterProperties[HtmlDiv.PropertyNames.TagInstance] = "7";
                     this.mUIItem463Pane.WindowTitles.Add("Hello from Redwood!");
                     #endregion
                 }
@@ -1245,7 +1243,7 @@ namespace Redwood.Samples.Tests.Sample3UIMapClasses
         #endregion
     }
     
-    [GeneratedCode("Coded UITest Builder", "12.0.30501.0")]
+    [GeneratedCode("Coded UITest Builder", "12.0.31101.0")]
     public class UIHellofromRedwoodInteTitleBar : WinTitleBar
     {
         

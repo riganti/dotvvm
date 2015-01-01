@@ -78,6 +78,7 @@
     <Compile Include="Binding\ExpressionEvaluator.cs" />
     <Compile Include="Binding\IExpressionEvaluator.cs" />
     <Compile Include="Binding\IUpdatableBindingExpression.cs" />
+    <Compile Include="Binding\RedwoodProperty.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
@@ -90,7 +91,9 @@
     <Compile Include="Controls\Bootstrap\GlyphIcon.cs" />
     <Compile Include="Controls\Bootstrap\HorizontalForm.cs" />
     <Compile Include="Controls\Button.cs" />
+    <Compile Include="Controls\ButtonBase.cs" />
     <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\CheckableControlBase.cs" />
     <Compile Include="Controls\RwResource.cs" />
     <Compile Include="Controls\RwResourceManager.cs" />
     <Compile Include="Controls\ComboBox.cs" />
@@ -115,7 +118,6 @@
     <Compile Include="Controls\RedwoodControl.cs" />
     <Compile Include="Controls\RedwoodControlCollection.cs" />
     <Compile Include="Controls\Placeholder.cs" />
-    <Compile Include="Controls\RedwoodProperty.cs" />
     <Compile Include="Controls\RenderContext.cs" />
     <Compile Include="Controls\MarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DelegateTemplate.cs" />

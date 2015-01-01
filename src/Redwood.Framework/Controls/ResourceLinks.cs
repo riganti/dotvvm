@@ -4,6 +4,9 @@ using System.Linq;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// Renders the script elements and the serialized viewmodel. This control must be on every page just before the end of body element.
+    /// </summary>
     public class ResourceLinks : RedwoodControl
     {
 

@@ -1,4 +1,4 @@
-﻿using System.Collections;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Binding;
@@ -8,11 +8,20 @@ namespace Redwood.Framework
 {
     public static class KnockoutHelper
     {
-
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, ValueBindingExpression expression, RedwoodBindableControl control, RedwoodProperty property)
+        
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, RedwoodBindableControl control, RedwoodProperty property, Action nullBindingAction)
         {
-            writer.AddAttribute("data-bind", name + ": " + expression.TranslateToClientScript(control, property), true, ", ");
+            var expression = control.GetValueBinding(property);
+            if (expression != null)
+            {
+                writer.AddAttribute("data-bind", name + ": " + expression.TranslateToClientScript(control, property), true, ", ");
+            }
+            else
+            {
+                nullBindingAction();
+            }
         }
+
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, string expression)
         {
             writer.AddAttribute("data-bind", name + ": " + expression, true, ", ");
@@ -21,16 +30,6 @@ namespace Redwood.Framework
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, ValueBindingExpression>> expressions, RedwoodBindableControl control, RedwoodProperty property)
         {
             writer.AddAttribute("data-bind", name + ": {" + string.Join(",", expressions.Select(e => e.Key + ": " + e.Value.TranslateToClientScript(control, property))) + "}", true, ", ");
-        }
-
-        public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, ValueBindingExpression expression, RedwoodBindableControl control, RedwoodProperty property)
-        {
-            writer.WriteUnencodedText("<!-- ko " + name + ": " + expression.TranslateToClientScript(control, property) + " -->");
-        }
-
-        public static void WriteKnockoutDataBindEndComment(this IHtmlWriter writer)
-        {
-            writer.WriteUnencodedText("<!-- /ko -->");
         }
 
         public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, RedwoodBindableControl control)

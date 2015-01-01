@@ -138,6 +138,32 @@ namespace Redwood.Framework.Controls
         }
 
         /// <summary>
+        /// Gets the value binding set to a specified property.
+        /// </summary>
+        public ValueBindingExpression GetValueBinding(RedwoodProperty property, bool inherit = true)
+        {
+            var binding = GetBinding(property, inherit);
+            if (binding != null && !(binding is ValueBindingExpression))
+            {
+                throw new Exception("ValueBindingExpression was expected!");        // TODO: exception handling
+            }
+            return binding as ValueBindingExpression;
+        }
+
+        /// <summary>
+        /// Gets the command binding set to a specified property.
+        /// </summary>
+        public CommandBindingExpression GetCommandBinding(RedwoodProperty property, bool inherit = true)
+        {
+            var binding = GetBinding(property, inherit);
+            if (binding != null && !(binding is CommandBindingExpression))
+            {
+                throw new Exception("CommandBindingExpression was expected!");        // TODO: exception handling
+            }
+            return binding as CommandBindingExpression;
+        }
+
+        /// <summary>
         /// Sets the binding to a specified property.
         /// </summary>
         public void SetBinding(RedwoodProperty property, BindingExpression binding)
@@ -146,16 +172,18 @@ namespace Redwood.Framework.Controls
         }
 
 
+
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
         public override void Render(IHtmlWriter writer, RenderContext context)
         {
-            // handle datacontext hierarchy
-            var dataContextBinding = GetBinding(DataContextProperty, false);
+            // if the DataContext is set, render the "with" binding
+            var dataContextBinding = GetValueBinding(DataContextProperty, false);
             if (dataContextBinding != null)
             {
                 context.PathFragments.Push(dataContextBinding.Expression);
+                writer.AddKnockoutDataBind("with", this, DataContextProperty, () => { });
             }
 
             base.Render(writer, context);
@@ -168,7 +196,7 @@ namespace Redwood.Framework.Controls
 
 
         /// <summary>
-        /// Gets the data context hierarchy.
+        /// Gets the hierarchy of all DataContext bindings from the root to current control.
         /// </summary>
         internal IEnumerable<ValueBindingExpression> GetDataContextHierarchy()
         {
@@ -178,7 +206,7 @@ namespace Redwood.Framework.Controls
             {
                 if (current is RedwoodBindableControl)
                 {
-                    var binding = ((RedwoodBindableControl)current).GetBinding(DataContextProperty, false) as ValueBindingExpression;
+                    var binding = ((RedwoodBindableControl)current).GetValueBinding(DataContextProperty, false);
                     if (binding != null)
                     {
                         bindings.Add(binding);
@@ -202,7 +230,7 @@ namespace Redwood.Framework.Controls
         }
 
         /// <summary>
-        /// Gets the closest control binding target.
+        /// Gets the closest control binding target and returns number of DataContext changes since the target.
         /// </summary>
         public RedwoodControl GetClosestControlBindingTarget(out int numberOfDataContextChanges)
         {
@@ -210,7 +238,7 @@ namespace Redwood.Framework.Controls
             numberOfDataContextChanges = 0;
             while (current != null)
             {
-                if (current is RedwoodBindableControl && ((RedwoodBindableControl)current).GetBinding(RedwoodBindableControl.DataContextProperty, false) != null)
+                if (current is RedwoodBindableControl && ((RedwoodBindableControl)current).GetValueBinding(DataContextProperty, false) != null)
                 {
                     numberOfDataContextChanges++;
                 }

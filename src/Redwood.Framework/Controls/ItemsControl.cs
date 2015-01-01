@@ -13,7 +13,7 @@ namespace Redwood.Framework.Controls
     {
 
         /// <summary>
-        /// Gets or sets whether the contents of the control are rendered on the server.
+        /// Gets or sets whether the items of the control are rendered on the server.
         /// </summary>
         public bool RenderOnServer
         {
@@ -53,17 +53,5 @@ namespace Redwood.Framework.Controls
             
         }
 
-        /// <summary>
-        /// Gets the data source binding.
-        /// </summary>
-        protected BindingExpression GetDataSourceBinding()
-        {
-            var dataSourceBinding = GetBinding(DataSourceProperty);
-            if (dataSourceBinding == null)
-            {
-                throw new Exception("The DataSource property must contain a binding!"); // TODO: exception handling
-            }
-            return dataSourceBinding;
-        }
     }
 }

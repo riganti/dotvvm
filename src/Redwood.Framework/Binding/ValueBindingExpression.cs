@@ -57,7 +57,7 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Updates the viewModel with the new value.
         /// </summary>
-        public void UpdateSource(object value, RedwoodBindableControl control, RedwoodProperty property)
+        public virtual void UpdateSource(object value, RedwoodBindableControl control, RedwoodProperty property)
         {
             object target;
             var propertyInfo = evaluator.EvaluateProperty(this, property, control, out target);

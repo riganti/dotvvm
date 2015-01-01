@@ -59,6 +59,16 @@ namespace Redwood.Framework.Controls
         }
 
         /// <summary>
+        /// Adds the style attribute.
+        /// </summary>
+        /// <param name="name">The name of the CSS property.</param>
+        /// <param name="value">The value of the CSS property.</param>
+        public void AddStyleAttribute(string name, string value)
+        {
+            AddAttribute("style", name + ":" + value, true, ";");
+        }
+
+        /// <summary>
         /// Renders the begin tag with attributes that were added in <see cref="AddAttribute"/> method.
         /// </summary>
         public void RenderBeginTag(string name)

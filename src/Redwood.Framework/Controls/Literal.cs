@@ -6,7 +6,7 @@ using Redwood.Framework.Binding;
 namespace Redwood.Framework.Controls
 {
     /// <summary>
-    /// A simple control that renders a text in the web page.
+    /// Renders a text into the page.
     /// </summary>
     public class Literal : RedwoodBindableControl
     {
@@ -40,7 +40,6 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public Literal()
         {
-            
         }
 
         /// <summary>
@@ -70,7 +69,7 @@ namespace Redwood.Framework.Controls
             var textBinding = GetBinding(TextProperty);
             if (textBinding != null)
             {
-                writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", textBinding as ValueBindingExpression, this, TextProperty);
+                writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", this, TextProperty, () => { });
                 writer.RenderBeginTag("span");
                 writer.RenderEndTag();
             }

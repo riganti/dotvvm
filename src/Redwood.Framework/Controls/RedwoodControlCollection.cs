@@ -6,6 +6,9 @@ using Redwood.Framework.Resources;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// Contains child controls of a <see cref="RedwoodControl"/>.
+    /// </summary>
     public class RedwoodControlCollection : IList<RedwoodControl>
     {
 

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Binding;
@@ -7,6 +6,9 @@ using Redwood.Framework.Utils;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// Renders a HTML drop-down list.
+    /// </summary>
     public class ComboBox : ItemsControl
     {
 
@@ -38,11 +40,11 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public object SelectedValue
         {
-            get { return (object)GetValue(SelectedValueProperty); }
+            get { return GetValue(SelectedValueProperty); }
             set { SetValue(SelectedValueProperty, value); }
         }
         public static readonly RedwoodProperty SelectedValueProperty =
-            RedwoodProperty.Register<object, ComboBox>(t => t.SelectedValue, null);
+            RedwoodProperty.Register<object, ComboBox>(t => t.SelectedValue);
 
 
         /// <summary>
@@ -54,14 +56,13 @@ namespace Redwood.Framework.Controls
         }
 
         /// <summary>
-        /// Renders the children.
+        /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             if (!RenderOnServer)
             {
-                var dataSourceBinding = GetDataSourceBinding();
-                writer.AddKnockoutDataBind("options", dataSourceBinding as ValueBindingExpression, this, DataSourceProperty);
+                writer.AddKnockoutDataBind("options", this, DataSourceProperty, () => { });
 
                 if (!string.IsNullOrEmpty(DisplayMember))
                 {
@@ -71,24 +72,21 @@ namespace Redwood.Framework.Controls
                 {
                     writer.AddKnockoutDataBind("optionsValue", KnockoutHelper.MakeStringLiteral(ValueMember));
                 }
-                var selectedValueBinding = GetBinding(SelectedValueProperty);
-                if (selectedValueBinding != null)
-                {
-                    writer.AddKnockoutDataBind("value", selectedValueBinding as ValueBindingExpression, this, SelectedValueProperty);
-                }
             }
 
-            base.Render(writer, context);
+            writer.AddKnockoutDataBind("value", this, SelectedValueProperty, () => { });
+            
+            base.AddAttributesToRender(writer, context);
         }
 
         /// <summary>
-        /// Renders the children.
+        /// Renders the contents inside the control begin and end tags.
         /// </summary>
-        protected override void RenderChildren(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             if (RenderOnServer)
             {
-                // render on server
+                // render items
                 foreach (var item in DataSource)
                 {
                     var value = string.IsNullOrEmpty(ValueMember) ? item : ReflectionUtils.GetObjectProperty(item, ValueMember);

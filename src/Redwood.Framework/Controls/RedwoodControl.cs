@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text.RegularExpressions;
+using Redwood.Framework.Binding;
 using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Controls
@@ -143,14 +144,46 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public virtual void Render(IHtmlWriter writer, RenderContext context)
         {
+            AddAttributesToRender(writer, context);
+            RenderBeginTag(writer, context);
+            RenderContents(writer, context);
+            RenderEndTag(writer, context);
+        }
+
+        /// <summary>
+        /// Adds all attributes that should be added to the control begin tag.
+        /// </summary>
+        protected virtual void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        {
+        }
+
+        /// <summary>
+        /// Renders the control begin tag.
+        /// </summary>
+        protected virtual void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        {
+        }
+
+        /// <summary>
+        /// Renders the contents inside the control begin and end tags.
+        /// </summary>
+        protected virtual void RenderContents(IHtmlWriter writer, RenderContext context)
+        {
             RenderChildren(writer, context);
+        }
+
+        /// <summary>
+        /// Renders the control end tag.
+        /// </summary>
+        protected virtual void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        {
         }
 
 
         /// <summary>
         /// Renders the children.
         /// </summary>
-        protected virtual void RenderChildren(IHtmlWriter writer, RenderContext context)
+        protected void RenderChildren(IHtmlWriter writer, RenderContext context)
         {
             foreach (var child in Children)
             {

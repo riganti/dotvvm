@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using Redwood.Framework.Binding;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// Contains properties that are intended for internal use.
+    /// </summary>
     public class Internal
     {
         

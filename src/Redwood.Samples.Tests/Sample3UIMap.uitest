@@ -41,70 +41,6 @@
   </Configuration>
   <InitializeActions />
   <ExecuteActions>
-    <NavigateToUrlAction UIObjectName="Sample3UIMap.UIRedwoodSamplesHomePaWindow">
-      <ParameterName />
-      <Url>http://localhost:8628/</Url>
-      <NewInstance>true</NewInstance>
-    </NavigateToUrlAction>
-    <SetStateAction UIObjectName="Sample3UIMap.UIRedwoodSamplesHomePaWindow">
-      <ParameterName />
-      <State>Maximized</State>
-    </SetStateAction>
-    <MouseAction UIObjectName="Sample3UIMap.UIRedwoodSamplesHomePaWindow.UIRedwoodSamplesHomePaDocument.UISample3InvoiceEditorHyperlink">
-      <ParameterName />
-      <ModifierKeys>None</ModifierKeys>
-      <IsGlobalHotkey>false</IsGlobalHotkey>
-      <Location X="112" Y="8" />
-      <WheelDirection>0</WheelDirection>
-      <ActionType>Click</ActionType>
-      <MouseButton>Left</MouseButton>
-    </MouseAction>
-    <TestStepMarkerAction Comment="" MarkerInformation="LaunchSample">
-      <ParameterName />
-      <StepId>-1</StepId>
-      <Direction>Start</Direction>
-      <Outcome />
-      <Disabled>false</Disabled>
-      <WorkItemId>0</WorkItemId>
-      <MarkerRegionType>Action</MarkerRegionType>
-    </TestStepMarkerAction>
-    <SetValueAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItemEdit">
-      <ParameterName />
-      <Value Encoded="false">18</Value>
-      <Type>String</Type>
-    </SetValueAction>
-    <SendKeysAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItemEdit">
-      <ParameterName />
-      <ModifierKeys>None</ModifierKeys>
-      <IsGlobalHotkey>false</IsGlobalHotkey>
-      <Text Encoded="false">{Tab}</Text>
-    </SendKeysAction>
-    <TestStepMarkerAction Comment="" MarkerInformation="ChangePrice">
-      <ParameterName />
-      <StepId>-1</StepId>
-      <Direction>Start</Direction>
-      <Outcome />
-      <Disabled>false</Disabled>
-      <WorkItemId>0</WorkItemId>
-      <MarkerRegionType>Action</MarkerRegionType>
-    </TestStepMarkerAction>
-    <AssertAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItem270Pane">
-      <ParameterName />
-      <PropertyName>InnerText</PropertyName>
-      <ExpectedValue>270</ExpectedValue>
-      <MessageOnValidationFailure />
-      <Type>String</Type>
-      <PropertyCondition>AreEqual</PropertyCondition>
-    </AssertAction>
-    <TestStepMarkerAction Comment="" MarkerInformation="CheckChangedPrice">
-      <ParameterName />
-      <StepId>-1</StepId>
-      <Direction>Start</Direction>
-      <Outcome />
-      <Disabled>false</Disabled>
-      <WorkItemId>0</WorkItemId>
-      <MarkerRegionType>Assertion</MarkerRegionType>
-    </TestStepMarkerAction>
     <MouseAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIAddInvoiceLineHyperlink">
       <ParameterName />
       <ModifierKeys>None</ModifierKeys>
@@ -240,6 +176,88 @@
       <WorkItemId>0</WorkItemId>
       <MarkerRegionType>Action</MarkerRegionType>
     </TestStepMarkerAction>
+    <MouseAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodInteTitleBar.UICloseButton">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="17" Y="11" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <TestStepMarkerAction Comment="" MarkerInformation="CloseBrowser">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <SetValueAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItemEdit">
+      <ParameterName />
+      <Value Encoded="false">18</Value>
+      <Type>String</Type>
+    </SetValueAction>
+    <SendKeysAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItemEdit">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Text Encoded="false">{Tab}</Text>
+    </SendKeysAction>
+    <TestStepMarkerAction Comment="" MarkerInformation="ChangePrice">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
+    <AssertAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItem270Pane">
+      <ParameterName />
+      <PropertyName>InnerText</PropertyName>
+      <ExpectedValue>270</ExpectedValue>
+      <MessageOnValidationFailure />
+      <Type>String</Type>
+      <PropertyCondition>AreEqual</PropertyCondition>
+    </AssertAction>
+    <TestStepMarkerAction Comment="" MarkerInformation="CheckChangedPrice">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Assertion</MarkerRegionType>
+    </TestStepMarkerAction>
+    <NavigateToUrlAction UIObjectName="Sample3UIMap.UIRedwoodSamplesHomePaWindow">
+      <ParameterName />
+      <Url>http://localhost:8628/</Url>
+      <NewInstance>true</NewInstance>
+    </NavigateToUrlAction>
+    <SetStateAction UIObjectName="Sample3UIMap.UIRedwoodSamplesHomePaWindow">
+      <ParameterName />
+      <State>Maximized</State>
+    </SetStateAction>
+    <MouseAction UIObjectName="Sample3UIMap.UIRedwoodSamplesHomePaWindow.UIRedwoodSamplesHomePaDocument.UISample3InvoiceEditorHyperlink">
+      <ParameterName />
+      <ModifierKeys>None</ModifierKeys>
+      <IsGlobalHotkey>false</IsGlobalHotkey>
+      <Location X="112" Y="8" />
+      <WheelDirection>0</WheelDirection>
+      <ActionType>Click</ActionType>
+      <MouseButton>Left</MouseButton>
+    </MouseAction>
+    <TestStepMarkerAction Comment="" MarkerInformation="LaunchSample">
+      <ParameterName />
+      <StepId>-1</StepId>
+      <Direction>Start</Direction>
+      <Outcome />
+      <Disabled>false</Disabled>
+      <WorkItemId>0</WorkItemId>
+      <MarkerRegionType>Action</MarkerRegionType>
+    </TestStepMarkerAction>
     <MouseAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIRecalculateHyperlink">
       <ParameterName />
       <ModifierKeys>None</ModifierKeys>
@@ -276,7 +294,7 @@
       <WorkItemId>0</WorkItemId>
       <MarkerRegionType>Action</MarkerRegionType>
     </TestStepMarkerAction>
-    <AssertAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItem463Pane">
+    <AssertAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodDocument.UIItem463Pane" ThinkTime="1000">
       <ParameterName />
       <PropertyName>InnerText</PropertyName>
       <ExpectedValue>463</ExpectedValue>
@@ -292,24 +310,6 @@
       <Disabled>false</Disabled>
       <WorkItemId>0</WorkItemId>
       <MarkerRegionType>Assertion</MarkerRegionType>
-    </TestStepMarkerAction>
-    <MouseAction UIObjectName="Sample3UIMap.UIHellofromRedwoodInteWindow.UIHellofromRedwoodInteTitleBar.UICloseButton">
-      <ParameterName />
-      <ModifierKeys>None</ModifierKeys>
-      <IsGlobalHotkey>false</IsGlobalHotkey>
-      <Location X="17" Y="11" />
-      <WheelDirection>0</WheelDirection>
-      <ActionType>Click</ActionType>
-      <MouseButton>Left</MouseButton>
-    </MouseAction>
-    <TestStepMarkerAction Comment="" MarkerInformation="CloseBrowser">
-      <ParameterName />
-      <StepId>-1</StepId>
-      <Direction>Start</Direction>
-      <Outcome />
-      <Disabled>false</Disabled>
-      <WorkItemId>0</WorkItemId>
-      <MarkerRegionType>Action</MarkerRegionType>
     </TestStepMarkerAction>
   </ExecuteActions>
   <CleanupActions />
@@ -967,13 +967,10 @@
                       <PropertyCondition Name="TagName">SPAN</PropertyCondition>
                       <PropertyCondition Name="Id" />
                       <PropertyCondition Name="Name" />
+                      <PropertyCondition Name="TagInstance">9</PropertyCondition>
                     </AndCondition>
                     <FilterCondition Id="Secondary">
-                      <PropertyCondition Name="InnerText">463</PropertyCondition>
-                      <PropertyCondition Name="Title" />
-                      <PropertyCondition Name="Class" />
                       <PropertyCondition Name="ControlDefinition">data-bind="html: Total"</PropertyCondition>
-                      <PropertyCondition Name="TagInstance">7</PropertyCondition>
                     </FilterCondition>
                   </AndCondition>
                   <SupportLevel>0</SupportLevel>

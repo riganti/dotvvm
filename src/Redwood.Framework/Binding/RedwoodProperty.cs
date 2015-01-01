@@ -4,10 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
-using Redwood.Framework.Binding;
+using Redwood.Framework.Controls;
 using Redwood.Framework.Utils;
 
-namespace Redwood.Framework.Controls
+namespace Redwood.Framework.Binding
 {
     /// <summary>
     /// Represents a property of Redwood controls.

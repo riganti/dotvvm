@@ -1,13 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls
 {
     /// <summary>
-    /// Manages resources for one page
+    /// Manages resources for the page.
     /// </summary>
     public class RwResourceManager
     {
@@ -15,10 +13,12 @@ namespace Redwood.Framework.Controls
         /// hashset for fast contains queries
         /// </summary>
         private HashSet<string> _resourceSet = new HashSet<string>();
+
         /// <summary>
         /// list for order of resources
         /// </summary>
         private List<string> _resourceList = new List<string>();
+
         public RwResourceRepository Repo { get; set; }
 
         public RwResourceManager(RwResourceRepository repository)

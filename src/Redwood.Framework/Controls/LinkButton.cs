@@ -1,67 +1,51 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Redwood.Framework.Binding;
-using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Controls
 {
-    public class LinkButton : HtmlGenericControl
+    /// <summary>
+    /// Renders the hyperlink which behaves like a button.
+    /// </summary>
+    public class LinkButton : ButtonBase
     {
-
-        public string Text
+        public LinkButton() : base("a")
         {
-            get { return (string)GetValue(TextProperty); }
-            set { SetValue(TextProperty, value); }
         }
-        public static readonly RedwoodProperty TextProperty =
-            RedwoodProperty.Register<string, Button>(t => t.Text, "");
 
-
-        public Action Click
+        /// <summary>
+        /// Adds all attributes that should be added to the control begin tag.
+        /// </summary>
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            get { return (Action)GetValue(ClickProperty); }
-            set { SetValue(ClickProperty, value); }
-        }
-        public static readonly RedwoodProperty ClickProperty =
-            RedwoodProperty.Register<Action, Button>(t => t.Click, null);
-
-
-        public LinkButton()
-            : base("a")
-        {
-        } 
-
-        public override void Render(IHtmlWriter writer, RenderContext context)
-        {
-            var clickBinding = GetBinding(ClickProperty);
-            if (clickBinding != null)
-            {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding as CommandBindingExpression, context, this));
-            }
-
-            var textBinding = GetBinding(TextProperty);
-            if (textBinding != null)
-            {
-                writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression, this, TextProperty);
-            }
             writer.AddAttribute("href", "#");
 
-            base.Render(writer, context);
+            var clickBinding = GetCommandBinding(ClickProperty);
+            if (clickBinding != null)
+            {
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding, context, this));
+            }
+
+            writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
+            
+            base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderChildren(IHtmlWriter writer, RenderContext context)
+        /// <summary>
+        /// Renders the contents inside the control begin and end tags.
+        /// </summary>
+        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             var textBinding = GetBinding(TextProperty);
             if (textBinding == null && !string.IsNullOrEmpty(Text))
             {
-                // render Text property
+                // render static value of the text property
                 writer.WriteText(Text);
             }
             else
             {
                 // render control contents
-                base.RenderChildren(writer, context);
+                RenderChildren(writer, context);
             }
         }
     }

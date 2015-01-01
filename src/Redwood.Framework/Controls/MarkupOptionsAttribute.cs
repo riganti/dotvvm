@@ -5,7 +5,7 @@ using System.Linq;
 namespace Redwood.Framework.Controls
 {
     /// <summary>
-    /// Declares instructions for control materializer.
+    /// Declares instructions for control builder.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
     public class MarkupOptionsAttribute : Attribute

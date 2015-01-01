@@ -44,23 +44,22 @@ namespace Redwood.Framework.Controls
 
 
         /// <summary>
-        /// Renders the children.
+        /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             if (!RenderOnServer)
             {
-                var dataSourceBinding = GetDataSourceBinding();
-                writer.AddKnockoutDataBind("foreach", dataSourceBinding as ValueBindingExpression, this, DataSourceProperty);
+                writer.AddKnockoutDataBind("foreach", this, DataSourceProperty, () => { });
             }
 
-            base.Render(writer, context);
+            base.AddAttributesToRender(writer, context);
         }
 
         /// <summary>
-        /// Renders the children.
+        /// Renders the contents inside the control begin and end tags.
         /// </summary>
-        protected override void RenderChildren(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             var dataSourceBinding = GetBinding(DataSourceProperty) as ValueBindingExpression;
 

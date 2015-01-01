@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Redwood.Framework.Binding;
 
 namespace Redwood.Framework.Controls.Bootstrap
@@ -24,19 +22,22 @@ namespace Redwood.Framework.Controls.Bootstrap
             ResourceDependencies.Add("bootstrap-css");
         }
 
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             writer.AddAttribute("class", "form-group");
-            base.Render(writer, context);
+
+            base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderChildren(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             RenderLabel(writer);
             
             writer.AddAttribute("class", "col-sm-10");
             writer.RenderBeginTag("div");
-            base.RenderChildren(writer, context);
+            
+            RenderChildren(writer, context);
+
             writer.RenderEndTag();
         }
 
@@ -46,7 +47,7 @@ namespace Redwood.Framework.Controls.Bootstrap
             var textBinding = GetBinding(LabelTextProperty);
             if (textBinding != null)
             {
-                writer.AddKnockoutDataBind("text", textBinding as ValueBindingExpression, this, LabelTextProperty);
+                writer.AddKnockoutDataBind("text", this, LabelTextProperty, () => { });
                 writer.RenderBeginTag("label");
                 writer.RenderEndTag();
             }

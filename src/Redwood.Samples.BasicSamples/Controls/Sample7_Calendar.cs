@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using Redwood.Framework.Binding;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Hosting;
 

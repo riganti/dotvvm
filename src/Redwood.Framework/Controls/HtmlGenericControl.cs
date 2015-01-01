@@ -55,17 +55,10 @@ namespace Redwood.Framework.Controls
 
 
         /// <summary>
-        /// Renders the control into the specified writer.
+        /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            // handle visibility
-            var visibleBinding = GetBinding(VisibleProperty);
-            if (visibleBinding != null)
-            {
-                writer.AddKnockoutDataBind("visible", visibleBinding as ValueBindingExpression, this, VisibleProperty);
-            }
-
             // render hard-coded HTML attributes
             foreach (var attribute in Attributes.Where(a => a.Value is string))
             {
@@ -80,12 +73,33 @@ namespace Redwood.Framework.Controls
                 writer.AddKnockoutDataBind("attr", propertyValuePairs, this, null);
             }
 
+            // handle Visible property
+            writer.AddKnockoutDataBind("visible", this, VisibleProperty, () =>
+            {
+                if (!Visible)
+                {
+                    writer.AddStyleAttribute("display", "none");
+                }
+            });
+
+            base.AddAttributesToRender(writer, context);
+        }
+
+        /// <summary>
+        /// Renders the control begin tag.
+        /// </summary>
+        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        {
             writer.RenderBeginTag(TagName);
+        }
 
-            //render childs
-            base.Render(writer, context);
-
+        /// <summary>
+        /// Renders the control end tag.
+        /// </summary>
+        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        {
             writer.RenderEndTag();
         }
+
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Binding;
 
 namespace Redwood.Framework.Controls.Bootstrap
 {
@@ -21,17 +22,14 @@ namespace Redwood.Framework.Controls.Bootstrap
             ResourceDependencies.Add("bootstrap-css");
         }
 
-        /// <summary>
-        /// Renders the control into the specified writer.
-        /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             if (Icon != GlyphIcons.Empty)
             {
                 var iconName = Icon.ToString().Replace("_", "-");
                 writer.AddAttribute("class", "glyphicon glyphicon-" + iconName);
             }
-            base.Render(writer, context);
+            base.AddAttributesToRender(writer, context);
         }
     }
 

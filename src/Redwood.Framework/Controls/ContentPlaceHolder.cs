@@ -5,7 +5,7 @@ using System.Linq;
 namespace Redwood.Framework.Controls
 {
     /// <summary>
-    /// Represents a placeholder in the master page that contains the content from the content page.
+    /// Represents a placeholder in the master page that contains the <see cref="Content"/> from the content page.
     /// </summary>
     public class ContentPlaceHolder : RedwoodControl
     {

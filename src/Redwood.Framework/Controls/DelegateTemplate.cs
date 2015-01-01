@@ -7,7 +7,7 @@ namespace Redwood.Framework.Controls
     public class DelegateTemplate : ITemplate
     {
 
-        public Func<Controls.RedwoodControl> BuildContentBody { get; set; }
+        public Func<RedwoodControl> BuildContentBody { get; set; }
 
 
         public void BuildContent(RedwoodControl container)

@@ -5,7 +5,7 @@ using Redwood.Framework.Controls;
 
 namespace Redwood.Framework.Binding
 {
-    public class ControlStateBindingExpression : ValueBindingExpression, IUpdatableBindingExpression
+    public class ControlStateBindingExpression : ValueBindingExpression
     {
         public ControlStateBindingExpression()
         {
@@ -77,7 +77,7 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Updates the value.
         /// </summary>
-        public void UpdateSource(object value, RedwoodBindableControl control, RedwoodProperty property)
+        public override void UpdateSource(object value, RedwoodBindableControl control, RedwoodProperty property)
         {
             control.ControlState[property.Name] = value;
         }

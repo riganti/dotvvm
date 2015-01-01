@@ -19,6 +19,13 @@ namespace Redwood.Framework.Controls
         void AddAttribute(string name, string value, bool append = false, string appendSeparator = ";");
 
         /// <summary>
+        /// Adds the style attribute.
+        /// </summary>
+        /// <param name="name">The name of the CSS property.</param>
+        /// <param name="value">The value of the CSS property.</param>
+        void AddStyleAttribute(string name, string value);
+
+        /// <summary>
         /// Renders the begin tag with attributes that were added in <see cref="HtmlWriter.AddAttribute"/> method.
         /// </summary>
         void RenderBeginTag(string name);
@@ -42,5 +49,7 @@ namespace Redwood.Framework.Controls
         /// Writes the unencoded text.
         /// </summary>
         void WriteUnencodedText(string text);
+
+
     }
 }

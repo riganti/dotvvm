@@ -5,9 +5,15 @@ using Redwood.Framework.Binding;
 
 namespace Redwood.Framework.Controls
 {
+    /// <summary>
+    /// Renders a HTML text input control.
+    /// </summary>
     public class TextBox : HtmlGenericControl
     {
 
+        /// <summary>
+        /// Gets or sets the text in the control.
+        /// </summary>
         public string Text
         {
             get { return Convert.ToString(GetValue(TextProperty)); }
@@ -16,26 +22,27 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty TextProperty =
             RedwoodProperty.Register<string, TextBox>(t => t.Text, "");
 
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="TextBox"/> class.
+        /// </summary>
         public TextBox() : base("input")
         {
-            
         }
 
-
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        /// <summary>
+        /// Adds all attributes that should be added to the control begin tag.
+        /// </summary>
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            var textBinding = GetBinding(TextProperty);
-            if (textBinding != null)
+            writer.AddKnockoutDataBind("value", this, TextProperty, () =>
             {
-                writer.AddKnockoutDataBind("value", textBinding as ValueBindingExpression, this, TextProperty);
-            }
-            else
-            {
-                writer.AddAttribute("value", Text);
-            }
-
+                writer.AddAttribute("value", "Text");
+            });
             writer.AddAttribute("type", "text");
-            base.Render(writer, context);
+
+            base.AddAttributesToRender(writer, context);
         }
+
     }
 }

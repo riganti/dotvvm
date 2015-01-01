@@ -1,8 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Redwood.Framework.Controls.Bootstrap
 {
@@ -14,12 +12,12 @@ namespace Redwood.Framework.Controls.Bootstrap
             ResourceDependencies.Add("bootstrap-css");
         }
 
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             writer.AddAttribute("class", "form-horizontal");
             writer.AddAttribute("role", "form");
 
-            base.Render(writer, context);
+            base.AddAttributesToRender(writer, context);
         }
     }
 }
