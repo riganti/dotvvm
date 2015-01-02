@@ -66,6 +66,7 @@ namespace Redwood.Framework.Security {
                 using (MemoryStream stream = new MemoryStream())
                 using (BinaryWriter writer = new BinaryWriter(stream, safeUtf8)) {
                     foreach (string item in context) {
+                        if (string.IsNullOrWhiteSpace(item)) continue;  // Skip empty context item
                         writer.Write(item);
                     }
                     this.contextBytes = stream.ToArray();
