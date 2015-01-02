@@ -143,6 +143,12 @@
     <Compile Include="Runtime\IViewModelSerializer.cs" />
     <Compile Include="Runtime\RenderContext.cs" />
     <Compile Include="Runtime\ViewModelSerializer.cs" />
+    <Compile Include="Security\ApplicationKeyHelper.cs" />
+    <Compile Include="Security\DefaultCsrfProtector.cs" />
+    <Compile Include="Security\DefaultViewModelProtector.cs" />
+    <Compile Include="Security\ICsrfProtector.cs" />
+    <Compile Include="Security\IViewModelProtector.cs" />
+    <Compile Include="Security\NistSP800108DeriveBytes.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\ErrorPageTemplate.cs">

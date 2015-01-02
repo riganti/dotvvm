@@ -25,6 +25,11 @@ namespace Redwood.Framework.Hosting
 
         public ResourceManager ResourceManager { get; set; }
 
+        public object ViewModel { get; internal set; }
+
+        internal string CsrfToken { get; set; }
+
+
         public IReadableStringCollection Query
         {
             get
@@ -32,5 +37,6 @@ namespace Redwood.Framework.Hosting
                 return OwinContext.Request.Query;
             }
         }
+
     }
 }
