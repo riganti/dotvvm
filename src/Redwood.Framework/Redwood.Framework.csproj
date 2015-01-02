@@ -119,6 +119,8 @@
     <Compile Include="Controls\Repeater.cs" />
     <Compile Include="Controls\TextBox.cs" />
     <Compile Include="Security\ApplicationKeyHelper.cs" />
+    <Compile Include="Security\DefaultCsrfProtector.cs" />
+    <Compile Include="Security\ICsrfProtector.cs" />
     <Compile Include="Security\NistSP800108DeriveBytes.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\CompiledAssemblyCache.cs" />

@@ -6,12 +6,13 @@ using System.Net;
 using System.Threading.Tasks;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
+using Redwood.Framework.Security;
 using Redwood.Framework.ViewModel;
 
-namespace Redwood.Framework.Hosting
-{
-    public class RedwoodPresenter : IRedwoodPresenter
-    {
+namespace Redwood.Framework.Hosting {
+    public class RedwoodPresenter : IRedwoodPresenter {
+        public ICsrfProtector CsrfProtector { get; private set; }
+
         public IRedwoodViewBuilder RedwoodViewBuilder { get; private set; }
 
         public IViewModelLoader ViewModelLoader { get; private set; }
@@ -28,32 +29,29 @@ namespace Redwood.Framework.Hosting
             IRedwoodViewBuilder redwoodViewBuilder,
             IViewModelLoader viewModelLoader,
             IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRenderer
-        )
-        {
+            IOutputRenderer outputRenderer, 
+            ICsrfProtector csrfProtector
+        ) {
             RedwoodViewBuilder = redwoodViewBuilder;
             ViewModelLoader = viewModelLoader;
             ViewModelSerializer = viewModelSerializer;
             OutputRenderer = outputRenderer;
+            CsrfProtector = csrfProtector;
         }
 
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public async Task ProcessRequest(RedwoodRequestContext context)
-        {
+        public async Task ProcessRequest(RedwoodRequestContext context) {
             Exception error = null;
-            try
-            {
+            try {
                 await ProcessRequestCore(context);
             }
-            catch (Exception ex)
-            {
+            catch (Exception ex) {
                 error = ex;
             }
 
-            if (error != null)
-            {
+            if (error != null) {
                 await RenderErrorResponse(context, HttpStatusCode.InternalServerError, error);
             }
         }
@@ -62,8 +60,7 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Renders the error response.
         /// </summary>
-        public static async Task RenderErrorResponse(RedwoodRequestContext context, HttpStatusCode code, Exception error)
-        {
+        public static async Task RenderErrorResponse(RedwoodRequestContext context, HttpStatusCode code, Exception error) {
             context.OwinContext.Response.StatusCode = (int)code;
             context.OwinContext.Response.ContentType = "text/html";
 
@@ -77,13 +74,12 @@ namespace Redwood.Framework.Hosting
                 Url = context.OwinContext.Request.Uri.ToString(),
                 Verb = context.OwinContext.Request.Method
             };
-            if (error is ParserException)
-            {
+            if (error is ParserException) {
                 template.FileName = ((ParserException)error).FileName;
                 template.LineNumber = ((ParserException)error).LineNumber;
                 template.PositionOnLine = ((ParserException)error).PositionOnLine;
             }
-            
+
             var text = template.TransformText();
             await context.OwinContext.Response.WriteAsync(text);
         }
@@ -91,10 +87,8 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Processes the request and renders the output.
         /// </summary>
-        private async Task ProcessRequestCore(RedwoodRequestContext context)
-        {
-            if (context.OwinContext.Request.Method != "GET" && context.OwinContext.Request.Method != "POST")
-            {
+        private async Task ProcessRequestCore(RedwoodRequestContext context) {
+            if (context.OwinContext.Request.Method != "GET" && context.OwinContext.Request.Method != "POST") {
                 // unknown HTTP method
                 await RenderErrorResponse(context, HttpStatusCode.MethodNotAllowed, new RedwoodHttpException("Only GET and POST methods are supported!"));
                 return;
@@ -116,65 +110,63 @@ namespace Redwood.Framework.Hosting
             page.DataContext = viewModel;
 
             // init the view model lifecycle
-            if (viewModel is IRedwoodViewModel)
-            {
+            if (viewModel is IRedwoodViewModel) {
                 ((IRedwoodViewModel)viewModel).Context = context;
                 await ((IRedwoodViewModel)viewModel).Init();
             }
-            if (!isPostBack)
-            {
+
+            string csrfToken = null;
+            if (!isPostBack) {
                 // perform standard get
-                if (viewModel is IRedwoodViewModel)
-                {
+                if (viewModel is IRedwoodViewModel) {
                     await ((IRedwoodViewModel)viewModel).Load();
                 }
 
                 // run the load phase in the page
                 InvokePageLifeCycleEventRecursive(context, page, c => c.OnLoad(context));
             }
-            else
-            {
+            else {
                 // perform the postback
                 Action invokedCommand;
-                using (var sr = new StreamReader(context.OwinContext.Request.Body))
-                {
-                    ViewModelSerializer.PopulateViewModel(viewModel, page, await sr.ReadToEndAsync(), out invokedCommand);
+                using (var sr = new StreamReader(context.OwinContext.Request.Body)) {
+                    ViewModelSerializer.PopulateViewModel(viewModel, page, await sr.ReadToEndAsync(), out invokedCommand, out csrfToken);
                 }
-                if (viewModel is IRedwoodViewModel)
-                {
+                if (viewModel is IRedwoodViewModel) {
                     await ((IRedwoodViewModel)viewModel).Load();
                 }
+
+                // validate CSRF token
+                this.CsrfProtector.VerifyToken(context, csrfToken);
 
                 // run the load phase in the page
                 InvokePageLifeCycleEventRecursive(context, page, c => c.OnLoad(context));
 
                 // invoke the postback command
-                if (invokedCommand != null)
-                {
+                if (invokedCommand != null) {
                     invokedCommand();
                 }
             }
 
-            if (viewModel is IRedwoodViewModel)
-            {
+            if (viewModel is IRedwoodViewModel) {
                 await ((IRedwoodViewModel)viewModel).PreRender();
             }
 
             // run the prerender phase in the page
             InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreRender(context));
-            
+
             // run the prerender complete phase in the page
             InvokePageLifeCycleEventRecursive(context, page, c => c.OnPreRenderComplete(context));
 
+            // add CSRF token
+            if (string.IsNullOrEmpty(csrfToken)) csrfToken = this.CsrfProtector.GenerateToken(context);
+
             // render the output
-            var serializedViewModel = ViewModelSerializer.SerializeViewModel(viewModel, page);
-            if (!isPostBack)
-            {
+            var serializedViewModel = ViewModelSerializer.SerializeViewModel(viewModel, page, csrfToken);
+            if (!isPostBack) {
                 // standard get
                 await OutputRenderer.RenderPage(context, page, serializedViewModel);
             }
-            else 
-            {
+            else {
                 // postback
                 await OutputRenderer.RenderViewModel(context, page, serializedViewModel);
             }
@@ -183,10 +175,8 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Invokes the specified method on all controls in the page control tree.
         /// </summary>
-        private void InvokePageLifeCycleEventRecursive(RedwoodRequestContext context, RedwoodControl control, Action<RedwoodControl> action)
-        {
-            foreach (var child in control.GetThisAndAllDescendants())
-            {
+        private void InvokePageLifeCycleEventRecursive(RedwoodRequestContext context, RedwoodControl control, Action<RedwoodControl> action) {
+            foreach (var child in control.GetThisAndAllDescendants()) {
                 action(child);
             }
         }

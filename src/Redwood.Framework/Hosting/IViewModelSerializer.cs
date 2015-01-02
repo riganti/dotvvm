@@ -8,9 +8,9 @@ namespace Redwood.Framework.Hosting
     public interface IViewModelSerializer
     {
 
-        string SerializeViewModel(object viewModel, RedwoodView view);
+        string SerializeViewModel(object viewModel, RedwoodView view, string csrfToken);
 
-        void PopulateViewModel(object viewModel, RedwoodView view, string serializedPostData, out Action invokedCommand);
+        void PopulateViewModel(object viewModel, RedwoodView view, string serializedPostData, out Action invokedCommand, out string csrfToken);
 
     }
 }

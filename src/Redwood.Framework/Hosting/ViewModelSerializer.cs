@@ -27,7 +27,7 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Serializes the view model for the client.
         /// </summary>
-        public string SerializeViewModel(object viewModel, RedwoodView view)
+        public string SerializeViewModel(object viewModel, RedwoodView view, string csrfToken)
         {
             // serialize the ViewModel
             var serializer = new JsonSerializer();
@@ -40,6 +40,8 @@ namespace Redwood.Framework.Hosting
             var walker = new ViewModelJTokenControlTreeWalker(writer.Token, view);
             walker.ProcessControlTree(walker.SaveControlState);
 
+            // TODO: persist CSRF token
+
             return writer.Token.ToString();
         }
 
@@ -47,7 +49,7 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Populates the view model from the data received from the request.
         /// </summary>
-        public void PopulateViewModel(object viewModel, RedwoodView view, string serializedPostData, out Action invokedCommand)
+        public void PopulateViewModel(object viewModel, RedwoodView view, string serializedPostData, out Action invokedCommand, out string csrfToken)
         {
             // get properties
             var data = JObject.Parse(serializedPostData);
@@ -65,18 +67,18 @@ namespace Redwood.Framework.Hosting
             var walker = new ViewModelJTokenControlTreeWalker(data["viewModel"], view);
             walker.ProcessControlTree(walker.LoadControlState);
 
+            // TODO: Output CSRF token
+            csrfToken = null;
+
             // find the command target
-            if (!string.IsNullOrEmpty(controlUniqueId))
-            {
+            if (!string.IsNullOrEmpty(controlUniqueId)) {
                 var target = view.FindControl(controlUniqueId);
-                if (target == null)
-                {
+                if (target == null) {
                     throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
                 }
                 invokedCommand = commandResolver.GetFunction(target, view, viewModel, path, command);
             }
-            else
-            {
+            else {
                 invokedCommand = commandResolver.GetFunction(view, viewModel, path, command);
             }
         }

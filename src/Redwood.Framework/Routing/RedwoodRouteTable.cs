@@ -5,37 +5,35 @@ using System.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime;
+using Redwood.Framework.Security;
 
-namespace Redwood.Framework.Routing
-{
+namespace Redwood.Framework.Routing {
     /// <summary>
     /// Represents the table of routes.
     /// </summary>
-    public class RedwoodRouteTable : IEnumerable<RouteBase>
-    {
+    public class RedwoodRouteTable : IEnumerable<RouteBase> {
         private readonly RedwoodConfiguration configuration;
-        
+
         private List<KeyValuePair<string, RouteBase>> list = new List<KeyValuePair<string, RouteBase>>();
 
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodRouteTable"/> class.
         /// </summary>
-        public RedwoodRouteTable(RedwoodConfiguration configuration)
-        {
+        public RedwoodRouteTable(RedwoodConfiguration configuration) {
             this.configuration = configuration;
         }
 
         /// <summary>
         /// Creates the default presenter factory.
         /// </summary>
-        public IRedwoodPresenter CreateDefaultPresenter()
-        {
+        public IRedwoodPresenter CreateDefaultPresenter() {
             return new RedwoodPresenter(
                 new DefaultRedwoodViewBuilder(configuration),
                 new DefaultViewModelLoader(),
                 new ViewModelSerializer(configuration),
-                new DefaultOutputRenderer()
+                new DefaultOutputRenderer(),
+                new DefaultCsrfProtector()
             );
         }
 
@@ -47,10 +45,8 @@ namespace Redwood.Framework.Routing
         /// <param name="virtualPath">The virtual path of the RWHTML file.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">The presenter factory.</param>
-        public void Add(string routeName, string url, string virtualPath, object defaultValues, Func<IRedwoodPresenter> presenterFactory = null)
-        {
-            if (presenterFactory == null)
-            {
+        public void Add(string routeName, string url, string virtualPath, object defaultValues, Func<IRedwoodPresenter> presenterFactory = null) {
+            if (presenterFactory == null) {
                 presenterFactory = CreateDefaultPresenter;
             }
 
@@ -60,8 +56,7 @@ namespace Redwood.Framework.Routing
         /// <summary>
         /// Adds the specified name.
         /// </summary>
-        public void Add(string routeName, RouteBase route)
-        {
+        public void Add(string routeName, RouteBase route) {
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));
         }
 
@@ -69,16 +64,14 @@ namespace Redwood.Framework.Routing
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
         /// </summary>
-        public IEnumerator<RouteBase> GetEnumerator()
-        {
+        public IEnumerator<RouteBase> GetEnumerator() {
             return list.Select(l => l.Value).GetEnumerator();
         }
 
         /// <summary>
         /// Returns an enumerator that iterates through a collection.
         /// </summary>
-        IEnumerator IEnumerable.GetEnumerator()
-        {
+        IEnumerator IEnumerable.GetEnumerator() {
             return GetEnumerator();
         }
     }
