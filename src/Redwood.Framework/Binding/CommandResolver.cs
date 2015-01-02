@@ -48,12 +48,26 @@ namespace Redwood.Framework.Binding
                 // the function is invoked on the viewmodel
                 method = FindMethodOnViewModel(viewModel, viewRootControl, hierarchy, node, out target);
             }
+
+            // validate that we can safely call the method
+            ValidateMethod(method);
             
             // parse arguments
             var arguments = EvaluateCommandArguments(viewModel, viewRootControl, hierarchy, node);
 
             // return the delegate for further invoke
             return () => method.Invoke(target, arguments);
+        }
+
+        /// <summary>
+        /// Makes sure that the method is not a property setter.
+        /// </summary>
+        private void ValidateMethod(MethodInfo method)
+        {
+            if (!method.IsPublic || method.IsSpecialName)
+            {
+                throw new UnauthorizedAccessException();
+            }
         }
 
 

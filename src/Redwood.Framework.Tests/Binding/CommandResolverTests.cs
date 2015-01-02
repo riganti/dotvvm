@@ -57,6 +57,23 @@ namespace Redwood.Framework.Tests.Binding
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
         }
 
+        [TestMethod]
+        [ExpectedException(typeof(UnauthorizedAccessException))]
+        public void CommandResolver_CannotCallSetter()
+        {
+            var testObject = new TestA()
+            {
+                StringToPass = "a"
+            };
+            var viewRoot = new RedwoodView() { DataContext = testObject };
+
+            var path = new string[] { };
+            var command = "set_StringToPass(StringToPass)";
+
+            var resolver = new CommandResolver();
+            resolver.GetFunction(viewRoot, testObject, path, command)();
+        }
+
         public class TestA
         {
             public string StringToPass { get; set; }
