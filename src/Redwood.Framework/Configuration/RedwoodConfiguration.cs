@@ -56,6 +56,7 @@ namespace Redwood.Framework.Configuration
                 new RedwoodControlConfiguration() { TagPrefix = "rw", Namespace = "Redwood.Framework.Controls", Assembly = "Redwood.Framework" },
                 new RedwoodControlConfiguration() { TagPrefix = "bootstrap", Namespace = "Redwood.Framework.Controls.Bootstrap", Assembly = "Redwood.Framework" },
             });
+            configuration.Security.SessionIdCookieName = "_RW_SID";
             return configuration;
         }
     }

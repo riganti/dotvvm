@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.Owin.Infrastructure;
 
 namespace Redwood.Framework.Configuration
 {
@@ -19,6 +20,11 @@ namespace Redwood.Framework.Configuration
         /// Gets or sets base-64 encoded key for encryption (128, 192 or 256 key - used for AES).
         /// </summary>
         public byte[] EncryptionKey { get; set; }
+
+        /// <summary>
+        /// Gets or sets name of HTTP cookie used for Session ID
+        /// </summary>
+        public string SessionIdCookieName { get; set; }
 
     }
 }
