@@ -5,7 +5,6 @@ using System.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime;
-using Redwood.Framework.Security;
 
 namespace Redwood.Framework.Routing
 {
@@ -36,8 +35,7 @@ namespace Redwood.Framework.Routing
                 new DefaultRedwoodViewBuilder(configuration),
                 new DefaultViewModelLoader(),
                 new ViewModelSerializer(configuration),
-                new DefaultOutputRenderer(),
-                new DefaultCsrfProtector()
+                new DefaultOutputRenderer()
             );
         }
 

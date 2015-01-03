@@ -2,16 +2,15 @@
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Controls;
-using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Runtime
 {
     public interface IViewModelSerializer
     {
 
-        string SerializeViewModel(RedwoodRequestContext context, RedwoodView view);
+        string SerializeViewModel(object viewModel, RedwoodView view);
 
-        void PopulateViewModel(RedwoodRequestContext context, RedwoodView view, string serializedPostData, out Action invokedCommand);
+        void PopulateViewModel(object viewModel, RedwoodView view, string serializedPostData, out Action invokedCommand);
 
     }
 }
