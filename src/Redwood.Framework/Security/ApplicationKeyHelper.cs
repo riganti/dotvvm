@@ -75,7 +75,7 @@ namespace Redwood.Framework.Security {
             using (var ms = new MemoryStream()) {
                 ms.Write(signatureData, 0, signatureData.Length);
                 ms.Write(iv, 0, iv.Length);
-                ms.Write(encryptedData, 0, iv.Length);
+                ms.Write(encryptedData, 0, encryptedData.Length);
                 var outData = ms.ToArray();
                 return outData;
             }
