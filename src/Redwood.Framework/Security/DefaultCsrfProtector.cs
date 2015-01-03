@@ -7,22 +7,19 @@ using System.Threading.Tasks;
 using Microsoft.Owin.Infrastructure;
 using Redwood.Framework.Hosting;
 
-namespace Redwood.Framework.Security
-{
+namespace Redwood.Framework.Security {
     /// <summary>
     /// Implements synchronizer token pattern for CSRF protection.
     /// <para>The token is generated based on Session ID (random 256-bit value persisted in cookie), 
     /// Request identity (full URI) and User identity (user name, if authenticated).</para>
     /// <para>Value of stored Session ID and the token itself is encrypted and signed.</para>
     /// </summary>
-    public class DefaultCsrfProtector : ICsrfProtector
-    {
+    public class DefaultCsrfProtector : ICsrfProtector {
         private const int SID_LENGTH = 32; // 256-bit identifier
         private const string KDF_LABEL_SID = "Redwood.Framework.Security.DefaultCsrfProtector.SID"; // Key derivation label for protecting SID
         private const string KDF_LABEL_TOKEN = "Redwood.Framework.Security.DefaultCsrfProtector.Token"; // Key derivation label for protecting token
 
-        public string GenerateToken(RedwoodRequestContext context)
-        {
+        public string GenerateToken(RedwoodRequestContext context) {
             if (context == null) throw new ArgumentNullException("context");
 
             // Get SID
@@ -40,20 +37,32 @@ namespace Redwood.Framework.Security
             return Convert.ToBase64String(tokenData);
         }
 
-        public void VerifyToken(RedwoodRequestContext context, string token)
-        {
+        public void VerifyToken(RedwoodRequestContext context, string token) {
             if (context == null) throw new ArgumentNullException("context");
             if (string.IsNullOrWhiteSpace(token)) throw new SecurityException("CSRF protection token is missing.");
 
-            // Get expected token value
-            var expectedToken = this.GenerateToken(context);
+            // Get application key helper
+            var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);
 
-            // Throw exception if does not match supplied one
-            if (!token.Equals(expectedToken, StringComparison.Ordinal)) throw new SecurityException("CSRF protection token is invalid.");
+            // Get token
+            var userIdentity = context.OwinContext.Request.User.Identity.IsAuthenticated ? context.OwinContext.Request.User.Identity.Name : null;
+            var requestIdentity = context.OwinContext.Request.Uri.ToString();
+            byte[] tokenSid;
+            try {
+                var tokenData = Convert.FromBase64String(token);
+                tokenSid = keyHelper.UnprotectData(tokenData, KDF_LABEL_TOKEN, userIdentity, requestIdentity);
+            }
+            catch (Exception ex) {
+                // Incorrect Base64 formatting of crypto protection error
+                throw new SecurityException("CSRF protection token is invalid.", ex);
+            }
+
+            // Get SID from cookie and compare with token one
+            var cookieSid = this.GetOrCreateSessionId(context);
+            if (!cookieSid.SequenceEqual(tokenSid)) throw new SecurityException("CSRF protection token is invalid.");
         }
 
-        private byte[] GetOrCreateSessionId(RedwoodRequestContext context)
-        {
+        private byte[] GetOrCreateSessionId(RedwoodRequestContext context) {
             if (context == null) throw new ArgumentNullException("context");
             if (string.IsNullOrWhiteSpace(context.Configuration.Security.SessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
 
@@ -65,22 +74,22 @@ namespace Redwood.Framework.Security
 
             // Get cookie value
             var sidCookieValue = mgr.GetRequestCookie(context.OwinContext, context.Configuration.Security.SessionIdCookieName);
+            System.Diagnostics.Debug.Print("Cookie value: {0}", sidCookieValue);
 
-            if (string.IsNullOrWhiteSpace(sidCookieValue))
-            {
+            if (string.IsNullOrWhiteSpace(sidCookieValue)) {
                 // No SID - generate and protect new one
                 var rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
                 var sid = new byte[SID_LENGTH];
                 rng.GetBytes(sid);
-                sid = keyHelper.ProtectData(sid, KDF_LABEL_SID);
+                var protectedSid = keyHelper.ProtectData(sid, KDF_LABEL_SID);
 
                 // Save to cookie
+                sidCookieValue = Convert.ToBase64String(protectedSid);
                 mgr.AppendResponseCookie(
                     context.OwinContext,
                     context.Configuration.Security.SessionIdCookieName, // Configured cookie name
-                    Convert.ToBase64String(sid),                        // Base64-encoded SID value
-                    new Microsoft.Owin.CookieOptions
-                    {
+                    sidCookieValue,                                     // Base64-encoded SID value
+                    new Microsoft.Owin.CookieOptions {
                         HttpOnly = true,                                // Don't allow client script access
                         Secure = context.OwinContext.Request.IsSecure   // If request goes trough HTTPS, mark as secure only
                     });
@@ -88,17 +97,15 @@ namespace Redwood.Framework.Security
                 // Return newly generated SID
                 return sid;
             }
-            else
-            {
+            else {
                 // Try to read from cookie
-                try
-                {
-                    var sid = Convert.FromBase64String(sidCookieValue);
-                    sid = keyHelper.UnprotectData(sid, KDF_LABEL_SID);
+                try {
+                    var protectedSid = Convert.FromBase64String(sidCookieValue);
+                    var sid = keyHelper.UnprotectData(protectedSid, KDF_LABEL_SID);
                     return sid;
                 }
-                catch (Exception ex)
-                {
+                catch (Exception ex) {
+                    // Incorrect Base64 formatting of crypto protection error
                     throw new SecurityException("Value of the SessionID cookie is corrupted or has been tampered with.", ex);
                 }
             }
