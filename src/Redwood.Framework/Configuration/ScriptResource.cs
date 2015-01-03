@@ -9,6 +9,7 @@ namespace Redwood.Framework.Configuration
     /// <summary>
     /// Reference to a javascript file.
     /// </summary>
+    [ResourceConfigurationCollectionName("scripts")]    
     public class ScriptResource : ResourceBase
     {
         private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'><\\/script>\")";

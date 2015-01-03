@@ -34,7 +34,8 @@ namespace Redwood.Framework.Configuration
         /// Gets the configuration of resources.
         /// </summary>
         [JsonProperty("resources")]
-        public RedwoodResourceConfiguration Resources { get; private set; }
+        [JsonConverter(typeof(ResourceRepositoryJsonConverter))]
+        public RedwoodResourceRepository Resources { get; private set; }
 
         /// <summary>
         /// Gets the security.
@@ -56,7 +57,7 @@ namespace Redwood.Framework.Configuration
             DefaultCulture = Thread.CurrentThread.CurrentCulture.Name;
             Markup = new RedwoodMarkupConfiguration();
             RouteTable = new RedwoodRouteTable(this);
-            Resources = new RedwoodResourceConfiguration();
+            Resources = new RedwoodResourceRepository();
             Security = new RedwoodSecurityConfiguration();
         }
 
@@ -73,34 +74,38 @@ namespace Redwood.Framework.Configuration
                 new RedwoodControlConfiguration() { TagPrefix = "bootstrap", Namespace = "Redwood.Framework.Controls.Bootstrap", Assembly = "Redwood.Framework" },
             });
 
-            configuration.Resources.Scripts.AddRange(new[] {
-                new ScriptResource() 
-                { 
-                    Name = Constants.JQueryResourceName, 
-                    Url = "/Scripts/jquery-2.1.1.min.js", 
+            configuration.Resources.Register(
+                new ScriptResource()
+                {
+                    Name = Constants.JQueryResourceName,
+                    Url = "/Scripts/jquery-2.1.1.min.js",
                     CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
                     GlobalObjectName = "$"
-                },
+                });
+            configuration.Resources.Register(
                 new ScriptResource()
                 {
                     Name = Constants.KnockoutJSResourceName,
                     Url = "/Scripts/knockout-3.2.0.js",
                     GlobalObjectName = "ko"
-                },
+                });
+            configuration.Resources.Register(
                 new ScriptResource()
                 {
                     Name = Constants.KnockoutMapperResourceName,
                     Url = "/Scripts/knockout.mapper.js",
                     GlobalObjectName = "ko.mapper",
-                    Dependencies = new [] { Constants.KnockoutJSResourceName }
-                },
+                    Dependencies = new[] { Constants.KnockoutJSResourceName }
+                });
+            configuration.Resources.Register(
                 new ScriptResource()
                 {
                     Name = Constants.RedwoodResourceName,
                     Url = "/Scripts/Redwood.js",
                     GlobalObjectName = "redwood",
-                    Dependencies = new [] { Constants.KnockoutJSResourceName, Constants.KnockoutMapperResourceName }
-                },
+                    Dependencies = new[] { Constants.KnockoutJSResourceName, Constants.KnockoutMapperResourceName }
+                });
+            configuration.Resources.Register(
                 new ScriptResource()
                 {
                     Name = Constants.BootstrapResourceName,
@@ -108,15 +113,13 @@ namespace Redwood.Framework.Configuration
                     CdnUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js",
                     GlobalObjectName = "typeof $().emulateTransitionEnd == 'function'",
                     Dependencies = new[] { Constants.BootstrapCssResourceName, Constants.JQueryResourceName }
-                }
-            });
-            configuration.Resources.Stylesheets.AddRange(new[] {
+                });
+            configuration.Resources.Register(
                 new StylesheetResource()
                 {
                     Name = Constants.BootstrapCssResourceName,
                     Url = "/Content/bootstrap/bootstrap.min.css"
-                }
-            });
+                });
 
             return configuration;
         }

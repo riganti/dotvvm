@@ -84,12 +84,15 @@
     <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
     <Compile Include="Configuration\InlineScriptResource.cs" />
+    <Compile Include="Configuration\IRedwoodResourceRepository.cs" />
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
-    <Compile Include="Configuration\RedwoodResourceConfiguration.cs" />
+    <Compile Include="Configuration\RedwoodResourceRepository.cs" />
     <Compile Include="Configuration\RedwoodSecurityConfiguration.cs" />
     <Compile Include="Configuration\ResourceBase.cs" />
+    <Compile Include="Configuration\ResourceConfigurationCollectionNameAttribute.cs" />
+    <Compile Include="Configuration\ResourceRepositoryJsonConverter.cs" />
     <Compile Include="Configuration\ScriptResource.cs" />
     <Compile Include="Configuration\StylesheetResource.cs" />
     <Compile Include="Controls\Bootstrap\FormGroup.cs" />

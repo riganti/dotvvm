@@ -8,6 +8,7 @@ namespace Redwood.Framework.Configuration
     /// <summary>
     /// Reference to a CSS file.
     /// </summary>
+    [ResourceConfigurationCollectionName("stylesheets")]
     public class StylesheetResource : ResourceBase
     {
 
