@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ViewModel;
-using System.Diagnostics;
 using Redwood.Framework.Runtime;
+using Redwood.Framework.Security;
 
 namespace Redwood.Framework.Hosting
 {
@@ -22,6 +22,7 @@ namespace Redwood.Framework.Hosting
 
         public IOutputRenderer OutputRenderer { get; private set; }
 
+        public ICsrfProtector CsrfProtector { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodPresenter"/> class.
@@ -30,13 +31,15 @@ namespace Redwood.Framework.Hosting
             IRedwoodViewBuilder redwoodViewBuilder,
             IViewModelLoader viewModelLoader,
             IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRenderer
+            IOutputRenderer outputRenderer,
+            ICsrfProtector csrfProtector
         )
         {
             RedwoodViewBuilder = redwoodViewBuilder;
             ViewModelLoader = viewModelLoader;
             ViewModelSerializer = viewModelSerializer;
             OutputRenderer = outputRenderer;
+            CsrfProtector = csrfProtector;
         }
 
         /// <summary>
@@ -115,21 +118,21 @@ namespace Redwood.Framework.Hosting
             InvokePageLifeCycleEventRecursive(page, c => c.OnInit(context));
 
             // locate and create the view model
-            var viewModel = ViewModelLoader.InitializeViewModel(context, page);
-            page.DataContext = viewModel;
+            context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
+            page.DataContext = context.ViewModel;
 
             // init the view model lifecycle
-            if (viewModel is IRedwoodViewModel)
+            if (context.ViewModel is IRedwoodViewModel)
             {
-                ((IRedwoodViewModel)viewModel).Context = context;
-                await ((IRedwoodViewModel)viewModel).Init();
+                ((IRedwoodViewModel)context.ViewModel).Context = context;
+                await ((IRedwoodViewModel)context.ViewModel).Init();
             }
             if (!isPostBack)
             {
                 // perform standard get
-                if (viewModel is IRedwoodViewModel)
+                if (context.ViewModel is IRedwoodViewModel)
                 {
-                    await ((IRedwoodViewModel)viewModel).Load();
+                    await ((IRedwoodViewModel)context.ViewModel).Load();
                 }
 
                 // run the load phase in the page
@@ -141,12 +144,15 @@ namespace Redwood.Framework.Hosting
                 Action invokedCommand;
                 using (var sr = new StreamReader(context.OwinContext.Request.Body))
                 {
-                    ViewModelSerializer.PopulateViewModel(viewModel, page, await sr.ReadToEndAsync(), out invokedCommand);
+                    ViewModelSerializer.PopulateViewModel(context, page, await sr.ReadToEndAsync(), out invokedCommand);
                 }
-                if (viewModel is IRedwoodViewModel)
+                if (context.ViewModel is IRedwoodViewModel)
                 {
-                    await ((IRedwoodViewModel)viewModel).Load();
+                    await ((IRedwoodViewModel)context.ViewModel).Load();
                 }
+
+                // validate CSRF token 
+                CsrfProtector.VerifyToken(context, context.CsrfToken);
 
                 // run the load phase in the page
                 InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
@@ -158,19 +164,24 @@ namespace Redwood.Framework.Hosting
                 }
             }
 
-            if (viewModel is IRedwoodViewModel)
+            if (context.ViewModel is IRedwoodViewModel)
             {
-                await ((IRedwoodViewModel)viewModel).PreRender();
+                await ((IRedwoodViewModel)context.ViewModel).PreRender();
             }
-
+            
             // run the prerender phase in the page
             InvokePageLifeCycleEventRecursive(page, c => c.OnPreRender(context));
             
             // run the prerender complete phase in the page
             InvokePageLifeCycleEventRecursive(page, c => c.OnPreRenderComplete(context));
 
+            // generate CSRF token if required
+            if (string.IsNullOrEmpty(context.CsrfToken))
+            {
+                context.CsrfToken = CsrfProtector.GenerateToken(context);
+            }
             // render the output
-            var serializedViewModel = ViewModelSerializer.SerializeViewModel(viewModel, page);
+            var serializedViewModel = ViewModelSerializer.SerializeViewModel(context, page);
             if (!isPostBack)
             {
                 // standard get

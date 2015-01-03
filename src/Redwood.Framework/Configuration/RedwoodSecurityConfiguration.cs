@@ -20,5 +20,18 @@ namespace Redwood.Framework.Configuration
         /// </summary>
         public byte[] EncryptionKey { get; set; }
 
+        /// <summary> 
+        /// Gets or sets name of HTTP cookie used for Session ID 
+        /// </summary> 
+        public string SessionIdCookieName { get; set; }
+
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedwoodSecurityConfiguration"/> class.
+        /// </summary>
+        public RedwoodSecurityConfiguration()
+        {
+            SessionIdCookieName = "_RW_SID";
+        }
     }
 }
