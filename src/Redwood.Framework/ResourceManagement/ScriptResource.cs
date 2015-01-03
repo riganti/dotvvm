@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Redwood.Framework.Controls;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     /// <summary>
     /// Reference to a javascript file.

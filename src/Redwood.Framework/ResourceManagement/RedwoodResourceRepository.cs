@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     /// <summary>
     /// repository of named resources

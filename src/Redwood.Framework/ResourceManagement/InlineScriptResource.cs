@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Controls;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     /// <summary>
     /// Piece of javascript code that is used in the page.

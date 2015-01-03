@@ -6,7 +6,7 @@ using Newtonsoft.Json;
 using Redwood.Framework.Routing;
 using Redwood.Framework.Parser;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     public class RedwoodConfiguration
     {

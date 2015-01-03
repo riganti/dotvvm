@@ -7,7 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     public class ResourceRepositoryJsonConverter : JsonConverter
     {

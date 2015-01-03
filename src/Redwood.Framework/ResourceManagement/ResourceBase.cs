@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Redwood.Framework.Controls;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     public abstract class ResourceBase
     {
