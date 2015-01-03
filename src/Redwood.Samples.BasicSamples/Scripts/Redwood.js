@@ -14,7 +14,8 @@ var Redwood = (function () {
             error: new RedwoodEvent("redwood.events.error")
         };
     }
-    Redwood.prototype.init = function (viewModelName) {
+    Redwood.prototype.init = function (viewModelName, culture) {
+        this.culture = culture;
         var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName]);
         this.viewModels[viewModelName] = viewModel;
         ko.applyBindings(viewModel);

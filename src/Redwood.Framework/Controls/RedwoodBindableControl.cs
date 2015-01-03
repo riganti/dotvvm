@@ -129,7 +129,7 @@ namespace Redwood.Framework.Controls
         public BindingExpression GetBinding(RedwoodProperty property, bool inherit = true)
         {
             var binding = base.GetValue(property, inherit) as BindingExpression;
-
+            
             // if there is a controlProperty or controlCommand binding, evaluate it
             while (binding != null && !(binding is ValueBindingExpression || binding is CommandBindingExpression))
             {

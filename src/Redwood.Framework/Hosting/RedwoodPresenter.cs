@@ -103,6 +103,7 @@ namespace Redwood.Framework.Hosting
             }
             var isPostBack = context.OwinContext.Request.Method == "POST";
             context.IsPostBack = isPostBack;
+            context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
 
             // build the page view
             var page = RedwoodViewBuilder.BuildView(context);

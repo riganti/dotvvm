@@ -15,7 +15,8 @@ namespace Redwood.Framework.Parser
         public const string CommandBinding = "command";
         public const string ControlStateBinding = "controlState";
         public const string ControlPropertyBinding = "controlProperty";
-        public const string ControlCommandBinding = "controlCommand"; 
+        public const string ControlCommandBinding = "controlCommand";
+        public const string ResourceBinding = "resource";
 
 
         public const string RootSpecialBindingProperty = "_root";
@@ -29,5 +30,6 @@ namespace Redwood.Framework.Parser
         public const string RedwoodResourceName = "redwood";
         public const string BootstrapResourceName = "bootstrap";
         public const string BootstrapCssResourceName = "bootstrap-css";
+
     }
 }

@@ -171,6 +171,7 @@
     <Content Include="sample7_calendar.rwhtml" />
     <Content Include="sample7.rwhtml" />
     <Content Include="sample8.rwhtml" />
+    <Content Include="sample9.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -183,6 +184,16 @@
     <Compile Include="Controls\Sample5_TestControl.cs" />
     <Compile Include="Controls\Sample7_Calendar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Sample9_Resources.cs-CZ.Designer.cs">
+      <DependentUpon>Sample9_Resources.cs-CZ.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Sample9_Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Sample9_Resources.resx</DependentUpon>
+    </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\Sample7ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />
@@ -190,6 +201,7 @@
     <Compile Include="ViewModels\Sample2ViewModel.cs" />
     <Compile Include="ViewModels\Sample5ViewModel.cs" />
     <Compile Include="ViewModels\Sample3ViewModel.cs" />
+    <Compile Include="ViewModels\Sample9ViewModel.cs" />
     <Compile Include="ViewModels\Sample8ViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -213,6 +225,16 @@
     <TypeScriptCompile Include="Scripts\Redwood.ts" />
     <TypeScriptCompile Include="Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <TypeScriptCompile Include="Scripts\typings\knockout\knockout.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sample9_Resources.cs-CZ.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Sample9_Resources.cs-CZ.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sample9_Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Sample9_Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

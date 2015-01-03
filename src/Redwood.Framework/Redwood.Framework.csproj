@@ -79,6 +79,7 @@
     <Compile Include="Binding\IExpressionEvaluator.cs" />
     <Compile Include="Binding\IUpdatableBindingExpression.cs" />
     <Compile Include="Binding\RedwoodProperty.cs" />
+    <Compile Include="Binding\ResourceBindingExpression.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />

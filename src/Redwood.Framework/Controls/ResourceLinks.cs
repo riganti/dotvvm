@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Runtime;
 
@@ -33,7 +34,7 @@ namespace Redwood.Framework.Controls
             writer.WriteUnencodedText(";\r\n");
 
             // init on load
-            writer.WriteUnencodedText(string.Format("redwood.init('{0}');", context.CurrentPageArea));
+            writer.WriteUnencodedText(string.Format("redwood.init('{0}', '{1}');", context.CurrentPageArea, Thread.CurrentThread.CurrentUICulture.Name));
             writer.RenderEndTag();
         }
     }

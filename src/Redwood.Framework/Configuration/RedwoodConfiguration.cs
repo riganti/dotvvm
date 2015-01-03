@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using Newtonsoft.Json;
 using Redwood.Framework.Routing;
 using Redwood.Framework.Parser;
@@ -38,14 +39,21 @@ namespace Redwood.Framework.Configuration
         /// <summary>
         /// Gets the security.
         /// </summary>
+        [JsonProperty("security")]
         public RedwoodSecurityConfiguration Security { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the default culture.
+        /// </summary>
+        [JsonProperty("defaultCulture")]
+        public string DefaultCulture { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodConfiguration"/> class.
         /// </summary>
         internal RedwoodConfiguration()
         {
+            DefaultCulture = Thread.CurrentThread.CurrentCulture.Name;
             Markup = new RedwoodMarkupConfiguration();
             RouteTable = new RedwoodRouteTable(this);
             Resources = new RedwoodResourceConfiguration();

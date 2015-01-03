@@ -1,0 +1,24 @@
+﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample9ViewModel, Redwood.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from Redwood!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>Localization test</h1>
+		
+		<p>{{resource: Sample9_Resources.LocalizedString1}}</p>
+		<p>&nbsp;</p>
+
+		<h3>Switch Language</h3>
+		<ul>
+			<li><a href="/Sample9">English</a></li>
+			<li><a href="/Sample9?lang=cs-CZ">Czech</a></li>
+		</ul>
+	</div>
+	
+	<rw:RequiredResource Name="bootstrap" />
+	<rw:ResourceLinks />
+</body>
+</html>

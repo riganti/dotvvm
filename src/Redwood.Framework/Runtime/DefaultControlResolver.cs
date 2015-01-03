@@ -92,9 +92,13 @@ namespace Redwood.Framework.Runtime
             {
                 return typeof(ControlCommandBindingExpression);
             }
+            else if (bindingType == Constants.ResourceBinding)
+            {
+                return typeof (ResourceBindingExpression);
+            }
             else
             {
-                throw new NotSupportedException("Unknown binding type!");   // TODO: exception handling
+                throw new NotSupportedException(string.Format("The binding {{{0}: ... }} is unknown!", bindingType));   // TODO: exception handling
             }
         }
 

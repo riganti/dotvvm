@@ -1,6 +1,7 @@
 ﻿class Redwood {
 
     public viewModels: any = {};
+    public culture: string;
     public events = {
         init: new RedwoodEvent<RedwoodEventArgs>("redwood.events.init", true),
         beforePostback: new RedwoodEvent<RedwoodEventArgs>("redwood.events.beforePostback"),
@@ -8,7 +9,8 @@
         error: new RedwoodEvent<RedwoodErrorEventArgs>("redwood.events.error")
     };
 
-    public init(viewModelName: string): void {
+    public init(viewModelName: string, culture: string): void {
+        this.culture = culture;
         var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName]);
         this.viewModels[viewModelName] = viewModel;
         ko.applyBindings(viewModel);
