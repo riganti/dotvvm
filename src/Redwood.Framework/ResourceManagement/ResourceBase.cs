@@ -4,7 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Redwood.Framework.Controls;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     public abstract class ResourceBase
     {
@@ -36,6 +36,10 @@ namespace Redwood.Framework.Configuration
             Dependencies = new string[] { };
         }
 
+        /// <summary>
+        /// Get where the resource want to be rendered
+        /// </summary>
+        public abstract ResourceRenderPosition GetRenderPosition();
 
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter"/>.

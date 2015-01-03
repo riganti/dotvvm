@@ -4,11 +4,12 @@ using System.Linq;
 using Newtonsoft.Json;
 using Redwood.Framework.Controls;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     /// <summary>
     /// Reference to a javascript file.
     /// </summary>
+    [ResourceConfigurationCollectionName("scripts")]    
     public class ScriptResource : ResourceBase
     {
         private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'><\\/script>\")";
@@ -27,6 +28,17 @@ namespace Redwood.Framework.Configuration
         [JsonProperty("globalObjectName")]
         public string GlobalObjectName { get; set; }
 
+        public ResourceRenderPosition RenderPosition { get; set; }
+
+        public override ResourceRenderPosition GetRenderPosition()
+        {
+            return RenderPosition;
+        }
+
+        public ScriptResource()
+        {
+            RenderPosition = ResourceRenderPosition.Body;
+        }
 
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
