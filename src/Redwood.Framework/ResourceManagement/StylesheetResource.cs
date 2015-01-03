@@ -3,13 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Controls;
 
-namespace Redwood.Framework.Configuration
+namespace Redwood.Framework.ResourceManagement
 {
     /// <summary>
     /// Reference to a CSS file.
     /// </summary>
+    [ResourceConfigurationCollectionName("stylesheets")]
     public class StylesheetResource : ResourceBase
     {
+
+        public override ResourceRenderPosition GetRenderPosition()
+        {
+            return ResourceRenderPosition.Head;
+        }
 
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.

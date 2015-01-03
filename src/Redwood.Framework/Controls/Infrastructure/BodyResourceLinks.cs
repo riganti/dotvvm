@@ -4,13 +4,14 @@ using System.Linq;
 using System.Threading;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Runtime;
+using Redwood.Framework.ResourceManagement;
 
 namespace Redwood.Framework.Controls.Infrastructure
 {
     /// <summary>
     /// Renders the script elements and the serialized viewmodel. This control must be on every page just before the end of body element.
     /// </summary>
-    public class ScriptResourceLinks : RedwoodControl
+    public class BodyResourceLinks : RedwoodControl
     {
 
         /// <summary>
@@ -19,7 +20,7 @@ namespace Redwood.Framework.Controls.Infrastructure
         public override void Render(IHtmlWriter writer, RenderContext context)
         {
             // render resource links
-            var resources = context.ResourceManager.GetResourcesInCorrectOrder().Where(IsScriptResource);
+            var resources = context.ResourceManager.GetResourcesInCorrectOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Body);
             foreach (var resource in resources)
             {
                 resource.Render(writer);
@@ -36,11 +37,6 @@ namespace Redwood.Framework.Controls.Infrastructure
             // init on load
             writer.WriteUnencodedText(string.Format("redwood.init('{0}', '{1}');", context.CurrentPageArea, Thread.CurrentThread.CurrentUICulture.Name));
             writer.RenderEndTag();
-        }
-
-        private bool IsScriptResource(ResourceBase resource)
-        {
-            return resource is ScriptResource || resource is InlineScriptResource;
         }
     }
 }

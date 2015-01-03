@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Configuration;
 
-namespace Redwood.Framework.Hosting
+namespace Redwood.Framework.ResourceManagement
 {
     /// <summary>
     /// Holds all required resources and render them to the page in correct order.

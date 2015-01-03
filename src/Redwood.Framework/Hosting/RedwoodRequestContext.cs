@@ -6,6 +6,7 @@ using System.Threading;
 using Microsoft.Owin;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Routing;
+using Redwood.Framework.ResourceManagement;
 
 namespace Redwood.Framework.Hosting
 {
