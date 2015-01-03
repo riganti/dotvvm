@@ -1,5 +1,5 @@
-﻿@viewModel: Redwood.Samples.BasicSamples.ViewModels.Sample1ViewModel, Redwood.Samples.BasicSamples
-@masterPage: sample4_parent.rwhtml
+﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample1ViewModel, Redwood.Samples.BasicSamples
+@masterPage sample4_parent.rwhtml
 
 <rw:Content ContentPlaceHolderID="SubContent">
 	<h1>Task List</h1>

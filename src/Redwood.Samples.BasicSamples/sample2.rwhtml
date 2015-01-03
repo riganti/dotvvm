@@ -1,4 +1,4 @@
-﻿@viewModel: Redwood.Samples.BasicSamples.ViewModels.Sample2ViewModel, Redwood.Samples.BasicSamples
+﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample2ViewModel, Redwood.Samples.BasicSamples
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>

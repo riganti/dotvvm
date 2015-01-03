@@ -272,10 +272,6 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             node.Name = Read().Text;
             SkipWhitespace();
             
-            Assert(RwHtmlTokenType.Colon);
-            Read();
-            SkipWhitespace();
-            
             Assert(RwHtmlTokenType.Text);
             node.Value = Read().Text;
             SkipWhitespace();
@@ -297,7 +293,10 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
         /// </summary>
         private void Assert(RwHtmlTokenType desiredType)
         {
-            Debug.Assert(Peek() != null && Peek().Type == desiredType);
+            if (Peek() == null || Peek().Type != desiredType)
+            {
+                throw new Exception("Assertion failed!");
+            }
         }
 
         /// <summary>

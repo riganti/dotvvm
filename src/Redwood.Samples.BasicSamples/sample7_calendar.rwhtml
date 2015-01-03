@@ -1,4 +1,4 @@
-﻿@baseType: Redwood.Samples.BasicSamples.Controls.Sample7_Calendar, Redwood.Samples.BasicSamples
+﻿@baseType Redwood.Samples.BasicSamples.Controls.Sample7_Calendar, Redwood.Samples.BasicSamples
 
 <table class="calendar">
 	<thead>

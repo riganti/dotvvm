@@ -1,4 +1,4 @@
-﻿@baseType: Redwood.Samples.BasicSamples.Controls.Sample5_TestControl, Redwood.Samples.BasicSamples
+﻿@baseType Redwood.Samples.BasicSamples.Controls.Sample5_TestControl, Redwood.Samples.BasicSamples
 
 <h2>{{controlProperty: Name}}</h2>
 <p>

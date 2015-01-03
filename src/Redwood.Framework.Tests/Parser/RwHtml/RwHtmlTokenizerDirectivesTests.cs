@@ -16,8 +16,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
         public void RwHtmlTokenizer_DirectiveParsing_Valid_TwoDirectives()
         {
             var input = @"
-@viewmodel: Redwood.Samples.Sample1.IndexViewModel
-@masterpage: ~/Site.rwhtml
+@viewmodel Redwood.Samples.Sample1.IndexViewModel
+@masterpage ~/Site.rwhtml
 
 this is a test content";
 
@@ -32,14 +32,12 @@ this is a test content";
             Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.DirectiveStart, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(RwHtmlTokenType.DirectiveStart, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);

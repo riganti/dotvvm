@@ -1,4 +1,4 @@
-﻿@masterPage: sample4_root.rwhtml
+﻿@masterPage sample4_root.rwhtml
 		
 <rw:Content ContentPlaceHolderID="Menu">
 	<ul>

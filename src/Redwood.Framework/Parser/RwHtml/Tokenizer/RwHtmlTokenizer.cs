@@ -103,22 +103,12 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 CreateToken(RwHtmlTokenType.DirectiveStart);
 
                 // identifier
-                if (!ReadIdentifier(':'))
+                if (!ReadIdentifier())
                 {
                     ReportError(Parser_RwHtml.Directive_IdentifierExpected);
                     ReadTextUntilNewLine();
                     return false;
                 }
-
-                // colon
-                if (Peek() != ':')
-                {
-                    ReportError(Parser_RwHtml.Directive_ColonExpected);
-                    ReadTextUntilNewLine();
-                    return false;
-                }
-                Read();
-                CreateToken(RwHtmlTokenType.Colon);
 
                 // read directive value
                 SkipWhitespace();
@@ -168,7 +158,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             var isClosingTag = false;
 
             // open tag brace
-            Debug.Assert(Peek() == '<');
+            Assert(Peek() == '<');
             Read();
             CreateToken(RwHtmlTokenType.OpenTag);
 
@@ -216,6 +206,14 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             Read();
             CreateToken(RwHtmlTokenType.CloseTag);
             return true;
+        }
+
+        private void Assert(bool expression)
+        {
+            if (!expression)
+            {
+                throw new Exception("Assertion failed!");
+            }
         }
         
         /// <summary>
@@ -338,7 +336,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
         private bool ReadBinding(bool doubleCloseBrace)
         {
             // read open brace
-            Debug.Assert(Peek() == '{');
+            Assert(Peek() == '{');
             Read();
             if (!doubleCloseBrace && Peek() == '{')
             {
