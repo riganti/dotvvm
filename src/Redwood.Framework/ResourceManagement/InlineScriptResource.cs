@@ -16,6 +16,17 @@ namespace Redwood.Framework.ResourceManagement
         /// </summary>
         public string Code { get; set; }
 
+        public ResourceRenderPosition RenderPosition { get; set; }
+
+        public override ResourceRenderPosition GetRenderPosition()
+        {
+            return RenderPosition;
+        }
+
+        public InlineScriptResource()
+        {
+            RenderPosition = ResourceRenderPosition.Body;
+        }
 
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.

@@ -12,6 +12,11 @@ namespace Redwood.Framework.ResourceManagement
     public class StylesheetResource : ResourceBase
     {
 
+        public override ResourceRenderPosition GetRenderPosition()
+        {
+            return ResourceRenderPosition.Head;
+        }
+
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
         /// </summary>

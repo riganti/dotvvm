@@ -28,6 +28,17 @@ namespace Redwood.Framework.ResourceManagement
         [JsonProperty("globalObjectName")]
         public string GlobalObjectName { get; set; }
 
+        public ResourceRenderPosition RenderPosition { get; set; }
+
+        public override ResourceRenderPosition GetRenderPosition()
+        {
+            return RenderPosition;
+        }
+
+        public ScriptResource()
+        {
+            RenderPosition = ResourceRenderPosition.Body;
+        }
 
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.

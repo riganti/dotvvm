@@ -85,13 +85,14 @@
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
     <Compile Include="ResourceManagement\InlineScriptResource.cs" />
     <Compile Include="ResourceManagement\IRedwoodResourceRepository.cs" />
-    <Compile Include="ResourceManagement\RedwoodConfiguration.cs" />
+    <Compile Include="Configuration\RedwoodConfiguration.cs" />
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
     <Compile Include="ResourceManagement\RedwoodResourceRepository.cs" />
     <Compile Include="Configuration\RedwoodSecurityConfiguration.cs" />
     <Compile Include="ResourceManagement\ResourceBase.cs" />
     <Compile Include="ResourceManagement\ResourceConfigurationCollectionNameAttribute.cs" />
+    <Compile Include="ResourceManagement\ResourceRenderPosition.cs" />
     <Compile Include="ResourceManagement\ResourceRepositoryJsonConverter.cs" />
     <Compile Include="ResourceManagement\ScriptResource.cs" />
     <Compile Include="ResourceManagement\StylesheetResource.cs" />
@@ -111,8 +112,8 @@
     <Compile Include="Controls\IControlWithHtmlAttributes.cs" />
     <Compile Include="Controls\IHtmlWriter.cs" />
     <Compile Include="Controls\Infrastructure\RedwoodView.cs" />
-    <Compile Include="Controls\Infrastructure\ScriptResourceLinks.cs" />
-    <Compile Include="Controls\Infrastructure\StylesheetResourceLinks.cs" />
+    <Compile Include="Controls\Infrastructure\BodyResourceLinks.cs" />
+    <Compile Include="Controls\Infrastructure\HeadResourceLinks.cs" />
     <Compile Include="Controls\InlineScript.cs" />
     <Compile Include="Controls\ITemplate.cs" />
     <Compile Include="Controls\ItemsControl.cs" />
@@ -131,7 +132,7 @@
     <Compile Include="Controls\Repeater.cs" />
     <Compile Include="Controls\RequiredResource.cs" />
     <Compile Include="Controls\TextBox.cs" />
-    <Compile Include="Hosting\ResourceManager.cs" />
+    <Compile Include="ResourceManagement\ResourceManager.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompiler.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompilerCodeEmitter.cs" />

@@ -36,6 +36,10 @@ namespace Redwood.Framework.ResourceManagement
             Dependencies = new string[] { };
         }
 
+        /// <summary>
+        /// Get where the resource want to be rendered
+        /// </summary>
+        public abstract ResourceRenderPosition GetRenderPosition();
 
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter"/>.

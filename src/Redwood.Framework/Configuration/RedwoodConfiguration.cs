@@ -5,8 +5,9 @@ using System.Threading;
 using Newtonsoft.Json;
 using Redwood.Framework.Routing;
 using Redwood.Framework.Parser;
+using Redwood.Framework.ResourceManagement;
 
-namespace Redwood.Framework.ResourceManagement
+namespace Redwood.Framework.Configuration
 {
     public class RedwoodConfiguration
     {

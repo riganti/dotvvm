@@ -51,8 +51,8 @@ namespace Redwood.Framework.Runtime
                 throw new Exception("The page must have exactly one <head> and one <body> section!");
             }
 
-            sections[0].Children.Add(new ScriptResourceLinks());
-            sections[1].Children.Add(new StylesheetResourceLinks());
+            sections[0].Children.Add(new BodyResourceLinks());
+            sections[1].Children.Add(new HeadResourceLinks());
         }
 
         public async Task RenderViewModel(RedwoodRequestContext context, RedwoodView view, string serializedViewModel)
