@@ -107,7 +107,10 @@
     <Compile Include="Controls\HtmlWriter.cs" />
     <Compile Include="Controls\IControlWithHtmlAttributes.cs" />
     <Compile Include="Controls\IHtmlWriter.cs" />
-    <Compile Include="Controls\ResourceLinks.cs" />
+    <Compile Include="Controls\Infrastructure\RedwoodView.cs" />
+    <Compile Include="Controls\Infrastructure\ScriptResourceLinks.cs" />
+    <Compile Include="Controls\Infrastructure\StylesheetResourceLinks.cs" />
+    <Compile Include="Controls\InlineScript.cs" />
     <Compile Include="Controls\ITemplate.cs" />
     <Compile Include="Controls\ItemsControl.cs" />
     <Compile Include="Controls\LinkButton.cs" />
@@ -116,7 +119,6 @@
     <Compile Include="Controls\RadioButton.cs" />
     <Compile Include="Controls\Internal.cs" />
     <Compile Include="Controls\RedwoodMarkupControl.cs" />
-    <Compile Include="Controls\RedwoodView.cs" />
     <Compile Include="Controls\RedwoodBindableControl.cs" />
     <Compile Include="Controls\RedwoodControl.cs" />
     <Compile Include="Controls\RedwoodControlCollection.cs" />

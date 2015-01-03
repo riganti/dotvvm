@@ -40,6 +40,5 @@
 	</div>
 	
 	<rw:RequiredResource Name="bootstrap" />
-	<rw:ResourceLinks />
 </body>
 </html>

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Redwood.Framework.Controls
+namespace Redwood.Framework.Controls.Infrastructure
 {
     /// <summary>
     /// Represents a top-level control in the control tree.

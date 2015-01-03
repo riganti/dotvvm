@@ -4,6 +4,7 @@ using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Controls.Infrastructure;
 
 namespace Redwood.Framework.Tests.Binding
 {

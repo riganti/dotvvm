@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Controls.Infrastructure;
 
 namespace Redwood.Framework.Tests.Runtime
 {

@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Controls
 {
     /// <summary>
-    /// Declares a resource that will be rendered in the <see cref="ResourceLinks" /> control later.
+    /// Declares a resource that will be rendered in the <see cref="ScriptResourceLinks" /> control later.
     /// </summary>
     public class RequiredResource : RedwoodControl
     {

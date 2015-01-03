@@ -55,6 +55,5 @@
 	</p>
 
 	<rw:RequiredResource Name="bootstrap" />
-	<rw:ResourceLinks />
 </body>
 </html>

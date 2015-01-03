@@ -6,6 +6,7 @@ using Newtonsoft.Json.Linq;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.ViewModel;
 
 namespace Redwood.Framework.Runtime

@@ -13,13 +13,12 @@
 	</div>
 	
 	<rw:RequiredResource Name="bootstrap" />
-	<rw:ResourceLinks />
 
-	<script type="text/javascript">
+	<rw:InlineScript>
 		redwood.events.init.subscribe(function() { alert("init"); });
 		redwood.events.beforePostback.subscribe(function() { alert("beforePostback"); });
 		redwood.events.afterPostback.subscribe(function() { alert("afterPostback"); });
 		redwood.events.error.subscribe(function() { alert("custom error handler"); return true; });
-	</script>
+	</rw:InlineScript>
 </body>
 </html>
