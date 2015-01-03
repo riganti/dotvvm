@@ -22,13 +22,7 @@ namespace Redwood.Framework.ViewModel
         private static readonly ViewModelSerializationMapper viewModelSerializationMapper = new ViewModelSerializationMapper();
         private static readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
 
-
-        private ViewModelProtectionHelper protectionHelper;
-
-        public ViewModelJsonConverter(ViewModelProtectionHelper protectionHelper)
-        {
-            this.protectionHelper = protectionHelper;
-        }
+        public JArray EncryptedValues { get; set; }
 
 
         /// <summary>
@@ -56,7 +50,7 @@ namespace Redwood.Framework.ViewModel
         {
             var serializationMap = GetSerializationMapForType(objectType);
             var instance = serializationMap.ConstructorFactory();
-            serializationMap.ReaderFactory(JObject.Load(reader), serializer, instance, this.protectionHelper);
+            serializationMap.ReaderFactory(JObject.Load(reader), serializer, instance, EncryptedValues);
             return instance;
         }
 
@@ -66,7 +60,7 @@ namespace Redwood.Framework.ViewModel
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.WriterFactory(writer, value, serializer, this.protectionHelper);
+            serializationMap.WriterFactory(writer, value, serializer, EncryptedValues);
         }
 
         /// <summary>
@@ -75,7 +69,7 @@ namespace Redwood.Framework.ViewModel
         public virtual void Populate(JObject jobj, JsonSerializer serializer, object value)
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.ReaderFactory(jobj, serializer, value, this.protectionHelper);
+            serializationMap.ReaderFactory(jobj, serializer, value, EncryptedValues);
         }
     }
 }

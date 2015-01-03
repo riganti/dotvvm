@@ -145,7 +145,7 @@
     <Compile Include="Runtime\IViewModelLoader.cs" />
     <Compile Include="Runtime\IViewModelSerializer.cs" />
     <Compile Include="Runtime\RenderContext.cs" />
-    <Compile Include="Runtime\ViewModelSerializer.cs" />
+    <Compile Include="Runtime\DefaultViewModelSerializer.cs" />
     <Compile Include="Security\ApplicationKeyHelper.cs" />
     <Compile Include="Security\DefaultCsrfProtector.cs" />
     <Compile Include="Security\DefaultViewModelProtector.cs" />

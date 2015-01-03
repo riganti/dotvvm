@@ -5,22 +5,25 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
-using Redwood.Framework.Controls;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
+using Redwood.Framework.Security;
 using Redwood.Framework.ViewModel;
 
 namespace Redwood.Framework.Runtime
 {
-    public class ViewModelSerializer : IViewModelSerializer
+    public class DefaultViewModelSerializer : IViewModelSerializer
     {
 
         private CommandResolver commandResolver = new CommandResolver();
-        private RedwoodConfiguration configuration;
 
-        public ViewModelSerializer(RedwoodConfiguration configuration)
+        private RedwoodConfiguration configuration;
+        private readonly IViewModelProtector viewModelProtector;
+
+        public DefaultViewModelSerializer(RedwoodConfiguration configuration, IViewModelProtector viewModelProtector)
         {
             this.configuration = configuration;
+            this.viewModelProtector = viewModelProtector;
         }
 
 
@@ -31,8 +34,8 @@ namespace Redwood.Framework.Runtime
         {
             // serialize the ViewModel
             var serializer = new JsonSerializer();
-            serializer.Converters.Add(
-                new ViewModelJsonConverter(new ViewModelProtectionHelper(configuration.Security, serializer)));
+            var viewModelConverter = new ViewModelJsonConverter() { EncryptedValues = new JArray() };
+            serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
             serializer.Serialize(writer, context.ViewModel);
 
@@ -42,6 +45,9 @@ namespace Redwood.Framework.Runtime
 
             // persist CSRF token
             writer.Token["$csrfToken"] = context.CsrfToken;
+
+            // persist encrypted values
+            writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(), context);
 
             return writer.Token.ToString();
         }
@@ -62,15 +68,25 @@ namespace Redwood.Framework.Runtime
             // load CSRF token
             context.CsrfToken = viewModelToken["$csrfToken"].Value<string>();
 
+            // load encrypted values
+            var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
+            var encryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
+            
             // populate the ViewModel
             var serializer = new JsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(new ViewModelProtectionHelper(configuration.Security, serializer));
+            var viewModelConverter = new ViewModelJsonConverter() { EncryptedValues = encryptedValues };
             serializer.Converters.Add(viewModelConverter);
             viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
 
             // load the control state
             var walker = new ViewModelJTokenControlTreeWalker(viewModelToken, view);
             walker.ProcessControlTree(walker.LoadControlState);
+
+            if (string.IsNullOrEmpty(command))
+            {
+                invokedCommand = () => { };
+                return;
+            }
 
             // find the command target
             if (!string.IsNullOrEmpty(controlUniqueId))

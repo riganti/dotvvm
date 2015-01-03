@@ -35,7 +35,7 @@ namespace Redwood.Framework.Routing
             return new RedwoodPresenter(
                 new DefaultRedwoodViewBuilder(configuration),
                 new DefaultViewModelLoader(),
-                new ViewModelSerializer(configuration),
+                new DefaultViewModelSerializer(configuration, new DefaultViewModelProtector()),
                 new DefaultOutputRenderer(),
                 new DefaultCsrfProtector()
             );
