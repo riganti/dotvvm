@@ -74,7 +74,6 @@ namespace Redwood.Framework.Security {
 
             // Get cookie value
             var sidCookieValue = mgr.GetRequestCookie(context.OwinContext, context.Configuration.Security.SessionIdCookieName);
-            System.Diagnostics.Debug.Print("Cookie value: {0}", sidCookieValue);
 
             if (string.IsNullOrWhiteSpace(sidCookieValue)) {
                 // No SID - generate and protect new one
