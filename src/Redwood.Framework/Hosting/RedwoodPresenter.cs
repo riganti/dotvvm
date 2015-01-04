@@ -141,11 +141,12 @@ namespace Redwood.Framework.Hosting
             else
             {
                 // perform the postback
-                Action invokedCommand;
+                string postData;
                 using (var sr = new StreamReader(context.OwinContext.Request.Body))
                 {
-                    ViewModelSerializer.PopulateViewModel(context, page, await sr.ReadToEndAsync(), out invokedCommand);
+                    postData = await sr.ReadToEndAsync();
                 }
+                ViewModelSerializer.PopulateViewModel(context, page, postData);
                 if (context.ViewModel is IRedwoodViewModel)
                 {
                     await ((IRedwoodViewModel)context.ViewModel).Load();
@@ -158,6 +159,8 @@ namespace Redwood.Framework.Hosting
                 InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
 
                 // invoke the postback command
+                Action invokedCommand;
+                ViewModelSerializer.ResolveCommand(context, page, postData, out invokedCommand);
                 if (invokedCommand != null)
                 {
                     invokedCommand();

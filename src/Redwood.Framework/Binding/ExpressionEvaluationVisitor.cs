@@ -213,6 +213,90 @@ namespace Redwood.Framework.Binding
         }
 
         /// <summary>
+        /// Visits the prefix unary expression.
+        /// </summary>
+        public override object VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax node)
+        {
+            if (node.OperatorToken.IsKind(SyntaxKind.MinusToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.ExclamationToken))
+            {
+                return !(Visit(node.Operand) as bool?);
+            }
+
+            return base.VisitPrefixUnaryExpression(node);
+        }
+
+        private static void ThrowArithmeticOperatorsNotSupportedYet()
+        {
+            throw new NotSupportedException("Server evaluation of numeric expressions is not supported yet!");
+        }
+
+        /// <summary>
+        /// Visits the binary expression.
+        /// </summary>
+        public override object VisitBinaryExpression(BinaryExpressionSyntax node)
+        {
+            // arithmetic
+            if (node.OperatorToken.IsKind(SyntaxKind.PlusToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.MinusToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.AsteriskToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.SlashToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.PercentToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+
+            // comparison
+            if (node.OperatorToken.IsKind(SyntaxKind.LessThanToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.LessThanEqualsToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.GreaterThanToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.GreaterThanEqualsToken))
+            {
+                ThrowArithmeticOperatorsNotSupportedYet();
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.EqualsEqualsToken))
+            {
+                return Equals(Visit(node.Left), Visit(node.Right));
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.ExclamationEqualsToken))
+            {
+                return !Equals(Visit(node.Left), Visit(node.Right));
+            }
+
+            // null coalescing operator
+            if (node.OperatorToken.IsKind(SyntaxKind.QuestionQuestionToken))
+            {
+                return Visit(node.Left) ?? Visit(node.Right);
+            }
+
+            return base.VisitBinaryExpression(node);
+        }
+
+        /// <summary>
         /// Finds the control state for current DataContext hierarchy.
         /// </summary>
         private Dictionary<string, object> GetControlState(string controlId)

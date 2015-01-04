@@ -15,6 +15,9 @@ namespace Redwood.Framework.Tests.Binding
         [TestMethod]
         public void CommandResolver_Valid_SimpleTest()
         {
+            var path = new[] { "A[0]" };
+            var command = "Test(StringToPass, _parent.NumberToPass)";
+
             var testObject = new
             {
                 A = new[]
@@ -25,8 +28,13 @@ namespace Redwood.Framework.Tests.Binding
             };
             var viewRoot = new RedwoodView() { DataContext = testObject };
 
-            var path = new [] { "A[0]" };
-            var command = "Test(StringToPass, _parent.NumberToPass)";
+            var placeholder = new HtmlGenericControl("div");
+            placeholder.SetBinding(RedwoodBindableControl.DataContextProperty, new ValueBindingExpression(path[0]));
+            viewRoot.Children.Add(placeholder);
+
+            var button = new Button();
+            button.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression(command));
+            placeholder.Children.Add(button);
 
             var resolver = new CommandResolver();
             resolver.GetFunction(viewRoot, testObject, path, command)();
@@ -38,6 +46,9 @@ namespace Redwood.Framework.Tests.Binding
         [TestMethod]
         public void CommandResolver_Valid_SimpleTest2()
         {
+            var path = new[] { "A[0]", "StringToPass" };
+            var command = "_parent.Test(_parent.StringToPass, _root.NumberToPass)";
+            
             var testObject = new
             {
                 A = new[]
@@ -48,8 +59,17 @@ namespace Redwood.Framework.Tests.Binding
             };
             var viewRoot = new RedwoodView() { DataContext = testObject };
 
-            var path = new[] { "A[0]", "StringToPass" };
-            var command = "_parent.Test(_parent.StringToPass, _root.NumberToPass)";
+            var placeholder = new HtmlGenericControl("div");
+            placeholder.SetBinding(RedwoodBindableControl.DataContextProperty, new ValueBindingExpression(path[0]));
+            viewRoot.Children.Add(placeholder);
+
+            var placeholder2 = new HtmlGenericControl("div");
+            placeholder2.SetBinding(RedwoodBindableControl.DataContextProperty, new ValueBindingExpression(path[1]));
+            placeholder.Children.Add(placeholder2);
+
+            var button = new Button();
+            button.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression(command));
+            placeholder2.Children.Add(button);
 
             var resolver = new CommandResolver();
             resolver.GetFunction(viewRoot, testObject, path, command)();
@@ -67,6 +87,7 @@ namespace Redwood.Framework.Tests.Binding
                 StringToPass = "a"
             };
             var viewRoot = new RedwoodView() { DataContext = testObject };
+            viewRoot.SetBinding(RedwoodProperty.Register<Action, RedwoodView>("Test"), new CommandBindingExpression("set_StringToPass(StringToPass)"));
 
             var path = new string[] { };
             var command = "set_StringToPass(StringToPass)";

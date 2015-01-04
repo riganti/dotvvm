@@ -12,8 +12,9 @@ namespace Redwood.Framework.ViewModel
         private T viewModel;
         private RedwoodControl root;
 
-        public Stack<string> CurrentPath { get; private set; } 
+        public Stack<string> CurrentPath { get; private set; }
 
+        public string[] CurrentPathArray { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelJTokenControlTreeWalker"/> class.
@@ -31,9 +32,18 @@ namespace Redwood.Framework.ViewModel
         public void ProcessControlTree(Action<T, RedwoodControl> action)
         {
             CurrentPath = new Stack<string>();
+            RefreshCurrentPathArray();
             var evaluator = CreateEvaluator(viewModel);
 
             ProcessControlTreeCore(evaluator, viewModel, root, action);
+        }
+
+        /// <summary>
+        /// Refreshes the current path array.
+        /// </summary>
+        private void RefreshCurrentPathArray()
+        {
+            CurrentPathArray = CurrentPath.Reverse().ToArray();
         }
 
         /// <summary>
@@ -62,6 +72,7 @@ namespace Redwood.Framework.ViewModel
             {
                 viewModel = evaluator.Evaluate(binding.Expression);
                 CurrentPath.Push(binding.GetViewModelPathExpression((RedwoodBindableControl)control, RedwoodBindableControl.DataContextProperty));
+                RefreshCurrentPathArray();
                 hasDataContext = true;
             }
 
@@ -77,6 +88,7 @@ namespace Redwood.Framework.ViewModel
             if (hasDataContext)
             {
                 CurrentPath.Pop();
+                RefreshCurrentPathArray();
             }
         }
 

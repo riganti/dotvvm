@@ -56,13 +56,10 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Populates the view model from the data received from the request.
         /// </summary>
-        public void PopulateViewModel(RedwoodRequestContext context, RedwoodView view, string serializedPostData, out Action invokedCommand)
+        public void PopulateViewModel(RedwoodRequestContext context, RedwoodView view, string serializedPostData)
         {
             // get properties
             var data = JObject.Parse(serializedPostData);
-            var path = data["currentPath"].Values<string>().ToArray();
-            var command = data["command"].Value<string>();
-            var controlUniqueId = data["controlUniqueId"].Value<string>();
             var viewModelToken = (JObject)data["viewModel"];
 
             // load CSRF token
@@ -81,6 +78,19 @@ namespace Redwood.Framework.Runtime
             // load the control state
             var walker = new ViewModelJTokenControlTreeWalker(viewModelToken, view);
             walker.ProcessControlTree(walker.LoadControlState);
+
+        }
+
+        /// <summary>
+        /// Resolves the command for the specified post data.
+        /// </summary>
+        public void ResolveCommand(RedwoodRequestContext context, RedwoodView view, string serializedPostData, out Action invokedCommand)
+        {
+            // get properties
+            var data = JObject.Parse(serializedPostData);
+            var path = data["currentPath"].Values<string>().ToArray();
+            var command = data["command"].Value<string>();
+            var controlUniqueId = data["controlUniqueId"].Value<string>();
 
             if (string.IsNullOrEmpty(command))
             {
@@ -102,6 +112,7 @@ namespace Redwood.Framework.Runtime
             {
                 invokedCommand = commandResolver.GetFunction(view, context.ViewModel, path, command);
             }
+
         }
     }
 }

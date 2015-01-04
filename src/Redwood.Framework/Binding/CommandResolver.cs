@@ -2,13 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using System.Text;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
-using Redwood.Framework.Runtime;
 using Redwood.Framework.Runtime.Compilation;
 
 namespace Redwood.Framework.Binding
@@ -19,11 +17,23 @@ namespace Redwood.Framework.Binding
     public class CommandResolver
     {
 
+        private EventValidator eventValidator = new EventValidator();
+
         /// <summary>
         /// Resolves the command called on the RedwoodControl.
         /// </summary>
         public Action GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, object viewModel, string[] path, string command)
         {
+            // event validation
+            if (targetControl == null)
+            {
+                eventValidator.ValidateCommand(path, command, viewRootControl);
+            }
+            else
+            {
+                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl);
+            }
+
             // resolve the path in the view model
             List<object> hierarchy = ResolveViewModelPath(viewModel, viewRootControl, path);
 

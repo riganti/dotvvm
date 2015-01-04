@@ -44,6 +44,46 @@ namespace Redwood.Framework.Controls
         }
 
 
+        /// <summary>
+        /// Occurs after the viewmodel is applied to the page and before the commands are executed.
+        /// </summary>
+        protected internal override void OnLoad(RedwoodRequestContext context)
+        {
+            DataBind();
+            base.OnLoad(context);
+        }
+
+        /// <summary>
+        /// Occurs after the page commands are executed.
+        /// </summary>
+        protected internal override void OnPreRender(RedwoodRequestContext context)
+        {
+            DataBind();     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
+            base.OnPreRender(context);
+        }
+
+        /// <summary>
+        /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
+        /// </summary>
+        private void DataBind()
+        {
+            Children.Clear();
+
+            var dataSourceBinding = GetDataSourceBinding();
+            var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
+
+            var index = 0;
+            foreach (var item in DataSource)
+            {
+                var placeholder = new DataItemContainer { DataItemIndex = index };
+                placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
+                Children.Add(placeholder);
+                ItemTemplate.BuildContent(placeholder);
+
+                index++;
+            }
+        }
+
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
@@ -63,20 +103,16 @@ namespace Redwood.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-            var dataSourceBinding = GetBinding(DataSourceProperty) as ValueBindingExpression;
+            var dataSourceBinding = GetDataSourceBinding();
 
             if (RenderOnServer)
             {
                 // render on server
                 var index = 0;
-                foreach (var item in DataSource)
+                foreach (var child in Children)
                 {
-                    var placeholder = new DataItemContainer { DataContext = item, DataItemIndex = index };
-                    Children.Add(placeholder);
-                    ItemTemplate.BuildContent(placeholder);
-
                     context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[" + index + "]");
-                    placeholder.Render(writer, context);
+                    Children[index].Render(writer, context);
                     context.PathFragments.Pop();
                     index++;
                 }

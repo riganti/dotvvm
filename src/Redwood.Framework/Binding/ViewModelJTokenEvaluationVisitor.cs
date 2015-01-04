@@ -74,6 +74,26 @@ namespace Redwood.Framework.Binding
             return base.VisitElementAccessExpression(node);
         }
 
+        /// <summary>
+        /// Visits the argument.
+        /// </summary>
+        public override JToken VisitArgument(ArgumentSyntax node)
+        {
+            return Visit(node.Expression);
+        }
+
+        /// <summary>
+        /// Visits the literal expression.
+        /// </summary>
+        public override JToken VisitLiteralExpression(LiteralExpressionSyntax node)
+        {
+            if (node.IsKind(SyntaxKind.NumericLiteralExpression))
+            {
+                return node.Token.Value as int?;
+            }
+
+            return base.VisitLiteralExpression(node);
+        }
 
         /// <summary>
         /// Gets the object property.

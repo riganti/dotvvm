@@ -53,5 +53,17 @@ namespace Redwood.Framework.Controls
             
         }
 
+        /// <summary>
+        /// Gets the data source binding.
+        /// </summary>
+        protected ValueBindingExpression GetDataSourceBinding()
+        {
+            var binding = GetValueBinding(DataSourceProperty);
+            if (binding == null)
+            {
+                throw new Exception(string.Format("The DataSource property of the {0} control must be set!", GetType().Name));
+            }
+            return binding;
+        }
     }
 }

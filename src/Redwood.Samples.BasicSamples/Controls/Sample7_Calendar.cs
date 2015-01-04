@@ -24,24 +24,14 @@ namespace Redwood.Samples.BasicSamples.Controls
             get { return (DateTime)GetValue(VisibleDateProperty); }
             set { SetValue(VisibleDateProperty, value); }
         }
-        public static RedwoodProperty VisibleDateProperty = RedwoodProperty.RegisterControlStateProperty<DateTime, Sample7_Calendar>(c => c.VisibleDate);
+        public static RedwoodProperty VisibleDateProperty = RedwoodProperty.RegisterControlStateProperty<DateTime, Sample7_Calendar>(c => c.VisibleDate, DateTime.Now);
 
 
         public override bool RequiresControlState
         {
             get { return true; }
         }
-
-
-        protected override void OnPreRender(RedwoodRequestContext context)
-        {
-            // set the visible date default value
-            if (!context.IsPostBack)
-            {
-                VisibleDate = DateTime.Now;
-            }
-        }
-
+         
 
 
         public string[] DayNames

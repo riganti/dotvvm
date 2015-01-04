@@ -175,8 +175,13 @@ namespace Redwood.Framework.Binding
                 var bindableControl = (RedwoodBindableControl)redwoodControl;
                 if (bindableControl.RequiresControlState)
                 {
-                    var value = ((ControlStateBindingExpression)DefaultValue).DefaultValue;
-                    bindableControl.SetControlStateValue(Name, value);
+                    if (bindableControl.GetBinding(this) == null)
+                    {
+                        bindableControl.SetBinding(this, (ControlStateBindingExpression)DefaultValue);
+                    }
+
+                    var value = PropertyInfo.GetValue(redwoodControl);
+                    ((ControlStateBindingExpression)DefaultValue).UpdateSource(value, bindableControl, this);
                 }
             }
         }

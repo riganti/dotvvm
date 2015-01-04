@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Binding;
-using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls

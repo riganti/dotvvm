@@ -36,7 +36,7 @@ namespace Redwood.Framework.Binding
         {
             // get the hierarchy of DataContext the control is in
             var dataContexts = contextControl.GetAllAncestors().OfType<RedwoodBindableControl>()
-                .Select(c => new { Binding = c.GetBinding(RedwoodBindableControl.DataContextProperty), Control = c })
+                .Select(c => new { Binding = c.GetBinding(RedwoodBindableControl.DataContextProperty, false), Control = c })
                 .Where(b => b.Binding != null)
                 .ToList();
 

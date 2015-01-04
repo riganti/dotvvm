@@ -88,11 +88,11 @@ namespace Redwood.Framework.Controls
         public override object GetValue(RedwoodProperty property, bool inherit = true)
         {
             var value = base.GetValue(property, inherit);
-            if (value is BindingExpression)
+            while (value is BindingExpression)
             {
                 // handle binding
                 var binding = (BindingExpression)value;
-                return binding.Evaluate(this, property);
+                value = binding.Evaluate(this, property);
             }
             return value;
         }
@@ -256,6 +256,15 @@ namespace Redwood.Framework.Controls
                 throw new Exception("The {controlProperty: ...} binding can be only used in a markup control."); // TODO: exception handling
             }
             return current;
+        }
+
+        /// <summary>
+        /// Gets all bindings set on the control.
+        /// </summary>
+        internal IEnumerable<KeyValuePair<RedwoodProperty, BindingExpression>> GetAllBindings()
+        {
+            return properties.Where(p => p.Value is BindingExpression)
+                .Select(p => new KeyValuePair<RedwoodProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));
         }
     }
 }
