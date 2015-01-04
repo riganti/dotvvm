@@ -25,7 +25,7 @@ namespace Redwood.Framework.ViewModel
         /// </summary>
         private IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
         {
-            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance))
+            foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name))
             {
                 if (property.GetCustomAttribute<JsonIgnoreAttribute>() != null) continue;
 

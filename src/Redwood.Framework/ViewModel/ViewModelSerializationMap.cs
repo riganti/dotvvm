@@ -91,27 +91,31 @@ namespace Redwood.Framework.ViewModel
                 Expression callDeserialize;
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
-                    jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name + "$encrypted"], jobj);
                     callDeserialize = ExpressionUtils.Replace(
-                        (JsonSerializer s, JArray ev, JObject j) => s.Deserialize(ev[j[property.Name + "$encrypted"].Value<int>()].CreateReader(), property.Type),
+                        (JsonSerializer s, JArray ev, JObject j) => s.Deserialize(GetAndRemove(ev, 0).CreateReader(), property.Type),
                         serializer, encryptedValues, jobj);
                     // encryptedValues[(int)jobj["{p.Name}"]]
+
+                    block.Add(Expression.Call(
+                        value,
+                        Type.GetProperty(property.Name).SetMethod,
+                        Expression.Convert(callDeserialize, property.Type)));
                 }
                 else
                 {
                     jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
                     callDeserialize = ExpressionUtils.Replace((JsonSerializer s, JObject j) =>
                         s.Deserialize(j[property.Name].CreateReader(), property.Type), serializer, jobj);
-                }
 
-                // if ({jsonProp} != null) value.{p.Name} = deserialize();
-                block.Add(
-                    Expression.IfThen(Expression.NotEqual(jsonProp, Expression.Constant(null)),
-                        Expression.Call(
-                        value,
-                        Type.GetProperty(property.Name).SetMethod,
-                        Expression.Convert(callDeserialize, property.Type)
-                )));
+                    // if ({jsonProp} != null) value.{p.Name} = deserialize();
+                    block.Add(
+                        Expression.IfThen(Expression.NotEqual(jsonProp, Expression.Constant(null)),
+                            Expression.Call(
+                            value,
+                            Type.GetProperty(property.Name).SetMethod,
+                            Expression.Convert(callDeserialize, property.Type)
+                    )));
+                }
             }
 
             block.Add(value);
@@ -123,6 +127,13 @@ namespace Redwood.Framework.ViewModel
                     typeof(object)).OptimizeConstants(),
                 jobj, serializer, valueParam, encryptedValues);
             return ex.Compile();
+        }
+
+        private JToken GetAndRemove(JArray array, int index)
+        {
+            var value = array[index];
+            array.RemoveAt(index);
+            return value;
         }
 
         /// <summary>
@@ -149,15 +160,8 @@ namespace Redwood.Framework.ViewModel
 
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
-                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name + "$encrypted")));
-
-                    // writer.WriteValue(encryptedValues.Count);
-                    block.Add(ExpressionUtils.Replace((JArray ev, JsonWriter w) => w.WriteValue(ev.Count),
-                        encryptedValues, writer));
-
                     // encryptedValues.Add(JsonConvert.SerializeObject({value}));
-                    block.Add(ExpressionUtils.Replace((JArray ev, object p) => ev.Add(JToken.FromObject(p)),
-                        encryptedValues, prop));
+                    block.Add(ExpressionUtils.Replace((JArray ev, object p) => ev.Add(JToken.FromObject(p)), encryptedValues, prop));
                 }
 
                 if (property.ViewModelProtection == ViewModelProtectionSettings.None || property.ViewModelProtection == ViewModelProtectionSettings.SignData)

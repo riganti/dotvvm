@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
+using Redwood.Framework.ResourceManagement;
 
 namespace Redwood.Framework.Tests.Runtime
 {
