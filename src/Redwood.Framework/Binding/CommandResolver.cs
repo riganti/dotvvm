@@ -8,6 +8,7 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
 using Redwood.Framework.Runtime.Compilation;
+using Redwood.Framework.Runtime.Filters;
 
 namespace Redwood.Framework.Binding
 {
@@ -22,7 +23,7 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the command called on the RedwoodControl.
         /// </summary>
-        public Action GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, object viewModel, string[] path, string command)
+        public ActionInfo GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, object viewModel, string[] path, string command)
         {
             // event validation
             if (targetControl == null)
@@ -66,7 +67,17 @@ namespace Redwood.Framework.Binding
             var arguments = EvaluateCommandArguments(viewModel, viewRootControl, hierarchy, node);
 
             // return the delegate for further invoke
-            return () => method.Invoke(target, arguments);
+            return new ActionInfo()
+            {
+                IsControlCommand = target != null,
+                Target = target,
+                MethodInfo = method,
+                Arguments = method.GetParameters().Select((param, index) => new ActionParameterInfo()
+                {
+                    ParameterInfo = param,
+                    Value = arguments[index]
+                }).ToArray()
+            };
         }
 
         /// <summary>
@@ -84,7 +95,7 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the command called on the ViewModel.
         /// </summary>
-        public Action GetFunction(RedwoodControl viewRootControl, object viewModel, string[] path, string command)
+        public ActionInfo GetFunction(RedwoodControl viewRootControl, object viewModel, string[] path, string command)
         {
             return GetFunction(null, viewRootControl, viewModel, path, command);
         }

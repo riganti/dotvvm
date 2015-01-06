@@ -39,10 +39,16 @@ namespace Redwood.Framework.Configuration
         public RedwoodResourceRepository Resources { get; private set; }
 
         /// <summary>
-        /// Gets the security.
+        /// Gets the security configuration.
         /// </summary>
         [JsonProperty("security")]
         public RedwoodSecurityConfiguration Security { get; private set; }
+
+        /// <summary>
+        /// Gets the runtime configuration.
+        /// </summary>
+        [JsonProperty("runtime")]
+        public RedwoodRuntimeConfiguration Runtime { get; private set; }
 
         /// <summary>
         /// Gets or sets the default culture.
@@ -60,6 +66,7 @@ namespace Redwood.Framework.Configuration
             RouteTable = new RedwoodRouteTable(this);
             Resources = new RedwoodResourceRepository();
             Security = new RedwoodSecurityConfiguration();
+            Runtime = new RedwoodRuntimeConfiguration();
         }
 
         /// <summary>

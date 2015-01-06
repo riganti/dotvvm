@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Newtonsoft.Json.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
@@ -59,7 +60,7 @@ namespace Redwood.Framework.Tests.Runtime
             };
             context.ViewModel = oldViewModel;
             var result = serializer.SerializeViewModel(context, new RedwoodView());
-
+            result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel();
@@ -108,6 +109,7 @@ namespace Redwood.Framework.Tests.Runtime
             context.ViewModel = oldViewModel;
             var result = serializer.SerializeViewModel(context, new RedwoodView());
 
+            result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel3();
@@ -155,6 +157,13 @@ namespace Redwood.Framework.Tests.Runtime
             return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0}}}".Replace("'", "\""), result);
         }
 
+        /// <summary>
+        /// Unwraps the object that goes to the client to the serialized view model.
+        /// </summary>
+        private static string UnwrapSerializedViewModel(string result)
+        {
+            return JObject.Parse(result)["viewModel"].ToString();
+        }
 
     }
 }

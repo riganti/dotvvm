@@ -3,11 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ViewModel;
 using Redwood.Framework.Runtime;
+using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
 
 namespace Redwood.Framework.Hosting
@@ -98,102 +100,166 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         private async Task ProcessRequestCore(RedwoodRequestContext context)
         {
-            if (context.OwinContext.Request.Method != "GET" && context.OwinContext.Request.Method != "POST")
+            try
             {
-                // unknown HTTP method
-                await RenderErrorResponse(context, HttpStatusCode.MethodNotAllowed, new RedwoodHttpException("Only GET and POST methods are supported!"));
-                return;
-            }
-            var isPostBack = context.OwinContext.Request.Method == "POST";
-            context.IsPostBack = isPostBack;
-            context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
+                if (context.OwinContext.Request.Method != "GET" && context.OwinContext.Request.Method != "POST")
+                {
+                    // unknown HTTP method
+                    await RenderErrorResponse(context, HttpStatusCode.MethodNotAllowed, new RedwoodHttpException("Only GET and POST methods are supported!"));
+                    return;
+                }
+                var isPostBack = context.OwinContext.Request.Method == "POST";
+                context.IsPostBack = isPostBack;
+                context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
 
-            // build the page view
-            var page = RedwoodViewBuilder.BuildView(context);
+                // build the page view
+                var page = RedwoodViewBuilder.BuildView(context);
 
-            // run the preinit phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnPreInit(context));
+                // run the preinit phase in the page
+                InvokePageLifeCycleEventRecursive(page, c => c.OnPreInit(context));
 
-            // run the init phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnInit(context));
+                // run the init phase in the page
+                InvokePageLifeCycleEventRecursive(page, c => c.OnInit(context));
 
-            // locate and create the view model
-            context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
-            page.DataContext = context.ViewModel;
+                // locate and create the view model
+                context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
+                page.DataContext = context.ViewModel;
 
-            // init the view model lifecycle
-            if (context.ViewModel is IRedwoodViewModel)
-            {
-                ((IRedwoodViewModel)context.ViewModel).Context = context;
-                await ((IRedwoodViewModel)context.ViewModel).Init();
-            }
-            if (!isPostBack)
-            {
-                // perform standard get
+                // get action filters
+                var globalFilters = context.Configuration.Runtime.GlobalFilters.ToList();
+                var viewModelFilters = context.ViewModel.GetType().GetCustomAttributes<ActionFilterAttribute>(true).ToList();
+
+                // run OnViewModelCreated on action filters
+                foreach (var filter in globalFilters.Concat(viewModelFilters))
+                {
+                    filter.OnViewModelCreated(context);
+                }
+
+                // init the view model lifecycle
                 if (context.ViewModel is IRedwoodViewModel)
                 {
-                    await ((IRedwoodViewModel)context.ViewModel).Load();
+                    ((IRedwoodViewModel)context.ViewModel).Context = context;
+                    await ((IRedwoodViewModel)context.ViewModel).Init();
                 }
 
-                // run the load phase in the page
-                InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
-            }
-            else
-            {
-                // perform the postback
-                string postData;
-                using (var sr = new StreamReader(context.OwinContext.Request.Body))
+                if (!isPostBack)
                 {
-                    postData = await sr.ReadToEndAsync();
+                    // perform standard get
+                    if (context.ViewModel is IRedwoodViewModel)
+                    {
+                        await ((IRedwoodViewModel)context.ViewModel).Load();
+                    }
+
+                    // run the load phase in the page
+                    InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
                 }
-                ViewModelSerializer.PopulateViewModel(context, page, postData);
+                else
+                {
+                    // perform the postback
+                    string postData;
+                    using (var sr = new StreamReader(context.OwinContext.Request.Body))
+                    {
+                        postData = await sr.ReadToEndAsync();
+                    }
+                    ViewModelSerializer.PopulateViewModel(context, page, postData);
+                    if (context.ViewModel is IRedwoodViewModel)
+                    {
+                        await ((IRedwoodViewModel)context.ViewModel).Load();
+                    }
+
+                    // validate CSRF token 
+                    CsrfProtector.VerifyToken(context, context.CsrfToken);
+
+                    // run the load phase in the page
+                    InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
+
+                    // invoke the postback command
+                    ActionInfo actionInfo;
+                    ViewModelSerializer.ResolveCommand(context, page, postData, out actionInfo);
+
+                    if (actionInfo != null)
+                    {
+                        // get filters
+                        var methodFilters = actionInfo.MethodInfo.GetCustomAttributes<ActionFilterAttribute>(true).ToList();
+
+                        // run OnCommandExecuting on action filters
+                        foreach (var filter in globalFilters.Concat(viewModelFilters).Concat(methodFilters))
+                        {
+                            filter.OnCommandExecuting(context, actionInfo);
+                        }
+
+                        Exception commandException = null;
+                        try
+                        {
+                            var invokedAction = actionInfo.GetAction();
+                            invokedAction();
+                        }
+                        catch (Exception ex)
+                        {
+                            if (ex is TargetInvocationException)
+                            {
+                                ex = ex.InnerException;
+                            }
+                            if (ex is RedwoodInterruptRequestExecutionException)
+                            {
+                                throw new RedwoodInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
+                            }
+                            commandException = ex;
+                        }
+
+                        // run OnCommandExecuted on action filters
+                        foreach (var filter in globalFilters.Concat(viewModelFilters).Concat(methodFilters))
+                        {
+                            filter.OnCommandExecuted(context, actionInfo, commandException);
+                        }
+
+                        if (commandException != null)
+                        {
+                            throw new Exception("Unhandled exception occured in the command!", commandException);
+                        }
+                    }
+                }
+
                 if (context.ViewModel is IRedwoodViewModel)
                 {
-                    await ((IRedwoodViewModel)context.ViewModel).Load();
+                    await ((IRedwoodViewModel)context.ViewModel).PreRender();
                 }
 
-                // validate CSRF token 
-                CsrfProtector.VerifyToken(context, context.CsrfToken);
+                // run the prerender phase in the page
+                InvokePageLifeCycleEventRecursive(page, c => c.OnPreRender(context));
 
-                // run the load phase in the page
-                InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
+                // run the prerender complete phase in the page
+                InvokePageLifeCycleEventRecursive(page, c => c.OnPreRenderComplete(context));
 
-                // invoke the postback command
-                Action invokedCommand;
-                ViewModelSerializer.ResolveCommand(context, page, postData, out invokedCommand);
-                if (invokedCommand != null)
+                // generate CSRF token if required
+                if (string.IsNullOrEmpty(context.CsrfToken))
                 {
-                    invokedCommand();
+                    context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }
-            }
 
-            if (context.ViewModel is IRedwoodViewModel)
-            {
-                await ((IRedwoodViewModel)context.ViewModel).PreRender();
-            }
-            
-            // run the prerender phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnPreRender(context));
-            
-            // run the prerender complete phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnPreRenderComplete(context));
+                // run OnResponseRendering on action filters
+                foreach (var filter in globalFilters.Concat(viewModelFilters))
+                {
+                    filter.OnResponseRendering(context); 
+                }
 
-            // generate CSRF token if required
-            if (string.IsNullOrEmpty(context.CsrfToken))
-            {
-                context.CsrfToken = CsrfProtector.GenerateToken(context);
+                // render the output
+                var serializedViewModel = ViewModelSerializer.SerializeViewModel(context, page);
+                if (!isPostBack)
+                {
+                    // standard get
+                    await OutputRenderer.RenderPage(context, page, serializedViewModel);
+                }
+                else
+                {
+                    // postback
+                    await OutputRenderer.RenderViewModel(context, page, serializedViewModel);
+                }
+
             }
-            // render the output
-            var serializedViewModel = ViewModelSerializer.SerializeViewModel(context, page);
-            if (!isPostBack)
+            catch (RedwoodInterruptRequestExecutionException)
             {
-                // standard get
-                await OutputRenderer.RenderPage(context, page, serializedViewModel);
-            }
-            else 
-            {
-                // postback
-                await OutputRenderer.RenderViewModel(context, page, serializedViewModel);
+                // the response has already been generated, do nothing
             }
         }
 

@@ -172,6 +172,7 @@
     <Content Include="sample7.rwhtml" />
     <Content Include="sample8.rwhtml" />
     <Content Include="sample9.rwhtml" />
+    <Content Include="sample10.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -201,6 +202,7 @@
     <Compile Include="ViewModels\Sample2ViewModel.cs" />
     <Compile Include="ViewModels\Sample5ViewModel.cs" />
     <Compile Include="ViewModels\Sample3ViewModel.cs" />
+    <Compile Include="ViewModels\Sample10ViewModel.cs" />
     <Compile Include="ViewModels\Sample9ViewModel.cs" />
     <Compile Include="ViewModels\Sample8ViewModel.cs" />
   </ItemGroup>

@@ -11,7 +11,7 @@
 
     public init(viewModelName: string, culture: string): void {
         this.culture = culture;
-        var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName]);
+        var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
         this.viewModels[viewModelName] = viewModel;
         ko.applyBindings(viewModel);
 
@@ -29,8 +29,15 @@
             controlUniqueId: controlUniqueId
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), result => {
-            ko.mapper.fromJS(JSON.parse(result.responseText), {}, this.viewModels[viewModelName]);
-            this.events.afterPostback.trigger(new RedwoodEventArgs(viewModel));
+            var resultObject = JSON.parse(result.responseText);
+            if (resultObject.action === "successfulCommand") {
+                ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName]);
+                this.events.afterPostback.trigger(new RedwoodEventArgs(viewModel));
+            } else if (resultObject.action === "redirect") {
+                document.location.href = resultObject.url;
+            } else {
+                throw "Invalid response from the server!";
+            }
         }, xhr => {
             if (!this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
                 alert(xhr.responseText);

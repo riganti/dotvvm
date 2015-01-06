@@ -7,6 +7,7 @@ using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
+using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
 using Redwood.Framework.ViewModel;
 
@@ -49,7 +50,24 @@ namespace Redwood.Framework.Runtime
             // persist encrypted values
             writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(), context);
 
-            return writer.Token.ToString();
+            // create result object
+            var result = new JObject();
+            result["viewModel"] = writer.Token;
+            result["action"] = "successfulCommand";
+
+            return result.ToString();
+        }
+
+        /// <summary>
+        /// Serializes the redirect action.
+        /// </summary>
+        public string SerializeRedirectAction(RedwoodRequestContext context, string url)
+        {
+            // create result object
+            var result = new JObject();
+            result["url"] = url;
+            result["action"] = "redirect";
+            return result.ToString();
         }
 
 
@@ -84,7 +102,7 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Resolves the command for the specified post data.
         /// </summary>
-        public void ResolveCommand(RedwoodRequestContext context, RedwoodView view, string serializedPostData, out Action invokedCommand)
+        public void ResolveCommand(RedwoodRequestContext context, RedwoodView view, string serializedPostData, out ActionInfo actionInfo)
         {
             // get properties
             var data = JObject.Parse(serializedPostData);
@@ -94,25 +112,26 @@ namespace Redwood.Framework.Runtime
 
             if (string.IsNullOrEmpty(command))
             {
-                invokedCommand = () => { };
-                return;
-            }
-
-            // find the command target
-            if (!string.IsNullOrEmpty(controlUniqueId))
-            {
-                var target = view.FindControl(controlUniqueId);
-                if (target == null)
-                {
-                    throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
-                }
-                invokedCommand = commandResolver.GetFunction(target, view, context.ViewModel, path, command);
+                // empty command
+                actionInfo = null;
             }
             else
             {
-                invokedCommand = commandResolver.GetFunction(view, context.ViewModel, path, command);
+                // find the command target
+                if (!string.IsNullOrEmpty(controlUniqueId))
+                {
+                    var target = view.FindControl(controlUniqueId);
+                    if (target == null)
+                    {
+                        throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
+                    }
+                    actionInfo = commandResolver.GetFunction(target, view, context.ViewModel, path, command);
+                }
+                else
+                {
+                    actionInfo = commandResolver.GetFunction(view, context.ViewModel, path, command);
+                }
             }
-
         }
     }
 }

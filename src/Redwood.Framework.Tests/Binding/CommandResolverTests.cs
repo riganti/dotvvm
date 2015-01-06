@@ -37,7 +37,7 @@ namespace Redwood.Framework.Tests.Binding
             placeholder.Children.Add(button);
 
             var resolver = new CommandResolver();
-            resolver.GetFunction(viewRoot, testObject, path, command)();
+            resolver.GetFunction(viewRoot, testObject, path, command).GetAction()();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
@@ -72,7 +72,7 @@ namespace Redwood.Framework.Tests.Binding
             placeholder2.Children.Add(button);
 
             var resolver = new CommandResolver();
-            resolver.GetFunction(viewRoot, testObject, path, command)();
+            resolver.GetFunction(viewRoot, testObject, path, command).GetAction()();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
@@ -93,7 +93,7 @@ namespace Redwood.Framework.Tests.Binding
             var command = "set_StringToPass(StringToPass)";
 
             var resolver = new CommandResolver();
-            resolver.GetFunction(viewRoot, testObject, path, command)();
+            resolver.GetFunction(viewRoot, testObject, path, command).GetAction()();
         }
 
         public class TestA

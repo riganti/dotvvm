@@ -85,7 +85,9 @@
     <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
+    <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
+    <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
     <Compile Include="ResourceManagement\InlineScriptResource.cs" />
     <Compile Include="ResourceManagement\IRedwoodResourceRepository.cs" />
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
@@ -146,6 +148,11 @@
     <Compile Include="Runtime\DefaultOutputRenderer.cs" />
     <Compile Include="Runtime\DefaultRedwoodViewBuilder.cs" />
     <Compile Include="Runtime\DefaultViewModelLoader.cs" />
+    <Compile Include="Runtime\Filters\ActionFilterAttribute.cs" />
+    <Compile Include="Runtime\Filters\ActionInfo.cs" />
+    <Compile Include="Runtime\Filters\ActionParameterInfo.cs" />
+    <Compile Include="Runtime\Filters\AuthorizeAttribute.cs" />
+    <Compile Include="Runtime\Filters\ExceptionFilterAttribute.cs" />
     <Compile Include="Runtime\IControlBuilderFactory.cs" />
     <Compile Include="Runtime\IOutputRenderer.cs" />
     <Compile Include="Runtime\IRedwoodViewBuilder.cs" />
