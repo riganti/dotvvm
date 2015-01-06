@@ -261,6 +261,10 @@ namespace Redwood.Framework.Hosting
             {
                 // the response has already been generated, do nothing
             }
+            catch(UnauthorizedAccessException e)
+            {
+                await RenderErrorResponse(context, HttpStatusCode.Unauthorized, e);
+            }
         }
 
         /// <summary>
