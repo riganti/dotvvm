@@ -4,7 +4,9 @@ using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
 using Owin;
 using Redwood.Framework;
-using Redwood.Framework.Configuration; 
+using Redwood.Framework.Configuration;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.AspNet.Identity;
 
 [assembly: OwinStartup(typeof(Redwood.Samples.BasicSamples.Startup))]
 namespace Redwood.Samples.BasicSamples
@@ -13,6 +15,12 @@ namespace Redwood.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
+            app.UseCookieAuthentication(new CookieAuthenticationOptions()
+            {
+                LoginPath = new PathString("/AuthSample/Login"),
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie
+            });
+
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use Redwood
@@ -27,6 +35,9 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample8", "Sample8", "sample8.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample9", "Sample9", "sample9.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample10", "Sample10", "sample10.rwhtml", null);
+
+            redwoodConfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecretPage", "AuthSample/secretPage.rwhtml", null);
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()
