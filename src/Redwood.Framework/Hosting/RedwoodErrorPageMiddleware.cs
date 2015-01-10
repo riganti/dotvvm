@@ -23,11 +23,18 @@ namespace Redwood.Framework.Hosting
             catch(Exception ex)
             {
                 error = ex;
+                throw ex;
             }
-            if(context.Response.Body.Position == 0 &&
-                (error != null || context.Response.StatusCode >= 400))
+            bool emptyBody = true;
+            context.Response.OnSendingHeaders(f =>
             {
-                await RenderErrorResponse(context, error ?? new RedwoodHttpException(context.Response.StatusCode + " status code"));
+                emptyBody = false;
+            }, null);
+            if (emptyBody && (error != null || context.Response.StatusCode >= 400))
+            {
+                if(error != null) context.Response.StatusCode = 500;
+                
+                await RenderErrorResponse(context, error ?? new RedwoodHttpException(context.Response.ReasonPhrase));
             }
         }
 

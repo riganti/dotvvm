@@ -21,7 +21,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <TargetFrameworkProfile />
-    <TypeScriptToolsVersion>1.0</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.1</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -48,6 +48,9 @@
     <Reference Include="Microsoft.Owin, Version=3.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Owin.3.0.0\lib\net45\Microsoft.Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Diagnostics">
+      <HintPath>..\packages\Microsoft.Owin.Diagnostics.3.0.0\lib\net45\Microsoft.Owin.Diagnostics.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.Owin.FileSystems">
       <HintPath>..\packages\Microsoft.Owin.FileSystems.3.0.0\lib\net45\Microsoft.Owin.FileSystems.dll</HintPath>
@@ -183,7 +186,7 @@
     <Content Include="sample9.rwhtml" />
     <Content Include="sample10.rwhtml" />
     <Content Include="AuthSample\login.rwhtml" />
-    <Content Include="AuthSample\secretPage.rwhtml" />
+    <Content Include="AuthSample\securedPage.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -194,7 +197,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthSample\LoginViewModel.cs" />
-    <Compile Include="AuthSample\SecretPageViewModel.cs" />
+    <Compile Include="AuthSample\SecuredPageViewModel.cs" />
     <Compile Include="Controls\Sample5_TestControl.cs" />
     <Compile Include="Controls\Sample7_Calendar.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

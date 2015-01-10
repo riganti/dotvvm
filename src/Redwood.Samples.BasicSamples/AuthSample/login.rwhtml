@@ -11,13 +11,15 @@
 		
 		<fieldset>
 			<legend>Login form</legend>
-
+			<p>This is sample without db - you don't have to know password</p>
 			<p>User name: <rw:TextBox Text="{value: UserName}" /></p>
 			<p>
 				<rw:CheckBox ID="adminRole" Text="Admin role" Checked="{value: AdminRole}" />
 			</p>
 			<p><rw:Button Text="Login" Click="{command: Login()}" /></p>
 		</fieldset>
+
+		<a href="/AuthSample/SecuredPage">Page for authenticated</a>
 	</div>
 </body>
 </html>

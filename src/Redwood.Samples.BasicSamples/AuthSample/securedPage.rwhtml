@@ -1,8 +1,8 @@
-﻿@viewModel Redwood.Samples.BasicSamples.AuthSample.SecretPageViewModel, Redwood.Samples.BasicSamples
+﻿@viewModel Redwood.Samples.BasicSamples.AuthSample.SecuredPageViewModel, Redwood.Samples.BasicSamples
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
-    <title>Login</title>
+    <title>Secured page</title>
 	<rw:RequiredResource Name="bootstrap" />
 </head>
 <body>
@@ -16,10 +16,12 @@
 
 		<fieldset>
 			<legend>Replace the message</legend>
-
+			<p>You have to be admin to replace message</p>
 			<p>Message: <rw:TextBox Text="{value: MessageEditor}" /></p>
 			<p><rw:Button Text="Replace" Click="{command: ReplaceMessage()}" /></p>
 		</fieldset>
+
+		<a href="/AuthSample/Login">Login page - change your credentials</a>
 	</div>
 </body>
 </html>

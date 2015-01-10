@@ -8,7 +8,7 @@ using System.Web;
 namespace Redwood.Samples.BasicSamples.AuthSample
 {
     [Authorize]
-    public class SecretPageViewModel : RedwoodViewModelBase
+    public class SecuredPageViewModel : RedwoodViewModelBase
     {
         private static string Message = "server: Hello!";
 
@@ -16,7 +16,7 @@ namespace Redwood.Samples.BasicSamples.AuthSample
 
         public string LastMessage { get; set; }
 
-        public SecretPageViewModel()
+        public SecuredPageViewModel()
         {
             LastMessage = Message;
         }

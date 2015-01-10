@@ -38,6 +38,7 @@ namespace Redwood.Samples.BasicSamples.AuthSample
         public void Login()
         {
             var auth = Context.OwinContext.Authentication;
+            auth.SignOut(DefaultAuthenticationTypes.ExternalCookie);
             var id = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, UserName)
                     }, DefaultAuthenticationTypes.ApplicationCookie);
@@ -46,6 +47,11 @@ namespace Redwood.Samples.BasicSamples.AuthSample
                 id.AddClaim(new Claim(ClaimTypes.Role, "admin"));
             }
             auth.SignIn(id);
+
+            if(Context.Query["ReturnUrl"] != null)
+            {
+                Context.Redirect(Context.Query["ReturnUrl"]);
+            }
         }
     }
 }

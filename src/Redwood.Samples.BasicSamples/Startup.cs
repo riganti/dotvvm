@@ -15,10 +15,29 @@ namespace Redwood.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
+            //app.UseRedwoodErrorPages();
+            app.UseErrorPage();
+
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {
                 LoginPath = new PathString("/AuthSample/Login"),
-                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                Provider = new CookieAuthenticationProvider()
+                {
+                    OnApplyRedirect = c =>
+                    {
+                        // redirect to login page on 401 request
+                        if(c.Response.StatusCode == 401 && c.Request.Method == "GET")
+                        {
+                            c.Response.StatusCode = 302;
+                            c.Response.Headers["Location"] = c.RedirectUri;
+                        }
+                        // do not do anything on redirection to returnurl
+                        // to not return page when ViewModel is expected
+                        // we should implement this in Redwood framework,
+                        // not samples
+                    }
+                }
             });
 
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
@@ -35,9 +54,8 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample8", "Sample8", "sample8.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample9", "Sample9", "sample9.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample10", "Sample10", "sample10.rwhtml", null);
-
             redwoodConfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.rwhtml", null);
-            redwoodConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecretPage", "AuthSample/secretPage.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.rwhtml", null);
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()
