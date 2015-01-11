@@ -11,43 +11,8 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// Renders a HTML drop-down list.
     /// </summary>
-    public class ComboBox : ItemsControl
+    public class ComboBox : Selector
     {
-
-        /// <summary>
-        /// Gets or sets the name of property in the <see cref="ItemsControl.DataSource"/> collection that will be displayed in the <see cref="ComboBox"/>.
-        /// </summary>
-        public string DisplayMember
-        {
-            get { return (string)GetValue(DisplayMemberProperty); }
-            set { SetValue(DisplayMemberProperty, value); }
-        }
-        public static readonly RedwoodProperty DisplayMemberProperty =
-            RedwoodProperty.Register<string, ComboBox>(t => t.DisplayMember, "");
-
-        /// <summary>
-        /// Gets or sets the name of property in the <see cref="ItemsControl.DataSource"/> collection that will be passed to the <see cref="SelectedValue"/> property.
-        /// </summary>
-        public string ValueMember
-        {
-            get { return (string)GetValue(ValueMemberProperty); }
-            set { SetValue(ValueMemberProperty, value); }
-        }
-        public static readonly RedwoodProperty ValueMemberProperty =
-            RedwoodProperty.Register<string, ComboBox>(t => t.ValueMember, "");
-
-
-        /// <summary>
-        /// Gets or sets the value selected in the <see cref="ComboBox"/>.
-        /// </summary>
-        public object SelectedValue
-        {
-            get { return GetValue(SelectedValueProperty); }
-            set { SetValue(SelectedValueProperty, value); }
-        }
-        public static readonly RedwoodProperty SelectedValueProperty =
-            RedwoodProperty.Register<object, ComboBox>(t => t.SelectedValue);
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ComboBox"/> class.
