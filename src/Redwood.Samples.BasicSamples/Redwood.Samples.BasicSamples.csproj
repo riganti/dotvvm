@@ -173,6 +173,7 @@
     <Content Include="sample8.rwhtml" />
     <Content Include="sample9.rwhtml" />
     <Content Include="sample10.rwhtml" />
+    <Content Include="sample11.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -196,6 +197,7 @@
       <DependentUpon>Sample9_Resources.resx</DependentUpon>
     </Compile>
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\Sample11ViewModel.cs" />
     <Compile Include="ViewModels\Sample7ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />
     <Compile Include="ViewModels\Sample1ViewModel.cs" />

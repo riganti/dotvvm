@@ -19,7 +19,7 @@ namespace Redwood.Framework.Controls
 		}
 
 		/// <summary>
-		/// Gets or sets the name of property in the <see cref="ItemsControl.DataSource"/> collection that will be displayed in the <see cref="ComboBox"/>.
+		/// Gets or sets the name of property in the <see cref="ItemsControl.DataSource"/> collection that will be displayed in the <see cref="Selector"/>.
 		/// </summary>
 		public string DisplayMember
 		{
@@ -42,7 +42,7 @@ namespace Redwood.Framework.Controls
 
 
 		/// <summary>
-		/// Gets or sets the value selected in the <see cref="ComboBox"/>.
+		/// Gets or sets the value selected in the <see cref="Selector"/>.
 		/// </summary>
 		public object SelectedValue
 		{
@@ -52,6 +52,15 @@ namespace Redwood.Framework.Controls
 		public static readonly RedwoodProperty SelectedValueProperty =
 			RedwoodProperty.Register<object, Selector>(t => t.SelectedValue);
 
-
+		/// <summary>
+		/// Gets or sets the command that will be triggered when selected item is changed.
+		/// </summary>
+		public Action SelectionChanged
+		{
+			get { return (Action)GetValue(SelectionChangedProperty); }
+			set { SetValue(SelectionChangedProperty, value); }
+		}
+		public static readonly RedwoodProperty SelectionChangedProperty =
+			RedwoodProperty.Register<Action, Selector>(t => t.SelectionChanged, null);
 	}
 }

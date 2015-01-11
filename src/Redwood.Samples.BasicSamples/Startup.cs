@@ -27,6 +27,7 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample8", "Sample8", "sample8.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample9", "Sample9", "sample9.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample10", "Sample10", "sample10.rwhtml", null);
+			redwoodConfiguration.RouteTable.Add("Sample11", "Sample11", "sample11.rwhtml", null);
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

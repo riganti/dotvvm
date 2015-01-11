@@ -12,12 +12,12 @@ namespace Redwood.Framework.Controls
 	/// <summary>
 	/// Renders HTML list box.
 	/// </summary>
-	public class ListBox : Selector
+	public class ListBox : SelectHtmlControlBase
 	{
         /// <summary>
         /// Initializes a new instance of the <see cref="ListBox"/> class.
         /// </summary>
-        public ListBox() : base("select")
+        public ListBox()
         {
             
         }
@@ -27,44 +27,20 @@ namespace Redwood.Framework.Controls
 		/// </summary>
 		protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
 		{
-			if (!RenderOnServer)
-			{
-				writer.AddKnockoutDataBind("options", this, DataSourceProperty, () => { });
-
-				if (!string.IsNullOrEmpty(DisplayMember))
-				{
-					writer.AddKnockoutDataBind("optionsText", KnockoutHelper.MakeStringLiteral(DisplayMember));
-				}
-				if (!string.IsNullOrEmpty(ValueMember))
-				{
-					writer.AddKnockoutDataBind("optionsValue", KnockoutHelper.MakeStringLiteral(ValueMember));
-				}
-			}
-
-			writer.AddKnockoutDataBind("value", this, SelectedValueProperty, () => { });
-
 			base.AddAttributesToRender(writer, context);
+			writer.AddKnockoutDataBind("size", this, SizeProperty, () => writer.AddAttribute("size", Size.ToString()));
 		}
 
 		/// <summary>
-		/// Renders the contents inside the control begin and end tags.
+		/// Gets or sets number of rows visible in this <see cref="ListBox"/>.
 		/// </summary>
-		protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+		public int Size
 		{
-			if (RenderOnServer)
-			{
-				// render items
-				foreach (var item in DataSource)
-				{
-					var value = string.IsNullOrEmpty(ValueMember) ? item : ReflectionUtils.GetObjectProperty(item, ValueMember);
-					var text = string.IsNullOrEmpty(DisplayMember) ? item : ReflectionUtils.GetObjectProperty(item, DisplayMember);
-
-					writer.AddAttribute("value", value != null ? value.ToString() : "");
-					writer.RenderSelfClosingTag("option");
-					writer.WriteText(text != null ? text.ToString() : "");
-					writer.RenderEndTag();
-				}
-			}
+			get { return (int)GetValue(SizeProperty); }
+			set { SetValue(SizeProperty, value); }
 		}
+
+		public static readonly RedwoodProperty SizeProperty =
+			RedwoodProperty.Register<int, ListBox>(t => t.Size, defaultValue: 10);
 	}
 }
