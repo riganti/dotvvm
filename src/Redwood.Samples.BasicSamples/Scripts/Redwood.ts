@@ -1,5 +1,6 @@
 ﻿class Redwood {
 
+    public extensions: any = {};
     public viewModels: any = {};
     public culture: string;
     public events = {

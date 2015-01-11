@@ -30,6 +30,10 @@ namespace Redwood.Framework.Parser
         public const string RedwoodResourceName = "redwood";
         public const string BootstrapResourceName = "bootstrap";
         public const string BootstrapCssResourceName = "bootstrap-css";
+        public const string GlobalizeResourceName = "globalize";
+        public const string GlobalizeCultureResourceName = "globalize.{0}";
 
+        public const string ResourceHandlerUrl = "/redwoodEmbeddedResource?file={0}";
+        public const string ResourceHandlerMatchUrl = "redwoodEmbeddedResource";
     }
 }

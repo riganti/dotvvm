@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Redwood.Framework.Configuration;
+using Redwood.Framework.Parser;
 using Redwood.Framework.ViewModel;
 using Redwood.Framework.ResourceManagement;
 
@@ -44,6 +46,13 @@ namespace Redwood.Framework.Hosting
                 return;
             }
 
+            // embedded resource handler URL
+            if (url.StartsWith(Constants.ResourceHandlerMatchUrl))
+            {
+                RenderEmbeddedResource(context);
+                return;
+            }
+
             // find the route
             IDictionary<string, object> parameters = null;
             var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
@@ -64,6 +73,21 @@ namespace Redwood.Framework.Hosting
             {
                 // we cannot handle the request, pass it to another component
                 await Next.Invoke(context);
+            }
+        }
+
+        /// <summary>
+        /// Renders the embedded resource.
+        /// </summary>
+        private static void RenderEmbeddedResource(IOwinContext context)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.ContentType = "text/javascript";
+
+            var resourceName = context.Request.Query["file"];
+            using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
+            {
+                resourceStream.CopyTo(context.Response.Body);
             }
         }
     }

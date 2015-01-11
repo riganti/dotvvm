@@ -6,6 +6,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var Redwood = (function () {
     function Redwood() {
+        this.extensions = {};
         this.viewModels = {};
         this.events = {
             init: new RedwoodEvent("redwood.events.init", true),
