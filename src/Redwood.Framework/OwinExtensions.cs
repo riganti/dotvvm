@@ -30,5 +30,10 @@ namespace Redwood.Framework
             return configuration;
         }
 
+        public static void UseRedwoodErrorPages(this IAppBuilder app)
+        {
+            app.Use<RedwoodErrorPageMiddleware>();
+        }
+
     }
 }

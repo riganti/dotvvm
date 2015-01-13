@@ -8,7 +8,7 @@ namespace Redwood.Framework.Runtime.Filters
     /// <summary>
     /// A filter that checks the authorize attributes and redirects to the login page.
     /// </summary>
-    public abstract class AuthorizeAttribute : ActionFilterAttribute
+    public class AuthorizeAttribute : ActionFilterAttribute
     {
 
         /// <summary>
@@ -37,6 +37,18 @@ namespace Redwood.Framework.Runtime.Filters
         /// </summary>
         protected internal override void OnCommandExecuting(RedwoodRequestContext context, ActionInfo actionInfo)
         {
+            Authorize(context);
+            base.OnCommandExecuting(context, actionInfo);
+        }
+
+        protected internal override void OnViewModelCreated(RedwoodRequestContext context)
+        {
+            Authorize(context);
+            base.OnViewModelCreated(context);
+        }
+
+        public void Authorize(RedwoodRequestContext context)
+        {
             // the user must not be anonymous
             if (context.OwinContext.Request.User == null || !context.OwinContext.Request.User.Identity.IsAuthenticated)
             {
@@ -51,8 +63,6 @@ namespace Redwood.Framework.Runtime.Filters
                     throw new UnauthorizedAccessException();
                 }
             }
-
-            base.OnCommandExecuting(context, actionInfo);
         }
     }
 }
