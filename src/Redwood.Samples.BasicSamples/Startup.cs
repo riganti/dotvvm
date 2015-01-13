@@ -4,7 +4,9 @@ using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
 using Owin;
 using Redwood.Framework;
-using Redwood.Framework.Configuration; 
+using Redwood.Framework.Configuration;
+using Microsoft.Owin.Security.Cookies;
+using Microsoft.AspNet.Identity;
 
 [assembly: OwinStartup(typeof(Redwood.Samples.BasicSamples.Startup))]
 namespace Redwood.Samples.BasicSamples
@@ -13,6 +15,31 @@ namespace Redwood.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
+            //app.UseRedwoodErrorPages();
+            app.UseErrorPage();
+
+            app.UseCookieAuthentication(new CookieAuthenticationOptions()
+            {
+                LoginPath = new PathString("/AuthSample/Login"),
+                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                Provider = new CookieAuthenticationProvider()
+                {
+                    OnApplyRedirect = c =>
+                    {
+                        // redirect to login page on 401 request
+                        if(c.Response.StatusCode == 401 && c.Request.Method == "GET")
+                        {
+                            c.Response.StatusCode = 302;
+                            c.Response.Headers["Location"] = c.RedirectUri;
+                        }
+                        // do not do anything on redirection to returnurl
+                        // to not return page when ViewModel is expected
+                        // we should implement this in Redwood framework,
+                        // not samples
+                    }
+                }
+            });
+
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use Redwood
@@ -28,6 +55,8 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample9", "Sample9", "sample9.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample10", "Sample10", "sample10.rwhtml", null);
 			redwoodConfiguration.RouteTable.Add("Sample11", "Sample11", "sample11.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.rwhtml", null);
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

@@ -36,12 +36,8 @@ namespace Redwood.Framework.Hosting
             // disable access to the redwood.json file
             if (url.StartsWith("redwood.json", StringComparison.CurrentCultureIgnoreCase))
             {
-                await RedwoodPresenter.RenderErrorResponse(new RedwoodRequestContext()
-                {
-                    Configuration = configuration,
-                    OwinContext = context
-                }, HttpStatusCode.NotFound, new UnauthorizedAccessException("The redwood.json cannot be served!"));
-                return;
+                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                throw new UnauthorizedAccessException("The redwood.json cannot be served!");
             }
 
             // find the route

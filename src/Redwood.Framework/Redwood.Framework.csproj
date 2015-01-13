@@ -90,6 +90,7 @@
     <Compile Include="Controls\ListBox.cs" />
     <Compile Include="Controls\SelectHtmlControlBase.cs" />
     <Compile Include="Controls\Selector.cs" />
+    <Compile Include="Hosting\RedwoodErrorPageMiddleware.cs" />
     <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
     <Compile Include="ResourceManagement\InlineScriptResource.cs" />
     <Compile Include="ResourceManagement\IRedwoodResourceRepository.cs" />
