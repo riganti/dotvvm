@@ -50,6 +50,9 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public async Task ProcessRequest(RedwoodRequestContext context)
         {
+            bool failedAsUnauthorized = false;
+            Exception exception = null;
+
             try
             {
                 await ProcessRequestCore(context);
@@ -60,8 +63,15 @@ namespace Redwood.Framework.Hosting
             }
             catch (UnauthorizedAccessException ex)
             {
+                failedAsUnauthorized = true;
+                exception = ex;
+            }
+
+            if (failedAsUnauthorized)
+            {
+                // unauthorized error
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
-                await RedwoodErrorPageMiddleware.RenderErrorResponse(context.OwinContext, ex);
+                await RedwoodErrorPageMiddleware.RenderErrorResponse(context.OwinContext, exception);
             }
         }
 
