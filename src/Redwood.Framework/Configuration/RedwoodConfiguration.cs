@@ -142,7 +142,7 @@ namespace Redwood.Framework.Configuration
             {
                 Name = Constants.GlobalizeResourceName,
                 Url = "Redwood.Framework.Resources.Scripts.Globalize.globalize.js",
-                IsEmbeddedResource = true
+                EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name
             });
 
             foreach (var culture in SupportedGlobalizationCultures)
@@ -151,7 +151,7 @@ namespace Redwood.Framework.Configuration
                 {
                     Name = string.Format(Constants.GlobalizeCultureResourceName, culture),
                     Url = "Redwood.Framework.Resources.Scripts.Globalize.cultures.{0}.globalize.js",
-                    IsEmbeddedResource = true,
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     Dependencies = new[] { Constants.GlobalizeResourceName }
                 });    
             }

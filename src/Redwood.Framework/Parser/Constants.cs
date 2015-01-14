@@ -33,7 +33,7 @@ namespace Redwood.Framework.Parser
         public const string GlobalizeResourceName = "globalize";
         public const string GlobalizeCultureResourceName = "globalize.{0}";
 
-        public const string ResourceHandlerUrl = "/redwoodEmbeddedResource?file={0}";
+        public const string ResourceHandlerUrl = "/redwoodEmbeddedResource?name={0}&assembly={1}";
         public const string ResourceHandlerMatchUrl = "redwoodEmbeddedResource";
     }
 }

@@ -27,6 +27,20 @@ namespace Redwood.Framework.ResourceManagement
         [JsonProperty("url")]
         public string Url { get; set; }
 
+        /// <summary>
+        /// Gets or sets the name of the assembly. If this is set, the value of the <see cref="P:Url"/> property is the name of the embedded resource in the specified assembly.
+        /// </summary>
+        [JsonProperty("embeddedResourceAssembly")]
+        public string EmbeddedResourceAssembly { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the script is an embedded resource.
+        /// </summary>
+        public bool IsEmbeddedResource
+        {
+            get { return !string.IsNullOrEmpty(EmbeddedResourceAssembly); }
+        }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceBase"/> class.

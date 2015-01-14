@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Newtonsoft.Json;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
@@ -29,11 +30,6 @@ namespace Redwood.Framework.ResourceManagement
         [JsonProperty("globalObjectName")]
         public string GlobalObjectName { get; set; }
 
-        /// <summary>
-        /// Gets or sets a value indicating whether the URL is a name of embedded resource and this resource will be served via Redwood Embedded Resource handler.
-        /// </summary>
-        [JsonProperty("isEmbeddedResource")]
-        public bool IsEmbeddedResource { get; set; }
 
 
         public ResourceRenderPosition RenderPosition { get; set; }
@@ -83,7 +79,7 @@ namespace Redwood.Framework.ResourceManagement
         {
             if (IsEmbeddedResource)
             {
-                return string.Format(Constants.ResourceHandlerUrl, Url);
+                return string.Format(Constants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
             }
             return Url;
         }

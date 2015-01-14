@@ -34,21 +34,7 @@ namespace Redwood.Framework.Hosting
         {
             // try resolve the route
             var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
-
-            // disable access to the redwood.json file
-            if (url.StartsWith("redwood.json", StringComparison.CurrentCultureIgnoreCase))
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                throw new UnauthorizedAccessException("The redwood.json cannot be served!");
-            }
-
-            // embedded resource handler URL
-            if (url.StartsWith(Constants.ResourceHandlerMatchUrl))
-            {
-                RenderEmbeddedResource(context);
-                return;
-            }
-
+            
             // find the route
             IDictionary<string, object> parameters = null;
             var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
@@ -69,21 +55,6 @@ namespace Redwood.Framework.Hosting
             {
                 // we cannot handle the request, pass it to another component
                 await Next.Invoke(context);
-            }
-        }
-
-        /// <summary>
-        /// Renders the embedded resource.
-        /// </summary>
-        private static void RenderEmbeddedResource(IOwinContext context)
-        {
-            context.Response.StatusCode = (int)HttpStatusCode.OK;
-            context.Response.ContentType = "text/javascript";
-
-            var resourceName = context.Request.Query["file"];
-            using (var resourceStream = Assembly.GetExecutingAssembly().GetManifestResourceStream(resourceName))
-            {
-                resourceStream.CopyTo(context.Response.Body);
             }
         }
     }
