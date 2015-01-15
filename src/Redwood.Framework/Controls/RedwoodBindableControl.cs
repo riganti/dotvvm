@@ -236,6 +236,19 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public RedwoodControl GetClosestControlBindingTarget(out int numberOfDataContextChanges)
         {
+            var result = GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
+            if (result == null)
+            {
+                throw new Exception("The {controlProperty: ...} binding can be only used in a markup control."); // TODO: exception handling
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the closest control with specified property value and returns number of DataContext changes since the target.
+        /// </summary>
+        public RedwoodControl GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<RedwoodControl, bool> filterFunction)
+        {
             var current = (RedwoodControl)this;
             numberOfDataContextChanges = 0;
             while (current != null)
@@ -244,16 +257,12 @@ namespace Redwood.Framework.Controls
                 {
                     numberOfDataContextChanges++;
                 }
-                if ((bool)current.GetValue(Internal.IsControlBindingTargetProperty))
+                if (filterFunction(current))
                 {
                     break;
                 }
 
                 current = current.Parent;
-            }
-            if (current == null)
-            {
-                throw new Exception("The {controlProperty: ...} binding can be only used in a markup control."); // TODO: exception handling
             }
             return current;
         }

@@ -5,7 +5,7 @@
     public culture: string;
     public events = {
         init: new RedwoodEvent<RedwoodEventArgs>("redwood.events.init", true),
-        beforePostback: new RedwoodEvent<RedwoodEventArgs>("redwood.events.beforePostback"),
+        beforePostback: new RedwoodEvent<RedwoodBeforePostBackEventArgs>("redwood.events.beforePostback"),
         afterPostback: new RedwoodEvent<RedwoodEventArgs>("redwood.events.afterPostback"),
         error: new RedwoodEvent<RedwoodErrorEventArgs>("redwood.events.error")
     };
@@ -19,9 +19,17 @@
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     }
     
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: any): void {
         var viewModel = this.viewModels[viewModelName];
-        this.events.beforePostback.trigger(new RedwoodEventArgs(viewModel));
+
+        // trigger beforePostback event
+        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(viewModel, validationTargetPath);
+        this.events.beforePostback.trigger(beforePostbackArgs);
+        if (beforePostbackArgs.cancel) {
+            return;
+        }
+
+        // perform the postback
         this.updateDynamicPathFragments(sender, path);
         var data = {
             viewModel: ko.mapper.toJS(viewModel),
@@ -32,9 +40,14 @@
         this.postJSON(document.location.href, "POST", ko.toJSON(data), result => {
             var resultObject = JSON.parse(result.responseText);
             if (resultObject.action === "successfulCommand") {
+                // update the viewmodel
                 ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName]);
+
+                // trigger afterPostback event
                 this.events.afterPostback.trigger(new RedwoodEventArgs(viewModel));
+
             } else if (resultObject.action === "redirect") {
+                // redirect
                 document.location.href = resultObject.url;
             } else {
                 throw "Invalid response from the server!";
@@ -122,6 +135,12 @@ class RedwoodEventArgs {
 }
 class RedwoodErrorEventArgs extends RedwoodEventArgs {
     constructor(public viewModel: any, public xhr: XMLHttpRequest) {
+        super(viewModel);
+    }
+}
+class RedwoodBeforePostBackEventArgs extends RedwoodEventArgs {
+    public cancel: boolean = false;
+    constructor(public viewModel: any, public validationTargetPath: any) {
         super(viewModel);
     }
 }

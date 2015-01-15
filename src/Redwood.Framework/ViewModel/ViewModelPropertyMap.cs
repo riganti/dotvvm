@@ -16,5 +16,8 @@ namespace Redwood.Framework.ViewModel
         public bool TransferToServer { get; set; }
 
         public bool TransferToClient { get; set; }
+
+        public List<ViewModelPropertyValidationRule> ValidationRules { get; set; }
+
     }
 }

@@ -22,10 +22,16 @@ var Redwood = (function () {
         ko.applyBindings(viewModel);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     };
-    Redwood.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId) {
+    Redwood.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, validationTargetPath) {
         var _this = this;
         var viewModel = this.viewModels[viewModelName];
-        this.events.beforePostback.trigger(new RedwoodEventArgs(viewModel));
+        // trigger beforePostback event
+        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(viewModel, validationTargetPath);
+        this.events.beforePostback.trigger(beforePostbackArgs);
+        if (beforePostbackArgs.cancel) {
+            return;
+        }
+        // perform the postback
         this.updateDynamicPathFragments(sender, path);
         var data = {
             viewModel: ko.mapper.toJS(viewModel),
@@ -36,10 +42,13 @@ var Redwood = (function () {
         this.postJSON(document.location.href, "POST", ko.toJSON(data), function (result) {
             var resultObject = JSON.parse(result.responseText);
             if (resultObject.action === "successfulCommand") {
+                // update the viewmodel
                 ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName]);
+                // trigger afterPostback event
                 _this.events.afterPostback.trigger(new RedwoodEventArgs(viewModel));
             }
             else if (resultObject.action === "redirect") {
+                // redirect
                 document.location.href = resultObject.url;
             }
             else {
@@ -132,6 +141,16 @@ var RedwoodErrorEventArgs = (function (_super) {
         this.xhr = xhr;
     }
     return RedwoodErrorEventArgs;
+})(RedwoodEventArgs);
+var RedwoodBeforePostBackEventArgs = (function (_super) {
+    __extends(RedwoodBeforePostBackEventArgs, _super);
+    function RedwoodBeforePostBackEventArgs(viewModel, validationTargetPath) {
+        _super.call(this, viewModel);
+        this.viewModel = viewModel;
+        this.validationTargetPath = validationTargetPath;
+        this.cancel = false;
+    }
+    return RedwoodBeforePostBackEventArgs;
 })(RedwoodEventArgs);
 var redwood = new Redwood();
 //# sourceMappingURL=Redwood.js.map

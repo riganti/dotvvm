@@ -159,7 +159,7 @@ namespace Redwood.Framework.Runtime.Compilation
                 var binding = (RwHtmlBindingNode)node;
                 var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { ((RwHtmlLiteralNode)node).Value, true });
                 var bindingObjectName = emitter.EmitCreateObject(controlResolver.ResolveBinding(binding.Name), new object[] { binding.Value });
-                emitter.EmitSetBinding(currentObjectName, typeof(Literal), ReflectionUtils.GetPropertyNameFromExpression<Literal>(l => l.Text), bindingObjectName);
+                emitter.EmitSetBinding(currentObjectName, Literal.TextProperty.DescriptorFullName, bindingObjectName);
                 emitter.EmitAddCollectionItem(parentName, currentObjectName);
             }
             else if (node is RwHtmlLiteralNode)
@@ -180,7 +180,7 @@ namespace Redwood.Framework.Runtime.Compilation
                     {
                         // template
                         var templateName = ProcessTemplate(element);
-                        emitter.EmitSetProperty(parentName, parentProperty.Name, templateName);
+                        emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, templateName);
                     }
                     else if (IsCollectionProperty(parentProperty))
                     {
@@ -188,7 +188,7 @@ namespace Redwood.Framework.Runtime.Compilation
                         foreach (var child in GetInnerPropertyElements(element, parentProperty))
                         {
                             var childObject = ProcessObjectElement(child);
-                            emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.MarkupOptions.Name);
+                            emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.Name);
                         }
                     }
                     else
@@ -202,11 +202,11 @@ namespace Redwood.Framework.Runtime.Compilation
                         else if (children.Count == 1)
                         {
                             var childObject = ProcessObjectElement(children[0]);
-                            emitter.EmitSetProperty(parentName, parentProperty.MarkupOptions.Name, childObject);
+                            emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, childObject);
                         }
                         else
                         {
-                            emitter.EmitSetProperty(parentName, parentProperty.MarkupOptions.Name, emitter.EmitIdentifier("null"));
+                            emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, emitter.EmitIdentifier("null"));
                         }
                     }
                 }
@@ -338,13 +338,13 @@ namespace Redwood.Framework.Runtime.Compilation
                     // binding
                     var binding = (RwHtmlBindingNode)attribute.Literal;
                     var bindingObjectName = emitter.EmitCreateObject(controlResolver.ResolveBinding(binding.Name), new object[] { attribute.Literal.Value });
-                    emitter.EmitSetBinding(currentObjectName, controlMetadata.Type, property.MarkupOptions.Name, bindingObjectName);
+                    emitter.EmitSetBinding(currentObjectName, property.DescriptorFullName, bindingObjectName);
                 }
                 else
                 {
                     // hard-coded value in markup
                     var value = ReflectionUtils.ConvertValue(attribute.Literal.Value, property.PropertyType);
-                    emitter.EmitSetProperty(currentObjectName, property.MarkupOptions.Name, emitter.EmitValue(value));
+                    emitter.EmitSetValue(currentObjectName, property.DescriptorFullName, emitter.EmitValue(value));
                 }
             }
             else if (controlMetadata.HasHtmlAttributesCollection)

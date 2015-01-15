@@ -4,10 +4,20 @@ if (!redwood) {
     throw "Redwood.js is required!";
 }
 redwood.extensions.validation = redwood.extensions.validation || {
-    rules: [
-
-    ]
+    rules: {
+        "required": new RedwoodRequiredValidator(),
+        "regularExpression": new RedwoodRegularExpressionValidator()
+        //"numeric": new RedwoodNumericValidator(),
+        //"datetime": new RedwoodDateTimeValidator(),
+        //"range": new RedwoodRangeValidator()
+    }
 };
+redwood.events.beforePostback.subscribe(args => {
+    var errors = [];
+
+    // TODO
+    return errors.length > 0;
+});
 
 class RedwoodValidationContext {
     public observable: KnockoutObservable<any>;

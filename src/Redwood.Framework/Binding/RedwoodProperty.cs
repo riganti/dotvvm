@@ -46,6 +46,19 @@ namespace Redwood.Framework.Binding
         public PropertyInfo PropertyInfo { get; set; }
 
         /// <summary>
+        /// Gets or sets the markup options.
+        /// </summary>
+        public MarkupOptionsAttribute MarkupOptions { get; set; }
+
+        /// <summary>
+        /// Gets the full name of the descriptor.
+        /// </summary>
+        public string DescriptorFullName
+        {
+            get { return DeclaringType.FullName + "." + Name + "Property"; }
+        }
+
+        /// <summary>
         /// Gets the full name of the property.
         /// </summary>
         public string FullName
@@ -101,7 +114,7 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public static RedwoodProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false)
         {
-            var fullName = typeof (TPropertyType).FullName + "." + propertyName;
+            var fullName = typeof (TDeclaringType).FullName + "." + propertyName;
             
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
@@ -227,7 +240,5 @@ namespace Redwood.Framework.Binding
                 }
             }
         }
-
-        public MarkupOptionsAttribute MarkupOptions { get; set; }
     }
 }

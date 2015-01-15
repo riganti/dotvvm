@@ -24,6 +24,7 @@ namespace Redwood.Framework.ViewModel
 
         public JArray EncryptedValues { get; set; }
 
+        public HashSet<ViewModelSerializationMap> UsedSerializationMaps { get; set; }
 
         /// <summary>
         /// Gets the serialization map for specified type.
@@ -60,7 +61,7 @@ namespace Redwood.Framework.ViewModel
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.WriterFactory(writer, value, serializer, EncryptedValues);
+            serializationMap.WriterFactory(writer, value, serializer, EncryptedValues, UsedSerializationMaps, serializationMap);
         }
 
         /// <summary>

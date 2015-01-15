@@ -199,14 +199,6 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         private Dictionary<string, RedwoodProperty> GetControlProperties(Type controlType)
         {
-            var type = controlType;
-            do
-            {
-                RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-                type = type.BaseType;
-            } 
-            while (type != null);
-
             return RedwoodProperty.ResolveProperties(controlType).ToDictionary(p => p.Name, p => p);
         }
     }

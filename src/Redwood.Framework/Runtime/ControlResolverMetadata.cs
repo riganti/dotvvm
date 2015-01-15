@@ -20,6 +20,7 @@ namespace Redwood.Framework.Runtime
 
         public Dictionary<string, RedwoodProperty> Properties { get; set; }
 
+
         /// <summary>
         /// Finds the property.
         /// </summary>

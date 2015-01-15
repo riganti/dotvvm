@@ -115,22 +115,22 @@ namespace Redwood.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_AttachedProperty()
         {
-            var markup = @"<rw:Button Validation.Enabled=""false"" /><rw:Button Validation.Enabled=""true"" /><rw:Button />";
+            var markup = @"<rw:Button Validate.Enabled=""false"" /><rw:Button Validate.Enabled=""true"" /><rw:Button />";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(RedwoodView));
 
             var button1 = page.Children[0];
             Assert.IsInstanceOfType(button1, typeof(Button));
-            Assert.IsFalse((bool)button1.GetValue(Validation.EnabledProperty));
+            Assert.IsFalse((bool)button1.GetValue(Validate.EnabledProperty));
 
             var button2 = page.Children[1];
             Assert.IsInstanceOfType(button2, typeof(Button));
-            Assert.IsTrue((bool)button2.GetValue(Validation.EnabledProperty));
+            Assert.IsTrue((bool)button2.GetValue(Validate.EnabledProperty));
 
             var button3 = page.Children[2];
             Assert.IsInstanceOfType(button3, typeof(Button));
-            Assert.IsTrue((bool)button3.GetValue(Validation.EnabledProperty));
+            Assert.IsTrue((bool)button3.GetValue(Validate.EnabledProperty));
         }
 
 

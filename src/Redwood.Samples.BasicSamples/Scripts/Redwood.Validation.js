@@ -8,9 +8,16 @@ if (!redwood) {
     throw "Redwood.js is required!";
 }
 redwood.extensions.validation = redwood.extensions.validation || {
-    rules: [
-    ]
+    rules: {
+        "required": new RedwoodRequiredValidator(),
+        "regularExpression": new RedwoodRegularExpressionValidator()
+    }
 };
+redwood.events.beforePostback.subscribe(function (args) {
+    var errors = [];
+    // TODO
+    return errors.length > 0;
+});
 var RedwoodValidationContext = (function () {
     function RedwoodValidationContext() {
     }

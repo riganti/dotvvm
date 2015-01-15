@@ -1,9 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Controls;
-using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework
@@ -44,12 +44,48 @@ namespace Redwood.Framework
                 uniqueControlId = target.ID;
             }
 
-            return string.Format("redwood.postBack('{0}', this, [{1}], '{2}', '{3}');return false;",
-                context.CurrentPageArea, 
-                string.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")),
-                expression.Expression,
-                uniqueControlId
-            );
+            var arguments = new List<string>()
+            {
+                "'" + context.CurrentPageArea + "'",
+                "this",
+                "[" + string.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")) + "]",
+                "'" + expression.Expression + "'",
+                "'" + uniqueControlId + "'"
+            };
+            if ((bool)control.GetValue(Validate.EnabledProperty))
+            {
+                var validationTargetExpression = GetValidationTargetExpression(control);
+                if (validationTargetExpression != null)
+                {
+                    arguments.Add("'" + validationTargetExpression + "'");
+                }
+            }
+
+            // postback without validation
+            return string.Format("redwood.postBack({0});return false;", string.Join(", ", arguments));
+        }
+
+        /// <summary>
+        /// Gets the validation target expression.
+        /// </summary>
+        private static string GetValidationTargetExpression(RedwoodBindableControl control)
+        {
+            // find the closest control
+            int dataSourceChanges;
+            var validationTargetControl = (RedwoodBindableControl)control.GetClosestWithPropertyValue(
+                out dataSourceChanges, 
+                c => c is RedwoodBindableControl && ((RedwoodBindableControl)c).GetValueBinding(Validate.TargetProperty) != null);
+            if (validationTargetControl == null)
+            {
+                return null;
+            }
+
+            // reparent the expression to work in current DataContext
+            var valueBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
+            var validationExpression = valueBindingExpression.TranslateToClientScript(validationTargetControl, Validate.TargetProperty);
+            validationExpression = string.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
+
+            return validationExpression;
         }
 
         /// <summary>

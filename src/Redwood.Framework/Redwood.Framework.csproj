@@ -88,7 +88,7 @@
     <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
     <Compile Include="Controls\ContainsRedwoodPropertiesAttribute.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
-    <Compile Include="Controls\Validation.cs" />
+    <Compile Include="Controls\Validate.cs" />
     <Compile Include="Hosting\RedwoodEmbeddedResourceMiddleware.cs" />
     <Compile Include="Hosting\RedwoodErrorPageMiddleware.cs" />
     <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
@@ -230,13 +230,16 @@
     <Compile Include="Runtime\IControlBuilder.cs" />
     <Compile Include="Runtime\IControlResolver.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
     <Compile Include="ViewModel\ControlTreeWalker.cs" />
+    <Compile Include="ViewModel\IViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\NonEvaluatingControlTreeWalker.cs" />
     <Compile Include="ViewModel\NullEvaluator.cs" />
     <Compile Include="ViewModel\ViewModelJTokenControlTreeWalker.cs" />
+    <Compile Include="ViewModel\ViewModelPropertyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
     <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
     <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
@@ -249,6 +252,7 @@
     <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMapper.cs" />
+    <Compile Include="ViewModel\ViewModelValidationRuleTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
