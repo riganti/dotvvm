@@ -5,6 +5,7 @@ using Redwood.Framework.Binding;
 
 namespace Redwood.Framework.Controls
 {
+    [ContainsRedwoodProperties]
     public class Validation
     {
 

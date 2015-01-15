@@ -86,6 +86,7 @@
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
+    <Compile Include="Controls\ContainsRedwoodPropertiesAttribute.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
     <Compile Include="Controls\Validation.cs" />
     <Compile Include="Hosting\RedwoodEmbeddedResourceMiddleware.cs" />

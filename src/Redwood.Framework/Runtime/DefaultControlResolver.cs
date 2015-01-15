@@ -43,7 +43,7 @@ namespace Redwood.Framework.Runtime
                 {
                     if (!isInitialized)
                     {
-                        InvokeStaticConstructorsOnAllControls(configuration);
+                        InvokeStaticConstructorsOnAllControls();
                         isInitialized = true;
                     }
                 }
@@ -53,19 +53,13 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Invokes the static constructors on all controls to register all <see cref="RedwoodProperty"/>.
         /// </summary>
-        private void InvokeStaticConstructorsOnAllControls(RedwoodConfiguration configuration)
+        private void InvokeStaticConstructorsOnAllControls()
         {
-            foreach (var mappingGroup in configuration.Markup.Controls.Where(c => !string.IsNullOrEmpty(c.Assembly)).GroupBy(c => c.Assembly))
+            foreach (var type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(t => t.IsClass))
             {
-                var assembly = Assembly.Load(mappingGroup.Key);
-                var namespaces = new HashSet<string>(mappingGroup.Select(m => m.Namespace).Distinct());
-
-                foreach (var type in assembly.GetTypes())
+                if (type.GetCustomAttribute<ContainsRedwoodPropertiesAttribute>(true) != null)
                 {
-                    if (type.IsPublic && type.IsClass && namespaces.Contains(type.Namespace))
-                    {
-                        RuntimeHelpers.RunClassConstructor(type.TypeHandle);
-                    }
+                    RuntimeHelpers.RunClassConstructor(type.TypeHandle);
                 }
             }
         }
