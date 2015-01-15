@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Redwood.Framework.Hosting;
+using Redwood.Framework.Binding;
 
 namespace Redwood.Framework.Runtime
 {
@@ -18,14 +18,14 @@ namespace Redwood.Framework.Runtime
 
         public bool HasHtmlAttributesCollection { get; set; }
 
-        public Dictionary<string, ControlResolverPropertyMetadata> Properties { get; set; }
+        public Dictionary<string, RedwoodProperty> Properties { get; set; }
 
         /// <summary>
         /// Finds the property.
         /// </summary>
-        public ControlResolverPropertyMetadata FindProperty(string name)
+        public RedwoodProperty FindProperty(string name)
         {
-            ControlResolverPropertyMetadata result;
+            RedwoodProperty result;
             return Properties.TryGetValue(name, out result) ? result : null;
         }
     }

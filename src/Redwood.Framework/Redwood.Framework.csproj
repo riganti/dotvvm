@@ -87,6 +87,7 @@
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
+    <Compile Include="Controls\Validation.cs" />
     <Compile Include="Hosting\RedwoodEmbeddedResourceMiddleware.cs" />
     <Compile Include="Hosting\RedwoodErrorPageMiddleware.cs" />
     <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
@@ -223,7 +224,6 @@
     <Compile Include="Routing\RedwoodRouteTable.cs" />
     <Compile Include="Routing\RouteBase.cs" />
     <Compile Include="Runtime\ControlResolverMetadata.cs" />
-    <Compile Include="Runtime\ControlResolverPropertyMetadata.cs" />
     <Compile Include="Runtime\ControlType.cs" />
     <Compile Include="Runtime\DefaultControlResolver.cs" />
     <Compile Include="Runtime\IControlBuilder.cs" />

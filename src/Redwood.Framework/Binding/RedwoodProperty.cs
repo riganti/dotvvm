@@ -103,14 +103,31 @@ namespace Redwood.Framework.Binding
         {
             var fullName = typeof (TDeclaringType).FullName + "." + propertyName;
             
-            return registeredProperties.GetOrAdd(fullName, _ => new RedwoodProperty()
+            return registeredProperties.GetOrAdd(fullName, _ =>
             {
-                Name = propertyName,
-                DefaultValue = defaultValue ?? default(TPropertyType),
-                DeclaringType = typeof(TDeclaringType),
-                PropertyType = typeof(TPropertyType),
-                IsValueInherited = isValueInherited,
-                PropertyInfo = typeof(TDeclaringType).GetProperty(propertyName)
+                var propertyInfo = typeof (TDeclaringType).GetProperty(propertyName);
+                var markupOptions = (propertyInfo != null ? propertyInfo.GetCustomAttribute<MarkupOptionsAttribute>() : null) ?? new MarkupOptionsAttribute()
+                {
+                    AllowBinding = true,
+                    AllowHardCodedValue = true,
+                    MappingMode = MappingMode.Attribute,
+                    Name = propertyName
+                };
+                if (string.IsNullOrEmpty(markupOptions.Name))
+                {
+                    markupOptions.Name = propertyName;
+                }
+
+                return new RedwoodProperty()
+                {
+                    Name = propertyName,
+                    DefaultValue = defaultValue ?? default(TPropertyType),
+                    DeclaringType = typeof (TDeclaringType),
+                    PropertyType = typeof (TPropertyType),
+                    IsValueInherited = isValueInherited,
+                    PropertyInfo = propertyInfo,
+                    MarkupOptions = markupOptions
+                };
             });
         }
 
@@ -202,5 +219,7 @@ namespace Redwood.Framework.Binding
                 }
             }
         }
+
+        public MarkupOptionsAttribute MarkupOptions { get; set; }
     }
 }

@@ -7,6 +7,7 @@ using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
+using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Controls.Infrastructure;
@@ -172,14 +173,14 @@ namespace Redwood.Framework.Runtime.Compilation
                 // HTML element
                 var element = (RwHtmlElementNode)node;
                 var parentProperty = parentMetadata.FindProperty(element.TagName);
-                if (parentProperty != null && string.IsNullOrEmpty(element.TagPrefix) && parentProperty.Options.MappingMode == MappingMode.InnerElement)
+                if (parentProperty != null && string.IsNullOrEmpty(element.TagPrefix) && parentProperty.MarkupOptions.MappingMode == MappingMode.InnerElement)
                 {
                     // the element is a property 
                     if (IsTemplateProperty(parentProperty))
                     {
                         // template
                         var templateName = ProcessTemplate(element);
-                        emitter.EmitSetProperty(parentName, parentProperty.Options.Name, templateName);
+                        emitter.EmitSetProperty(parentName, parentProperty.Name, templateName);
                     }
                     else if (IsCollectionProperty(parentProperty))
                     {
@@ -187,7 +188,7 @@ namespace Redwood.Framework.Runtime.Compilation
                         foreach (var child in GetInnerPropertyElements(element, parentProperty))
                         {
                             var childObject = ProcessObjectElement(child);
-                            emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.Options.Name);
+                            emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.MarkupOptions.Name);
                         }
                     }
                     else
@@ -196,16 +197,16 @@ namespace Redwood.Framework.Runtime.Compilation
                         var children = GetInnerPropertyElements(element, parentProperty).ToList();
                         if (children.Count > 1)
                         {
-                            throw new NotSupportedException(string.Format("The property {0} can have only one child element!", parentProperty.Options.Name));   // TODO: exception handling
+                            throw new NotSupportedException(string.Format("The property {0} can have only one child element!", parentProperty.MarkupOptions.Name));   // TODO: exception handling
                         }
                         else if (children.Count == 1)
                         {
                             var childObject = ProcessObjectElement(children[0]);
-                            emitter.EmitSetProperty(parentName, parentProperty.Options.Name, childObject);
+                            emitter.EmitSetProperty(parentName, parentProperty.MarkupOptions.Name, childObject);
                         }
                         else
                         {
-                            emitter.EmitSetProperty(parentName, parentProperty.Options.Name, emitter.EmitIdentifier("null"));
+                            emitter.EmitSetProperty(parentName, parentProperty.MarkupOptions.Name, emitter.EmitIdentifier("null"));
                         }
                     }
                 }
@@ -225,7 +226,7 @@ namespace Redwood.Framework.Runtime.Compilation
         /// <summary>
         /// Gets the inner property elements and makes sure that no other content is present.
         /// </summary>
-        private IEnumerable<RwHtmlElementNode> GetInnerPropertyElements(RwHtmlElementNode element, ControlResolverPropertyMetadata parentProperty)
+        private IEnumerable<RwHtmlElementNode> GetInnerPropertyElements(RwHtmlElementNode element, RedwoodProperty parentProperty)
         {
             foreach (var child in element.Content)
             {
@@ -332,13 +333,13 @@ namespace Redwood.Framework.Runtime.Compilation
                     // binding
                     var binding = (RwHtmlBindingNode)attribute.Literal;
                     var bindingObjectName = emitter.EmitCreateObject(controlResolver.ResolveBinding(binding.Name), new object[] { attribute.Literal.Value });
-                    emitter.EmitSetBinding(currentObjectName, controlMetadata.Type, property.Options.Name, bindingObjectName);
+                    emitter.EmitSetBinding(currentObjectName, controlMetadata.Type, property.MarkupOptions.Name, bindingObjectName);
                 }
                 else
                 {
                     // hard-coded value in markup
                     var value = ReflectionUtils.ConvertValue(attribute.Literal.Value, property.PropertyInfo.PropertyType);
-                    emitter.EmitSetProperty(currentObjectName, property.Options.Name, emitter.EmitValue(value));
+                    emitter.EmitSetProperty(currentObjectName, property.MarkupOptions.Name, emitter.EmitValue(value));
                 }
             }
             else if (controlMetadata.HasHtmlAttributesCollection)
@@ -364,14 +365,14 @@ namespace Redwood.Framework.Runtime.Compilation
 
 
 
-        private static bool IsCollectionProperty(ControlResolverPropertyMetadata parentProperty)
+        private static bool IsCollectionProperty(RedwoodProperty parentProperty)
         {
-            return parentProperty.PropertyInfo.PropertyType.GetInterfaces().Contains(typeof(ICollection));
+            return parentProperty.PropertyType.GetInterfaces().Contains(typeof(ICollection));
         }
 
-        private static bool IsTemplateProperty(ControlResolverPropertyMetadata parentProperty)
+        private static bool IsTemplateProperty(RedwoodProperty parentProperty)
         {
-            return parentProperty.PropertyInfo.PropertyType == typeof(ITemplate);
+            return parentProperty.PropertyType == typeof(ITemplate);
         }
     }
 }
