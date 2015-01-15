@@ -172,7 +172,7 @@ namespace Redwood.Framework.Runtime.Compilation
             {
                 // HTML element
                 var element = (RwHtmlElementNode)node;
-                var parentProperty = parentMetadata.FindProperty(element.TagName);
+                var parentProperty = FindProperty(parentMetadata, element.TagName);
                 if (parentProperty != null && string.IsNullOrEmpty(element.TagPrefix) && parentProperty.MarkupOptions.MappingMode == MappingMode.InnerElement)
                 {
                     // the element is a property 
@@ -221,6 +221,11 @@ namespace Redwood.Framework.Runtime.Compilation
             {
                 throw new NotSupportedException();      // TODO: exception handling
             }
+        }
+
+        private RedwoodProperty FindProperty(ControlResolverMetadata parentMetadata, string name)
+        {
+            return parentMetadata.FindProperty(name) ?? RedwoodProperty.ResolveProperty(name);
         }
 
         /// <summary>
@@ -324,7 +329,7 @@ namespace Redwood.Framework.Runtime.Compilation
             }
 
             // find the property
-            var property = controlMetadata.FindProperty(attribute.Name);
+            var property = FindProperty(controlMetadata, attribute.Name);
             if (property != null)
             {
                 // set the property
@@ -338,7 +343,7 @@ namespace Redwood.Framework.Runtime.Compilation
                 else
                 {
                     // hard-coded value in markup
-                    var value = ReflectionUtils.ConvertValue(attribute.Literal.Value, property.PropertyInfo.PropertyType);
+                    var value = ReflectionUtils.ConvertValue(attribute.Literal.Value, property.PropertyType);
                     emitter.EmitSetProperty(currentObjectName, property.MarkupOptions.Name, emitter.EmitValue(value));
                 }
             }

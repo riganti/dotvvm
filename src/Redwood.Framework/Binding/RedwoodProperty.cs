@@ -50,7 +50,7 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public string FullName
         {
-            get { return PropertyType.Name + "." + Name; }
+            get { return DeclaringType.Name + "." + Name; }
         }
 
 
@@ -101,7 +101,7 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public static RedwoodProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false)
         {
-            var fullName = typeof (TDeclaringType).FullName + "." + propertyName;
+            var fullName = typeof (TPropertyType).FullName + "." + propertyName;
             
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
@@ -164,6 +164,14 @@ namespace Redwood.Framework.Binding
                 fullName = type.FullName + "." + name;
             }
             return property;
+        }
+
+        /// <summary>
+        /// Resolves the <see cref="RedwoodProperty"/> from the full name (DeclaringTypeName.PropertyName).
+        /// </summary>
+        public static RedwoodProperty ResolveProperty(string fullName)
+        {
+            return registeredProperties.Values.LastOrDefault(p => p.FullName == fullName);
         }
 
         /// <summary>

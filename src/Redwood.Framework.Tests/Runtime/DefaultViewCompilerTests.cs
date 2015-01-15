@@ -111,6 +111,29 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)placeholder.Children[2]).Text));
         }
 
+        
+        [TestMethod]
+        public void DefaultViewCompiler_CodeGeneration_AttachedProperty()
+        {
+            var markup = @"<rw:Button Validation.Enabled=""false"" /><rw:Button Validation.Enabled=""true"" /><rw:Button />";
+            var page = CompileMarkup(markup);
+
+            Assert.IsInstanceOfType(page, typeof(RedwoodView));
+
+            var button1 = page.Children[0];
+            Assert.IsInstanceOfType(button1, typeof(Button));
+            Assert.IsFalse((bool)button1.GetValue(Validation.EnabledProperty));
+
+            var button2 = page.Children[1];
+            Assert.IsInstanceOfType(button2, typeof(Button));
+            Assert.IsTrue((bool)button2.GetValue(Validation.EnabledProperty));
+
+            var button3 = page.Children[2];
+            Assert.IsInstanceOfType(button3, typeof(Button));
+            Assert.IsTrue((bool)button3.GetValue(Validation.EnabledProperty));
+        }
+
+
         private static RedwoodControl CompileMarkup(string markup)
         {
             var redwoodViewBuilder = new DefaultRedwoodViewBuilder(RedwoodConfiguration.CreateDefault());
