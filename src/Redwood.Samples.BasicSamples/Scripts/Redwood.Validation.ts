@@ -29,7 +29,7 @@ class RedwoodRegularExpressionValidator extends RedwoodValidatorBase {
 class ValidationError {
     public errorMessage = ko.observable("");
     public isValid = ko.computed(() => this.errorMessage());
-
+    
     constructor(public targetObservable: KnockoutObservable<any>) {
     }
 
@@ -57,6 +57,8 @@ class RedwoodValidation
         //"datetime": new RedwoodDateTimeValidator(),
         //"range": new RedwoodRangeValidator()
     }
+
+    public errors = ko.observableArray<ValidationError>([]);
 
     public elementUpdateFunctions: IRedwoodValidationElementUpdateFunctions = {
         
@@ -86,8 +88,6 @@ class RedwoodValidation
             element[element.innerText ? "innerText" : "textContent"] = errorMessage;
         }
     }
-
-    public errors = ko.observableArray<ValidationError>([]);
 
     /// Validates the specified view model
     public validateViewModel(viewModel: any) {
@@ -141,14 +141,20 @@ class RedwoodValidation
             if (!ruleTemplate.isValid(context)) {
                 // add error message
                 validationError.errorMessage(rule.errorMessage);
+                viewModel.$validationErrors.push(validationError);
                 this.errors.push(validationError);
+            } else {
+                // remove
+                validationError.errorMessage("");
+                viewModel.$validationErrors.push(validationError);
+                this.errors.remove(validationError);
             }
         }
     }
 
     // clears validation errors
     public clearValidationErrors() {
-        var errors = this.errors();
+        var errors = [];
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
@@ -174,7 +180,7 @@ redwood.events.beforePostback.subscribe(args => {
         redwood.extensions.validation.clearValidationErrors();
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
-            //args.cancel = true;
+            args.cancel = true;
             return true;
         }
     }

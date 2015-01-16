@@ -157,6 +157,13 @@ namespace Redwood.Framework.ViewModel
             // value = ({Type})valueParam;
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
+            
+            // writer.WritePropertyName("$validationErrors")
+            // writer.WriteStartArray()
+            // writer.WriteEndArray()
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$validationErrors"), writer));
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WriteStartArray(), writer));
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WriteEndArray(), writer));
 
             // writer.WritePropertyName("$type");
             // serializer.Serialize(writer, value.GetType().FullName)

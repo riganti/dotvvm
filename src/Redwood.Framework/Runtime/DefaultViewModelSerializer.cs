@@ -19,7 +19,7 @@ namespace Redwood.Framework.Runtime
         private CommandResolver commandResolver = new CommandResolver();
 
         private RedwoodConfiguration configuration;
-        private readonly IViewModelProtector viewModelProtector;
+        private readonly IViewModelProtector viewModelProtector; 
 
         public DefaultViewModelSerializer(RedwoodConfiguration configuration, IViewModelProtector viewModelProtector)
         {

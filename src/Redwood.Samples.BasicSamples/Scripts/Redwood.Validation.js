@@ -67,6 +67,7 @@ var RedwoodValidation = (function () {
             "required": new RedwoodRequiredValidator(),
             "regularExpression": new RedwoodRegularExpressionValidator()
         };
+        this.errors = ko.observableArray([]);
         this.elementUpdateFunctions = {
             // shows the element when it is not valid
             hideWhenValid: function (element, errorMessage, options) {
@@ -94,7 +95,6 @@ var RedwoodValidation = (function () {
                 element[element.innerText ? "innerText" : "textContent"] = errorMessage;
             }
         };
-        this.errors = ko.observableArray([]);
     }
     /// Validates the specified view model
     RedwoodValidation.prototype.validateViewModel = function (viewModel) {
@@ -142,13 +142,20 @@ var RedwoodValidation = (function () {
             if (!ruleTemplate.isValid(context)) {
                 // add error message
                 validationError.errorMessage(rule.errorMessage);
+                viewModel.$validationErrors.push(validationError);
                 this.errors.push(validationError);
+            }
+            else {
+                // remove
+                validationError.errorMessage("");
+                viewModel.$validationErrors.push(validationError);
+                this.errors.remove(validationError);
             }
         }
     };
     // clears validation errors
     RedwoodValidation.prototype.clearValidationErrors = function () {
-        var errors = this.errors();
+        var errors = [];
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
@@ -171,7 +178,7 @@ redwood.events.beforePostback.subscribe(function (args) {
         redwood.extensions.validation.clearValidationErrors();
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
-            //args.cancel = true;
+            args.cancel = true;
             return true;
         }
     }

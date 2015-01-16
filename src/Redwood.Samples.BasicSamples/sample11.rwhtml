@@ -29,6 +29,8 @@
 				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" Mode="DisplayErrorMessage" AsteriskText="Validation 3 - DisplayErrorMessage" />
 			</p>
 			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p> 
+
+			<div class="validator"><rw:ValidationSummary /></div>
 		</fieldset>
 		<p>&nbsp;</p>
 		
