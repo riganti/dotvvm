@@ -29,7 +29,7 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Gets the serialization map for specified type.
         /// </summary>
-        private static ViewModelSerializationMap GetSerializationMapForType(Type type)
+        public static ViewModelSerializationMap GetSerializationMapForType(Type type)
         {
             return serializationMapCache.GetOrAdd(type, viewModelSerializationMapper.CreateMap);
         }
@@ -39,10 +39,12 @@ namespace Redwood.Framework.ViewModel
         /// </summary>
         public override bool CanConvert(Type objectType)
         {
-            return !primitiveTypes.Contains(objectType)
-                   && !typeof (IEnumerable).IsAssignableFrom(objectType)
-                   && (!objectType.IsGenericType || objectType.GetGenericTypeDefinition() != typeof (Nullable<>));
+            return !IsPrimitiveType(objectType)
+                   && !IsEnumerable(objectType)
+                   && !IsNullableType(objectType);
         }
+
+        
 
         /// <summary>
         /// Reads the JSON representation of the object.
@@ -71,6 +73,21 @@ namespace Redwood.Framework.ViewModel
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
             serializationMap.ReaderFactory(jobj, serializer, value, EncryptedValues);
+        }
+
+
+        public static bool IsEnumerable(Type type)
+        {
+            return typeof (IEnumerable).IsAssignableFrom(type);
+        }
+
+        public static bool IsPrimitiveType(Type type)
+        {
+            return primitiveTypes.Contains(type);
+        }
+        public static bool IsNullableType(Type type)
+        {
+            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
     }
 }

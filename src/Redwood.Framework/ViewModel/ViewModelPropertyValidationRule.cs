@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Newtonsoft.Json;
 
@@ -16,6 +17,9 @@ namespace Redwood.Framework.ViewModel
 
         [JsonProperty("parameters")]
         public object[] Parameters { get; set; }
+
+        [JsonIgnore]
+        public ValidationAttribute SourceValidationAttribute { get; set; }
 
     }
 }

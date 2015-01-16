@@ -34,6 +34,7 @@ namespace Redwood.Framework.ViewModel
 
                 var propertyMap = new ViewModelPropertyMap()
                 {
+                    PropertyInfo = property,
                     Name = property.Name,
                     ViewModelProtection = ViewModelProtectionSettings.None,
                     Type = property.PropertyType,

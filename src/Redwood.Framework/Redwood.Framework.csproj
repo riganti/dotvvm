@@ -242,6 +242,7 @@
     <Compile Include="ViewModel\NonEvaluatingControlTreeWalker.cs" />
     <Compile Include="ViewModel\NullEvaluator.cs" />
     <Compile Include="ViewModel\ViewModelJTokenControlTreeWalker.cs" />
+    <Compile Include="ViewModel\ViewModelValidator.cs" />
     <Compile Include="ViewModel\ViewModelPropertyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
     <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
@@ -255,6 +256,7 @@
     <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMapper.cs" />
+    <Compile Include="ViewModel\ViewModelValidationError.cs" />
     <Compile Include="ViewModel\ViewModelValidationRuleTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
