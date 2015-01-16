@@ -8,6 +8,9 @@
 		color: maroon;
 		text-decoration: line-through;
 	}
+	.field-validation-error {
+		color: red;
+	}
 	</style>
 </head>
 <body>
@@ -17,8 +20,8 @@
 		<fieldset Validate.Target="{value: _this}">
 			<legend>Add Task</legend>
 
-			<p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /></p>
-			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>
+			<p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /> <span data-bind="redwoodValidation: NewTaskTitle, redwoodValidationOptions: 'hideWhenValid'">Error!</span></p>
+			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p> 
 		</fieldset>
 		<p>&nbsp;</p>
 		

@@ -8,20 +8,20 @@ using Newtonsoft.Json.Linq;
 namespace Redwood.Framework.ViewModel
 {
     public class ViewModelValidationRuleTranslator
-    {
+    { 
 
         /// <summary>
         /// Gets the validation rules.
         /// </summary>
         public IEnumerable<ViewModelPropertyValidationRule> TranslateValidationRules(PropertyInfo property, IEnumerable<ValidationAttribute> validationAttributes)
         {
-            foreach (var attribute in validationAttributes)
+            foreach (var attribute in validationAttributes) 
             {
                 if (attribute is RequiredAttribute)
                 {
                     yield return new ViewModelPropertyValidationRule()
                     {
-                        ValidationRuleName = "required",
+                        RuleName = "required",
                         ErrorMessage = attribute.FormatErrorMessage(property.Name)
                     };
                 }
@@ -30,9 +30,9 @@ namespace Redwood.Framework.ViewModel
                     var typedAttribute = (RegularExpressionAttribute)attribute;
                     yield return new ViewModelPropertyValidationRule()
                     {
-                        ValidationRuleName = "regexp",
+                        RuleName = "regexp",
                         ErrorMessage = attribute.FormatErrorMessage(property.Name),
-                        Parameters = new[] {  JToken.FromObject(typedAttribute.Pattern) }
+                        Parameters = new Object[] { typedAttribute.Pattern }
                     };
                 }
             }

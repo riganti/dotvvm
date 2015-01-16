@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Parser;
 
 namespace Redwood.Framework.Controls.Infrastructure
 {
@@ -21,7 +22,9 @@ namespace Redwood.Framework.Controls.Infrastructure
         public RedwoodView()
         {
             Directives = new Dictionary<string, string>();
-            ResourceDependencies.Add("redwood");
+
+            ResourceDependencies.Add(Constants.RedwoodResourceName);
+            ResourceDependencies.Add(Constants.RedwoodValidationResourceName);
         }
 
     }

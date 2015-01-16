@@ -17,16 +17,16 @@ var Redwood = (function () {
     }
     Redwood.prototype.init = function (viewModelName, culture) {
         this.culture = culture;
-        var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
-        this.viewModels[viewModelName] = viewModel;
+        this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
+        var viewModel = this.viewModels[viewModelName].viewModel;
         ko.applyBindings(viewModel);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     };
     Redwood.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, validationTargetPath) {
         var _this = this;
-        var viewModel = this.viewModels[viewModelName];
+        var viewModel = this.viewModels[viewModelName].viewModel;
         // trigger beforePostback event
-        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(viewModel, validationTargetPath);
+        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
         this.events.beforePostback.trigger(beforePostbackArgs);
         if (beforePostbackArgs.cancel) {
             return;
@@ -43,9 +43,9 @@ var Redwood = (function () {
             var resultObject = JSON.parse(result.responseText);
             if (resultObject.action === "successfulCommand") {
                 // update the viewmodel
-                ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName]);
+                ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
                 // trigger afterPostback event
-                _this.events.afterPostback.trigger(new RedwoodEventArgs(viewModel));
+                _this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(viewModel, viewModelName, resultObject));
             }
             else if (resultObject.action === "redirect") {
                 // redirect
@@ -144,13 +144,25 @@ var RedwoodErrorEventArgs = (function (_super) {
 })(RedwoodEventArgs);
 var RedwoodBeforePostBackEventArgs = (function (_super) {
     __extends(RedwoodBeforePostBackEventArgs, _super);
-    function RedwoodBeforePostBackEventArgs(viewModel, validationTargetPath) {
+    function RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath) {
         _super.call(this, viewModel);
+        this.sender = sender;
         this.viewModel = viewModel;
+        this.viewModelName = viewModelName;
         this.validationTargetPath = validationTargetPath;
         this.cancel = false;
     }
     return RedwoodBeforePostBackEventArgs;
+})(RedwoodEventArgs);
+var RedwoodAfterPostBackEventArgs = (function (_super) {
+    __extends(RedwoodAfterPostBackEventArgs, _super);
+    function RedwoodAfterPostBackEventArgs(viewModel, viewModelName, serverResponseObject) {
+        _super.call(this, viewModel);
+        this.viewModel = viewModel;
+        this.viewModelName = viewModelName;
+        this.serverResponseObject = serverResponseObject;
+    }
+    return RedwoodAfterPostBackEventArgs;
 })(RedwoodEventArgs);
 var redwood = new Redwood();
 //# sourceMappingURL=Redwood.js.map

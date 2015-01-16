@@ -6,24 +6,24 @@
     public events = {
         init: new RedwoodEvent<RedwoodEventArgs>("redwood.events.init", true),
         beforePostback: new RedwoodEvent<RedwoodBeforePostBackEventArgs>("redwood.events.beforePostback"),
-        afterPostback: new RedwoodEvent<RedwoodEventArgs>("redwood.events.afterPostback"),
+        afterPostback: new RedwoodEvent<RedwoodAfterPostBackEventArgs>("redwood.events.afterPostback"),
         error: new RedwoodEvent<RedwoodErrorEventArgs>("redwood.events.error")
     };
 
     public init(viewModelName: string, culture: string): void {
         this.culture = culture;
-        var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
-        this.viewModels[viewModelName] = viewModel;
-        ko.applyBindings(viewModel);
+        this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
 
+        var viewModel = this.viewModels[viewModelName].viewModel;
+        ko.applyBindings(viewModel);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     }
     
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: any): void {
-        var viewModel = this.viewModels[viewModelName];
+        var viewModel = this.viewModels[viewModelName].viewModel;
 
         // trigger beforePostback event
-        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(viewModel, validationTargetPath);
+        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
         this.events.beforePostback.trigger(beforePostbackArgs);
         if (beforePostbackArgs.cancel) {
             return;
@@ -41,10 +41,10 @@
             var resultObject = JSON.parse(result.responseText);
             if (resultObject.action === "successfulCommand") {
                 // update the viewmodel
-                ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName]);
-
+                ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                
                 // trigger afterPostback event
-                this.events.afterPostback.trigger(new RedwoodEventArgs(viewModel));
+                this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(viewModel, viewModelName, resultObject));
 
             } else if (resultObject.action === "redirect") {
                 // redirect
@@ -140,7 +140,12 @@ class RedwoodErrorEventArgs extends RedwoodEventArgs {
 }
 class RedwoodBeforePostBackEventArgs extends RedwoodEventArgs {
     public cancel: boolean = false;
-    constructor(public viewModel: any, public validationTargetPath: any) {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any) {
+        super(viewModel);
+    }
+}
+class RedwoodAfterPostBackEventArgs extends RedwoodEventArgs {
+    constructor(public viewModel: any, public viewModelName: string, public serverResponseObject: any) {
         super(viewModel);
     }
 }

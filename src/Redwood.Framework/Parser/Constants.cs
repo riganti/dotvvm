@@ -28,6 +28,7 @@ namespace Redwood.Framework.Parser
         public const string KnockoutJSResourceName = "knockout";
         public const string KnockoutMapperResourceName = "knockout.mapper";
         public const string RedwoodResourceName = "redwood";
+        public const string RedwoodValidationResourceName = "redwood.validation";
         public const string BootstrapResourceName = "bootstrap";
         public const string BootstrapCssResourceName = "bootstrap-css";
         public const string GlobalizeResourceName = "globalize";
@@ -35,5 +36,6 @@ namespace Redwood.Framework.Parser
 
         public const string ResourceHandlerUrl = "/redwoodEmbeddedResource?name={0}&assembly={1}";
         public const string ResourceHandlerMatchUrl = "redwoodEmbeddedResource";
+
     }
 }

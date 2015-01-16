@@ -118,6 +118,14 @@ namespace Redwood.Framework.Configuration
             configuration.Resources.Register(
                 new ScriptResource()
                 {
+                    Name = Constants.RedwoodValidationResourceName,
+                    Url = "/Scripts/Redwood.Validation.js",
+                    GlobalObjectName = "redwood.validation",
+                    Dependencies = new[] { Constants.RedwoodResourceName }
+                });
+            configuration.Resources.Register(
+                new ScriptResource()
+                {
                     Name = Constants.BootstrapResourceName,
                     Url = "/Scripts/bootstrap.min.js",
                     CdnUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js",
