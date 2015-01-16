@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Runtime;
+using Redwood.Framework.Parser;
 
 namespace Redwood.Framework.Controls.Infrastructure
 {
@@ -24,5 +26,13 @@ namespace Redwood.Framework.Controls.Infrastructure
             ResourceDependencies.Add("redwood");
         }
 
+        public override void Render(IHtmlWriter writer, RenderContext context)
+        {
+            if (Directives.ContainsKey(Constants.DoctypeDirectiveName))
+            {
+                writer.WriteUnencodedText(string.Format("<!DOCTYPE {0}>\r\n", Directives[Constants.DoctypeDirectiveName]));
+            }
+            base.Render(writer, context);
+        }
     }
 }

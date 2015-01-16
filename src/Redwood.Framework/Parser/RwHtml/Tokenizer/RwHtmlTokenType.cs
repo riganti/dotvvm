@@ -8,6 +8,9 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
     {
         OpenTag,
         CloseTag,
+        OpenCdata,
+        OpenComment,
+        OpenDoctype,
         Slash,
         SingleQuote,
         DoubleQuote,

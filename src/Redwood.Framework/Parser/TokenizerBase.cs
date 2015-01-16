@@ -169,6 +169,71 @@ namespace Redwood.Framework.Parser
             }
         }
 
+        /// <summary>
+        /// Reads text until string in parameter occurs and creates token from the body.
+        /// </summary>
+        /// <returns>If it was stopped by stopString</returns>
+        protected bool ReadTextUntilNewLine(string stopString)
+        {
+            int ssIndex = 0;
+            while(ssIndex < stopString.Length && Peek() != '\n' && Peek() != '\r')
+            {
+                if(stopString[ssIndex] == Peek())
+                {
+                    ssIndex++;
+                }
+                Read();
+            }
+
+            if(ssIndex == stopString.Length)
+            {
+                // stopped by stopString
+                if (DistanceSinceLastToken > stopString.Length)
+                {
+                    CreateToken(TextTokenType, stopString.Length);
+                }
+                return true;
+            }
+
+            if (DistanceSinceLastToken > 0)
+            {
+                CreateToken(TextTokenType);
+            }
+
+            if (Peek() == '\r')
+            {
+                // \r can be followed by \n which is still one new line
+                Read();
+            }
+            if (Peek() == '\n')
+            {
+                Read();
+            }
+
+            if (DistanceSinceLastToken > 0)
+            {
+                CreateToken(WhiteSpaceTokenType);
+            }
+            return false;
+        }
+
+        protected void ReadTextUntil(string stopString)
+        {
+            while (!ReadTextUntilNewLine(stopString)) { }
+        }
+
+        protected string ReadOneOf(params string[] strings)
+        {
+            int index = 0;
+            while(strings.Length > 0 && !strings.Any(s => s.Length <= index))
+            {
+                var ch = Peek();
+                strings = strings.Where(s => s[index] == ch).ToArray();
+                index++;
+                Read();
+            }
+            return strings.FirstOrDefault(s => s.Length == index);
+        }
 
         /// <summary>
         /// Creates the token.
