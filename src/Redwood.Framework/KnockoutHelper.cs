@@ -31,7 +31,7 @@ namespace Redwood.Framework
 
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, ValueBindingExpression>> expressions, RedwoodBindableControl control, RedwoodProperty property)
         {
-            writer.AddAttribute("data-bind", name + ": {" + string.Join(",", expressions.Select(e => e.Key + ": " + e.Value.TranslateToClientScript(control, property))) + "}", true, ", ");
+            writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => e.Key + ": " + e.Value.TranslateToClientScript(control, property))) + "}", true, ", ");
         }
 
         public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, RedwoodBindableControl control)
@@ -48,7 +48,7 @@ namespace Redwood.Framework
             {
                 "'" + context.CurrentPageArea + "'",
                 "this",
-                "[" + string.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")) + "]",
+                "[" + String.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")) + "]",
                 "'" + expression.Expression + "'",
                 "'" + uniqueControlId + "'"
             };
@@ -62,7 +62,7 @@ namespace Redwood.Framework
             }
 
             // postback without validation
-            return string.Format("redwood.postBack({0});return false;", string.Join(", ", arguments));
+            return String.Format("redwood.postBack({0});return false;", String.Join(", ", arguments));
         }
 
         /// <summary>
@@ -83,7 +83,7 @@ namespace Redwood.Framework
             // reparent the expression to work in current DataContext
             var valueBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
             var validationExpression = valueBindingExpression.TranslateToClientScript(validationTargetControl, Validate.TargetProperty);
-            validationExpression = string.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
+            validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
 
             return validationExpression;
         }
@@ -94,6 +94,12 @@ namespace Redwood.Framework
         public static string MakeStringLiteral(string value)
         {
             return "'" + value.Replace("'", "''") + "'";
+        }
+
+        public static string ConvertToCamelCase(ValidationMessageMode mode)
+        {
+            var name = mode.ToString();
+            return name.Substring(0, 1).ToLower() + name.Substring(1);
         }
     }
 }

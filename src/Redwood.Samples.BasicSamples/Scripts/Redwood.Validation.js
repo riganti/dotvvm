@@ -88,6 +88,10 @@ var RedwoodValidation = (function () {
                 else {
                     element.className = element.className.replace(new RegExp("\\b" + cssClass + "\\b", "g"), "");
                 }
+            },
+            // displays the error message
+            displayErrorMessage: function (element, errorMessage, options) {
+                element[element.innerText ? "innerText" : "textContent"] = errorMessage;
             }
         };
         this.errors = [];

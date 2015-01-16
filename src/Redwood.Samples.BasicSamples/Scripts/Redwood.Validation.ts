@@ -79,6 +79,11 @@ class RedwoodValidation
             } else {
                 element.className = element.className.replace(new RegExp("\\b" + cssClass + "\\b", "g"), "");
             }
+        },
+
+        // displays the error message
+        displayErrorMessage(element: any, errorMessage: string, options: any) {
+            element[element.innerText ? "innerText" : "textContent"] = errorMessage;
         }
     }
 

@@ -26,6 +26,5 @@ namespace Redwood.Framework.Controls.Infrastructure
             ResourceDependencies.Add(Constants.RedwoodResourceName);
             ResourceDependencies.Add(Constants.RedwoodValidationResourceName);
         }
-
     }
 }
