@@ -15,12 +15,12 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Validates the command.
         /// </summary>
-        public void ValidateCommand(string[] path, string command, RedwoodControl viewRootControl)
+        public void ValidateCommand(string[] path, string command, RedwoodControl viewRootControl, string validationTargetPath)
         {
             // find the binding
             RedwoodProperty targetProperty;
             RedwoodBindableControl targetControl;
-            var binding = FindCommandBinding(path, command, viewRootControl, out targetControl, out targetProperty);
+            var binding = FindCommandBinding(path, command, viewRootControl, validationTargetPath, out targetControl, out targetProperty);
             if (binding == null)
             {
                 ThrowEventValidationException();
@@ -41,7 +41,7 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
-        private CommandBindingExpression FindCommandBinding(string[] path, string command, RedwoodControl viewRootControl, out RedwoodBindableControl targetControl, out RedwoodProperty targetProperty)
+        private CommandBindingExpression FindCommandBinding(string[] path, string command, RedwoodControl viewRootControl, string validationTargetPath, out RedwoodBindableControl targetControl, out RedwoodProperty targetProperty)
         {
             // walk the control tree and find the path
             CommandBindingExpression result = null;
@@ -60,9 +60,15 @@ namespace Redwood.Framework.Binding
                         .FirstOrDefault(b => b.Value.Expression == command);
                     if (binding.Key != null)
                     {
-                        result = (CommandBindingExpression)binding.Value;
-                        resultControl = bindableControl;
-                        resultProperty = binding.Key;
+                        // we have found the binding, now get the validation path
+                        var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(bindableControl);
+                        if (currentValidationTargetPath == validationTargetPath)
+                        {
+                            // the validation path is equal, we have found the binding
+                            result = (CommandBindingExpression)binding.Value;
+                            resultControl = bindableControl;
+                            resultProperty = binding.Key;    
+                        }
                     }
                 }
             });
@@ -75,11 +81,11 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Validates the control command.
         /// </summary>
-        public void ValidateControlCommand(string[] path, string command, RedwoodControl viewRootControl, RedwoodControl targetControl)
+        public void ValidateControlCommand(string[] path, string command, RedwoodControl viewRootControl, RedwoodControl targetControl, string validationTargetPath)
         {
             // find the binding
             RedwoodProperty targetProperty;
-            var binding = FindControlCommandBinding(path, command, viewRootControl, (RedwoodBindableControl)targetControl, out targetProperty);
+            var binding = FindControlCommandBinding(path, command, viewRootControl, (RedwoodBindableControl)targetControl, validationTargetPath, out targetProperty);
             if (binding == null)
             {
                 ThrowEventValidationException();
@@ -90,7 +96,7 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
-        private ControlCommandBindingExpression FindControlCommandBinding(string[] path, string command, RedwoodControl viewRootControl, RedwoodBindableControl targetControl, out RedwoodProperty targetProperty)
+        private ControlCommandBindingExpression FindControlCommandBinding(string[] path, string command, RedwoodControl viewRootControl, RedwoodBindableControl targetControl, string validationTargetPath, out RedwoodProperty targetProperty)
         {
             // walk the control tree and find the path
             ControlCommandBindingExpression result = null;
@@ -111,9 +117,14 @@ namespace Redwood.Framework.Binding
                         // verify that the target control is the control command target
                         if (bindableControl.GetClosestControlBindingTarget() == targetControl)
                         {
-                            // we have found the binding
-                            result = (ControlCommandBindingExpression)binding.Value;
-                            resultProperty = binding.Key;
+                            // we have found the binding, now get the validation path
+                            var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(bindableControl);
+                            if (currentValidationTargetPath == validationTargetPath)
+                            {
+                                // the validation path is equal, we have found the binding
+                                result = (ControlCommandBindingExpression)binding.Value;
+                                resultProperty = binding.Key;
+                            }
                         }
                     }
                 }

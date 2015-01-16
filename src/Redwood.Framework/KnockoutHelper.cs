@@ -68,7 +68,7 @@ namespace Redwood.Framework
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        private static string GetValidationTargetExpression(RedwoodBindableControl control)
+        public static string GetValidationTargetExpression(RedwoodBindableControl control)
         {
             // find the closest control
             int dataSourceChanges;

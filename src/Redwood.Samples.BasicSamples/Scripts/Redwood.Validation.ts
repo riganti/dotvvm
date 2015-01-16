@@ -87,7 +87,7 @@ class RedwoodValidation
         }
     }
 
-    public errors: ValidationError[] = [];
+    public errors = ko.observableArray<ValidationError>([]);
 
     /// Validates the specified view model
     public validateViewModel(viewModel: any) {
@@ -148,10 +148,11 @@ class RedwoodValidation
 
     // clears validation errors
     public clearValidationErrors() {
-        for (var i = 0; i < this.errors.length; i++) {
-            this.errors[i].errorMessage("");
+        var errors = this.errors();
+        for (var i = 0; i < errors.length; i++) {
+            errors[i].errorMessage("");
         }
-        this.errors = [];
+        this.errors.removeAll();
     }
 };
 
@@ -172,8 +173,8 @@ redwood.events.beforePostback.subscribe(args => {
         // validate the object
         redwood.extensions.validation.clearValidationErrors();
         redwood.extensions.validation.validateViewModel(validationTarget);
-        if (redwood.extensions.validation.errors.length > 0) {
-            args.cancel = true;
+        if (redwood.extensions.validation.errors().length > 0) {
+            //args.cancel = true;
             return true;
         }
     }

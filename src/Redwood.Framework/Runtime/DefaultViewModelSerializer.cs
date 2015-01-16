@@ -113,6 +113,9 @@ namespace Redwood.Framework.Runtime
             var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
             var encryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
 
+            // get validation path
+            context.CommandValidationPath = data["validationTargetPath"].Value<string>();
+
             // populate the ViewModel
             var serializer = new JsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter() { EncryptedValues = encryptedValues };
@@ -151,11 +154,11 @@ namespace Redwood.Framework.Runtime
                     {
                         throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
                     }
-                    actionInfo = commandResolver.GetFunction(target, view, context.ViewModel, path, command);
+                    actionInfo = commandResolver.GetFunction(target, view, context, path, command);
                 }
                 else
                 {
-                    actionInfo = commandResolver.GetFunction(view, context.ViewModel, path, command);
+                    actionInfo = commandResolver.GetFunction(view, context, path, command);
                 }
             }
         }

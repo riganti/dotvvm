@@ -94,7 +94,7 @@ var RedwoodValidation = (function () {
                 element[element.innerText ? "innerText" : "textContent"] = errorMessage;
             }
         };
-        this.errors = [];
+        this.errors = ko.observableArray([]);
     }
     /// Validates the specified view model
     RedwoodValidation.prototype.validateViewModel = function (viewModel) {
@@ -148,10 +148,11 @@ var RedwoodValidation = (function () {
     };
     // clears validation errors
     RedwoodValidation.prototype.clearValidationErrors = function () {
-        for (var i = 0; i < this.errors.length; i++) {
-            this.errors[i].errorMessage("");
+        var errors = this.errors();
+        for (var i = 0; i < errors.length; i++) {
+            errors[i].errorMessage("");
         }
-        this.errors = [];
+        this.errors.removeAll();
     };
     return RedwoodValidation;
 })();
@@ -169,8 +170,8 @@ redwood.events.beforePostback.subscribe(function (args) {
         // validate the object
         redwood.extensions.validation.clearValidationErrors();
         redwood.extensions.validation.validateViewModel(validationTarget);
-        if (redwood.extensions.validation.errors.length > 0) {
-            args.cancel = true;
+        if (redwood.extensions.validation.errors().length > 0) {
+            //args.cancel = true;
             return true;
         }
     }

@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
 using Redwood.Framework.Runtime.Compilation;
 using Redwood.Framework.Runtime.Filters;
@@ -23,19 +24,20 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the command called on the RedwoodControl.
         /// </summary>
-        public ActionInfo GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, object viewModel, string[] path, string command)
+        public ActionInfo GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, RedwoodRequestContext context, string[] path, string command)
         {
             // event validation
             if (targetControl == null)
             {
-                eventValidator.ValidateCommand(path, command, viewRootControl);
+                eventValidator.ValidateCommand(path, command, viewRootControl, context.CommandValidationPath);
             }
             else
             {
-                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl);
+                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl, context.CommandValidationPath);
             }
 
             // resolve the path in the view model
+            var viewModel = context.ViewModel;
             List<object> hierarchy = ResolveViewModelPath(viewModel, viewRootControl, path);
 
             // find the function
@@ -95,9 +97,9 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the command called on the ViewModel.
         /// </summary>
-        public ActionInfo GetFunction(RedwoodControl viewRootControl, object viewModel, string[] path, string command)
+        public ActionInfo GetFunction(RedwoodControl viewRootControl, RedwoodRequestContext context, string[] path, string command)
         {
-            return GetFunction(null, viewRootControl, viewModel, path, command);
+            return GetFunction(null, viewRootControl, context, path, command);
         }
 
 

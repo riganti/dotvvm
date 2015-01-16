@@ -34,6 +34,9 @@ namespace Redwood.Framework.Hosting
 
         internal string CsrfToken { get; set; }
 
+        public string CommandValidationPath { get; set; }
+
+
         public IReadableStringCollection Query
         {
             get
@@ -92,5 +95,6 @@ namespace Redwood.Framework.Hosting
             }
             InterruptExecution();
         }
+
     }
 }

@@ -37,7 +37,8 @@ var Redwood = (function () {
             viewModel: ko.mapper.toJS(viewModel),
             currentPath: path,
             command: command,
-            controlUniqueId: controlUniqueId
+            controlUniqueId: controlUniqueId,
+            validationTargetPath: validationTargetPath || null
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), function (result) {
             var resultObject = JSON.parse(result.responseText);
