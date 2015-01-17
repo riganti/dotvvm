@@ -27,18 +27,25 @@ namespace Redwood.Framework.Binding
         public ActionInfo GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, RedwoodRequestContext context, string[] path, string command)
         {
             // event validation
+            var validationTargetPath = context.ModelState.ValidationTargetPath;
             if (targetControl == null)
             {
-                eventValidator.ValidateCommand(path, command, viewRootControl, context.CommandValidationPath);
+                eventValidator.ValidateCommand(path, command, viewRootControl, ref validationTargetPath);
             }
             else
             {
-                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl, context.CommandValidationPath);
+                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl, ref validationTargetPath);
             }
 
             // resolve the path in the view model
             var viewModel = context.ViewModel;
             List<object> hierarchy = ResolveViewModelPath(viewModel, viewRootControl, path);
+
+            // resolve validation target
+            if (!string.IsNullOrEmpty(validationTargetPath))
+            {
+                context.ModelState.ValidationTarget = EvaluateOnViewModel(viewModel, viewRootControl, hierarchy, validationTargetPath);
+            }
 
             // find the function
             var tree = CSharpSyntaxTree.ParseText(command, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
@@ -80,6 +87,18 @@ namespace Redwood.Framework.Binding
                     Value = arguments[index]
                 }).ToArray()
             };
+        }
+
+        /// <summary>
+        /// Evaluates the expression the on view model with specified hierarchy.
+        /// </summary>
+        private object EvaluateOnViewModel(object viewModel, RedwoodControl viewRootControl, List<object> hierarchy, string expression)
+        {
+            var pathTree = CSharpSyntaxTree.ParseText(expression, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
+            var pathExpr = pathTree.EnsureSingleExpression();
+
+            var visitor = new ExpressionEvaluationVisitor(viewModel, viewRootControl, hierarchy);
+            return visitor.Visit(pathExpr);
         }
 
         /// <summary>

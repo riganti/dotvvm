@@ -42,18 +42,21 @@ var Redwood = (function () {
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), function (result) {
             var resultObject = JSON.parse(result.responseText);
+            var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
                 // update the viewmodel
                 ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
-                // trigger afterPostback event
-                _this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(viewModel, viewModelName, resultObject));
+                isSuccess = true;
             }
             else if (resultObject.action === "redirect") {
                 // redirect
                 document.location.href = resultObject.url;
+                return;
             }
-            else {
-                throw "Invalid response from the server!";
+            // trigger afterPostback event
+            var isHandled = _this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject));
+            if (!isSuccess && !isHandled) {
+                throw "Invalid response from server!";
             }
         }, function (xhr) {
             if (!_this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
@@ -85,6 +88,9 @@ var Redwood = (function () {
             }
         };
         xhr.send(postData);
+    };
+    Redwood.prototype.evaluateOnViewModel = function (context, expression) {
+        return eval("(function (c) { return c." + expression + "; })")(context);
     };
     return Redwood;
 })();
@@ -157,10 +163,12 @@ var RedwoodBeforePostBackEventArgs = (function (_super) {
 })(RedwoodEventArgs);
 var RedwoodAfterPostBackEventArgs = (function (_super) {
     __extends(RedwoodAfterPostBackEventArgs, _super);
-    function RedwoodAfterPostBackEventArgs(viewModel, viewModelName, serverResponseObject) {
+    function RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, serverResponseObject) {
         _super.call(this, viewModel);
+        this.sender = sender;
         this.viewModel = viewModel;
         this.viewModelName = viewModelName;
+        this.validationTargetPath = validationTargetPath;
         this.serverResponseObject = serverResponseObject;
     }
     return RedwoodAfterPostBackEventArgs;

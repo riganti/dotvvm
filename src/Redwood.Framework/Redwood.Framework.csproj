@@ -92,6 +92,7 @@
     <Compile Include="Controls\ValidationMessage.cs" />
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
+    <Compile Include="Hosting\ModelState.cs" />
     <Compile Include="Hosting\RedwoodEmbeddedResourceMiddleware.cs" />
     <Compile Include="Hosting\RedwoodErrorPageMiddleware.cs" />
     <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
@@ -161,6 +162,7 @@
     <Compile Include="Runtime\Filters\ActionParameterInfo.cs" />
     <Compile Include="Runtime\Filters\AuthorizeAttribute.cs" />
     <Compile Include="Runtime\Filters\ExceptionFilterAttribute.cs" />
+    <Compile Include="Runtime\Filters\ModelValidationFilterAttribute.cs" />
     <Compile Include="Runtime\IControlBuilderFactory.cs" />
     <Compile Include="Runtime\IOutputRenderer.cs" />
     <Compile Include="Runtime\IRedwoodViewBuilder.cs" />

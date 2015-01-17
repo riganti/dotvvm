@@ -54,7 +54,7 @@ namespace Redwood.Framework
             };
             if ((bool)control.GetValue(Validate.EnabledProperty))
             {
-                var validationTargetExpression = GetValidationTargetExpression(control);
+                var validationTargetExpression = GetValidationTargetExpression(control, true);
                 if (validationTargetExpression != null)
                 {
                     arguments.Add("'" + validationTargetExpression + "'");
@@ -68,7 +68,7 @@ namespace Redwood.Framework
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        public static string GetValidationTargetExpression(RedwoodBindableControl control)
+        public static string GetValidationTargetExpression(RedwoodBindableControl control, bool translateToClientScript)
         {
             // find the closest control
             int dataSourceChanges;
@@ -81,8 +81,16 @@ namespace Redwood.Framework
             }
 
             // reparent the expression to work in current DataContext
-            var valueBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
-            var validationExpression = valueBindingExpression.TranslateToClientScript(validationTargetControl, Validate.TargetProperty);
+            var validationBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
+            string validationExpression;
+            if (translateToClientScript)
+            {
+                validationExpression = validationBindingExpression.TranslateToClientScript(control, Validate.TargetProperty);
+            }
+            else
+            {
+                validationExpression = validationBindingExpression.Expression;
+            }
             validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
 
             return validationExpression;

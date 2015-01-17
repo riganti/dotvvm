@@ -154,7 +154,7 @@ namespace Redwood.Framework.Tests.Runtime
         /// </summary>
         private static string WrapSerializedViewModel(string result)
         {
-            return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0}}}".Replace("'", "\""), result);
+            return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0},'validationTargetPath':''}}".Replace("'", "\""), result);
         }
 
         /// <summary>

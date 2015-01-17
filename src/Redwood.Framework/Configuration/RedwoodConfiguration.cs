@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using Redwood.Framework.Routing;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ResourceManagement;
+using Redwood.Framework.Runtime.Filters;
 
 namespace Redwood.Framework.Configuration
 {
@@ -77,6 +78,7 @@ namespace Redwood.Framework.Configuration
         public static RedwoodConfiguration CreateDefault()
         {
             var configuration = new RedwoodConfiguration();
+            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
 
             configuration.Markup.Controls.AddRange(new[]
             {

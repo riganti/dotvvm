@@ -15,6 +15,9 @@ namespace Redwood.Framework.Hosting
     public class RedwoodRequestContext
     {
 
+        internal string CsrfToken { get; set; }
+
+
 
         public IOwinContext OwinContext { get; internal set; }
         
@@ -28,13 +31,12 @@ namespace Redwood.Framework.Hosting
 
         public IDictionary<string, object> Parameters { get; set; }
 
-        public ResourceManager ResourceManager { get; set; }
+        public ResourceManager ResourceManager { get; internal set; }
 
         public object ViewModel { get; internal set; }
 
-        internal string CsrfToken { get; set; }
 
-        public string CommandValidationPath { get; set; }
+        public ModelState ModelState { get; private set; }
 
 
         public IReadableStringCollection Query
@@ -43,6 +45,14 @@ namespace Redwood.Framework.Hosting
             {
                 return OwinContext.Request.Query;
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedwoodRequestContext"/> class.
+        /// </summary>
+        public RedwoodRequestContext()
+        {
+            ModelState = new ModelState();
         }
 
         /// <summary>

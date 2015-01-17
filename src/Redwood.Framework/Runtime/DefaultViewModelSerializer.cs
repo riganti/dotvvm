@@ -53,7 +53,7 @@ namespace Redwood.Framework.Runtime
             
             // serialize validation rules
             var validationRules = SerializeValidationRules(viewModelConverter);
-
+            
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
@@ -92,6 +92,18 @@ namespace Redwood.Framework.Runtime
             result["action"] = "redirect";
             return result.ToString();
         }
+        
+        /// <summary>
+        /// Serializes the validation errors in case the viewmodel was not valid.
+        /// </summary>
+        public string SerializeModelState(RedwoodRequestContext context)
+        {
+            // create result object
+            var result = new JObject();
+            result["modelState"] = JArray.FromObject(context.ModelState.Errors);
+            result["action"] = "validationErrors";
+            return result.ToString();
+        }
 
 
         /// <summary>
@@ -111,7 +123,7 @@ namespace Redwood.Framework.Runtime
             var encryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
 
             // get validation path
-            context.CommandValidationPath = data["validationTargetPath"].Value<string>();
+            context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();
 
             // populate the ViewModel
             var serializer = new JsonSerializer();

@@ -40,18 +40,22 @@
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), result => {
             var resultObject = JSON.parse(result.responseText);
+
+            var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
                 // update the viewmodel
                 ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
-                
-                // trigger afterPostback event
-                this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(viewModel, viewModelName, resultObject));
-
+                isSuccess = true;
             } else if (resultObject.action === "redirect") {
                 // redirect
                 document.location.href = resultObject.url;
-            } else {
-                throw "Invalid response from the server!";
+                return;
+            } 
+            
+            // trigger afterPostback event
+            var isHandled = this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject));
+            if (!isSuccess && !isHandled) {
+                throw "Invalid response from server!";
             }
         }, xhr => {
             if (!this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
@@ -84,6 +88,10 @@
             }
         };
         xhr.send(postData);
+    }
+
+    public evaluateOnViewModel(context, expression) {
+        return eval("(function (c) { return c." + expression + "; })")(context);
     }
 }
 
@@ -146,7 +154,7 @@ class RedwoodBeforePostBackEventArgs extends RedwoodEventArgs {
     }
 }
 class RedwoodAfterPostBackEventArgs extends RedwoodEventArgs {
-    constructor(public viewModel: any, public viewModelName: string, public serverResponseObject: any) {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any) {
         super(viewModel);
     }
 }

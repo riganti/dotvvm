@@ -160,6 +160,46 @@ class RedwoodValidation
         }
         this.errors.removeAll();
     }
+
+    // merge validation rules
+    public mergeValidationRules(args: RedwoodAfterPostBackEventArgs) {
+        if (args.serverResponseObject.validationRules) {
+            var existingRules = redwood.viewModels[args.viewModelName].validationRules;
+
+            for (var type in args.serverResponseObject) {
+                if (!args.serverResponseObject.hasOwnProperty(type)) continue;
+                existingRules[type] = args.serverResponseObject[type];
+            }
+        }
+    }
+
+    // shows the validation errors from server
+    public showValidationErrorsFromServer(args: RedwoodAfterPostBackEventArgs) {
+        // resolve validation target
+        var context = ko.contextFor(args.sender);
+        var validationTarget = redwood.evaluateOnViewModel(context, args.validationTargetPath);
+
+        // add validation errors
+        this.clearValidationErrors();
+        var modelState = args.serverResponseObject.modelState;
+        for (var i = 0; i < modelState.length; i++) {
+            // find the observable property
+            var propertyPath = modelState[i].propertyPath;
+            var observable = redwood.evaluateOnViewModel(validationTarget, propertyPath);
+            var parent = redwood.evaluateOnViewModel(context, propertyPath.substring(0, propertyPath.lastIndexOf(".")) || "$data");
+            if (!ko.isObservable(observable) || !parent || !parent.$validationErrors) {
+                throw "Invalid validation path!";
+            }
+
+            // add the error to appropriate collections
+            var error = ValidationError.getOrCreate(observable);
+            error.errorMessage(modelState[i].errorMessage);
+            if (parent.$validationErrors.indexOf(error) < 0) {
+                parent.$validationErrors.push(error);
+            }
+            this.errors.push(error);
+        }
+    }
 };
 
 // init the plugin
@@ -174,28 +214,28 @@ redwood.events.beforePostback.subscribe(args => {
     if (args.validationTargetPath) {
         // resolve target
         var context = ko.contextFor(args.sender);
-        var validationTarget = eval("(function (c) { return c." + args.validationTargetPath + "; })")(context);
+        var validationTarget = redwood.evaluateOnViewModel(context, args.validationTargetPath);
         
         // validate the object
         redwood.extensions.validation.clearValidationErrors();
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
-            args.cancel = true;
+            //args.cancel = true;
             return true;
         }
     }
     return false;
 });
 
-// merge validation rules from postback with those we already have (required when a new type appears in the view model)
 redwood.events.afterPostback.subscribe(args => {
-    if (args.serverResponseObject.validationRules) {
-        var existingRules = redwood.viewModels[args.viewModelName].validationRules;
-
-        for (var type in args.serverResponseObject) {
-            if (!args.serverResponseObject.hasOwnProperty(type)) continue;
-            existingRules[type] = args.serverResponseObject[type];
-        }
+    if (args.serverResponseObject.action === "successfulCommand") {
+        // merge validation rules from postback with those we already have (required when a new type appears in the view model)
+        redwood.extensions.validation.mergeValidationRules(args);
+        return true;
+    } else if (args.serverResponseObject.action === "validationErrors") {
+        // apply validation errors from server
+        redwood.extensions.validation.showValidationErrorsFromServer(args);
+        return true;
     }
     return false;
 });

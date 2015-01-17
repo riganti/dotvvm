@@ -54,7 +54,7 @@ namespace Redwood.Framework.ViewModel
                         var index = 0;
                         foreach (var item in (IEnumerable)value)
                         {
-                            foreach (var error in ValidateViewModel(item, path + "[" + index + "]"))
+                            foreach (var error in ValidateViewModel(item, path + "()[" + index + "]"))
                             {
                                 yield return error;
                             }
@@ -78,7 +78,18 @@ namespace Redwood.Framework.ViewModel
         /// </summary>
         private string CombinePath(string prefix, string path)
         {
-            return string.IsNullOrEmpty(prefix) ? path : (prefix + "." + path);
+            if (string.IsNullOrEmpty(prefix))
+            {
+                return path;
+            }
+            else if (!prefix.EndsWith("]"))
+            {
+                return prefix + "()." + path;
+            }
+            else
+            {
+                return prefix + "." + path;
+            }
         }
     }
 }

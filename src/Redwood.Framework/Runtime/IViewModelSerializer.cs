@@ -14,6 +14,8 @@ namespace Redwood.Framework.Runtime
 
         string SerializeRedirectAction(RedwoodRequestContext context, string url);
 
+        string SerializeModelState(RedwoodRequestContext context);
+
         void PopulateViewModel(RedwoodRequestContext context, RedwoodView view, string serializedPostData);
 
         void ResolveCommand(RedwoodRequestContext context, RedwoodView view, string serializedPostData, out ActionInfo actionInfo);
