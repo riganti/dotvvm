@@ -49,6 +49,7 @@
       <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="System" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
@@ -82,6 +83,7 @@
     <Compile Include="Runtime\DefaultViewCompilerTests.cs" />
     <Compile Include="Runtime\NamingContainersTests.cs" />
     <Compile Include="TestExtensions.cs" />
+    <Compile Include="ViewModel\ViewModelValidatorTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Redwood.Framework\Redwood.Framework.csproj">

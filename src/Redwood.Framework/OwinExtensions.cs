@@ -31,7 +31,7 @@ namespace Redwood.Framework
             app.Use<RedwoodEmbeddedResourceMiddleware>();
 
             app.Use<RedwoodMiddleware>(configuration);
-
+            
             return configuration;
         }
         

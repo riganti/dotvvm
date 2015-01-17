@@ -4,7 +4,6 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Redwood.Framework.Binding;
-using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime.Filters;
@@ -18,12 +17,10 @@ namespace Redwood.Framework.Runtime
 
         private CommandResolver commandResolver = new CommandResolver();
 
-        private RedwoodConfiguration configuration;
-        private readonly IViewModelProtector viewModelProtector;
+        private readonly IViewModelProtector viewModelProtector; 
 
-        public DefaultViewModelSerializer(RedwoodConfiguration configuration, IViewModelProtector viewModelProtector)
+        public DefaultViewModelSerializer(IViewModelProtector viewModelProtector)
         {
-            this.configuration = configuration;
             this.viewModelProtector = viewModelProtector;
         }
 
@@ -35,11 +32,15 @@ namespace Redwood.Framework.Runtime
         {
             // serialize the ViewModel
             var serializer = new JsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter() { EncryptedValues = new JArray() };
+            var viewModelConverter = new ViewModelJsonConverter()
+            {
+                EncryptedValues = new JArray(),
+                UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
+            };
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
             serializer.Serialize(writer, context.ViewModel);
-
+            
             // save the control state
             var walker = new ViewModelJTokenControlTreeWalker(writer.Token, view);
             walker.ProcessControlTree(walker.SaveControlState);
@@ -49,13 +50,35 @@ namespace Redwood.Framework.Runtime
 
             // persist encrypted values
             writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(), context);
-
+            
+            // serialize validation rules
+            var validationRules = SerializeValidationRules(viewModelConverter);
+            
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
             result["action"] = "successfulCommand";
+            result["validationRules"] = validationRules;
 
             return result.ToString();
+        }
+
+        /// <summary>
+        /// Serializes the validation rules.
+        /// </summary>
+        private JObject SerializeValidationRules(ViewModelJsonConverter viewModelConverter)
+        {
+            var validationRules = new JObject();
+            foreach (var map in viewModelConverter.UsedSerializationMaps)
+            {
+                var rule = new JObject();
+                foreach (var property in map.Properties.Where(p => p.ValidationRules.Any()))
+                {
+                    rule[property.Name] = JToken.FromObject(property.ValidationRules);
+                }
+                validationRules[map.Type.ToString()] = rule;
+            }
+            return validationRules;
         }
 
         /// <summary>
@@ -67,6 +90,18 @@ namespace Redwood.Framework.Runtime
             var result = new JObject();
             result["url"] = url;
             result["action"] = "redirect";
+            return result.ToString();
+        }
+        
+        /// <summary>
+        /// Serializes the validation errors in case the viewmodel was not valid.
+        /// </summary>
+        public string SerializeModelState(RedwoodRequestContext context)
+        {
+            // create result object
+            var result = new JObject();
+            result["modelState"] = JArray.FromObject(context.ModelState.Errors);
+            result["action"] = "validationErrors";
             return result.ToString();
         }
 
@@ -86,7 +121,10 @@ namespace Redwood.Framework.Runtime
             // load encrypted values
             var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
             var encryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
-            
+
+            // get validation path
+            context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();
+
             // populate the ViewModel
             var serializer = new JsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter() { EncryptedValues = encryptedValues };
@@ -125,11 +163,11 @@ namespace Redwood.Framework.Runtime
                     {
                         throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));
                     }
-                    actionInfo = commandResolver.GetFunction(target, view, context.ViewModel, path, command);
+                    actionInfo = commandResolver.GetFunction(target, view, context, path, command);
                 }
                 else
                 {
-                    actionInfo = commandResolver.GetFunction(view, context.ViewModel, path, command);
+                    actionInfo = commandResolver.GetFunction(view, context, path, command);
                 }
             }
         }

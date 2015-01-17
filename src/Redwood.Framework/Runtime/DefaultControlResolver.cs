@@ -1,8 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.IO;
+using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
@@ -21,8 +22,11 @@ namespace Redwood.Framework.Runtime
         private readonly IControlBuilderFactory controlBuilderFactory;
         private readonly IMarkupFileLoader markupFileLoader;
 
-        private ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>();
-        private ConcurrentDictionary<Type, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<Type, ControlResolverMetadata>();
+        private static ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>();
+        private static ConcurrentDictionary<Type, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<Type, ControlResolverMetadata>();
+
+        private static object locker = new object();
+        private static bool isInitialized = false;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlResolver"/> class.
@@ -32,6 +36,32 @@ namespace Redwood.Framework.Runtime
             this.configuration = configuration;
             this.controlBuilderFactory = controlBuilderFactory;
             this.markupFileLoader = markupFileLoader;
+
+            if (!isInitialized)
+            {
+                lock (locker)
+                {
+                    if (!isInitialized)
+                    {
+                        InvokeStaticConstructorsOnAllControls();
+                        isInitialized = true;
+                    }
+                }
+            }
+        }
+
+        /// <summary>
+        /// Invokes the static constructors on all controls to register all <see cref="RedwoodProperty"/>.
+        /// </summary>
+        private void InvokeStaticConstructorsOnAllControls()
+        {
+            foreach (var type in AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(t => t.IsClass))
+            {
+                if (type.GetCustomAttribute<ContainsRedwoodPropertiesAttribute>(true) != null)
+                {
+                    RuntimeHelpers.RunClassConstructor(type.TypeHandle);
+                }
+            }
         }
 
 
@@ -51,7 +81,8 @@ namespace Redwood.Framework.Runtime
             var searchKey = GetSearchKey(tagPrefix, tagName);
             activationParameters = null;
             var controlType = cachedTagMappings.GetOrAdd(searchKey, _ => FindControlMetadata(tagPrefix, tagName));
-            return ResolveControl(controlType.Type, controlType.ControlBuilderType);
+            var metadata = ResolveControl(controlType.Type, controlType.ControlBuilderType);
+            return metadata;
         }
 
         private static string GetSearchKey(string tagPrefix, string tagName)
@@ -159,29 +190,17 @@ namespace Redwood.Framework.Runtime
                 HasHtmlAttributesCollection = typeof(IControlWithHtmlAttributes).IsAssignableFrom(controlType),
                 Type = controlType,
                 ControlBuilderType = controlBuilderType,
-                Properties = controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
-                    .Select(p => new ControlResolverPropertyMetadata()
-                    {
-                        Options = p.GetCustomAttribute<MarkupOptionsAttribute>() ?? new MarkupOptionsAttribute()
-                        {
-                            AllowBinding = true,
-                            AllowHardCodedValue = true,
-                            MappingMode = MappingMode.Attribute,
-                            Name = p.Name
-                        },
-                        PropertyInfo = p
-                    })
-                    .Select(p =>
-                    {
-                        if (p.Options.Name == null)
-                        {
-                            p.Options.Name = p.PropertyInfo.Name;
-                        }
-                        return p;
-                    })
-                    .ToDictionary(p => p.Options.Name, p => p)
+                Properties = GetControlProperties(controlType)
             };
             return metadata;
+        }
+
+        /// <summary>
+        /// Gets the control properties.
+        /// </summary>
+        private Dictionary<string, RedwoodProperty> GetControlProperties(Type controlType)
+        {
+            return RedwoodProperty.ResolveProperties(controlType).ToDictionary(p => p.Name, p => p);
         }
     }
 }

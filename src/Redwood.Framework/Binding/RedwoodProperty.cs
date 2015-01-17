@@ -46,11 +46,24 @@ namespace Redwood.Framework.Binding
         public PropertyInfo PropertyInfo { get; set; }
 
         /// <summary>
+        /// Gets or sets the markup options.
+        /// </summary>
+        public MarkupOptionsAttribute MarkupOptions { get; set; }
+
+        /// <summary>
+        /// Gets the full name of the descriptor.
+        /// </summary>
+        public string DescriptorFullName
+        {
+            get { return DeclaringType.FullName + "." + Name + "Property"; }
+        }
+
+        /// <summary>
         /// Gets the full name of the property.
         /// </summary>
         public string FullName
         {
-            get { return PropertyType.Name + "." + Name; }
+            get { return DeclaringType.Name + "." + Name; }
         }
 
 
@@ -103,14 +116,31 @@ namespace Redwood.Framework.Binding
         {
             var fullName = typeof (TDeclaringType).FullName + "." + propertyName;
             
-            return registeredProperties.GetOrAdd(fullName, _ => new RedwoodProperty()
+            return registeredProperties.GetOrAdd(fullName, _ =>
             {
-                Name = propertyName,
-                DefaultValue = defaultValue ?? default(TPropertyType),
-                DeclaringType = typeof(TDeclaringType),
-                PropertyType = typeof(TPropertyType),
-                IsValueInherited = isValueInherited,
-                PropertyInfo = typeof(TDeclaringType).GetProperty(propertyName)
+                var propertyInfo = typeof (TDeclaringType).GetProperty(propertyName);
+                var markupOptions = (propertyInfo != null ? propertyInfo.GetCustomAttribute<MarkupOptionsAttribute>() : null) ?? new MarkupOptionsAttribute()
+                {
+                    AllowBinding = true,
+                    AllowHardCodedValue = true,
+                    MappingMode = MappingMode.Attribute,
+                    Name = propertyName
+                };
+                if (string.IsNullOrEmpty(markupOptions.Name))
+                {
+                    markupOptions.Name = propertyName;
+                }
+
+                return new RedwoodProperty()
+                {
+                    Name = propertyName,
+                    DefaultValue = defaultValue ?? default(TPropertyType),
+                    DeclaringType = typeof (TDeclaringType),
+                    PropertyType = typeof (TPropertyType),
+                    IsValueInherited = isValueInherited,
+                    PropertyInfo = propertyInfo,
+                    MarkupOptions = markupOptions
+                };
             });
         }
 
@@ -150,6 +180,14 @@ namespace Redwood.Framework.Binding
         }
 
         /// <summary>
+        /// Resolves the <see cref="RedwoodProperty"/> from the full name (DeclaringTypeName.PropertyName).
+        /// </summary>
+        public static RedwoodProperty ResolveProperty(string fullName)
+        {
+            return registeredProperties.Values.LastOrDefault(p => p.FullName == fullName);
+        }
+
+        /// <summary>
         /// Resolves all properties of specified type.
         /// </summary>
         public static IReadOnlyList<RedwoodProperty> ResolveProperties(Type type)
@@ -180,8 +218,11 @@ namespace Redwood.Framework.Binding
                         bindableControl.SetBinding(this, (ControlStateBindingExpression)DefaultValue);
                     }
 
-                    var value = PropertyInfo.GetValue(redwoodControl);
-                    ((ControlStateBindingExpression)DefaultValue).UpdateSource(value, bindableControl, this);
+                    if (PropertyInfo.SetMethod == null)
+                    {
+                        var value = PropertyInfo.GetValue(redwoodControl);
+                        ((ControlStateBindingExpression)DefaultValue).UpdateSource(value, bindableControl, this);
+                    }
                 }
             }
         }

@@ -8,6 +8,7 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// Contains properties that are intended for internal use.
     /// </summary>
+    [ContainsRedwoodProperties]
     public class Internal
     {
         

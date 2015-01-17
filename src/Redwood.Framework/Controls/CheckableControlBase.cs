@@ -41,7 +41,7 @@ namespace Redwood.Framework.Controls
             set { SetValue(CheckedValueProperty, value); }
         }
         public static readonly RedwoodProperty CheckedValueProperty =
-            RedwoodProperty.Register<object, CheckBox>(t => t.CheckedValue, null);
+            RedwoodProperty.Register<object, CheckableControlBase>(t => t.CheckedValue, null);
 
 
         /// <summary>

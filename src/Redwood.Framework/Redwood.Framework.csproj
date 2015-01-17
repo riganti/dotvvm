@@ -86,7 +86,13 @@
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
+    <Compile Include="Controls\ContainsRedwoodPropertiesAttribute.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
+    <Compile Include="Controls\Validate.cs" />
+    <Compile Include="Controls\ValidationMessage.cs" />
+    <Compile Include="Controls\ValidationMessageMode.cs" />
+    <Compile Include="Controls\ValidationSummary.cs" />
+    <Compile Include="Hosting\ModelState.cs" />
     <Compile Include="Hosting\RedwoodEmbeddedResourceMiddleware.cs" />
     <Compile Include="Hosting\RedwoodErrorPageMiddleware.cs" />
     <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
@@ -156,6 +162,7 @@
     <Compile Include="Runtime\Filters\ActionParameterInfo.cs" />
     <Compile Include="Runtime\Filters\AuthorizeAttribute.cs" />
     <Compile Include="Runtime\Filters\ExceptionFilterAttribute.cs" />
+    <Compile Include="Runtime\Filters\ModelValidationFilterAttribute.cs" />
     <Compile Include="Runtime\IControlBuilderFactory.cs" />
     <Compile Include="Runtime\IOutputRenderer.cs" />
     <Compile Include="Runtime\IRedwoodViewBuilder.cs" />
@@ -223,19 +230,22 @@
     <Compile Include="Routing\RedwoodRouteTable.cs" />
     <Compile Include="Routing\RouteBase.cs" />
     <Compile Include="Runtime\ControlResolverMetadata.cs" />
-    <Compile Include="Runtime\ControlResolverPropertyMetadata.cs" />
     <Compile Include="Runtime\ControlType.cs" />
     <Compile Include="Runtime\DefaultControlResolver.cs" />
     <Compile Include="Runtime\IControlBuilder.cs" />
     <Compile Include="Runtime\IControlResolver.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
     <Compile Include="ViewModel\ControlTreeWalker.cs" />
+    <Compile Include="ViewModel\IViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\NonEvaluatingControlTreeWalker.cs" />
     <Compile Include="ViewModel\NullEvaluator.cs" />
     <Compile Include="ViewModel\ViewModelJTokenControlTreeWalker.cs" />
+    <Compile Include="ViewModel\ViewModelValidator.cs" />
+    <Compile Include="ViewModel\ViewModelPropertyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
     <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
     <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
@@ -248,6 +258,8 @@
     <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMapper.cs" />
+    <Compile Include="ViewModel\ViewModelValidationError.cs" />
+    <Compile Include="ViewModel\ViewModelValidationRuleTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Redwood.Framework.Configuration;
-using Redwood.Framework.Parser;
-using Redwood.Framework.ViewModel;
 using Redwood.Framework.ResourceManagement;
 
 namespace Redwood.Framework.Hosting

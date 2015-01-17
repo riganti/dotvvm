@@ -12,6 +12,7 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// Represents a base class for all Redwood controls.
     /// </summary>
+    [ContainsRedwoodProperties]
     public abstract class RedwoodControl
     {
        
@@ -137,6 +138,14 @@ namespace Redwood.Framework.Controls
                 yield return ancestor;
                 ancestor = ancestor.Parent;
             }
+        }
+
+        /// <summary>
+        /// Determines whether the control has only white space content.
+        /// </summary>
+        public bool HasNonWhiteSpaceContent()
+        {
+            return Children.All(c => (c is Literal && ((Literal)c).HasWhiteSpaceContentOnly()));
         }
 
 

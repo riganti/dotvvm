@@ -23,7 +23,9 @@ namespace Redwood.Framework.Controls.Infrastructure
         public RedwoodView()
         {
             Directives = new Dictionary<string, string>();
-            ResourceDependencies.Add("redwood");
+
+            ResourceDependencies.Add(Constants.RedwoodResourceName);
+            ResourceDependencies.Add(Constants.RedwoodValidationResourceName);
         }
 
         public override void Render(IHtmlWriter writer, RenderContext context)

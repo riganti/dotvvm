@@ -29,7 +29,7 @@ namespace Redwood.Framework.Controls.Bootstrap
         {
             if (Icon != GlyphIcons.Empty)
             {
-                var iconName = Icon.ToString().Replace("_", "-");
+                var iconName = KnockoutHelper.ConvertToCamelCase(Icon.ToString().Replace("_", "-"));
                 writer.AddAttribute("class", "glyphicon glyphicon-" + iconName);
             }
             base.AddAttributesToRender(writer, context);

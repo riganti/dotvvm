@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.ViewModel
 {
@@ -40,11 +41,11 @@ namespace Redwood.Framework.ViewModel
             get { return readerFactory ?? (readerFactory = CreateReaderFactory()); }
         }
 
-        private Action<JsonWriter, object, JsonSerializer, JArray> writerFactory;
+        private Action<JsonWriter, object, JsonSerializer, JArray, HashSet<ViewModelSerializationMap>, ViewModelSerializationMap> writerFactory;
         /// <summary>
         /// Gets the JSON writer factory.
         /// </summary>
-        public Action<JsonWriter, object, JsonSerializer, JArray> WriterFactory
+        public Action<JsonWriter, object, JsonSerializer, JArray, HashSet<ViewModelSerializationMap>, ViewModelSerializationMap> WriterFactory
         {
             get { return writerFactory ?? (writerFactory = CreateWriterFactory()); }
         }
@@ -128,8 +129,8 @@ namespace Redwood.Framework.ViewModel
                                 levc - ev.Count != (int)GetAndRemove(ev, 0), lastEVcount, encryptedValues),
                             Expression.Throw(Expression.New(typeof(System.Security.SecurityException)))
                         ));
-                    }
                 }
+            }
             }
 
             block.Add(value);
@@ -153,19 +154,36 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Creates the writer factory.
         /// </summary>
-        public Action<JsonWriter, object, JsonSerializer, JArray> CreateWriterFactory()
+        public Action<JsonWriter, object, JsonSerializer, JArray, HashSet<ViewModelSerializationMap>, ViewModelSerializationMap> CreateWriterFactory()
         {
             var block = new List<Expression>();
             var writer = Expression.Parameter(typeof(JsonWriter), "writer");
             var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var serializer = Expression.Parameter(typeof(JsonSerializer), "serializer");
             var encryptedValues = Expression.Parameter(typeof(JArray), "encryptedValues");
+            var usedTypes = Expression.Parameter(typeof(HashSet<ViewModelSerializationMap>), "usedTypes");
+            var serializationMap = Expression.Parameter(typeof(ViewModelSerializationMap), "serializationMap");
             var value = Expression.Variable(Type, "value");
             var lastEVcount = Expression.Variable(typeof(int), "lastEncrypedValuesCount");
 
+            // usedMaps.Add(serializationMap);
+            block.Add(ExpressionUtils.Replace((HashSet<ViewModelSerializationMap> ut, ViewModelSerializationMap sm) => ut.Add(sm), usedTypes, serializationMap));
+            
             // value = ({Type})valueParam;
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
+
+            // writer.WritePropertyName("$validationErrors")
+            // writer.WriteStartArray()
+            // writer.WriteEndArray()
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$validationErrors"), writer));
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WriteStartArray(), writer));
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WriteEndArray(), writer));
+
+            // writer.WritePropertyName("$type");
+            // serializer.Serialize(writer, value.GetType().FullName)
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$type"), writer));
+            block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.FullName)));
 
             // go through all properties that should be serialized
             foreach (var property in Properties.Where(map => map.TransferToClient))
@@ -207,8 +225,8 @@ namespace Redwood.Framework.ViewModel
             block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
 
             // compile the expression
-            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, JArray>>(
-                Expression.Block(new[] { value, lastEVcount }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValues);
+            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, JArray, HashSet<ViewModelSerializationMap>, ViewModelSerializationMap>>(
+                Expression.Block(new[] { value, lastEVcount }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValues, usedTypes, serializationMap);
             return ex.Compile();
         }
 

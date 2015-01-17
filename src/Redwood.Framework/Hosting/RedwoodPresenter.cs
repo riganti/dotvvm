@@ -11,7 +11,6 @@ using Redwood.Framework.ViewModel;
 using Redwood.Framework.Runtime;
 using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
-using Microsoft.Owin;
 
 namespace Redwood.Framework.Hosting
 {

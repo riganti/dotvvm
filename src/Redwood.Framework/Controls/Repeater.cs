@@ -31,16 +31,17 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public string WrapperTagName
         {
-            get { return TagName; }
-            set { TagName = value; }
+            get { return (string)GetValue(WrapperTagNameProperty); }
+            set { SetValue(WrapperTagNameProperty, value); }
         }
+        public static readonly RedwoodProperty WrapperTagNameProperty =
+            RedwoodProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Repeater"/> class.
         /// </summary>
         public Repeater()
         {
-            TagName = "div";
         }
 
 
@@ -90,6 +91,8 @@ namespace Redwood.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            TagName = WrapperTagName;
+
             if (!RenderOnServer)
             {
                 writer.AddKnockoutDataBind("foreach", this, DataSourceProperty, () => { });
