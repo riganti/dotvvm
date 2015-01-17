@@ -142,14 +142,12 @@ var RedwoodValidation = (function () {
             if (!ruleTemplate.isValid(context)) {
                 // add error message
                 validationError.errorMessage(rule.errorMessage);
-                viewModel.$validationErrors.push(validationError);
-                this.errors.push(validationError);
+                this.addValidationError(viewModel, validationError);
             }
             else {
                 // remove
                 validationError.errorMessage("");
-                viewModel.$validationErrors.push(validationError);
-                this.errors.remove(validationError);
+                this.removeValidationError(viewModel, validationError);
             }
         }
     };
@@ -191,11 +189,18 @@ var RedwoodValidation = (function () {
             // add the error to appropriate collections
             var error = ValidationError.getOrCreate(observable);
             error.errorMessage(modelState[i].errorMessage);
-            if (parent.$validationErrors.indexOf(error) < 0) {
-                parent.$validationErrors.push(error);
-            }
-            this.errors.push(error);
+            this.addValidationError(parent, error);
         }
+    };
+    RedwoodValidation.prototype.addValidationError = function (viewModel, error) {
+        if (viewModel.$validationErrors.indexOf(error) < 0) {
+            viewModel.$validationErrors.push(error);
+        }
+        this.errors.push(error);
+    };
+    RedwoodValidation.prototype.removeValidationError = function (viewModel, error) {
+        viewModel.$validationErrors.push(error);
+        this.errors.remove(error);
     };
     return RedwoodValidation;
 })();

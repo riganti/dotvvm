@@ -11,7 +11,7 @@ namespace Redwood.Framework.Controls
 
         public static RedwoodProperty EnabledProperty = RedwoodProperty.Register<bool, Validate>("Enabled", true);
 
-        public static RedwoodProperty TargetProperty = RedwoodProperty.Register<object, Validate>("Target", true);
+        public static RedwoodProperty TargetProperty = RedwoodProperty.Register<object, Validate>("Target", new ValueBindingExpression("_root"));
 
     }
 }

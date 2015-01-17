@@ -52,13 +52,11 @@ namespace Redwood.Framework
                 "'" + expression.Expression + "'",
                 "'" + uniqueControlId + "'"
             };
-            if ((bool)control.GetValue(Validate.EnabledProperty))
+            
+            var validationTargetExpression = GetValidationTargetExpression(control, true);
+            if (validationTargetExpression != null)
             {
-                var validationTargetExpression = GetValidationTargetExpression(control, true);
-                if (validationTargetExpression != null)
-                {
-                    arguments.Add("'" + validationTargetExpression + "'");
-                }
+                arguments.Add("'" + validationTargetExpression + "'");
             }
 
             // postback without validation
@@ -70,6 +68,11 @@ namespace Redwood.Framework
         /// </summary>
         public static string GetValidationTargetExpression(RedwoodBindableControl control, bool translateToClientScript)
         {
+            if (!(bool)control.GetValue(Validate.EnabledProperty))
+            {
+                return null;
+            }
+
             // find the closest control
             int dataSourceChanges;
             var validationTargetControl = (RedwoodBindableControl)control.GetClosestWithPropertyValue(

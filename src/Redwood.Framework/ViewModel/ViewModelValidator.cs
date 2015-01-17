@@ -24,6 +24,11 @@ namespace Redwood.Framework.ViewModel
             {
                 yield break;
             }
+            var viewModelType = viewModel.GetType();
+            if (ViewModelJsonConverter.IsPrimitiveType(viewModelType) || ViewModelJsonConverter.IsNullableType(viewModelType))
+            {
+                yield break;
+            }
 
             // validate all properties on the object
             var map = ViewModelJsonConverter.GetSerializationMapForType(viewModel.GetType());
