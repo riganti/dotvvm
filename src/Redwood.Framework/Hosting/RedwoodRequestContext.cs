@@ -7,6 +7,7 @@ using System.Net;
 using System.Threading;
 using Microsoft.Owin;
 using Redwood.Framework.Configuration;
+using Redwood.Framework.Controls;
 using Redwood.Framework.Routing;
 using Redwood.Framework.ResourceManagement;
 
@@ -106,5 +107,18 @@ namespace Redwood.Framework.Hosting
             InterruptExecution();
         }
 
+        /// <summary>
+        /// Ends the request execution when the <see cref="ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
+        /// If it is, it does nothing.
+        /// </summary>
+        public void FailOnInvalidModelState()
+        {
+            if (!ModelState.IsValid)
+            {
+                OwinContext.Response.ContentType = "application/json";
+                OwinContext.Response.Write(Presenter.ViewModelSerializer.SerializeModelState(this));
+                throw new RedwoodInterruptRequestExecutionException("The ViewModel contains validation errors!");
+            }
+        }
     }
 }

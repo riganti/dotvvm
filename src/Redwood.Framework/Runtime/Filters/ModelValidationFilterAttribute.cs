@@ -27,14 +27,9 @@ namespace Redwood.Framework.Runtime.Filters
                 context.ModelState.Errors.AddRange(viewModelValidator.ValidateViewModel(context.ModelState.ValidationTarget));
 
                 // return the model state when error occurs
-                if (!context.ModelState.IsValid)
-                {
-                    context.OwinContext.Response.ContentType = "application/json";
-                    context.OwinContext.Response.Write(context.Presenter.ViewModelSerializer.SerializeModelState(context));
-                    throw new RedwoodInterruptRequestExecutionException("The ViewModel contains validation errors!");
-                }
+                context.FailOnInvalidModelState();
             }
-            
+
             base.OnCommandExecuting(context, actionInfo);
         }
     }
