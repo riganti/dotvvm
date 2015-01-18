@@ -41,12 +41,9 @@ Roadmap
 -------
 
 + **Version 0.1**: First working demo. Basic controls, postback support.
-+ **Version 0.2 (current)**: Few basic samples, master pages, simple stateless markup controls.
-+ **Version 0.3**: Stateful controls, Render.UpdateOnPostback property.
-+ **Version 0.4**: Basic Visual Studio integration, Validation.
-+ **Version 0.5**: More controls (Bootstrap support).
++ **Version 0.2**: Few basic samples, master pages, simple stateless markup controls.
++ **Version 0.3 (current)**: Stateful controls, Validation, Render.UpdateOnPostback property
++ **Version 0.4**: Basic Visual Studio integration.
++ **Version 0.5**: More controls.
 + **Version 0.6**: Xamarin support for hosting Redwood in mobile apps.
 + **Version 0.7**: Automated translation of C# ViewModel commands to javascript.
-
-
-
