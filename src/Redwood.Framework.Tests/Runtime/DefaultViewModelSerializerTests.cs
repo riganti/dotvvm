@@ -59,7 +59,8 @@ namespace Redwood.Framework.Tests.Runtime
                 }
             };
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context, new RedwoodView());
+            serializer.BuildViewModel(context, new RedwoodView());
+            var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
@@ -107,8 +108,9 @@ namespace Redwood.Framework.Tests.Runtime
                 }
             };
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context, new RedwoodView());
 
+            serializer.BuildViewModel(context, new RedwoodView());
+            var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 

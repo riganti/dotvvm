@@ -28,13 +28,18 @@ namespace Redwood.Framework.Controls.Infrastructure
             ResourceDependencies.Add(Constants.RedwoodValidationResourceName);
         }
 
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        /// <summary>
+        /// Renders the control begin tag.
+        /// </summary>
+        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             if (Directives.ContainsKey(Constants.DoctypeDirectiveName))
             {
                 writer.WriteUnencodedText(string.Format("<!DOCTYPE {0}>\r\n", Directives[Constants.DoctypeDirectiveName]));
             }
-            base.Render(writer, context);
+
+            base.RenderBeginTag(writer, context);
         }
+
     }
 }

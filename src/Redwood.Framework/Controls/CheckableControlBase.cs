@@ -55,7 +55,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Renders the children.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             // label
             var textBinding = GetBinding(TextProperty);
