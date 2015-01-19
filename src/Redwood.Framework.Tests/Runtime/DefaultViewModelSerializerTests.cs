@@ -38,7 +38,8 @@ namespace Redwood.Framework.Tests.Runtime
                         UriGet = () => new Uri("http://localhost:8628/Sample1"),
                         UserGet = () => new WindowsPrincipal(WindowsIdentity.GetAnonymous())
                     }
-                }
+                },
+                Presenter = configuration.RouteTable.CreateDefaultPresenter()
             };
         }
 
@@ -156,7 +157,7 @@ namespace Redwood.Framework.Tests.Runtime
         /// </summary>
         private static string WrapSerializedViewModel(string result)
         {
-            return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0},'validationTargetPath':''}}".Replace("'", "\""), result);
+            return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0},'validationTargetPath':'','updatedControls':{{}}}}".Replace("'", "\""), result);
         }
 
         /// <summary>

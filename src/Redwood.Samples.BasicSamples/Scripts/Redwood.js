@@ -44,9 +44,33 @@ var Redwood = (function () {
             var resultObject = JSON.parse(result.responseText);
             var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
+                // remove updated controls
+                var updatedControls = {};
+                for (var id in resultObject.updatedControls) {
+                    if (resultObject.updatedControls.hasOwnProperty(id)) {
+                        var control = document.getElementById(id);
+                        var nextSibling = control.nextSibling;
+                        var parent = control.parentNode;
+                        ko.removeNode(control);
+                        updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                    }
+                }
                 // update the viewmodel
                 ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
                 isSuccess = true;
+                for (id in resultObject.updatedControls) {
+                    if (resultObject.updatedControls.hasOwnProperty(id)) {
+                        var updatedControl = updatedControls[id];
+                        if (updatedControl.nextSibling) {
+                            updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                        }
+                        else {
+                            updatedControl.parent.appendChild(updatedControl.control);
+                        }
+                        updatedControl.control.outerHTML = resultObject.updatedControls[id];
+                        ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
+                    }
+                }
             }
             else if (resultObject.action === "redirect") {
                 // redirect
