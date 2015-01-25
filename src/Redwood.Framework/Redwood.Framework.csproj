@@ -91,6 +91,9 @@
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\MultiHtmlWriter.cs" />
     <Compile Include="Controls\Validate.cs" />
+    <Compile Include="Controls\ListBox.cs" />
+    <Compile Include="Controls\SelectHtmlControlBase.cs" />
+    <Compile Include="Controls\Selector.cs" />
     <Compile Include="Controls\ValidationMessage.cs" />
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />

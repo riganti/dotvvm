@@ -51,6 +51,16 @@ namespace Redwood.Framework.ViewModel
         /// </summary>
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
+            // handle null keyword
+            if (reader.TokenType == JsonToken.Null)
+            {
+                if (objectType.IsValueType)
+                    throw new InvalidOperationException(string.Format("Recieved NULL for value type. Path: " + reader.Path));
+
+                return null;
+            }
+
+            // deserialize
             var serializationMap = GetSerializationMapForType(objectType);
             var instance = serializationMap.ConstructorFactory();
             serializationMap.ReaderFactory(JObject.Load(reader), serializer, instance, EncryptedValues);

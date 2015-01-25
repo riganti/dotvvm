@@ -38,7 +38,14 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty VisibleProperty =
             RedwoodProperty.Register<bool, HtmlGenericControl>(t => t.Visible, true);
 
-
+        public string InnerText
+        {
+            get { return (string)GetValue(InnerTextProperty); }
+            set { SetValue(InnerTextProperty, value); }
+        }
+        public static readonly RedwoodProperty InnerTextProperty =
+            RedwoodProperty.Register<string, HtmlGenericControl>(t => t.InnerText, null);
+    
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
@@ -82,6 +89,13 @@ namespace Redwood.Framework.Controls
                 {
                     writer.AddStyleAttribute("display", "none");
                 }
+            });
+
+            // handle Text property
+            writer.AddKnockoutDataBind("text", this, InnerTextProperty, () =>
+            {
+                // inner Text is rendered as attribute only if contains binding
+                // otherwise it is rendered directly as encoded content
             });
 
             // hadle Id property

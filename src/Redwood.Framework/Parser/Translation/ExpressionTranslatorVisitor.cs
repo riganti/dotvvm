@@ -164,6 +164,10 @@ namespace Redwood.Framework.Parser.Translation
             {
                 return Convert.ToDouble(node.Token.Value).ToString(CultureInfo.InvariantCulture);
             }
+            else if(node.IsKind(SyntaxKind.NullLiteralExpression))
+            {
+                return "null";
+            }
 
             return base.VisitLiteralExpression(node);
         }
@@ -188,7 +192,6 @@ namespace Redwood.Framework.Parser.Translation
         {
             return Visit(node.Expression);
         }
-
 
         public override string DefaultVisit(SyntaxNode node)
         {
