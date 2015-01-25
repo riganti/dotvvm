@@ -33,10 +33,8 @@ namespace Redwood.Samples.BasicSamples.ViewModels
 
         public void SelectedHotelChanged()
         {
-            //SelectedHotel = _dataService.GetHotelById(SelectedHotelId);
+            SelectedHotel = _dataService.GetHotelById(SelectedHotelId);
         }
-
-
     }
 
     public class CityModel
