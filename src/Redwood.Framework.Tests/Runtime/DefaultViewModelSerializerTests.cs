@@ -57,7 +57,8 @@ namespace Redwood.Framework.Tests.Runtime
                 {
                     new TestViewModel2() { PropertyA = "t", PropertyB = 15 },
                     new TestViewModel2() { PropertyA = "xxx", PropertyB = 16 }
-                }
+                },
+                Property5 = null
             };
             context.ViewModel = oldViewModel;
             serializer.BuildViewModel(context, new RedwoodView());
@@ -76,6 +77,7 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.AreEqual(oldViewModel.Property4[0].PropertyB, newViewModel.Property4[0].PropertyB);
             Assert.AreEqual(oldViewModel.Property4[1].PropertyA, newViewModel.Property4[1].PropertyA);
             Assert.AreEqual(oldViewModel.Property4[1].PropertyB, newViewModel.Property4[1].PropertyB);
+            Assert.AreEqual(oldViewModel.Property5, newViewModel.Property5);
         }
 
 
@@ -85,6 +87,7 @@ namespace Redwood.Framework.Tests.Runtime
             public int Property2 { get; set; }
             public DateTime Property3 { get; set; }
             public List<TestViewModel2> Property4 { get; set; }
+            public string Property5 { get; set; }
         }
         public class TestViewModel2
         {
