@@ -1,5 +1,6 @@
 ﻿@viewModel Redwood.Samples.BasicSamples.AuthSample.SecuredPageViewModel, Redwood.Samples.BasicSamples
 
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Secured page</title>

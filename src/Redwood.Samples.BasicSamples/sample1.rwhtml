@@ -1,5 +1,5 @@
 ﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample1ViewModel, Redwood.Samples.BasicSamples
-
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from Redwood!</title>
@@ -16,6 +16,8 @@
 		
 		<fieldset>
 			<legend>Add Task</legend>
+			<!-- this is comment and the next is CDATA section -->
+			<![CDATA[You can try to include special chars, like < > ' " &]]>
 
 			<p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /></p>
 			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>

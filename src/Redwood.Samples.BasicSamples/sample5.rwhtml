@@ -1,5 +1,6 @@
 ﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample5ViewModel, Redwood.Samples.BasicSamples
 
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from Redwood!</title>

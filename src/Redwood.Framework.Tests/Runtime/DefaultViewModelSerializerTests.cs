@@ -27,7 +27,7 @@ namespace Redwood.Framework.Tests.Runtime
             configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
             configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
 
-            serializer = new DefaultViewModelSerializer(configuration, new DefaultViewModelProtector());
+            serializer = new DefaultViewModelSerializer(new DefaultViewModelProtector());
             context = new RedwoodRequestContext()
             {
                 Configuration = configuration,
@@ -38,7 +38,8 @@ namespace Redwood.Framework.Tests.Runtime
                         UriGet = () => new Uri("http://localhost:8628/Sample1"),
                         UserGet = () => new WindowsPrincipal(WindowsIdentity.GetAnonymous())
                     }
-                }
+                },
+                Presenter = configuration.RouteTable.CreateDefaultPresenter()
             };
         }
 
@@ -59,7 +60,8 @@ namespace Redwood.Framework.Tests.Runtime
                 }
             };
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context, new RedwoodView());
+            serializer.BuildViewModel(context, new RedwoodView());
+            var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
@@ -107,8 +109,9 @@ namespace Redwood.Framework.Tests.Runtime
                 }
             };
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context, new RedwoodView());
 
+            serializer.BuildViewModel(context, new RedwoodView());
+            var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
@@ -154,7 +157,7 @@ namespace Redwood.Framework.Tests.Runtime
         /// </summary>
         private static string WrapSerializedViewModel(string result)
         {
-            return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0}}}".Replace("'", "\""), result);
+            return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0},'validationTargetPath':'','updatedControls':{{}}}}".Replace("'", "\""), result);
         }
 
         /// <summary>

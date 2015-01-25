@@ -1,5 +1,6 @@
 ﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample6ViewModel, Redwood.Samples.BasicSamples
 
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from Redwood!</title>
@@ -23,7 +24,7 @@
 		<p>&nbsp;</p>
 		
 		<table class="table">
-			<rw:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+			<rw:Repeater DataSource="{value: ProtectedTasks}" WrapperTagName="tbody">
 				<ItemTemplate>
 					<tr class="{value: IsCompleted ? "completed" : ""}">
 						<td>{{value: Title}}</td>

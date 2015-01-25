@@ -160,6 +160,13 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // open tag brace
             Assert(Peek() == '<');
             Read();
+
+            if(Peek() == '!')
+            {
+                ReadHtmlSpecial(true);
+                return false;
+            }
+
             CreateToken(RwHtmlTokenType.OpenTag);
 
             if (Peek() == '/')
@@ -206,6 +213,39 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             Read();
             CreateToken(RwHtmlTokenType.CloseTag);
             return true;
+        }
+
+        public void ReadHtmlSpecial(bool openBraceConsumed = false)
+        {
+            if(!openBraceConsumed)
+            {
+                Assert(Peek() == '<');
+                Read();
+            }
+            Assert(Peek() == '!');
+            Read();
+            var s = ReadOneOf("[CDATA[", "--", "DOCTYPE");
+            if (s == "[CDATA[") // CDATA section
+            {
+                CreateToken(RwHtmlTokenType.OpenCdata);
+                ReadTextUntilNewLine("]]>");
+                CreateToken(RwHtmlTokenType.CloseTag);
+            }
+            else if (s == "--") // comment
+            {
+                CreateToken(RwHtmlTokenType.OpenComment);
+                ReadTextUntil("-->");
+                CreateToken(RwHtmlTokenType.CloseTag);
+            }
+            else if (s == "DOCTYPE")
+            {
+                CreateToken(RwHtmlTokenType.OpenDoctype);
+                SkipWhitespace();
+                ReadTextUntilNewLine('>');
+                Read();
+                CreateToken(RwHtmlTokenType.CloseTag);
+            }
+            else ReportError("not supported");
         }
 
         private void Assert(bool expression)

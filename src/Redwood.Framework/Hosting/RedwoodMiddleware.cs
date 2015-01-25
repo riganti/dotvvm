@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
 using System.Threading.Tasks;
 using Microsoft.Owin;
 using Redwood.Framework.Configuration;
-using Redwood.Framework.ViewModel;
 using Redwood.Framework.ResourceManagement;
 
 namespace Redwood.Framework.Hosting
@@ -32,14 +30,7 @@ namespace Redwood.Framework.Hosting
         {
             // try resolve the route
             var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
-
-            // disable access to the redwood.json file
-            if (url.StartsWith("redwood.json", StringComparison.CurrentCultureIgnoreCase))
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                throw new UnauthorizedAccessException("The redwood.json cannot be served!");
-            }
-
+            
             // find the route
             IDictionary<string, object> parameters = null;
             var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));

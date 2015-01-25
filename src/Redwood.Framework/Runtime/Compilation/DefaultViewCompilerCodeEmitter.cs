@@ -162,26 +162,12 @@ namespace Redwood.Framework.Runtime.Compilation
         private ExpressionSyntax EmitBooleanLiteral(bool value)
         {
             return SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
-        }
+        } 
 
         /// <summary>
         /// Emits the set property statement.
         /// </summary>
-        public void EmitSetProperty(string controlName, string propertyName, string variableName)
-        {
-            var valueSyntax = SyntaxFactory.IdentifierName(variableName);
-            EmitSetPropertyCore(controlName, propertyName, valueSyntax);
-        }
-
-        /// <summary>
-        /// Emits the set property statement.
-        /// </summary>
-        public void EmitSetProperty(string controlName, string propertyName, ExpressionSyntax value)
-        {
-            EmitSetPropertyCore(controlName, propertyName, value);
-        }
-
-        private void EmitSetPropertyCore(string controlName, string propertyName, ExpressionSyntax valueSyntax)
+        public void EmitSetProperty(string controlName, string propertyName, ExpressionSyntax valueSyntax)
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
@@ -196,12 +182,46 @@ namespace Redwood.Framework.Runtime.Compilation
                     )
                 )
             );
+        } 
+
+        /// <summary>
+        /// Emits the set property statement.
+        /// </summary>
+        public void EmitSetValue(string controlName, string propertyName, string variableName)
+        {
+            var valueSyntax = SyntaxFactory.IdentifierName(variableName);
+            EmitSetValue(controlName, propertyName, valueSyntax);
+        }
+
+        /// <summary>
+        /// Emits the set property statement.
+        /// </summary>
+        public void EmitSetValue(string controlName, string propertyName, ExpressionSyntax valueSyntax)
+        {
+            CurrentStatements.Add(
+                SyntaxFactory.ExpressionStatement(
+                    SyntaxFactory.InvocationExpression(
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            SyntaxFactory.IdentifierName(controlName),
+                            SyntaxFactory.IdentifierName("SetValue")
+                        ),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList(new[]
+                            {
+                                SyntaxFactory.Argument(SyntaxFactory.ParseName(propertyName)),
+                                SyntaxFactory.Argument(valueSyntax)
+                            })
+                        )
+                    )
+                )
+            );
         }
 
         /// <summary>
         /// Emits the set binding statement.
         /// </summary>
-        public void EmitSetBinding(string controlName, Type controlType, string propertyName, string variableName)
+        public void EmitSetBinding(string controlName, string propertyName, string variableName)
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
@@ -212,20 +232,10 @@ namespace Redwood.Framework.Runtime.Compilation
                             SyntaxFactory.IdentifierName("SetBinding")
                         ),
                         SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(
-                                new[] { 
-                                    SyntaxFactory.Argument(
-                                        SyntaxFactory.MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            SyntaxFactory.ParseTypeName(controlType.FullName),
-                                            SyntaxFactory.IdentifierName(propertyName + "Property")
-                                        )
-                                    ),
-                                    SyntaxFactory.Argument(
-                                        SyntaxFactory.IdentifierName(variableName)
-                                    )
-                                }
-                            )
+                            SyntaxFactory.SeparatedList(new[] { 
+                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName(propertyName)),
+                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName(variableName))
+                            })
                         )
                     )
                 )

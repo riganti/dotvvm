@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.ViewModel
 {
@@ -40,11 +41,11 @@ namespace Redwood.Framework.ViewModel
             get { return readerFactory ?? (readerFactory = CreateReaderFactory()); }
         }
 
-        private Action<JsonWriter, object, JsonSerializer, JArray> writerFactory;
+        private Action<JsonWriter, object, JsonSerializer, JArray, HashSet<ViewModelSerializationMap>, ViewModelSerializationMap> writerFactory;
         /// <summary>
         /// Gets the JSON writer factory.
         /// </summary>
-        public Action<JsonWriter, object, JsonSerializer, JArray> WriterFactory
+        public Action<JsonWriter, object, JsonSerializer, JArray, HashSet<ViewModelSerializationMap>, ViewModelSerializationMap> WriterFactory
         {
             get { return writerFactory ?? (writerFactory = CreateWriterFactory()); }
         }
@@ -78,6 +79,8 @@ namespace Redwood.Framework.ViewModel
             var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var encryptedValues = Expression.Parameter(typeof(JArray), "encryptedValues");
             var value = Expression.Variable(Type, "value");
+            var lastEVcount = Expression.Variable(typeof(int), "lastEncrypedValuesCount");
+
 
             // value = new {Type}();
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
@@ -85,13 +88,9 @@ namespace Redwood.Framework.ViewModel
             // go through all properties that should be read
             foreach (var property in Properties.Where(p => p.TransferToServer))
             {
-                Expression jsonProp = null;
-
-                // handle serialized properties
-                Expression callDeserialize;
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
-                    callDeserialize = ExpressionUtils.Replace(
+                    var callDeserialize = ExpressionUtils.Replace(
                         (JsonSerializer s, JArray ev, JObject j) => s.Deserialize(GetAndRemove(ev, 0).CreateReader(), property.Type),
                         serializer, encryptedValues, jobj);
                     // encryptedValues[(int)jobj["{p.Name}"]]
@@ -103,8 +102,15 @@ namespace Redwood.Framework.ViewModel
                 }
                 else
                 {
-                    jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
-                    callDeserialize = ExpressionUtils.Replace((JsonSerializer s, JObject j) =>
+                    var checkEVCount = ShouldCheckEncrypedValueCount(property.Type);
+                    if (checkEVCount)
+                    {
+                        // lastEncrypedValuesCount = encrypedValues.Count
+                        block.Add(Expression.Assign(lastEVcount, Expression.Property(encryptedValues, "Count")));
+                    }
+
+                    var jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
+                    var callDeserialize = ExpressionUtils.Replace((JsonSerializer s, JObject j) =>
                         s.Deserialize(j[property.Name].CreateReader(), property.Type), serializer, jobj);
 
                     // if ({jsonProp} != null) value.{p.Name} = deserialize();
@@ -115,7 +121,16 @@ namespace Redwood.Framework.ViewModel
                             Type.GetProperty(property.Name).SetMethod,
                             Expression.Convert(callDeserialize, property.Type)
                     )));
+
+                    if (checkEVCount)
+                    {
+                        block.Add(Expression.IfThen(
+                            ExpressionUtils.Replace((int levc, JArray ev) =>
+                                levc - ev.Count != (int)GetAndRemove(ev, 0), lastEVcount, encryptedValues),
+                            Expression.Throw(Expression.New(typeof(System.Security.SecurityException)))
+                        ));
                 }
+            }
             }
 
             block.Add(value);
@@ -123,7 +138,7 @@ namespace Redwood.Framework.ViewModel
             // build the lambda expression
             var ex = Expression.Lambda<Action<JObject, JsonSerializer, object, JArray>>(
                 Expression.Convert(
-                    Expression.Block(Type, new[] { value }, block),
+                    Expression.Block(Type, new[] { value, lastEVcount }, block),
                     typeof(object)).OptimizeConstants(),
                 jobj, serializer, valueParam, encryptedValues);
             return ex.Compile();
@@ -139,22 +154,41 @@ namespace Redwood.Framework.ViewModel
         /// <summary>
         /// Creates the writer factory.
         /// </summary>
-        public Action<JsonWriter, object, JsonSerializer, JArray> CreateWriterFactory()
+        public Action<JsonWriter, object, JsonSerializer, JArray, HashSet<ViewModelSerializationMap>, ViewModelSerializationMap> CreateWriterFactory()
         {
             var block = new List<Expression>();
             var writer = Expression.Parameter(typeof(JsonWriter), "writer");
             var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var serializer = Expression.Parameter(typeof(JsonSerializer), "serializer");
             var encryptedValues = Expression.Parameter(typeof(JArray), "encryptedValues");
+            var usedTypes = Expression.Parameter(typeof(HashSet<ViewModelSerializationMap>), "usedTypes");
+            var serializationMap = Expression.Parameter(typeof(ViewModelSerializationMap), "serializationMap");
             var value = Expression.Variable(Type, "value");
+            var lastEVcount = Expression.Variable(typeof(int), "lastEncrypedValuesCount");
 
+            // usedMaps.Add(serializationMap);
+            block.Add(ExpressionUtils.Replace((HashSet<ViewModelSerializationMap> ut, ViewModelSerializationMap sm) => ut.Add(sm), usedTypes, serializationMap));
+            
             // value = ({Type})valueParam;
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
 
+            // writer.WritePropertyName("$validationErrors")
+            // writer.WriteStartArray()
+            // writer.WriteEndArray()
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$validationErrors"), writer));
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WriteStartArray(), writer));
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WriteEndArray(), writer));
+
+            // writer.WritePropertyName("$type");
+            // serializer.Serialize(writer, value.GetType().FullName)
+            block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$type"), writer));
+            block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.FullName)));
+
             // go through all properties that should be serialized
             foreach (var property in Properties.Where(map => map.TransferToClient))
             {
+
                 // writer.WritePropertyName("{property.Name"});
                 var prop = Expression.Convert(Expression.Property(value, property.Name), typeof(object));
 
@@ -166,19 +200,46 @@ namespace Redwood.Framework.ViewModel
 
                 if (property.ViewModelProtection == ViewModelProtectionSettings.None || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
+                    var checkEVCount = ShouldCheckEncrypedValueCount(property.Type);
+                    if (checkEVCount)
+                    {
+                        // lastEncrypedValuesCount = encrypedValues.Count
+                        block.Add(Expression.Assign(lastEVcount, Expression.Property(encryptedValues, "Count")));
+                    }
+
                     block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name)));
 
                     // serializer.Serialize(writer, value.{property.Name});
                     block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
+
+                    if (checkEVCount)
+                    {
+                        // encryptedValues.Add(encryptedValues.Count - lastEVcount)
+                        block.Add(ExpressionUtils.Replace((int lastC, JArray ev) =>
+                            ev.Add(ev.Count - lastC),
+                            lastEVcount, encryptedValues));
+                    }
                 }
             }
 
             block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
 
             // compile the expression
-            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, JArray>>(
-                Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValues);
+            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, JArray, HashSet<ViewModelSerializationMap>, ViewModelSerializationMap>>(
+                Expression.Block(new[] { value, lastEVcount }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValues, usedTypes, serializationMap);
             return ex.Compile();
+        }
+
+        private static readonly string RedwoodAssemblyName = typeof(ViewModelSerializationMap).Assembly.FullName;
+        private bool ShouldCheckEncrypedValueCount(Type type)
+        {
+            return !(
+                type.IsPrimitive ||
+                type == typeof(string) ||
+                (typeof(IEnumerable<>).IsAssignableFrom(type) && ShouldCheckEncrypedValueCount(type.GenericTypeArguments[0])) ||
+                (type.Assembly.GetReferencedAssemblies().All(a => a.FullName != RedwoodAssemblyName) &&
+                    !type.GenericTypeArguments.Any(ShouldCheckEncrypedValueCount))
+           );
         }
 
     }

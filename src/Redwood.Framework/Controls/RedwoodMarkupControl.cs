@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls
 {
@@ -18,6 +19,5 @@ namespace Redwood.Framework.Controls
             SetValue(Internal.IsNamingContainerProperty, true);
             SetValue(Internal.IsControlBindingTargetProperty, true);
         }
-
     }
 }

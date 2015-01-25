@@ -16,7 +16,7 @@ namespace Redwood.Framework.Controls.Infrastructure
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             // render resource links
             var resources = context.ResourceManager.GetResourcesInCorrectOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Head);

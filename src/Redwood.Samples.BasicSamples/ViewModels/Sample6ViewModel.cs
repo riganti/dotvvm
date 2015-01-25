@@ -8,7 +8,6 @@ namespace Redwood.Samples.BasicSamples.ViewModels
 {
     public class Sample6ViewModel : RedwoodViewModelBase
     {
-
         [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
         public string SecretData { get; set; }
 
@@ -18,11 +17,11 @@ namespace Redwood.Samples.BasicSamples.ViewModels
 
         public string NewTaskTitle { get; set; }
 
-        public List<TaskViewModel> Tasks { get; set; }
+        public List<ProtectionTaskViewModel> ProtectedTasks { get; set; }
 
         public Sample6ViewModel()
         {
-            Tasks = new List<TaskViewModel>();
+            ProtectedTasks = new List<ProtectionTaskViewModel>();
         }
 
 
@@ -32,30 +31,30 @@ namespace Redwood.Samples.BasicSamples.ViewModels
             {
                 ReadOnlyData = "This property can be read on the client but when you modify it, the server won't accept the request.";
                 SecretData = "This is encrypted and cannot be displayed on the client.";
-                Tasks.Add(new TaskViewModel() { IsCompleted = false, TaskId = Guid.NewGuid(), Title = "Do the laundry" });
-                Tasks.Add(new TaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Wash the car" });
-                Tasks.Add(new TaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Go shopping" });
+                ProtectedTasks.Add(new ProtectionTaskViewModel() { IsCompleted = false, TaskId = Guid.NewGuid(), Title = "Do the laundry" });
+                ProtectedTasks.Add(new ProtectionTaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Wash the car" });
+                ProtectedTasks.Add(new ProtectionTaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Go shopping" });
             }
             return base.Init();
         }
 
         public void AddTask()
         {
-            ValidateSecretDataDecryptedSuccessfully();
+            // ValidateSecretDataDecryptedSuccessfully();
 
-            Tasks.Add(new TaskViewModel() 
-            { 
-                Title = NewTaskTitle, 
-                TaskId = Guid.NewGuid() 
+            ProtectedTasks.Add(new ProtectionTaskViewModel()
+            {
+                Title = NewTaskTitle,
+                TaskId = Guid.NewGuid()
             });
             NewTaskTitle = string.Empty;
         }
 
         public void CompleteTask(Guid id)
         {
-            ValidateSecretDataDecryptedSuccessfully();
+            // ValidateSecretDataDecryptedSuccessfully();
 
-            Tasks.Single(t => t.TaskId == id).IsCompleted = true;
+            ProtectedTasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
 
 
@@ -68,5 +67,23 @@ namespace Redwood.Samples.BasicSamples.ViewModels
             }
         }
 
-    } 
+    }
+
+    public class ProtectionTaskViewModel
+    {
+
+        public Guid TaskId { get; set; }
+
+        public string Title { get; set; }
+
+        public bool IsCompleted { get; set; }
+
+        [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
+        public string SecretTaskData { get; set; }
+
+        public ProtectionTaskViewModel()
+        {
+            SecretTaskData = "secret task data";
+        }
+    }
 }

@@ -11,29 +11,40 @@ namespace Redwood.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {
-        public async Task RenderPage(RedwoodRequestContext context, RedwoodView view, string serializedViewModel)
+        public void RenderPage(RedwoodRequestContext context, RedwoodView view)
         {
             // embed resource links
             EmbedResourceLinks(view);
 
             // prepare the render context
-            var renderContext = new RenderContext(context)
-            {
-                SerializedViewModel = serializedViewModel
-            };
+            var renderContext = new RenderContext(context);
 
             // get the HTML
             using (var textWriter = new StringWriter())
             {
                 var htmlWriter = new HtmlWriter(textWriter);
                 view.Render(htmlWriter, renderContext);
-                var html = textWriter.ToString();
-
-                // return the response
-                context.OwinContext.Response.ContentType = "text/html; charset=utf-8";
-                await context.OwinContext.Response.WriteAsync(html);
+                context.RenderedHtml = textWriter.ToString();
             }
         }
+
+        public async Task WriteHtmlResponse(RedwoodRequestContext context)
+        {
+            // return the response
+            context.OwinContext.Response.ContentType = "text/html; charset=utf-8";
+            await context.OwinContext.Response.WriteAsync(context.RenderedHtml);
+        }
+
+
+        public async Task WriteViewModelResponse(RedwoodRequestContext context, RedwoodView view)
+        {
+            // return the response
+            context.OwinContext.Response.ContentType = "application/json; charset=utf-8";
+            var serializedViewModel = context.GetSerializedViewModel();
+            await context.OwinContext.Response.WriteAsync(serializedViewModel);
+        }
+
+
 
         /// <summary>
         /// Embeds the resource links in the page.
@@ -53,13 +64,6 @@ namespace Redwood.Framework.Runtime
 
             sections[0].Children.Add(new BodyResourceLinks());
             sections[1].Children.Add(new HeadResourceLinks());
-        }
-
-        public async Task RenderViewModel(RedwoodRequestContext context, RedwoodView view, string serializedViewModel)
-        {
-            // return the response
-            context.OwinContext.Response.ContentType = "application/json; charset=utf-8";
-            await context.OwinContext.Response.WriteAsync(serializedViewModel);
         }
     }
 }

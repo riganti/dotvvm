@@ -6,6 +6,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
 using Redwood.Framework.Runtime.Compilation;
 using Redwood.Framework.Runtime.Filters;
@@ -23,20 +24,28 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the command called on the RedwoodControl.
         /// </summary>
-        public ActionInfo GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, object viewModel, string[] path, string command)
+        public ActionInfo GetFunction(RedwoodControl targetControl, RedwoodControl viewRootControl, RedwoodRequestContext context, string[] path, string command)
         {
             // event validation
+            var validationTargetPath = context.ModelState.ValidationTargetPath;
             if (targetControl == null)
             {
-                eventValidator.ValidateCommand(path, command, viewRootControl);
+                eventValidator.ValidateCommand(path, command, viewRootControl, ref validationTargetPath);
             }
             else
             {
-                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl);
+                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl, ref validationTargetPath);
             }
 
             // resolve the path in the view model
+            var viewModel = context.ViewModel;
             List<object> hierarchy = ResolveViewModelPath(viewModel, viewRootControl, path);
+
+            // resolve validation target
+            if (!string.IsNullOrEmpty(validationTargetPath))
+            {
+                context.ModelState.ValidationTarget = EvaluateOnViewModel(viewModel, viewRootControl, hierarchy, validationTargetPath);
+            }
 
             // find the function
             var tree = CSharpSyntaxTree.ParseText(command, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
@@ -81,6 +90,18 @@ namespace Redwood.Framework.Binding
         }
 
         /// <summary>
+        /// Evaluates the expression the on view model with specified hierarchy.
+        /// </summary>
+        private object EvaluateOnViewModel(object viewModel, RedwoodControl viewRootControl, List<object> hierarchy, string expression)
+        {
+            var pathTree = CSharpSyntaxTree.ParseText(expression, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
+            var pathExpr = pathTree.EnsureSingleExpression();
+
+            var visitor = new ExpressionEvaluationVisitor(viewModel, viewRootControl, hierarchy);
+            return visitor.Visit(pathExpr);
+        }
+
+        /// <summary>
         /// Makes sure that the method is not a property setter.
         /// </summary>
         private void ValidateMethod(MethodInfo method)
@@ -95,9 +116,9 @@ namespace Redwood.Framework.Binding
         /// <summary>
         /// Resolves the command called on the ViewModel.
         /// </summary>
-        public ActionInfo GetFunction(RedwoodControl viewRootControl, object viewModel, string[] path, string command)
+        public ActionInfo GetFunction(RedwoodControl viewRootControl, RedwoodRequestContext context, string[] path, string command)
         {
-            return GetFunction(null, viewRootControl, viewModel, path, command);
+            return GetFunction(null, viewRootControl, context, path, command);
         }
 
 

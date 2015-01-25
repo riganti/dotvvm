@@ -1,93 +1,50 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using Redwood.Framework.ViewModel;
 
 namespace Redwood.Samples.BasicSamples.ViewModels
 {
-    public class Sample11ViewModel : RedwoodViewModelBase
+    public class Sample11ViewModel : RedwoodViewModelBase 
     {
-		private Sample11DataService _dataService = new Sample11DataService();
+        
+        [Required]
+        public string NewTaskTitle { get; set; }
 
-		public override Task Init()
-		{
-			Cities = _dataService.GetCitites();
-			return base.Init();
-		}
+        public List<TaskViewModel> Tasks { get; set; }
 
-		public List<CityModel> Cities { get; set; }
+        public Sample11ViewModel()
+        {
+            Tasks = new List<TaskViewModel>();
+        }
 
-		public int SelectedCityId { get; set; }
+        public override Task Init()
+        {
+            if (!Context.IsPostBack)
+            {
+                Tasks.Add(new TaskViewModel() { IsCompleted = false, TaskId = Guid.NewGuid(), Title = "Do the laundry" });
+                Tasks.Add(new TaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Wash the car" });
+                Tasks.Add(new TaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Go shopping" });
+            }
+            return base.Init();
+        }
 
-		public List<HotelModel> HotelsInCity { get; set; }
+        public void AddTask()
+        {
+            Tasks.Add(new TaskViewModel() 
+            { 
+                Title = NewTaskTitle, 
+                TaskId = Guid.NewGuid() 
+            });
+            NewTaskTitle = string.Empty;
+        }
 
-		public int SelectedHotelId { get; set; }
-
-		public HotelModel SelectedHotel { get; set; }
-
-		public void SelectedCityChanged()
-		{
-			HotelsInCity = _dataService.GetHotels(SelectedCityId);
-		}
-
-		public void SelectedHotelChanged()
-		{
-			//SelectedHotel = _dataService.GetHotelById(SelectedHotelId);
-		}
-
+        public void CompleteTask(Guid id)
+        {
+            Tasks.Single(t => t.TaskId == id).IsCompleted = true;
+        }
 
     }
-
-	public class CityModel
-	{
-		public string Name { get; set; }
-		
-		public int Id { get; set; }
-	}
-
-	public class HotelModel
-	{
-		public string Name { get; set; }
-
-		public int CityId { get; set; }
-
-		public int Id { get; set; }
-	}
-
-	public class Sample11DataService
-	{
-		HotelModel[] _hotels = new HotelModel[]
-			{
-				new HotelModel() { Id = 1, CityId = 1, Name = "Hotel Prague #1" },
-				new HotelModel() { Id = 2, CityId = 1, Name = "Hotel Prague #2" },
-				new HotelModel() { Id = 3, CityId = 1, Name = "Hotel Prague #3" },
-				new HotelModel() { Id = 4, CityId = 2, Name = "Hotel Seattle #1" },
-				new HotelModel() { Id = 5, CityId = 2, Name = "Hotel Seattle #2" },
-				new HotelModel() { Id = 6, CityId = 2, Name = "Hotel Seattle #3" },
-				new HotelModel() { Id = 7, CityId = 3, Name = "Hotel New York #1" },
-				new HotelModel() { Id = 8, CityId = 3, Name = "Hotel New York #2" },
-				new HotelModel() { Id = 9, CityId = 3, Name = "Hotel New York #3" }
-			};
-
-		public List<CityModel> GetCitites()
-		{
-			return new List<CityModel>() 
-			{
-				new CityModel() { Id = 1, Name = "Prague" },
-				new CityModel() { Id = 2, Name = "Seattle" },
-				new CityModel() { Id = 3, Name = "New York" }
-			};
-		}
-
-		public HotelModel GetHotelById(int hotelId)
-		{
-			return _hotels.FirstOrDefault(h => h.Id == hotelId);
-		}
-
-		public List<HotelModel> GetHotels(int cityId)
-		{
-			return _hotels.Where(h => h.CityId == cityId).ToList();
-		}
-	}
 }

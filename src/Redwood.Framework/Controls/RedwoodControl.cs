@@ -12,6 +12,7 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// Represents a base class for all Redwood controls.
     /// </summary>
+    [ContainsRedwoodProperties]
     public abstract class RedwoodControl
     {
        
@@ -139,11 +140,27 @@ namespace Redwood.Framework.Controls
             }
         }
 
+        /// <summary>
+        /// Determines whether the control has only white space content.
+        /// </summary>
+        public bool HasNonWhiteSpaceContent()
+        {
+            return Children.All(c => (c is Literal && ((Literal)c).HasWhiteSpaceContentOnly()));
+        }
+
 
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
         public virtual void Render(IHtmlWriter writer, RenderContext context)
+        {
+            RenderControl(writer, context);
+        }
+
+        /// <summary>
+        /// Renders the control into the specified writer.
+        /// </summary>
+        protected virtual void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             AddAttributesToRender(writer, context);
             RenderBeginTag(writer, context);

@@ -1,0 +1,18 @@
+﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample13ViewModel, Redwood.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from Redwood!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>Selectors</h1>
+		<rw:ComboBox DataSource="{value: Cities}" SelectedValue="{value: SelectedCityId}" ValueMember="Id" DisplayMember="Name" />
+		<rw:Button Text="Select city" Click="{command: SelectedCityChanged()}" />
+		<rw:ListBox DataSource="{value: HotelsInCity}" SelectedValue="{value: SelectedHotelId}" ValueMember="Id" DisplayMember="Name" />
+		<rw:Button Text="Select hotel" Click="{command: SelectedHotelChanged()}" />
+	</div>
+	
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>

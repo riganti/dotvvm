@@ -1,10 +1,11 @@
 ﻿using System;
-using System.Collections.Generic;
+using System.Collections.Generic; 
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Controls.Infrastructure;
+using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Tests.Binding
 {
@@ -37,7 +38,8 @@ namespace Redwood.Framework.Tests.Binding
             placeholder.Children.Add(button);
 
             var resolver = new CommandResolver();
-            resolver.GetFunction(viewRoot, testObject, path, command).GetAction()();
+            var context = new RedwoodRequestContext() { ViewModel = testObject };
+            resolver.GetFunction(viewRoot, context, path, command).GetAction()();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
@@ -72,7 +74,8 @@ namespace Redwood.Framework.Tests.Binding
             placeholder2.Children.Add(button);
 
             var resolver = new CommandResolver();
-            resolver.GetFunction(viewRoot, testObject, path, command).GetAction()();
+            var context = new RedwoodRequestContext() { ViewModel = testObject };
+            resolver.GetFunction(viewRoot, context, path, command).GetAction()();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
@@ -93,7 +96,8 @@ namespace Redwood.Framework.Tests.Binding
             var command = "set_StringToPass(StringToPass)";
 
             var resolver = new CommandResolver();
-            resolver.GetFunction(viewRoot, testObject, path, command).GetAction()();
+            var context = new RedwoodRequestContext() { ViewModel = testObject };
+            resolver.GetFunction(viewRoot, context, path, command).GetAction()();
         }
 
         public class TestA

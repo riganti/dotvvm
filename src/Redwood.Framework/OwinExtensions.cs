@@ -23,17 +23,17 @@ namespace Redwood.Framework
             }
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
             configuration.Markup.AddAssembly(Assembly.GetCallingAssembly().FullName);
-            
-            // add middleware
-            app.Use<RedwoodMiddleware>(configuration);
 
+            // add middlewares
+            app.Use<RedwoodErrorPageMiddleware>();
+
+            app.Use<RedwoodRestrictedStaticFilesMiddleware>();
+            app.Use<RedwoodEmbeddedResourceMiddleware>();
+
+            app.Use<RedwoodMiddleware>(configuration);
+            
             return configuration;
         }
-
-        public static void UseRedwoodErrorPages(this IAppBuilder app)
-        {
-            app.Use<RedwoodErrorPageMiddleware>();
-        }
-
+        
     }
 }

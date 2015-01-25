@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using Redwood.Framework.Configuration;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime;
 using Redwood.Framework.ResourceManagement;
 
@@ -17,7 +18,7 @@ namespace Redwood.Framework.Controls.Infrastructure
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             // render resource links
             var resources = context.ResourceManager.GetResourcesInCorrectOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Body);
@@ -27,11 +28,12 @@ namespace Redwood.Framework.Controls.Infrastructure
             }
 
             // render the serialized viewmodel
+            var serializedViewModel = context.RequestContext.GetSerializedViewModel();
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText("redwood.viewModels.");
             writer.WriteUnencodedText(context.CurrentPageArea);
             writer.WriteUnencodedText("=");
-            writer.WriteUnencodedText(context.SerializedViewModel);
+            writer.WriteUnencodedText(serializedViewModel);
             writer.WriteUnencodedText(";\r\n");
 
             // init on load

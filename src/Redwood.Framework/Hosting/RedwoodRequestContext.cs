@@ -6,7 +6,9 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using Microsoft.Owin;
+using Newtonsoft.Json.Linq;
 using Redwood.Framework.Configuration;
+using Redwood.Framework.Controls;
 using Redwood.Framework.Routing;
 using Redwood.Framework.ResourceManagement;
 
@@ -14,6 +16,9 @@ namespace Redwood.Framework.Hosting
 {
     public class RedwoodRequestContext
     {
+
+        internal string CsrfToken { get; set; }
+
 
 
         public IOwinContext OwinContext { get; internal set; }
@@ -28,11 +33,17 @@ namespace Redwood.Framework.Hosting
 
         public IDictionary<string, object> Parameters { get; set; }
 
-        public ResourceManager ResourceManager { get; set; }
+        public ResourceManager ResourceManager { get; internal set; }
 
         public object ViewModel { get; internal set; }
+        
+        public ModelState ModelState { get; private set; }
 
-        internal string CsrfToken { get; set; }
+        internal Dictionary<string, string> PostBackUpdatedControls { get; private set; }
+
+        internal string RenderedHtml { get; set; }
+        public JObject ViewModelJson { get; set; }
+
 
         public IReadableStringCollection Query
         {
@@ -40,6 +51,15 @@ namespace Redwood.Framework.Hosting
             {
                 return OwinContext.Request.Query;
             }
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedwoodRequestContext"/> class.
+        /// </summary>
+        public RedwoodRequestContext()
+        {
+            ModelState = new ModelState();
+            PostBackUpdatedControls = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -91,6 +111,28 @@ namespace Redwood.Framework.Hosting
                 OwinContext.Response.Write(Presenter.ViewModelSerializer.SerializeRedirectAction(this, url));
             }
             InterruptExecution();
+        }
+
+        /// <summary>
+        /// Ends the request execution when the <see cref="ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
+        /// If it is, it does nothing.
+        /// </summary>
+        public void FailOnInvalidModelState()
+        {
+            if (!ModelState.IsValid)
+            {
+                OwinContext.Response.ContentType = "application/json";
+                OwinContext.Response.Write(Presenter.ViewModelSerializer.SerializeModelState(this));
+                throw new RedwoodInterruptRequestExecutionException("The ViewModel contains validation errors!");
+            }
+        }
+
+        /// <summary>
+        /// Gets the serialized view model.
+        /// </summary>
+        public string GetSerializedViewModel()
+        {
+            return Presenter.ViewModelSerializer.SerializeViewModel(this);
         }
     }
 }

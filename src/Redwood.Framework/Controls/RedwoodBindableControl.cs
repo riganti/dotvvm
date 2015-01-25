@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Hosting;
@@ -174,11 +175,40 @@ namespace Redwood.Framework.Controls
         }
 
 
+        /// <summary>
+        /// Renders the control into the specified writer.
+        /// </summary>
+        public override sealed void Render(IHtmlWriter writer, RenderContext context)
+        {
+            if (Properties.ContainsKey(PostBack.UpdateProperty))
+            {
+                // the control might be updated on postback, add the control ID
+                EnsureControlHasId();
+            }
+
+            if (context.RequestContext.IsPostBack && (bool)GetValue(PostBack.UpdateProperty) && !(writer is MultiHtmlWriter))
+            {
+                // render the control and capture the HTML
+                using (var htmlBuilder = new StringWriter())
+                {
+                    var controlWriter = new HtmlWriter(htmlBuilder);
+                    var multiWriter = new MultiHtmlWriter(writer, controlWriter);
+                    base.Render(multiWriter, context);
+                    context.RequestContext.PostBackUpdatedControls[ID] = htmlBuilder.ToString();
+                }
+            }
+            else
+            {
+                // render the control directly to the output
+                base.Render(writer, context);
+            }
+        }
+
 
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             // if the DataContext is set, render the "with" binding
             var dataContextBinding = GetValueBinding(DataContextProperty, false);
@@ -188,7 +218,7 @@ namespace Redwood.Framework.Controls
                 writer.AddKnockoutDataBind("with", this, DataContextProperty, () => { });
             }
 
-            base.Render(writer, context);
+            base.RenderControl(writer, context);
 
             if (dataContextBinding != null)
             {
@@ -236,6 +266,19 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public RedwoodControl GetClosestControlBindingTarget(out int numberOfDataContextChanges)
         {
+            var result = GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
+            if (result == null)
+            {
+                throw new Exception("The {controlProperty: ...} binding can be only used in a markup control."); // TODO: exception handling
+            }
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the closest control with specified property value and returns number of DataContext changes since the target.
+        /// </summary>
+        public RedwoodControl GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<RedwoodControl, bool> filterFunction)
+        {
             var current = (RedwoodControl)this;
             numberOfDataContextChanges = 0;
             while (current != null)
@@ -244,16 +287,12 @@ namespace Redwood.Framework.Controls
                 {
                     numberOfDataContextChanges++;
                 }
-                if ((bool)current.GetValue(Internal.IsControlBindingTargetProperty))
+                if (filterFunction(current))
                 {
                     break;
                 }
 
                 current = current.Parent;
-            }
-            if (current == null)
-            {
-                throw new Exception("The {controlProperty: ...} binding can be only used in a markup control."); // TODO: exception handling
             }
             return current;
         }

@@ -11,11 +11,11 @@ namespace Redwood.Samples.BasicSamples.Controls
 
         public string Name
         {
-            get { return (string)GetValue(NameProperty); }
+            get { return (string)GetValue(NameProperty); } 
             set { SetValue(NameProperty, value); }
         }
 
-        public static readonly RedwoodProperty NameProperty =
+        public static readonly RedwoodProperty NameProperty = 
             RedwoodProperty.Register<string, Sample5_TestControl>(c => c.Name, string.Empty);
 
 
@@ -27,7 +27,7 @@ namespace Redwood.Samples.BasicSamples.Controls
         }
 
         public static readonly RedwoodProperty ValueProperty =
-            RedwoodProperty.RegisterControlStateProperty<int, Sample5_TestControl>(c => c.Value);
+            RedwoodProperty.RegisterControlStateProperty<int, Sample5_TestControl>(c => c.Value, 0);
 
 
         public override bool RequiresControlState

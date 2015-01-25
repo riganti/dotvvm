@@ -9,6 +9,7 @@ namespace Redwood.Framework.Parser
         public const string ViewModelDirectiveName = "viewModel";
         public const string MasterPageDirective = "masterPage";
         public const string BaseTypeDirective = "baseType";
+        public const string DoctypeDirectiveName = "htmlDoctype";
 
 
         public const string ValueBinding = "value";
@@ -28,8 +29,14 @@ namespace Redwood.Framework.Parser
         public const string KnockoutJSResourceName = "knockout";
         public const string KnockoutMapperResourceName = "knockout.mapper";
         public const string RedwoodResourceName = "redwood";
+        public const string RedwoodValidationResourceName = "redwood.validation";
         public const string BootstrapResourceName = "bootstrap";
         public const string BootstrapCssResourceName = "bootstrap-css";
+        public const string GlobalizeResourceName = "globalize";
+        public const string GlobalizeCultureResourceName = "globalize.{0}";
+
+        public const string ResourceHandlerUrl = "/redwoodEmbeddedResource?name={0}&assembly={1}";
+        public const string ResourceHandlerMatchUrl = "redwoodEmbeddedResource";
 
     }
 }

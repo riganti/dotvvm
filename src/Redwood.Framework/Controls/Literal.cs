@@ -66,7 +66,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             var textBinding = GetBinding(TextProperty);
             if (textBinding != null)
@@ -90,9 +90,9 @@ namespace Redwood.Framework.Controls
 
 
         /// <summary>
-        /// Determines whether the literal contains only white space.
+        /// Determines whether the control contains only white space.
         /// </summary>
-        public bool IsWhiteSpaceOnly()
+        public bool HasWhiteSpaceContentOnly()
         {
             var unencodedValue = HtmlEncode ? Text : WebUtility.HtmlDecode(Text);
             return unencodedValue.All(char.IsWhiteSpace);

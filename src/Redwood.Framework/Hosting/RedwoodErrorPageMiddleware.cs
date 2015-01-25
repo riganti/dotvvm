@@ -4,14 +4,15 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Redwood.Framework.Hosting
 {
     public class RedwoodErrorPageMiddleware: OwinMiddleware
     {
-        public RedwoodErrorPageMiddleware(OwinMiddleware next) : base(next) { }
+        public RedwoodErrorPageMiddleware(OwinMiddleware next) : base(next)
+        {
+        }
 
         public override async Task Invoke(IOwinContext context)
         {
@@ -20,21 +21,15 @@ namespace Redwood.Framework.Hosting
             {
                 await Next.Invoke(context);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 error = ex;
-                throw ex;
             }
-            bool emptyBody = true;
-            context.Response.OnSendingHeaders(f =>
+
+            if (error != null)
             {
-                emptyBody = false;
-            }, null);
-            if (emptyBody && (error != null || context.Response.StatusCode >= 400))
-            {
-                if(error != null) context.Response.StatusCode = 500;
-                
-                await RenderErrorResponse(context, error ?? new RedwoodHttpException(context.Response.ReasonPhrase));
+                context.Response.StatusCode = 500;
+                await RenderErrorResponse(context, error);
             }
         }
 

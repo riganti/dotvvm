@@ -1,42 +1,88 @@
 ﻿class Redwood {
 
+    public extensions: any = {}; 
     public viewModels: any = {};
     public culture: string;
     public events = {
         init: new RedwoodEvent<RedwoodEventArgs>("redwood.events.init", true),
-        beforePostback: new RedwoodEvent<RedwoodEventArgs>("redwood.events.beforePostback"),
-        afterPostback: new RedwoodEvent<RedwoodEventArgs>("redwood.events.afterPostback"),
+        beforePostback: new RedwoodEvent<RedwoodBeforePostBackEventArgs>("redwood.events.beforePostback"),
+        afterPostback: new RedwoodEvent<RedwoodAfterPostBackEventArgs>("redwood.events.afterPostback"),
         error: new RedwoodEvent<RedwoodErrorEventArgs>("redwood.events.error")
     };
 
     public init(viewModelName: string, culture: string): void {
         this.culture = culture;
-        var viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
-        this.viewModels[viewModelName] = viewModel;
-        ko.applyBindings(viewModel);
+        this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
 
+        var viewModel = this.viewModels[viewModelName].viewModel;
+        ko.applyBindings(viewModel);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     }
     
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string): void {
-        var viewModel = this.viewModels[viewModelName];
-        this.events.beforePostback.trigger(new RedwoodEventArgs(viewModel));
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: any): void {
+        var viewModel = this.viewModels[viewModelName].viewModel;
+
+        // trigger beforePostback event
+        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
+        this.events.beforePostback.trigger(beforePostbackArgs);
+        if (beforePostbackArgs.cancel) {
+            return;
+        }
+
+        // perform the postback
         this.updateDynamicPathFragments(sender, path);
         var data = {
             viewModel: ko.mapper.toJS(viewModel),
             currentPath: path,
             command: command,
-            controlUniqueId: controlUniqueId
+            controlUniqueId: controlUniqueId,
+            validationTargetPath: validationTargetPath || null
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), result => {
             var resultObject = JSON.parse(result.responseText);
+
+            var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
-                ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName]);
-                this.events.afterPostback.trigger(new RedwoodEventArgs(viewModel));
+                // remove updated controls
+                var updatedControls = {};
+                for (var id in resultObject.updatedControls) {
+                    if (resultObject.updatedControls.hasOwnProperty(id)) {
+                        var control = document.getElementById(id);
+                        var nextSibling = control.nextSibling;
+                        var parent = control.parentNode;
+                        ko.removeNode(control);
+                        updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                    }
+                }
+
+                // update the viewmodel
+                ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                isSuccess = true;
+
+                // add updated controls
+                for (id in resultObject.updatedControls) {
+                    if (resultObject.updatedControls.hasOwnProperty(id)) {
+                        var updatedControl = updatedControls[id];
+                        if (updatedControl.nextSibling) {
+                            updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                        } else {
+                            updatedControl.parent.appendChild(updatedControl.control);
+                        }
+                        updatedControl.control.outerHTML = resultObject.updatedControls[id];
+                        ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
+                    }
+                }
+
             } else if (resultObject.action === "redirect") {
+                // redirect
                 document.location.href = resultObject.url;
-            } else {
-                throw "Invalid response from the server!";
+                return;
+            } 
+            
+            // trigger afterPostback event
+            var isHandled = this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject));
+            if (!isSuccess && !isHandled) {
+                throw "Invalid response from server!";
             }
         }, xhr => {
             if (!this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
@@ -49,7 +95,7 @@
         var context = ko.contextFor(sender);
 
         for (var i = path.length - 1; i >= 0; i--) {
-            if (path[i].indexOf("[$index]")) {
+            if (path[i].indexOf("[$index]") >= 0) {
                 path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
             }
             context = context.$parentContext;
@@ -69,6 +115,10 @@
             }
         };
         xhr.send(postData);
+    }
+
+    public evaluateOnViewModel(context, expression) {
+        return eval("(function (c) { return c." + expression + "; })")(context);
     }
 }
 
@@ -121,6 +171,17 @@ class RedwoodEventArgs {
 }
 class RedwoodErrorEventArgs extends RedwoodEventArgs {
     constructor(public viewModel: any, public xhr: XMLHttpRequest) {
+        super(viewModel);
+    }
+}
+class RedwoodBeforePostBackEventArgs extends RedwoodEventArgs {
+    public cancel: boolean = false;
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any) {
+        super(viewModel);
+    }
+}
+class RedwoodAfterPostBackEventArgs extends RedwoodEventArgs {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any) {
         super(viewModel);
     }
 }

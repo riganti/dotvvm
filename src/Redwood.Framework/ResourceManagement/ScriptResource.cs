@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Newtonsoft.Json;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Parser;
 
 namespace Redwood.Framework.ResourceManagement
 {
@@ -27,6 +29,8 @@ namespace Redwood.Framework.ResourceManagement
         /// </summary>
         [JsonProperty("globalObjectName")]
         public string GlobalObjectName { get; set; }
+
+
 
         public ResourceRenderPosition RenderPosition { get; set; }
 
@@ -55,17 +59,30 @@ namespace Redwood.Framework.ResourceManagement
                 if (Url != null && GlobalObjectName != null)
                 {
                     writer.RenderBeginTag("script");
-                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, GlobalObjectName, Url));
+                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, GlobalObjectName, GetUrl()));
                     writer.RenderEndTag();
                 }
             }
             else if (Url != null)
             {
-                writer.AddAttribute("src", Url);
+                writer.AddAttribute("src", GetUrl());
                 writer.AddAttribute("type", "text/javascript");
                 writer.RenderBeginTag("script");
                 writer.RenderEndTag();
             }
         }
+
+        /// <summary>
+        /// Gets the URL.
+        /// </summary>
+        private string GetUrl()
+        {
+            if (IsEmbeddedResource)
+            {
+                return string.Format(Constants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
+            }
+            return Url;
+        }
+
     }
 }
