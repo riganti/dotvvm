@@ -24,13 +24,19 @@
 				Title: <rw:TextBox Text="{value: NewTaskTitle}" />
 			</p>
 			<p>
-				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" AsteriskText="Validation 1 - HideWhenValid" />
-				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" Mode="AddCssClass" AsteriskText="Validation 2 - AddCssClass" InvalidCssClass="validator" />
-				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" Mode="DisplayErrorMessage" AsteriskText="Validation 3 - DisplayErrorMessage" />
+				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" AsteriskText="HideWhenValid - visible only if NewTaskTitle is invalid" />
+			</p>
+			<p>
+				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" Mode="AddCssClass" AsteriskText="AddCssClass - red if NewTaskTitle is invalid" InvalidCssClass="validator" />
+			</p>
+			<p>
+				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" Mode="DisplayErrorMessage"/>
 			</p>
 			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p> 
-
-			<div class="validator"><rw:ValidationSummary /></div>
+			
+			<div class="validator">
+				<rw:ValidationSummary />
+			</div>
 		</fieldset>
 		<p>&nbsp;</p>
 		

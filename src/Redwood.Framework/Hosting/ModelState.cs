@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Redwood.Framework.ViewModel;
+using Redwood.Framework.Validation;
 
 namespace Redwood.Framework.Hosting
 {
@@ -10,7 +10,6 @@ namespace Redwood.Framework.Hosting
     /// </summary>
     public class ModelState
     {
-
         /// <summary>
         /// Gets the validation target path relative to the command target.
         /// </summary>

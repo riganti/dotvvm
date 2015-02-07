@@ -1,6 +1,10 @@
-﻿class Redwood {
+﻿interface RedwoodExtensions {
+}
 
-    public extensions: any = {}; 
+
+class Redwood {
+
+    public extensions: RedwoodExtensions = {}; 
     public viewModels: any = {};
     public culture: string;
     public events = {
@@ -19,7 +23,7 @@
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     }
     
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: any): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: string): void {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // trigger beforePostback event
@@ -90,7 +94,7 @@
         xhr.send(postData);
     }
 
-    public evaluateOnViewModel(context, expression) {
+    public evaluateOnViewModel(context, expression: string) {
         return eval("(function (c) { return c." + expression + "; })")(context);
     }
 }
@@ -149,12 +153,12 @@ class RedwoodErrorEventArgs extends RedwoodEventArgs {
 }
 class RedwoodBeforePostBackEventArgs extends RedwoodEventArgs {
     public cancel: boolean = false;
-    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any) {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: string) {
         super(viewModel);
     }
 }
 class RedwoodAfterPostBackEventArgs extends RedwoodEventArgs {
-    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any) {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: string, public serverResponseObject: any) {
         super(viewModel);
     }
 }

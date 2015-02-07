@@ -11,10 +11,6 @@ namespace Redwood.Framework.ViewModel
     /// </summary>
     public class ViewModelSerializationMapper
     {
-
-        private ViewModelValidationRuleTranslator validationRuleTranslator = new ViewModelValidationRuleTranslator();
-        private IViewModelValidationMetadataProvider validationMetadataProvider = new AttributeViewModelValidationMetadataProvider();
-
         /// <summary>
         /// Creates the serialization map for specified type.
         /// </summary>
@@ -54,9 +50,6 @@ namespace Redwood.Framework.ViewModel
                 {
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
-
-                var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
-                propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();
 
                 yield return propertyMap;
             }

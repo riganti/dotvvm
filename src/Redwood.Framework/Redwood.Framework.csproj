@@ -235,17 +235,20 @@
     <Compile Include="Runtime\IControlBuilder.cs" />
     <Compile Include="Runtime\IControlResolver.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
-    <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
+    <Compile Include="Validation\DataAnnotationsValidationProvider.cs" />
+    <Compile Include="Validation\IStaticViewModelValidationProvider.cs" />
+    <Compile Include="Validation\RedwoodValidationContext.cs" />
+    <Compile Include="Validation\TypeValidationProvider.cs" />
+    <Compile Include="Validation\ViewModelValidationProvider.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
     <Compile Include="ViewModel\ControlTreeWalker.cs" />
-    <Compile Include="ViewModel\IViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\NonEvaluatingControlTreeWalker.cs" />
     <Compile Include="ViewModel\NullEvaluator.cs" />
     <Compile Include="ViewModel\ViewModelJTokenControlTreeWalker.cs" />
-    <Compile Include="ViewModel\ViewModelValidator.cs" />
-    <Compile Include="ViewModel\ViewModelPropertyValidationRule.cs" />
+    <Compile Include="Validation\ViewModelValidator.cs" />
+    <Compile Include="Validation\ValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
     <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
     <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
@@ -258,8 +261,7 @@
     <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMap.cs" />
     <Compile Include="ViewModel\ViewModelSerializationMapper.cs" />
-    <Compile Include="ViewModel\ViewModelValidationError.cs" />
-    <Compile Include="ViewModel\ViewModelValidationRuleTranslator.cs" />
+    <Compile Include="Validation\ViewModelValidationError.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />

@@ -3,11 +3,17 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using Newtonsoft.Json;
+using System.Reflection;
 
-namespace Redwood.Framework.ViewModel
+namespace Redwood.Framework.Validation
 {
-    public class ViewModelPropertyValidationRule
+    public class ValidationRule
     {
+        [JsonProperty("propertyName")]
+        public string PropertyName { get; set; }
+
+        [JsonIgnore]
+        public PropertyInfo Property { get; set; }
 
         [JsonProperty("ruleName")]
         public string RuleName { get; set; }
@@ -19,7 +25,6 @@ namespace Redwood.Framework.ViewModel
         public object[] Parameters { get; set; }
 
         [JsonIgnore]
-        public ValidationAttribute SourceValidationAttribute { get; set; }
-
+        public Func<RedwoodValidationContext, bool> ValidationFunc { get; set; }
     }
 }

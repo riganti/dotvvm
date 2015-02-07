@@ -9,6 +9,7 @@ using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
 using Redwood.Framework.ViewModel;
+using Redwood.Framework.Validation;
 
 namespace Redwood.Framework.Runtime
 {
@@ -17,11 +18,14 @@ namespace Redwood.Framework.Runtime
 
         private CommandResolver commandResolver = new CommandResolver();
 
-        private readonly IViewModelProtector viewModelProtector; 
+        private readonly IViewModelProtector viewModelProtector;
 
-        public DefaultViewModelSerializer(IViewModelProtector viewModelProtector)
+        private readonly ViewModelValidationProvider validationProvider;
+
+        public DefaultViewModelSerializer(IViewModelProtector viewModelProtector, ViewModelValidationProvider validationProvider)
         {
             this.viewModelProtector = viewModelProtector;
+            this.validationProvider = validationProvider;
         }
 
 
@@ -52,7 +56,7 @@ namespace Redwood.Framework.Runtime
             writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(), context);
             
             // serialize validation rules
-            var validationRules = SerializeValidationRules(viewModelConverter);
+            var validationRules = SerializeValidationRules(viewModelConverter, context.ViewModel);
             
             // create result object
             var result = new JObject();
@@ -66,19 +70,22 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Serializes the validation rules.
         /// </summary>
-        private JObject SerializeValidationRules(ViewModelJsonConverter viewModelConverter)
+        private JObject SerializeValidationRules(ViewModelJsonConverter viewModelConverter, object viewModel)
         {
-            var validationRules = new JObject();
+            var rules = this.validationProvider.GetValidationRules(viewModel);
+            var result = new JObject();
+            result["root"] = JToken.FromObject(rules);
+            var typeRules = result["types"] = new JObject();
             foreach (var map in viewModelConverter.UsedSerializationMaps)
             {
                 var rule = new JObject();
-                foreach (var property in map.Properties.Where(p => p.ValidationRules.Any()))
+                foreach (var property in this.validationProvider.GetRulesForType(map.Type, viewModel).GroupBy(r => r.PropertyName))
                 {
-                    rule[property.Name] = JToken.FromObject(property.ValidationRules);
+                    rule[property.Key ?? ""] = JToken.FromObject(property.ToArray());
                 }
-                validationRules[map.Type.ToString()] = rule;
+                typeRules[map.Type.ToString()] = rule;
             }
-            return validationRules;
+            return result;
         }
 
         /// <summary>

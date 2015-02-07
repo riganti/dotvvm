@@ -46,12 +46,43 @@ var RedwoodRegularExpressionValidator = (function (_super) {
     };
     return RedwoodRegularExpressionValidator;
 })(RedwoodValidatorBase);
+var RedwoodPropertyValidator = (function (_super) {
+    __extends(RedwoodPropertyValidator, _super);
+    function RedwoodPropertyValidator(validation) {
+        _super.call(this);
+        this.validation = validation;
+    }
+    RedwoodPropertyValidator.prototype.isValid = function (context) {
+        var val = context.valueToValidate;
+        var type = val["$type"];
+        if (type == null)
+            return true;
+        return this.validation.validateTypedObject(val, type);
+    };
+    return RedwoodPropertyValidator;
+})(RedwoodValidatorBase);
+var RedwoodCollectionValidator = (function (_super) {
+    __extends(RedwoodCollectionValidator, _super);
+    function RedwoodCollectionValidator(validation) {
+        _super.call(this);
+        this.validation = validation;
+    }
+    RedwoodCollectionValidator.prototype.isValid = function (context) {
+        var _this = this;
+        var col = context.valueToValidate;
+        var type = context.parameters[0];
+        if (type == null)
+            return true;
+        return col.every(function (i) { return _this.validation.validateTypedObject(i, type); });
+    };
+    return RedwoodCollectionValidator;
+})(RedwoodValidatorBase);
 var ValidationError = (function () {
     function ValidationError(targetObservable) {
         var _this = this;
         this.targetObservable = targetObservable;
         this.errorMessage = ko.observable("");
-        this.isValid = ko.computed(function () { return _this.errorMessage(); });
+        this.isValid = ko.computed(function () { return !!_this.errorMessage(); });
     }
     ValidationError.getOrCreate = function (targetObservable) {
         if (!targetObservable["validationError"]) {
@@ -65,7 +96,12 @@ var RedwoodValidation = (function () {
     function RedwoodValidation() {
         this.rules = {
             "required": new RedwoodRequiredValidator(),
-            "regularExpression": new RedwoodRegularExpressionValidator()
+            "regularExpression": new RedwoodRegularExpressionValidator(),
+            //"numeric": new RedwoodNumericValidator(),
+            //"datetime": new RedwoodDateTimeValidator(),
+            //"range": new RedwoodRangeValidator()
+            "validate": new RedwoodPropertyValidator(this),
+            "collection": new RedwoodCollectionValidator(this),
         };
         this.errors = ko.observableArray([]);
         this.elementUpdateFunctions = {
@@ -97,72 +133,73 @@ var RedwoodValidation = (function () {
         };
     }
     /// Validates the specified view model
-    RedwoodValidation.prototype.validateViewModel = function (viewModel) {
-        if (!viewModel || !viewModel.$type)
+    RedwoodValidation.prototype.validateViewModel = function (viewModel, viewModelName) {
+        var _this = this;
+        if (viewModelName === void 0) { viewModelName = "root"; }
+        var rules = redwood.viewModels.root.validationRules[viewModelName];
+        rules.forEach(function (rule) {
+            var viewModelProperty = viewModel[rule.propertyName];
+            if (!viewModelProperty || !ko.isObservable(viewModelProperty))
+                return;
+            var value = viewModelProperty();
+            _this.validateProperty(viewModel, viewModelProperty, value, rule);
+        });
+    };
+    RedwoodValidation.prototype.validateTypedObject = function (obj, type) {
+        var _this = this;
+        if (!obj)
             return;
-        // find validation rules
-        var type = ko.unwrap(viewModel.$type);
         if (!type)
             return;
-        var rulesForType = redwood.viewModels.root.validationRules[type];
+        var ecount = this.errors.length;
+        var rulesForType = redwood.viewModels.root.validationRules.types[type];
         if (!rulesForType)
             return;
-        for (var property in viewModel) {
-            if (!viewModel.hasOwnProperty(property) || property.indexOf("$") >= 0)
+        for (var property in obj) {
+            if (!obj.hasOwnProperty(property) || property.indexOf("$") >= 0)
                 continue;
-            var viewModelProperty = viewModel[property];
+            var viewModelProperty = obj[property];
             if (!viewModelProperty || !ko.isObservable(viewModelProperty))
                 continue;
-            var value = viewModel[property]();
+            var value = obj[property]();
             // run validation rules
             if (rulesForType.hasOwnProperty(property)) {
-                this.validateProperty(viewModel, viewModelProperty, value, rulesForType[property]);
-            }
-            if (value) {
-                if (Array.isArray(value)) {
-                    for (var i = 0; i < value.length; i++) {
-                        this.validateViewModel(value[i]);
-                    }
-                }
-                else if (value.$type) {
-                    // handle nested objects
-                    this.validateViewModel(value);
-                }
+                rulesForType[property].forEach(function (r) { return _this.validateProperty(obj, viewModelProperty, value, r); });
             }
         }
+        return ecount == this.errors.length;
     };
     /// Validates the specified property in the viewModel
-    RedwoodValidation.prototype.validateProperty = function (viewModel, property, value, rulesForProperty) {
-        for (var i = 0; i < rulesForProperty.length; i++) {
-            // validate the rules
-            var rule = rulesForProperty[i];
-            var ruleTemplate = this.rules[rule.ruleName];
-            var context = new RedwoodValidationContext(value, viewModel, rule.parameters);
-            var validationError = ValidationError.getOrCreate(property);
-            if (!ruleTemplate.isValid(context)) {
-                // add error message
-                validationError.errorMessage(rule.errorMessage);
-                viewModel.$validationErrors.push(validationError);
-                this.errors.push(validationError);
-            }
-            else {
-                // remove
-                validationError.errorMessage("");
-                viewModel.$validationErrors.push(validationError);
-                this.errors.remove(validationError);
-            }
+    RedwoodValidation.prototype.validateProperty = function (viewModel, property, value, rule) {
+        var ruleTemplate = this.rules[rule.ruleName];
+        var context = new RedwoodValidationContext(value, viewModel, rule.parameters);
+        var validationError = ValidationError.getOrCreate(property);
+        viewModel.$validationErrors.remove(validationError);
+        this.errors.remove(validationError);
+        if (!ruleTemplate.isValid(context)) {
+            // add error message
+            validationError.errorMessage(rule.errorMessage);
+            viewModel.$validationErrors.push(validationError);
+            this.errors.push(validationError);
+        }
+        else {
+            // remove
+            validationError.errorMessage("");
         }
     };
     // clears validation errors
-    RedwoodValidation.prototype.clearValidationErrors = function () {
-        var errors = [];
+    RedwoodValidation.prototype.clearValidationErrors = function (validationTarget) {
+        if (!validationTarget.$validationErrors || !ko.isObservable(validationTarget.$validationErrors))
+            return;
+        var errors = validationTarget.$validationErrors();
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
-        this.errors.removeAll();
+        this.errors.removeAll(errors);
     };
     // merge validation rules
     RedwoodValidation.prototype.mergeValidationRules = function (args) {
+        this.clearValidationErrors(args.viewModel);
         if (args.serverResponseObject.validationRules) {
             var existingRules = redwood.viewModels[args.viewModelName].validationRules;
             for (var type in args.serverResponseObject) {
@@ -178,7 +215,7 @@ var RedwoodValidation = (function () {
         var context = ko.contextFor(args.sender);
         var validationTarget = redwood.evaluateOnViewModel(context, args.validationTargetPath);
         // add validation errors
-        this.clearValidationErrors();
+        this.clearValidationErrors(redwood.evaluateOnViewModel(ko.contextFor(args.sender), args.validationTargetPath));
         var modelState = args.serverResponseObject.modelState;
         for (var i = 0; i < modelState.length; i++) {
             // find the observable property
@@ -211,7 +248,7 @@ redwood.events.beforePostback.subscribe(function (args) {
         var context = ko.contextFor(args.sender);
         var validationTarget = redwood.evaluateOnViewModel(context, args.validationTargetPath);
         // validate the object
-        redwood.extensions.validation.clearValidationErrors();
+        redwood.extensions.validation.clearValidationErrors(validationTarget);
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
             args.cancel = true;
