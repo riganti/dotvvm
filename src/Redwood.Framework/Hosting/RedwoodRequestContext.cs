@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Threading;
 using Microsoft.Owin;
+using Newtonsoft.Json.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Routing;
@@ -35,9 +36,13 @@ namespace Redwood.Framework.Hosting
         public ResourceManager ResourceManager { get; internal set; }
 
         public object ViewModel { get; internal set; }
-
-
+        
         public ModelState ModelState { get; private set; }
+
+        internal Dictionary<string, string> PostBackUpdatedControls { get; private set; }
+
+        internal string RenderedHtml { get; set; }
+        public JObject ViewModelJson { get; set; }
 
 
         public IReadableStringCollection Query
@@ -54,6 +59,7 @@ namespace Redwood.Framework.Hosting
         public RedwoodRequestContext()
         {
             ModelState = new ModelState();
+            PostBackUpdatedControls = new Dictionary<string, string>();
         }
 
         /// <summary>
@@ -119,6 +125,14 @@ namespace Redwood.Framework.Hosting
                 OwinContext.Response.Write(Presenter.ViewModelSerializer.SerializeModelState(this));
                 throw new RedwoodInterruptRequestExecutionException("The ViewModel contains validation errors!");
             }
+        }
+
+        /// <summary>
+        /// Gets the serialized view model.
+        /// </summary>
+        public string GetSerializedViewModel()
+        {
+            return Presenter.ViewModelSerializer.SerializeViewModel(this);
         }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Hosting;
@@ -174,12 +175,40 @@ namespace Redwood.Framework.Controls
         }
 
 
+        /// <summary>
+        /// Renders the control into the specified writer.
+        /// </summary>
+        public override sealed void Render(IHtmlWriter writer, RenderContext context)
+        {
+            if (Properties.ContainsKey(PostBack.UpdateProperty))
+            {
+                // the control might be updated on postback, add the control ID
+                EnsureControlHasId();
+            }
+
+            if (context.RequestContext.IsPostBack && (bool)GetValue(PostBack.UpdateProperty) && !(writer is MultiHtmlWriter))
+            {
+                // render the control and capture the HTML
+                using (var htmlBuilder = new StringWriter())
+                {
+                    var controlWriter = new HtmlWriter(htmlBuilder);
+                    var multiWriter = new MultiHtmlWriter(writer, controlWriter);
+                    base.Render(multiWriter, context);
+                    context.RequestContext.PostBackUpdatedControls[ID] = htmlBuilder.ToString();
+                }
+            }
+            else
+            {
+                // render the control directly to the output
+                base.Render(writer, context);
+            }
+        }
 
 
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             // if the DataContext is set, render the "with" binding
             var dataContextBinding = GetValueBinding(DataContextProperty, false);
@@ -189,7 +218,7 @@ namespace Redwood.Framework.Controls
                 writer.AddKnockoutDataBind("with", this, DataContextProperty, () => { });
             }
 
-            base.Render(writer, context);
+            base.RenderControl(writer, context);
 
             if (dataContextBinding != null)
             {

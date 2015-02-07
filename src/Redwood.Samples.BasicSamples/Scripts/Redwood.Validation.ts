@@ -47,7 +47,7 @@ class RedwoodCollectionValidator extends RedwoodValidatorBase {
 class ValidationError {
     public errorMessage = ko.observable("");
     public isValid = ko.computed(() => !!this.errorMessage());
-
+    
     constructor(public targetObservable: KnockoutObservable<any>) {
     }
 
@@ -149,20 +149,19 @@ class RedwoodValidation {
 
     /// Validates the specified property in the viewModel
     public validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, rule: any) {
-        var ruleTemplate = this.rules[rule.ruleName];
-        var context = new RedwoodValidationContext(value, viewModel, rule.parameters);
+            var ruleTemplate = this.rules[rule.ruleName];
+            var context = new RedwoodValidationContext(value, viewModel, rule.parameters);
 
-        var validationError = ValidationError.getOrCreate(property);
+            var validationError = ValidationError.getOrCreate(property);
         viewModel.$validationErrors.remove(validationError);
         this.errors.remove(validationError);
-        if (!ruleTemplate.isValid(context)) {
-            // add error message
-            validationError.errorMessage(rule.errorMessage);
-            viewModel.$validationErrors.push(validationError);
-            this.errors.push(validationError);
-        } else {
-            // remove
-            validationError.errorMessage("");
+            if (!ruleTemplate.isValid(context)) {
+                // add error message
+                validationError.errorMessage(rule.errorMessage);
+                this.addValidationError(viewModel, validationError);
+            } else {
+                // remove
+                validationError.errorMessage("");
         }
     }
 
@@ -210,11 +209,20 @@ class RedwoodValidation {
             // add the error to appropriate collections
             var error = ValidationError.getOrCreate(observable);
             error.errorMessage(modelState[i].errorMessage);
-            if (parent.$validationErrors.indexOf(error) < 0) {
-                parent.$validationErrors.push(error);
-            }
-            this.errors.push(error);
+            this.addValidationError(parent, error);
         }
+    }
+
+    private addValidationError(viewModel: any, error: ValidationError) {
+        if (viewModel.$validationErrors.indexOf(error) < 0) {
+            viewModel.$validationErrors.push(error);
+        }
+        this.errors.push(error);
+    }
+
+    private removeValidationError(viewModel: any, error: ValidationError) {
+        viewModel.$validationErrors.remove(error);
+        this.errors.remove(error);
     }
 };
 

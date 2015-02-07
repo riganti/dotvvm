@@ -9,8 +9,9 @@ namespace Redwood.Framework.Runtime
 {
     public interface IViewModelSerializer
     {
+        void BuildViewModel(RedwoodRequestContext context, RedwoodView view);
 
-        string SerializeViewModel(RedwoodRequestContext context, RedwoodView view);
+        string SerializeViewModel(RedwoodRequestContext context);
 
         string SerializeRedirectAction(RedwoodRequestContext context, string url);
 
@@ -19,5 +20,7 @@ namespace Redwood.Framework.Runtime
         void PopulateViewModel(RedwoodRequestContext context, RedwoodView view, string serializedPostData);
 
         void ResolveCommand(RedwoodRequestContext context, RedwoodView view, string serializedPostData, out ActionInfo actionInfo);
+
+        void AddPostBackUpdatedControls(RedwoodRequestContext context);
     }
 }

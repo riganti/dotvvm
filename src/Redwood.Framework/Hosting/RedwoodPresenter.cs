@@ -218,16 +218,18 @@ namespace Redwood.Framework.Hosting
             }
 
             // render the output
-            var serializedViewModel = ViewModelSerializer.SerializeViewModel(context, page);
+            ViewModelSerializer.BuildViewModel(context, page);
+            OutputRenderer.RenderPage(context, page);
             if (!isPostBack)
             {
                 // standard get
-                await OutputRenderer.RenderPage(context, page, serializedViewModel);
+                await OutputRenderer.WriteHtmlResponse(context);
             }
             else
             {
                 // postback
-                await OutputRenderer.RenderViewModel(context, page, serializedViewModel);
+                ViewModelSerializer.AddPostBackUpdatedControls(context);
+                await OutputRenderer.WriteViewModelResponse(context, page);
             }
 
         }

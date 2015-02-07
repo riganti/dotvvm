@@ -164,8 +164,33 @@ namespace Redwood.Framework.Parser.Translation
             {
                 return Convert.ToDouble(node.Token.Value).ToString(CultureInfo.InvariantCulture);
             }
+            else if(node.IsKind(SyntaxKind.NullLiteralExpression))
+            {
+                return "null";
+            }
 
             return base.VisitLiteralExpression(node);
+        }
+
+        /// <summary>
+        /// Visits the element access expression.
+        /// </summary>
+        public override string VisitElementAccessExpression(ElementAccessExpressionSyntax node)
+        {
+            if (node.ArgumentList.Arguments.Count == 1)
+            {
+                return Visit(node.Expression) + "[" + Visit(node.ArgumentList.Arguments.First()) + "]";
+            }
+
+            return base.VisitElementAccessExpression(node);
+        }
+
+        /// <summary>
+        /// Visits the argument.
+        /// </summary>
+        public override string VisitArgument(ArgumentSyntax node)
+        {
+            return Visit(node.Expression);
         }
 
         public override string DefaultVisit(SyntaxNode node)

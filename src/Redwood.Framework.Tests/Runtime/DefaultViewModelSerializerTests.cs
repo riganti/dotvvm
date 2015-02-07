@@ -38,7 +38,8 @@ namespace Redwood.Framework.Tests.Runtime
                         UriGet = () => new Uri("http://localhost:8628/Sample1"),
                         UserGet = () => new WindowsPrincipal(WindowsIdentity.GetAnonymous())
                     }
-                }
+                },
+                Presenter = configuration.RouteTable.CreateDefaultPresenter()
             };
         }
 
@@ -56,10 +57,12 @@ namespace Redwood.Framework.Tests.Runtime
                 {
                     new TestViewModel2() { PropertyA = "t", PropertyB = 15 },
                     new TestViewModel2() { PropertyA = "xxx", PropertyB = 16 }
-                }
+                },
+                Property5 = null
             };
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context, new RedwoodView());
+            serializer.BuildViewModel(context, new RedwoodView());
+            var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
@@ -74,6 +77,7 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.AreEqual(oldViewModel.Property4[0].PropertyB, newViewModel.Property4[0].PropertyB);
             Assert.AreEqual(oldViewModel.Property4[1].PropertyA, newViewModel.Property4[1].PropertyA);
             Assert.AreEqual(oldViewModel.Property4[1].PropertyB, newViewModel.Property4[1].PropertyB);
+            Assert.AreEqual(oldViewModel.Property5, newViewModel.Property5);
         }
 
 
@@ -83,6 +87,7 @@ namespace Redwood.Framework.Tests.Runtime
             public int Property2 { get; set; }
             public DateTime Property3 { get; set; }
             public List<TestViewModel2> Property4 { get; set; }
+            public string Property5 { get; set; }
         }
         public class TestViewModel2
         {
@@ -107,8 +112,9 @@ namespace Redwood.Framework.Tests.Runtime
                 }
             };
             context.ViewModel = oldViewModel;
-            var result = serializer.SerializeViewModel(context, new RedwoodView());
 
+            serializer.BuildViewModel(context, new RedwoodView());
+            var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
@@ -154,7 +160,7 @@ namespace Redwood.Framework.Tests.Runtime
         /// </summary>
         private static string WrapSerializedViewModel(string result)
         {
-            return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0},'validationTargetPath':''}}".Replace("'", "\""), result);
+            return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0},'validationTargetPath':'','updatedControls':{{}}}}".Replace("'", "\""), result);
         }
 
         /// <summary>

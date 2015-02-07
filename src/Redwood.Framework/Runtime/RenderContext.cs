@@ -13,14 +13,9 @@ namespace Redwood.Framework.Runtime
     {
 
         /// <summary>
-        /// Gets or sets the serialized view model.
-        /// </summary>
-        public string SerializedViewModel { get; set; }
-
-        /// <summary>
         /// Gets or sets current request context.
         /// </summary>
-        public RedwoodRequestContext RedwoodRequestContext { get; set; }
+        public RedwoodRequestContext RequestContext { get; set; }
 
 
         /// <summary>
@@ -42,7 +37,7 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         public ResourceManager ResourceManager
         {
-            get { return RedwoodRequestContext.ResourceManager; }
+            get { return RequestContext.ResourceManager; }
         }
 
 
@@ -52,7 +47,7 @@ namespace Redwood.Framework.Runtime
         public RenderContext(RedwoodRequestContext request)
         {
             CurrentPageArea = "root";
-            RedwoodRequestContext = request;
+            RequestContext = request;
             PathFragments = new Stack<string>();
         }
     }

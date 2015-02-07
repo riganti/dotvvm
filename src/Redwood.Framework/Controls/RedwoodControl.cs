@@ -154,6 +154,14 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public virtual void Render(IHtmlWriter writer, RenderContext context)
         {
+            RenderControl(writer, context);
+        }
+
+        /// <summary>
+        /// Renders the control into the specified writer.
+        /// </summary>
+        protected virtual void RenderControl(IHtmlWriter writer, RenderContext context)
+        {
             AddAttributesToRender(writer, context);
             RenderBeginTag(writer, context);
             RenderContents(writer, context);

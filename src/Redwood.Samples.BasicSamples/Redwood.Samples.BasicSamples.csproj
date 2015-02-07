@@ -185,9 +185,12 @@
     <Content Include="sample8.rwhtml" />
     <Content Include="sample9.rwhtml" />
     <Content Include="sample10.rwhtml" />
+    <Content Include="sample11.rwhtml" />
     <Content Include="AuthSample\login.rwhtml" />
     <Content Include="AuthSample\securedPage.rwhtml" />
     <Content Include="sample11.rwhtml" />
+    <Content Include="sample12.rwhtml" />
+    <Content Include="sample13.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -201,6 +204,7 @@
     <Compile Include="AuthSample\SecuredPageViewModel.cs" />
     <Compile Include="Controls\Sample5_TestControl.cs" />
     <Compile Include="Controls\Sample7_Calendar.cs" />
+    <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sample9_Resources.cs-CZ.Designer.cs">
       <DependentUpon>Sample9_Resources.cs-CZ.resx</DependentUpon>
@@ -214,6 +218,8 @@
     </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\Sample11ViewModel.cs" />
+    <Compile Include="ViewModels\Sample12ViewModel.cs" />
+    <Compile Include="ViewModels\Sample13ViewModel.cs" />
     <Compile Include="ViewModels\Sample7ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />
     <Compile Include="ViewModels\Sample1ViewModel.cs" />

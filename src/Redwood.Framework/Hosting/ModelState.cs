@@ -41,6 +41,7 @@ namespace Redwood.Framework.Hosting
         public ModelState()
         {
             Errors = new List<ViewModelValidationError>();
+            ValidationTargetPath = "$root";
         }
 
     }

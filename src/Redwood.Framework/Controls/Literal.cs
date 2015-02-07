@@ -66,7 +66,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             var textBinding = GetBinding(TextProperty);
             if (textBinding != null)

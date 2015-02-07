@@ -14,10 +14,10 @@
 	</style>
 </head>
 <body>
-	<div class="container">
-		<h1>Task List With Validation</h1>
+<div class="container">
+	<h1>Task List With Validation</h1>
 		
-		<fieldset Validate.Target="{value: _this}">
+		<fieldset>
 			<legend>Add Task</legend>
 
 			<p>
@@ -49,7 +49,8 @@
 							<rw:LinkButton 
 								Text="done" 
 								Click="{command: _parent.CompleteTask(TaskId)}" 
-								Visible="{value: !IsCompleted}" />
+								Visible="{value: !IsCompleted}"
+								Validate.Enabled="false" />
 						</td>
 					</tr>
 				</ItemTemplate>

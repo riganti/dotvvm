@@ -18,11 +18,14 @@ namespace Redwood.Framework.Runtime
 
         private CommandResolver commandResolver = new CommandResolver();
 
-        private readonly IViewModelProtector viewModelProtector;
+        private readonly IViewModelProtector viewModelProtector; 
 
         private readonly ViewModelValidationProvider validationProvider;
-
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
+        /// </summary>
         public DefaultViewModelSerializer(IViewModelProtector viewModelProtector, ViewModelValidationProvider validationProvider)
+
         {
             this.viewModelProtector = viewModelProtector;
             this.validationProvider = validationProvider;
@@ -30,9 +33,17 @@ namespace Redwood.Framework.Runtime
 
 
         /// <summary>
-        /// Serializes the view model for the client.
+        /// Serializes the view model.
         /// </summary>
-        public string SerializeViewModel(RedwoodRequestContext context, RedwoodView view)
+        public string SerializeViewModel(RedwoodRequestContext context)
+        {
+            return context.ViewModelJson.ToString();
+        }
+
+        /// <summary>
+        /// Builds the view model for the client.
+        /// </summary>
+        public void BuildViewModel(RedwoodRequestContext context, RedwoodView view)
         {
             // serialize the ViewModel
             var serializer = new JsonSerializer();
@@ -64,7 +75,7 @@ namespace Redwood.Framework.Runtime
             result["action"] = "successfulCommand";
             result["validationRules"] = validationRules;
 
-            return result.ToString();
+            context.ViewModelJson = result;
         }
 
         /// <summary>
@@ -177,6 +188,19 @@ namespace Redwood.Framework.Runtime
                     actionInfo = commandResolver.GetFunction(view, context, path, command);
                 }
             }
+        }
+
+        /// <summary>
+        /// Adds the post back updated controls.
+        /// </summary>
+        public void AddPostBackUpdatedControls(RedwoodRequestContext context)
+        {
+            var result = new JObject();
+            foreach (var control in context.PostBackUpdatedControls)
+            {
+                result[control.Key] = JValue.CreateString(control.Value);
+            }
+            context.ViewModelJson["updatedControls"] = result;
         }
     }
 }
