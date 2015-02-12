@@ -171,7 +171,7 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.BinaryExpression(
+                    SyntaxFactory.AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         SyntaxFactory.MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
@@ -322,7 +322,7 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.BinaryExpression(
+                    SyntaxFactory.AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         SyntaxFactory.ElementAccessExpression(
                             SyntaxFactory.MemberAccessExpression(
@@ -365,7 +365,7 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.BinaryExpression(
+                    SyntaxFactory.AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         SyntaxFactory.ElementAccessExpression(
                             SyntaxFactory.MemberAccessExpression(
@@ -406,7 +406,12 @@ namespace Redwood.Framework.Runtime.Compilation
                     SyntaxFactory.ClassDeclaration(className)
                         .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                         .WithBaseList(SyntaxFactory.BaseList(
-                            SyntaxFactory.SeparatedList(new[] { SyntaxFactory.ParseTypeName(typeof(IControlBuilder).FullName) })
+                            SyntaxFactory.SeparatedList(new BaseTypeSyntax[]
+                            {
+                                SyntaxFactory.SimpleBaseType(
+                                    SyntaxFactory.ParseTypeName(typeof(IControlBuilder).FullName)
+                                )
+                            })
                         ))
                         .WithMembers(
                         SyntaxFactory.List<MemberDeclarationSyntax>(

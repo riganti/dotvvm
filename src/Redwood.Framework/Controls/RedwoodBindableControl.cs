@@ -64,6 +64,14 @@ namespace Redwood.Framework.Controls
         }
 
         /// <summary>
+        /// Gets or sets whether this control should be rendered on the server.
+        /// </summary>
+        public bool RenderOnServer
+        {
+            get { return (RenderMode)GetValue(RenderSettings.ModeProperty) == RenderMode.Server; }
+        }
+
+        /// <summary>
         /// Gets the value from control state.
         /// </summary>
         protected internal virtual T GetControlStateValue<T>(string key, T defaultValue = default(T))

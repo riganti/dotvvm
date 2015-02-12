@@ -123,7 +123,7 @@ namespace Redwood.Framework.Runtime.Compilation
                     Assembly.GetExecutingAssembly()
                 }
                 .Concat(configuration.Markup.Assemblies.Select(Assembly.Load)).Distinct()
-                .Select(a => new MetadataFileReference(a.Location));
+                .Select(MetadataReference.CreateFromAssembly);
                 
                 // add dynamic references
                 var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Distinct()

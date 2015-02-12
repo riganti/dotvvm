@@ -69,7 +69,7 @@ namespace Redwood.Framework.Controls
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             var textBinding = GetBinding(TextProperty);
-            if (textBinding != null)
+            if (textBinding != null && !RenderOnServer)
             {
                 writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", this, TextProperty, () => { });
                 writer.RenderBeginTag("span");
