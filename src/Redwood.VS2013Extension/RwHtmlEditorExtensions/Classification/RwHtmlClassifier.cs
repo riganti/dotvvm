@@ -20,7 +20,12 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Classification
         public IList<RwHtmlToken> Tokens
         {
             get { return tokenizer.Tokens; }
-        } 
+        }
+
+        public RwHtmlTokenizer Tokenizer
+        {
+            get { return tokenizer; }
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RwHtmlClassifier"/> class.

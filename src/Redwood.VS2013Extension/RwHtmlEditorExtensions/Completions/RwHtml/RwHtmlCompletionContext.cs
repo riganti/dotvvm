@@ -12,6 +12,8 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml
         public RwHtmlTokenizer Tokenizer { get; set; }
 
         public RwHtmlParser Parser { get; set; }
+        public int CurrentTokenIndex { get; set; }
 
+        public IList<RwHtmlToken> Tokens { get; set; }
     }
 }

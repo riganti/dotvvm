@@ -91,10 +91,18 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtmlCompletionSourceProvider.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\DirectiveNameHtmlCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\BindingValueCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\CompletionHelper.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\DirectiveNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\DirectiveValueHtmlCompletionProviderBase.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\IRwHtmlCompletionProvider.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainDirectiveNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainBindingNameCompletionProviderBase.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\RwHtmlCompletionContext.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\BindingNameCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TagAttributeNameCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TagAttributeValueCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TagNameHtmlCompletionProviderBase.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TriggerPoint.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\SimpleRwHtmlCompletion.cs">
       <SubType>Code</SubType>
