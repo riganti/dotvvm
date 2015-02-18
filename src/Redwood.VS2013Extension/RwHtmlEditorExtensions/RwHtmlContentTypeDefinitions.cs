@@ -14,7 +14,7 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions
 
         [Export(typeof(ContentTypeDefinition))]
         [Name(RwHtmlContentType)]
-        [BaseDefinition("htmlx")]
+        [BaseDefinition("text")]
         public ContentTypeDefinition RwHtmlContentTypeDefinition { get; set; }
 
         [Export(typeof(FileExtensionToContentTypeDefinition))]

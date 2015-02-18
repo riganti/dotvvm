@@ -58,18 +58,14 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions
                         items = Enumerable.Empty<SimpleRwHtmlCompletion>();
                     }
 
-                    completionSets.Add(new CompletionSet("All", "All",
-                        FindTokenSpanAtPosition(session.GetTriggerPoint(textBuffer), session),
-                        items, null));
+                    completionSets.Add(new CompletionSet("All", "All", FindTokenSpanAtPosition(session), items.ToList(), null));
                 }
             }
         }
-        private ITrackingSpan FindTokenSpanAtPosition(ITrackingPoint point, ICompletionSession session)
+        private ITrackingSpan FindTokenSpanAtPosition(ICompletionSession session)
         {
-            SnapshotPoint currentPoint = (session.TextView.Caret.Position.BufferPosition) - 1;
-            ITextStructureNavigator navigator = sourceProvider.NavigatorService.GetTextStructureNavigator(textBuffer);
-            TextExtent extent = navigator.GetExtentOfWord(currentPoint);
-            return currentPoint.Snapshot.CreateTrackingSpan(extent.Span, SpanTrackingMode.EdgeInclusive);
+            var currentPoint = session.GetTriggerPoint(textBuffer).GetPoint(textBuffer.CurrentSnapshot);
+            return currentPoint.Snapshot.CreateTrackingSpan(currentPoint.Position, 0, SpanTrackingMode.EdgeInclusive);
         }
 
 
@@ -79,21 +75,21 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions
 
         private IEnumerable<SimpleRwHtmlCompletion> GetDirectiveHints()
         {
-            yield return new SimpleRwHtmlCompletion("viewmodel", "@viewmodel: ");
+            yield return new SimpleRwHtmlCompletion("viewmodel", "viewmodel ");
         }
 
         private IEnumerable<SimpleRwHtmlCompletion> GetTagNameHints()
         {
-            yield return new SimpleRwHtmlCompletion("tag1");
-            yield return new SimpleRwHtmlCompletion("tag2");
-            yield return new SimpleRwHtmlCompletion("tag3");
+            yield return new SimpleRwHtmlCompletion("tag1", "tag1");
+            yield return new SimpleRwHtmlCompletion("tag2", "tag2");
+            yield return new SimpleRwHtmlCompletion("tag3", "tag3");
         }
 
         private IEnumerable<SimpleRwHtmlCompletion> GetAttributeNameHints()
         {
-            yield return new SimpleRwHtmlCompletion("attr1");
-            yield return new SimpleRwHtmlCompletion("attr2");
-            yield return new SimpleRwHtmlCompletion("attr3");
+            yield return new SimpleRwHtmlCompletion("attr1", "attr1=\"");
+            yield return new SimpleRwHtmlCompletion("attr2", "attr1=\"");
+            yield return new SimpleRwHtmlCompletion("attr3", "attr1=\"");
         }
 
         private IEnumerable<SimpleRwHtmlCompletion> GetBindingTypeHints()

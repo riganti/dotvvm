@@ -9,7 +9,7 @@ using Microsoft.VisualStudio.Utilities;
 namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Classification
 {
     [Export(typeof(IClassifierProvider))]
-    [ContentType("htmlx")]
+    [ContentType(RwHtmlContentTypeDefinitions.RwHtmlContentType)]
     internal class RwHtmlClassifierProvider : IClassifierProvider
     {
         [Import] 

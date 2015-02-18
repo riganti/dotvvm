@@ -76,10 +76,7 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions
             {
                 if (m_session == null || m_session.IsDismissed) // If there is no active session, bring up completion
                 {
-                    if (this.TriggerCompletion())
-                    {
-                        m_session.Filter();
-                    }
+                    this.TriggerCompletion();
                 }
                 else     //the completion session is already active, so just filter
                 {
@@ -129,7 +126,7 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions
 
         private bool IsTriggerChar(char typedChar)
         {
-            return typedChar == '@' || typedChar == '\'' || typedChar == '"' || typedChar == '<';
+            return typedChar == '@' || typedChar == '\'' || typedChar == '"' || typedChar == '<' || typedChar == ' ';
         }
     }
 }

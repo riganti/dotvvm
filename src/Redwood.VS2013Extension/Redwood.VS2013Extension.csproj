@@ -91,6 +91,11 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtmlCompletionSourceProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\DirectiveNameHtmlCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\IRwHtmlCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainDirectiveNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\RwHtmlCompletionContext.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TriggerPoint.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\SimpleRwHtmlCompletion.cs">
       <SubType>Code</SubType>
     </Compile>
