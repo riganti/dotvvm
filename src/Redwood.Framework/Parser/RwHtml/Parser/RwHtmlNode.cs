@@ -19,7 +19,7 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
         }
 
         public List<RwHtmlToken> Tokens { get; private set; }
-
+        
         public RwHtmlNode()
         {
             Tokens = new List<RwHtmlToken>();

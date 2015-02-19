@@ -119,9 +119,9 @@ namespace Redwood.Framework.Parser
         /// <summary>
         /// Skips the whitespace.
         /// </summary>
-        protected void SkipWhitespace()
+        protected void SkipWhitespace(bool allowEndLine = true)
         {
-            while (Char.IsWhiteSpace(Peek()))
+            while (Char.IsWhiteSpace(Peek()) && (allowEndLine || (Peek() != '\r' && Peek() != '\n')))
             {
                 if (Read() == NullChar)
                 {
@@ -139,7 +139,7 @@ namespace Redwood.Framework.Parser
         /// When the new line is hit, the method automatically consumes it and creates WhiteSpace token.
         /// When the stopchar is hit, it is not consumed.
         /// </summary>
-        protected void ReadTextUntilNewLine(params char[] stopChars)
+        protected void ReadTextUntilNewLine(TTokenType tokenType, params char[] stopChars)
         {
             while (Peek() != '\r' && Peek() != '\n' && !stopChars.Contains(Peek()))
             {
@@ -150,7 +150,7 @@ namespace Redwood.Framework.Parser
             }
             if (DistanceSinceLastToken > 0)
             {
-                CreateToken(TextTokenType);
+                CreateToken(tokenType);
             }
 
             if (Peek() == '\r')
@@ -238,7 +238,7 @@ namespace Redwood.Framework.Parser
         /// <summary>
         /// Creates the token.
         /// </summary>
-        protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0)
+        protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, string errorMessage = null)
         {
             LastToken = new TToken()
             {
@@ -247,7 +247,8 @@ namespace Redwood.Framework.Parser
                 StartPosition = LastTokenPosition,
                 Length = DistanceSinceLastToken - charsFromEndToSkip,
                 Type = type,
-                Text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip)
+                Text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip),
+                ErrorMessage = errorMessage
             };
             Tokens.Add(LastToken);
             

@@ -6,5 +6,6 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
 {
     public class RwHtmlToken : TokenBase<RwHtmlTokenType>
     {
+
     }
 }

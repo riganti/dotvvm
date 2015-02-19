@@ -103,16 +103,28 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 CreateToken(RwHtmlTokenType.DirectiveStart);
 
                 // identifier
-                if (!ReadIdentifier())
+                if (!ReadIdentifier(RwHtmlTokenType.DirectiveName, '\r', '\n'))
                 {
-                    ReportError(Parser_RwHtml.Directive_IdentifierExpected);
-                    ReadTextUntilNewLine();
-                    return false;
+                    CreateToken(RwHtmlTokenType.DirectiveName, errorMessage: "TODO");
+                }
+                SkipWhitespace(false);
+                
+                // whitespace
+                if (LastToken.Type != RwHtmlTokenType.WhiteSpace)
+                {
+                    CreateToken(RwHtmlTokenType.WhiteSpace, errorMessage: "TODO");
                 }
 
-                // read directive value
-                SkipWhitespace();
-                ReadTextUntilNewLine();
+                // directive value
+                if (Peek() == '\r' || Peek() == '\n' || Peek() == NullChar)
+                {
+                    CreateToken(RwHtmlTokenType.DirectiveValue, errorMessage: "TODO");
+                    SkipWhitespace();
+                }
+                else
+                {
+                    ReadTextUntilNewLine(RwHtmlTokenType.DirectiveValue);
+                }
 
                 return true;
             }
@@ -130,11 +142,10 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
         /// <summary>
         /// Reads the identifier.
         /// </summary>
-        private bool ReadIdentifier(params char[] stopChars)
+        private bool ReadIdentifier(RwHtmlTokenType tokenType, params char[] stopChars)
         {
             // read first character
-
-            if (!char.IsLetter(Peek()) && Peek() != '_' && !stopChars.Contains(Peek()))
+            if ((!char.IsLetter(Peek()) && Peek() != '_') || stopChars.Contains(Peek()))
                 return false;
 
             // read identifier
@@ -142,10 +153,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             {
                 Read();
             }
-            CreateToken(RwHtmlTokenType.Text);
-
-            SkipWhitespace();
-
+            CreateToken(tokenType);
             return true;
         }
 
@@ -161,7 +169,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             Assert(Peek() == '<');
             Read();
 
-            if(Peek() == '!')
+            if (Peek() == '!' || Peek() == '?')
             {
                 ReadHtmlSpecial(true);
                 return false;
@@ -176,7 +184,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 CreateToken(RwHtmlTokenType.Slash);
                 isClosingTag = true;
             }
-            
+
             // read tag name
             if (!ReadTagOrAttributeName(isAttributeName: false))
             {
@@ -217,35 +225,49 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
 
         public void ReadHtmlSpecial(bool openBraceConsumed = false)
         {
-            if(!openBraceConsumed)
+            if (!openBraceConsumed)
             {
                 Assert(Peek() == '<');
                 Read();
             }
-            Assert(Peek() == '!');
+            Assert(Peek() == '!' || Peek() == '?');
             Read();
-            var s = ReadOneOf("[CDATA[", "--", "DOCTYPE");
-            if (s == "[CDATA[") // CDATA section
+            
+            var s = ReadOneOf("![CDATA[", "!--", "!DOCTYPE", "?");
+            if (s == "![CDATA[") 
             {
-                CreateToken(RwHtmlTokenType.OpenCdata);
-                ReadTextUntilNewLine("]]>");
-                CreateToken(RwHtmlTokenType.CloseTag);
+                // CDATA section
+                CreateToken(RwHtmlTokenType.OpenCData);
+                ReadTextUntil("]]>");
+                CreateToken(RwHtmlTokenType.CDataBody, 3);
+                CreateToken(RwHtmlTokenType.CloseCData);
             }
-            else if (s == "--") // comment
+            else if (s == "!--") 
             {
+                // comment
                 CreateToken(RwHtmlTokenType.OpenComment);
                 ReadTextUntil("-->");
-                CreateToken(RwHtmlTokenType.CloseTag);
+                CreateToken(RwHtmlTokenType.CommentBody, 3);
+                CreateToken(RwHtmlTokenType.CloseComment);
             }
-            else if (s == "DOCTYPE")
+            else if (s == "!DOCTYPE")
             {
                 CreateToken(RwHtmlTokenType.OpenDoctype);
-                SkipWhitespace();
-                ReadTextUntilNewLine('>');
-                Read();
-                CreateToken(RwHtmlTokenType.CloseTag);
+                ReadTextUntil(">");
+                CreateToken(RwHtmlTokenType.DoctypeBody, 1);
+                CreateToken(RwHtmlTokenType.CloseDoctype);
             }
-            else ReportError("not supported");
+            else if (s == "?")
+            {
+                CreateToken(RwHtmlTokenType.OpenXmlProcessingInstruction);
+                ReadTextUntil("?>");
+                CreateToken(RwHtmlTokenType.XmlProcessingInstructionBody, 2);
+                CreateToken(RwHtmlTokenType.CloseXmlProcessingInstruction);
+            }
+            else
+            {
+                ReportError("Element is not supported");
+            }
         }
 
         private void Assert(bool expression)
@@ -255,24 +277,26 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 throw new Exception("Assertion failed!");
             }
         }
-        
+
         /// <summary>
         /// Reads the name of the tag or attribute.
         /// </summary>
         private bool ReadTagOrAttributeName(bool isAttributeName)
         {
-            if (!ReadIdentifier(':', '/', '>'))
+            if (!ReadIdentifier(RwHtmlTokenType.Text, ':', '/', '>'))
             {
                 ReportError(isAttributeName ? Parser_RwHtml.Element_IdentifierExpectedAfterTagOpenBrace : Parser_RwHtml.Element_AttributeNameExpected);
                 ReadTextUntilNewLineOrTag();
                 return false;
             }
+            SkipWhitespace();
+
             if (Peek() == ':')
             {
                 Read();
                 CreateToken(RwHtmlTokenType.Colon);
 
-                if (!ReadIdentifier('/', '>'))
+                if (!ReadIdentifier(RwHtmlTokenType.Text, '/', '>'))
                 {
                     ReportError(Parser_RwHtml.Element_IdentifierExpectedAfterColonInTagName);
                     ReadTextUntilNewLineOrTag();
@@ -311,10 +335,11 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                         return false;
                     }
                 }
-                else 
+                else
                 {
                     // unquoted value
-                    ReadIdentifier('/', '>');
+                    ReadIdentifier(RwHtmlTokenType.Text, '/', '>');
+                    SkipWhitespace();
                 }
             }
             return true;
@@ -386,11 +411,12 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             CreateToken(RwHtmlTokenType.OpenBinding);
 
             // read binding name
-            if (!ReadIdentifier(':'))
+            if (!ReadIdentifier(RwHtmlTokenType.Text, ':'))
             {
                 ReportError(Parser_RwHtml.Binding_MustStartWithIdentifier);
                 return false;
             }
+            SkipWhitespace();
 
             // colon
             if (Peek() != ':')
@@ -437,7 +463,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
         /// </summary>
         private void ReadTextUntilNewLineOrTag()
         {
-            ReadTextUntilNewLine('<', '>');
+            ReadTextUntilNewLine(TextTokenType, '<', '>');
         }
     }
 }

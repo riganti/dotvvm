@@ -101,10 +101,12 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                 }
                 else if (Peek().Type == RwHtmlTokenType.OpenComment)
                 {
+                    // HTML comment
                     CurrentElementContent.Add(ReadComment());
                 }
-                else if (Peek().Type == RwHtmlTokenType.OpenCdata)
+                else if (Peek().Type == RwHtmlTokenType.OpenCData)
                 {
+                    // CData
                     CurrentElementContent.Add(ReadCdata());
                 }
                 else
@@ -126,44 +128,37 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
 
         public RwHtmlLiteralNode ReadComment()
         {
-            Assert(RwHtmlTokenType.OpenComment);
-            Read();
             var node = new RwHtmlLiteralNode();
-            var content = new StringBuilder("<!--");
-            while (Peek().Type != RwHtmlTokenType.CloseTag)
-            {
-                if (Peek().Type == RwHtmlTokenType.Text || Peek().Type == RwHtmlTokenType.WhiteSpace)
-                {
-                    content.Append(Peek().Text);
-                    node.Tokens.Add(Peek());
-                    Read();
-                }
-                else throw new ParserException("");
-            }
-            Read();
-            content.Append("-->");
-            node.Value = content.ToString();
+            
+            Assert(RwHtmlTokenType.OpenComment);
+            node.Tokens.Add(Read());
+
+            Assert(RwHtmlTokenType.CommentBody);
+            node.Tokens.Add(Read());
+
+            Assert(RwHtmlTokenType.CloseComment);
+            node.Tokens.Add(Read());
+
+            node.Value = string.Join(string.Empty, node.Tokens.Select(t => t.Text));
+
             return node;
         }
 
         public RwHtmlLiteralNode ReadCdata()
         {
-            Assert(RwHtmlTokenType.OpenCdata);
-            Read();
             var node = new RwHtmlLiteralNode();
-            var content = new StringBuilder();
-            while (Peek().Type != RwHtmlTokenType.CloseTag)
-            {
-                if (Peek().Type == RwHtmlTokenType.Text || Peek().Type == RwHtmlTokenType.WhiteSpace)
-                {
-                    content.Append(WebUtility.HtmlEncode(Peek().Text));
-                    node.Tokens.Add(Peek());
-                    Read();
-                }
-                else throw new ParserException("");
-            }
-            Read();
-            node.Value = content.ToString();
+
+            Assert(RwHtmlTokenType.OpenCData);
+            node.Tokens.Add(Read());
+
+            Assert(RwHtmlTokenType.CDataBody);
+            node.Tokens.Add(Read());
+
+            Assert(RwHtmlTokenType.CloseCData);
+            node.Tokens.Add(Read());
+
+            node.Value = string.Join(string.Empty, node.Tokens.Select(t => t.Text));
+
             return node;
         }
 

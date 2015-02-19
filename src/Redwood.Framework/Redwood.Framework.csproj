@@ -105,6 +105,7 @@
     <Compile Include="Controls\ValidationMessage.cs" />
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Hosting\ModelState.cs" />
     <Compile Include="Hosting\RedwoodEmbeddedResourceMiddleware.cs" />
     <Compile Include="Hosting\RedwoodErrorPageMiddleware.cs" />

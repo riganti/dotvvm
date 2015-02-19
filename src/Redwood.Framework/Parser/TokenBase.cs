@@ -19,6 +19,12 @@ namespace Redwood.Framework.Parser
 
         public int ColumnNumber { get; set; }
 
+        public string ErrorMessage { get; set; }
+
+        public bool HasError
+        {
+            get { return ErrorMessage != null; }
+        }
 
         public override string ToString()
         {
