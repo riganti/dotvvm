@@ -172,7 +172,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             if (Peek() == '!' || Peek() == '?')
             {
                 ReadHtmlSpecial(true);
-                return false;
+                return true;
             }
 
             CreateToken(RwHtmlTokenType.OpenTag);
@@ -225,44 +225,62 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
 
         public void ReadHtmlSpecial(bool openBraceConsumed = false)
         {
-            if (!openBraceConsumed)
-            {
-                Assert(Peek() == '<');
-                Read();
-            }
-            Assert(Peek() == '!' || Peek() == '?');
-            Read();
-            
             var s = ReadOneOf("![CDATA[", "!--", "!DOCTYPE", "?");
             if (s == "![CDATA[") 
             {
                 // CDATA section
                 CreateToken(RwHtmlTokenType.OpenCData);
-                ReadTextUntil("]]>");
-                CreateToken(RwHtmlTokenType.CDataBody, 3);
-                CreateToken(RwHtmlTokenType.CloseCData);
+                if (ReadTextUntil(RwHtmlTokenType.CDataBody, "]]>"))
+                {
+                    CreateToken(RwHtmlTokenType.CloseCData);
+                }
+                else
+                {
+                    CreateToken(RwHtmlTokenType.CDataBody, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.CloseCData, errorMessage: "TODO");
+                }
             }
             else if (s == "!--") 
             {
                 // comment
                 CreateToken(RwHtmlTokenType.OpenComment);
-                ReadTextUntil("-->");
-                CreateToken(RwHtmlTokenType.CommentBody, 3);
-                CreateToken(RwHtmlTokenType.CloseComment);
+                if (ReadTextUntil(RwHtmlTokenType.CommentBody, "-->"))
+                {
+                    CreateToken(RwHtmlTokenType.CloseComment);
+                }
+                else
+                {
+                    CreateToken(RwHtmlTokenType.CommentBody, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.CloseComment, errorMessage: "TODO");
+                }
             }
             else if (s == "!DOCTYPE")
             {
+                // DOCTYPE
                 CreateToken(RwHtmlTokenType.OpenDoctype);
-                ReadTextUntil(">");
-                CreateToken(RwHtmlTokenType.DoctypeBody, 1);
-                CreateToken(RwHtmlTokenType.CloseDoctype);
+                if (ReadTextUntil(RwHtmlTokenType.DoctypeBody, ">"))
+                {
+                    CreateToken(RwHtmlTokenType.CloseDoctype);
+                }
+                else
+                {
+                    CreateToken(RwHtmlTokenType.DoctypeBody, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.CloseDoctype, errorMessage: "TODO");                    
+                }
             }
             else if (s == "?")
             {
+                // XML processing instruction
                 CreateToken(RwHtmlTokenType.OpenXmlProcessingInstruction);
-                ReadTextUntil("?>");
-                CreateToken(RwHtmlTokenType.XmlProcessingInstructionBody, 2);
-                CreateToken(RwHtmlTokenType.CloseXmlProcessingInstruction);
+                if (ReadTextUntil(RwHtmlTokenType.XmlProcessingInstructionBody, "?>"))
+                {
+                    CreateToken(RwHtmlTokenType.CloseXmlProcessingInstruction);
+                }
+                else
+                {
+                    CreateToken(RwHtmlTokenType.XmlProcessingInstructionBody, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.CloseXmlProcessingInstruction, errorMessage: "TODO");         
+                }
             }
             else
             {

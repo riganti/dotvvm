@@ -73,6 +73,7 @@
     <Compile Include="Parser\RwHtml\RwHtmlParserTests.cs" />
     <Compile Include="Parser\RwHtml\RwHtmlTokenizerDirectivesTests.cs" />
     <Compile Include="Parser\RwHtml\RwHtmlTokenizerElementsTests.cs" />
+    <Compile Include="Parser\RwHtml\RwHtmlTokenizerHtmlSpecialElementsTests.cs" />
     <Compile Include="Parser\RwHtml\RwHtmlTokenizerTestsBase.cs" />
     <Compile Include="Binding\ExpressionEvaluatorTests.cs" />
     <Compile Include="Parser\Translation\ExpressionTranslatorTests.cs" />

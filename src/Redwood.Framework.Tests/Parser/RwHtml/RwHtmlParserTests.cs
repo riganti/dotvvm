@@ -165,7 +165,46 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             Assert.AreEqual("test", ((RwHtmlElementNode)nodes[1]).Attributes[0].Literal.Value);
         }
 
-        private static RwHtmlRootNode ParseMarkup(string markup)
+        [TestMethod]
+        public void RwHtmlParser_Valid_Directives()
+        {
+            var markup = @"@viewmodel MyNamespace.TestViewModel, MyAssembly   
+@basetype Test
+
+this is a content";
+            var result = ParseMarkup(markup);
+
+            Assert.AreEqual(2, result.Directives.Count);
+            Assert.AreEqual("viewmodel", result.Directives[0].Name);
+            Assert.AreEqual("MyNamespace.TestViewModel, MyAssembly", result.Directives[0].Value);
+            Assert.AreEqual("basetype", result.Directives[1].Name);
+            Assert.AreEqual("Test", result.Directives[1].Value);
+
+            Assert.AreEqual(1, result.Content.Count);
+            Assert.IsInstanceOfType(result.Content[0], typeof(RwHtmlLiteralNode));
+            Assert.AreEqual("this is a content", ((RwHtmlLiteralNode)result.Content[0]).Value);
+        }
+
+        [TestMethod]
+        public void RwHtmlParser_Valid_Doctype()
+        {
+            var markup = @"@viewmodel MyNamespace.TestViewModel, MyAssembly   
+
+<!DOCTYPE html>
+test";
+            var result = ParseMarkup(markup);
+
+            Assert.AreEqual(1, result.Directives.Count);
+            Assert.AreEqual("viewmodel", result.Directives[0].Name);
+            Assert.AreEqual("MyNamespace.TestViewModel, MyAssembly", result.Directives[0].Value);
+
+            Assert.AreEqual(1, result.Content.Count);
+            Assert.IsInstanceOfType(result.Content[0], typeof(RwHtmlLiteralNode));
+            Assert.AreEqual("<!DOCTYPE html>\r\ntest", ((RwHtmlLiteralNode)result.Content[0]).Value);
+        }
+
+
+        public static RwHtmlRootNode ParseMarkup(string markup)
         {
             var tokenizer = new RwHtmlTokenizer();
             tokenizer.Tokenize(new StringReader(markup), null);
@@ -173,5 +212,6 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             var node = parser.Parse();
             return node;
         }
+
     }
 }

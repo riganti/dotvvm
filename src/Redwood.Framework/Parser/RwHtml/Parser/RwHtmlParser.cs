@@ -47,20 +47,20 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             // read file
             var root = new RwHtmlRootNode();
             elementHierarchy.Push(root);
-            SkipWhitespace();
+            var leadingWhitespace = SkipWhitespace();
 
             // read directives
             while (Peek() != null && Peek().Type == RwHtmlTokenType.DirectiveStart)
             {
                 root.Directives.Add(ReadDirective());
             }
-
-            SkipWhitespace();
-            if(Peek().Type == RwHtmlTokenType.OpenDoctype)
+            if (root.Directives.Any())
             {
-                root.Directives.Add(ReadDoctype());
+                root.Directives[0].LeadingWhitespace = leadingWhitespace;
             }
 
+            SkipWhitespace();
+            
             // read content
             while (Peek() != null)
             {
@@ -99,20 +99,20 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                     // binding
                     CurrentElementContent.Add(ReadBinding());
                 }
-                else if (Peek().Type == RwHtmlTokenType.OpenComment)
-                {
-                    // HTML comment
-                    CurrentElementContent.Add(ReadComment());
-                }
-                else if (Peek().Type == RwHtmlTokenType.OpenCData)
-                {
-                    // CData
-                    CurrentElementContent.Add(ReadCdata());
-                }
                 else
                 {
                     // text
-                    CurrentElementContent.Add(new RwHtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() } });
+                    if (CurrentElementContent.Count > 0 && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof (RwHtmlLiteralNode))
+                    {
+                        // append to the previous literal
+                        var lastLiteral = (RwHtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
+                        lastLiteral.Value += Peek().Text;
+                        lastLiteral.Tokens.Add(Peek());
+                    }
+                    else
+                    {
+                        CurrentElementContent.Add(new RwHtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() } });
+                    }
                     Read();
                 }
             }
@@ -124,42 +124,6 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             }
 
             return root;
-        }
-
-        public RwHtmlLiteralNode ReadComment()
-        {
-            var node = new RwHtmlLiteralNode();
-            
-            Assert(RwHtmlTokenType.OpenComment);
-            node.Tokens.Add(Read());
-
-            Assert(RwHtmlTokenType.CommentBody);
-            node.Tokens.Add(Read());
-
-            Assert(RwHtmlTokenType.CloseComment);
-            node.Tokens.Add(Read());
-
-            node.Value = string.Join(string.Empty, node.Tokens.Select(t => t.Text));
-
-            return node;
-        }
-
-        public RwHtmlLiteralNode ReadCdata()
-        {
-            var node = new RwHtmlLiteralNode();
-
-            Assert(RwHtmlTokenType.OpenCData);
-            node.Tokens.Add(Read());
-
-            Assert(RwHtmlTokenType.CDataBody);
-            node.Tokens.Add(Read());
-
-            Assert(RwHtmlTokenType.CloseCData);
-            node.Tokens.Add(Read());
-
-            node.Value = string.Join(string.Empty, node.Tokens.Select(t => t.Text));
-
-            return node;
         }
 
         /// <summary>
@@ -319,42 +283,24 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             var node = new RwHtmlDirectiveNode();
 
             Assert(RwHtmlTokenType.DirectiveStart);
-            Read();
+            node.StartDirectiveToken = Read();
             SkipWhitespace();
 
-            Assert(RwHtmlTokenType.Text);
-            node.Name = Read().Text;
-            SkipWhitespace();
+            Assert(RwHtmlTokenType.DirectiveName);
+            node.DirectiveNameToken = Read();
+            node.Name = node.DirectiveNameToken.Text.Trim();
+            
+            node.DirectiveValueSeparatorTokens = SkipWhitespace();
 
-            Assert(RwHtmlTokenType.Text);
-            node.Value = Read().Text;
-            SkipWhitespace();
+            Assert(RwHtmlTokenType.DirectiveValue);
+            node.DirectiveValueToken = Read();
+            node.Value = node.DirectiveValueToken.Text.Trim();
+            node.TrailingWhitespace = SkipWhitespace();
 
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
         }
-
-        private RwHtmlDirectiveNode ReadDoctype()
-        {
-            var startIndex = CurrentIndex;
-            var node = new RwHtmlDirectiveNode();
-            node.Name = Constants.DoctypeDirectiveName;
-
-            Assert(RwHtmlTokenType.OpenDoctype);
-            Read();
-            SkipWhitespace();
-
-            Assert(RwHtmlTokenType.Text);
-            node.Value = Read().Text;
-            SkipWhitespace();
-
-            Assert(RwHtmlTokenType.CloseTag);
-            Read();
-
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
-            return node;
-        }
-
+        
         /// <summary>
         /// Gets the tokens from.
         /// </summary>
@@ -377,9 +323,9 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
         /// <summary>
         /// Skips the whitespace.
         /// </summary>
-        private void SkipWhitespace()
+        private List<RwHtmlToken> SkipWhitespace()
         {
-            ReadMultiple(t => t.Type == RwHtmlTokenType.WhiteSpace).ToList();
+            return ReadMultiple(t => t.Type == RwHtmlTokenType.WhiteSpace).ToList();
         }
 
 

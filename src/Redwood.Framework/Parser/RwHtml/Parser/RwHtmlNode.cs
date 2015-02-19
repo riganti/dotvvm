@@ -18,7 +18,13 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             get { return Tokens.Sum(t => t.Length); }
         }
 
+
+        public List<RwHtmlToken> LeadingWhitespace { get; set; }
+
+        public List<RwHtmlToken> TrailingWhitespace { get; set; }
+
         public List<RwHtmlToken> Tokens { get; private set; }
+
         
         public RwHtmlNode()
         {
