@@ -71,6 +71,7 @@
     <Compile Include="Binding\CommandResolverTests.cs" />
     <Compile Include="Binding\ExpressionEvaluatorComplexTests.cs" />
     <Compile Include="Parser\RwHtml\RwHtmlParserTests.cs" />
+    <Compile Include="Parser\RwHtml\RwHtmlTokenizerBindingTests.cs" />
     <Compile Include="Parser\RwHtml\RwHtmlTokenizerDirectivesTests.cs" />
     <Compile Include="Parser\RwHtml\RwHtmlTokenizerElementsTests.cs" />
     <Compile Include="Parser\RwHtml\RwHtmlTokenizerHtmlSpecialElementsTests.cs" />

@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Redwood.Framework.Parser;
-using Redwood.Framework.Parser.RwHtml;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 
 namespace Redwood.Framework.Tests.Parser.RwHtml
@@ -140,7 +137,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             // parse
             var tokenizer = new RwHtmlTokenizer();
             tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
@@ -184,58 +181,601 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
 
+
         [TestMethod]
-        public void RwHtmlTokenizer_ElementParsing_Valid_SelfClosing_BindingAttribute()
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_InvalidTagName()
         {
-            var input = @" tr <input value=""{binding: FirstName}"" />";
+            var input = @"<'";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
             tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
 
             var i = 0;
-            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_InvalidTagName_AnotherTag()
+        {
+            var input = @"<'<a/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
             Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(RwHtmlTokenType.OpenBinding, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.CloseBinding, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(RwHtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
 
         [TestMethod]
-        public void RwHtmlTokenizer_ElementParsing_Valid_BindingInPlainText()
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag()
         {
-            var input = @"tr {{binding: FirstName}}"" />";
+            var input = @"<html";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
             tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
 
             var i = 0;
-            Assert.AreEqual(3, tokenizer.Tokens[i].Length);
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.OpenBinding, tokenizer.Tokens[i++].Type);
+            
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AnotherTag()
+        {
+            var input = @"<html<a/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+        
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_WhiteSpace()
+        {
+            var input = @"<html ";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_WhiteSpace_AnotherTag()
+        {
+            var input = @"<html <a/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName()
+        {
+            var input = @"<html attr";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(RwHtmlTokenType.CloseBinding, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName_AnotherTag()
+        {
+            var input = @"<html attr<a/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+        
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName_Equals()
+        {
+            var input = @"<html attr=";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName_Equals_AnotherTag()
+        {
+            var input = @"<html attr=<a/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName_Equals_Quote()
+        {
+            var input = @"<html attr='";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+            
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName_Equals_Quote_AnotherTag()
+        {
+            var input = @"<html attr='<a/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+            
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName_Equals_Quote_Quote()
+        {
+            var input = @"<html attr=''";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName_Equals_Quote_Quote_AnotherTag()
+        {
+            var input = @"<html attr=''<a/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_ElementName_MissingTagPrefix()
+        {
+            var input = @"<:name/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_ElementName_MissingTagName()
+        {
+            var input = @"<prefix:/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_AttributeName_MissingTagPrefix()
+        {
+            var input = @"<a :name=''/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_AttributeName_MissingTagName()
+        {
+            var input = @"<a prefix:=''/>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError); 
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_EmptyTag()
+        {
+            var input = @"<>";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_OpenTag_OpenTag()
+        {
+            var input = @"<<";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_OpenTag_Equals()
+        {
+            var input = @"<=";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_OpenTag_Quotes()
+        {
+            var input = @"<'";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Invalid_CloseTag_TreatedAsText()
+        {
+            var input = @">";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input), null);
+            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+        }
+        
     }
 }

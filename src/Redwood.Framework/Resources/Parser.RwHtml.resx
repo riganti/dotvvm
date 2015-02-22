@@ -144,6 +144,9 @@
   <data name="Attribute_BindingMustEndWithDoubleRightCurlyBraces" xml:space="preserve">
     <value>Binding inside attribute must end with double right curly brace! E.g. &lt;div class="row{{binding: RowIndex % 2}}"&gt;</value>
   </data>
+  <data name="Attribute_ValueMustNotContainTagOpenBrace" xml:space="preserve">
+    <value>The attribute value must not contain tag open brace!</value>
+  </data>
   <data name="Attribute_ValueMustNotContainTagCloseBrace" xml:space="preserve">
     <value>The attribute value must not contain tag close brace!</value>
   </data>

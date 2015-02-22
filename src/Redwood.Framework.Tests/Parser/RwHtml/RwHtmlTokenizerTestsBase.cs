@@ -9,10 +9,10 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
     public abstract class RwHtmlTokenizerTestsBase
     {
 
-        protected void CheckForErrors(RwHtmlTokenizer tokenizer, int inputLength)
+        protected void CheckForErrors(RwHtmlTokenizer tokenizer, int inputLength, bool allowErrors = false)
         {
             // check for parsing errors
-            if (tokenizer.Errors.Any())
+            if (tokenizer.Errors.Any() && !allowErrors)
             {
                 throw new Exception("Errors occured while parsing!");
             }

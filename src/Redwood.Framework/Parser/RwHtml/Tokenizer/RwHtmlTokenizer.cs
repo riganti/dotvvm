@@ -188,6 +188,8 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // read tag name
             if (!ReadTagOrAttributeName(isAttributeName: false))
             {
+                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
+                CreateToken(RwHtmlTokenType.CloseTag, errorMessage: "TODO");
                 return false;
             }
 
@@ -199,6 +201,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 {
                     if (!ReadAttribute())
                     {
+                        CreateToken(RwHtmlTokenType.CloseTag, errorMessage: "TODO");        
                         return false;
                     }
                 }
@@ -214,7 +217,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             {
                 // tag is not closed
                 ReportError(Parser_RwHtml.Element_TagNotClosed);
-                ReadTextUntilNewLineOrTag();
+                CreateToken(RwHtmlTokenType.CloseTag, errorMessage: "TODO");
                 return false;
             }
 
@@ -301,24 +304,31 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
         /// </summary>
         private bool ReadTagOrAttributeName(bool isAttributeName)
         {
-            if (!ReadIdentifier(RwHtmlTokenType.Text, ':', '/', '>'))
+            if (Peek() != ':')
             {
-                ReportError(isAttributeName ? Parser_RwHtml.Element_IdentifierExpectedAfterTagOpenBrace : Parser_RwHtml.Element_AttributeNameExpected);
-                ReadTextUntilNewLineOrTag();
-                return false;
+                // read the identifier
+                if (!ReadIdentifier(RwHtmlTokenType.Text, '=', ':', '/', '>'))
+                {
+                    ReportError(isAttributeName ? Parser_RwHtml.Element_IdentifierExpectedAfterTagOpenBrace : Parser_RwHtml.Element_AttributeNameExpected);
+                    return false;
+                }
             }
-            SkipWhitespace();
+            else
+            {
+                // missing tag prefix
+                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
+            }
 
             if (Peek() == ':')
             {
                 Read();
                 CreateToken(RwHtmlTokenType.Colon);
 
-                if (!ReadIdentifier(RwHtmlTokenType.Text, '/', '>'))
+                if (!ReadIdentifier(RwHtmlTokenType.Text, '=', '/', '>'))
                 {
+                    CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
                     ReportError(Parser_RwHtml.Element_IdentifierExpectedAfterColonInTagName);
-                    ReadTextUntilNewLineOrTag();
-                    return false;
+                    return true;
                 }
             }
 
@@ -356,10 +366,20 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 else
                 {
                     // unquoted value
-                    ReadIdentifier(RwHtmlTokenType.Text, '/', '>');
+                    if (!ReadIdentifier(RwHtmlTokenType.Text, '/', '>'))
+                    {
+                        CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");        
+                    }
                     SkipWhitespace();
                 }
             }
+            else
+            {
+                CreateToken(RwHtmlTokenType.Equals, errorMessage: "TODO");
+                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
+                return false;
+            }
+
             return true;
         }
 
@@ -387,17 +407,26 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 // read text 
                 while (Peek() != quotes)
                 {
-                    var ch = Read();
+                    var ch = Peek();
                     if (ch == NullChar)
                     {
+                        CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote, errorMessage: "TODO");
                         ReportError(Parser_RwHtml.UnexpectedEndOfInput);
+                        return false;
+                    }
+                    if (ch == '<')
+                    {
+                        CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote, errorMessage: "TODO");
+                        ReportError(Parser_RwHtml.Attribute_ValueMustNotContainTagOpenBrace);
                         return false;
                     }
                     if (ch == '>')
                     {
+                        CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote, errorMessage: "TODO");
                         ReportError(Parser_RwHtml.Attribute_ValueMustNotContainTagCloseBrace);
                         return false;
                     }
+                    Read();
                 }
                 if (DistanceSinceLastToken > 0)
                 {
@@ -406,9 +435,16 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             }
 
             // read the ending quotes
-            Read();
-            CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote);
-            SkipWhitespace();
+            if (Peek() != quotes)
+            {
+                CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote, errorMessage: "TODO");
+            }
+            else
+            {
+                Read();
+                CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote);
+                SkipWhitespace();
+            }
             return true;
         }
 
@@ -427,61 +463,75 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 Read();
             }
             CreateToken(RwHtmlTokenType.OpenBinding);
+            SkipWhitespace();
 
             // read binding name
             if (!ReadIdentifier(RwHtmlTokenType.Text, ':'))
             {
+                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
                 ReportError(Parser_RwHtml.Binding_MustStartWithIdentifier);
-                return false;
             }
-            SkipWhitespace();
+            else
+            {
+                SkipWhitespace();
+            }
 
             // colon
             if (Peek() != ':')
             {
+                CreateToken(RwHtmlTokenType.Colon, errorMessage: "TODO");
                 ReportError(Parser_RwHtml.Binding_ColonAfterIdentifier);
-                return false;
             }
-            Read();
-            CreateToken(RwHtmlTokenType.Colon);
-            SkipWhitespace();
+            else
+            {
+                Read();
+                CreateToken(RwHtmlTokenType.Colon);
+                SkipWhitespace();
+            }
 
             // binding value
-            while (Peek() != '}')
+            if (Peek() == '}')
             {
-                var ch = Read();
-                if (ch == NullChar)
-                {
-                    ReportError(Parser_RwHtml.UnexpectedEndOfInput);
-                    return false;
-                }
+                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
             }
-            CreateToken(RwHtmlTokenType.Text);
+            else
+            {
+                while (Peek() != '}')
+                {
+                    var ch = Peek();
+                    if (ch == NullChar)
+                    {
+                        CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
+                        CreateToken(RwHtmlTokenType.CloseBinding, errorMessage: "TODO");
+                        ReportError(Parser_RwHtml.UnexpectedEndOfInput);
+                        return true;
+                    }
+                    Read();
+                }
+                CreateToken(RwHtmlTokenType.Text);
+            }
 
             // close brace
+            if (Peek() != '}')
+            {
+                CreateToken(RwHtmlTokenType.CloseBinding, errorMessage: "TODO");
+                ReportError(Parser_RwHtml.Binding_DoubleCloseBraceRequired);
+                return true;
+            }
             Read();
+            
             if (doubleCloseBrace)
             {
                 if (Peek() != '}')
                 {
                     ReportError(Parser_RwHtml.Binding_DoubleCloseBraceRequired);
+                    CreateToken(RwHtmlTokenType.CloseBinding, errorMessage: "TODO");
+                    return true;
                 }
-                else
-                {
-                    Read();
-                }
+                Read();
             }
             CreateToken(RwHtmlTokenType.CloseBinding);
             return true;
-        }
-
-
-        /// <summary>
-        /// Reads the text until new line or tag.
-        /// </summary>
-        private void ReadTextUntilNewLineOrTag()
-        {
-            ReadTextUntilNewLine(TextTokenType, '<', '>');
         }
     }
 }
