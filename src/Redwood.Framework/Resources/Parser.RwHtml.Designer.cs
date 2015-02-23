@@ -61,60 +61,6 @@ namespace Redwood.Framework.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Binding inside attribute must end with double right curly brace! E.g. &lt;div class=&quot;row{{binding: RowIndex % 2}}&quot;&gt;.
-        /// </summary>
-        internal static string Attribute_BindingMustEndWithDoubleRightCurlyBraces {
-            get {
-                return ResourceManager.GetString("Attribute_BindingMustEndWithDoubleRightCurlyBraces", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The attribute value must not contain tag close brace!.
-        /// </summary>
-        internal static string Attribute_ValueMustNotContainTagCloseBrace {
-            get {
-                return ResourceManager.GetString("Attribute_ValueMustNotContainTagCloseBrace", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The attribute value must not contain tag open brace!.
-        /// </summary>
-        internal static string Attribute_ValueMustNotContainTagOpenBrace {
-            get {
-                return ResourceManager.GetString("Attribute_ValueMustNotContainTagOpenBrace", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Colon must follow the binding identifier! E.g. {binding: FirstName}.
-        /// </summary>
-        internal static string Binding_ColonAfterIdentifier {
-            get {
-                return ResourceManager.GetString("Binding_ColonAfterIdentifier", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The binding that started with {{ must be closed with }} sequence!.
-        /// </summary>
-        internal static string Binding_DoubleCloseBraceRequired {
-            get {
-                return ResourceManager.GetString("Binding_DoubleCloseBraceRequired", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The binding must start with identifier! E.g. {binding: FirstName}.
-        /// </summary>
-        internal static string Binding_MustStartWithIdentifier {
-            get {
-                return ResourceManager.GetString("Binding_MustStartWithIdentifier", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The expression &apos;{0}&apos; is not supported in bindings!.
         /// </summary>
         internal static string Binding_UnsupportedExpression {
@@ -151,60 +97,6 @@ namespace Redwood.Framework.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Colon expected after directive name! E.g. @viewmodel: Redwood.Samples.Sample1.IndexViewModel.
-        /// </summary>
-        internal static string Directive_ColonExpected {
-            get {
-                return ResourceManager.GetString("Directive_ColonExpected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Identifier expected after directive! E.g. @viewmodel: Redwood.Samples.Sample1.IndexViewModel.
-        /// </summary>
-        internal static string Directive_IdentifierExpected {
-            get {
-                return ResourceManager.GetString("Directive_IdentifierExpected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Attribute name expected! E.g. &lt;div class=&apos;value&apos; ....
-        /// </summary>
-        internal static string Element_AttributeNameExpected {
-            get {
-                return ResourceManager.GetString("Element_AttributeNameExpected", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Identifier expected after colon in the name! E.g. &lt;rw:textbox ....
-        /// </summary>
-        internal static string Element_IdentifierExpectedAfterColonInTagName {
-            get {
-                return ResourceManager.GetString("Element_IdentifierExpectedAfterColonInTagName", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Identifier expected after tag opening brace! E.g. &lt;html ....
-        /// </summary>
-        internal static string Element_IdentifierExpectedAfterTagOpenBrace {
-            get {
-                return ResourceManager.GetString("Element_IdentifierExpectedAfterTagOpenBrace", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to End tag brace expected!.
-        /// </summary>
-        internal static string Element_TagNotClosed {
-            get {
-                return ResourceManager.GetString("Element_TagNotClosed", resourceCulture);
-            }
-        }
-        
-        /// <summary>
         ///   Looks up a localized string similar to The HtmlWriter cannot close the tag because no tag is open!.
         /// </summary>
         internal static string HtmlWriter_CannotCloseTagBecauseNoTagIsOpen {
@@ -219,15 +111,6 @@ namespace Redwood.Framework.Resources {
         internal static string Parser_ClosingTagHasNoMatchingOpenTag {
             get {
                 return ResourceManager.GetString("Parser_ClosingTagHasNoMatchingOpenTag", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The parser could not continue due to errors in the file..
-        /// </summary>
-        internal static string ParsingInterrupted {
-            get {
-                return ResourceManager.GetString("ParsingInterrupted", resourceCulture);
             }
         }
         

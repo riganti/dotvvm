@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Redwood.Framework.Resources;
 
 namespace Redwood.Framework.Parser
 {
@@ -11,7 +10,6 @@ namespace Redwood.Framework.Parser
 
         public const char NullChar = '\0';
         private IReader reader;
-        private string fileName;
 
 
         /// <summary>
@@ -68,11 +66,6 @@ namespace Redwood.Framework.Parser
         /// </summary>
         public List<TToken> Tokens { get; private set; }
 
-        /// <summary>
-        /// Gets or sets the errors.
-        /// </summary>
-        public List<ParserException> Errors { get; private set; }
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="TokenizerBase"/> class.
@@ -81,17 +74,15 @@ namespace Redwood.Framework.Parser
         {
             CurrentTokenChars = new StringBuilder();
             Tokens = new List<TToken>();
-            Errors = new List<ParserException>();
         }
 
 
         /// <summary>
         /// Tokenizes the input.
         /// </summary>
-        public void Tokenize(IReader reader, string fileName)
+        public void Tokenize(IReader reader)
         {
             this.reader = reader;
-            this.fileName = fileName;
 
             try
             {
@@ -201,7 +192,10 @@ namespace Redwood.Framework.Parser
 
             if (index == stopString.Length)
             {
-                CreateToken(tokenType, stopString.Length);
+                if (DistanceSinceLastToken > stopString.Length)
+                {
+                    CreateToken(tokenType, stopString.Length);
+                }
                 return true;
             }
             else
@@ -226,7 +220,7 @@ namespace Redwood.Framework.Parser
         /// <summary>
         /// Creates the token.
         /// </summary>
-        protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, string errorMessage = null)
+        protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, Func<TToken, TokenError> errorProvider = null)
         {
             LastToken = new TToken()
             {
@@ -235,10 +229,13 @@ namespace Redwood.Framework.Parser
                 StartPosition = LastTokenPosition,
                 Length = DistanceSinceLastToken - charsFromEndToSkip,
                 Type = type,
-                Text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip),
-                ErrorMessage = errorMessage
+                Text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip)
             };
             Tokens.Add(LastToken);
+            if (errorProvider != null)
+            {
+                LastToken.Error = errorProvider(LastToken);
+            }
 
             CurrentTokenChars.Remove(0, LastToken.Length);
             LastTokenPosition = reader.Position - charsFromEndToSkip;
@@ -248,7 +245,20 @@ namespace Redwood.Framework.Parser
             return LastToken;
         }
 
+        protected TokenError CreateTokenError()
+        {
+            return new NullTokenError<TToken, TTokenType>(this);
+        }
 
+        protected TokenError CreateTokenError(TToken lastToken, TTokenType firstTokenType, string errorMessage)
+        {
+            return new BeginWithLastTokenOfTypeTokenError<TToken, TTokenType>(errorMessage, this, lastToken, firstTokenType);
+        }
+
+        protected TokenError CreateTokenError(TToken token, string errorMessage)
+        {
+            return new SimpleTokenError<TToken, TTokenType>(errorMessage, this, token);
+        }
         /// <summary>
         /// Called when a token is found.
         /// </summary>
@@ -295,21 +305,5 @@ namespace Redwood.Framework.Parser
             PositionOnLine++;
             return ch;
         }
-
-        /// <summary>
-        /// Reports the error.
-        /// </summary>
-        protected void ReportError(string message, bool stopParsing = false)
-        {
-            Errors.Add(new ParserException(message, fileName, CurrentLine, PositionOnLine));
-
-            if (stopParsing)
-            {
-                throw new ParserException(Parser_RwHtml.ParsingInterrupted, fileName);
-            }
-        }
-
     }
-
-
 }

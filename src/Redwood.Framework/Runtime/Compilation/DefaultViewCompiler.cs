@@ -49,7 +49,7 @@ namespace Redwood.Framework.Runtime.Compilation
 
                 // parse the document
                 var tokenizer = new RwHtmlTokenizer();
-                tokenizer.Tokenize(reader, fileName);
+                tokenizer.Tokenize(reader);
                 var parser = new RwHtmlParser(tokenizer.Tokens, fileName);
                 var node = parser.Parse();
 

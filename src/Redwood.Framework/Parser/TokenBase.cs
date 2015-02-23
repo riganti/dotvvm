@@ -4,10 +4,8 @@ using System.Linq;
 
 namespace Redwood.Framework.Parser
 {
-    public abstract class TokenBase<TTokenType> 
+    public abstract class TokenBase
     {
-
-        public TTokenType Type { get; set; }
 
         public int StartPosition { get; set; }
 
@@ -19,12 +17,22 @@ namespace Redwood.Framework.Parser
 
         public int ColumnNumber { get; set; }
 
-        public string ErrorMessage { get; set; }
+        public TokenError Error { get; set; }
 
         public bool HasError
         {
-            get { return ErrorMessage != null; }
+            get { return Error != null; }
         }
+        public override string ToString()
+        {
+            return string.Format("Token ({0}:{1}): {2}", StartPosition, Length, Text);
+        }
+    }
+
+    public abstract class TokenBase<TTokenType> : TokenBase
+    {
+
+        public TTokenType Type { get; set; }
 
         public override string ToString()
         {

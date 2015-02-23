@@ -65,7 +65,7 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Classification
             // tokenize the text
             try
             {
-                tokenizer.Tokenize(new StringReader(buffer.CurrentSnapshot.GetText()), "");   // TODO: get file name
+                tokenizer.Tokenize(new StringReader(buffer.CurrentSnapshot.GetText()));   // TODO: get file name
 
                 // return the spans
                 var state = BindingState.OtherContent;

@@ -23,7 +23,7 @@ this is a test content";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
 
@@ -54,7 +54,7 @@ this is a test content";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
 
@@ -71,7 +71,7 @@ this is a test content";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
 
@@ -89,7 +89,7 @@ this is a test content";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
             
             var i = 0;
@@ -115,7 +115,7 @@ this is a test content";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -140,7 +140,7 @@ this is a test content";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -164,7 +164,7 @@ test";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -195,7 +195,7 @@ test";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -227,7 +227,7 @@ test";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -259,7 +259,7 @@ test";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -290,7 +290,7 @@ test";
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;

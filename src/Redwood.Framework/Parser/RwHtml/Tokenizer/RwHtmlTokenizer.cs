@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Redwood.Framework.Resources;
 
@@ -11,12 +10,6 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
     /// </summary>
     public class RwHtmlTokenizer : TokenizerBase<RwHtmlToken, RwHtmlTokenType>
     {
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RwHtmlTokenizer"/> class.
-        /// </summary>
-        public RwHtmlTokenizer()
-        {
-        }
 
         /// <summary>
         /// Gets the type of the text token.
@@ -105,20 +98,20 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 // identifier
                 if (!ReadIdentifier(RwHtmlTokenType.DirectiveName, '\r', '\n'))
                 {
-                    CreateToken(RwHtmlTokenType.DirectiveName, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.DirectiveName, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.DirectiveStart, RwHtmlTokenizerErrors.DirectiveNameExpected));
                 }
                 SkipWhitespace(false);
                 
                 // whitespace
                 if (LastToken.Type != RwHtmlTokenType.WhiteSpace)
                 {
-                    CreateToken(RwHtmlTokenType.WhiteSpace, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.WhiteSpace, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.DirectiveStart, RwHtmlTokenizerErrors.DirectiveValueExpected));
                 }
 
                 // directive value
                 if (Peek() == '\r' || Peek() == '\n' || Peek() == NullChar)
                 {
-                    CreateToken(RwHtmlTokenType.DirectiveValue, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.DirectiveValue, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.DirectiveStart, RwHtmlTokenizerErrors.DirectiveValueExpected));
                     SkipWhitespace();
                 }
                 else
@@ -134,11 +127,14 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             }
         }
 
+        
+
 
         static readonly HashSet<char> EnabledIdentifierChars = new HashSet<char>()
         {
             ':', '_', '-', '.'
         };
+
         /// <summary>
         /// Reads the identifier.
         /// </summary>
@@ -188,8 +184,8 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // read tag name
             if (!ReadTagOrAttributeName(isAttributeName: false))
             {
-                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
-                CreateToken(RwHtmlTokenType.CloseTag, errorMessage: "TODO");
+                CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError());
+                CreateToken(RwHtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenTag, RwHtmlTokenizerErrors.TagNameExpected));
                 return false;
             }
 
@@ -201,7 +197,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 {
                     if (!ReadAttribute())
                     {
-                        CreateToken(RwHtmlTokenType.CloseTag, errorMessage: "TODO");        
+                        CreateToken(RwHtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenTag, RwHtmlTokenizerErrors.InvalidCharactersInTag));        
                         return false;
                     }
                 }
@@ -216,8 +212,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             if (Peek() != '>')
             {
                 // tag is not closed
-                ReportError(Parser_RwHtml.Element_TagNotClosed);
-                CreateToken(RwHtmlTokenType.CloseTag, errorMessage: "TODO");
+                CreateToken(RwHtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenTag, RwHtmlTokenizerErrors.TagNotClosed));
                 return false;
             }
 
@@ -239,8 +234,8 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 }
                 else
                 {
-                    CreateToken(RwHtmlTokenType.CDataBody, errorMessage: "TODO");
-                    CreateToken(RwHtmlTokenType.CloseCData, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.CDataBody, errorProvider: t => CreateTokenError());
+                    CreateToken(RwHtmlTokenType.CloseCData, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenCData, RwHtmlTokenizerErrors.CDataNotClosed));
                 }
             }
             else if (s == "!--") 
@@ -253,8 +248,8 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 }
                 else
                 {
-                    CreateToken(RwHtmlTokenType.CommentBody, errorMessage: "TODO");
-                    CreateToken(RwHtmlTokenType.CloseComment, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
+                    CreateToken(RwHtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenComment, RwHtmlTokenizerErrors.CommentNotClosed));
                 }
             }
             else if (s == "!DOCTYPE")
@@ -267,8 +262,8 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 }
                 else
                 {
-                    CreateToken(RwHtmlTokenType.DoctypeBody, errorMessage: "TODO");
-                    CreateToken(RwHtmlTokenType.CloseDoctype, errorMessage: "TODO");                    
+                    CreateToken(RwHtmlTokenType.DoctypeBody, errorProvider: t => CreateTokenError());
+                    CreateToken(RwHtmlTokenType.CloseDoctype, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenDoctype, RwHtmlTokenizerErrors.DoctypeNotClosed));                    
                 }
             }
             else if (s == "?")
@@ -281,13 +276,9 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 }
                 else
                 {
-                    CreateToken(RwHtmlTokenType.XmlProcessingInstructionBody, errorMessage: "TODO");
-                    CreateToken(RwHtmlTokenType.CloseXmlProcessingInstruction, errorMessage: "TODO");         
+                    CreateToken(RwHtmlTokenType.XmlProcessingInstructionBody, errorProvider: t => CreateTokenError());
+                    CreateToken(RwHtmlTokenType.CloseXmlProcessingInstruction, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenXmlProcessingInstruction, RwHtmlTokenizerErrors.XmlProcessingInstructionNotClosed));         
                 }
-            }
-            else
-            {
-                ReportError("Element is not supported");
             }
         }
 
@@ -309,14 +300,13 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 // read the identifier
                 if (!ReadIdentifier(RwHtmlTokenType.Text, '=', ':', '/', '>'))
                 {
-                    ReportError(isAttributeName ? Parser_RwHtml.Element_IdentifierExpectedAfterTagOpenBrace : Parser_RwHtml.Element_AttributeNameExpected);
                     return false;
                 }
             }
             else
             {
                 // missing tag prefix
-                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
+                CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenTag, RwHtmlTokenizerErrors.MissingTagPrefix));
             }
 
             if (Peek() == ':')
@@ -326,8 +316,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
 
                 if (!ReadIdentifier(RwHtmlTokenType.Text, '=', '/', '>'))
                 {
-                    CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
-                    ReportError(Parser_RwHtml.Element_IdentifierExpectedAfterColonInTagName);
+                    CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenTag, RwHtmlTokenizerErrors.MissingTagName));
                     return true;
                 }
             }
@@ -368,15 +357,15 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                     // unquoted value
                     if (!ReadIdentifier(RwHtmlTokenType.Text, '/', '>'))
                     {
-                        CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");        
+                        CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.Text, RwHtmlTokenizerErrors.MissingAttributeValue));        
                     }
                     SkipWhitespace();
                 }
             }
             else
             {
-                CreateToken(RwHtmlTokenType.Equals, errorMessage: "TODO");
-                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
+                CreateToken(RwHtmlTokenType.Equals, errorProvider: t => CreateTokenError());
+                CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.Text, RwHtmlTokenizerErrors.MissingAttributeValue));
                 return false;
             }
 
@@ -390,8 +379,9 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
         {
             // read the beginning quotes
             var quotes = Peek();
+            var quotesToken = quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote;
             Read();
-            CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote);
+            CreateToken(quotesToken);
 
             // read value
             if (Peek() == '{')
@@ -408,22 +398,9 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                 while (Peek() != quotes)
                 {
                     var ch = Peek();
-                    if (ch == NullChar)
+                    if (ch == NullChar || ch == '<' || ch == '>')
                     {
-                        CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote, errorMessage: "TODO");
-                        ReportError(Parser_RwHtml.UnexpectedEndOfInput);
-                        return false;
-                    }
-                    if (ch == '<')
-                    {
-                        CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote, errorMessage: "TODO");
-                        ReportError(Parser_RwHtml.Attribute_ValueMustNotContainTagOpenBrace);
-                        return false;
-                    }
-                    if (ch == '>')
-                    {
-                        CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote, errorMessage: "TODO");
-                        ReportError(Parser_RwHtml.Attribute_ValueMustNotContainTagCloseBrace);
+                        CreateToken(quotesToken, errorProvider: t => CreateTokenError(t, quotesToken, RwHtmlTokenizerErrors.AttributeValueNotClosed));
                         return false;
                     }
                     Read();
@@ -437,12 +414,12 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // read the ending quotes
             if (Peek() != quotes)
             {
-                CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote, errorMessage: "TODO");
+                CreateToken(quotesToken, errorProvider: t => CreateTokenError(t, quotesToken, RwHtmlTokenizerErrors.AttributeValueNotClosed));
             }
             else
             {
                 Read();
-                CreateToken(quotes == '\'' ? RwHtmlTokenType.SingleQuote : RwHtmlTokenType.DoubleQuote);
+                CreateToken(quotesToken);
                 SkipWhitespace();
             }
             return true;
@@ -468,8 +445,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // read binding name
             if (!ReadIdentifier(RwHtmlTokenType.Text, ':'))
             {
-                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
-                ReportError(Parser_RwHtml.Binding_MustStartWithIdentifier);
+                CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenBinding, RwHtmlTokenizerErrors.BindingInvalidFormat));
             }
             else
             {
@@ -479,8 +455,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // colon
             if (Peek() != ':')
             {
-                CreateToken(RwHtmlTokenType.Colon, errorMessage: "TODO");
-                ReportError(Parser_RwHtml.Binding_ColonAfterIdentifier);
+                CreateToken(RwHtmlTokenType.Colon, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenBinding, RwHtmlTokenizerErrors.BindingInvalidFormat));
             }
             else
             {
@@ -492,7 +467,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // binding value
             if (Peek() == '}')
             {
-                CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
+                CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenBinding, RwHtmlTokenizerErrors.BindingInvalidFormat));
             }
             else
             {
@@ -501,9 +476,8 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                     var ch = Peek();
                     if (ch == NullChar)
                     {
-                        CreateToken(RwHtmlTokenType.Text, errorMessage: "TODO");
-                        CreateToken(RwHtmlTokenType.CloseBinding, errorMessage: "TODO");
-                        ReportError(Parser_RwHtml.UnexpectedEndOfInput);
+                        CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError());
+                        CreateToken(RwHtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenBinding, RwHtmlTokenizerErrors.BindingNotClosed));
                         return true;
                     }
                     Read();
@@ -514,8 +488,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             // close brace
             if (Peek() != '}')
             {
-                CreateToken(RwHtmlTokenType.CloseBinding, errorMessage: "TODO");
-                ReportError(Parser_RwHtml.Binding_DoubleCloseBraceRequired);
+                CreateToken(RwHtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenBinding, RwHtmlTokenizerErrors.BindingNotClosed));
                 return true;
             }
             Read();
@@ -524,8 +497,7 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
             {
                 if (Peek() != '}')
                 {
-                    ReportError(Parser_RwHtml.Binding_DoubleCloseBraceRequired);
-                    CreateToken(RwHtmlTokenType.CloseBinding, errorMessage: "TODO");
+                    CreateToken(RwHtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.OpenBinding, RwHtmlTokenizerErrors.DoubleBraceBindingNotClosed));
                     return true;
                 }
                 Read();

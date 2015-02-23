@@ -117,25 +117,67 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UnexpectedEndOfInput" xml:space="preserve">
-    <value>Unexpected end of input!</value>
+  <data name="AttributeValueNotClosed" xml:space="preserve">
+    <value>The attribute value was not closed. Example: 
+&lt;a href="#"&gt;Link&lt;/a&gt; or &lt;a href='#'&gt;Link&lt;/a&gt;</value>
   </data>
-  <data name="Parser_ClosingTagHasNoMatchingOpenTag" xml:space="preserve">
-    <value>The closing tag '&lt;/{0}&gt;' doesn't have a matching opening tag!</value>
+  <data name="BindingInvalidFormat" xml:space="preserve">
+    <value>The format of data-binding is not valid. Example:
+{{value: FirstName}} or &lt;a href="{value: FirstName}"&gt;Link&lt;/a&gt;</value>
   </data>
-  <data name="Binding_UnsupportedOperator" xml:space="preserve">
-    <value>The operator '{0}' is not supported in the binding!</value>
+  <data name="BindingNotClosed" xml:space="preserve">
+    <value>The binding must be closed by double braces. Example:
+&lt;a href="{value: FirstName}"&gt;Link&lt;/a&gt;</value>
   </data>
-  <data name="Binding_UnsupportedExpression" xml:space="preserve">
-    <value>The expression '{0}' is not supported in bindings!</value>
+  <data name="CDataNotClosed" xml:space="preserve">
+    <value>The CDATA section is not closed. Example:
+&lt;![CDATA[ content ]]&gt;</value>
   </data>
-  <data name="Binding_UnsupportedExpressionInDataContext" xml:space="preserve">
-    <value>The expression '{0}' is not supported in bindings in the DataContext property!</value>
+  <data name="CommentNotClosed" xml:space="preserve">
+    <value>The HTML comment is not closed. Example:
+&lt;!-- comment --&gt;</value>
   </data>
-  <data name="ControlCollection_ControlAlreadyHasParent" xml:space="preserve">
-    <value>The control cannot be added to the collection because it already has a different parent! Remove it from the original collection first.</value>
+  <data name="DirectiveNameExpected" xml:space="preserve">
+    <value>Directive name expected. Example: 
+@viewmodel Redwood.Samples.SampleViewModel, Redwood.Samples</value>
   </data>
-  <data name="HtmlWriter_CannotCloseTagBecauseNoTagIsOpen" xml:space="preserve">
-    <value>The HtmlWriter cannot close the tag because no tag is open!</value>
+  <data name="DirectiveValueExpected" xml:space="preserve">
+    <value>Value of the directive expected. Example: 
+@viewmodel Redwood.Samples.SampleViewModel, Redwood.Samples</value>
+  </data>
+  <data name="DoctypeNotClosed" xml:space="preserve">
+    <value>The DOCTYPE section is not closed. Example:
+&lt;!DOCTYPE html&gt;</value>
+  </data>
+  <data name="DoubleBraceBindingNotClosed" xml:space="preserve">
+    <value>The binding must be closed by double braces. Example:
+{{value: FirstName}}</value>
+  </data>
+  <data name="InvalidCharactersInTag" xml:space="preserve">
+    <value>The tag contains invalid characters. The tag must end with '&gt;' or '/&gt;'.</value>
+  </data>
+  <data name="MissingAttributeValue" xml:space="preserve">
+    <value>The attribute value expected. Example:
+&lt;a href="#"&gt;Link&lt;/a&gt;</value>
+  </data>
+  <data name="MissingTagName" xml:space="preserve">
+    <value>The tag name cannot end with the ':'. Example:
+&lt;rw:Button /&gt;</value>
+  </data>
+  <data name="MissingTagPrefix" xml:space="preserve">
+    <value>The tag name cannot start with the ':'. Example:
+&lt;rw:Button /&gt;</value>
+  </data>
+  <data name="TagNameExpected" xml:space="preserve">
+    <value>The tag name expected after '&lt;' character. Example:
+&lt;a href="#"&gt;Link&lt;/a&gt;</value>
+  </data>
+  <data name="TagNotClosed" xml:space="preserve">
+    <value>The tag is not closed. Example:
+&lt;a href="#"&gt;Link&lt;/a&gt;</value>
+  </data>
+  <data name="XmlProcessingInstructionNotClosed" xml:space="preserve">
+    <value>The XML processing instruction is not closed. Example:
+&lt;?xml version="1.0" ?&gt;</value>
   </data>
 </root>

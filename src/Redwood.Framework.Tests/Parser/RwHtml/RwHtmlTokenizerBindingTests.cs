@@ -18,7 +18,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -51,7 +51,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -71,8 +71,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
@@ -116,8 +116,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
@@ -160,8 +160,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
@@ -203,8 +203,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
@@ -248,8 +248,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
@@ -290,8 +290,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
@@ -332,8 +332,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
@@ -374,8 +374,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
@@ -397,8 +397,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
@@ -422,8 +422,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
-            CheckForErrors(tokenizer, input.Length, allowErrors: true);
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(1, tokenizer.Tokens.Count);

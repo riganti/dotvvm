@@ -18,7 +18,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
@@ -46,7 +46,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
@@ -71,7 +71,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
@@ -96,17 +96,14 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
             var i = 0;
             Assert.AreEqual("<!DOCTYPE", tokenizer.Tokens[i].Text);
             Assert.AreEqual(RwHtmlTokenType.OpenDoctype, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual("", tokenizer.Tokens[i].Text);
-            Assert.AreEqual(RwHtmlTokenType.DoctypeBody, tokenizer.Tokens[i++].Type);
-
+            
             Assert.AreEqual(">", tokenizer.Tokens[i].Text);
             Assert.AreEqual(RwHtmlTokenType.CloseDoctype, tokenizer.Tokens[i++].Type);
         }
@@ -118,7 +115,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
@@ -141,7 +138,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
@@ -167,7 +164,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
@@ -195,7 +192,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
@@ -223,7 +220,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             // parse
             var tokenizer = new RwHtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input), null);
+            tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
             // first line
