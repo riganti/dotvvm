@@ -117,22 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="UnexpectedEndOfInput" xml:space="preserve">
-    <value>Unexpected end of input!</value>
-  </data>
-  <data name="Binding_UnsupportedOperator" xml:space="preserve">
-    <value>The operator '{0}' is not supported in the binding!</value>
-  </data>
-  <data name="Binding_UnsupportedExpression" xml:space="preserve">
-    <value>The expression '{0}' is not supported in bindings!</value>
-  </data>
-  <data name="Binding_UnsupportedExpressionInDataContext" xml:space="preserve">
-    <value>The expression '{0}' is not supported in bindings in the DataContext property!</value>
-  </data>
-  <data name="ControlCollection_ControlAlreadyHasParent" xml:space="preserve">
-    <value>The control cannot be added to the collection because it already has a different parent! Remove it from the original collection first.</value>
-  </data>
-  <data name="HtmlWriter_CannotCloseTagBecauseNoTagIsOpen" xml:space="preserve">
-    <value>The HtmlWriter cannot close the tag because no tag is open!</value>
+  <data name="ClosingTagHasNoMatchingOpenTag" xml:space="preserve">
+    <value>The closing tag '&lt;/{0}&gt;' doesn't have a matching opening tag!</value>
   </data>
 </root>

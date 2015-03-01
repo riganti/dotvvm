@@ -50,7 +50,7 @@ namespace Redwood.Framework.Runtime.Compilation
                 // parse the document
                 var tokenizer = new RwHtmlTokenizer();
                 tokenizer.Tokenize(reader);
-                var parser = new RwHtmlParser(tokenizer.Tokens, fileName);
+                var parser = new RwHtmlParser(tokenizer.Tokens);
                 var node = parser.Parse();
 
                 // determine wrapper type

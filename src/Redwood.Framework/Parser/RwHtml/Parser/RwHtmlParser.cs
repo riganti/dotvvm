@@ -1,11 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 using Redwood.Framework.Resources;
-using System.Text;
-using System.Net;
 
 namespace Redwood.Framework.Parser.RwHtml.Parser
 {
@@ -15,7 +12,6 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
     public class RwHtmlParser
     {
         private readonly List<RwHtmlToken> tokens;
-        private readonly string fileName;
         private Stack<RwHtmlNodeWithContent> elementHierarchy;
 
         private int CurrentIndex { get; set; }
@@ -29,10 +25,9 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
         /// <summary>
         /// Initializes a new instance of the <see cref="RwHtmlParser"/> class.
         /// </summary>
-        public RwHtmlParser(List<RwHtmlToken> tokens, string fileName)
+        public RwHtmlParser(List<RwHtmlToken> tokens)
         {
             this.tokens = tokens;
-            this.fileName = fileName;
         }
 
 
@@ -47,16 +42,12 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             // read file
             var root = new RwHtmlRootNode();
             elementHierarchy.Push(root);
-            var leadingWhitespace = SkipWhitespace();
+            SkipWhitespace();
 
             // read directives
             while (Peek() != null && Peek().Type == RwHtmlTokenType.DirectiveStart)
             {
                 root.Directives.Add(ReadDirective());
-            }
-            if (root.Directives.Any())
-            {
-                root.Directives[0].LeadingWhitespace = leadingWhitespace;
             }
 
             SkipWhitespace();
@@ -80,10 +71,9 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                         {
                             // close tag
                             var beginTagName = ((RwHtmlElementNode)elementHierarchy.Peek()).FullTagName;
-                            if (elementHierarchy.Count == 1 || beginTagName != element.FullTagName)
+                            if (elementHierarchy.Count == 0 || beginTagName != element.FullTagName)
                             {
-                                // TODO: try to recover on tag crossing etc.
-                                throw new ParserException(string.Format(Parser_RwHtml.Parser_ClosingTagHasNoMatchingOpenTag, beginTagName), fileName, Peek().LineNumber, Peek().ColumnNumber);
+                                element.NodeErrors.Add(string.Format(RwHtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
                             }
                             elementHierarchy.Pop();
                         }
@@ -283,19 +273,19 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             var node = new RwHtmlDirectiveNode();
 
             Assert(RwHtmlTokenType.DirectiveStart);
-            node.StartDirectiveToken = Read();
+            Read();
             SkipWhitespace();
 
             Assert(RwHtmlTokenType.DirectiveName);
-            node.DirectiveNameToken = Read();
-            node.Name = node.DirectiveNameToken.Text.Trim();
+            var directiveNameToken = Read();
+            node.Name = directiveNameToken.Text.Trim();
             
-            node.DirectiveValueSeparatorTokens = SkipWhitespace();
+            SkipWhitespace();
 
             Assert(RwHtmlTokenType.DirectiveValue);
-            node.DirectiveValueToken = Read();
-            node.Value = node.DirectiveValueToken.Text.Trim();
-            node.TrailingWhitespace = SkipWhitespace();
+            var directiveValueToken = Read();
+            node.Value = directiveValueToken.Text.Trim();
+            SkipWhitespace();
 
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
@@ -316,7 +306,7 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
         {
             if (Peek() == null || Peek().Type != desiredType)
             {
-                throw new Exception("Assertion failed!");
+                throw new Exception("Assertion failed! This is internal error of the RWHTML parser.");
             }
         }
 

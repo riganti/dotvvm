@@ -208,7 +208,7 @@ test";
         {
             var tokenizer = new RwHtmlTokenizer();
             tokenizer.Tokenize(new StringReader(markup));
-            var parser = new RwHtmlParser(tokenizer.Tokens, null);
+            var parser = new RwHtmlParser(tokenizer.Tokens);
             var node = parser.Parse();
             return node;
         }

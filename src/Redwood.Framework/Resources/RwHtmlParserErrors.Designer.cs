@@ -22,14 +22,14 @@ namespace Redwood.Framework.Resources {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Parser_RwHtml {
+    internal class RwHtmlParserErrors {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Parser_RwHtml() {
+        internal RwHtmlParserErrors() {
         }
         
         /// <summary>
@@ -39,7 +39,7 @@ namespace Redwood.Framework.Resources {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Redwood.Framework.Resources.Parser.RwHtml", typeof(Parser_RwHtml).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("Redwood.Framework.Resources.RwHtmlParserErrors", typeof(RwHtmlParserErrors).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -61,56 +61,11 @@ namespace Redwood.Framework.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to The expression &apos;{0}&apos; is not supported in bindings!.
+        ///   Looks up a localized string similar to The closing tag &apos;&lt;/{0}&gt;&apos; doesn&apos;t have a matching opening tag!.
         /// </summary>
-        internal static string Binding_UnsupportedExpression {
+        internal static string ClosingTagHasNoMatchingOpenTag {
             get {
-                return ResourceManager.GetString("Binding_UnsupportedExpression", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The expression &apos;{0}&apos; is not supported in bindings in the DataContext property!.
-        /// </summary>
-        internal static string Binding_UnsupportedExpressionInDataContext {
-            get {
-                return ResourceManager.GetString("Binding_UnsupportedExpressionInDataContext", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The operator &apos;{0}&apos; is not supported in the binding!.
-        /// </summary>
-        internal static string Binding_UnsupportedOperator {
-            get {
-                return ResourceManager.GetString("Binding_UnsupportedOperator", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The control cannot be added to the collection because it already has a different parent! Remove it from the original collection first..
-        /// </summary>
-        internal static string ControlCollection_ControlAlreadyHasParent {
-            get {
-                return ResourceManager.GetString("ControlCollection_ControlAlreadyHasParent", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to The HtmlWriter cannot close the tag because no tag is open!.
-        /// </summary>
-        internal static string HtmlWriter_CannotCloseTagBecauseNoTagIsOpen {
-            get {
-                return ResourceManager.GetString("HtmlWriter_CannotCloseTagBecauseNoTagIsOpen", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Unexpected end of input!.
-        /// </summary>
-        internal static string UnexpectedEndOfInput {
-            get {
-                return ResourceManager.GetString("UnexpectedEndOfInput", resourceCulture);
+                return ResourceManager.GetString("ClosingTagHasNoMatchingOpenTag", resourceCulture);
             }
         }
     }
