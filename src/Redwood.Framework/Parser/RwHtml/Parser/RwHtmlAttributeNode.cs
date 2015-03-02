@@ -13,5 +13,11 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
 
 
         public string Prefix { get; set; }
+
+
+        public override IEnumerable<RwHtmlNode> EnumerateNodes()
+        {
+            return base.EnumerateNodes().Concat(new[] { Literal });
+        }
     }
 }

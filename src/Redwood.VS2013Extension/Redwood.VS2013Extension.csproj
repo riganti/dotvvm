@@ -39,6 +39,21 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="EnvDTE100, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="EnvDTE80, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="EnvDTE90, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
+    <Reference Include="EnvDTE90a, Version=9.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+      <EmbedInteropTypes>True</EmbedInteropTypes>
+    </Reference>
     <Reference Include="Microsoft.Html.Core, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\Web\Editor\Microsoft.Html.Core.dll</HintPath>
@@ -91,19 +106,24 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtmlCompletionSourceProvider.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\BindingValueCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\CompletionHelper.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\DirectiveNameHtmlCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\DirectiveValueHtmlCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\IRwHtmlCompletionProvider.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainDirectiveNameHtmlCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainBindingNameCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\RwHtmlCompletionContext.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\BindingNameCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TagAttributeNameCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TagAttributeValueCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TagNameHtmlCompletionProviderBase.cs" />
-    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\TriggerPoint.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\BindingNameCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\BindingValueCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\CompletionHelper.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\DirectiveNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\DirectiveValueHtmlCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\IRwHtmlCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\RwHtmlCompletionContext.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\TagAttributeNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\TagAttributeValueHtmlCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\TagNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\TriggerPoint.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainDirectiveNameCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainBindingNameCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainTagAttributeNameCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainTagAttributeValueCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MainTagNameCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\MasterPageDirectiveCompletionProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\ViewModelDirectiveCompletionProvider.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\SimpleRwHtmlCompletion.cs">
       <SubType>Code</SubType>
     </Compile>

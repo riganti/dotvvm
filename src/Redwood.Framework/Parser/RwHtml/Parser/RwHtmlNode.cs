@@ -8,15 +8,9 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
     public abstract class RwHtmlNode
     {
 
-        public int StartPosition
-        {
-            get { return Tokens.First().StartPosition; }
-        }
+        public int StartPosition { get; internal set; }
 
-        public int Length
-        {
-            get { return Tokens.Sum(t => t.Length); }
-        }
+        public int Length { get; internal set; }
          
 
         public List<RwHtmlToken> Tokens { get; private set; }
@@ -35,5 +29,17 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             NodeErrors = new List<string>();
         }
 
+
+        public virtual IEnumerable<RwHtmlNode> EnumerateNodes()
+        {
+            yield return this;
+        }
+
+
+
+        public RwHtmlNode FindNodeByPosition(int position)
+        {
+            return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.StartPosition + n.Length);
+        }
     }
 }

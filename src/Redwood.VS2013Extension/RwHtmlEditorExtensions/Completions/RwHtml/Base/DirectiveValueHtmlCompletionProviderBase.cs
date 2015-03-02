@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Redwood.Framework.Parser.RwHtml.Tokenizer;
+using Redwood.Framework.Parser;
+using Redwood.Framework.Parser.RwHtml.Parser;
 
-namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml
+namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 {
     public abstract class DirectiveValueHtmlCompletionProviderBase : IRwHtmlCompletionProvider
     {
@@ -14,8 +15,12 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml
 
         public virtual IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context)
         {
-            var directiveName = context.Tokens[context.CurrentTokenIndex - 2].Text.Trim();
-            return GetItemsCore(context, directiveName);
+            if (context.CurrentNode is RwHtmlDirectiveNode)
+            {
+                var directiveName = ((RwHtmlDirectiveNode)context.CurrentNode).Name;
+                return GetItemsCore(context, directiveName);
+            }
+            return Enumerable.Empty<SimpleRwHtmlCompletion>();
         }
 
         protected abstract IEnumerable<SimpleRwHtmlCompletion> GetItemsCore(RwHtmlCompletionContext context, string directiveName);

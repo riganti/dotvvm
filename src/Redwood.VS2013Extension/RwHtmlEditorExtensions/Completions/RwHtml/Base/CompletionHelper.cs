@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 
-namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml
+namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 {
     public static class CompletionHelper
     {

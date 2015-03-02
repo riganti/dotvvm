@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel.Composition;
 using System.Linq;
+using EnvDTE80;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.Text;
-using Microsoft.VisualStudio.Text.Operations;
+using Redwood.Framework.Parser.RwHtml.Parser;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 using Redwood.VS2013Extension.RwHtmlEditorExtensions.Classification;
-using Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml;
+using Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
 
 namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions
 {
@@ -15,16 +15,19 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions
     {
         private readonly RwHtmlCompletionSourceProvider sourceProvider;
         private readonly ITextBuffer textBuffer;
-        private RwHtmlClassifier classifier;
+        private readonly DTE2 dte;
+        private readonly RwHtmlClassifier classifier;
+        private readonly RwHtmlParser parser;
 
-        [ImportMany(typeof(IRwHtmlCompletionProvider))]
-        public IRwHtmlCompletionProvider[] CompletionProviders { get; set; }
 
-        public RwHtmlCompletionSource(RwHtmlCompletionSourceProvider sourceProvider, RwHtmlClassifier classifier, ITextBuffer textBuffer)
+        public RwHtmlCompletionSource(RwHtmlCompletionSourceProvider sourceProvider, RwHtmlParser parser, 
+            RwHtmlClassifier classifier, ITextBuffer textBuffer, DTE2 dte)
         {
             this.sourceProvider = sourceProvider;
             this.textBuffer = textBuffer;
+            this.dte = dte;
             this.classifier = classifier;
+            this.parser = parser;
         }
 
         public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
@@ -42,51 +45,50 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions
                     {
                         Tokens = classifier.Tokens,
                         CurrentTokenIndex = classifier.Tokens.IndexOf(currentToken),
-                        Parser = null,
-                        Tokenizer = classifier.Tokenizer
+                        Parser = parser,
+                        Tokenizer = classifier.Tokenizer,
+                        DTE = dte
                     };
-
+                    parser.Parse(classifier.Tokens);
+                    context.CurrentNode = parser.Root.FindNodeByPosition(session.TextView.Caret.Position.BufferPosition.Position);
+                    
                     if (currentToken.Type == RwHtmlTokenType.DirectiveStart)
                     {
                         // directive name completion
-                        items = CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.DirectiveName).SelectMany(p => p.GetItems(context));
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.DirectiveName).SelectMany(p => p.GetItems(context));
                     }
-                    else if (currentToken.Type == RwHtmlTokenType.Text && string.IsNullOrWhiteSpace(currentToken.Text) && context.CurrentTokenIndex >= 3)
+                    else if (currentToken.Type == RwHtmlTokenType.WhiteSpace)
                     {
-                        if (CompletionHelper.IsWhiteSpaceTextToken(context.Tokens[context.CurrentTokenIndex - 1])
-                            && context.Tokens[context.CurrentTokenIndex - 2].Type == RwHtmlTokenType.Text)
+                        if (context.CurrentNode is RwHtmlDirectiveNode)
                         {
-                            if (context.Tokens[context.CurrentTokenIndex - 3].Type == RwHtmlTokenType.DirectiveStart)
-                            {
-                                // directive value
-                                items = CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.DirectiveName).SelectMany(p => p.GetItems(context));
-                            }
-                            else
-                            {
-                                // attribute name
-                                // TODO: we need parser here
-                            }
+                            // directive value
+                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.DirectiveValue).SelectMany(p => p.GetItems(context));
+                        }
+                        else if (context.CurrentNode is RwHtmlElementNode)
+                        {
+                            // attribute name
+                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagAttributeName).SelectMany(p => p.GetItems(context));
                         }
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenTag)
                     {
                         // tag completion
-                        items = CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagName).SelectMany(p => p.GetItems(context));
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagName).SelectMany(p => p.GetItems(context));
                     }
-                    else if (currentToken.Type == RwHtmlTokenType.SingleQuote || currentToken.Type == RwHtmlTokenType.DoubleQuote)
+                    else if (currentToken.Type == RwHtmlTokenType.SingleQuote || currentToken.Type == RwHtmlTokenType.DoubleQuote || currentToken.Type == RwHtmlTokenType.Equals)
                     {
                         // attribute
-                        items = CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagAttributeValue).SelectMany(p => p.GetItems(context));
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagAttributeValue).SelectMany(p => p.GetItems(context));
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenBinding)
                     {
                         // binding name
-                        items = CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingName).SelectMany(p => p.GetItems(context));
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingName).SelectMany(p => p.GetItems(context));
                     }
                     else if (currentToken.Type == RwHtmlTokenType.Colon)
                     {
                         // binding value
-                        items = CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingValue).SelectMany(p => p.GetItems(context));
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingValue).SelectMany(p => p.GetItems(context));
                     }
                     else
                     {
@@ -105,6 +107,7 @@ namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions
                 }
             }
         }
+
         private ITrackingSpan FindTokenSpanAtPosition(ICompletionSession session)
         {
             var currentPoint = session.GetTriggerPoint(textBuffer).GetPoint(textBuffer.CurrentSnapshot);

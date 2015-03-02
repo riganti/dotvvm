@@ -28,6 +28,9 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             Attributes = new List<RwHtmlAttributeNode>();
         }
 
-
+        public override IEnumerable<RwHtmlNode> EnumerateNodes()
+        {
+            return base.EnumerateNodes().Concat(Attributes);
+        }
     }
 }

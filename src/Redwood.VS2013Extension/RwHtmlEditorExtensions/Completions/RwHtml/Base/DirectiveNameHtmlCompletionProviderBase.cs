@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml
+namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 {
     public abstract class DirectiveNameHtmlCompletionProviderBase : IRwHtmlCompletionProvider
     {

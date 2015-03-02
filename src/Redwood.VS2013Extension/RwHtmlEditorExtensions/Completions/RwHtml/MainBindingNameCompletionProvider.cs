@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using Redwood.Framework.Parser;
+using Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
 
 namespace Redwood.VS2013Extension.RwHtmlEditorExtensions.Completions.RwHtml
 {
     [Export(typeof(IRwHtmlCompletionProvider))]
-    public class MainBindingNameCompletionProviderBase : BindingNameCompletionProviderBase
+    public class MainBindingNameCompletionProvider : BindingNameCompletionProviderBase
     {
         public override IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context)
         {
