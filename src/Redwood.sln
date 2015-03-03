@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
-VisualStudioVersion = 12.0.31101.0
+# Visual Studio 14
+VisualStudioVersion = 14.0.22609.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B760209E-57D7-4AEF-A726-69F73BBE52C0}"
 EndProject
@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Framework.Tests", "
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Samples.BasicSamples", "Redwood.Samples.BasicSamples\Redwood.Samples.BasicSamples.csproj", "{BDF78B2F-9C1F-4481-B80A-1537139994F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2013Extension", "Redwood.VS2013Extension\Redwood.VS2013Extension.csproj", "{772E47BF-A251-44F7-92C4-157D9F083A6F}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2015Extension", "Redwood.VS2015Extension\Redwood.VS2015Extension.csproj", "{772E47BF-A251-44F7-92C4-157D9F083A6F}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Samples.Tests", "Redwood.Samples.Tests\Redwood.Samples.Tests.csproj", "{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2}"
 EndProject
