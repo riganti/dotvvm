@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using EnvDTE80;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Text;
 using Redwood.Framework.Parser.RwHtml.Parser;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
@@ -15,19 +15,19 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
     {
         private readonly RwHtmlCompletionSourceProvider sourceProvider;
         private readonly ITextBuffer textBuffer;
-        private readonly DTE2 dte;
+        private readonly VisualStudioWorkspace workspace;
         private readonly RwHtmlClassifier classifier;
         private readonly RwHtmlParser parser;
 
 
         public RwHtmlCompletionSource(RwHtmlCompletionSourceProvider sourceProvider, RwHtmlParser parser, 
-            RwHtmlClassifier classifier, ITextBuffer textBuffer, DTE2 dte)
+            RwHtmlClassifier classifier, ITextBuffer textBuffer, VisualStudioWorkspace workspace)
         {
             this.sourceProvider = sourceProvider;
             this.textBuffer = textBuffer;
-            this.dte = dte;
             this.classifier = classifier;
             this.parser = parser;
+            this.workspace = workspace;
         }
 
         public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
@@ -47,7 +47,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                         CurrentTokenIndex = classifier.Tokens.IndexOf(currentToken),
                         Parser = parser,
                         Tokenizer = classifier.Tokenizer,
-                        DTE = dte
+                        RoslynWorkspace = workspace
                     };
                     parser.Parse(classifier.Tokens);
                     context.CurrentNode = parser.Root.FindNodeByPosition(session.TextView.Caret.Position.BufferPosition.Position);
@@ -113,7 +113,6 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             var currentPoint = session.GetTriggerPoint(textBuffer).GetPoint(textBuffer.CurrentSnapshot);
             return currentPoint.Snapshot.CreateTrackingSpan(currentPoint.Position, 0, SpanTrackingMode.EdgeInclusive);
         }
-
 
         public void Dispose()
         {

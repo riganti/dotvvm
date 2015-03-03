@@ -40,6 +40,8 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             //make a copy of this so we can look at it after forwarding some commands 
             uint commandID = nCmdID;
             char typedChar = char.MinValue;
+            bool handled = false;
+
             //make sure the input is a char before getting it 
             if (pguidCmdGroup == VSConstants.VSStd2K && nCmdID == (uint)VSConstants.VSStd2KCmdID.TYPECHAR)
             {
@@ -58,8 +60,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     if (m_session.SelectedCompletionSet.SelectionStatus.IsSelected)
                     {
                         m_session.Commit();
-                        //also, don't add the character to the buffer 
-                        return VSConstants.S_OK;
+                        handled = true;
                     }
                     else
                     {
@@ -70,9 +71,13 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             }
 
             // pass along the command so the char is added to the buffer 
-            int retVal = m_nextCommandHandler.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
-            bool handled = false;
-            if (!typedChar.Equals(char.MinValue) && IsTriggerChar(typedChar))
+            int retVal = 0;
+            if (!handled)
+            {
+                retVal = m_nextCommandHandler.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
+            }
+            if ((nCmdID == (uint)VSConstants.VSStd2KCmdID.RETURN || nCmdID == (uint)VSConstants.VSStd2KCmdID.TAB) ||  
+                (!typedChar.Equals(char.MinValue) && IsTriggerChar(typedChar)))
             {
                 if (m_session == null || m_session.IsDismissed) // If there is no active session, bring up completion
                 {
@@ -91,6 +96,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     m_session.Filter();
                 handled = true;
             }
+
             if (handled) return VSConstants.S_OK;
             return retVal;
         }

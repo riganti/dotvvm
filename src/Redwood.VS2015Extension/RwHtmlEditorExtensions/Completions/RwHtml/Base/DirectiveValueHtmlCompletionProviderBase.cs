@@ -6,14 +6,14 @@ using Redwood.Framework.Parser.RwHtml.Parser;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 {
-    public abstract class DirectiveValueHtmlCompletionProviderBase : IRwHtmlCompletionProvider
+    public abstract class DirectiveValueHtmlCompletionProviderBase : RwHtmlCompletionProviderBase
     {
-        public TriggerPoint TriggerPoint
+        public override TriggerPoint TriggerPoint
         {
             get { return TriggerPoint.DirectiveValue; }
         }
 
-        public virtual IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context)
+        public override IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context)
         {
             if (context.CurrentNode is RwHtmlDirectiveNode)
             {

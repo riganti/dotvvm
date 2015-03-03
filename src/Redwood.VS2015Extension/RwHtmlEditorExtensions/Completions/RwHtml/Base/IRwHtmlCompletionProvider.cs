@@ -1,6 +1,7 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 {
@@ -10,6 +11,8 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
         TriggerPoint TriggerPoint { get; }
 
         IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context);
+
+        event EventHandler<WorkspaceChangeEventArgs> WorkspaceChanged;
 
     }
 }

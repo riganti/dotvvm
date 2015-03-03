@@ -1,10 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
-using System.Linq;
-using EnvDTE80;
-using Microsoft.Html.Editor.Intellisense;
 using Microsoft.VisualStudio.Language.Intellisense;
+using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using Microsoft.VisualStudio.Text.Operations;
@@ -27,21 +25,21 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         [Import]
         internal IClassificationTypeRegistryService Registry = null;
 
-        [ImportMany(typeof(IRwHtmlCompletionProvider))]
-        public IRwHtmlCompletionProvider[] CompletionProviders { get; set; }
+        [ImportMany(typeof(RwHtmlCompletionProviderBase))]
+        public RwHtmlCompletionProviderBase[] CompletionProviders { get; set; }
 
+        [Import(typeof(VisualStudioWorkspace))]
+        public VisualStudioWorkspace Workspace { get; set; }
 
         public ICompletionSource TryCreateCompletionSource(ITextBuffer textBuffer)
         {
-            var dte2 = (DTE2)System.Runtime.InteropServices.Marshal.GetActiveObject("VisualStudio.DTE.12.0");
-
             var classifierProvider = new RwHtmlClassifierProvider()
             {
                 Registry = Registry
             };
             
             var classifier = (RwHtmlClassifier)classifierProvider.GetClassifier(textBuffer);
-            return new RwHtmlCompletionSource(this, new RwHtmlParser(), classifier, textBuffer, dte2);
+            return new RwHtmlCompletionSource(this, new RwHtmlParser(), classifier, textBuffer, Workspace);
         }
     }
 }

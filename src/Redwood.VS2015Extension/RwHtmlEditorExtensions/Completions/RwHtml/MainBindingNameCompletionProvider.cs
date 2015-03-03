@@ -7,7 +7,7 @@ using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 {
-    [Export(typeof(IRwHtmlCompletionProvider))]
+    [Export(typeof(RwHtmlCompletionProviderBase))]
     public class MainBindingNameCompletionProvider : BindingNameCompletionProviderBase
     {
         public override IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context)

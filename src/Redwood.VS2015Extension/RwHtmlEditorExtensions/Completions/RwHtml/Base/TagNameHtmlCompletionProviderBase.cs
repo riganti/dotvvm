@@ -4,13 +4,12 @@ using System.Linq;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 {
-    public abstract class TagNameHtmlCompletionProviderBase : IRwHtmlCompletionProvider
+    public abstract class TagNameHtmlCompletionProviderBase : RwHtmlCompletionProviderBase
     {
-        public TriggerPoint TriggerPoint
+        public override TriggerPoint TriggerPoint
         {
             get { return TriggerPoint.TagName; }
         }
-
-        public abstract IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context);
+        
     }
 }
