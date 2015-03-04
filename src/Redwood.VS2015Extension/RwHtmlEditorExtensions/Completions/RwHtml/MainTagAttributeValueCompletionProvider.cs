@@ -6,7 +6,7 @@ using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 {
-    [Export(typeof(RwHtmlCompletionProviderBase))]
+    [Export(typeof(IRwHtmlCompletionProvider))]
     public class MainTagAttributeValueCompletionProvider : TagAttributeValueHtmlCompletionProviderBase
     {
 

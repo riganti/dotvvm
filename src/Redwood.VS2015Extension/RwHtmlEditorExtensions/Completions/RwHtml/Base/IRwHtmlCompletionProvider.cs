@@ -12,7 +12,9 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 
         IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context);
 
+
         event EventHandler<WorkspaceChangeEventArgs> WorkspaceChanged;
 
+        void OnWorkspaceChanged(WorkspaceChangeEventArgs args);
     }
 }

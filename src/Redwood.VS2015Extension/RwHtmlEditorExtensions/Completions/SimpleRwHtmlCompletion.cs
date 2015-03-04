@@ -8,7 +8,6 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 {
     public class SimpleRwHtmlCompletion : Completion
     {
-        private static ImageSource _glyph = null; //GlyphService.GetGlyph(StandardGlyphGroup.GlyphGroupVariable, StandardGlyphItem.GlyphItemPublic);
 
         public SimpleRwHtmlCompletion(string displayText)
             : this(displayText, displayText)
@@ -17,9 +16,16 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         }
 
         public SimpleRwHtmlCompletion(string displayText, string completionText)
-            : base(displayText, completionText, string.Empty, _glyph, displayText)
+            : base(displayText, completionText, string.Empty, null, displayText)
         {
 
         }
+
+        public SimpleRwHtmlCompletion(string displayText, string completionText, ImageSource glyph)
+            : base(displayText, completionText, string.Empty, glyph, displayText)
+        {
+
+        }
+
     }
 }

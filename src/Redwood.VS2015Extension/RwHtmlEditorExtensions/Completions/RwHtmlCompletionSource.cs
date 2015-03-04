@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using EnvDTE80;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.LanguageServices;
 using Microsoft.VisualStudio.Text;
@@ -16,18 +17,22 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         private readonly RwHtmlCompletionSourceProvider sourceProvider;
         private readonly ITextBuffer textBuffer;
         private readonly VisualStudioWorkspace workspace;
+        private readonly IGlyphService glyphService;
+        private readonly DTE2 dte;
         private readonly RwHtmlClassifier classifier;
         private readonly RwHtmlParser parser;
 
 
         public RwHtmlCompletionSource(RwHtmlCompletionSourceProvider sourceProvider, RwHtmlParser parser, 
-            RwHtmlClassifier classifier, ITextBuffer textBuffer, VisualStudioWorkspace workspace)
+            RwHtmlClassifier classifier, ITextBuffer textBuffer, VisualStudioWorkspace workspace, IGlyphService glyphService, DTE2 dte)
         {
             this.sourceProvider = sourceProvider;
             this.textBuffer = textBuffer;
             this.classifier = classifier;
             this.parser = parser;
             this.workspace = workspace;
+            this.glyphService = glyphService;
+            this.dte = dte;
         }
 
         public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
@@ -40,14 +45,16 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                 var currentToken = tokens.FirstOrDefault(t => t.StartPosition <= cursorPosition && t.StartPosition + t.Length >= cursorPosition);
                 if (currentToken != null) 
                 {
-                    IEnumerable<SimpleRwHtmlCompletion> items = null;
+                    IEnumerable<SimpleRwHtmlCompletion> items = Enumerable.Empty<SimpleRwHtmlCompletion>();
                     var context = new RwHtmlCompletionContext()
                     {
                         Tokens = classifier.Tokens,
                         CurrentTokenIndex = classifier.Tokens.IndexOf(currentToken),
                         Parser = parser,
                         Tokenizer = classifier.Tokenizer,
-                        RoslynWorkspace = workspace
+                        RoslynWorkspace = workspace,
+                        GlyphService = glyphService,
+                        DTE = dte
                     };
                     parser.Parse(classifier.Tokens);
                     context.CurrentNode = parser.Root.FindNodeByPosition(session.TextView.Caret.Position.BufferPosition.Position);
@@ -59,7 +66,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     }
                     else if (currentToken.Type == RwHtmlTokenType.WhiteSpace)
                     {
-                        if (context.CurrentNode is RwHtmlDirectiveNode)
+                        if (context.CurrentNode is RwHtmlDirectiveNode && context.CurrentTokenIndex >= 2 && tokens[context.CurrentTokenIndex - 2].Type == RwHtmlTokenType.DirectiveStart)
                         {
                             // directive value
                             items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.DirectiveValue).SelectMany(p => p.GetItems(context));
@@ -89,10 +96,6 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     {
                         // binding value
                         items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingValue).SelectMany(p => p.GetItems(context));
-                    }
-                    else
-                    {
-                        items = Enumerable.Empty<SimpleRwHtmlCompletion>();
                     }
 
                     var results = items.ToList();
