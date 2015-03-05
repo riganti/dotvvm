@@ -120,4 +120,7 @@
   <data name="ClosingTagHasNoMatchingOpenTag" xml:space="preserve">
     <value>The closing tag '&lt;/{0}&gt;' doesn't have a matching opening tag!</value>
   </data>
+  <data name="UnexpectedEndOfInputTagNotClosed" xml:space="preserve">
+    <value>Unexpected end of file! The tag '&lt;{0}&gt;' was not closed!</value>
+  </data>
 </root>

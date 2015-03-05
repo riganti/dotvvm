@@ -22,6 +22,7 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             get { return string.IsNullOrEmpty(TagPrefix) ? TagName : (TagPrefix + ":" + TagName); }
         }
 
+        public RwHtmlElementNode ParentElement { get; set; }
 
         public RwHtmlElementNode()
         {
@@ -30,7 +31,7 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
 
         public override IEnumerable<RwHtmlNode> EnumerateNodes()
         {
-            return base.EnumerateNodes().Concat(Attributes);
+            return base.EnumerateNodes().Concat(Attributes.SelectMany(a => a.EnumerateNodes()));
         }
     }
 }

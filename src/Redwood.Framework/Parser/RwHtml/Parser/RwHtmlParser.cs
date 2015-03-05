@@ -53,6 +53,11 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                 {
                     // element - check element hierarchy
                     var element = ReadElement();
+                    if (ElementHierarchy.Any())
+                    {
+                        element.ParentElement = ElementHierarchy.Peek() as RwHtmlElementNode;
+                    }
+
                     if (!element.IsSelfClosingTag)
                     {
                         if (!element.IsClosingTag)
@@ -64,12 +69,22 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                         else
                         {
                             // close tag
-                            var beginTagName = ((RwHtmlElementNode)ElementHierarchy.Peek()).FullTagName;
-                            if (ElementHierarchy.Count == 0 || beginTagName != element.FullTagName)
+                            if (ElementHierarchy.Count <= 1)
                             {
-                                element.NodeErrors.Add(string.Format(RwHtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
+                                element.NodeErrors.Add(string.Format(RwHtmlParserErrors.ClosingTagHasNoMatchingOpenTag, element.FullTagName));
                             }
-                            ElementHierarchy.Pop();
+                            else
+                            {
+                                var beginTagName = ((RwHtmlElementNode)ElementHierarchy.Peek()).FullTagName;
+                                if (beginTagName != element.FullTagName)
+                                {
+                                    element.NodeErrors.Add(string.Format(RwHtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
+                                }
+                                else
+                                {
+                                    ElementHierarchy.Pop();
+                                }
+                            }
                         }
                     }
                     else
@@ -104,7 +119,7 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             // check element hierarchy
             if (ElementHierarchy.Count > 1)
             {
-                throw new ParserException(Parser_RwHtml.UnexpectedEndOfInput);
+                root.NodeErrors.Add(string.Format(RwHtmlParserErrors.UnexpectedEndOfInputTagNotClosed, ElementHierarchy.Peek()));
             }
 
             // set lengths to all nodes
@@ -153,7 +168,9 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             {
                 while (Peek().Type == RwHtmlTokenType.Text)
                 {
-                    node.Attributes.Add(ReadAttribute());
+                    var attribute = ReadAttribute();
+                    attribute.ParentElement = node;
+                    node.Attributes.Add(attribute);
                     SkipWhitespace();
                 }
 

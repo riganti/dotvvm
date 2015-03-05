@@ -400,15 +400,13 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                     var ch = Peek();
                     if (ch == NullChar || ch == '<' || ch == '>')
                     {
+                        CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError());
                         CreateToken(quotesToken, errorProvider: t => CreateTokenError(t, quotesToken, RwHtmlTokenizerErrors.AttributeValueNotClosed));
                         return false;
                     }
                     Read();
                 }
-                if (DistanceSinceLastToken > 0)
-                {
-                    CreateToken(RwHtmlTokenType.Text);
-                }
+                CreateToken(RwHtmlTokenType.Text);
             }
 
             // read the ending quotes

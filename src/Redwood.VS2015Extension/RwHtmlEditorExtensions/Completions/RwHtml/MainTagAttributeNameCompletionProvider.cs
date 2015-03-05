@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
+using Microsoft.VisualStudio.Language.Intellisense;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 {
@@ -10,10 +11,11 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
     public class MainTagAttributeNameCompletionProvider : TagAttributeNameHtmlCompletionProviderBase
     {
 
-        public override IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context)
+        protected override IEnumerable<SimpleRwHtmlCompletion> GetItemsCore(RwHtmlCompletionContext context, List<string> tagNameHierarchy)
         {
-            // TODO: get control attribute names
-            return Enumerable.Empty<SimpleRwHtmlCompletion>();
+            var glyph = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphGroupProperty, StandardGlyphItem.GlyphItemPublic);
+            return context.MetadataControlResolver.GetControlAttributeNames(context, tagNameHierarchy)
+                .Select(n => new SimpleRwHtmlCompletion(n.DisplayText, n.CompletionText, glyph));
         }
 
     }

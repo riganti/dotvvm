@@ -27,7 +27,7 @@ namespace Redwood.Samples.BasicSamples.Controls
         public static RedwoodProperty VisibleDateProperty = RedwoodProperty.RegisterControlStateProperty<DateTime, Sample7_Calendar>(c => c.VisibleDate, DateTime.Now);
 
 
-        public override bool RequiresControlState
+        protected internal override bool RequiresControlState
         {
             get { return true; }
         }

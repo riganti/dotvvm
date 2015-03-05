@@ -9,6 +9,7 @@ using Redwood.Framework.Parser.RwHtml.Parser;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Classification;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
+using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 {
@@ -19,12 +20,16 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         private readonly VisualStudioWorkspace workspace;
         private readonly IGlyphService glyphService;
         private readonly DTE2 dte;
+        private readonly RedwoodConfigurationProvider configurationProvider;
         private readonly RwHtmlClassifier classifier;
         private readonly RwHtmlParser parser;
+        private readonly MetadataControlResolver metadataControlResolver;
 
 
         public RwHtmlCompletionSource(RwHtmlCompletionSourceProvider sourceProvider, RwHtmlParser parser, 
-            RwHtmlClassifier classifier, ITextBuffer textBuffer, VisualStudioWorkspace workspace, IGlyphService glyphService, DTE2 dte)
+            RwHtmlClassifier classifier, ITextBuffer textBuffer, VisualStudioWorkspace workspace, 
+            IGlyphService glyphService, DTE2 dte, RedwoodConfigurationProvider configurationProvider,
+            MetadataControlResolver metadataControlResolver)
         {
             this.sourceProvider = sourceProvider;
             this.textBuffer = textBuffer;
@@ -33,6 +38,8 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             this.workspace = workspace;
             this.glyphService = glyphService;
             this.dte = dte;
+            this.configurationProvider = configurationProvider;
+            this.metadataControlResolver = metadataControlResolver;
         }
 
         public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
@@ -54,10 +61,12 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                         Tokenizer = classifier.Tokenizer,
                         RoslynWorkspace = workspace,
                         GlyphService = glyphService,
-                        DTE = dte
+                        DTE = dte,
+                        Configuration = configurationProvider.GetConfiguration(dte.ActiveDocument.ProjectItem.ContainingProject),
+                        MetadataControlResolver = metadataControlResolver
                     };
                     parser.Parse(classifier.Tokens);
-                    context.CurrentNode = parser.Root.FindNodeByPosition(session.TextView.Caret.Position.BufferPosition.Position);
+                    context.CurrentNode = parser.Root.FindNodeByPosition(session.TextView.Caret.Position.BufferPosition.Position - 1);
                     
                     if (currentToken.Type == RwHtmlTokenType.DirectiveStart)
                     {
@@ -79,7 +88,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenTag)
                     {
-                        // tag completion
+                        // element name
                         items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagName).SelectMany(p => p.GetItems(context));
                     }
                     else if (currentToken.Type == RwHtmlTokenType.SingleQuote || currentToken.Type == RwHtmlTokenType.DoubleQuote || currentToken.Type == RwHtmlTokenType.Equals)
@@ -94,11 +103,19 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     }
                     else if (currentToken.Type == RwHtmlTokenType.Colon)
                     {
-                        // binding value
-                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingValue).SelectMany(p => p.GetItems(context));
+                        if (context.CurrentNode is RwHtmlBindingNode)
+                        {
+                            // binding value
+                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingValue).SelectMany(p => p.GetItems(context));
+                        }
+                        else
+                        {
+                            // element name
+                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagName).SelectMany(p => p.GetItems(context));
+                        }
                     }
 
-                    var results = items.ToList();
+                    var results = items.OrderBy(v => v.DisplayText).ToList();
                     if (!results.Any())
                     {
                         session.Dismiss();

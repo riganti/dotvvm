@@ -13,6 +13,7 @@ using Microsoft.VisualStudio.Utilities;
 using Redwood.Framework.Parser.RwHtml.Parser;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Classification;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
+using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 {
@@ -42,7 +43,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             {
                 Registry = Registry
             };
-
+            
             Workspace.WorkspaceChanged += (sender, args) =>
             {
                 foreach (var provider in CompletionProviders)
@@ -52,9 +53,12 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             };
 
             var dte = ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE2;
+            var configurationProvider = new RedwoodConfigurationProvider(dte);
+            var metadataControlResolver = new MetadataControlResolver();
 
             var classifier = (RwHtmlClassifier)classifierProvider.GetClassifier(textBuffer);
-            return new RwHtmlCompletionSource(this, new RwHtmlParser(), classifier, textBuffer, Workspace, GlyphService, dte);
+            return new RwHtmlCompletionSource(this, new RwHtmlParser(), classifier, textBuffer, 
+                Workspace, GlyphService, dte, configurationProvider, metadataControlResolver);
         }
     }
 }

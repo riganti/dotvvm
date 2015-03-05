@@ -24,10 +24,6 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
                 {
                     throw new Exception("The token sequence is not complete!");
                 }
-                if (token.Length == 0 && !token.HasError)
-                {
-                    throw new Exception("The token is empty and does not contain an error!");
-                }
                 position += token.Length;
             }
 

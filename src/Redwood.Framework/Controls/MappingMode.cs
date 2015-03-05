@@ -6,9 +6,9 @@ namespace Redwood.Framework.Controls
 {
     public enum MappingMode
     {
-        Attribute,
-        InnerElement,
-        Content,
-        Exclude
+        Attribute = 0,
+        InnerElement = 1,
+        Content = 2,
+        Exclude = 3
     }
 }
