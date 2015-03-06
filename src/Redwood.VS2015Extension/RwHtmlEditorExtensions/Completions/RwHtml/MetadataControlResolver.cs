@@ -42,7 +42,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
             {
                 return currentControl.Properties.Where(p => !p.IsElement).Select(p => new CompletionData() {
                     DisplayText = p.Name,
-                    CompletionText = p.Name + "=\"" + (!p.AllowHardCodedValue ? "{" : "")
+                    CompletionText = p.Name
                 });
             }
             return Enumerable.Empty<CompletionData>();

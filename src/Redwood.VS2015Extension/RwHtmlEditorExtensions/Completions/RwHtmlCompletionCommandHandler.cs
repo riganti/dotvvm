@@ -111,7 +111,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             {
                 return false;
             }
-
+            
             m_session = m_provider.CompletionBroker.CreateCompletionSession(m_textView,
                 caretPoint.Value.Snapshot.CreateTrackingPoint(caretPoint.Value.Position, PointTrackingMode.Positive),
                 true);
@@ -132,7 +132,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 
         private bool IsTriggerChar(char typedChar)
         {
-            return typedChar == '@' || typedChar == '\'' || typedChar == '"' || typedChar == '<' || typedChar == ' ';
+            return typedChar == '@' || typedChar == '{';
         }
     }
 }

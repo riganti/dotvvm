@@ -67,7 +67,9 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     };
                     parser.Parse(classifier.Tokens);
                     context.CurrentNode = parser.Root.FindNodeByPosition(session.TextView.Caret.Position.BufferPosition.Position - 1);
-                    
+
+                    var combineWithHtmlCompletions = false;
+
                     if (currentToken.Type == RwHtmlTokenType.DirectiveStart)
                     {
                         // directive name completion
@@ -84,17 +86,20 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                         {
                             // attribute name
                             items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagAttributeName).SelectMany(p => p.GetItems(context));
+                            combineWithHtmlCompletions = true;
                         }
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenTag)
                     {
                         // element name
                         items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagName).SelectMany(p => p.GetItems(context));
+                        combineWithHtmlCompletions = true;
                     }
                     else if (currentToken.Type == RwHtmlTokenType.SingleQuote || currentToken.Type == RwHtmlTokenType.DoubleQuote || currentToken.Type == RwHtmlTokenType.Equals)
                     {
-                        // attribute
+                        // attribute value
                         items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagAttributeValue).SelectMany(p => p.GetItems(context));
+                        combineWithHtmlCompletions = true;
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenBinding)
                     {
@@ -112,6 +117,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                         {
                             // element name
                             items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagName).SelectMany(p => p.GetItems(context));
+                            combineWithHtmlCompletions = true;
                         }
                     }
 
@@ -122,7 +128,16 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     }
                     else
                     {
-                        completionSets.Add(new CompletionSet("All", "All", FindTokenSpanAtPosition(session), results, null));
+                        var newCompletionSet = new CustomCompletionSet("HTML", "HTML", FindTokenSpanAtPosition(session), results, null);
+                        if (combineWithHtmlCompletions && completionSets.Any())
+                        {
+                            newCompletionSet = MergeCompletionSets(completionSets, newCompletionSet);
+                        }
+                        else
+                        {
+                            completionSets.Clear();
+                        }
+                        completionSets.Add(newCompletionSet);
                     }
                 }
             }
@@ -132,6 +147,22 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         {
             var currentPoint = session.GetTriggerPoint(textBuffer).GetPoint(textBuffer.CurrentSnapshot);
             return currentPoint.Snapshot.CreateTrackingSpan(currentPoint.Position, 0, SpanTrackingMode.EdgeInclusive);
+        }
+
+        private static CustomCompletionSet MergeCompletionSets(IList<CompletionSet> completionSets, CustomCompletionSet newCompletions)
+        {
+            var htmlCompletionsSet = completionSets.First();
+            
+            var mergedCompletionSet = new CustomCompletionSet(
+                htmlCompletionsSet.Moniker,
+                htmlCompletionsSet.DisplayName,
+                htmlCompletionsSet.ApplicableTo,
+                newCompletions.Completions.Concat(htmlCompletionsSet.Completions).OrderBy(n => n.DisplayText),
+                htmlCompletionsSet.CompletionBuilders);
+
+            completionSets.Remove(htmlCompletionsSet);
+
+            return mergedCompletionSet;
         }
 
         public void Dispose()

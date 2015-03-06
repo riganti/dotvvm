@@ -17,7 +17,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 
             foreach (var n in context.MetadataControlResolver.GetElementNames(context, tagNameHierarchy))
             {
-                yield return new SimpleRwHtmlCompletion(n.DisplayText.Substring(prefix.Length), n.CompletionText.Substring(prefix.Length) + " ", glyph);
+                yield return new SimpleRwHtmlCompletion(n.DisplayText.Substring(prefix.Length), n.CompletionText.Substring(prefix.Length), glyph);
             }
                 
             if (tagNameHierarchy.Any())
