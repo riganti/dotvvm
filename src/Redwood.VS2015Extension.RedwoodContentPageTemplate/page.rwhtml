@@ -1,0 +1,8 @@
+﻿@viewModel $safeprojectname$.ViewModels.$safeitemname$ViewModel, $safeprojectname$
+@masterPage master.rwhtml
+
+<rw:Content ContentPlaceHolderID="MainContent">
+
+
+
+</rw:Content>
