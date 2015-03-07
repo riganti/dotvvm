@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using EnvDTE80;
 using Microsoft.VisualStudio.Language.Intellisense;
 using Microsoft.VisualStudio.LanguageServices;
@@ -25,6 +27,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         private readonly RwHtmlParser parser;
         private readonly MetadataControlResolver metadataControlResolver;
 
+        private static List<ICompletionSession> activeSessions = new List<ICompletionSession>(); 
 
         public RwHtmlCompletionSource(RwHtmlCompletionSourceProvider sourceProvider, RwHtmlParser parser, 
             RwHtmlClassifier classifier, ITextBuffer textBuffer, VisualStudioWorkspace workspace, 
@@ -70,64 +73,100 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 
                     var combineWithHtmlCompletions = false;
 
+                    TriggerPoint triggerPoint = TriggerPoint.None;
                     if (currentToken.Type == RwHtmlTokenType.DirectiveStart)
                     {
                         // directive name completion
-                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.DirectiveName).SelectMany(p => p.GetItems(context));
+                        triggerPoint = TriggerPoint.DirectiveName;
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
                     }
                     else if (currentToken.Type == RwHtmlTokenType.WhiteSpace)
                     {
                         if (context.CurrentNode is RwHtmlDirectiveNode && context.CurrentTokenIndex >= 2 && tokens[context.CurrentTokenIndex - 2].Type == RwHtmlTokenType.DirectiveStart)
                         {
                             // directive value
-                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.DirectiveValue).SelectMany(p => p.GetItems(context));
+                            triggerPoint = TriggerPoint.DirectiveValue;
+                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
                         }
-                        else if (context.CurrentNode is RwHtmlElementNode)
+                        else if (context.CurrentNode is RwHtmlElementNode || context.CurrentNode is RwHtmlAttributeNode)
                         {
                             // attribute name
-                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagAttributeName).SelectMany(p => p.GetItems(context));
-                            combineWithHtmlCompletions = true;
+                            triggerPoint = TriggerPoint.TagAttributeName;
+                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
                         }
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenTag)
                     {
                         // element name
-                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagName).SelectMany(p => p.GetItems(context));
+                        triggerPoint = TriggerPoint.TagName;
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
                         combineWithHtmlCompletions = true;
                     }
                     else if (currentToken.Type == RwHtmlTokenType.SingleQuote || currentToken.Type == RwHtmlTokenType.DoubleQuote || currentToken.Type == RwHtmlTokenType.Equals)
                     {
                         // attribute value
-                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagAttributeValue).SelectMany(p => p.GetItems(context));
+                        triggerPoint = TriggerPoint.TagAttributeValue;
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
                         combineWithHtmlCompletions = true;
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenBinding)
                     {
                         // binding name
-                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingName).SelectMany(p => p.GetItems(context));
+                        triggerPoint = TriggerPoint.BindingName;
+                        items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
                     }
                     else if (currentToken.Type == RwHtmlTokenType.Colon)
                     {
                         if (context.CurrentNode is RwHtmlBindingNode)
                         {
                             // binding value
-                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.BindingValue).SelectMany(p => p.GetItems(context));
+                            triggerPoint = TriggerPoint.BindingValue;
+                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
                         }
                         else
                         {
                             // element name
-                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == TriggerPoint.TagName).SelectMany(p => p.GetItems(context));
+                            triggerPoint = TriggerPoint.TagName;
+                            items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
                             combineWithHtmlCompletions = true;
                         }
                     }
-
                     var results = items.OrderBy(v => v.DisplayText).ToList();
+                    
+                    // show the session
                     if (!results.Any())
                     {
                         session.Dismiss();
                     }
                     else
                     {
+                        // handle duplicate sessions (sometimes this method is called twice (e.g. when space key is pressed) so we need to make sure that we'll display only one session
+                        lock (activeSessions)
+                        {
+                            if (activeSessions.Count > 0)
+                            {
+                                session.Dismiss();
+                                return;
+                            }
+                            activeSessions.Add(session);
+
+                            session.Dismissed += (s, a) =>
+                            {
+                                lock (activeSessions)
+                                {
+                                    activeSessions.Remove((ICompletionSession)s);
+                                }
+                            };
+                            session.Committed += (s, a) =>
+                            {
+                                lock (activeSessions)
+                                {
+                                    activeSessions.Remove((ICompletionSession)s);
+                                }
+                            };
+                        }
+
+                        // show the session
                         var newCompletionSet = new CustomCompletionSet("HTML", "HTML", FindTokenSpanAtPosition(session), results, null);
                         if (combineWithHtmlCompletions && completionSets.Any())
                         {

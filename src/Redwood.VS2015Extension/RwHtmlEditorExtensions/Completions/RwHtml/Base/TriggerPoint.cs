@@ -6,6 +6,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 {
     public enum TriggerPoint
     {
+        None,
         DirectiveName,
         DirectiveValue,
         TagName,

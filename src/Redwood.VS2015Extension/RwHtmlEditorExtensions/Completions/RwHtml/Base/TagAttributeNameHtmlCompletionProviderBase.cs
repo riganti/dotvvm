@@ -14,10 +14,16 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 
         public sealed override IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context)
         {
-            if (context.CurrentNode is RwHtmlElementNode)
+            if (context.CurrentNode is RwHtmlElementNode || context.CurrentNode is RwHtmlAttributeNode)
             {
                 var tagNameHierarchy = GetTagHierarchy(context);
-                return GetItemsCore(context, tagNameHierarchy);
+
+                // if the tag has already some attributes, don't show them in the IntelliSense
+                var tag = context.CurrentNode as RwHtmlElementNode ?? ((RwHtmlAttributeNode)context.CurrentNode).ParentElement;
+                var existingAttributeNames = tag.Attributes.Select(a => a.Name).ToList();
+
+                return GetItemsCore(context, tagNameHierarchy)
+                    .Where(n => !existingAttributeNames.Contains(n.DisplayText));
             }
             return Enumerable.Empty<SimpleRwHtmlCompletion>();
         }

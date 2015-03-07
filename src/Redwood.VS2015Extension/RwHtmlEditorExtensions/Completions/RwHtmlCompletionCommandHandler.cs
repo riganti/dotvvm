@@ -51,7 +51,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             //check for a commit character 
             if (nCmdID == (uint)VSConstants.VSStd2KCmdID.RETURN
                 || nCmdID == (uint)VSConstants.VSStd2KCmdID.TAB
-                || (char.IsWhiteSpace(typedChar) || char.IsPunctuation(typedChar)))
+                || (char.IsWhiteSpace(typedChar) || char.IsPunctuation(typedChar) || typedChar == '='))
             {
                 //check for a a selection 
                 if (m_session != null && !m_session.IsDismissed)
@@ -60,7 +60,11 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     if (m_session.SelectedCompletionSet.SelectionStatus.IsSelected)
                     {
                         m_session.Commit();
-                        handled = true;
+
+                        if (typedChar != '=')
+                        {
+                            handled = true;
+                        }
                     }
                     else
                     {
@@ -132,7 +136,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 
         private bool IsTriggerChar(char typedChar)
         {
-            return typedChar == '@' || typedChar == '{';
+            return typedChar == '@' || typedChar == '{' || typedChar == ' ';
         }
     }
 }

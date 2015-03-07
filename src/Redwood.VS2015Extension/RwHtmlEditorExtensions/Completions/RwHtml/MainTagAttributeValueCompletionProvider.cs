@@ -15,7 +15,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
         {
             var glyph = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphGroupEnum, StandardGlyphItem.GlyphItemPublic);
             return context.MetadataControlResolver.GetControlAttributeValues(context, tagNameHierarchy, attributeName)
-                .Select(n => new SimpleRwHtmlCompletion(n.DisplayText, n.CompletionText + "\" ", glyph));
+                .Select(n => new SimpleRwHtmlCompletion(n.DisplayText, n.CompletionText, glyph));
         }
 
     }
