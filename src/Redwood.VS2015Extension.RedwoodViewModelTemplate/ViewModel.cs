@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Redwood.Framework.ViewModels;
 
-namespace $safeprojectname$.ViewModels
+namespace $rootnamespace$.ViewModel
 {
 	public class $safeitemname$ViewModel : RedwoodViewModelBase
 	{

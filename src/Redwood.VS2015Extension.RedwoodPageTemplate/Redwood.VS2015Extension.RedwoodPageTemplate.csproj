@@ -80,7 +80,9 @@
     <None Include="Redwood.VS2015Extension.RedwoodPageTemplate.ico" />
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="Redwood.VS2015Extension.RedwoodPageTemplate.vstemplate" />
+    <VSTemplate Include="RedwoodPage.vstemplate">
+      <OutputSubPath>Web\Redwood</OutputSubPath>
+    </VSTemplate>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">

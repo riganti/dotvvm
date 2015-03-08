@@ -93,7 +93,9 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <VSTemplate Include="Redwood.VS2015Extension.ProjectTemplate.vstemplate" />
+    <VSTemplate Include="RedwoodProject.vstemplate">
+      <OutputSubPath>Web</OutputSubPath>
+    </VSTemplate>
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include=".NETFramework,Version=v4.5">
