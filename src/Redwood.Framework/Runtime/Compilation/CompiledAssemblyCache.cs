@@ -30,7 +30,7 @@ namespace Redwood.Framework.Runtime.Compilation
         /// </summary>
         public MetadataReference GetAssemblyMetadata(Assembly assembly)
         {
-            return cachedAssemblyMetadata[assembly];
+            return cachedAssemblyMetadata.GetOrAdd(assembly, MetadataReference.CreateFromAssembly);
         }
 
         /// <summary>

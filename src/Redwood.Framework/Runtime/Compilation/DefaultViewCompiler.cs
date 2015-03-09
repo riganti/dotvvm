@@ -126,7 +126,7 @@ namespace Redwood.Framework.Runtime.Compilation
                 .Select(MetadataReference.CreateFromAssembly);
                 
                 // add dynamic references
-                var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Distinct()
+                var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
                     .Select(a => assemblyCache.GetAssemblyMetadata(a));
 
                 // compile
@@ -146,7 +146,9 @@ namespace Redwood.Framework.Runtime.Compilation
                 }
                 else
                 {
-                    throw new Exception("The compilation failed!"); // TODO: exception handling
+                    throw new Exception("The compilation failed! This is most probably bug in the Redwood framework.\r\n\r\n" 
+                        + string.Join("\r\n", result.Diagnostics) 
+                        + "\r\n\r\n" + compilation.SyntaxTrees[0] + "\r\n\r\n");
                 }
             }
         }

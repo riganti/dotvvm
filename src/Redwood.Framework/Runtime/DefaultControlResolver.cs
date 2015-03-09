@@ -140,25 +140,29 @@ namespace Redwood.Framework.Runtime
         private ControlType FindControlMetadata(string tagPrefix, string tagName)
         {
             // try to match the tag prefix and tag name
-            var rule = configuration.Markup.Controls.FirstOrDefault(r => r.IsMatch(tagPrefix, tagName));
-            if (rule == null)
+            var rules = configuration.Markup.Controls.Where(r => r.IsMatch(tagPrefix, tagName));
+            foreach (var rule in rules)
             {
-                throw new Exception(string.Format(Resources.Controls.ControlResolver_ControlNotFound, tagPrefix, tagName));
+                // validate the rule
+                rule.Validate();
+
+                if (string.IsNullOrEmpty(rule.TagName))
+                {
+                    // find the code only control
+                    var compiledControl = FindCompiledControl(tagName, rule.Namespace, rule.Assembly);
+                    if (compiledControl != null)
+                    {
+                        return compiledControl;
+                    }
+                }
+                else
+                {
+                    // find the markup control
+                    return FindMarkupControl(rule.Src);
+                }
             }
 
-            // validate the rule
-            rule.Validate();
-
-            if (string.IsNullOrEmpty(rule.TagName))
-            {
-                // find the code only control
-                return FindCompiledControl(tagName, rule.Namespace, rule.Assembly);
-            }
-            else
-            {
-                // find the markup control
-                return FindMarkupControl(rule.Src);
-            }
+            throw new Exception(string.Format(Resources.Controls.ControlResolver_ControlNotFound, tagPrefix, tagName));
         }
 
         /// <summary>
@@ -166,7 +170,14 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         private ControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName)
         {
-            return new ControlType(Type.GetType(namespaceName + "." + tagName + ", " + assemblyName, true));
+            var type = Type.GetType(namespaceName + "." + tagName + ", " + assemblyName, false);
+            if (type == null)
+            {
+                // the control was not found
+                return null;
+            }
+
+            return new ControlType(type);
         }
 
         /// <summary>

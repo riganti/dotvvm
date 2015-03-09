@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -33,12 +34,20 @@ namespace Redwood.Framework.Runtime.Compilation
             get { return usedControlBuilderTypes; }
         }
 
+        private HashSet<Assembly> usedAssemblies = new HashSet<Assembly>();
+        public HashSet<Assembly> UsedAssemblies
+        {
+            get { return usedAssemblies; }
+        }
+
 
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
         public string EmitCreateObject(Type type, object[] constructorArguments = null)
         {
+            usedAssemblies.Add(type.Assembly);
+
             if (constructorArguments == null)
             {
                 constructorArguments = new object[] { };
@@ -141,6 +150,10 @@ namespace Redwood.Framework.Runtime.Compilation
             if (value is bool)
             {
                 return EmitBooleanLiteral((bool)value);
+            }
+            if (value is int)
+            {
+                return EmitIntegerLiteral((int)value);
             }
 
             var type = value.GetType();
@@ -346,6 +359,11 @@ namespace Redwood.Framework.Runtime.Compilation
         }
 
         private LiteralExpressionSyntax EmitStringLiteral(string value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitIntegerLiteral(int value)
         {
             return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
         }
