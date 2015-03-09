@@ -54,6 +54,12 @@ namespace Redwood.Framework.Hosting
         }
 
         /// <summary>
+        /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
+        /// This property is typically set from the exception filter.
+        /// </summary>
+        public bool IsCommandExceptionHandled { get; set; }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodRequestContext"/> class.
         /// </summary>
         public RedwoodRequestContext()

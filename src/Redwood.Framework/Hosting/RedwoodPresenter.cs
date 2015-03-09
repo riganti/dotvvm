@@ -187,7 +187,7 @@ namespace Redwood.Framework.Hosting
                         filter.OnCommandExecuted(context, actionInfo, commandException);
                     }
 
-                    if (commandException != null)
+                    if (commandException != null && !context.IsCommandExceptionHandled)
                     {
                         throw new Exception("Unhandled exception occured in the command!", commandException);
                     }
