@@ -26,7 +26,28 @@ namespace Redwood.Framework.Runtime
             {
                 throw new Exception(string.Format("Couldn't create a class of type '{0}'!", viewModel));       // TODO: exception handling
             }
+            return CreateViewModelInstance(viewModelType);
+        }
+
+        /// <summary>
+        /// Creates the new instance of a viewmodel of specified type. 
+        /// If you are using IoC/DI container, this is the method you want to override.
+        /// </summary>
+        protected virtual object CreateViewModelInstance(Type viewModelType)
+        {
             return Activator.CreateInstance(viewModelType);
+        }
+
+        /// <summary>
+        /// Disposes the viewmodel instance (provided it is <see cref="IDisposable"/>. 
+        /// If you are using IoC/DI container with manual component release mechanism, this it the method you want to override.
+        /// </summary>
+        public virtual void DisposeViewModel(object instance)
+        {
+            if (instance is IDisposable)
+            {
+                ((IDisposable)instance).Dispose();
+            }
         }
     }
 }

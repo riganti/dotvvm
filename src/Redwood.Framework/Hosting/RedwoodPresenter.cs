@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ViewModel;
@@ -25,6 +26,18 @@ namespace Redwood.Framework.Hosting
         public IOutputRenderer OutputRenderer { get; private set; }
 
         public ICsrfProtector CsrfProtector { get; private set; }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RedwoodPresenter"/> class.
+        /// </summary>
+        public RedwoodPresenter(RedwoodConfiguration configuration)
+        {
+            RedwoodViewBuilder = configuration.ServiceLocator.GetService<IRedwoodViewBuilder>();
+            ViewModelLoader = configuration.ServiceLocator.GetService<IViewModelLoader>();
+            ViewModelSerializer = configuration.ServiceLocator.GetService<IViewModelSerializer>();
+            OutputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
+            CsrfProtector = configuration.ServiceLocator.GetService<ICsrfProtector>();
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodPresenter"/> class.
@@ -232,6 +245,10 @@ namespace Redwood.Framework.Hosting
                 await OutputRenderer.WriteViewModelResponse(context, page);
             }
 
+            if (context.ViewModel != null)
+            {
+                ViewModelLoader.DisposeViewModel(context.ViewModel);
+            }
         }
 
         /// <summary>

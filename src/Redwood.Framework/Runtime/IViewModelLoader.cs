@@ -12,5 +12,7 @@ namespace Redwood.Framework.Runtime
 
         object InitializeViewModel(RedwoodRequestContext context, RedwoodView view);
 
+        void DisposeViewModel(object instance);
+
     }
 }

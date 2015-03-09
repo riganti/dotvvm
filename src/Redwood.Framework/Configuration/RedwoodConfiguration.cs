@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Routing;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ResourceManagement;
+using Redwood.Framework.Runtime;
+using Redwood.Framework.Runtime.Compilation;
 using Redwood.Framework.Runtime.Filters;
+using Redwood.Framework.Security;
 
 namespace Redwood.Framework.Configuration
 {
@@ -60,6 +65,14 @@ namespace Redwood.Framework.Configuration
         public string DefaultCulture { get; set; }
 
         /// <summary>
+        /// Gets an instance of the service locator component.
+        /// </summary>
+        [JsonIgnore]
+        public ServiceLocator ServiceLocator { get; private set; }
+
+
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodConfiguration"/> class.
         /// </summary>
         internal RedwoodConfiguration()
@@ -78,8 +91,22 @@ namespace Redwood.Framework.Configuration
         public static RedwoodConfiguration CreateDefault()
         {
             var configuration = new RedwoodConfiguration();
-            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
 
+            configuration.ServiceLocator = new ServiceLocator();
+            configuration.ServiceLocator.RegisterSingleton<IViewModelProtector>(() => new DefaultViewModelProtector());
+            configuration.ServiceLocator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector());
+            configuration.ServiceLocator.RegisterSingleton<IRedwoodViewBuilder>(() => new DefaultRedwoodViewBuilder(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IViewModelLoader>(() => new DefaultViewModelLoader());
+            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IOutputRenderer>(() => new DefaultOutputRenderer());
+            configuration.ServiceLocator.RegisterSingleton<IRedwoodPresenter>(() => new RedwoodPresenter(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
+            configuration.ServiceLocator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IViewCompiler>(() => new DefaultViewCompiler(configuration));
+
+            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
+            
             configuration.Markup.Controls.AddRange(new[]
             {
                 new RedwoodControlConfiguration() { TagPrefix = "rw", Namespace = "Redwood.Framework.Controls", Assembly = "Redwood.Framework" },
@@ -150,6 +177,7 @@ namespace Redwood.Framework.Configuration
 
             return configuration;
         }
+
 
         private static void RegisterGlobalizeResources(RedwoodConfiguration configuration)
         {

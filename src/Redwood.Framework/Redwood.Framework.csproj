@@ -207,6 +207,7 @@
     <Compile Include="Security\ICsrfProtector.cs" />
     <Compile Include="Security\IViewModelProtector.cs" />
     <Compile Include="Security\NistSP800108DeriveBytes.cs" />
+    <Compile Include="ServiceLocator.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\ErrorPageTemplate.cs">

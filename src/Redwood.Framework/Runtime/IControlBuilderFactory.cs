@@ -8,9 +8,7 @@ namespace Redwood.Framework.Runtime
 {
     public interface IControlBuilderFactory
     {
-
-        Func<IViewCompiler> ViewCompilerFactory { get; }
-
+        
         IControlBuilder GetControlBuilder(MarkupFile markupFile);
 
     }

@@ -9,6 +9,7 @@ using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
 using Redwood.Framework.Runtime;
+using Redwood.Framework.Runtime.Compilation;
 
 namespace Redwood.Framework.Tests.Runtime
 {
@@ -136,8 +137,8 @@ namespace Redwood.Framework.Tests.Runtime
 
         private static RedwoodControl CompileMarkup(string markup)
         {
-            var redwoodViewBuilder = new DefaultRedwoodViewBuilder(RedwoodConfiguration.CreateDefault());
-            var compiler = redwoodViewBuilder.ControlBuilderFactory.ViewCompilerFactory();
+            var redwoodConfiguration = RedwoodConfiguration.CreateDefault();
+            var compiler = redwoodConfiguration.ServiceLocator.GetService<IViewCompiler>();
 
             var controlBuilder = compiler.CompileView(new StringReader(markup), "file", "assembly", "ns", "c");
             return controlBuilder.BuildControl();

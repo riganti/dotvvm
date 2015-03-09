@@ -39,7 +39,7 @@ namespace Redwood.Framework.Tests.Runtime
                         UserGet = () => new WindowsPrincipal(WindowsIdentity.GetAnonymous())
                     }
                 },
-                Presenter = configuration.RouteTable.CreateDefaultPresenter()
+                Presenter = configuration.RouteTable.GetDefaultPresenter()
             };
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using Redwood.Framework.Configuration;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime.Compilation;
 
@@ -13,12 +14,17 @@ namespace Redwood.Framework.Runtime
     /// </summary>
     public class DefaultControlBuilderFactory : IControlBuilderFactory
     {
-        public Func<IViewCompiler> ViewCompilerFactory { get; set; }
+        public Lazy<IViewCompiler> ViewCompiler { get; private set; }
 
 
         // TODO: this cache may cause problems when multiple incompatible compilers are used on the same view
-        private static ConcurrentDictionary<MarkupFile, IControlBuilder> controlBuilders = new ConcurrentDictionary<MarkupFile, IControlBuilder>();
+        private ConcurrentDictionary<MarkupFile, IControlBuilder> controlBuilders = new ConcurrentDictionary<MarkupFile, IControlBuilder>();
 
+
+        public DefaultControlBuilderFactory(RedwoodConfiguration configuration)
+        {
+            ViewCompiler = new Lazy<IViewCompiler>(() => configuration.ServiceLocator.GetService<IViewCompiler>());
+        }
 
 
         /// <summary>
@@ -38,7 +44,7 @@ namespace Redwood.Framework.Runtime
             var assemblyName = namespaceName;
             var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
             
-            return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+            return ViewCompiler.Value.CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
         }
 
         /// <summary>

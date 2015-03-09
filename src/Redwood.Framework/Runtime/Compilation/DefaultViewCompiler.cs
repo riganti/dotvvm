@@ -22,17 +22,18 @@ namespace Redwood.Framework.Runtime.Compilation
     {
         private object locker = new object();
 
-        public DefaultViewCompiler(IControlResolver controlResolver, RedwoodConfiguration configuration, CompiledAssemblyCache assemblyCache)
+        public DefaultViewCompiler(RedwoodConfiguration configuration)
         {
-            this.controlResolver = controlResolver;
             this.configuration = configuration;
-            this.assemblyCache = assemblyCache;
+            this.controlResolver = configuration.ServiceLocator.GetService<IControlResolver>();
+            this.assemblyCache = CompiledAssemblyCache.Instance;
         }
 
 
         private readonly CompiledAssemblyCache assemblyCache;
         private readonly IControlResolver controlResolver;
         private readonly RedwoodConfiguration configuration;
+
         private DefaultViewCompilerCodeEmitter emitter;
         private int currentTemplateIndex = 0;
 

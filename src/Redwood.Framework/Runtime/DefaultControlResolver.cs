@@ -31,11 +31,11 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlResolver"/> class.
         /// </summary>
-        public DefaultControlResolver(RedwoodConfiguration configuration, IMarkupFileLoader markupFileLoader, IControlBuilderFactory controlBuilderFactory)
+        public DefaultControlResolver(RedwoodConfiguration configuration)
         {
             this.configuration = configuration;
-            this.controlBuilderFactory = controlBuilderFactory;
-            this.markupFileLoader = markupFileLoader;
+            this.controlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            this.markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
 
             if (!isInitialized)
             {
