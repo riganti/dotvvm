@@ -74,7 +74,14 @@ namespace Redwood.Framework.Utils
             // handle enums
             if (type.IsEnum && value is string)
             {
-                return Enum.Parse(type, (string)value);
+                try
+                {
+                    return Enum.Parse(type, (string)value);
+                }
+                catch (Exception ex)
+                {
+                    throw new Exception(string.Format("The enum {0} does not allow a value '{1}'!", type, value), ex);      // TODO: exception handling
+                }
             }
 
             // generic to string
