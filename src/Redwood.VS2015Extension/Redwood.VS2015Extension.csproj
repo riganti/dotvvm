@@ -3,7 +3,7 @@
   <PropertyGroup>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
     <VisualStudioVersion>14.0</VisualStudioVersion>
-	<VSToolsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+    <VSToolsPath>$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -332,7 +332,7 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
     <PreBuildEvent>copy "$(SolutionDir)packages\Newtonsoft.Json.6.0.6\Newtonsoft.Json.6.0.6.nupkg" "$(ProjectDir)Packages"
-copy "$(SolutionDir)packages\Owin.1.0.0\Owin.1.0.0.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Owin.1.0\Owin.1.0.0.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\Microsoft.Owin.3.0.0\Microsoft.Owin.3.0.0.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\Microsoft.Owin.FileSystems.3.0.0\Microsoft.Owin.FileSystems.3.0.0.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\Microsoft.Owin.StaticFiles.3.0.0\Microsoft.Owin.StaticFiles.3.0.0.nupkg" "$(ProjectDir)Packages"
