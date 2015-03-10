@@ -17,19 +17,17 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
             if (context.CurrentNode is RwHtmlElementNode)
             {
                 var tagNameHierarchy = GetTagHierarchy(context);
-
-                string prefix = "";
+                
                 if (tagNameHierarchy.Any())
                 {
-                    prefix = tagNameHierarchy[tagNameHierarchy.Count - 1];
                     tagNameHierarchy.RemoveAt(tagNameHierarchy.Count - 1);
                 }
 
-                return GetItemsCore(context, tagNameHierarchy, prefix);
+                return GetItemsCore(context, tagNameHierarchy);
             }
             return Enumerable.Empty<SimpleRwHtmlCompletion>();
         }
 
-        protected abstract IEnumerable<SimpleRwHtmlCompletion> GetItemsCore(RwHtmlCompletionContext context, List<string> tagNameHierarchy, string prefix);
+        protected abstract IEnumerable<SimpleRwHtmlCompletion> GetItemsCore(RwHtmlCompletionContext context, List<string> tagNameHierarchy);
     }
 }

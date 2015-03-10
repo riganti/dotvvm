@@ -11,13 +11,14 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
     public class MainTagNameCompletionProvider : TagNameHtmlCompletionProviderBase
     {
 
-        protected override IEnumerable<SimpleRwHtmlCompletion> GetItemsCore(RwHtmlCompletionContext context, List<string> tagNameHierarchy, string prefix)
+        protected override IEnumerable<SimpleRwHtmlCompletion> GetItemsCore(RwHtmlCompletionContext context, List<string> tagNameHierarchy)
         {
             var glyph = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphXmlItem, StandardGlyphItem.GlyphItemPublic);
 
-            foreach (var n in context.MetadataControlResolver.GetElementNames(context, tagNameHierarchy))
+            var tagNames = context.MetadataControlResolver.GetElementNames(context, tagNameHierarchy).ToList();
+            foreach (var n in tagNames)
             {
-                yield return new SimpleRwHtmlCompletion(n.DisplayText.Substring(prefix.Length), n.CompletionText.Substring(prefix.Length), glyph);
+                yield return new SimpleRwHtmlCompletion(n.DisplayText, n.CompletionText, glyph);
             }
                 
             if (tagNameHierarchy.Any())

@@ -191,16 +191,19 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         private static CustomCompletionSet MergeCompletionSets(IList<CompletionSet> completionSets, CustomCompletionSet newCompletions)
         {
             var htmlCompletionsSet = completionSets.First();
-            
+
+            // if we are in an element with tagPrefix, VS adds all HTML elements with the same prefix in the completion - we don't want it
+            var originalCompletions = htmlCompletionsSet.Completions.Where(c => !c.DisplayText.Contains(":"));
+
+            // merge
             var mergedCompletionSet = new CustomCompletionSet(
                 htmlCompletionsSet.Moniker,
                 htmlCompletionsSet.DisplayName,
                 htmlCompletionsSet.ApplicableTo,
-                newCompletions.Completions.Concat(htmlCompletionsSet.Completions).OrderBy(n => n.DisplayText),
+                newCompletions.Completions.Concat(originalCompletions).OrderBy(n => n.DisplayText).Distinct(),
                 htmlCompletionsSet.CompletionBuilders);
 
             completionSets.Remove(htmlCompletionsSet);
-
             return mergedCompletionSet;
         }
 
