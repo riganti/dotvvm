@@ -131,7 +131,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                             combineWithHtmlCompletions = true;
                         }
                     }
-                    var results = items.OrderBy(v => v.DisplayText).ToList();
+                    var results = items.OrderBy(v => v.DisplayText).Distinct().ToList();
                     
                     // show the session
                     if (!results.Any())

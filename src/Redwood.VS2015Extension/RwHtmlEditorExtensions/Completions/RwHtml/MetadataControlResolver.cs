@@ -25,7 +25,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 
             if (currentControl != null && currentProperty == null && currentControl.Properties.Any(p => p.IsElement))
             {
-                return currentControl.Properties.Where(p => p.IsElement).Select(p => new CompletionData() { DisplayText = p.Name, CompletionText = p.Name });
+                return currentControl.Properties.Where(p => p.IsElement).Select(p => new CompletionData(p.Name));
             }
             return controls;
         }
@@ -40,10 +40,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 
             if (currentControl != null && currentProperty == null)
             {
-                return currentControl.Properties.Where(p => !p.IsElement).Select(p => new CompletionData() {
-                    DisplayText = p.Name,
-                    CompletionText = p.Name
-                });
+                return currentControl.Properties.Where(p => !p.IsElement).Select(p => new CompletionData(p.Name));
             }
             return Enumerable.Empty<CompletionData>();
         }
@@ -76,14 +73,14 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
         {
             if (property.Type.TypeKind == TypeKind.Enum)
             {
-                return property.Type.GetMembers().Where(m => m.Kind == SymbolKind.Field).Select(m => new CompletionData() { CompletionText = m.Name, DisplayText = m.Name });
+                return property.Type.GetMembers().Where(m => m.Kind == SymbolKind.Field).Select(m => new CompletionData(m.Name));
             }
             if (CheckType((INamedTypeSymbol)property.Type, typeof(bool)))
             {
                 return new[]
                 {
-                    new CompletionData() { CompletionText = "false", DisplayText = "false" },
-                    new CompletionData() { CompletionText = "true", DisplayText = "true" }
+                    new CompletionData("false"),
+                    new CompletionData("true")
                 };
             }
             return Enumerable.Empty<CompletionData>();
@@ -149,7 +146,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 
                     // TODO: parse markup, find base type and extract metadata
 
-                    result.Add(new CompletionData() { CompletionText = tagName, DisplayText = tagName });
+                    result.Add(new CompletionData(tagName));
                 }
                 else
                 {
@@ -159,7 +156,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                     {
                         tagName = rule.TagPrefix + ":" + control.Name;
                         metadata[tagName] = GetControlMetadata(control);
-                        result.Add(new CompletionData() { CompletionText = tagName, DisplayText = tagName });
+                        result.Add(new CompletionData(tagName));
                     }
                 }
             }
@@ -178,7 +175,6 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                     .Where(p => p.DeclaredAccessibility == Accessibility.Public)
                     .Where(p => p.GetMethod != null && p.SetMethod != null)
                     .Select(GetPropertyMetadata)
-                    .Where(p => p != null)
                     .ToList()
             };
         }
@@ -229,23 +225,11 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
         {
             return symbol.ContainingNamespace.ToDisplayString() == type.Namespace && symbol.Name == type.Name;
         }
-    }
 
-    public class ControlMetadata
-    {
-        public string Name { get; set; }
-        public string Namespace { get; set; }
-        public List<ControlPropertyMetadata> Properties { get; set; }
-    }
 
-    public class ControlPropertyMetadata
-    {
-        public string Name { get; set; }
-        public bool IsTemplate { get; set; }
-        public bool AllowBinding { get; set; }
-        public bool AllowHardCodedValue { get; set; }
-        public bool IsElement { get; set; }
-        public bool AllowHtmlContent { get; set; }
-        public ITypeSymbol Type { get; set; }
+        public void OnWorkspaceChanged()
+        {
+            allControls.ClearCachedValue();
+        }
     }
 }

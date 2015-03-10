@@ -41,7 +41,6 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
                     return ((IAssemblySymbol)symbol).Modules;
                 })
                 .SelectMany(m => GetAllTypesInModuleSymbol(m.GlobalNamespace))
-                .OfType<ITypeSymbol>()
                 .ToList();
 
             return symbols;
@@ -85,9 +84,23 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
             yield return projectItem;
             for (int i = 1; i <= projectItem.ProjectItems.Count; i++)
             {
-                foreach (var childItem in GetSelfAndChildProjectItems(projectItem.ProjectItems.Item(i)))
+                ProjectItem item = null;
+                try
                 {
-                    yield return childItem;
+                    item = projectItem.ProjectItems.Item(i);
+                }
+                catch (Exception)
+                {
+                    // sometimes we get System.ArgumentException: The parameter is incorrect. (Exception from HRESULT: 0x80070057 (E_INVALIDARG)) 
+                    // when we open some file in the text editor
+                }
+
+                if (item != null)
+                {
+                    foreach (var childItem in GetSelfAndChildProjectItems(item))
+                    {
+                        yield return childItem;
+                    }
                 }
             }
         }

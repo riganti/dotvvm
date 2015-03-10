@@ -11,10 +11,8 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
         TriggerPoint TriggerPoint { get; }
 
         IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context);
+        
 
-
-        event EventHandler<WorkspaceChangeEventArgs> WorkspaceChanged;
-
-        void OnWorkspaceChanged(WorkspaceChangeEventArgs args);
+        void OnWorkspaceChanged();
     }
 }

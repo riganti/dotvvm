@@ -11,14 +11,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
         public abstract TriggerPoint TriggerPoint { get; }
 
         public abstract IEnumerable<SimpleRwHtmlCompletion> GetItems(RwHtmlCompletionContext context);
-
-        public event EventHandler<WorkspaceChangeEventArgs> WorkspaceChanged;
-
-
-        public RwHtmlCompletionProviderBase()
-        {
-            WorkspaceChanged += OnWorkspaceChanged; 
-        }
+        
 
 
         protected List<string> GetTagHierarchy(RwHtmlCompletionContext context)
@@ -41,16 +34,8 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
             return hierarchy;
         }
 
-        protected virtual void OnWorkspaceChanged(object sender, WorkspaceChangeEventArgs workspaceChangeEventArgs)
+        public virtual void OnWorkspaceChanged()
         {
-        }
-
-        public virtual void OnWorkspaceChanged(WorkspaceChangeEventArgs e)
-        {
-            if (WorkspaceChanged != null)
-            {
-                WorkspaceChanged(this, e);
-            }
         }
     }
 }

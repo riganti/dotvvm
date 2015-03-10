@@ -54,5 +54,10 @@ namespace Redwood.VS2015Extension
             T result;
             cache.TryRemove(key, out result);
         }
+
+        public void ClearCachedValues()
+        {
+            cache.Clear();
+        }
     }
 }

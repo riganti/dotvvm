@@ -29,11 +29,10 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                         .SelectMany(i => i.Tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
                         .Select(n => new { Symbol = i.SemanticModel.GetDeclaredSymbol(n), Compilation = i.Compilation })
                         .Where(n => n.Symbol != null))
-                        .Select(t => new CompletionData()
-                        {
-                            CompletionText = t.Symbol.ToString() + ", " + t.Compilation.AssemblyName,
-                            DisplayText = string.Format("{0} (in namespace {1})", t.Symbol.Name, t.Symbol.ContainingNamespace)
-                        }).ToList();
+                        .Select(t => new CompletionData(
+                            string.Format("{0} (in namespace {1})", t.Symbol.Name, t.Symbol.ContainingNamespace),
+                            t.Symbol.ToString() + ", " + t.Compilation.AssemblyName))
+                        .ToList();
                 });
 
                 // return completion items
@@ -46,9 +45,9 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
             }
         }
 
-        protected override void OnWorkspaceChanged(object sender, WorkspaceChangeEventArgs workspaceChangeEventArgs)
+        public override void OnWorkspaceChanged()
         {
-            //typeNames.ClearCachedValue();
+            typeNames.ClearCachedValue();
         }
     }
 }
