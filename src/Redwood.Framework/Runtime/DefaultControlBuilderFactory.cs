@@ -17,7 +17,6 @@ namespace Redwood.Framework.Runtime
         public Lazy<IViewCompiler> ViewCompiler { get; private set; }
 
 
-        // TODO: this cache may cause problems when multiple incompatible compilers are used on the same view
         private ConcurrentDictionary<MarkupFile, IControlBuilder> controlBuilders = new ConcurrentDictionary<MarkupFile, IControlBuilder>();
 
 
@@ -40,7 +39,7 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         private IControlBuilder CreateControlBuilder(MarkupFile file)
         {
-            var namespaceName = GetNamespaceFromFileName(file.FileName);
+            var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
             var assemblyName = namespaceName;
             var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
             
@@ -58,7 +57,7 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Gets the name of the namespace from the file name.
         /// </summary>
-        internal static string GetNamespaceFromFileName(string fileName)
+        internal static string GetNamespaceFromFileName(string fileName, DateTime lastWriteDateTimeUtc)
         {
             // remove extension
             fileName = fileName.Substring(0, fileName.Length - MarkupFile.ViewFileExtension.Length);
@@ -85,11 +84,11 @@ namespace Redwood.Framework.Runtime
             {
                 if (csharpKeywords.Contains(parts[i]))
                 {
-                    parts[i] += "_";
+                    parts[i] += "0";
                 }
             }
             fileName = string.Join(".", parts);
-            return "RedwoodGeneratedViews" + fileName;
+            return "RedwoodGeneratedViews" + fileName + "_" + lastWriteDateTimeUtc.Ticks;
         }
 
         private static readonly HashSet<string> csharpKeywords = new HashSet<string>(new[]

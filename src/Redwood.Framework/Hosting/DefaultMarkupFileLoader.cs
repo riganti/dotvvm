@@ -44,12 +44,7 @@ namespace Redwood.Framework.Hosting
             }
 
             // load the file
-            return new MarkupFile()
-            {
-                ContentsReaderFactory = () => new FileReader(fullPath),
-                FileName = fileName,
-                FullPath = fullPath
-            };
+            return new MarkupFile(fileName, fullPath);
         }
     }
 }
