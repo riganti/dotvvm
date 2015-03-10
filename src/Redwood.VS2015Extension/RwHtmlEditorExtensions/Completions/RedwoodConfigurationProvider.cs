@@ -59,7 +59,10 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         private void OnWorkspaceChanged()
         {
             cache.ClearCachedValues();
-            WorkspaceChanged?.Invoke(this, EventArgs.Empty);
+            if (WorkspaceChanged != null)
+            {
+                WorkspaceChanged(this, EventArgs.Empty);
+            }
         }
 
         public void Dispose()

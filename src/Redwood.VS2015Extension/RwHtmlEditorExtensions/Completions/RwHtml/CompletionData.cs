@@ -32,7 +32,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
         {
             unchecked
             {
-                return ((DisplayText?.GetHashCode() ?? 0) * 397) ^ (CompletionText?.GetHashCode() ?? 0);
+                return ((DisplayText != null ? DisplayText.GetHashCode() : 0) * 397) ^ (CompletionText != null ? CompletionText.GetHashCode() : 0);
             }
         }
 
