@@ -132,8 +132,6 @@
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
     <Content Include="Scripts\jquery-1.9.1.min.js" />
-    <Content Include="Scripts\knockout.mapper.js" />
-    <Content Include="Scripts\npm.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -183,10 +181,6 @@
       <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
       <Name>Redwood.Framework</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <TypeScriptCompile Include="Scripts\Redwood.ts" />
-    <TypeScriptCompile Include="Scripts\Redwood.Validation.ts" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Sample9_Resources.cs-CZ.resx">
