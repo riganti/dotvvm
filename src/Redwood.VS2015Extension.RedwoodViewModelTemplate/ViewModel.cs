@@ -2,9 +2,9 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Redwood.Framework.ViewModels;
+using Redwood.Framework.ViewModel;
 
-namespace $rootnamespace$.ViewModel
+namespace $rootnamespace$
 {
 	public class $safeitemname$ViewModel : RedwoodViewModelBase
 	{
