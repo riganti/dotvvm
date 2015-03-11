@@ -175,6 +175,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                     .Where(p => p.DeclaredAccessibility == Accessibility.Public)
                     .Where(p => p.GetMethod != null && p.SetMethod != null)
                     .Select(GetPropertyMetadata)
+                    .Where(p => p != null)
                     .ToList()
             };
         }

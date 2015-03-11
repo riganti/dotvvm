@@ -170,7 +170,7 @@ namespace Redwood.Framework.Configuration
                 new StylesheetResource()
                 {
                     Name = Constants.BootstrapCssResourceName,
-                    Url = "/Content/bootstrap/bootstrap.min.css"
+                    Url = "/Content/bootstrap.min.css"
                 });
 
             RegisterGlobalizeResources(configuration);
