@@ -78,8 +78,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         {
             if (fireWorkspaceChangedTask == null || fireWorkspaceChangedTask.Status != TaskStatus.Running)
             {
-                fireWorkspaceChangedTask = new System.Threading.Tasks.Task(FireWorkspaceChangedCore);
-                fireWorkspaceChangedTask.Start();
+                fireWorkspaceChangedTask = System.Threading.Tasks.Task.Factory.StartNew(FireWorkspaceChangedCore);
             }
         }
 
