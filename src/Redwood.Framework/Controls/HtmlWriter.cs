@@ -103,7 +103,7 @@ namespace Redwood.Framework.Controls
                     writer.Write(attr.Key as string);
                     writer.Write("=");
                     writer.Write("\"");
-                    writer.Write(WebUtility.HtmlEncode(attr.Value as string).Replace("\"", "&quot;"));
+                    writer.Write(WebUtility.HtmlEncode(attr.Value as string ?? "").Replace("\"", "&quot;"));
                     writer.Write("\"");
                 }
             }

@@ -42,6 +42,20 @@ namespace Redwood.Framework.Utils
         }
 
         /// <summary>
+        /// Extracts the value of a specified property and converts it to string. If the property name is empty, returns a string representation of a given object.
+        /// Null values are converted to empty string.
+        /// </summary>
+        public static string ExtractMemberStringValue(object item, string propertyName)
+        {
+            if (!string.IsNullOrEmpty(propertyName))
+            {
+                item = GetObjectProperty(item, propertyName);
+            }
+            return item != null ? item.ToString() : "";
+        }
+        
+
+        /// <summary>
         /// Converts a value to a specified type
         /// </summary>
         public static object ConvertValue(object value, Type type)

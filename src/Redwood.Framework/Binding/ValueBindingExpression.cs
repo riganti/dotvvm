@@ -1,5 +1,6 @@
 using System;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Parser;
 using Redwood.Framework.Parser.Translation;
 using Redwood.Framework.Utils;
 
@@ -62,6 +63,16 @@ namespace Redwood.Framework.Binding
             object target;
             var propertyInfo = evaluator.EvaluateProperty(this, property, control, out target);
             propertyInfo.SetValue(target, ReflectionUtils.ConvertValue(value, propertyInfo.PropertyType));
+        }
+
+
+
+        /// <summary>
+        /// Creates an expression for specified member property. 
+        /// </summary>
+        public static ValueBindingExpression FromMember(string propertyName)
+        {
+            return new ValueBindingExpression(string.IsNullOrEmpty(propertyName) ? Constants.ThisSpecialBindingProperty : propertyName);
         }
     }
 }

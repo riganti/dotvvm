@@ -249,7 +249,10 @@ namespace Redwood.Framework.Runtime.Compilation
                 {
                     continue;
                 }
-                throw new NotSupportedException("Content be inside collection inner property!"); // TODO: exception handling
+                else
+                {
+                    throw new NotSupportedException("Content cannot be inside collection inner property!"); // TODO: exception handling
+                }
             }
         }
 
