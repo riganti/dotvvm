@@ -197,6 +197,7 @@
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassifier.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassifierProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\CompletionRefreshHandler.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\CustomCompletionSet.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\FileChangeTracker.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RedwoodConfigurationProvider.cs" />

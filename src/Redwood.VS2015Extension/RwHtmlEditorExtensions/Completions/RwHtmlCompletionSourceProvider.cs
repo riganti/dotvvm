@@ -40,11 +40,10 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         [Import(typeof(VisualStudioWorkspace))]
         public VisualStudioWorkspace Workspace { get; set; }
         
-        private System.Threading.Tasks.Task fireWorkspaceChangedTask;
 
         private RedwoodConfigurationProvider configurationProvider;
         private MetadataControlResolver metadataControlResolver;
-        
+
 
 
         public ICompletionSource TryCreateCompletionSource(ITextBuffer textBuffer)
@@ -70,21 +69,14 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 
         private void WatchWorkspaceChanges()
         {
-            Workspace.WorkspaceChanged += (sender, args) => FireWorkspaceChanged();
-            configurationProvider.WorkspaceChanged += (sender, args) => FireWorkspaceChanged();
-        }
+            CompletionRefreshHandler.Instance.RefreshCompletion += (sender, args) => FireWorkspaceChanged();
+
+            Workspace.WorkspaceChanged += (sender, args) => CompletionRefreshHandler.Instance.NotifyRefreshNeeded();
+            configurationProvider.WorkspaceChanged += (sender, args) => CompletionRefreshHandler.Instance.NotifyRefreshNeeded();
+        } 
 
         private void FireWorkspaceChanged()
         {
-            if (fireWorkspaceChangedTask == null || fireWorkspaceChangedTask.Status != TaskStatus.Running)
-            {
-                fireWorkspaceChangedTask = System.Threading.Tasks.Task.Factory.StartNew(FireWorkspaceChangedCore);
-            }
-        }
-
-        private void FireWorkspaceChangedCore()
-        {
-            System.Threading.Thread.Sleep(5000);
             foreach (var provider in CompletionProviders)
             {
                 provider.OnWorkspaceChanged();
