@@ -19,12 +19,10 @@ namespace Redwood.Framework.Tests.VS2015Extension
         private ProjectInfo project;
         private RwHtmlCompletionContext context;
 
-
+        
         [TestInitialize]
         public void TestInit()
         {
-            var assembly = System.Reflection.Assembly.LoadFrom("Microsoft.VisualStudio.LanguageServices.CSharp.dll");
-
             workspace = new AdhocWorkspace();
             project = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "TestProj", "TestProj", LanguageNames.CSharp)
                 .WithMetadataReferences(new[] {
