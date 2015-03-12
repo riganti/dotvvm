@@ -9,9 +9,9 @@ namespace Redwood.Framework.Controls
     public class Validate
     {
 
-        public static RedwoodProperty EnabledProperty = RedwoodProperty.Register<bool, Validate>("Enabled", true);
+        public static RedwoodProperty EnabledProperty = RedwoodProperty.Register<bool, Validate>("Enabled", true, true);
 
-        public static RedwoodProperty TargetProperty = RedwoodProperty.Register<object, Validate>("Target", new ValueBindingExpression("_root"));
+        public static RedwoodProperty TargetProperty = RedwoodProperty.Register<object, Validate>("Target", new ValueBindingExpression("_root"), true);
 
     }
 }

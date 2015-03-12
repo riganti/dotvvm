@@ -240,10 +240,14 @@
     <Compile Include="Runtime\IControlBuilder.cs" />
     <Compile Include="Runtime\IControlResolver.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="Validation\AttributeActionValidationProvider.cs" />
     <Compile Include="Validation\DataAnnotationsValidationProvider.cs" />
+    <Compile Include="Validation\IStaticActionValidationProvider.cs" />
     <Compile Include="Validation\IStaticViewModelValidationProvider.cs" />
+    <Compile Include="Validation\IValidatingViewModel.cs" />
     <Compile Include="Validation\RedwoodValidationContext.cs" />
     <Compile Include="Validation\TypeValidationProvider.cs" />
+    <Compile Include="Validation\ValidationSettingsAttribute.cs" />
     <Compile Include="Validation\ViewModelValidationProvider.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />

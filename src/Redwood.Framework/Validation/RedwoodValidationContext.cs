@@ -12,6 +12,7 @@ namespace Redwood.Framework.Validation
         public Stack<string> PathStack { get; set; }
         public Stack<object> ObjectStack { get; set; }
         public List<ViewModelValidationError> Errors { get; set; }
+        public HashSet<string> Groups { get; set; }
         public string Path
         {
             get { return PathStack.Peek(); }
@@ -21,11 +22,12 @@ namespace Redwood.Framework.Validation
             get { return ObjectStack.Peek(); }
         }
 
-        public RedwoodValidationContext(object root)
+        public RedwoodValidationContext(object root, IEnumerable<string> groups)
         {
             PathStack = new Stack<string>();
             ObjectStack = new Stack<object>();
             Errors = new List<ViewModelValidationError>();
+            Groups = new HashSet<string>(groups ?? new string[] { "*" });
             PushLevel(root, "");
         }
 
@@ -68,6 +70,12 @@ namespace Redwood.Framework.Validation
                 ErrorMessage = errorMessage,
                 PropertyPath = Path
             });
+        }
+
+        public bool MatchGroups(string groups)
+        {
+            if (groups == null) return this.Groups.Contains("*");
+            return groups.Split(',').Any(g => this.Groups.Contains(g.Trim()));
         }
 
 

@@ -92,6 +92,12 @@ namespace Redwood.Framework.Binding
             return DefaultValue;
         }
 
+        internal virtual bool IsPresent(RedwoodControl control, bool inherit = false)
+        {
+            return control.properties.ContainsKey(this) ||
+                (inherit && IsValueInherited && control.Parent != null && IsPresent(control.Parent));
+        }
+
         /// <summary>
         /// Sets the value of the property.
         /// </summary>

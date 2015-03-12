@@ -85,16 +85,17 @@ namespace Redwood.Framework.Runtime
         {
             var rules = this.validationProvider.GetValidationRules(viewModel);
             var result = new JObject();
-            result["root"] = JToken.FromObject(rules);
+            var actionGroups = result["actionGroups"] = new JObject();
+            foreach (var method in viewModel.GetType().GetMethods().Where(m => !m.IsSpecialName))
+            {
+                var groups = this.validationProvider.ModifyRulesForAction(method, rules);
+                if (groups.Count != 0 && !(groups.Count == 1 && groups.Contains("*"))) actionGroups[method.Name] = JToken.FromObject(groups);
+            }
+            result["rootRules"] = JToken.FromObject(rules);
             var typeRules = result["types"] = new JObject();
             foreach (var map in viewModelConverter.UsedSerializationMaps)
             {
-                var rule = new JObject();
-                foreach (var property in this.validationProvider.GetRulesForType(map.Type, viewModel).GroupBy(r => r.PropertyName))
-                {
-                    rule[property.Key ?? ""] = JToken.FromObject(property.ToArray());
-                }
-                typeRules[map.Type.ToString()] = rule;
+                typeRules[map.Type.ToString()] = JArray.FromObject(this.validationProvider.GetRulesForType(map.Type, viewModel));
             }
             return result;
         }

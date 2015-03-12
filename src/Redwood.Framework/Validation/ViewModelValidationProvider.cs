@@ -1,8 +1,10 @@
-﻿using Redwood.Framework.ViewModel;
+﻿using Redwood.Framework.Runtime.Filters;
+using Redwood.Framework.ViewModel;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,32 +13,59 @@ namespace Redwood.Framework.Validation
     public class ViewModelValidationProvider
     {
         public readonly List<IStaticViewModelValidationProvider> StaticProviders = new List<IStaticViewModelValidationProvider>();
+        public readonly List<IStaticActionValidationProvider> ActionProviders = new List<IStaticActionValidationProvider>();
         private readonly ConcurrentDictionary<Type, ValidationRule[]> CachedStaticRules = new ConcurrentDictionary<Type, ValidationRule[]>();
 
         public ViewModelValidationProvider(IStaticViewModelValidationProvider[] staticProviders = null)
         {
+            // TODO: find a nicer way
             if (staticProviders == null)
             {
                 this.StaticProviders.Add(new DataAnnotationsValidationProvider());
                 this.StaticProviders.Add(new TypeValidationProvider());
             }
             else this.StaticProviders.AddRange(staticProviders);
+            ActionProviders.Add(new AttributeActionValidationProvider());
         }
 
         /// <summary>
         /// Gets validation rules for specified viewmodel instance, action executed
         /// </summary>
-        public ValidationRule[] GetValidationRules(object viewModel)
+        public IEnumerable<ValidationRule> GetValidationRules(object viewModel)
         {
-            var stat = CachedStaticRules.GetOrAdd(viewModel.GetType(), CreateStaticValidationRules);
-            // TODO: include dynamic rules from viewModel and rules for action validation
-            return stat;
+            IEnumerable<ValidationRule> r = CachedStaticRules.GetOrAdd(viewModel.GetType(), CreateStaticValidationRules);
+            if(viewModel is IValidatingViewModel)
+            {
+                r = r.Concat(((IValidatingViewModel)viewModel).GetRules());
+            }
+            return r;
         }
 
-        public ValidationRule[] GetRulesForType(Type type, object rootVm)
+        public IEnumerable<ValidationRule> GetRulesForType(Type type, object rootVm)
         {
-            return CachedStaticRules.GetOrAdd(type, CreateStaticValidationRules);
-            // TODO: include dynamic rules from viewModel and rules for action validation
+            IEnumerable<ValidationRule> r = CachedStaticRules.GetOrAdd(type, CreateStaticValidationRules);
+            if(rootVm is IValidatingViewModel)
+            {
+                r = r.Concat((rootVm as IValidatingViewModel).GetRulesFor(type));
+            }
+            return r;
+        }
+
+        /// <summary>
+        /// Adds group condition to viewModelRules and returns groups for action call
+        /// </summary>
+        public HashSet<string> ModifyRulesForAction(MethodInfo mi, IEnumerable<ValidationRule> viewModelRules)
+        {
+            bool includeGlobal = true;
+            HashSet<string> groups = new HashSet<string>();
+            foreach (var p in ActionProviders)
+            {
+                bool ig = includeGlobal && p != ActionProviders[0];
+                groups.UnionWith(p.ModifyRulesForAction(mi, viewModelRules, ref ig));
+                includeGlobal = ig;
+            }
+            if (includeGlobal) groups.Add("*");
+            return groups;
         }
 
         protected virtual ValidationRule[] CreateStaticValidationRules(Type viewModel)

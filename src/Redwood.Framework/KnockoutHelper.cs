@@ -10,7 +10,7 @@ namespace Redwood.Framework
 {
     public static class KnockoutHelper
     {
-        
+
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, RedwoodBindableControl control, RedwoodProperty property, Action nullBindingAction)
         {
             var expression = control.GetValueBinding(property);
@@ -46,13 +46,13 @@ namespace Redwood.Framework
 
             var arguments = new List<string>()
             {
-                "'" + context.CurrentPageArea + "'",
-                "this",
-                "[" + String.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")) + "]",
-                "'" + expression.Expression + "'",
-                "'" + uniqueControlId + "'"
+                "'" + context.CurrentPageArea + "'", // viewModelName
+                "this", // sender
+                "[" + String.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")) + "]", // path
+                "'" + expression.Expression + "'", // command
+                "'" + uniqueControlId + "'" // controlUniqueId
             };
-            
+
             var validationTargetExpression = GetValidationTargetExpression(control, true);
             if (validationTargetExpression != null)
             {
@@ -76,11 +76,13 @@ namespace Redwood.Framework
             // find the closest control
             int dataSourceChanges;
             var validationTargetControl = (RedwoodBindableControl)control.GetClosestWithPropertyValue(
-                out dataSourceChanges, 
-                c => c is RedwoodBindableControl && ((RedwoodBindableControl)c).GetValueBinding(Validate.TargetProperty) != null);
+                out dataSourceChanges,
+                c => c is RedwoodBindableControl && c.HasProperty(Validate.TargetProperty) && ((RedwoodBindableControl)c).GetValueBinding(Validate.TargetProperty) != null);
             if (validationTargetControl == null)
             {
-                return null;
+                if (control.GetValue(RedwoodBindableControl.DataContextProperty, true) != null)
+                    return translateToClientScript ? "$root" : "_root";
+                else return null;
             }
 
             // reparent the expression to work in current DataContext
@@ -94,7 +96,9 @@ namespace Redwood.Framework
             {
                 validationExpression = validationBindingExpression.Expression;
             }
-            validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
+
+            if (!validationExpression.StartsWith("$root"))
+                validationExpression = String.Join("", Enumerable.Repeat("$parent.", dataSourceChanges)) + validationExpression;
 
             return validationExpression;
         }

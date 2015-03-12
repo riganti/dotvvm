@@ -1,11 +1,13 @@
 ﻿interface RedwoodExtensions {
 }
-
+interface RedwoodViewModel {
+    viewModel: any;
+}
 
 class Redwood {
 
     public extensions: RedwoodExtensions = {}; 
-    public viewModels: any = {};
+    public viewModels: { [name: string]: RedwoodViewModel } = {};
     public culture: string;
     public events = {
         init: new RedwoodEvent<RedwoodEventArgs>("redwood.events.init", true),
@@ -27,7 +29,7 @@ class Redwood {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // trigger beforePostback event
-        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
+        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, path, command);
         this.events.beforePostback.trigger(beforePostbackArgs);
         if (beforePostbackArgs.cancel) {
             return;
@@ -106,6 +108,60 @@ class Redwood {
         }
     }
 
+    public getPath(sender: HTMLElement): string[]{
+        var context = ko.contextFor(sender);
+        var arr = new Array<string>(context.$parents.length);
+        for (var i = 0; i < arr.length; i++) {
+            if (context.$index && typeof context.$index === "function")
+                arr[i] = `[${ context.$index() }]`;
+            else throw "not implemented"; // TODO: getPath implementstion
+            context = context.$parentContext;
+        }
+        return arr;
+    }
+    public spitPath(path: string): string[] {
+        var indexPos = path.indexOf('[');
+        var dotPos = path.indexOf('.');
+        var res: string[] = [];
+        while (dotPos >= 0 || indexPos >= 0) {
+            if (dotPos >= 0 && dotPos < indexPos) {
+                res.push(path.substr(0, dotPos));
+                path = path.substr(dotPos + 1);
+                dotPos = path.indexOf('.');
+            }
+            if (indexPos >= 0 && indexPos < dotPos) {
+                res.push(path.substr(0, dotPos));
+                path = path.substr(dotPos);
+                indexPos = path.indexOf('[');
+                dotPos = path.indexOf('.');
+            }
+        }
+        res.push(path);
+        return res;
+    }
+
+    /**
+    * Combines two simple javascript paths
+    * Supports properties and indexers, includes functions calls
+    */
+    public combinePaths(a: string[], b: string[]): string[] {
+        return this.simplifyPath(a.concat(b));
+    }
+
+    /**
+    * removes `$parent` and `$root` where possible
+    */
+    public simplifyPath(path: string[]): string[] {
+        var ri = path.lastIndexOf("$root");
+        if (ri > 0) path = path.slice(ri);
+        path = path.filter(v => v != "$data");
+        var parIndex = 0;
+        while ((parIndex = path.indexOf("$parent")) >= 0) {
+            path.splice(parIndex - 1, 2);
+        }
+        return path;
+    }
+
     private postJSON(url: string, method: string, postData: any, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void) {
         var xhr = XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
         xhr.open(method, url, true);
@@ -180,7 +236,7 @@ class RedwoodErrorEventArgs extends RedwoodEventArgs {
 }
 class RedwoodBeforePostBackEventArgs extends RedwoodEventArgs {
     public cancel: boolean = false;
-    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: string) {
+    constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: string, public viewModelPath: string[], public command: string) {
         super(viewModel);
     }
 }

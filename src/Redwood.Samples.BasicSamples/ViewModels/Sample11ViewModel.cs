@@ -3,13 +3,14 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using Redwood.Framework.Validation;
 using Redwood.Framework.ViewModel;
 
 namespace Redwood.Samples.BasicSamples.ViewModels
 {
-    public class Sample11ViewModel : RedwoodViewModelBase 
+    public class Sample11ViewModel : RedwoodViewModelBase
     {
-        
+
         [Required]
         public string NewTaskTitle { get; set; }
 
@@ -31,16 +32,29 @@ namespace Redwood.Samples.BasicSamples.ViewModels
             return base.Init();
         }
 
+        public override IEnumerable<ValidationRule> GetRulesFor(Type t)
+        {
+            // in real application you will not hardcode rules like that but use some library
+            // like `FluentValidation.Redwood.RuleConverter.GetRules(new MyViewModelValiudator())`
+            if (t == typeof(TaskViewModel))
+                return new ValidationRule[] {
+                    ValidationRule.Create<TaskViewModel, string>(tt => tt.Title, "Title can not start with underscore",
+                        "regularExpression", new object[] { "^[^_]" }, c => !(c.Value as string).StartsWith("_"), "action:CompleteTask")
+                };
+            return base.GetRulesFor(t);
+        }
+
         public void AddTask()
         {
-            Tasks.Add(new TaskViewModel() 
-            { 
-                Title = NewTaskTitle, 
-                TaskId = Guid.NewGuid() 
+            Tasks.Add(new TaskViewModel()
+            {
+                Title = NewTaskTitle,
+                TaskId = Guid.NewGuid()
             });
             NewTaskTitle = string.Empty;
         }
 
+        [ValidationSettings(ValidateAll = false, DefineGroups = new[] { "action:CompleteTask" })]
         public void CompleteTask(Guid id)
         {
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;

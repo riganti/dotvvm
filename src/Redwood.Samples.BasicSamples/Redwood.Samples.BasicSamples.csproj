@@ -188,7 +188,6 @@
     <Content Include="sample11.rwhtml" />
     <Content Include="AuthSample\login.rwhtml" />
     <Content Include="AuthSample\securedPage.rwhtml" />
-    <Content Include="sample11.rwhtml" />
     <Content Include="sample12.rwhtml" />
     <Content Include="sample13.rwhtml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
@@ -197,7 +196,9 @@
     <Content Include="Scripts\knockout-3.2.0.debug.js" />
     <Content Include="Scripts\knockout-3.2.0.js" />
     <Content Include="Scripts\knockout.mapper.js" />
-    <Content Include="Web.config" />
+    <Content Include="Web.config">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AuthSample\LoginViewModel.cs" />

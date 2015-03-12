@@ -219,6 +219,7 @@ namespace Redwood.Framework.Hosting
 
             // render the output
             ViewModelSerializer.BuildViewModel(context, page);
+            // TODO: do not render whole page on postback
             OutputRenderer.RenderPage(context, page);
             if (!isPostBack)
             {

@@ -16,7 +16,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
 
         public void Apply()
         {
-            Result = string.Join("<br />", Enumerable.Range(0, Value).Select(i => "Lorem ipsum"));
+            Result = string.Join("<br />", Enumerable.Repeat("Lorem ipsum", Value));
         }
     }
 

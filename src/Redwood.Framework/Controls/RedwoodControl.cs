@@ -90,6 +90,10 @@ namespace Redwood.Framework.Controls
             property.SetValue(this, value);
         }
 
+        public virtual bool HasProperty(RedwoodProperty property, bool inherit = false)
+        {
+            return property.IsPresent(this, inherit);
+        }
 
 
         /// <summary>
