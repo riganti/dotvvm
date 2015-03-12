@@ -1,10 +1,10 @@
-﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace Redwood.Framework.ViewModel
 {
@@ -39,9 +39,7 @@ namespace Redwood.Framework.ViewModel
         /// </summary>
         public override bool CanConvert(Type objectType)
         {
-            return !IsPrimitiveType(objectType)
-                   && !IsEnumerable(objectType)
-                   && !IsNullableType(objectType);
+            return !IsEnumerable(objectType) && IsComplexType(objectType);
         }
 
         
@@ -95,9 +93,20 @@ namespace Redwood.Framework.ViewModel
         {
             return primitiveTypes.Contains(type);
         }
+
         public static bool IsNullableType(Type type)
         {
             return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+        }
+
+        public static bool IsEnum(Type type)
+        {
+            return type.IsEnum;
+        }
+
+        public static bool IsComplexType(Type type)
+        {
+            return !IsPrimitiveType(type) && !IsEnum(type) && !IsNullableType(type);
         }
     }
 }

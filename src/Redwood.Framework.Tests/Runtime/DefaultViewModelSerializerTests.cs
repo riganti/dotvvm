@@ -154,6 +154,38 @@ namespace Redwood.Framework.Tests.Runtime
 
 
 
+        [TestMethod]
+        public void DefaultViewModelSerializer_Enum()
+        {
+            var oldViewModel = new EnumTestViewModel()
+            {
+                Property1 = TestEnum.Second
+            };
+            context.ViewModel = oldViewModel;
+            serializer.BuildViewModel(context, new RedwoodView());
+            var result = context.GetSerializedViewModel();
+            result = UnwrapSerializedViewModel(result);
+            result = WrapSerializedViewModel(result);
+
+            var newViewModel = new EnumTestViewModel();
+            context.ViewModel = newViewModel;
+            serializer.PopulateViewModel(context, new RedwoodView(), result);
+
+            Assert.IsFalse(result.Contains(typeof (TestEnum).FullName));
+            Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
+        }
+
+        public class EnumTestViewModel
+        {
+            public TestEnum Property1 { get; set; }
+        }
+
+        public enum TestEnum
+        {
+            First,
+            Second,
+            Third
+        }
 
         /// <summary>
         /// Wraps the serialized view model to an object that comes from the client.

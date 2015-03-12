@@ -66,7 +66,7 @@ namespace Redwood.Framework.ViewModel
                             index++;
                         }
                     }
-                    else if (!ViewModelJsonConverter.IsPrimitiveType(property.Type) && !ViewModelJsonConverter.IsNullableType(property.Type))
+                    else if (ViewModelJsonConverter.IsComplexType(property.Type))
                     {
                         // complex objects
                         foreach (var error in ValidateViewModel(value, path))
