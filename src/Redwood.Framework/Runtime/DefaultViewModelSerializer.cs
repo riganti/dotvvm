@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Redwood.Framework.Binding;
+using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime.Filters;
@@ -18,17 +19,17 @@ namespace Redwood.Framework.Runtime
 
         private CommandResolver commandResolver = new CommandResolver();
 
-        private readonly IViewModelProtector viewModelProtector; 
+        private readonly IViewModelProtector viewModelProtector;
 
         private readonly ViewModelValidationProvider validationProvider;
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(IViewModelProtector viewModelProtector, ViewModelValidationProvider validationProvider)
-
+        public DefaultViewModelSerializer(RedwoodConfiguration configuration)
         {
-            this.viewModelProtector = viewModelProtector;
-            this.validationProvider = validationProvider;
+            this.viewModelProtector = configuration.ServiceLocator.GetService<IViewModelProtector>();
+            this.validationProvider = configuration.ServiceLocator.GetService<ViewModelValidationProvider>();
         }
 
 

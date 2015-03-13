@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Redwood.Framework.Parser.RwHtml;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 
 namespace Redwood.Framework.Tests.Parser.RwHtml
@@ -12,10 +11,6 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
         protected void CheckForErrors(RwHtmlTokenizer tokenizer, int inputLength)
         {
             // check for parsing errors
-            if (tokenizer.Errors.Any())
-            {
-                throw new Exception("Errors occured while parsing!");
-            }
             if (tokenizer.Tokens.Any(t => t.Length != t.Text.Length))
             {
                 throw new Exception("The length of the token does not match with its text content length!");

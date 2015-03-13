@@ -13,5 +13,11 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
         {
             Content = new List<RwHtmlNode>();
         }
+
+
+        public override IEnumerable<RwHtmlNode> EnumerateNodes()
+        {
+            return base.EnumerateNodes().Concat(Content.SelectMany(n => n.EnumerateNodes()));
+        }
     }
 }

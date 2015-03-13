@@ -78,25 +78,16 @@ namespace Redwood.Framework
             var validationTargetControl = (RedwoodBindableControl)control.GetClosestWithPropertyValue(
                 out dataSourceChanges,
                 c => c is RedwoodBindableControl && c.HasProperty(Validate.TargetProperty) && ((RedwoodBindableControl)c).GetValueBinding(Validate.TargetProperty) != null);
+            var rwProp = Validate.TargetProperty;
             if (validationTargetControl == null)
             {
-                if (control.GetValue(RedwoodBindableControl.DataContextProperty, true) != null)
-                    return translateToClientScript ? "$root" : "_root";
-                else return null;
+                // TODO: it would be perhaps better to return current data context
+                return translateToClientScript ? "$root" : "_root";
             }
+
+            string validationExpression = validationTargetControl.GetBindingString(Validate.TargetProperty, translateToClientScript);
 
             // reparent the expression to work in current DataContext
-            var validationBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
-            string validationExpression;
-            if (translateToClientScript)
-            {
-                validationExpression = validationBindingExpression.TranslateToClientScript(control, Validate.TargetProperty);
-            }
-            else
-            {
-                validationExpression = validationBindingExpression.Expression;
-            }
-
             if (!validationExpression.StartsWith("$root"))
                 validationExpression = String.Join("", Enumerable.Repeat("$parent.", dataSourceChanges)) + validationExpression;
 

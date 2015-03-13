@@ -22,12 +22,16 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             get { return string.IsNullOrEmpty(TagPrefix) ? TagName : (TagPrefix + ":" + TagName); }
         }
 
+        public RwHtmlElementNode ParentElement { get; set; }
 
         public RwHtmlElementNode()
         {
             Attributes = new List<RwHtmlAttributeNode>();
         }
 
-
+        public override IEnumerable<RwHtmlNode> EnumerateNodes()
+        {
+            return base.EnumerateNodes().Concat(Attributes.SelectMany(a => a.EnumerateNodes()));
+        }
     }
 }

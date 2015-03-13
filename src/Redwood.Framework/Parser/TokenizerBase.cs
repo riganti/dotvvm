@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using Redwood.Framework.Resources;
 
 namespace Redwood.Framework.Parser
 {
@@ -11,7 +10,6 @@ namespace Redwood.Framework.Parser
 
         public const char NullChar = '\0';
         private IReader reader;
-        private string fileName;
 
 
         /// <summary>
@@ -66,12 +64,7 @@ namespace Redwood.Framework.Parser
         /// <summary>
         /// Gets the list of tokens.
         /// </summary>
-        public List<TToken> Tokens { get; private set; } 
-
-        /// <summary>
-        /// Gets or sets the errors.
-        /// </summary>
-        public List<ParserException> Errors { get; private set; } 
+        public List<TToken> Tokens { get; private set; }
 
 
         /// <summary>
@@ -81,17 +74,15 @@ namespace Redwood.Framework.Parser
         {
             CurrentTokenChars = new StringBuilder();
             Tokens = new List<TToken>();
-            Errors = new List<ParserException>();
         }
 
 
         /// <summary>
         /// Tokenizes the input.
         /// </summary>
-        public void Tokenize(IReader reader, string fileName)
+        public void Tokenize(IReader reader)
         {
             this.reader = reader;
-            this.fileName = fileName;
 
             try
             {
@@ -119,9 +110,9 @@ namespace Redwood.Framework.Parser
         /// <summary>
         /// Skips the whitespace.
         /// </summary>
-        protected void SkipWhitespace()
+        protected void SkipWhitespace(bool allowEndLine = true)
         {
-            while (Char.IsWhiteSpace(Peek()))
+            while (Char.IsWhiteSpace(Peek()) && (allowEndLine || (Peek() != '\r' && Peek() != '\n')))
             {
                 if (Read() == NullChar)
                 {
@@ -139,7 +130,7 @@ namespace Redwood.Framework.Parser
         /// When the new line is hit, the method automatically consumes it and creates WhiteSpace token.
         /// When the stopchar is hit, it is not consumed.
         /// </summary>
-        protected void ReadTextUntilNewLine(params char[] stopChars)
+        protected void ReadTextUntilNewLine(TTokenType tokenType, params char[] stopChars) 
         {
             while (Peek() != '\r' && Peek() != '\n' && !stopChars.Contains(Peek()))
             {
@@ -150,7 +141,7 @@ namespace Redwood.Framework.Parser
             }
             if (DistanceSinceLastToken > 0)
             {
-                CreateToken(TextTokenType);
+                CreateToken(tokenType);
             }
 
             if (Peek() == '\r')
@@ -169,63 +160,54 @@ namespace Redwood.Framework.Parser
             }
         }
 
-        /// <summary>
-        /// Reads text until string in parameter occurs and creates token from the body.
-        /// </summary>
-        /// <returns>If it was stopped by stopString</returns>
-        protected bool ReadTextUntilNewLine(string stopString)
+
+        protected bool ReadTextUntil(TTokenType tokenType, string stopString)
         {
-            int ssIndex = 0;
-            while(ssIndex < stopString.Length && Peek() != '\n' && Peek() != '\r')
+            var index = 0;
+            while (Peek() != '\r' && Peek() != '\n' && index < stopString.Length)
             {
-                if(stopString[ssIndex] == Peek())
+                var ch = Read();
+                if (ch == NullChar)
                 {
-                    ssIndex++;
+                    break;
                 }
-                Read();
+                else if (ch == stopString[index])
+                {
+                    index++;
+                }
+                else
+                {
+                    var newIndex = 0;
+                    for (int k = index - 1; k >= 0; k--)
+                    {
+                        if (stopString[k] == ch)
+                        {
+                            newIndex = k;
+                            break;
+                        }
+                    }
+                    index = newIndex;
+                }
             }
 
-            if(ssIndex == stopString.Length)
+            if (index == stopString.Length)
             {
-                // stopped by stopString
                 if (DistanceSinceLastToken > stopString.Length)
                 {
-                    CreateToken(TextTokenType, stopString.Length);
+                    CreateToken(tokenType, stopString.Length);
                 }
                 return true;
             }
-
-            if (DistanceSinceLastToken > 0)
+            else
             {
-                CreateToken(TextTokenType);
+                return false;
             }
-
-            if (Peek() == '\r')
-            {
-                // \r can be followed by \n which is still one new line
-                Read();
-            }
-            if (Peek() == '\n')
-            {
-                Read();
-            }
-
-            if (DistanceSinceLastToken > 0)
-            {
-                CreateToken(WhiteSpaceTokenType);
-            }
-            return false;
-        }
-
-        protected void ReadTextUntil(string stopString)
-        {
-            while (!ReadTextUntilNewLine(stopString)) { }
         }
 
         protected string ReadOneOf(params string[] strings)
         {
             int index = 0;
-            while(strings.Length > 0 && !strings.Any(s => s.Length <= index))
+            while (strings.Length > 0 && !strings.Any(s => s.Length <= index))
             {
                 var ch = Peek();
                 strings = strings.Where(s => s[index] == ch).ToArray();
@@ -238,7 +220,7 @@ namespace Redwood.Framework.Parser
         /// <summary>
         /// Creates the token.
         /// </summary>
-        protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0)
+        protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, Func<TToken, TokenError> errorProvider = null)
         {
             LastToken = new TToken()
             {
@@ -250,7 +232,11 @@ namespace Redwood.Framework.Parser
                 Text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip)
             };
             Tokens.Add(LastToken);
-            
+            if (errorProvider != null)
+            {
+                LastToken.Error = errorProvider(LastToken);
+            }
+
             CurrentTokenChars.Remove(0, LastToken.Length);
             LastTokenPosition = reader.Position - charsFromEndToSkip;
 
@@ -259,7 +245,20 @@ namespace Redwood.Framework.Parser
             return LastToken;
         }
 
+        protected TokenError CreateTokenError()
+        {
+            return new NullTokenError<TToken, TTokenType>(this);
+        }
 
+        protected TokenError CreateTokenError(TToken lastToken, TTokenType firstTokenType, string errorMessage)
+        {
+            return new BeginWithLastTokenOfTypeTokenError<TToken, TTokenType>(errorMessage, this, lastToken, firstTokenType);
+        }
+
+        protected TokenError CreateTokenError(TToken token, string errorMessage)
+        {
+            return new SimpleTokenError<TToken, TTokenType>(errorMessage, this, token);
+        }
         /// <summary>
         /// Called when a token is found.
         /// </summary>
@@ -306,21 +305,5 @@ namespace Redwood.Framework.Parser
             PositionOnLine++;
             return ch;
         }
-
-        /// <summary>
-        /// Reports the error.
-        /// </summary>
-        protected void ReportError(string message, bool stopParsing = false)
-        {
-            Errors.Add(new ParserException(message, fileName, CurrentLine, PositionOnLine));
-
-            if (stopParsing)
-            {
-                throw new ParserException(Parser_RwHtml.ParsingInterrupted, fileName);
-            }
-        }
-
     }
-
-    
 }

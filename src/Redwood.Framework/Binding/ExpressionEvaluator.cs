@@ -23,9 +23,11 @@ namespace Redwood.Framework.Binding
         public object Evaluate(ValueBindingExpression expression, RedwoodProperty property, RedwoodBindableControl contextControl)
         {
             var visitor = EvaluateDataContextPath(contextControl);
-
-            // evaluate the final expression
-            EvaluateBinding(visitor, expression.Expression, expression.GetViewModelPathExpression(contextControl, property));
+            if (property != RedwoodBindableControl.DataContextProperty)
+            {
+                // evaluate the final expression
+                EvaluateBinding(visitor, expression.Expression, expression.GetViewModelPathExpression(contextControl, property));
+            }
             return visitor.Result;
         }
 

@@ -117,44 +117,8 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Directive_IdentifierExpected" xml:space="preserve">
-    <value>Identifier expected after directive! E.g. @viewmodel: Redwood.Samples.Sample1.IndexViewModel</value>
-  </data>
-  <data name="Directive_ColonExpected" xml:space="preserve">
-    <value>Colon expected after directive name! E.g. @viewmodel: Redwood.Samples.Sample1.IndexViewModel</value>
-  </data>
-  <data name="ParsingInterrupted" xml:space="preserve">
-    <value>The parser could not continue due to errors in the file.</value>
-  </data>
-  <data name="Element_IdentifierExpectedAfterTagOpenBrace" xml:space="preserve">
-    <value>Identifier expected after tag opening brace! E.g. &lt;html ...</value>
-  </data>
-  <data name="Element_IdentifierExpectedAfterColonInTagName" xml:space="preserve">
-    <value>Identifier expected after colon in the name! E.g. &lt;rw:textbox ...</value>
-  </data>
-  <data name="Element_TagNotClosed" xml:space="preserve">
-    <value>End tag brace expected!</value>
-  </data>
-  <data name="Element_AttributeNameExpected" xml:space="preserve">
-    <value>Attribute name expected! E.g. &lt;div class='value' ...</value>
-  </data>
   <data name="UnexpectedEndOfInput" xml:space="preserve">
     <value>Unexpected end of input!</value>
-  </data>
-  <data name="Attribute_BindingMustEndWithDoubleRightCurlyBraces" xml:space="preserve">
-    <value>Binding inside attribute must end with double right curly brace! E.g. &lt;div class="row{{binding: RowIndex % 2}}"&gt;</value>
-  </data>
-  <data name="Attribute_ValueMustNotContainTagCloseBrace" xml:space="preserve">
-    <value>The attribute value must not contain tag close brace!</value>
-  </data>
-  <data name="Binding_MustStartWithIdentifier" xml:space="preserve">
-    <value>The binding must start with identifier! E.g. {binding: FirstName}</value>
-  </data>
-  <data name="Binding_ColonAfterIdentifier" xml:space="preserve">
-    <value>Colon must follow the binding identifier! E.g. {binding: FirstName}</value>
-  </data>
-  <data name="Parser_ClosingTagHasNoMatchingOpenTag" xml:space="preserve">
-    <value>The closing tag '&lt;/{0}&gt;' doesn't have a matching opening tag!</value>
   </data>
   <data name="Binding_UnsupportedOperator" xml:space="preserve">
     <value>The operator '{0}' is not supported in the binding!</value>
@@ -170,8 +134,5 @@
   </data>
   <data name="HtmlWriter_CannotCloseTagBecauseNoTagIsOpen" xml:space="preserve">
     <value>The HtmlWriter cannot close the tag because no tag is open!</value>
-  </data>
-  <data name="Binding_DoubleCloseBraceRequired" xml:space="preserve">
-    <value>The binding that started with {{ must be closed with }} sequence!</value>
   </data>
 </root>

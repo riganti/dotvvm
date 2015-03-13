@@ -147,7 +147,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Determines whether the control has only white space content.
         /// </summary>
-        public bool HasNonWhiteSpaceContent()
+        public bool HasOnlyWhiteSpaceContent()
         {
             return Children.All(c => (c is Literal && ((Literal)c).HasWhiteSpaceContentOnly()));
         }

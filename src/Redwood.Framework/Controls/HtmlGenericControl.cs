@@ -60,6 +60,11 @@ namespace Redwood.Framework.Controls
         public HtmlGenericControl(string tagName) : this()
         {
             TagName = tagName;
+
+            if (tagName == "head")
+            {
+                SetValue(RenderSettings.ModeProperty, RenderMode.Server);
+            }
         }
 
 

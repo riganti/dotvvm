@@ -11,19 +11,6 @@ namespace Redwood.Framework.Controls
     /// </summary>
     public abstract class ItemsControl : HtmlGenericControl
     {
-
-        /// <summary>
-        /// Gets or sets whether the items of the control are rendered on the server.
-        /// </summary>
-        public bool RenderOnServer
-        {
-            get { return (bool)GetValue(RenderOnServerProperty); }
-            set { SetValue(RenderOnServerProperty, value); }
-        }
-        public static readonly RedwoodProperty RenderOnServerProperty =
-            RedwoodProperty.Register<bool, Repeater>(t => t.RenderOnServer, false);
-
-
         /// <summary>
         /// Gets or sets the source collection that is used.
         /// </summary>

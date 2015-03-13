@@ -6,22 +6,40 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
 {
     public enum RwHtmlTokenType
     {
+        WhiteSpace,
+        Text,
+
         OpenTag,
         CloseTag,
-        OpenCdata,
-        OpenComment,
-        OpenDoctype,
+        Colon,
         Slash,
         SingleQuote,
         DoubleQuote,
         Equals,
         ExclamationMark,
         QuestionMark,
-        DirectiveStart,
-        Colon,
+        
         OpenBinding,
         CloseBinding,
-        WhiteSpace,
-        Text
+
+        OpenCData,
+        CDataBody,
+        CloseCData,
+
+        OpenComment,
+        CommentBody,
+        CloseComment,
+
+        OpenDoctype,
+        DoctypeBody,
+        CloseDoctype,
+        
+        OpenXmlProcessingInstruction,
+        XmlProcessingInstructionBody,
+        CloseXmlProcessingInstruction,
+        
+        DirectiveStart,
+        DirectiveName,
+        DirectiveValue
     }
 }

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -33,12 +34,20 @@ namespace Redwood.Framework.Runtime.Compilation
             get { return usedControlBuilderTypes; }
         }
 
+        private HashSet<Assembly> usedAssemblies = new HashSet<Assembly>();
+        public HashSet<Assembly> UsedAssemblies
+        {
+            get { return usedAssemblies; }
+        }
+
 
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
         public string EmitCreateObject(Type type, object[] constructorArguments = null)
         {
+            usedAssemblies.Add(type.Assembly);
+
             if (constructorArguments == null)
             {
                 constructorArguments = new object[] { };
@@ -142,6 +151,10 @@ namespace Redwood.Framework.Runtime.Compilation
             {
                 return EmitBooleanLiteral((bool)value);
             }
+            if (value is int)
+            {
+                return EmitIntegerLiteral((int)value);
+            }
 
             var type = value.GetType();
             if (type.IsEnum)
@@ -171,7 +184,7 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.BinaryExpression(
+                    SyntaxFactory.AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         SyntaxFactory.MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
@@ -322,7 +335,7 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.BinaryExpression(
+                    SyntaxFactory.AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         SyntaxFactory.ElementAccessExpression(
                             SyntaxFactory.MemberAccessExpression(
@@ -350,6 +363,11 @@ namespace Redwood.Framework.Runtime.Compilation
             return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
         }
 
+        private LiteralExpressionSyntax EmitIntegerLiteral(int value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
         /// <summary>
         /// Emits the identifier.
         /// </summary>
@@ -365,7 +383,7 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.BinaryExpression(
+                    SyntaxFactory.AssignmentExpression(
                         SyntaxKind.SimpleAssignmentExpression,
                         SyntaxFactory.ElementAccessExpression(
                             SyntaxFactory.MemberAccessExpression(
@@ -406,7 +424,12 @@ namespace Redwood.Framework.Runtime.Compilation
                     SyntaxFactory.ClassDeclaration(className)
                         .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                         .WithBaseList(SyntaxFactory.BaseList(
-                            SyntaxFactory.SeparatedList(new[] { SyntaxFactory.ParseTypeName(typeof(IControlBuilder).FullName) })
+                            SyntaxFactory.SeparatedList(new BaseTypeSyntax[]
+                            {
+                                SyntaxFactory.SimpleBaseType(
+                                    SyntaxFactory.ParseTypeName(typeof(IControlBuilder).FullName)
+                                )
+                            })
                         ))
                         .WithMembers(
                         SyntaxFactory.List<MemberDeclarationSyntax>(

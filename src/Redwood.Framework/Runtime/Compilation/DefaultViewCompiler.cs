@@ -22,17 +22,18 @@ namespace Redwood.Framework.Runtime.Compilation
     {
         private object locker = new object();
 
-        public DefaultViewCompiler(IControlResolver controlResolver, RedwoodConfiguration configuration, CompiledAssemblyCache assemblyCache)
+        public DefaultViewCompiler(RedwoodConfiguration configuration)
         {
-            this.controlResolver = controlResolver;
             this.configuration = configuration;
-            this.assemblyCache = assemblyCache;
+            this.controlResolver = configuration.ServiceLocator.GetService<IControlResolver>();
+            this.assemblyCache = CompiledAssemblyCache.Instance;
         }
 
 
         private readonly CompiledAssemblyCache assemblyCache;
         private readonly IControlResolver controlResolver;
         private readonly RedwoodConfiguration configuration;
+
         private DefaultViewCompilerCodeEmitter emitter;
         private int currentTemplateIndex = 0;
 
@@ -49,9 +50,9 @@ namespace Redwood.Framework.Runtime.Compilation
 
                 // parse the document
                 var tokenizer = new RwHtmlTokenizer();
-                tokenizer.Tokenize(reader, fileName);
-                var parser = new RwHtmlParser(tokenizer.Tokens, fileName);
-                var node = parser.Parse();
+                tokenizer.Tokenize(reader);
+                var parser = new RwHtmlParser();
+                var node = parser.Parse(tokenizer.Tokens);
 
                 // determine wrapper type
                 var wrapperType = ResolveWrapperType(node);
@@ -123,10 +124,10 @@ namespace Redwood.Framework.Runtime.Compilation
                     Assembly.GetExecutingAssembly()
                 }
                 .Concat(configuration.Markup.Assemblies.Select(Assembly.Load)).Distinct()
-                .Select(a => new MetadataFileReference(a.Location));
+                .Select(MetadataReference.CreateFromAssembly);
                 
                 // add dynamic references
-                var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Distinct()
+                var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
                     .Select(a => assemblyCache.GetAssemblyMetadata(a));
 
                 // compile
@@ -146,7 +147,9 @@ namespace Redwood.Framework.Runtime.Compilation
                 }
                 else
                 {
-                    throw new Exception("The compilation failed!"); // TODO: exception handling
+                    throw new Exception("The compilation failed! This is most probably bug in the Redwood framework.\r\n\r\n" 
+                        + string.Join("\r\n", result.Diagnostics) 
+                        + "\r\n\r\n" + compilation.SyntaxTrees[0] + "\r\n\r\n");
                 }
             }
         }
@@ -246,7 +249,10 @@ namespace Redwood.Framework.Runtime.Compilation
                 {
                     continue;
                 }
-                throw new NotSupportedException("Content be inside collection inner property!"); // TODO: exception handling
+                else
+                {
+                    throw new NotSupportedException("Content cannot be inside collection inner property!"); // TODO: exception handling
+                }
             }
         }
 

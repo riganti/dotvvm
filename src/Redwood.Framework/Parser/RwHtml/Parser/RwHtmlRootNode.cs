@@ -16,5 +16,10 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
             Directives = new List<RwHtmlDirectiveNode>();
         }
 
+        public override IEnumerable<RwHtmlNode> EnumerateNodes()
+        {
+            return base.EnumerateNodes().Concat(Directives.SelectMany(d => d.EnumerateNodes()));
+        }
+        
     }
 }

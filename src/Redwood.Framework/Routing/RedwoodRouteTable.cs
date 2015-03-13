@@ -30,15 +30,9 @@ namespace Redwood.Framework.Routing
         /// <summary>
         /// Creates the default presenter factory.
         /// </summary>
-        public IRedwoodPresenter CreateDefaultPresenter()
+        public IRedwoodPresenter GetDefaultPresenter()
         {
-            return new RedwoodPresenter(
-                new DefaultRedwoodViewBuilder(configuration),
-                new DefaultViewModelLoader(),
-                new DefaultViewModelSerializer(new DefaultViewModelProtector(), new Validation.ViewModelValidationProvider()),
-                new DefaultOutputRenderer(),
-                new DefaultCsrfProtector()
-            );
+            return configuration.ServiceLocator.GetService<IRedwoodPresenter>();
         }
 
         /// <summary>
@@ -53,7 +47,7 @@ namespace Redwood.Framework.Routing
         {
             if (presenterFactory == null)
             {
-                presenterFactory = CreateDefaultPresenter;
+                presenterFactory = GetDefaultPresenter;
             }
 
             Add(routeName, new RedwoodRoute(url, virtualPath, defaultValues, presenterFactory));

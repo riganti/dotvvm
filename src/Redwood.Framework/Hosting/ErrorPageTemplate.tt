@@ -4,6 +4,7 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Collections.Generic" #>
 <#@ import namespace="System.Net" #>
+<#@ import namespace="System.Reflection" #>
 
 <!DOCTYPE html>
 <html>
@@ -87,15 +88,16 @@ span.current-line { color: red; }
 		<h3>Stack Trace</h3>
 <#
     this.Write("<pre>");
-    using (var sr = new StringReader(Exception.ToString()))
-    {
-        string line;
-        while ((line = sr.ReadLine()) != null)
-        {
-            this.Write(WebUtility.HtmlEncode(line));
-            this.Write("<br />");
-        }
-    }
+    WriteException(Exception);
+
+	if (Exception is ReflectionTypeLoadException) {
+		var loaderExceptions = ((ReflectionTypeLoadException)Exception).LoaderExceptions;
+		foreach (var ex in loaderExceptions) {
+			this.Write("<br />");
+			WriteException(ex);
+		}
+	}
+
 	this.Write("</pre>");
 #></pre>
 		<p>&nbsp;</p>
@@ -130,6 +132,18 @@ span.current-line { color: red; }
 	public Exception Exception { get; set; }
 
 
+	private void WriteException(Exception ex) 
+	{
+		using (var sr = new StringReader(ex.ToString()))
+		{
+			string line;
+			while ((line = sr.ReadLine()) != null)
+			{
+				this.Write(WebUtility.HtmlEncode(line));
+				this.Write("<br />");
+			}
+		}
+	}
 
 
 	/// <summary>

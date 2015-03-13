@@ -1,13 +1,18 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Configuration;
 using System.Linq;
 using System.Threading;
 using Newtonsoft.Json;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Routing;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ResourceManagement;
+using Redwood.Framework.Runtime;
+using Redwood.Framework.Runtime.Compilation;
 using Redwood.Framework.Runtime.Filters;
+using Redwood.Framework.Security;
 
 namespace Redwood.Framework.Configuration
 {
@@ -60,6 +65,14 @@ namespace Redwood.Framework.Configuration
         public string DefaultCulture { get; set; }
 
         /// <summary>
+        /// Gets an instance of the service locator component.
+        /// </summary>
+        [JsonIgnore]
+        public ServiceLocator ServiceLocator { get; private set; }
+
+
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodConfiguration"/> class.
         /// </summary>
         internal RedwoodConfiguration()
@@ -78,8 +91,23 @@ namespace Redwood.Framework.Configuration
         public static RedwoodConfiguration CreateDefault()
         {
             var configuration = new RedwoodConfiguration();
-            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
 
+            configuration.ServiceLocator = new ServiceLocator();
+            configuration.ServiceLocator.RegisterSingleton<IViewModelProtector>(() => new DefaultViewModelProtector());
+            configuration.ServiceLocator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector());
+            configuration.ServiceLocator.RegisterSingleton<IRedwoodViewBuilder>(() => new DefaultRedwoodViewBuilder(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IViewModelLoader>(() => new DefaultViewModelLoader());
+            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IOutputRenderer>(() => new DefaultOutputRenderer());
+            configuration.ServiceLocator.RegisterSingleton<IRedwoodPresenter>(() => new RedwoodPresenter(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
+            configuration.ServiceLocator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IViewCompiler>(() => new DefaultViewCompiler(configuration));
+            configuration.ServiceLocator.RegisterSingleton<Validation.ViewModelValidationProvider>(() => new Validation.ViewModelValidationProvider());
+
+            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
+            
             configuration.Markup.Controls.AddRange(new[]
             {
                 new RedwoodControlConfiguration() { TagPrefix = "rw", Namespace = "Redwood.Framework.Controls", Assembly = "Redwood.Framework" },
@@ -90,22 +118,25 @@ namespace Redwood.Framework.Configuration
                 new ScriptResource()
                 {
                     Name = Constants.JQueryResourceName,
-                    Url = "/Scripts/jquery-2.1.1.min.js",
                     CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
+                    Url = "Redwood.Framework.Resources.Scripts.jquery-2.1.1.min.js",
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "$"
                 });
             configuration.Resources.Register(
                 new ScriptResource()
                 {
                     Name = Constants.KnockoutJSResourceName,
-                    Url = "/Scripts/knockout-3.2.0.js",
+                    Url = "Redwood.Framework.Resources.Scripts.knockout-3.2.0.js",
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko"
                 });
             configuration.Resources.Register(
                 new ScriptResource()
                 {
                     Name = Constants.KnockoutMapperResourceName,
-                    Url = "/Scripts/knockout.mapper.js",
+                    Url = "Redwood.Framework.Resources.Scripts.knockout.mapper.js",
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko.mapper",
                     Dependencies = new[] { Constants.KnockoutJSResourceName }
                 });
@@ -113,7 +144,8 @@ namespace Redwood.Framework.Configuration
                 new ScriptResource()
                 {
                     Name = Constants.RedwoodResourceName,
-                    Url = "/Scripts/Redwood.js",
+                    Url = "Redwood.Framework.Resources.Scripts.Redwood.js",
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "redwood",
                     Dependencies = new[] { Constants.KnockoutJSResourceName, Constants.KnockoutMapperResourceName }
                 });
@@ -121,7 +153,8 @@ namespace Redwood.Framework.Configuration
                 new ScriptResource()
                 {
                     Name = Constants.RedwoodValidationResourceName,
-                    Url = "/Scripts/Redwood.Validation.js",
+                    Url = "Redwood.Framework.Resources.Scripts.Redwood.Validation.js",
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "redwood.validation",
                     Dependencies = new[] { Constants.RedwoodResourceName }
                 });
@@ -138,13 +171,14 @@ namespace Redwood.Framework.Configuration
                 new StylesheetResource()
                 {
                     Name = Constants.BootstrapCssResourceName,
-                    Url = "/Content/bootstrap/bootstrap.min.css"
+                    Url = "/Content/bootstrap.min.css"
                 });
 
             RegisterGlobalizeResources(configuration);
 
             return configuration;
         }
+
 
         private static void RegisterGlobalizeResources(RedwoodConfiguration configuration)
         {

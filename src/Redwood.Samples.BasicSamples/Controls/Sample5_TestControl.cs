@@ -30,7 +30,7 @@ namespace Redwood.Samples.BasicSamples.Controls
             RedwoodProperty.RegisterControlStateProperty<int, Sample5_TestControl>(c => c.Value, 0);
 
 
-        public override bool RequiresControlState
+        protected override bool RequiresControlState
         {
             get { return true; }
         }

@@ -27,11 +27,8 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         public DefaultRedwoodViewBuilder(RedwoodConfiguration configuration)
         {
-            MarkupFileLoader = new DefaultMarkupFileLoader();
-
-            var controlBuilderFactory = new DefaultControlBuilderFactory();
-            controlBuilderFactory.ViewCompilerFactory = () => new DefaultViewCompiler(new DefaultControlResolver(configuration, MarkupFileLoader, controlBuilderFactory), configuration, CompiledAssemblyCache.Instance);
-            ControlBuilderFactory = controlBuilderFactory;
+            MarkupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
+            ControlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
         }
 
         /// <summary>

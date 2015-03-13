@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Redwood.Framework.Parser;
 
@@ -7,22 +8,38 @@ namespace Redwood.Framework.Hosting
 {
     public class MarkupFile
     {
+        protected bool Equals(MarkupFile other)
+        {
+            return string.Equals(FullPath, other.FullPath, StringComparison.CurrentCultureIgnoreCase) && LastWriteDateTimeUtc.Equals(other.LastWriteDateTimeUtc);
+        }
+
+        public override int GetHashCode()
+        {
+            unchecked
+            {
+                return ((FullPath != null ? FullPath.ToLower().GetHashCode() : 0) * 397) ^ LastWriteDateTimeUtc.GetHashCode();
+            }
+        }
 
         public const string ViewFileExtension = ".rwhtml";
 
 
 
-        public Func<IReader> ContentsReaderFactory { get; set; }
+        public Func<IReader> ContentsReaderFactory { get; private set; }
 
-        public string FileName { get; set; }
+        public string FileName { get; private set; }
 
-        public string FullPath { get; set; }
+        public string FullPath { get; private set; }
+
+        public DateTime LastWriteDateTimeUtc { get; private set; }
 
 
-
-        public override int GetHashCode()
+        public MarkupFile(string fileName, string fullPath)
         {
-            return FileName != null ? StringComparer.CurrentCultureIgnoreCase.GetHashCode(FileName).GetHashCode() : 0;
+            FileName = fileName;
+            FullPath = fullPath;
+            LastWriteDateTimeUtc = File.GetLastWriteTimeUtc(fullPath);
+            ContentsReaderFactory = () => new FileReader(fullPath);
         }
 
         public override bool Equals(object obj)
@@ -40,11 +57,6 @@ namespace Redwood.Framework.Hosting
                 return false;
             }
             return Equals((MarkupFile)obj);
-        }
-
-        protected bool Equals(MarkupFile other)
-        {
-            return string.Equals(FileName, other.FileName, StringComparison.CurrentCultureIgnoreCase);
         }
     }
 }

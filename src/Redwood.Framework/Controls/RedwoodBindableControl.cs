@@ -34,7 +34,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets a collection of all data-bindings set on this control.
         /// </summary>
-        public IReadOnlyDictionary<RedwoodProperty, BindingExpression> DataBindings
+        protected internal IReadOnlyDictionary<RedwoodProperty, BindingExpression> DataBindings
         {
             get { return dataBindings; }
         }
@@ -58,9 +58,17 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets a value indication whether the control requires the control state.
         /// </summary>
-        public virtual bool RequiresControlState
+        protected internal virtual bool RequiresControlState
         {
             get { return false; }
+        }
+
+        /// <summary>
+        /// Gets or sets whether this control should be rendered on the server.
+        /// </summary>
+        protected internal virtual bool RenderOnServer
+        {
+            get { return (RenderMode)GetValue(RenderSettings.ModeProperty) == RenderMode.Server; }
         }
 
         /// <summary>
