@@ -42,7 +42,7 @@ namespace Redwood.Framework.Validation
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        public IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel, IEnumerable<string> groups)
+        public IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel, IEnumerable<string> groups = null)
         {
             var c = new RedwoodValidationContext(viewModel, groups)
             {

@@ -16,18 +16,15 @@ namespace Redwood.Framework.Binding
         public bool AllowMethods { get; set; }
 
 
-        
+
         /// <summary>
         /// Evaluates the specified expression in the context of specified control.
         /// </summary>
         public object Evaluate(ValueBindingExpression expression, RedwoodProperty property, RedwoodBindableControl contextControl)
         {
             var visitor = EvaluateDataContextPath(contextControl);
-            if (property != RedwoodBindableControl.DataContextProperty)
-            {
-                // evaluate the final expression
-                EvaluateBinding(visitor, expression.Expression, expression.GetViewModelPathExpression(contextControl, property));
-            }
+            // evaluate the final expression
+            EvaluateBinding(visitor, expression.Expression, expression.GetViewModelPathExpression(contextControl, property));
             return visitor.Result;
         }
 

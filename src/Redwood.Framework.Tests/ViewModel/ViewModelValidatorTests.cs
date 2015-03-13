@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Redwood.Framework.ViewModel;
+using Redwood.Framework.Validation;
 
 namespace Redwood.Framework.Tests.ViewModel
 {

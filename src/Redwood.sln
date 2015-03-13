@@ -40,6 +40,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2015Extension.Red
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2015Extension.RedwoodViewModelTemplate", "Redwood.VS2015Extension.RedwoodViewModelTemplate\Redwood.VS2015Extension.RedwoodViewModelTemplate.csproj", "{2C479119-B1E8-4C50-86F5-692108A55171}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2015Extension.Tests", "Redwood.VS2015Extension.Tests\Redwood.VS2015Extension.Tests.csproj", "{1E5ECFE5-9E46-427C-87C5-A4359123655F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -86,6 +88,10 @@ Global
 		{2C479119-B1E8-4C50-86F5-692108A55171}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C479119-B1E8-4C50-86F5-692108A55171}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C479119-B1E8-4C50-86F5-692108A55171}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1E5ECFE5-9E46-427C-87C5-A4359123655F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1E5ECFE5-9E46-427C-87C5-A4359123655F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1E5ECFE5-9E46-427C-87C5-A4359123655F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1E5ECFE5-9E46-427C-87C5-A4359123655F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -101,5 +107,6 @@ Global
 		{A83D996D-C920-46EE-8D87-0B250CEA9653} = {2899FD45-2A63-4CAF-A351-27389FE3E47A}
 		{0FBAE5E3-467B-4194-B766-67414E6C9F06} = {2899FD45-2A63-4CAF-A351-27389FE3E47A}
 		{2C479119-B1E8-4C50-86F5-692108A55171} = {2899FD45-2A63-4CAF-A351-27389FE3E47A}
+		{1E5ECFE5-9E46-427C-87C5-A4359123655F} = {B760209E-57D7-4AEF-A726-69F73BBE52C0}
 	EndGlobalSection
 EndGlobal

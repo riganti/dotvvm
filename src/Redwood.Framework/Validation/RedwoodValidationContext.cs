@@ -75,7 +75,7 @@ namespace Redwood.Framework.Validation
         public bool MatchGroups(string groups)
         {
             if (groups == null) return this.Groups.Contains("*");
-            return groups.Split(',').Any(g => this.Groups.Contains(g.Trim()));
+            return groups.Split(',').Any(g => g == "**" || this.Groups.Contains(g.Trim()));
         }
 
 
