@@ -14,7 +14,7 @@ namespace Redwood.Framework.Runtime
     /// </summary>
     public class DefaultControlBuilderFactory : IControlBuilderFactory
     {
-        public Lazy<IViewCompiler> ViewCompiler { get; private set; }
+        public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
 
 
         private ConcurrentDictionary<MarkupFile, IControlBuilder> controlBuilders = new ConcurrentDictionary<MarkupFile, IControlBuilder>();
@@ -22,7 +22,7 @@ namespace Redwood.Framework.Runtime
 
         public DefaultControlBuilderFactory(RedwoodConfiguration configuration)
         {
-            ViewCompiler = new Lazy<IViewCompiler>(() => configuration.ServiceLocator.GetService<IViewCompiler>());
+            ViewCompilerFactory = () => configuration.ServiceLocator.GetService<IViewCompiler>();
         }
 
 
@@ -43,7 +43,7 @@ namespace Redwood.Framework.Runtime
             var assemblyName = namespaceName;
             var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
             
-            return ViewCompiler.Value.CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+            return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
         }
 
         /// <summary>
