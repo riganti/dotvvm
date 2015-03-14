@@ -62,12 +62,8 @@ var RedwoodPropertyValidator = (function (_super) {
     }
     RedwoodPropertyValidator.prototype.isValid = function (context) {
         var val = context.valueToValidate;
-        if (val == null)
-            return true;
-        var type = val["$type"];
-        if (type == null)
-            return true;
-        return this.validation.validateTypedObject(val, type, context.viewModelName, context.path, context.constraints);
+        var type = context.parameters[0];
+        return val == null || this.validation.validateTypedObject(val, type, context.viewModelName, context.path, context.constraints);
     };
     return RedwoodPropertyValidator;
 })(RedwoodValidatorBase);
@@ -82,9 +78,7 @@ var RedwoodCollectionValidator = (function (_super) {
         var _this = this;
         var col = context.valueToValidate;
         var type = context.parameters[0];
-        if (type == null || col == null)
-            return true;
-        return col.every(function (item, index) { return _this.validation.validateTypedObject(item, type, context.viewModelName, context.path.concat(["[" + index + "]"]), context.constraints); });
+        return !col || col.every(function (item, index) { return _this.validation.validateTypedObject(item, type, context.viewModelName, context.path.concat(["[" + index + "]"]), context.constraints); });
     };
     return RedwoodCollectionValidator;
 })(RedwoodValidatorBase);

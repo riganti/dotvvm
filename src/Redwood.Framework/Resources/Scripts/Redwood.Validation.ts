@@ -34,10 +34,8 @@ class RedwoodPropertyValidator extends RedwoodValidatorBase {
     constructor(public validation: RedwoodValidation) { super(); this.handlesConstraints = true; }
     isValid(context: RedwoodValidationContext) {
         var val = context.valueToValidate;
-        if (val == null) return true;
-        var type = val["$type"];
-        if (type == null) return true;
-        return this.validation.validateTypedObject(val, type, context.viewModelName, context.path, context.constraints);
+        var type = context.parameters[0];
+        return val == null || this.validation.validateTypedObject(val, type, context.viewModelName, context.path, context.constraints);
     }
 }
 class RedwoodCollectionValidator extends RedwoodValidatorBase {
@@ -45,8 +43,7 @@ class RedwoodCollectionValidator extends RedwoodValidatorBase {
     isValid(context: RedwoodValidationContext) {
         var col = <Array<any>>context.valueToValidate;
         var type = context.parameters[0];
-        if (type == null || col == null) return true;
-        return col.every((item, index) => this.validation.validateTypedObject(item, type, context.viewModelName, context.path.concat(["[" + index + "]"]), context.constraints));
+        return !col || col.every((item, index) => this.validation.validateTypedObject(item, type, context.viewModelName, context.path.concat(["[" + index + "]"]), context.constraints));
     }
 }
 

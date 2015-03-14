@@ -94,11 +94,26 @@ namespace Redwood.Framework.Runtime
             }
             result["rootRules"] = JToken.FromObject(rules);
             var typeRules = result["types"] = new JObject();
-            foreach (var map in viewModelConverter.UsedSerializationMaps)
+            var trDictionary = new Dictionary<string, IEnumerable<ValidationRule>>();
+            FindTyperulesToInclude(rules, viewModel, trDictionary);
+            foreach (var tr in trDictionary)
             {
-                typeRules[map.Type.ToString()] = JArray.FromObject(this.validationProvider.GetRulesForType(map.Type, viewModel));
+                typeRules[tr.Key] = JArray.FromObject(tr.Value);
             }
             return result;
+        }
+
+        private void FindTyperulesToInclude(IEnumerable<ValidationRule> rootRules, object rootVm, IDictionary<string, IEnumerable<ValidationRule>> typeRules)
+        {
+            foreach (var name in rootRules.Where(r => r.RuleName == "validate" || r.RuleName == "collection").Select(r => (string)r.Parameters[0]))
+            {
+                if (!typeRules.ContainsKey(name))
+                {
+                    var rules = this.validationProvider.GetRulesForType(TypeValidationProvider.ResolveAlias(name), rootVm).ToArray();
+                    typeRules.Add(name, rules);
+                    FindTyperulesToInclude(rules, rootVm, typeRules);
+                }
+            }
         }
 
         /// <summary>

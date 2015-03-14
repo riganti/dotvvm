@@ -1,6 +1,7 @@
 ﻿using Redwood.Framework.ViewModel;
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -30,7 +31,7 @@ namespace Redwood.Framework.Validation
                 yield return new ValidationRule
                 {
                     RuleName = "collection",
-                    Parameters = new object[] { property.PropertyType.GenericTypeArguments[0].ToString() },
+                    Parameters = new object[] { GetUniqueTypeAlias(property.PropertyType.GenericTypeArguments[0]) },
                     ValidationFunc = ValidateCollection,
                     Groups = "**"
                 };
@@ -40,15 +41,43 @@ namespace Redwood.Framework.Validation
                 yield return new ValidationRule
                 {
                     RuleName = "validate",
-                    Parameters = new object[] { },
+                    Parameters = new object[] { GetUniqueTypeAlias(property.PropertyType) },
                     ValidationFunc = context => context.Validator.ValidateViewModel(context),
                     Groups = "**"
                 };
-
             }
         }
 
-        public bool ValidateCollection(RedwoodValidationContext context)
+        public readonly static ConcurrentDictionary<Type, string> Aliases = new ConcurrentDictionary<Type, string>();
+        private readonly static Dictionary<string, Type> UsedAliases = new Dictionary<string, Type>();
+        private readonly static object AliasCreationLock = new object();
+        private static string GenerateNewAlias(Type t)
+        {
+            lock(AliasCreationLock)
+            {
+                if (!UsedAliases.ContainsKey(t.Name))
+                {
+                    UsedAliases.Add(t.Name, t);
+                    return t.Name;
+                }
+                if (!UsedAliases.ContainsKey(t.FullName))
+                {
+                    UsedAliases.Add(t.FullName, t);
+                    return t.FullName;
+                }
+                int i = 0;
+                while (!UsedAliases.ContainsKey(t.FullName + "_" + i))
+                    i++;
+                UsedAliases.Add(t.FullName + "_" + i, t);
+                return t.FullName + "_" + i;
+            }
+        }
+        public static string GetUniqueTypeAlias(Type t)
+        {
+            return Aliases.GetOrAdd(t, GenerateNewAlias);
+        }
+
+        public static bool ValidateCollection(RedwoodValidationContext context)
         {
             var c = context.Value as IEnumerable;
             if (c == null)
@@ -62,6 +91,11 @@ namespace Redwood.Framework.Validation
                 i++;
             }
             return false;
+        }
+
+        public static Type ResolveAlias(string name)
+        {
+            return UsedAliases[name];
         }
     }
 }
