@@ -137,7 +137,7 @@ namespace Redwood.Framework.Runtime.Compilation
                     emitter.BuildTree(namespaceName, className), 
                     Enumerable.Concat(staticReferences, dynamicReferences),
                     options);
-                
+
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {

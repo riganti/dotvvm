@@ -42,6 +42,13 @@ namespace Redwood.Framework.Hosting
             ContentsReaderFactory = () => new FileReader(fullPath);
         }
 
+        internal MarkupFile(string fileName, string fullPath, string contents)
+        {
+            FileName = fileName;
+            FullPath = fullPath;
+            ContentsReaderFactory = () => new Parser.StringReader(contents);
+        }
+
         public override bool Equals(object obj)
         {
             if (ReferenceEquals(null, obj))
