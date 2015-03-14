@@ -55,7 +55,9 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         private void InvokeStaticConstructorsOnAllControls()
         {
-            var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(t => t.IsClass).ToList();
+            var rwAssemblyName = typeof(ContainsRedwoodPropertiesAttribute).Assembly.FullName;
+            var allTypes = AppDomain.CurrentDomain.GetAssemblies().Where(a => a.FullName == rwAssemblyName || a.GetReferencedAssemblies().Any(ra => ra.FullName == rwAssemblyName))
+                .SelectMany(a => a.GetTypes()).Where(t => t.IsClass).ToList();
             foreach (var type in allTypes)
             {
                 if (type.GetCustomAttribute<ContainsRedwoodPropertiesAttribute>(true) != null)

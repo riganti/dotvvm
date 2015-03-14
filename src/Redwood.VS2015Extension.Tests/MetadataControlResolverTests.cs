@@ -10,7 +10,7 @@ using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
 using Microsoft.CodeAnalysis.Text;
 
-namespace Redwood.Framework.Tests.VS2015Extension
+namespace Redwood.VS2015Extension.Tests
 {
     [TestClass]
     public class MetadataControlResolverTests

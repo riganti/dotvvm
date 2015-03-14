@@ -19,8 +19,19 @@ class Redwood {
         error: new RedwoodEvent<RedwoodErrorEventArgs>("redwood.events.error")
     };
 
+    public includeParentNameProps(viewModel: any, parentProp: string = null) {
+        viewModel.$parentProp = parentProp;
+        for (var p in viewModel) {
+            if (typeof viewModel[p] === "object" && viewModel[p] != null && p.charAt(0) != "$") {
+                if (viewModel[p] instanceof Array) viewModel[p].forEach(v => this.includeParentNameProps(v, p))
+                else this.includeParentNameProps(viewModel[p], p);
+            }
+        }
+    }
+
     public init(viewModelName: string, culture: string): void {
         this.culture = culture;
+        this.includeParentNameProps(this.viewModels[viewModelName].viewModel);
         this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
 
         var viewModel = this.viewModels[viewModelName].viewModel;
@@ -63,7 +74,7 @@ class Redwood {
                         updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
                     }
                 }
-
+                this.includeParentNameProps(resultObject.viewModel);
                 // update the viewmodel
                 ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
                 isSuccess = true;
@@ -114,13 +125,14 @@ class Redwood {
     public getPath(sender: HTMLElement): string[] {
         var context = ko.contextFor(sender);
         var arr = new Array<string>(context.$parents.length);
-        for (var i = 0; i < arr.length; i++) {
+        while(context.$parent) {
+            if (!context.$data.$parentProp) throw "invalid viewModel for path creating";
             if (context.$index && typeof context.$index === "function")
-                arr[i] = `[${ context.$index() }]`;
-            else throw "not implemented"; // TODO: getPath implementstion
+                arr.push("[" + context.$index() + "]");
+            arr.push(ko.utils.unwrapObservable<string>(context.$data.$parentProp));
             context = context.$parentContext;
         }
-        return arr;
+        return arr.reverse();
     }
     public spitPath(path: string): string[] {
         var indexPos = path.indexOf('[');

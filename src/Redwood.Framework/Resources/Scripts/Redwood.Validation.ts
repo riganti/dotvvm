@@ -3,7 +3,7 @@
 /// <reference path="Redwood.ts" />
 
 class RedwoodValidationContext {
-    constructor(public valueToValidate: any, public parentViewModel: any, public parameters: any[], public viewModelName: string, public path: string, public constraints: ValidationConstraints) {
+    constructor(public valueToValidate: any, public parentViewModel: any, public parameters: any[], public viewModelName: string, public path: string[], public constraints: ValidationConstraints) {
     }
 }
 
@@ -46,7 +46,7 @@ class RedwoodCollectionValidator extends RedwoodValidatorBase {
         var col = <Array<any>>context.valueToValidate;
         var type = context.parameters[0];
         if (type == null || col == null) return true;
-        return col.every(i => this.validation.validateTypedObject(i, type, context.viewModelName, context.path, context.constraints));
+        return col.every((item, index) => this.validation.validateTypedObject(item, type, context.viewModelName, context.path.concat(["[" + index + "]"]), context.constraints));
     }
 }
 
@@ -147,11 +147,11 @@ class RedwoodValidation {
             var viewModelProperty = viewModel[rule.propertyName];
             if (!viewModelProperty || !ko.isObservable(viewModelProperty)) return;
 
-            this.validateProperty(viewModel, viewModelProperty, rule, viewModelName, path + "." + rule.propertyName, constraints);
+            this.validateProperty(viewModel, viewModelProperty, rule, viewModelName, path.concat(rule.propertyName), constraints);
         });
     }
 
-    public validateTypedObject(obj: any, type: string, viewModelName: string, path, constraints: ValidationConstraints): boolean {
+    public validateTypedObject(obj: any, type: string, viewModelName: string, path: string[], constraints: ValidationConstraints): boolean {
         if (!obj) return;
         if (!type) return;
         var ecount = this.errors.length;
@@ -160,6 +160,7 @@ class RedwoodValidation {
 
         // validate all properties
         rulesForType.forEach(rule => {
+            if (!constraints.shouldValidate(rule, path)) return;
             var value;
             if (rule.propertyName) {
                 if (!obj.hasOwnProperty(rule.propertyName)) return;
@@ -167,7 +168,7 @@ class RedwoodValidation {
             }
             else value = obj;
 
-            this.validateProperty(obj, value, rule, viewModelName, path + "." + rule.propertyName, constraints);
+            this.validateProperty(obj, value, rule, viewModelName, path.concat([rule.propertyName]), constraints);
         });
         return ecount == this.errors.length;
     }
@@ -175,7 +176,7 @@ class RedwoodValidation {
     /**
     * Validates the specified property in the viewModel
     */
-    public validateProperty(viewModel: any, property: any, rule: ValidationRule, viewModelName: string, path: string, constraints: ValidationConstraints) {
+    public validateProperty(viewModel: any, property: any, rule: ValidationRule, viewModelName: string, path: string[], constraints: ValidationConstraints) {
         var ruleTemplate = this.rules[rule.ruleName];
         var context = new RedwoodValidationContext(ko.isObservable(property) ? property() : property, viewModel, rule.parameters, viewModelName, path, constraints);
 
@@ -285,8 +286,6 @@ class ValidationConstraints {
         var s = groupString.split(",");
         return s.some(g => this.activeGroups[g]);
     }
-
-
 }
 
 // init the plugin
