@@ -59,7 +59,7 @@ namespace Redwood.Framework.Controls
         {
             // label
             var textBinding = GetBinding(TextProperty);
-            var labelRequired = textBinding != null || !string.IsNullOrEmpty(Text);
+            var labelRequired = textBinding != null || !string.IsNullOrEmpty(Text) || !HasOnlyWhiteSpaceContent();
             if (labelRequired)
             {
                 writer.RenderBeginTag("label");
@@ -80,6 +80,10 @@ namespace Redwood.Framework.Controls
                 else if (!string.IsNullOrEmpty(Text))
                 {
                     writer.WriteText(Text);
+                }
+                else if (!HasOnlyWhiteSpaceContent())
+                {
+                    RenderChildren(writer, context);
                 }
 
                 writer.RenderEndTag();

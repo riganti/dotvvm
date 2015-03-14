@@ -96,6 +96,7 @@
     <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
     <Compile Include="Controls\ContainsRedwoodPropertiesAttribute.cs" />
     <Compile Include="Controls\Decorator.cs" />
+    <Compile Include="Controls\EventsDecorator.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\MultiHtmlWriter.cs" />

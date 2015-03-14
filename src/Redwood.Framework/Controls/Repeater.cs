@@ -74,14 +74,17 @@ namespace Redwood.Framework.Controls
             var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
 
             var index = 0;
-            foreach (var item in DataSource)
+            if (DataSource != null)
             {
-                var placeholder = new DataItemContainer { DataItemIndex = index };
-                placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
-                Children.Add(placeholder);
-                ItemTemplate.BuildContent(placeholder);
+                foreach (var item in DataSource)
+                {
+                    var placeholder = new DataItemContainer { DataItemIndex = index };
+                    placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
+                    Children.Add(placeholder);
+                    ItemTemplate.BuildContent(placeholder);
 
-                index++;
+                    index++;
+                }
             }
         }
 
