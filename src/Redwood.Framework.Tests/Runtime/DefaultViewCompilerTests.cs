@@ -157,10 +157,10 @@ namespace Redwood.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControlWithBaseType()
         {
-            var markup = @"<cc:Test1 />";
+            var markup = @"<cc:Test2 />";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test1.rwhtml", string.Format("@baseType {0}, {1}\r\n<rw:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).Assembly.GetName().Name) }
+                { "test2.rwhtml", string.Format("@baseType {0}, {1}\r\n<rw:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).Assembly.GetName().Name) }
             });
 
             Assert.IsInstanceOfType(page, typeof(RedwoodView));
@@ -176,12 +176,12 @@ namespace Redwood.Framework.Tests.Runtime
         {
             var markup = @"<rw:Repeater>
     <ItemTemplate>
-        <cc:Test1 />
+        <cc:Test3 />
     </ItemTemplate>
 </rw:Repeater>";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test1.rwhtml", "<rw:Literal Text='aaa' />" }
+                { "test3.rwhtml", "<rw:Literal Text='aaa' />" }
             });
 
             Assert.IsInstanceOfType(page, typeof(RedwoodView));
@@ -210,12 +210,12 @@ namespace Redwood.Framework.Tests.Runtime
         {
             var markup = @"<rw:Repeater>
     <ItemTemplate>
-        <cc:Test1 />
+        <cc:Test4 />
     </ItemTemplate>
 </rw:Repeater>";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test1.rwhtml", "<rw:Literal Text='aaa' />" }
+                { "test4.rwhtml", "<rw:Literal Text='aaa' />" }
             }, compileTwice: true);
 
             Assert.IsInstanceOfType(page, typeof(RedwoodView));
@@ -244,12 +244,10 @@ namespace Redwood.Framework.Tests.Runtime
         private static RedwoodControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false)
         {
             var redwoodConfiguration = RedwoodConfiguration.CreateDefault();
-            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration()
-            {
-                TagPrefix = "cc",
-                TagName = "Test1",
-                Src = "test1.rwhtml"
-            });
+            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.rwhtml" });
+            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.rwhtml" });
+            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.rwhtml" });
+            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.rwhtml" });
             redwoodConfiguration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new FakeMarkupFileLoader(markupFiles));
             redwoodConfiguration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
             var compiler = redwoodConfiguration.ServiceLocator.GetService<IViewCompiler>();
