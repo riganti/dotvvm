@@ -20,6 +20,12 @@ namespace Redwood.Framework.Controls
         private Stack<string> openTags = new Stack<string>();
 
 
+        private static readonly Dictionary<string, string> separators = new Dictionary<string, string>()
+        {
+            { "class", " " },
+            { "style", ";" }
+        };
+
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlWriter"/> class.
         /// </summary>
@@ -38,7 +44,7 @@ namespace Redwood.Framework.Controls
         ///     If set to true, the value will be appended to the current attribute value and the <paramref name="appendSeparator"/> will be added when needed.
         /// </param>
         /// <param name="appendSeparator">The separator that will be used when <paramref name="append"/> is true and when the attribute already has a value.</param>
-        public void AddAttribute(string name, string value, bool append = false, string appendSeparator = ";")
+        public void AddAttribute(string name, string value, bool append = false, string appendSeparator = null)
         {
             if (append)
             {
@@ -47,6 +53,11 @@ namespace Redwood.Framework.Controls
                     var currentValue = attributes[name] as string;
                     if (!string.IsNullOrWhiteSpace(currentValue))
                     {
+                        if (appendSeparator == null && !separators.TryGetValue(name, out appendSeparator))
+                        {
+                            appendSeparator = ";";
+                        }
+
                         // append the value with the separator
                         attributes[name] = currentValue + appendSeparator + value;
                         return;

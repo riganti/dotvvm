@@ -16,7 +16,7 @@ namespace Redwood.Framework.Controls
         ///     If set to true, the value will be appended to the current attribute value and the <paramref name="appendSeparator"/> will be added when needed.
         /// </param>
         /// <param name="appendSeparator">The separator that will be used when <paramref name="append"/> is true and when the attribute already has a value.</param>
-        void AddAttribute(string name, string value, bool append = false, string appendSeparator = ";");
+        void AddAttribute(string name, string value, bool append = false, string appendSeparator = null);
 
         /// <summary>
         /// Adds the style attribute.

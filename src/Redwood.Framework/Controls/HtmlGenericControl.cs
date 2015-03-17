@@ -76,7 +76,7 @@ namespace Redwood.Framework.Controls
             // render hard-coded HTML attributes
             foreach (var attribute in Attributes.Where(a => a.Value is string))
             {
-                writer.AddAttribute(attribute.Key, attribute.Value.ToString());
+                writer.AddAttribute(attribute.Key, attribute.Value.ToString(), true);
             }
 
             // render binding HTML attributes
