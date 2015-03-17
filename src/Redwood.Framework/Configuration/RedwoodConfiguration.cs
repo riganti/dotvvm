@@ -193,7 +193,7 @@ namespace Redwood.Framework.Configuration
                 configuration.Resources.Register(new ScriptResource()
                 {
                     Name = string.Format(Constants.GlobalizeCultureResourceName, culture),
-                    Url = "Redwood.Framework.Resources.Scripts.Globalize.cultures.{0}.globalize.js",
+                    Url = string.Format("Redwood.Framework.Resources.Scripts.Globalize.cultures.{0}.globalize.js", culture),
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     Dependencies = new[] { Constants.GlobalizeResourceName }
                 });    

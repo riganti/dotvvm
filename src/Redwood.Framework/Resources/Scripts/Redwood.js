@@ -1,5 +1,6 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
+/// <reference path="typings/globalize/globalize.d.ts" />
 var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -89,6 +90,20 @@ var Redwood = (function () {
                 alert(xhr.responseText);
             }
         });
+    };
+    Redwood.prototype.formatString = function (format, value) {
+        if (format == "g") {
+            return redwood.formatString("d", value) + " " + redwood.formatString("t", value);
+        }
+        else if (format == "G") {
+            return redwood.formatString("d", value) + " " + redwood.formatString("T", value);
+        }
+        value = ko.unwrap(value);
+        if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?$")) {
+            // JSON date in string
+            value = new Date(value);
+        }
+        return Globalize.format(value, format, redwood.culture);
     };
     Redwood.prototype.updateDynamicPathFragments = function (sender, path) {
         var context = ko.contextFor(sender);

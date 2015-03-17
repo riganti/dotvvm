@@ -14,6 +14,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets or sets the command that will be triggered when the button is pressed.
         /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
         public Action Click
         {
             get { return (Action)GetValue(ClickProperty); }
