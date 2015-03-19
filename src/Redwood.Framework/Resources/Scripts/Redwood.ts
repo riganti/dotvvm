@@ -110,6 +110,11 @@ class Redwood {
         return Globalize.format(value, format, redwood.culture);
     }
 
+    public getDataSourceItems(viewModel: any) {
+        var value = ko.unwrap(viewModel);
+        return value.Items || value;
+    }
+
     private updateDynamicPathFragments(sender: HTMLElement, path: string[]): void {
         var context = ko.contextFor(sender);
 

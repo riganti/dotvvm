@@ -310,7 +310,7 @@ namespace Redwood.Framework.Controls
         /// </summary>
         internal IEnumerable<KeyValuePair<RedwoodProperty, BindingExpression>> GetAllBindings()
         {
-            return properties.Where(p => p.Value is BindingExpression)
+            return Properties.Where(p => p.Value is BindingExpression)
                 .Select(p => new KeyValuePair<RedwoodProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));
         }
     }

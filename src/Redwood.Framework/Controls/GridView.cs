@@ -40,6 +40,8 @@ namespace Redwood.Framework.Controls
 
 
 
+        private bool dataSourceIsDataSet;
+
         protected internal override void OnLoad(RedwoodRequestContext context)
         {
             DataBind();
@@ -61,10 +63,11 @@ namespace Redwood.Framework.Controls
             var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
 
             var index = 0;
-            if (DataSource != null)
+            var dataSource = DataSource;
+            if (dataSource != null)
             {
                 // create header row
-                var headerRow = new HtmlGenericControl("th");
+                var headerRow = new HtmlGenericControl("tr");
                 Children.Add(headerRow);
                 foreach (var column in Columns)
                 {
@@ -74,8 +77,8 @@ namespace Redwood.Framework.Controls
 
                     column.CreateHeaderControls(cell);
                 }
-
-                foreach (var item in DataSource)
+                
+                foreach (var item in GetIEnumerableFromDataSource(dataSource))
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
@@ -123,17 +126,7 @@ namespace Redwood.Framework.Controls
                 column.CreateControls(cell);
             }
         }
-
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
-        {
-            if (!RenderOnServer)
-            {
-                writer.AddKnockoutDataBind("foreach", this, DataSourceProperty, () => { });
-            }
-
-            base.AddAttributesToRender(writer, context);
-        }
-
+        
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             if (Children.Count == 0) return;
@@ -141,8 +134,16 @@ namespace Redwood.Framework.Controls
             // render the header
             Children[0].Render(writer, context);
 
-            // render contents
+            // render body
             var dataSourceBinding = GetDataSourceBinding();
+            if (!RenderOnServer)
+            {
+                var expression = dataSourceBinding.TranslateToClientScript(this, DataSourceProperty);
+                writer.AddKnockoutForeachDataBind(expression);
+            }
+            writer.RenderBeginTag("tbody");
+
+            // render contents
             if (RenderOnServer)
             {
                 // render on server
@@ -167,7 +168,8 @@ namespace Redwood.Framework.Controls
                 placeholder.Render(writer, context);
                 context.PathFragments.Pop();
             }
-        }
 
+            writer.RenderEndTag();
+        }
     }
 }

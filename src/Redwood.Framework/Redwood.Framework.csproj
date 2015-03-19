@@ -97,6 +97,7 @@
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
     <Compile Include="Controls\ContainsRedwoodPropertiesAttribute.cs" />
+    <Compile Include="Controls\DataPager.cs" />
     <Compile Include="Controls\Decorator.cs" />
     <Compile Include="Controls\EventsDecorator.cs" />
     <Compile Include="Controls\GridView.cs" />
@@ -104,6 +105,8 @@
     <Compile Include="Controls\GridViewTemplateColumn.cs" />
     <Compile Include="Controls\GridViewTextColumn.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
+    <Compile Include="Controls\GridViewDataSet.cs" />
+    <Compile Include="Controls\IGridViewDataSet.cs" />
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\MultiHtmlWriter.cs" />
     <Compile Include="Controls\RenderMode.cs" />

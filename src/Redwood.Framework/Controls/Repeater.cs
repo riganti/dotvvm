@@ -74,9 +74,10 @@ namespace Redwood.Framework.Controls
             var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
 
             var index = 0;
-            if (DataSource != null)
+            var dataSource = DataSource;
+            if (dataSource != null)
             {
-                foreach (var item in DataSource)
+                foreach (var item in GetIEnumerableFromDataSource(dataSource))
                 {
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
@@ -98,7 +99,7 @@ namespace Redwood.Framework.Controls
 
             if (!RenderOnServer)
             {
-                writer.AddKnockoutDataBind("foreach", this, DataSourceProperty, () => { });
+                writer.AddKnockoutForeachDataBind(GetDataSourceBinding().TranslateToClientScript(this, DataSourceProperty));
             }
 
             base.AddAttributesToRender(writer, context);

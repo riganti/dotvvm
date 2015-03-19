@@ -105,6 +105,10 @@ var Redwood = (function () {
         }
         return Globalize.format(value, format, redwood.culture);
     };
+    Redwood.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        return value.Items || value;
+    };
     Redwood.prototype.updateDynamicPathFragments = function (sender, path) {
         var context = ko.contextFor(sender);
         for (var i = path.length - 1; i >= 0; i--) {

@@ -97,7 +97,15 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public override object VisitElementAccessExpression(ElementAccessExpressionSyntax node)
         {
-            var array = Visit(node.Expression) as IList;
+            var value = Visit(node.Expression);
+
+            var array = value as IList;
+            if (array == null && value is IGridViewDataSet)
+            {
+                // GridViewDataSet has special handling - the .Items in the command path is optional
+                array = ((IGridViewDataSet)value).Items;
+            }
+
             if (array == null) return null;
 
             if (node.ArgumentList.Arguments.Count == 1)
