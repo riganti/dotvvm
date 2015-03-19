@@ -152,7 +152,7 @@ namespace Redwood.Framework.Binding
             {
                 throw new Exception("The command path was not found!");
             }
-            target = methodEvaluator.Result;
+            target = methodEvaluator.MethodInvocationTarget;
             return method;
         }
 

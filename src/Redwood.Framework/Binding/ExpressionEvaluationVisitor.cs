@@ -35,6 +35,10 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public RedwoodControl ViewRootControl { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the target object on which the returned MethodInfo should be invoked.
+        /// </summary>
+        public object MethodInvocationTarget { get; private set; }
 
         /// <summary>
         /// Gets the target on which last property was evaluated.
@@ -203,6 +207,7 @@ namespace Redwood.Framework.Binding
                     {
                         throw new ParserException(string.Format("The method {0} on type {1} is overloaded which is not supported yet!", propertyName, target.GetType()));
                     }
+                    MethodInvocationTarget = target;
                     return methods[0];
                 }
                 else
