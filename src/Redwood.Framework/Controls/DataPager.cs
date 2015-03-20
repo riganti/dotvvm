@@ -91,6 +91,7 @@ namespace Redwood.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { });
+            writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().TranslateToClientScript(this, DataSetProperty) + ").TotalItemsCount() > 0");
             context.PathFragments.Push(GetDataSetBinding().GetViewModelPathExpression(this, DataSetProperty));
             writer.RenderBeginTag("ul");
         }
