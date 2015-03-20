@@ -9,7 +9,7 @@ using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls
 {
-    public class GridView : ItemsControl 
+    public class GridView : ItemsControl
     {
 
         public GridView() : base("table")
@@ -40,7 +40,6 @@ namespace Redwood.Framework.Controls
 
 
 
-        private bool dataSourceIsDataSet;
 
         protected internal override void OnLoad(RedwoodRequestContext context)
         {
@@ -72,12 +71,12 @@ namespace Redwood.Framework.Controls
                 foreach (var column in Columns)
                 {
                     var cell = new HtmlGenericControl("th");
-                    SetCellAttributes(column, cell);
+                    SetCellAttributes(column, cell, true);
                     headerRow.Children.Add(cell);
 
                     column.CreateHeaderControls(cell);
                 }
-                
+
                 foreach (var item in GetIEnumerableFromDataSource(dataSource))
                 {
                     // create row
@@ -92,15 +91,24 @@ namespace Redwood.Framework.Controls
             }
         }
 
-        private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell)
+        private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
         {
             if (!string.IsNullOrEmpty(column.Width))
             {
                 cell.Attributes["style"] = "width: " + column.Width;
             }
-            if (!string.IsNullOrEmpty(column.CssClass))
+
+            if (!isHeaderCell)
             {
-                cell.Attributes["class"] = column.CssClass;
+                var cssClassBinding = column.GetValueBinding(GridViewColumn.CssClassProperty);
+                if (cssClassBinding != null)
+                {
+                    cell.Attributes["class"] = cssClassBinding.Clone();
+                }
+                else if (!string.IsNullOrWhiteSpace(column.CssClass))
+                {
+                    cell.Attributes["class"] = column.CssClass;
+                }
             }
         }
 
@@ -121,12 +129,12 @@ namespace Redwood.Framework.Controls
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
-                SetCellAttributes(column, cell);
+                SetCellAttributes(column, cell, false);
                 row.Children.Add(cell);
                 column.CreateControls(cell);
             }
         }
-        
+
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             if (Children.Count == 0) return;

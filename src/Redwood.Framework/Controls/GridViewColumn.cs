@@ -45,7 +45,6 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<bool, GridViewColumn>(c => c.AllowSorting, false);
 
 
-        [MarkupOptions(AllowBinding = false)]
         public string CssClass
         {
             get { return (string)GetValue(CssClassProperty); }
