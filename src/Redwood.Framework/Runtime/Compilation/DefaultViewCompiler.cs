@@ -148,8 +148,6 @@ namespace Redwood.Framework.Runtime.Compilation
                     Enumerable.Concat(staticReferences, dynamicReferences),
                     options);
 
-                File.WriteAllText("d:\\" + namespaceName + "." + className + ".cs", compilation.SyntaxTrees[0].ToString());
-
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {
