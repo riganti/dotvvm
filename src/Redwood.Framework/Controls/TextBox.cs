@@ -26,11 +26,18 @@ namespace Redwood.Framework.Controls
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TextBox"/> class.
+        /// Gets or sets the mode of the text field.
         /// </summary>
-        public TextBox() : base("input")
+        [MarkupOptions(AllowBinding = false)]
+        public TextBoxType Type
         {
+            get { return (TextBoxType)GetValue(TypeProperty); }
+            set { SetValue(TypeProperty, value); }
         }
+
+        public static readonly RedwoodProperty TypeProperty =
+            RedwoodProperty.Register<TextBoxType, TextBox>(c => c.Type, TextBoxType.Normal);
+
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
@@ -39,12 +46,40 @@ namespace Redwood.Framework.Controls
         {
             writer.AddKnockoutDataBind("value", this, TextProperty, () =>
             {
-                writer.AddAttribute("value", "Text");
+                if (Type != TextBoxType.MultiLine)
+                {
+                    writer.AddAttribute("value", "Text");
+                }
             });
-            writer.AddAttribute("type", "text");
 
+            if (Type == TextBoxType.Normal)
+            {
+                writer.AddAttribute("type", "text");
+                TagName = "input";
+            }
+            else if (Type == TextBoxType.Password)
+            {
+                writer.AddAttribute("type", "password");
+                TagName = "input";
+            }
+            else if (Type == TextBoxType.MultiLine)
+            {
+                TagName = "textarea";
+            }
+            
             base.AddAttributesToRender(writer, context);
         }
 
+
+        /// <summary>
+        /// Renders the contents inside the control begin and end tags.
+        /// </summary>
+        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        {
+            if (Type == TextBoxType.MultiLine && GetValueBinding(TextProperty) == null)
+            {
+                writer.WriteText(Text);
+            }
+        }
     }
 }
