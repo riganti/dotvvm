@@ -55,12 +55,13 @@ namespace Redwood.Framework.Runtime.Compilation
                 var node = parser.Parse(tokenizer.Tokens);
 
                 // determine wrapper type
-                var wrapperType = ResolveWrapperType(node);
+                string wrapperClassName;
+                var wrapperType = ResolveWrapperType(node, className, out wrapperClassName);
                 var metadata = controlResolver.ResolveControl(wrapperType);
 
                 // build the statements
                 emitter.PushNewMethod("BuildControl");
-                var pageName = emitter.EmitCreateObject(wrapperType);
+                var pageName = wrapperClassName == null ? emitter.EmitCreateObject(wrapperType) : emitter.EmitCreateObject(wrapperClassName);
                 emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, pageName);
                 foreach (var child in node.Content)
                 {
@@ -89,9 +90,10 @@ namespace Redwood.Framework.Runtime.Compilation
         /// <summary>
         /// Resolves the type of the wrapper.
         /// </summary>
-        private Type ResolveWrapperType(RwHtmlRootNode node)
+        private Type ResolveWrapperType(RwHtmlRootNode node, string className, out string controlClassName)
         {
             var wrapperType = typeof (RedwoodView);
+
             var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
             if (baseControlDirective != null)
             {
@@ -100,11 +102,19 @@ namespace Redwood.Framework.Runtime.Compilation
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_TypeSpecifiedInBaseTypeDirectiveNotFound, baseControlDirective.Value));
                 }
-                if (!typeof(RedwoodMarkupControl).IsAssignableFrom(wrapperType))
+                if (!typeof (RedwoodMarkupControl).IsAssignableFrom(wrapperType))
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_MarkupControlMustDeriveFromRedwoodMarkupControl));
                 }
+
+                controlClassName = null;
             }
+            else
+            {
+                controlClassName = className + "Control";
+                emitter.EmitControlClass(wrapperType, className);
+            }
+
             return wrapperType;
         } 
 
@@ -137,6 +147,8 @@ namespace Redwood.Framework.Runtime.Compilation
                     emitter.BuildTree(namespaceName, className), 
                     Enumerable.Concat(staticReferences, dynamicReferences),
                     options);
+
+                File.WriteAllText("d:\\" + namespaceName + "." + className + ".cs", compilation.SyntaxTrees[0].ToString());
 
                 var result = compilation.Emit(ms);
                 if (result.Success)

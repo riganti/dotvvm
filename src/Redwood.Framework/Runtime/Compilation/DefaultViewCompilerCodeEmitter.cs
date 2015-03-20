@@ -41,13 +41,14 @@ namespace Redwood.Framework.Runtime.Compilation
         }
 
 
+        private List<ClassDeclarationSyntax> otherClassDeclarations = new List<ClassDeclarationSyntax>();
+
+
         /// <summary>
         /// Emits the create object expression.
         /// </summary>
-        public string EmitCreateObject(Type type, object[] constructorArguments = null)
+        public string EmitCreateObject(string typeName, object[] constructorArguments = null)
         {
-            usedAssemblies.Add(type.Assembly);
-
             if (constructorArguments == null)
             {
                 constructorArguments = new object[] { };
@@ -61,7 +62,7 @@ namespace Redwood.Framework.Runtime.Compilation
                     SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
                         SyntaxFactory.VariableDeclarator(name).WithInitializer(
                             SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(type.FullName)).WithArgumentList(
+                                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(typeName)).WithArgumentList(
                                     SyntaxFactory.ArgumentList(
                                         SyntaxFactory.SeparatedList(
                                             constructorArguments.Select(a => SyntaxFactory.Argument(EmitValue(a)))
@@ -75,6 +76,16 @@ namespace Redwood.Framework.Runtime.Compilation
             );
 
             return name;
+        }
+
+
+        /// <summary>
+        /// Emits the create object expression.
+        /// </summary>
+        public string EmitCreateObject(Type type, object[] constructorArguments = null)
+        {
+            usedAssemblies.Add(type.Assembly);
+            return EmitCreateObject(type.FullName, constructorArguments);
         }
 
         /// <summary>
@@ -421,27 +432,32 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName(namespaceName)).WithMembers(
-                    SyntaxFactory.ClassDeclaration(className)
-                        .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                        .WithBaseList(SyntaxFactory.BaseList(
-                            SyntaxFactory.SeparatedList(new BaseTypeSyntax[]
-                            {
-                                SyntaxFactory.SimpleBaseType(
-                                    SyntaxFactory.ParseTypeName(typeof(IControlBuilder).FullName)
-                                )
-                            })
-                        ))
-                        .WithMembers(
-                        SyntaxFactory.List<MemberDeclarationSyntax>(
-                            outputMethods.Select(m => 
-                                SyntaxFactory.MethodDeclaration(
-                                    SyntaxFactory.ParseTypeName(typeof(RedwoodControl).FullName),
-                                    m.Name
-                                )
+                    SyntaxFactory.List<MemberDeclarationSyntax>(
+                        otherClassDeclarations.Concat(new[]
+                        {
+                            SyntaxFactory.ClassDeclaration(className)
                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                .WithBody(SyntaxFactory.Block(m.Statements))
-                            )
-                        )
+                                .WithBaseList(SyntaxFactory.BaseList(
+                                    SyntaxFactory.SeparatedList(new BaseTypeSyntax[]
+                                    {
+                                        SyntaxFactory.SimpleBaseType(
+                                            SyntaxFactory.ParseTypeName(typeof(IControlBuilder).FullName)
+                                        )
+                                    })
+                                ))
+                                .WithMembers(
+                                SyntaxFactory.List<MemberDeclarationSyntax>(
+                                    outputMethods.Select(m => 
+                                        SyntaxFactory.MethodDeclaration(
+                                            SyntaxFactory.ParseTypeName(typeof(RedwoodControl).FullName),
+                                            m.Name
+                                        )
+                                        .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                        .WithBody(SyntaxFactory.Block(m.Statements))
+                                        )
+                                    )
+                                )
+                        })
                     )
                 )
             ).NormalizeWhitespace();
@@ -472,5 +488,20 @@ namespace Redwood.Framework.Runtime.Compilation
             outputMethods.Add(methods.Pop());
         }
 
+
+        /// <summary>
+        /// Emits the control class.
+        /// </summary>
+        public void EmitControlClass(Type baseType, string className)
+        {
+            otherClassDeclarations.Add(
+                SyntaxFactory.ClassDeclaration(className + "Control")
+                    .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                    .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]
+                    {
+                        SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(baseType.ToString()))
+                    })))
+                );
+        }
     }
 }
