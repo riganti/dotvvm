@@ -46,7 +46,7 @@ namespace Redwood.Framework.Hosting
                 ErrorCode = context.Response.StatusCode,
                 ErrorDescription = ((HttpStatusCode)context.Response.StatusCode).ToString(),
                 IpAddress = context.Request.RemoteIpAddress,
-                CurrentUserName = context.Request.User.Identity.Name,
+                CurrentUserName = context.Request.User != null ? context.Request.User.Identity.Name : "",
                 Url = context.Request.Uri.ToString(),
                 Verb = context.Request.Method
             };
