@@ -130,6 +130,7 @@
     <Compile Include="Parser\SimpleTokenError.cs" />
     <Compile Include="Parser\TextRange.cs" />
     <Compile Include="Parser\TokenError.cs" />
+    <Compile Include="RedwoodAuthenticationHelper.cs" />
     <Compile Include="ResourceManagement\InlineScriptResource.cs" />
     <Compile Include="ResourceManagement\IRedwoodResourceRepository.cs" />
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
