@@ -119,6 +119,7 @@ namespace Redwood.Framework.Binding
 
             return base.VisitElementAccessExpression(node);
         }
+        
 
         /// <summary>
         /// Visits the argument.
@@ -136,6 +137,10 @@ namespace Redwood.Framework.Binding
             if (node.IsKind(SyntaxKind.NumericLiteralExpression))
             {
                 return node.Token.Value as int?;
+            }
+            else if (node.IsKind(SyntaxKind.StringLiteralExpression))
+            {
+                return node.Token.Value as string;
             }
             return base.VisitLiteralExpression(node);
         }
