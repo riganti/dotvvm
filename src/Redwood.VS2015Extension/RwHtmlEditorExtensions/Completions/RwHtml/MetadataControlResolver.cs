@@ -198,7 +198,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                 metadata.AllowHardCodedValue = attribute.NamedArguments.Where(a => a.Key == "AllowHardCodedValue").Select(a => a.Value.Value as bool?).FirstOrDefault() ?? true;
 
                 var mappingMode = (MappingMode)(attribute.NamedArguments.Where(a => a.Key == "MappingMode").Select(a => a.Value.Value as int?).FirstOrDefault() ?? 0);
-                if (mappingMode == MappingMode.InnerElement || mappingMode == MappingMode.Content)
+                if (mappingMode == MappingMode.InnerElement)
                 {
                     metadata.IsElement = true;
                 }
