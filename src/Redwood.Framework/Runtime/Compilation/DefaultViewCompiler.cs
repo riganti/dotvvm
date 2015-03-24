@@ -171,6 +171,8 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             if (node is RwHtmlBindingNode)
             {
+                EnsureContentAllowed(parentMetadata);
+
                 // binding in text
                 var binding = (RwHtmlBindingNode)node;
                 var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { ((RwHtmlLiteralNode)node).Value, true });
@@ -181,7 +183,12 @@ namespace Redwood.Framework.Runtime.Compilation
             else if (node is RwHtmlLiteralNode)
             {
                 // text content
-                var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { ((RwHtmlLiteralNode)node).Value });
+                var literalValue = ((RwHtmlLiteralNode)node).Value;
+                if (!string.IsNullOrWhiteSpace(literalValue))
+                {
+                    EnsureContentAllowed(parentMetadata);
+                }
+                var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { literalValue });
                 emitter.EmitAddCollectionItem(parentName, currentObjectName);
             }
             else if (node is RwHtmlElementNode)
@@ -191,43 +198,12 @@ namespace Redwood.Framework.Runtime.Compilation
                 var parentProperty = FindProperty(parentMetadata, element.TagName);
                 if (parentProperty != null && string.IsNullOrEmpty(element.TagPrefix) && parentProperty.MarkupOptions.MappingMode == MappingMode.InnerElement)
                 {
-                    // the element is a property 
-                    if (IsTemplateProperty(parentProperty))
-                    {
-                        // template
-                        var templateName = ProcessTemplate(element);
-                        emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, templateName);
-                    }
-                    else if (IsCollectionProperty(parentProperty))
-                    {
-                        // collection of elements
-                        foreach (var child in GetInnerPropertyElements(element, parentProperty))
-                        {
-                            var childObject = ProcessObjectElement(child);
-                            emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.Name);
-                        }
-                    }
-                    else
-                    {
-                        // new object
-                        var children = GetInnerPropertyElements(element, parentProperty).ToList();
-                        if (children.Count > 1)
-                        {
-                            throw new NotSupportedException(string.Format("The property {0} can have only one child element!", parentProperty.MarkupOptions.Name));   // TODO: exception handling
-                        }
-                        else if (children.Count == 1)
-                        {
-                            var childObject = ProcessObjectElement(children[0]);
-                            emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, childObject);
-                        }
-                        else
-                        {
-                            emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, emitter.EmitIdentifier("null"));
-                        }
-                    }
+                    ProcessElementProperty(parentName, parentProperty, element);
                 }
                 else
                 {
+                    EnsureContentAllowed(parentMetadata);
+                    
                     // the element is the content
                     var currentObjectName = ProcessObjectElement(element);
                     emitter.EmitAddCollectionItem(parentName, currentObjectName);
@@ -236,6 +212,55 @@ namespace Redwood.Framework.Runtime.Compilation
             else
             {
                 throw new NotSupportedException();      // TODO: exception handling
+            }
+        }
+
+        private void EnsureContentAllowed(ControlResolverMetadata controlMetadata)
+        {
+            if (!controlMetadata.IsContentAllowed)
+            {
+                throw new Exception(string.Format("The content is not allowed inside the <{0}></{0}> control!", controlMetadata.Name));
+            }
+        }
+
+        /// <summary>
+        /// Processes the element which contains property value.
+        /// </summary>
+        private void ProcessElementProperty(string parentName, RedwoodProperty parentProperty, RwHtmlElementNode element)
+        {
+            // the element is a property 
+            if (IsTemplateProperty(parentProperty))
+            {
+                // template
+                var templateName = ProcessTemplate(element);
+                emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, templateName);
+            }
+            else if (IsCollectionProperty(parentProperty))
+            {
+                // collection of elements
+                foreach (var child in GetInnerPropertyElements(element, parentProperty))
+                {
+                    var childObject = ProcessObjectElement(child);
+                    emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.Name);
+                }
+            }
+            else
+            {
+                // new object
+                var children = GetInnerPropertyElements(element, parentProperty).ToList();
+                if (children.Count > 1)
+                {
+                    throw new NotSupportedException(string.Format("The property {0} can have only one child element!", parentProperty.MarkupOptions.Name)); // TODO: exception handling
+                }
+                else if (children.Count == 1)
+                {
+                    var childObject = ProcessObjectElement(children[0]);
+                    emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, childObject);
+                }
+                else
+                {
+                    emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, emitter.EmitIdentifier("null"));
+                }
             }
         }
 

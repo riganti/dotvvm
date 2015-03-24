@@ -12,6 +12,7 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// Renders a text into the page.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class Literal : RedwoodBindableControl
     {
 

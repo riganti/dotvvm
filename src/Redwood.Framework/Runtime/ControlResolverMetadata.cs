@@ -20,6 +20,8 @@ namespace Redwood.Framework.Runtime
 
         public Dictionary<string, RedwoodProperty> Properties { get; set; }
 
+        public bool IsContentAllowed { get; set; }
+
 
         /// <summary>
         /// Finds the property.

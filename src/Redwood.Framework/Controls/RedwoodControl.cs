@@ -13,6 +13,7 @@ namespace Redwood.Framework.Controls
     /// Represents a base class for all Redwood controls.
     /// </summary>
     [ContainsRedwoodProperties]
+    [ControlMarkupOptions(AllowContent = true)]
     public abstract class RedwoodControl
     {
        

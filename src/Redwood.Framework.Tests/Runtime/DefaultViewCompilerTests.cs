@@ -88,6 +88,30 @@ namespace Redwood.Framework.Tests.Runtime
 
 
         [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_TextInside()
+        {
+            var markup = @"test <rw:Literal>aaa</rw:Literal>";
+            var page = CompileMarkup(markup);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_BindingAndWhiteSpaceInside()
+        {
+            var markup = @"test <rw:Literal>{{value: Test}}  </rw:Literal>";
+            var page = CompileMarkup(markup);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_ElementInside()
+        {
+            var markup = @"test <rw:Literal><a /></rw:Literal>";
+            var page = CompileMarkup(markup);
+        }
+        
+        [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_Template()
         {
             var markup = @"<rw:Repeater>
@@ -113,7 +137,8 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)placeholder.Children[2]).Text));
         }
 
-        
+
+
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_AttachedProperty()
         {

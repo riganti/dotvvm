@@ -8,7 +8,6 @@ namespace Redwood.Framework.Controls
     {
         Attribute = 0,
         InnerElement = 1,
-        Content = 2,
-        Exclude = 3
+        Exclude = 2
     }
 }
