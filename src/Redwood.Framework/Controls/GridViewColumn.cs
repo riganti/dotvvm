@@ -77,17 +77,61 @@ namespace Redwood.Framework.Controls
             var binding = GetValueBinding(ValueBindingProperty);
             if (binding == null)
             {
-                throw new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
+                ThrowValueBindingNotSet();
             }
             return (ValueBindingExpression)binding.Clone();
         }
 
-
-        public virtual void CreateHeaderControls(HtmlGenericControl cell)
+        private void ThrowValueBindingNotSet()
         {
-            // TODO: sorting support
-            var literal = new Literal(HeaderText);
-            cell.Children.Add(literal);
+            throw new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
+        }
+
+
+        public virtual void CreateHeaderControls(GridView gridView, string sortCommandPath, HtmlGenericControl cell)
+        {
+            if (AllowSorting)
+            {
+                if (string.IsNullOrEmpty(sortCommandPath))
+                {
+                    throw new Exception("Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
+                }
+
+                var sortExpression = GetSortExpression();
+
+                // TODO: verify that sortExpression is a single property name
+
+                var linkButton = new LinkButton() { Text = HeaderText };
+                linkButton.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression(string.Format("{0} (\"{1}\")", sortCommandPath, sortExpression)));
+                cell.Children.Add(linkButton);
+            }
+            else
+            {
+                var literal = new Literal(HeaderText);
+                cell.Children.Add(literal);
+            }
+        }
+
+        private string GetSortExpression()
+        {
+            string sortExpression = null;
+            if (string.IsNullOrEmpty(SortExpression))
+            {
+                var valueBinding = GetValueBinding(ValueBindingProperty);
+                if (valueBinding != null)
+                {
+                    sortExpression = valueBinding.Expression;
+                }
+                else
+                {
+                    ThrowValueBindingNotSet();
+                }
+            }
+            else
+            {
+                sortExpression = SortExpression;
+            }
+            return sortExpression;
         }
     }
 

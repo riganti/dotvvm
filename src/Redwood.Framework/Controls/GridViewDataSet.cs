@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -94,6 +95,20 @@ namespace Redwood.Framework.Controls
             PageIndex = 0;
         }
 
+        public void SetSortExpression(string expression)
+        {
+            if (SortExpression == expression)
+            {
+                SortDescending = !SortDescending;
+                GoToFirstPage();
+            }
+            else
+            {
+                SortExpression = expression;
+                SortDescending = false;
+                GoToFirstPage();
+            }
+        }
 
 
         public void LoadFromQueryable(IQueryable<T> queryable)
@@ -116,15 +131,20 @@ namespace Redwood.Framework.Controls
 
         public IQueryable<T> ApplySortExpression(IQueryable<T> queryable)
         {
-            var prop = typeof(T).GetProperty(SortExpression);
-            var param = Expression.Parameter(typeof(T), "i");
-            var expr = Expression.Lambda(Expression.Property(param, prop), param);
+            var type = typeof(T);
+            var property = type.GetProperty(SortExpression);
+            var parameter = Expression.Parameter(type, "p");
+            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
+            var orderBy = Expression.Lambda(propertyAccess, parameter);
 
-            var method = typeof(IQueryable<T>)
-                .GetMethod(SortDescending ? "OrderByDescending" : "OrderBy")
-                .MakeGenericMethod(prop.PropertyType);
+            var result = Expression.Call(
+                typeof(Queryable), 
+                SortDescending ? "OrderByDescending" : "OrderBy", 
+                new[] { type, property.PropertyType }, 
+                queryable.Expression, 
+                Expression.Quote(orderBy));
 
-            return (IQueryable<T>)method.Invoke(queryable, new object[] { expr });
+            return queryable.Provider.CreateQuery<T>(result);
         }
     }
 }

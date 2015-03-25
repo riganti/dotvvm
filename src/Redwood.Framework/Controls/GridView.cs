@@ -39,6 +39,14 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
 
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public Action<string> SortChanged
+        {
+            get { return (Action<string>)GetValue(SortChangedProperty); }
+            set { SetValue(SortChangedProperty, value); }
+        }
+        public static readonly RedwoodProperty SortChangedProperty =
+            RedwoodProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
 
         protected internal override void OnLoad(RedwoodRequestContext context)
@@ -60,22 +68,27 @@ namespace Redwood.Framework.Controls
 
             var dataSourceBinding = GetDataSourceBinding();
             var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
+            var dataSource = DataSource;
+
+            string sortCommandPath = "";
+            if (dataSource is IGridViewDataSet)
+            {
+                sortCommandPath = dataSourcePath + ".SetSortExpression";
+            }
+            else
+            {
+                var sortCommandBinding = GetCommandBinding(SortChangedProperty);
+                if (sortCommandBinding != null)
+                {
+                    sortCommandPath = sortCommandBinding.Expression;
+                }
+            }
 
             var index = 0;
-            var dataSource = DataSource;
             if (dataSource != null)
             {
                 // create header row
-                var headerRow = new HtmlGenericControl("tr");
-                Children.Add(headerRow);
-                foreach (var column in Columns)
-                {
-                    var cell = new HtmlGenericControl("th");
-                    SetCellAttributes(column, cell, true);
-                    headerRow.Children.Add(cell);
-
-                    column.CreateHeaderControls(cell);
-                }
+                CreateHeaderRow(sortCommandPath);
 
                 foreach (var item in GetIEnumerableFromDataSource(dataSource))
                 {
@@ -88,6 +101,20 @@ namespace Redwood.Framework.Controls
 
                     index++;
                 }
+            }
+        }
+
+        private void CreateHeaderRow(string sortCommandPath)
+        {
+            var headerRow = new HtmlGenericControl("tr");
+            Children.Add(headerRow);
+            foreach (var column in Columns)
+            {
+                var cell = new HtmlGenericControl("th");
+                SetCellAttributes(column, cell, true);
+                headerRow.Children.Add(cell);
+
+                column.CreateHeaderControls(this, sortCommandPath, cell);
             }
         }
 
