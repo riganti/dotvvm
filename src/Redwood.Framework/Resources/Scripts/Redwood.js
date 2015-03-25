@@ -9,6 +9,7 @@ var __extends = this.__extends || function (d, b) {
 };
 var Redwood = (function () {
     function Redwood() {
+        this.postBackCounter = 0;
         this.extensions = {};
         this.viewModels = {};
         this.events = {
@@ -28,6 +29,9 @@ var Redwood = (function () {
     Redwood.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, validationTargetPath) {
         var _this = this;
         var viewModel = this.viewModels[viewModelName].viewModel;
+        // prevent double postbacks
+        this.postBackCounter++;
+        var currentPostBackCounter = this.postBackCounter;
         // trigger beforePostback event
         var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
         this.events.beforePostback.trigger(beforePostbackArgs);
@@ -44,6 +48,9 @@ var Redwood = (function () {
             validationTargetPath: validationTargetPath || null
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), function (result) {
+            // if another postback has already been passed, don't do anything
+            if (_this.postBackCounter !== currentPostBackCounter)
+                return;
             var resultObject = JSON.parse(result.responseText);
             var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
@@ -81,11 +88,16 @@ var Redwood = (function () {
                 return;
             }
             // trigger afterPostback event
-            var isHandled = _this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject));
-            if (!isSuccess && !isHandled) {
+            var afterPostBackArgs = new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+            _this.events.afterPostback.trigger(afterPostBackArgs);
+            if (!isSuccess && !afterPostBackArgs.isHandled) {
                 throw "Invalid response from server!";
             }
         }, function (xhr) {
+            // if another postback has already been passed, don't do anything
+            if (_this.postBackCounter !== currentPostBackCounter)
+                return;
+            // execute error handlers
             if (!_this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
                 alert(xhr.responseText);
             }
@@ -153,9 +165,7 @@ var RedwoodEvent = (function () {
         this.handlers.push(handler);
         if (this.triggerMissedEventsOnSubscribe) {
             for (var i = 0; i < this.history.length; i++) {
-                if (handler(history[i])) {
-                    this.history = this.history.splice(i, 1);
-                }
+                handler(history[i]);
             }
         }
     };
@@ -167,15 +177,11 @@ var RedwoodEvent = (function () {
     };
     RedwoodEvent.prototype.trigger = function (data) {
         for (var i = 0; i < this.handlers.length; i++) {
-            var result = this.handlers[i](data);
-            if (result) {
-                return true;
-            }
+            this.handlers[i](data);
         }
         if (this.triggerMissedEventsOnSubscribe) {
             this.history.push(data);
         }
-        return false;
     };
     return RedwoodEvent;
 })();
@@ -215,8 +221,24 @@ var RedwoodAfterPostBackEventArgs = (function (_super) {
         this.viewModelName = viewModelName;
         this.validationTargetPath = validationTargetPath;
         this.serverResponseObject = serverResponseObject;
+        this.isHandled = false;
     }
     return RedwoodAfterPostBackEventArgs;
 })(RedwoodEventArgs);
 var redwood = new Redwood();
+// add knockout binding handler for update progress control
+ko.bindingHandlers["redwoodUpdateProgressVisible"] = {
+    init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+        element.style.display = "none";
+        redwood.events.beforePostback.subscribe(function (e) {
+            element.style.display = "";
+        });
+        redwood.events.afterPostback.subscribe(function (e) {
+            element.style.display = "none";
+        });
+        redwood.events.error.subscribe(function (e) {
+            element.style.display = "none";
+        });
+    }
+};
 //# sourceMappingURL=Redwood.js.map

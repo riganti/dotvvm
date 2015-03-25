@@ -113,6 +113,7 @@
     <Compile Include="Controls\RenderMode.cs" />
     <Compile Include="Controls\RenderSettings.cs" />
     <Compile Include="Controls\TextBoxType.cs" />
+    <Compile Include="Controls\UpdateProgress.cs" />
     <Compile Include="Controls\Validate.cs" />
     <Compile Include="Controls\ListBox.cs" />
     <Compile Include="Controls\SelectHtmlControlBase.cs" />

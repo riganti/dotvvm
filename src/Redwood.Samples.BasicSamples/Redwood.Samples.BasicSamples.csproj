@@ -127,6 +127,7 @@
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
     <None Include="Properties\PublishProfiles\CI.pubxml" />
+    <Content Include="sample15.rwhtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -154,6 +155,7 @@
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\Sample11ViewModel.cs" />
     <Compile Include="ViewModels\Sample12ViewModel.cs" />
+    <Compile Include="ViewModels\Sample15ViewModel.cs" />
     <Compile Include="ViewModels\Sample14ViewModel.cs" />
     <Compile Include="ViewModels\Sample13ViewModel.cs" />
     <Compile Include="ViewModels\Sample7ViewModel.cs" />

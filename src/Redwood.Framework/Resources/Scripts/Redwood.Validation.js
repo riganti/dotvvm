@@ -222,23 +222,20 @@ redwood.events.beforePostback.subscribe(function (args) {
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
             args.cancel = true;
-            return true;
         }
     }
-    return false;
 });
 redwood.events.afterPostback.subscribe(function (args) {
     if (args.serverResponseObject.action === "successfulCommand") {
         // merge validation rules from postback with those we already have (required when a new type appears in the view model)
         redwood.extensions.validation.mergeValidationRules(args);
-        return false;
+        args.isHandled = true;
     }
     else if (args.serverResponseObject.action === "validationErrors") {
         // apply validation errors from server
         redwood.extensions.validation.showValidationErrorsFromServer(args);
-        return true;
+        args.isHandled = true;
     }
-    return false;
 });
 // add knockout binding handler
 ko.bindingHandlers["redwoodValidation"] = {
