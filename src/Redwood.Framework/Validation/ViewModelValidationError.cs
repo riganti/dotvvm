@@ -12,7 +12,7 @@ namespace Redwood.Framework.Validation
         /// E.g.: Product().Suppliers()[2].Name
         /// </summary>
         [JsonProperty("propertyPath")]
-        public string PropertyPath { get; set; }
+        public string[] PropertyPath { get; set; }
 
         /// <summary>
         /// Gets or sets the error message.

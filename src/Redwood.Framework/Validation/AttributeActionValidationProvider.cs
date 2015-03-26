@@ -20,6 +20,7 @@ namespace Redwood.Framework.Validation
             {
                 groups.UnionWith(attr.ModifyRulesForAction(methodInfo, rules, ref includeGlobalRules));
             }
+            if (attrs.Length == 0) includeGlobalRules = true;
             return groups;
         }
     }

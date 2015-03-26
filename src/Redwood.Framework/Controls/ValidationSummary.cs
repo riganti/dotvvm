@@ -10,13 +10,15 @@ namespace Redwood.Framework.Controls
     /// </summary>
     public class ValidationSummary : HtmlGenericControl
     {
-        
+        public bool LocalOnly { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ValidationSummary"/> class.
         /// </summary>
         public ValidationSummary()
         {
             TagName = "ul";
+            LocalOnly = false;
         }
 
 
@@ -25,10 +27,10 @@ namespace Redwood.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            var expression = KnockoutHelper.GetValidationTargetExpression(this, true);
+            var expression = KnockoutHelper.GetValidationTargetExpression(this);
             if (expression != null)
             {
-                writer.AddKnockoutDataBind("foreach", expression + ".$validationErrors");
+                writer.AddKnockoutDataBind("foreach", LocalOnly? expression + ".$validationErrors" : "$root.$allValidationErrors");
             }
 
             base.AddAttributesToRender(writer, context);

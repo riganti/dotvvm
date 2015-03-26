@@ -14,13 +14,8 @@ namespace Redwood.Framework.Parser.Translation
     public class ExpressionTranslator
     {
 
-
-        /// <summary>
-        /// Translates the specified expression.
-        /// </summary>
-        public string Translate(string expression)
+        private SyntaxNode ParseExpression(string expression)
         {
-            // parse
             var tree = CSharpSyntaxTree.ParseText(expression, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
 
             // make sure it is a single statement expression
@@ -34,7 +29,15 @@ namespace Redwood.Framework.Parser.Translation
             {
                 throw new ParserException("The expression in binding must be a compilable C# expression!");
             }
-            var node = expr.ChildNodes().First();
+            return expr.ChildNodes().First();
+        }
+
+        /// <summary>
+        /// Translates the specified expression.
+        /// </summary>
+        public string Translate(string expression)
+        {
+            var node = ParseExpression(expression);
 
             // translate the expression
             var visitor = new ExpressionTranslatorVisitor();
@@ -50,6 +53,52 @@ namespace Redwood.Framework.Parser.Translation
             return result;
         }
 
+        public string[] TranslateToPath(string expression)
+        {
+            var node = ParseExpression(expression);
 
+            // translate the expression
+            var visitor = new ExpressionTranslatorVisitor();
+            var result = visitor.Visit(node);
+
+            if (visitor.IsExpression)
+            {
+                return new string[] { "`" + result + "`" };
+            }
+            else
+            {
+                return visitor.Path.ToArray();
+            }
+        }
+
+        public static string[] CombinePaths(IEnumerable<string> a, IEnumerable<string> b)
+        {
+            return SimplifyPath(a.Concat(b));
+        }
+
+        public static string[] SimplifyPath(IEnumerable<string> path)
+        {
+            var result = new Stack<string>();
+            foreach (var frag in path)
+            {
+                if (frag == "$root")
+                {
+                    result.Clear();
+                    result.Push(frag);
+                }
+                else if (frag == "$parent")
+                {
+                    if (result.Count > 0)
+                        result.Pop();
+                    else result.Push("$parent");
+                }
+                else if (frag == "$data") { }
+                else
+                {
+                    result.Push(frag);
+                }
+            }
+            return result.Reverse().ToArray();
+        }
     }
 }

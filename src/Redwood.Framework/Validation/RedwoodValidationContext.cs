@@ -13,9 +13,11 @@ namespace Redwood.Framework.Validation
         public Stack<object> ObjectStack { get; set; }
         public List<ViewModelValidationError> Errors { get; set; }
         public HashSet<string> Groups { get; set; }
-        public string Path
+        public string[] ValidationPath { get; set; }
+        public object Root { get; private set; }
+        public string[] Path
         {
-            get { return PathStack.Peek(); }
+            get { return PathStack.Reverse().Skip(1).ToArray(); }
         }
         public object Value
         {
@@ -28,6 +30,7 @@ namespace Redwood.Framework.Validation
             ObjectStack = new Stack<object>();
             Errors = new List<ViewModelValidationError>();
             Groups = new HashSet<string>(groups ?? new string[] { "*" });
+            this.Root = root;
             PushLevel(root, "");
         }
 
@@ -39,22 +42,13 @@ namespace Redwood.Framework.Validation
         public void PushLevel(object value, string name)
         {
             ObjectStack.Push(value);
-            if (name.Length > 0 && name[0] == '[')
-            {
-                // collection index
-                PathStack.Push(Path + "()" + name);
-            }
-            else if (PathStack.Count > 0)
-            {
-                PathStack.Push(CombinePath(Path, name));
-            }
-            else PathStack.Push(name);
+            PathStack.Push(name);
         }
 
         public void PushLevel(object value, int index)
         {
             ObjectStack.Push(value);
-            PathStack.Push(string.Format("{0}()[{1}]", Path, index));
+            PathStack.Push(string.Format("[{0}]", index));
         }
 
         public void PopLevel()
@@ -72,17 +66,32 @@ namespace Redwood.Framework.Validation
             });
         }
 
-        public bool MatchGroups(string groups)
+        public bool ShouldValidate(ValidationRule rule)
         {
-            if (groups == null) return this.Groups.Contains("*");
-            return groups.Split(',').Any(g => g == "**" || this.Groups.Contains(g.Trim()));
+            return IsPathPrefix(ValidationPath, Path)
+                && MatchGroups(rule.Groups, Groups);
         }
 
+        public static bool MatchGroups(string groupString, ISet<string> activeGroups)
+        {
+            if (groupString == null) return activeGroups.Contains("*");
 
-        /// <summary>
-        /// Combines the path.
-        /// </summary>
-        private string CombinePath(string prefix, string path)
+            return groupString.Split(',').Any(g => g == "**" || activeGroups.Contains(g.Trim()));
+        }
+
+        public static bool IsPathPrefix(string[] prefix, string[] path)
+        {
+            if (prefix.Length > path.Length)
+                return false;
+
+            for (int i = 0; i < prefix.Length; i++)
+            {
+                if (path[i] != prefix[i]) return false;
+            }
+            return true;
+        }
+
+        public static string CombinePath(string prefix, string path)
         {
             if (string.IsNullOrEmpty(prefix))
             {

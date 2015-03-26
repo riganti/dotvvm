@@ -5,6 +5,7 @@ using System.Net;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Runtime;
+using Redwood.Framework.Parser;
 
 namespace Redwood.Framework
 {
@@ -53,10 +54,10 @@ namespace Redwood.Framework
                 "'" + uniqueControlId + "'" // controlUniqueId
             };
 
-            var validationTargetExpression = GetValidationTargetExpression(control, true);
+            var validationTargetExpression = GetValidationTargetExpression(control);
             if (validationTargetExpression != null)
             {
-                arguments.Add("'" + validationTargetExpression + "'");
+                arguments.Add("[" + string.Join(",", validationTargetExpression.Select(MakeStringLiteral)) + "]");
             }
 
             // postback without validation
@@ -66,7 +67,7 @@ namespace Redwood.Framework
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        public static string GetValidationTargetExpression(RedwoodBindableControl control, bool translateToClientScript)
+        public static string[] GetValidationTargetExpression(RedwoodBindableControl control)
         {
             if (!(bool)control.GetValue(Validate.EnabledProperty))
             {
@@ -82,14 +83,14 @@ namespace Redwood.Framework
             if (validationTargetControl == null)
             {
                 // TODO: it would be perhaps better to return current data context
-                return translateToClientScript ? "$root" : "_root";
+                return new string[] { "$root"};
             }
 
-            string validationExpression = validationTargetControl.GetBindingString(Validate.TargetProperty, translateToClientScript);
+            var validationExpression = validationTargetControl.GetBindingString(Validate.TargetProperty);
 
             // reparent the expression to work in current DataContext
-            if (!validationExpression.StartsWith("$root"))
-                validationExpression = String.Join("", Enumerable.Repeat("$parent.", dataSourceChanges)) + validationExpression;
+            if (validationExpression.FirstOrDefault() != "$root")
+                validationExpression = Enumerable.Repeat("$parent", dataSourceChanges).Concat(validationExpression).ToArray();
 
             return validationExpression;
         }

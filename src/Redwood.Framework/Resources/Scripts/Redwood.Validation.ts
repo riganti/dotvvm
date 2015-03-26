@@ -196,17 +196,19 @@ class RedwoodValidation {
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
-        this.errors.removeAll(errors);
+        this.errors().forEach(e => e.errorMessage(""));
+        this.errors([]);
     }
 
     public mergeValidationRules(args: RedwoodAfterPostBackEventArgs) {
         // this.clearValidationErrors(args.viewModel);
-        if (args.serverResponseObject.validationRules) {
-            var existingRules = redwood.viewModels[args.viewModelName].validationRules;
+        var rules = args.serverResponseObject.validationRules;
+        if (rules) {
+            var existingRules = redwood.viewModels[args.viewModelName].validationRules.types;
 
-            for (var type in args.serverResponseObject) {
-                if (!args.serverResponseObject.hasOwnProperty(type)) continue;
-                existingRules[type] = args.serverResponseObject[type];
+            for (var type in rules) {
+                if (!rules.hasOwnProperty(type)) continue;
+                existingRules[type] = rules[type];
             }
         }
     }
@@ -214,17 +216,18 @@ class RedwoodValidation {
     public showValidationErrorsFromServer(args: RedwoodAfterPostBackEventArgs) {
         // resolve validation target
         var context = ko.contextFor(args.sender);
-        var validationTarget = redwood.evaluateOnViewModel(context, args.validationTargetPath);
+        var validationTarget = redwood.evaluateOnViewModel(args.viewModel, args.validationTargetPath);
 
         // add validation errors
         this.clearValidationErrors(redwood.evaluateOnViewModel(ko.contextFor(args.sender), args.validationTargetPath));
         var modelState = args.serverResponseObject.modelState;
         for (var i = 0; i < modelState.length; i++) {
             // find the observable property
-            var propertyPath = modelState[i].propertyPath;
-            var observable = redwood.evaluateOnViewModel(validationTarget, propertyPath);
-            var parent = redwood.evaluateOnViewModel(context, propertyPath.substring(0, propertyPath.lastIndexOf(".")) || "$data");
-            if (!ko.isObservable(observable) || !parent || !parent.$validationErrors) {
+            var propertyPath = <string[]>modelState[i].propertyPath;
+            var observable = redwood.evaluateOnViewModel(args.viewModel, propertyPath);
+            var parent = ko.isObservable(observable) ? redwood.evaluateOnViewModel(args.viewModel, propertyPath.slice(0, propertyPath.length - 1)) : observable;
+
+            if (observable == null || !parent) {
                 throw "Invalid validation path!";
             }
 
@@ -298,15 +301,24 @@ redwood.events.beforePostback.subscribe(args => {
 
         var actionName = RedwoodValidation.findActionNameInCommand(args.command);
         var groups = redwood.viewModels[args.viewModelName].validationRules.actionGroups[actionName];
-        var valPath = redwood.combinePaths(redwood.getPath(args.sender), redwood.spitPath(args.validationTargetPath));
+        // we can't use args.viewModelPath because is can contain complicated expressions
+        var path = ko.unwrap(ko.contextFor(args.sender).$data.$path);
+        var valPath = redwood.combinePaths(path, args.validationTargetPath);
+        if (valPath[0] == "$root") valPath = valPath.slice(1)
         // validate the object
         redwood.extensions.validation.clearValidationErrors(args.viewModel);
         redwood.extensions.validation.validateViewModel(args.viewModel, args.viewModelName, [], new ValidationConstraints(groups, valPath));
+        args.viewModel.$allValidationErrors(redwood.extensions.validation.errors());
         if (redwood.extensions.validation.errors().length > 0) {
             args.cancel = true;
             return true;
         }
     }
+    return false;
+});
+
+redwood.events.preinit.subscribe(args => {
+    args.viewModel.$allValidationErrors = ko.observableArray();
     return false;
 });
 
@@ -318,6 +330,7 @@ redwood.events.afterPostback.subscribe(args => {
     } else if (args.serverResponseObject.action === "validationErrors") {
         // apply validation errors from server
         redwood.extensions.validation.showValidationErrorsFromServer(args);
+        args.viewModel.$allValidationErrors(redwood.extensions.validation.errors());
         return true;
     }
     return false;

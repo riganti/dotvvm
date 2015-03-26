@@ -15,14 +15,23 @@ namespace Redwood.Framework.Parser.Translation
         /// <summary>
         /// Gets a value indicating whether the syntax contains an expression that prevents us to pass the knockout observable as a result.
         /// </summary>
-        public bool IsExpression { get; private set; }
+        public bool IsExpression {
+            get { return Path == null; }
+        }
+
+        public Stack<string> Path { get; private set; }
+
+        public ExpressionTranslatorVisitor()
+        {
+            Path = new Stack<string>();
+        }
 
         /// <summary>
         /// Visits the prefix unary expression.
         /// </summary>
         public override string VisitPrefixUnaryExpression(PrefixUnaryExpressionSyntax node)
         {
-            IsExpression = true;
+            Path = null;
 
             if (node.OperatorToken.IsKind(SyntaxKind.MinusToken))
             {
@@ -41,7 +50,7 @@ namespace Redwood.Framework.Parser.Translation
         /// </summary>
         public override string VisitBinaryExpression(BinaryExpressionSyntax node)
         {
-            IsExpression = true;
+            Path = null;
 
             // arithmetic
             if (node.OperatorToken.IsKind(SyntaxKind.PlusToken))
@@ -105,7 +114,7 @@ namespace Redwood.Framework.Parser.Translation
         /// </summary>
         public override string VisitConditionalExpression(ConditionalExpressionSyntax node)
         {
-            IsExpression = true;
+            Path = null;
 
             return Visit(node.Condition) + " ? " + Visit(node.WhenTrue) + " : " + Visit(node.WhenFalse);
         }
@@ -117,10 +126,20 @@ namespace Redwood.Framework.Parser.Translation
         {
             if (node.Identifier.Text == Constants.ParentSpecialBindingProperty)
             {
+                if (Path != null)
+                {
+                    if (Path.Count > 0) Path.Pop();
+                    else Path.Push("$parent");
+                }
                 return "$parent";
             }
             else if (node.Identifier.Text == Constants.RootSpecialBindingProperty)
             {
+                if(Path != null)
+                {
+                    Path.Clear();
+                    Path.Push("$root");
+                }
                 return "$root";
             }
             else if (node.Identifier.Text == Constants.ThisSpecialBindingProperty)
@@ -129,6 +148,10 @@ namespace Redwood.Framework.Parser.Translation
             }
             else
             {
+                if(Path != null)
+                {
+                    Path.Push(node.Identifier.Text);
+                }
                 return node.Identifier.Text + "()";
             }
         }
@@ -138,7 +161,7 @@ namespace Redwood.Framework.Parser.Translation
         /// </summary>
         public override string VisitParenthesizedExpression(ParenthesizedExpressionSyntax node)
         {
-            IsExpression = true;
+            Path = null;
 
             return "(" + Visit(node.Expression) + ")";
         }
@@ -179,7 +202,12 @@ namespace Redwood.Framework.Parser.Translation
         {
             if (node.ArgumentList.Arguments.Count == 1)
             {
-                return Visit(node.Expression) + "[" + Visit(node.ArgumentList.Arguments.First()) + "]";
+                var val = "[" + Visit(node.ArgumentList.Arguments.First()) + "]";
+                if(Path != null)
+                {
+                    Path.Push(val);
+                }
+                return Visit(node.Expression) + val;
             }
 
             return base.VisitElementAccessExpression(node);

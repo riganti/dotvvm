@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq; 
 using Redwood.Framework.Binding;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Utils;
 
 namespace Redwood.Framework.ViewModel
 {
@@ -66,14 +67,13 @@ namespace Redwood.Framework.ViewModel
 
             // if there is a DataContext binding, locate the correct token
             ValueBindingExpression binding;
-            var hasDataContext = false;
+            int nesting = 0;
             if (control is RedwoodBindableControl && 
                 (binding = ((RedwoodBindableControl)control).GetBinding(RedwoodBindableControl.DataContextProperty, false) as ValueBindingExpression) != null)
             {
                 viewModel = evaluator.Evaluate(binding.Expression);
-                CurrentPath.Push(binding.GetViewModelPathExpression((RedwoodBindableControl)control, RedwoodBindableControl.DataContextProperty));
+                nesting = CurrentPath.PushRange(binding.GetPath());
                 RefreshCurrentPathArray();
-                hasDataContext = true;
             }
 
             if (ShouldProcessChildren(viewModel))
@@ -85,9 +85,9 @@ namespace Redwood.Framework.ViewModel
                 }
             }
 
-            if (hasDataContext)
+            if (nesting > 0)
             {
-                CurrentPath.Pop();
+                CurrentPath.PopMultiple(nesting);
                 RefreshCurrentPathArray();
             }
         }

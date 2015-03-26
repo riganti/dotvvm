@@ -38,8 +38,13 @@ namespace Redwood.Samples.BasicSamples.ViewModels
             // like `FluentValidation.Redwood.RuleConverter.GetRules(new MyViewModelValiudator())`
             if (t == typeof(TaskViewModel))
                 return new ValidationRule[] {
-                    ValidationRule.Create<TaskViewModel, string>(tt => tt.Title, "Title can not start with underscore",
-                        "regularExpression", new object[] { "^[^_]" }, c => !(c.Value as string).StartsWith("_"), "action:CompleteTask")
+                    ValidationRule.Create<TaskViewModel, string>(
+                        tt => tt.Title,
+                        "Title can not start with underscore",
+                        "regularExpression",
+                        new object[] { "^[^_]" },
+                        c => !(((string)c.Value).StartsWith("_") || ((string)c.Value).StartsWith("^")),
+                        "action:CompleteTask")
                 };
             return base.GetRulesFor(t);
         }

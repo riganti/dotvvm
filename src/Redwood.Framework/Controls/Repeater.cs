@@ -107,14 +107,14 @@ namespace Redwood.Framework.Controls
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             var dataSourceBinding = GetDataSourceBinding();
-
+            context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty));
             if (RenderOnServer)
             {
                 // render on server
                 var index = 0;
                 foreach (var child in Children)
                 {
-                    context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[" + index + "]");
+                    context.PathFragments.Push("[" + index + "]");
                     Children[index].Render(writer, context);
                     context.PathFragments.Pop();
                     index++;
@@ -127,10 +127,11 @@ namespace Redwood.Framework.Controls
                 Children.Add(placeholder);
                 ItemTemplate.BuildContent(placeholder);
 
-                context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[$index]");
+                context.PathFragments.Push("[$index]");
                 placeholder.Render(writer, context);
                 context.PathFragments.Pop();
             }
+            context.PathFragments.Pop();
         }
     }
 }

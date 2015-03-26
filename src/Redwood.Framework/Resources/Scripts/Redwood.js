@@ -11,44 +11,45 @@ var Redwood = (function () {
         this.extensions = {};
         this.viewModels = {};
         this.events = {
+            preinit: new RedwoodEvent("redwood.events.preinit"),
             init: new RedwoodEvent("redwood.events.init", true),
             beforePostback: new RedwoodEvent("redwood.events.beforePostback"),
             afterPostback: new RedwoodEvent("redwood.events.afterPostback"),
             error: new RedwoodEvent("redwood.events.error")
         };
     }
-    Redwood.prototype.includeParentNameProps = function (viewModel, parentProp) {
+    Redwood.prototype.includePathProps = function (viewModel, path) {
         var _this = this;
-        if (parentProp === void 0) { parentProp = null; }
-        viewModel.$parentProp = parentProp;
+        if (path === void 0) { path = []; }
+        viewModel.$path = path;
         for (var p in viewModel) {
             if (typeof viewModel[p] === "object" && viewModel[p] != null && p.charAt(0) != "$") {
                 if (viewModel[p] instanceof Array)
-                    viewModel[p].forEach(function (v) { return _this.includeParentNameProps(v, p); });
+                    viewModel[p].forEach(function (v, i) { return _this.includePathProps(v, path.concat([p, "[" + i + "]"])); });
                 else
-                    this.includeParentNameProps(viewModel[p], p);
+                    this.includePathProps(viewModel[p], path.concat(p));
             }
         }
     };
     Redwood.prototype.init = function (viewModelName, culture) {
         this.culture = culture;
-        this.includeParentNameProps(this.viewModels[viewModelName].viewModel);
-        this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
-        var viewModel = this.viewModels[viewModelName].viewModel;
+        this.includePathProps(this.viewModels[viewModelName].viewModel);
+        var viewModel = this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
+        this.events.preinit.trigger(new RedwoodEventArgs(viewModel));
         ko.applyBindings(viewModel);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     };
     Redwood.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, validationTargetPath) {
         var _this = this;
         var viewModel = this.viewModels[viewModelName].viewModel;
+        this.updateDynamicPathFragments(sender, path);
         // trigger beforePostback event
-        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, path, command);
+        var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath || ["$this"], path, command);
         this.events.beforePostback.trigger(beforePostbackArgs);
         if (beforePostbackArgs.cancel) {
             return;
         }
         // perform the postback
-        this.updateDynamicPathFragments(sender, path);
         var data = {
             viewModel: ko.mapper.toJS(viewModel),
             currentPath: path,
@@ -71,7 +72,7 @@ var Redwood = (function () {
                         updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
                     }
                 }
-                _this.includeParentNameProps(resultObject.viewModel);
+                _this.includePathProps(resultObject.viewModel);
                 // update the viewmodel
                 ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
                 isSuccess = true;
@@ -114,19 +115,6 @@ var Redwood = (function () {
             context = context.$parentContext;
         }
     };
-    Redwood.prototype.getPath = function (sender) {
-        var context = ko.contextFor(sender);
-        var arr = new Array(context.$parents.length);
-        while (context.$parent) {
-            if (!context.$data.$parentProp)
-                throw "invalid viewModel for path creating";
-            if (context.$index && typeof context.$index === "function")
-                arr.push("[" + context.$index() + "]");
-            arr.push(ko.utils.unwrapObservable(context.$data.$parentProp));
-            context = context.$parentContext;
-        }
-        return arr.reverse();
-    };
     Redwood.prototype.spitPath = function (path) {
         var indexPos = path.indexOf('[');
         var dotPos = path.indexOf('.');
@@ -147,10 +135,6 @@ var Redwood = (function () {
         res.push(path);
         return res;
     };
-    /**
-    * Combines two simple javascript paths
-    * Supports properties and indexers, includes functions calls
-    */
     Redwood.prototype.combinePaths = function (a, b) {
         return this.simplifyPath(a.concat(b));
     };
@@ -185,7 +169,19 @@ var Redwood = (function () {
         xhr.send(postData);
     };
     Redwood.prototype.evaluateOnViewModel = function (context, expression) {
-        return eval("(function (c) { return c." + expression + "; })")(context);
+        expression.forEach(function (e) {
+            if (e.length == 0 || context == null)
+                return;
+            if (ko.isObservable(context))
+                context = context();
+            if (e[0] == "[")
+                context = context[eval(e.substring(1, e.length - 1))];
+            else if (e[0] == "`")
+                context = eval("(function (c) { return c." + e.substring(1, e.length - 1) + "; })")(context);
+            else
+                context = context[e];
+        });
+        return context;
     };
     return Redwood;
 })();

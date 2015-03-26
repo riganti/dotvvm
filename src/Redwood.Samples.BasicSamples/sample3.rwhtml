@@ -50,7 +50,7 @@
 							<rw:TextBox Text="{value: Number}" style="width: 80px" />
 						</td>
 						<td>
-							<rw:ComboBox DataSource="{value: _parent.TaxRates}" 
+							<rw:ComboBox DataSource="{value: _root.TaxRates}" 
 								DisplayMember="Title" 
 								ValueMember="Coeff"
 								SelectedValue="{value: TaxCoeff}"
@@ -69,7 +69,7 @@
 							{{value: UnitPrice * Quantity * TaxCoeff}}
 						</td>
 						<td>
-							<rw:LinkButton Click="{command: _parent.RemoveLine(_this)}">
+							<rw:LinkButton Click="{command: _root.RemoveLine(_this)}">
 								<bootstrap:GlyphIcon Icon="Remove" />
 							</rw:LinkButton>
 						</td>

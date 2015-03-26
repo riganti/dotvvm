@@ -11,6 +11,7 @@ using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
 using Redwood.Framework.ViewModel;
 using Redwood.Framework.Validation;
+using Redwood.Framework.Parser.Translation;
 
 namespace Redwood.Framework.Runtime
 {
@@ -157,11 +158,12 @@ namespace Redwood.Framework.Runtime
             var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
             var encryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
 
+            context.ModelState.DataContextPath = data["currentPath"].Values<string>().ToArray();
             // get validation path
-            context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();
+            context.ModelState.ValidationTargetPath = data["validationTargetPath"].Values<string>().ToArray();
 
-            // populate the ViewModel
-            var serializer = new JsonSerializer();
+                // populate the ViewModel
+                var serializer = new JsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter() { EncryptedValues = encryptedValues };
             serializer.Converters.Add(viewModelConverter);
             viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
@@ -179,7 +181,7 @@ namespace Redwood.Framework.Runtime
         {
             // get properties
             var data = JObject.Parse(serializedPostData);
-            var path = data["currentPath"].Values<string>().ToArray();
+            var path = context.ModelState.DataContextPath = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"].Value<string>();
 

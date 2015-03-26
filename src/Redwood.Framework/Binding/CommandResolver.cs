@@ -30,22 +30,16 @@ namespace Redwood.Framework.Binding
             var validationTargetPath = context.ModelState.ValidationTargetPath;
             if (targetControl == null)
             {
-                eventValidator.ValidateCommand(path, command, viewRootControl, ref validationTargetPath);
+                eventValidator.ValidateCommand(path, command, viewRootControl, validationTargetPath);
             }
             else
             {
-                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl, ref validationTargetPath);
+                eventValidator.ValidateControlCommand(path, command, viewRootControl, targetControl, validationTargetPath);
             }
 
             // resolve the path in the view model
             var viewModel = context.ViewModel;
             List<object> hierarchy = ResolveViewModelPath(viewModel, viewRootControl, path);
-
-            // resolve validation target
-            if (!string.IsNullOrEmpty(validationTargetPath))
-            {
-                context.ModelState.ValidationTarget = EvaluateOnViewModel(viewModel, viewRootControl, hierarchy, validationTargetPath);
-            }
 
             // find the function
             var tree = CSharpSyntaxTree.ParseText(command, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
@@ -181,8 +175,10 @@ namespace Redwood.Framework.Binding
         private List<object> ResolveViewModelPath(object viewModel, RedwoodControl viewRootControl, string[] path)
         {
             var visitor = new ExpressionEvaluationVisitor(viewModel, viewRootControl);
-            foreach (var expression in path)
+            foreach (var expression in path
+                .Select(e => e.StartsWith("[") ? Constants.ThisSpecialBindingProperty + e : e))
             {
+                ;
                 // evaluate path fragment
                 var pathTree = CSharpSyntaxTree.ParseText(expression, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
                 var pathExpr = pathTree.EnsureSingleExpression();

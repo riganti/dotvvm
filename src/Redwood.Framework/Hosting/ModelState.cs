@@ -13,12 +13,12 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Gets the validation target path relative to the command target.
         /// </summary>
-        public string ValidationTargetPath { get; internal set; }
+        public string[] ValidationTargetPath { get; internal set; }
 
         /// <summary>
-        /// Gets the object that was validated.
+        /// Gets the command data context path
         /// </summary>
-        public object ValidationTarget { get; internal set; }
+        public string[] DataContextPath { get; internal set; }
 
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace Redwood.Framework.Hosting
         public ModelState()
         {
             Errors = new List<ViewModelValidationError>();
-            ValidationTargetPath = "$root";
+            ValidationTargetPath = new string[0];
         }
 
     }

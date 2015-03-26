@@ -47,6 +47,11 @@ namespace Redwood.Framework.Binding
             return translator.Translate(Expression);
         }
 
+        public string[] GetPath()
+        {
+            return translator.TranslateToPath(Expression);
+        }
+
         /// <summary>
         /// Gets the view model path expression.
         /// </summary>
