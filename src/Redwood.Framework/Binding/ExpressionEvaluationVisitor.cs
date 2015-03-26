@@ -35,6 +35,10 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public RedwoodControl ViewRootControl { get; private set; }
 
+        /// <summary>
+        /// Gets or sets the target object on which the returned MethodInfo should be invoked.
+        /// </summary>
+        public object MethodInvocationTarget { get; private set; }
 
         /// <summary>
         /// Gets the target on which last property was evaluated.
@@ -93,7 +97,15 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public override object VisitElementAccessExpression(ElementAccessExpressionSyntax node)
         {
-            var array = Visit(node.Expression) as IList;
+            var value = Visit(node.Expression);
+
+            var array = value as IList;
+            if (array == null && value is IGridViewDataSet)
+            {
+                // GridViewDataSet has special handling - the .Items in the command path is optional
+                array = ((IGridViewDataSet)value).Items;
+            }
+
             if (array == null) return null;
 
             if (node.ArgumentList.Arguments.Count == 1)
@@ -107,6 +119,7 @@ namespace Redwood.Framework.Binding
 
             return base.VisitElementAccessExpression(node);
         }
+        
 
         /// <summary>
         /// Visits the argument.
@@ -124,6 +137,10 @@ namespace Redwood.Framework.Binding
             if (node.IsKind(SyntaxKind.NumericLiteralExpression))
             {
                 return node.Token.Value as int?;
+            }
+            else if (node.IsKind(SyntaxKind.StringLiteralExpression))
+            {
+                return node.Token.Value as string;
             }
             return base.VisitLiteralExpression(node);
         }
@@ -203,6 +220,7 @@ namespace Redwood.Framework.Binding
                     {
                         throw new ParserException(string.Format("The method {0} on type {1} is overloaded which is not supported yet!", propertyName, target.GetType()));
                     }
+                    MethodInvocationTarget = target;
                     return methods[0];
                 }
                 else

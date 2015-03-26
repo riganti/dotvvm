@@ -1,7 +1,7 @@
 Redwood
 =======
 
-Redwood is an OWIN-based ASP.NET framework that allows you to write rich client applications without writing javascript code. All you have to do is to write a viewmodel in C# and Redwood will generate the javascript part for you.
+Redwood is an OWIN-based ASP.NET framework that allows you to write rich client applications without writing javascript code. All you have to do is to write a viewmodel in C# and view in HTML and Redwood will generate the javascript part for you.
 
 Redwood is inspired by ASP.NET WebForms, but it is much more modern. It brings full MVVM experience and it uses KnockoutJS on the client side.
 
@@ -9,32 +9,21 @@ Redwood is inspired by ASP.NET WebForms, but it is much more modern. It brings f
 How to start
 ------------
 
-Read the tutorial on our **[WIKI](https://github.com/riganti/redwood/wiki)**.
+First download and install the **[Visual Studio Extension](http://riganti.cz/download/Redwood.VS2015Extension_v0.5.zip)**.
+
+Then you can read the tutorial on our **[WIKI](https://github.com/riganti/redwood/wiki)**.
 
 
 
 Why to use it?
 --------------
 
-+ **Easy to use** - you don't have to know dozens of languages and frameworks like Knockout, Breeze, jQuery etc. Just learn HTML, CSS, C# and go.
-+ **Stateful controls** - writing a smart control that has its own state in ASP.NET MVC is quite tricky. Redwood allows to write rich components that seamlessly persist their state in the viewmodel.
++ **Easy to use** - you don't have to know dozens of languages and frameworks like Knockout, Angular, jQuery etc. Just learn HTML, CSS, C# and go.
++ **Stateful controls** - in ASP.NET MVC, writing a custom control that persists its own state an can be easily reused, is quite tricky. With Redwood you can write such components and reuse them multiple times. 
++ **MVVM** - if you have existing WPF or Windows Store app, you can reuse your viewmodels and create a web application and reuse some code. Viewmodels can be also easily tested using unit or integration tests.
 + **Runs on vNext platform** - unlike WebForms, Redwood is not restricted to full .NET and has no COM and IIS dependencies. 
-
-
-Why it is better than WebForms?
--------------------------------
-
-+ **No ViewState** - your viewmodel is the new ViewState. You have direct control on what is transferred between server and client. You can also use stateless commands and if some command doesn't require to be executed on the server, it is translated to javascript code and executed locally.
-+ **Testable** - testing Redwood app is no pain. You just create your viewmodel instance by yourself, set the properties, call the commands and verify the results.
-+ **Clean HTML** - Redwood controls generate clean and simple HTML that can be fully styled using CSS. No more hours spent by persuading asp:Calendar to not render inline styles with hard coded colors.
-
-
-More Info
----------
-
-You can find more info and the basic explanation in the following document:
-
-[Redwood.docx](https://github.com/riganti/redwood/blob/master/Redwood.docx)
++ **Security** - you can encrypt or sign parts of the viewmodel so the user can not tamper with it. 
++ **Rapid App Development** - with Visual Studio extension, it is quite easy to create a page and a viewmodel. If your application is complicated and contains many form controls, Redwood can handle it quite easily.
 
 
 Roadmap

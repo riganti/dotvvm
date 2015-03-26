@@ -72,6 +72,7 @@ namespace Redwood.Framework.Hosting
             catch (RedwoodInterruptRequestExecutionException)
             {
                 // the response has already been generated, do nothing
+                return;
             }
             catch (UnauthorizedAccessException ex)
             {
@@ -95,7 +96,7 @@ namespace Redwood.Framework.Hosting
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 throw new RedwoodHttpException("Only GET and POST methods are supported!");
             }
-            var isPostBack = context.OwinContext.Request.Method == "POST";
+            var isPostBack = DetermineIsPostBack(context.OwinContext.Request.Method);
             context.IsPostBack = isPostBack;
             context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
 
@@ -250,6 +251,11 @@ namespace Redwood.Framework.Hosting
             {
                 ViewModelLoader.DisposeViewModel(context.ViewModel);
             }
+        }
+
+        public static bool DetermineIsPostBack(string httpMethod)
+        {
+            return httpMethod == "POST";
         }
 
         /// <summary>

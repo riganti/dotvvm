@@ -120,7 +120,7 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Serializes the redirect action.
         /// </summary>
-        public string SerializeRedirectAction(RedwoodRequestContext context, string url)
+        public static string GenerateRedirectActionResponse(string url)
         {
             // create result object
             var result = new JObject();

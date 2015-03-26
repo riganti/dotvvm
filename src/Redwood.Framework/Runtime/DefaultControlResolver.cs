@@ -197,6 +197,8 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         private ControlResolverMetadata BuildControlMetadata(Type controlType, Type controlBuilderType)
         {
+            var attribute = controlType.GetCustomAttribute<ControlMarkupOptionsAttribute>();
+
             var metadata = new ControlResolverMetadata()
             {
                 Name = controlType.Name,
@@ -204,7 +206,8 @@ namespace Redwood.Framework.Runtime
                 HasHtmlAttributesCollection = typeof(IControlWithHtmlAttributes).IsAssignableFrom(controlType),
                 Type = controlType,
                 ControlBuilderType = controlBuilderType,
-                Properties = GetControlProperties(controlType)
+                Properties = GetControlProperties(controlType),
+                IsContentAllowed = attribute.AllowContent
             };
             return metadata;
         }

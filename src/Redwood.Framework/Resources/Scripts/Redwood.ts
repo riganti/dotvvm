@@ -1,5 +1,6 @@
 ﻿/// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
+/// <reference path="typings/globalize/globalize.d.ts" />
 
 interface RedwoodExtensions {
 }
@@ -7,10 +8,11 @@ interface RedwoodViewModel {
     viewModel: any;
 }
 
-class Redwood {
+class Redwood { 
 
     public extensions: RedwoodExtensions = {};
     public viewModels: { [name: string]: RedwoodViewModel } = {};
+    private postBackCounter = 0;
     public culture: string;
     public events = {
         preinit: new RedwoodEvent<RedwoodEventArgs>("redwood.events.preinit"),
@@ -40,10 +42,14 @@ class Redwood {
         ko.applyBindings(viewModel);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     }
-
+    
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: string[]): void {
         var viewModel = this.viewModels[viewModelName].viewModel;
         this.updateDynamicPathFragments(sender, path);
+
+        // prevent double postbacks
+        this.postBackCounter++;
+        var currentPostBackCounter = this.postBackCounter;
 
         // trigger beforePostback event
         var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath || ["$this"], path, command);
@@ -61,6 +67,9 @@ class Redwood {
             validationTargetPath: validationTargetPath || null
         };
         this.postJSON(document.location.href, "POST", ko.toJSON(data), result => {
+            // if another postback has already been passed, don't do anything
+            if (this.postBackCounter !== currentPostBackCounter) return;
+
             var resultObject = JSON.parse(result.responseText);
 
             var isSuccess = false;
@@ -102,15 +111,40 @@ class Redwood {
             } 
             
             // trigger afterPostback event
-            var isHandled = this.events.afterPostback.trigger(new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject));
-            if (!isSuccess && !isHandled) {
+            var afterPostBackArgs = new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+            this.events.afterPostback.trigger(afterPostBackArgs);
+            if (!isSuccess && !afterPostBackArgs.isHandled) {
                 throw "Invalid response from server!";
             }
         }, xhr => {
-                if (!this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
-                    alert(xhr.responseText);
-                }
-            });
+            // if another postback has already been passed, don't do anything
+            if (this.postBackCounter !== currentPostBackCounter) return;
+
+            // execute error handlers
+            if (!this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
+                alert(xhr.responseText);
+            }
+        });
+    }
+
+    public formatString(format: string, value: any) {
+        if (format == "g") {
+            return redwood.formatString("d", value) + " " + redwood.formatString("t", value);
+        } else if (format == "G") {
+            return redwood.formatString("d", value) + " " + redwood.formatString("T", value);
+        }
+
+        value = ko.unwrap(value);
+        if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?$")) {
+            // JSON date in string
+            value = new Date(value);
+        }
+        return Globalize.format(value, format, redwood.culture);
+    }
+
+    public getDataSourceItems(viewModel: any) {
+        var value = ko.unwrap(viewModel);
+        return value.Items || value;
     }
 
     private updateDynamicPathFragments(sender: HTMLElement, path: string[]): void {
@@ -201,37 +235,31 @@ class RedwoodEvent<T extends RedwoodEventArgs> {
     constructor(public name: string, private triggerMissedEventsOnSubscribe: boolean = false) {
     }
 
-    public subscribe(handler: (data: T) => boolean) {
+    public subscribe(handler: (data: T) => void) {
         this.handlers.push(handler);
 
         if (this.triggerMissedEventsOnSubscribe) {
             for (var i = 0; i < this.history.length; i++) {
-                if (handler(history[i])) {
-                    this.history = this.history.splice(i, 1);
+                handler(history[i]);
                 }
             }
         }
-    }
 
-    public unsubscribe(handler: (data: T) => boolean) {
+    public unsubscribe(handler: (data: T) => void) {
         var index = this.handlers.indexOf(handler);
         if (index >= 0) {
             this.handlers = this.handlers.splice(index, 1);
         }
     }
 
-    public trigger(data: T): boolean {
+    public trigger(data: T): void {
         for (var i = 0; i < this.handlers.length; i++) {
-            var result = this.handlers[i](data);
-            if (result) {
-                return true;
+            this.handlers[i](data);
             }
-        }
 
         if (this.triggerMissedEventsOnSubscribe) {
             this.history.push(data);
         }
-        return false;
     }
 }
 
@@ -251,9 +279,27 @@ class RedwoodBeforePostBackEventArgs extends RedwoodEventArgs {
     }
 }
 class RedwoodAfterPostBackEventArgs extends RedwoodEventArgs {
+    public isHandled: boolean = false;
     constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: string[], public serverResponseObject: any) {
         super(viewModel);
     }
 }
 
 var redwood = new Redwood();
+
+
+// add knockout binding handler for update progress control
+ko.bindingHandlers["redwoodUpdateProgressVisible"] = {
+    init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+        element.style.display = "none";
+        redwood.events.beforePostback.subscribe(e => {
+            element.style.display = "";
+        });
+        redwood.events.afterPostback.subscribe(e => {
+            element.style.display = "none";
+        });
+        redwood.events.error.subscribe(e => {
+            element.style.display = "none";
+        });
+    }
+};

@@ -1,0 +1,36 @@
+﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample16ViewModel, Redwood.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from Redwood!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>GridView with IGridViewDataSet</h1>
+		<rw:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
+			<Columns>
+				<rw:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+				<rw:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+				<rw:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+			</Columns>
+		</rw:GridView>
+		<rw:DataPager DataSet="{value: CustomersDataSet}" class="pagination" />
+
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+
+		<h1>GridView with simple collection</h1>
+		<rw:GridView DataSource="{value: Customers}" SortChanged="{command: SortCustomers}" class="table table-bordered">
+			<Columns>
+				<rw:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+				<rw:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+				<rw:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+			</Columns>
+		</rw:GridView>
+		<p>Selected sort column: {{value: SelectedSortColumn}}</p>
+
+	</div>
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>

@@ -63,7 +63,7 @@ namespace Redwood.Framework.Controls
             if (RenderOnServer)
             {
                 // render items
-                foreach (var item in DataSource)
+                foreach (var item in GetIEnumerableFromDataSource(DataSource))
                 {
                     var value = string.IsNullOrEmpty(ValueMember) ? item : ReflectionUtils.GetObjectProperty(item, ValueMember);
                     var text = string.IsNullOrEmpty(DisplayMember) ? item : ReflectionUtils.GetObjectProperty(item, DisplayMember);

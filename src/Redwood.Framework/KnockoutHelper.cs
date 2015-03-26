@@ -35,6 +35,21 @@ namespace Redwood.Framework
             writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => e.Key + ": " + e.Value.TranslateToClientScript(control, property))) + "}", true, ", ");
         }
 
+        public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, string expression)
+        {
+            writer.WriteUnencodedText("<!-- ko " + name + ": " + expression + " -->");
+        }
+
+        public static void WriteKnockoutDataBindEndComment(this IHtmlWriter writer)
+        {
+            writer.WriteUnencodedText("<!-- /ko -->");
+        }
+
+        public static void AddKnockoutForeachDataBind(this IHtmlWriter writer, string expression)
+        {
+            writer.AddKnockoutDataBind("foreach", "redwood.getDataSourceItems(" + expression + ")");
+        }
+
         public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, RedwoodBindableControl control)
         {
             var uniqueControlId = "";

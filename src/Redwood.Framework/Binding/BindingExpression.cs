@@ -42,5 +42,12 @@ namespace Redwood.Framework.Binding
         public BindingExpression()
         {
         }
+
+
+
+        public virtual BindingExpression Clone()
+        {
+            return (BindingExpression)Activator.CreateInstance(GetType(), Expression);
+        }
     }
 }

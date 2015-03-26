@@ -4,10 +4,10 @@ using System.Linq;
 
 namespace Redwood.Framework.Controls
 {
-    public enum MappingMode
+    public enum TextBoxType
     {
-        Attribute = 0,
-        InnerElement = 1,
-        Exclude = 2
+        Normal,
+        Password,
+        MultiLine
     }
 }

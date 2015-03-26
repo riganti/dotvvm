@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <PropertyGroup>
@@ -100,11 +101,23 @@
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
     <Compile Include="Controls\ContainsRedwoodPropertiesAttribute.cs" />
+    <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
+    <Compile Include="Controls\DataPager.cs" />
+    <Compile Include="Controls\Decorator.cs" />
+    <Compile Include="Controls\EventsDecorator.cs" />
+    <Compile Include="Controls\GridView.cs" />
+    <Compile Include="Controls\GridViewColumn.cs" />
+    <Compile Include="Controls\GridViewTemplateColumn.cs" />
+    <Compile Include="Controls\GridViewTextColumn.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
+    <Compile Include="Controls\GridViewDataSet.cs" />
+    <Compile Include="Controls\IGridViewDataSet.cs" />
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\MultiHtmlWriter.cs" />
     <Compile Include="Controls\RenderMode.cs" />
     <Compile Include="Controls\RenderSettings.cs" />
+    <Compile Include="Controls\TextBoxType.cs" />
+    <Compile Include="Controls\UpdateProgress.cs" />
     <Compile Include="Controls\Validate.cs" />
     <Compile Include="Controls\ListBox.cs" />
     <Compile Include="Controls\SelectHtmlControlBase.cs" />
@@ -122,6 +135,7 @@
     <Compile Include="Parser\SimpleTokenError.cs" />
     <Compile Include="Parser\TextRange.cs" />
     <Compile Include="Parser\TokenError.cs" />
+    <Compile Include="RedwoodAuthenticationHelper.cs" />
     <Compile Include="ResourceManagement\InlineScriptResource.cs" />
     <Compile Include="ResourceManagement\IRedwoodResourceRepository.cs" />
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
@@ -211,6 +225,7 @@
     <Compile Include="Security\ICsrfProtector.cs" />
     <Compile Include="Security\IViewModelProtector.cs" />
     <Compile Include="Security\NistSP800108DeriveBytes.cs" />
+    <Compile Include="Security\ProtectionHelpers.cs" />
     <Compile Include="ServiceLocator.cs" />
     <Compile Include="Utils\CollectionUtils.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
@@ -710,8 +725,10 @@
     <TypeScriptCompile Include="Resources\Scripts\Redwood.Validation.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

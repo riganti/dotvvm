@@ -2,7 +2,7 @@
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="Redwood.ts" />
 
-class RedwoodValidationContext {
+class RedwoodValidationContext { 
     constructor(public valueToValidate: any, public parentViewModel: any, public parameters: any[], public viewModelName: string, public path: string[], public constraints: ValidationConstraints) {
     }
 }
@@ -50,7 +50,7 @@ class RedwoodCollectionValidator extends RedwoodValidatorBase {
 class ValidationError {
     public errorMessage = ko.observable("");
     public isValid = ko.computed(() => !!this.errorMessage());
-
+    
     constructor(public targetObservable: KnockoutObservable<any>) {
     }
 
@@ -168,25 +168,25 @@ class RedwoodValidation {
             this.validateProperty(obj, value, rule, viewModelName, path.concat([rule.propertyName]), constraints);
         });
         return ecount == this.errors.length;
-    }
+                    }
 
     /**
     * Validates the specified property in the viewModel
     */
     public validateProperty(viewModel: any, property: any, rule: ValidationRule, viewModelName: string, path: string[], constraints: ValidationConstraints) {
-        var ruleTemplate = this.rules[rule.ruleName];
+            var ruleTemplate = this.rules[rule.ruleName];
         var context = new RedwoodValidationContext(ko.isObservable(property) ? property() : property, viewModel, rule.parameters, viewModelName, path, constraints);
 
-        var validationError = ValidationError.getOrCreate(property);
+            var validationError = ValidationError.getOrCreate(property);
         viewModel.$validationErrors.remove(validationError);
         this.errors.remove(validationError);
-        if (!ruleTemplate.isValid(context)) {
-            // add error message
-            validationError.errorMessage(rule.errorMessage);
-            this.addValidationError(viewModel, validationError);
-        } else {
-            // remove
-            validationError.errorMessage("");
+            if (!ruleTemplate.isValid(context)) {
+                // add error message
+                validationError.errorMessage(rule.errorMessage);
+                this.addValidationError(viewModel, validationError);
+            } else {
+                // remove
+                validationError.errorMessage("");
         }
     }
 
@@ -298,7 +298,7 @@ redwood.extensions.validation = redwood.extensions.validation || new RedwoodVali
 // perform the validation before postback
 redwood.events.beforePostback.subscribe(args => {
     if (args.validationTargetPath) {
-
+        
         var actionName = RedwoodValidation.findActionNameInCommand(args.command);
         var groups = redwood.viewModels[args.viewModelName].validationRules.actionGroups[actionName];
         // we can't use args.viewModelPath because is can contain complicated expressions
@@ -311,10 +311,8 @@ redwood.events.beforePostback.subscribe(args => {
         args.viewModel.$allValidationErrors(redwood.extensions.validation.errors());
         if (redwood.extensions.validation.errors().length > 0) {
             args.cancel = true;
-            return true;
         }
     }
-    return false;
 });
 
 redwood.events.preinit.subscribe(args => {
@@ -326,14 +324,13 @@ redwood.events.afterPostback.subscribe(args => {
     if (args.serverResponseObject.action === "successfulCommand") {
         // merge validation rules from postback with those we already have (required when a new type appears in the view model)
         redwood.extensions.validation.mergeValidationRules(args);
-        return false;
+        args.isHandled = true;
     } else if (args.serverResponseObject.action === "validationErrors") {
         // apply validation errors from server
         redwood.extensions.validation.showValidationErrorsFromServer(args);
         args.viewModel.$allValidationErrors(redwood.extensions.validation.errors());
-        return true;
+        args.isHandled = true;
     }
-    return false;
 });
 
 // add knockout binding handler

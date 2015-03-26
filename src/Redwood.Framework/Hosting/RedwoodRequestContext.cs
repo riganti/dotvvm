@@ -11,6 +11,7 @@ using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Routing;
 using Redwood.Framework.ResourceManagement;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Hosting
 {
@@ -79,7 +80,7 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Interrupts the execution of the current request.
         /// </summary>
-        public void InterruptExecution()
+        public void InterruptRequest()
         {
             throw new RedwoodInterruptRequestExecutionException();    
         }
@@ -89,7 +90,8 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public void Redirect(string url)
         {
-            SetRedirectResponse(url, (int)HttpStatusCode.Redirect);
+            SetRedirectResponse(OwinContext, url, (int)HttpStatusCode.Redirect);
+            InterruptRequest();
 
         }
 
@@ -98,25 +100,26 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public void RedirectPermanent(string url)
         {
-            SetRedirectResponse(url, (int)HttpStatusCode.MovedPermanently);
+            SetRedirectResponse(OwinContext, url, (int)HttpStatusCode.MovedPermanently);
+            InterruptRequest();
         }
 
         /// <summary>
         /// Renders the redirect response.
         /// </summary>
-        private void SetRedirectResponse(string url, int statusCode)
+        public static void SetRedirectResponse(IOwinContext OwinContext, string url, int statusCode)
         {
-            if (!IsPostBack)
+            if (!RedwoodPresenter.DetermineIsPostBack(OwinContext.Request.Method))
             {
                 OwinContext.Response.Headers["Location"] = url;
                 OwinContext.Response.StatusCode = statusCode;
             }
             else
             {
+                OwinContext.Response.StatusCode = 200;
                 OwinContext.Response.ContentType = "application/json";
-                OwinContext.Response.Write(Presenter.ViewModelSerializer.SerializeRedirectAction(this, url));
+                OwinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url));
             }
-            InterruptExecution();
         }
 
         /// <summary>

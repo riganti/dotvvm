@@ -38,5 +38,7 @@ namespace Redwood.Framework.Binding
         {
             return translator.Translate(Expression);
         }
+
+        
     }
 }

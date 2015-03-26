@@ -12,9 +12,7 @@ namespace Redwood.Framework.Runtime
         void BuildViewModel(RedwoodRequestContext context, RedwoodView view);
 
         string SerializeViewModel(RedwoodRequestContext context);
-
-        string SerializeRedirectAction(RedwoodRequestContext context, string url);
-
+        
         string SerializeModelState(RedwoodRequestContext context);
 
         void PopulateViewModel(RedwoodRequestContext context, RedwoodView view, string serializedPostData);

@@ -4,12 +4,15 @@ using System.Net;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime;
+using Newtonsoft.Json;
+using Redwood.Framework.Parser;
 
 namespace Redwood.Framework.Controls
 {
     /// <summary>
     /// Renders a text into the page.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class Literal : RedwoodBindableControl
     {
 
@@ -35,6 +38,18 @@ namespace Redwood.Framework.Controls
         }
         public static readonly RedwoodProperty TextProperty =
             RedwoodProperty.Register<string, Literal>(t => t.Text, "");
+
+
+        [MarkupOptions(AllowBinding = false)]
+        public string FormatString
+        {
+            get { return (string)GetValue(FormatStringProperty); }
+            set { SetValue(FormatStringProperty, value); }
+        }
+        public static readonly RedwoodProperty FormatStringProperty =
+            RedwoodProperty.Register<string, Literal>(c => c.FormatString);
+
+
 
 
         /// <summary>
@@ -71,19 +86,32 @@ namespace Redwood.Framework.Controls
             var textBinding = GetBinding(TextProperty);
             if (textBinding != null && !RenderOnServer)
             {
-                writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", this, TextProperty, () => { });
+                var expression = textBinding.TranslateToClientScript(this, TextProperty);
+                if (!string.IsNullOrEmpty(FormatString))
+                {
+                    expression = "redwood.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
+                    context.ResourceManager.AddCurrentCultureGlobalizationResource();
+                }
+
+                writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", expression);
                 writer.RenderBeginTag("span");
                 writer.RenderEndTag();
             }
             else
             {
+                var textToDisplay = Text;
+                if (!string.IsNullOrEmpty(FormatString))
+                {
+                    textToDisplay = string.Format("{0:" + FormatString + "}", textToDisplay);
+                }
+
                 if (HtmlEncode)
                 {
-                    writer.WriteText(Text);
+                    writer.WriteText(textToDisplay);
                 }
                 else
                 {
-                    writer.WriteUnencodedText(Text);
+                    writer.WriteUnencodedText(textToDisplay);
                 }
             }
         }

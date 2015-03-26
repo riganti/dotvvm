@@ -41,7 +41,7 @@ namespace Redwood.Framework.Hosting
                 await route.ProcessRequest(new RedwoodRequestContext()
                 {
                     Route = route,
-                    OwinContext = context, 
+                    OwinContext = context,
                     Configuration = configuration,
                     Parameters = parameters,
                     ResourceManager = new ResourceManager(configuration)

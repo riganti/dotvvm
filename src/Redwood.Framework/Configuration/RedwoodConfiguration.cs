@@ -103,7 +103,7 @@ namespace Redwood.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
             configuration.ServiceLocator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
             configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IViewCompiler>(() => new DefaultViewCompiler(configuration));
+            configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
             configuration.ServiceLocator.RegisterSingleton<Validation.ViewModelValidationProvider>(() => new Validation.ViewModelValidationProvider());
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
@@ -194,7 +194,7 @@ namespace Redwood.Framework.Configuration
                 configuration.Resources.Register(new ScriptResource()
                 {
                     Name = string.Format(Constants.GlobalizeCultureResourceName, culture),
-                    Url = "Redwood.Framework.Resources.Scripts.Globalize.cultures.{0}.globalize.js",
+                    Url = string.Format("Redwood.Framework.Resources.Scripts.Globalize.cultures.{0}.globalize.js", culture),
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     Dependencies = new[] { Constants.GlobalizeResourceName }
                 });    

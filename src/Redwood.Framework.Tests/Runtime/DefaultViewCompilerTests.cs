@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
@@ -87,6 +88,30 @@ namespace Redwood.Framework.Tests.Runtime
 
 
         [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_TextInside()
+        {
+            var markup = @"test <rw:Literal>aaa</rw:Literal>";
+            var page = CompileMarkup(markup);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_BindingAndWhiteSpaceInside()
+        {
+            var markup = @"test <rw:Literal>{{value: Test}}  </rw:Literal>";
+            var page = CompileMarkup(markup);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception))]
+        public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_ElementInside()
+        {
+            var markup = @"test <rw:Literal><a /></rw:Literal>";
+            var page = CompileMarkup(markup);
+        }
+        
+        [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_Template()
         {
             var markup = @"<rw:Repeater>
@@ -112,7 +137,8 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)placeholder.Children[2]).Text));
         }
 
-        
+
+
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_AttachedProperty()
         {
@@ -135,13 +161,154 @@ namespace Redwood.Framework.Tests.Runtime
         }
 
 
-        private static RedwoodControl CompileMarkup(string markup)
+
+        [TestMethod]
+        public void DefaultViewCompiler_CodeGeneration_MarkupControl()
+        {
+            var markup = @"<cc:Test1 />";
+            var page = CompileMarkup(markup, new Dictionary<string, string>()
+            {
+                { "test1.rwhtml", "<rw:Literal Text='aaa' />" }
+            });
+
+            Assert.IsInstanceOfType(page, typeof(RedwoodView));
+            Assert.IsInstanceOfType(page.Children[0], typeof(RedwoodView));
+            
+            var literal = page.Children[0].Children[0];
+            Assert.IsInstanceOfType(literal, typeof(Literal));
+            Assert.AreEqual("aaa", ((Literal)literal).Text);
+        }
+
+        [TestMethod]
+        public void DefaultViewCompiler_CodeGeneration_MarkupControlWithBaseType()
+        {
+            var markup = @"<cc:Test2 />";
+            var page = CompileMarkup(markup, new Dictionary<string, string>()
+            {
+                { "test2.rwhtml", string.Format("@baseType {0}, {1}\r\n<rw:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).Assembly.GetName().Name) }
+            });
+
+            Assert.IsInstanceOfType(page, typeof(RedwoodView));
+            Assert.IsInstanceOfType(page.Children[0], typeof(TestControl));
+
+            var literal = page.Children[0].Children[0];
+            Assert.IsInstanceOfType(literal, typeof(Literal));
+            Assert.AreEqual("aaa", ((Literal)literal).Text);
+        }
+
+        [TestMethod]
+        public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate()
+        {
+            var markup = @"<rw:Repeater>
+    <ItemTemplate>
+        <cc:Test3 />
+    </ItemTemplate>
+</rw:Repeater>";
+            var page = CompileMarkup(markup, new Dictionary<string, string>()
+            {
+                { "test3.rwhtml", "<rw:Literal Text='aaa' />" }
+            });
+
+            Assert.IsInstanceOfType(page, typeof(RedwoodView));
+            Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
+
+            var container = new Placeholder();
+            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(container);
+            Assert.IsInstanceOfType(container.Children[0], typeof(Placeholder));
+
+            var literal1 = container.Children[0].Children[0];
+            Assert.IsInstanceOfType(literal1, typeof(Literal));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)literal1).Text));
+
+            var markupControl = container.Children[0].Children[1];
+            Assert.IsInstanceOfType(markupControl, typeof(RedwoodView));
+            Assert.IsInstanceOfType(markupControl.Children[0], typeof(Literal));
+            Assert.AreEqual("aaa", ((Literal)markupControl.Children[0]).Text);
+
+            var literal2 = container.Children[0].Children[2];
+            Assert.IsInstanceOfType(literal2, typeof(Literal));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)literal2).Text));
+        }
+
+        [TestMethod]
+        public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate_CacheTest()
+        {
+            var markup = @"<rw:Repeater>
+    <ItemTemplate>
+        <cc:Test4 />
+    </ItemTemplate>
+</rw:Repeater>";
+            var page = CompileMarkup(markup, new Dictionary<string, string>()
+            {
+                { "test4.rwhtml", "<rw:Literal Text='aaa' />" }
+            }, compileTwice: true);
+
+            Assert.IsInstanceOfType(page, typeof(RedwoodView));
+            Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
+
+            var container = new Placeholder();
+            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(container);
+            Assert.IsInstanceOfType(container.Children[0], typeof(Placeholder));
+
+            var literal1 = container.Children[0].Children[0];
+            Assert.IsInstanceOfType(literal1, typeof(Literal));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)literal1).Text));
+
+            var markupControl = container.Children[0].Children[1];
+            Assert.IsInstanceOfType(markupControl, typeof(RedwoodView));
+            Assert.IsInstanceOfType(markupControl.Children[0], typeof(Literal));
+            Assert.AreEqual("aaa", ((Literal)markupControl.Children[0]).Text);
+
+            var literal2 = container.Children[0].Children[2];
+            Assert.IsInstanceOfType(literal2, typeof(Literal));
+            Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)literal2).Text));
+        }
+
+
+
+        private static RedwoodControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false)
         {
             var redwoodConfiguration = RedwoodConfiguration.CreateDefault();
+            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.rwhtml" });
+            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.rwhtml" });
+            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.rwhtml" });
+            redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.rwhtml" });
+            redwoodConfiguration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new FakeMarkupFileLoader(markupFiles));
+            redwoodConfiguration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
             var compiler = redwoodConfiguration.ServiceLocator.GetService<IViewCompiler>();
 
             var controlBuilder = compiler.CompileView(new StringReader(markup), "file", "assembly", "ns", "c");
-            return controlBuilder.BuildControl();
+            var result = controlBuilder.BuildControl();
+            if (compileTwice)
+            {
+                result = controlBuilder.BuildControl();
+            }
+            return result;
+        }
+    }
+
+    public class TestControl : RedwoodMarkupControl
+    {
+        
+    }
+
+    public class FakeMarkupFileLoader : IMarkupFileLoader
+    {
+        private readonly Dictionary<string, string> markupFiles;
+
+        public FakeMarkupFileLoader(Dictionary<string, string> markupFiles = null)
+        {
+            this.markupFiles = markupFiles ?? new Dictionary<string, string>();
+        }
+
+        public MarkupFile GetMarkup(RedwoodRequestContext context)
+        {
+            throw new NotImplementedException();
+        }
+
+        public MarkupFile GetMarkup(RedwoodConfiguration configuration, string virtualPath)
+        {
+            return new MarkupFile(virtualPath, virtualPath, markupFiles[virtualPath]);
         }
     }
 }

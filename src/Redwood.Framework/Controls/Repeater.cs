@@ -10,6 +10,7 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// Repeats a specified template for each of the items in the <see cref="RedwoodBindableControl.DataContext"/> property.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class Repeater : ItemsControl
     {
 
@@ -74,14 +75,18 @@ namespace Redwood.Framework.Controls
             var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
 
             var index = 0;
-            foreach (var item in DataSource)
+            var dataSource = DataSource;
+            if (dataSource != null)
             {
-                var placeholder = new DataItemContainer { DataItemIndex = index };
-                placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
-                Children.Add(placeholder);
-                ItemTemplate.BuildContent(placeholder);
+                foreach (var item in GetIEnumerableFromDataSource(dataSource))
+                {
+                    var placeholder = new DataItemContainer { DataItemIndex = index };
+                    placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
+                    Children.Add(placeholder);
+                    ItemTemplate.BuildContent(placeholder);
 
-                index++;
+                    index++;
+                }
             }
         }
 
@@ -95,7 +100,7 @@ namespace Redwood.Framework.Controls
 
             if (!RenderOnServer)
             {
-                writer.AddKnockoutDataBind("foreach", this, DataSourceProperty, () => { });
+                writer.AddKnockoutForeachDataBind(GetDataSourceBinding().TranslateToClientScript(this, DataSourceProperty));
             }
 
             base.AddAttributesToRender(writer, context);

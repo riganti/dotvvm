@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Configuration;
+using Redwood.Framework.Parser;
+using System.Threading;
 
 namespace Redwood.Framework.ResourceManagement
 {
@@ -77,6 +79,15 @@ namespace Redwood.Framework.ResourceManagement
         {
             AddRequiredResourceCore(name, new InlineScriptResource() { Name = name, Code = javascriptCode, Dependencies = dependentResourceNames });
         }
+
+        /// <summary>
+        /// Adds the globalization file for current thread culture.
+        /// </summary>
+        public void AddCurrentCultureGlobalizationResource()
+        {
+            AddRequiredResource(string.Format(Constants.GlobalizeCultureResourceName, Thread.CurrentThread.CurrentCulture.Name));
+        }
+
 
         /// <summary>
         /// Gets the resources in correct order.

@@ -14,14 +14,14 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets or sets the source collection that is used.
         /// </summary>
-        public IEnumerable DataSource
+        public object DataSource
         {
-            get { return (IEnumerable)GetValue(DataSourceProperty); }
+            get { return GetValue(DataSourceProperty); }
             set { SetValue(DataSourceProperty, value); }
         }
 
         public static readonly RedwoodProperty DataSourceProperty =
-            RedwoodProperty.Register<IEnumerable, ItemsControl>(t => t.DataSource, null);
+            RedwoodProperty.Register<object, ItemsControl>(t => t.DataSource, null);
 
 
         /// <summary>
@@ -51,6 +51,24 @@ namespace Redwood.Framework.Controls
                 throw new Exception(string.Format("The DataSource property of the {0} control must be set!", GetType().Name));
             }
             return binding;
+        }
+
+
+        public IEnumerable GetIEnumerableFromDataSource(object dataSource)
+        {
+            if (dataSource == null)
+            {
+                return null;
+            }
+            if (dataSource is IEnumerable)
+            {
+                return (IEnumerable)dataSource;
+            }
+            if (dataSource is IGridViewDataSet)
+            {
+                return ((IGridViewDataSet)dataSource).Items;
+            }
+            throw new NotSupportedException(string.Format("The object of type {0} is not supported in the DataSource property!", dataSource.GetType()));
         }
     }
 }

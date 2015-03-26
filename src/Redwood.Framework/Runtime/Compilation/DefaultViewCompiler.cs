@@ -55,12 +55,13 @@ namespace Redwood.Framework.Runtime.Compilation
                 var node = parser.Parse(tokenizer.Tokens);
 
                 // determine wrapper type
-                var wrapperType = ResolveWrapperType(node);
+                string wrapperClassName;
+                var wrapperType = ResolveWrapperType(node, className, out wrapperClassName);
                 var metadata = controlResolver.ResolveControl(wrapperType);
 
                 // build the statements
                 emitter.PushNewMethod("BuildControl");
-                var pageName = emitter.EmitCreateObject(wrapperType);
+                var pageName = wrapperClassName == null ? emitter.EmitCreateObject(wrapperType) : emitter.EmitCreateObject(wrapperClassName);
                 emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, pageName);
                 foreach (var child in node.Content)
                 {
@@ -89,9 +90,10 @@ namespace Redwood.Framework.Runtime.Compilation
         /// <summary>
         /// Resolves the type of the wrapper.
         /// </summary>
-        private Type ResolveWrapperType(RwHtmlRootNode node)
+        private Type ResolveWrapperType(RwHtmlRootNode node, string className, out string controlClassName)
         {
             var wrapperType = typeof (RedwoodView);
+
             var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
             if (baseControlDirective != null)
             {
@@ -100,11 +102,19 @@ namespace Redwood.Framework.Runtime.Compilation
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_TypeSpecifiedInBaseTypeDirectiveNotFound, baseControlDirective.Value));
                 }
-                if (!typeof(RedwoodMarkupControl).IsAssignableFrom(wrapperType))
+                if (!typeof (RedwoodMarkupControl).IsAssignableFrom(wrapperType))
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_MarkupControlMustDeriveFromRedwoodMarkupControl));
                 }
+
+                controlClassName = null;
             }
+            else
+            {
+                controlClassName = className + "Control";
+                emitter.EmitControlClass(wrapperType, className);
+            }
+
             return wrapperType;
         } 
 
@@ -137,7 +147,7 @@ namespace Redwood.Framework.Runtime.Compilation
                     emitter.BuildTree(namespaceName, className), 
                     Enumerable.Concat(staticReferences, dynamicReferences),
                     options);
-                
+
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {
@@ -161,6 +171,8 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             if (node is RwHtmlBindingNode)
             {
+                EnsureContentAllowed(parentMetadata);
+
                 // binding in text
                 var binding = (RwHtmlBindingNode)node;
                 var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { ((RwHtmlLiteralNode)node).Value, true });
@@ -171,7 +183,12 @@ namespace Redwood.Framework.Runtime.Compilation
             else if (node is RwHtmlLiteralNode)
             {
                 // text content
-                var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { ((RwHtmlLiteralNode)node).Value });
+                var literalValue = ((RwHtmlLiteralNode)node).Value;
+                if (!string.IsNullOrWhiteSpace(literalValue))
+                {
+                    EnsureContentAllowed(parentMetadata);
+                }
+                var currentObjectName = emitter.EmitCreateObject(typeof(Literal), new object[] { literalValue });
                 emitter.EmitAddCollectionItem(parentName, currentObjectName);
             }
             else if (node is RwHtmlElementNode)
@@ -181,43 +198,12 @@ namespace Redwood.Framework.Runtime.Compilation
                 var parentProperty = FindProperty(parentMetadata, element.TagName);
                 if (parentProperty != null && string.IsNullOrEmpty(element.TagPrefix) && parentProperty.MarkupOptions.MappingMode == MappingMode.InnerElement)
                 {
-                    // the element is a property 
-                    if (IsTemplateProperty(parentProperty))
-                    {
-                        // template
-                        var templateName = ProcessTemplate(element);
-                        emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, templateName);
-                    }
-                    else if (IsCollectionProperty(parentProperty))
-                    {
-                        // collection of elements
-                        foreach (var child in GetInnerPropertyElements(element, parentProperty))
-                        {
-                            var childObject = ProcessObjectElement(child);
-                            emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.Name);
-                        }
-                    }
-                    else
-                    {
-                        // new object
-                        var children = GetInnerPropertyElements(element, parentProperty).ToList();
-                        if (children.Count > 1)
-                        {
-                            throw new NotSupportedException(string.Format("The property {0} can have only one child element!", parentProperty.MarkupOptions.Name));   // TODO: exception handling
-                        }
-                        else if (children.Count == 1)
-                        {
-                            var childObject = ProcessObjectElement(children[0]);
-                            emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, childObject);
-                        }
-                        else
-                        {
-                            emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, emitter.EmitIdentifier("null"));
-                        }
-                    }
+                    ProcessElementProperty(parentName, parentProperty, element);
                 }
                 else
                 {
+                    EnsureContentAllowed(parentMetadata);
+                    
                     // the element is the content
                     var currentObjectName = ProcessObjectElement(element);
                     emitter.EmitAddCollectionItem(parentName, currentObjectName);
@@ -226,6 +212,55 @@ namespace Redwood.Framework.Runtime.Compilation
             else
             {
                 throw new NotSupportedException();      // TODO: exception handling
+            }
+        }
+
+        private void EnsureContentAllowed(ControlResolverMetadata controlMetadata)
+        {
+            if (!controlMetadata.IsContentAllowed)
+            {
+                throw new Exception(string.Format("The content is not allowed inside the <{0}></{0}> control!", controlMetadata.Name));
+            }
+        }
+
+        /// <summary>
+        /// Processes the element which contains property value.
+        /// </summary>
+        private void ProcessElementProperty(string parentName, RedwoodProperty parentProperty, RwHtmlElementNode element)
+        {
+            // the element is a property 
+            if (IsTemplateProperty(parentProperty))
+            {
+                // template
+                var templateName = ProcessTemplate(element);
+                emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, templateName);
+            }
+            else if (IsCollectionProperty(parentProperty))
+            {
+                // collection of elements
+                foreach (var child in GetInnerPropertyElements(element, parentProperty))
+                {
+                    var childObject = ProcessObjectElement(child);
+                    emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.Name);
+                }
+            }
+            else
+            {
+                // new object
+                var children = GetInnerPropertyElements(element, parentProperty).ToList();
+                if (children.Count > 1)
+                {
+                    throw new NotSupportedException(string.Format("The property {0} can have only one child element!", parentProperty.MarkupOptions.Name)); // TODO: exception handling
+                }
+                else if (children.Count == 1)
+                {
+                    var childObject = ProcessObjectElement(children[0]);
+                    emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, childObject);
+                }
+                else
+                {
+                    emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, emitter.EmitIdentifier("null"));
+                }
             }
         }
 
