@@ -11,9 +11,10 @@ namespace Redwood.Framework.Validation
     public class ViewModelValidator
     {
         public ViewModelValidationProvider Provider { get; set; }
-        public ViewModelValidator()
+
+        public ViewModelValidator(ViewModelValidationProvider provider)
         {
-            Provider = new ViewModelValidationProvider();
+            this.Provider = provider;
         }
 
         public bool ValidateByRules(IEnumerable<ValidationRule> rules, RedwoodValidationContext context)

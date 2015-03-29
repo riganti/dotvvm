@@ -13,6 +13,7 @@ using Redwood.Framework.Runtime;
 using Redwood.Framework.Runtime.Compilation;
 using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
+using Redwood.Framework.Validation;
 
 namespace Redwood.Framework.Configuration
 {
@@ -92,19 +93,19 @@ namespace Redwood.Framework.Configuration
         {
             var configuration = new RedwoodConfiguration();
 
-            configuration.ServiceLocator = new ServiceLocator();
-            configuration.ServiceLocator.RegisterSingleton<IViewModelProtector>(() => new DefaultViewModelProtector());
-            configuration.ServiceLocator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector());
-            configuration.ServiceLocator.RegisterSingleton<IRedwoodViewBuilder>(() => new DefaultRedwoodViewBuilder(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IViewModelLoader>(() => new DefaultViewModelLoader());
-            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IOutputRenderer>(() => new DefaultOutputRenderer());
-            configuration.ServiceLocator.RegisterSingleton<IRedwoodPresenter>(() => new RedwoodPresenter(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
-            configuration.ServiceLocator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
-            configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
-            configuration.ServiceLocator.RegisterSingleton<Validation.ViewModelValidationProvider>(() => new Validation.ViewModelValidationProvider());
+            var locator = configuration.ServiceLocator = new ServiceLocator();
+            locator.RegisterSingleton<IViewModelProtector>(() => new DefaultViewModelProtector());
+            locator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector());
+            locator.RegisterSingleton<IRedwoodViewBuilder>(() => new DefaultRedwoodViewBuilder(configuration));
+            locator.RegisterSingleton<IViewModelLoader>(() => new DefaultViewModelLoader());
+            locator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration));
+            locator.RegisterSingleton<IOutputRenderer>(() => new DefaultOutputRenderer());
+            locator.RegisterSingleton<IRedwoodPresenter>(() => new RedwoodPresenter(configuration));
+            locator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
+            locator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
+            locator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
+            locator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
+            locator.RegisterSingleton<ViewModelValidationProvider>(() => ViewModelValidationProvider.CreateDefault());
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
             

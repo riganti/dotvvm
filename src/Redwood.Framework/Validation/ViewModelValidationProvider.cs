@@ -12,20 +12,21 @@ namespace Redwood.Framework.Validation
 {
     public class ViewModelValidationProvider
     {
-        public readonly List<IStaticViewModelValidationProvider> StaticProviders = new List<IStaticViewModelValidationProvider>();
-        public readonly List<IStaticActionValidationProvider> ActionProviders = new List<IStaticActionValidationProvider>();
+        public List<IStaticViewModelValidationProvider> StaticProviders { get; private set; }
+        public List<IStaticActionValidationProvider> ActionProviders { get; private set; }
         private readonly ConcurrentDictionary<Type, ValidationRule[]> CachedStaticRules = new ConcurrentDictionary<Type, ValidationRule[]>();
 
-        public ViewModelValidationProvider(IStaticViewModelValidationProvider[] staticProviders = null)
+        public ViewModelValidationProvider(IEnumerable<IStaticViewModelValidationProvider> staticProviders, IEnumerable<IStaticActionValidationProvider> actionProviders)
         {
-            // TODO: find a nicer way
-            if (staticProviders == null)
-            {
-                this.StaticProviders.Add(new DataAnnotationsValidationProvider());
-                this.StaticProviders.Add(new TypeValidationProvider());
-            }
-            else this.StaticProviders.AddRange(staticProviders);
-            ActionProviders.Add(new AttributeActionValidationProvider());
+            this.StaticProviders = staticProviders.ToList();
+            this.ActionProviders = actionProviders.ToList();
+        }
+
+        public static ViewModelValidationProvider CreateDefault()
+        {
+            return new ViewModelValidationProvider(
+                new IStaticViewModelValidationProvider[] { new DataAnnotationsValidationProvider(), new TypeValidationProvider() },
+                new [] { new AttributeActionValidationProvider() });
         }
 
         /// <summary>

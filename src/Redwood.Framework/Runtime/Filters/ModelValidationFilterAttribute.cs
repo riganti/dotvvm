@@ -12,7 +12,6 @@ namespace Redwood.Framework.Runtime.Filters
     /// </summary>
     public class ModelValidationFilterAttribute : ActionFilterAttribute
     {
-        private ViewModelValidator viewModelValidator = new ViewModelValidator();
 
         /// <summary>
         /// Called before the command is executed.
@@ -23,9 +22,9 @@ namespace Redwood.Framework.Runtime.Filters
             {
                 var path = Parser.Translation.ExpressionTranslator.CombinePaths(context.ModelState.DataContextPath, context.ModelState.ValidationTargetPath);
                 path = path.Skip(path.FirstOrDefault() == "$root" ? 1 : 0).ToArray();
-
+                var validator = new ViewModelValidator(context.Configuration.ServiceLocator.GetService<ViewModelValidationProvider>());
                 // perform the validation
-                context.ModelState.Errors.AddRange(viewModelValidator.ValidateViewModel(context.ViewModel, actionInfo.MethodInfo, path));
+                context.ModelState.Errors.AddRange(validator.ValidateViewModel(context.ViewModel, actionInfo.MethodInfo, path));
 
                 // return the model state when error occurs
                 context.FailOnInvalidModelState();
