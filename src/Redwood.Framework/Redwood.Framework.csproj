@@ -133,6 +133,12 @@
     <Compile Include="Parser\TextRange.cs" />
     <Compile Include="Parser\TokenError.cs" />
     <Compile Include="RedwoodAuthenticationHelper.cs" />
+    <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JQueryGlobalizeRegisterTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeScriptCreator.cs" />
     <Compile Include="ResourceManagement\InlineScriptResource.cs" />
     <Compile Include="ResourceManagement\IRedwoodResourceRepository.cs" />
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
@@ -282,6 +288,7 @@
     <Compile Include="Runtime\DefaultControlResolver.cs" />
     <Compile Include="Runtime\IControlBuilder.cs" />
     <Compile Include="Runtime\IControlResolver.cs" />
+    <Compile Include="Utils\JsonUtils.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
     <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
@@ -716,6 +723,12 @@
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
