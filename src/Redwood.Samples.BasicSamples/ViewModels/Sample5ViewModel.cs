@@ -16,6 +16,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
         public string SecondControlName { get; set; }
 
 
+
         public override Task Init()
         {
             if (!Context.IsPostBack)
@@ -33,14 +34,5 @@ namespace Redwood.Samples.BasicSamples.ViewModels
     {
         public int Value { get; set; }
 
-        public void Up()
-        {
-            Value++;
-        }
-
-        public void Down()
-        {
-            Value--;
-        }
     }
 }

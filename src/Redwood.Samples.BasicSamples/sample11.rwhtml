@@ -19,7 +19,7 @@
 		
 		<fieldset>
 			<legend>Add Task</legend>
-
+			
 			<p>
 				Title: <rw:TextBox Text="{value: NewTaskTitle}" />
 			</p>

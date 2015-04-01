@@ -6,7 +6,7 @@ using Redwood.Framework.ViewModel;
 
 namespace Redwood.Samples.BasicSamples.ViewModels
 {
-    public class Sample1ViewModel : RedwoodViewModelBase 
+    public class Sample1ViewModel : RedwoodViewModelBase  
     {
         
         public string NewTaskTitle { get; set; }
