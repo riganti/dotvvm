@@ -63,8 +63,8 @@ namespace Redwood.Framework.Tests.Runtime
             var json = string.Format(@"
 {{ 
     'resources': {{
-        'scripts': [{{ 'name': '{0}', 'url': 'different url', 'globalObjectName': '$' }}],
-        'stylesheets': [{{ 'name': 'newResource', 'url': 'test' }}]
+        'scripts': {{ '{0}': {{ 'url': 'different url', 'globalObjectName': '$'}} }},
+        'stylesheets': {{ 'newResource': {{ 'url': 'test' }} }}
     }}
 }}", Constants.JQueryResourceName);
             var configuration = RedwoodConfiguration.CreateDefault();

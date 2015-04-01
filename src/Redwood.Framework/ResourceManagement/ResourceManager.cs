@@ -61,7 +61,7 @@ namespace Redwood.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredScriptFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new ScriptResource() { Name = name, Url = url, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(name, new ScriptResource() { Url = url, Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -69,7 +69,7 @@ namespace Redwood.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredStylesheetFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new StylesheetResource() { Name = name, Url = url, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(name, new StylesheetResource() { Url = url, Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -77,7 +77,7 @@ namespace Redwood.Framework.ResourceManagement
         /// </summary>
         public void AddStartupScript(string name, string javascriptCode, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new InlineScriptResource() { Name = name, Code = javascriptCode, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(name, new InlineScriptResource() { Code = javascriptCode, Dependencies = dependentResourceNames });
         }
 
         /// <summary>
@@ -97,9 +97,9 @@ namespace Redwood.Framework.ResourceManagement
             var outputResources = new List<ResourceBase>();
             var outputResourceNames = new HashSet<string>();
 
-            foreach (var resource in requiredResources.Values)
+            foreach (var resource in requiredResources)
             {
-                AddResourceWithDependencies(resource, outputResourceNames, outputResources);
+                AddResourceWithDependencies(resource.Key, resource.Value, outputResourceNames, outputResources);
             }
 
             return outputResources;
@@ -108,7 +108,7 @@ namespace Redwood.Framework.ResourceManagement
         /// <summary>
         /// Adds the resource with dependencies.
         /// </summary>
-        private void AddResourceWithDependencies(ResourceBase resource, HashSet<string> outputResourceNames, List<ResourceBase> outputResources)
+        private void AddResourceWithDependencies(string name, ResourceBase resource, HashSet<string> outputResourceNames, List<ResourceBase> outputResources)
         {
             // at first, add all dependencies
             foreach (var dependency in resource.Dependencies)
@@ -116,15 +116,15 @@ namespace Redwood.Framework.ResourceManagement
                 if (!outputResourceNames.Contains(dependency))
                 {
                     var dependentResource = FindResource(dependency);
-                    AddResourceWithDependencies(dependentResource, outputResourceNames, outputResources);
+                    AddResourceWithDependencies(dependency, dependentResource, outputResourceNames, outputResources);
                 }
             }
 
             // then, add the resource itself
-            if (!outputResourceNames.Contains(resource.Name))
+            if (!outputResourceNames.Contains(name))
             {
                 outputResources.Add(resource);
-                outputResourceNames.Add(resource.Name);
+                outputResourceNames.Add(name);
             }
         }
 

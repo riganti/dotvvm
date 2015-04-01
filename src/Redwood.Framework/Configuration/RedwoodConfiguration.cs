@@ -13,6 +13,7 @@ using Redwood.Framework.Runtime;
 using Redwood.Framework.Runtime.Compilation;
 using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
+using Redwood.Framework.ResourceManagement.ClientGlobalize;
 
 namespace Redwood.Framework.Configuration
 {
@@ -113,63 +114,56 @@ namespace Redwood.Framework.Configuration
                 new RedwoodControlConfiguration() { TagPrefix = "bootstrap", Namespace = "Redwood.Framework.Controls.Bootstrap", Assembly = "Redwood.Framework" },
             });
 
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.JQueryResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.JQueryResourceName,
                     CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
                     Url = "Redwood.Framework.Resources.Scripts.jquery-2.1.1.min.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "$"
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.KnockoutJSResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.KnockoutJSResourceName,
                     Url = "Redwood.Framework.Resources.Scripts.knockout-3.2.0.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko"
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.KnockoutMapperResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.KnockoutMapperResourceName,
                     Url = "Redwood.Framework.Resources.Scripts.knockout.mapper.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko.mapper",
                     Dependencies = new[] { Constants.KnockoutJSResourceName }
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.RedwoodResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.RedwoodResourceName,
                     Url = "Redwood.Framework.Resources.Scripts.Redwood.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "redwood",
                     Dependencies = new[] { Constants.KnockoutJSResourceName, Constants.KnockoutMapperResourceName }
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.RedwoodValidationResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.RedwoodValidationResourceName,
                     Url = "Redwood.Framework.Resources.Scripts.Redwood.Validation.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "redwood.validation",
                     Dependencies = new[] { Constants.RedwoodResourceName }
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.BootstrapResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.BootstrapResourceName,
                     Url = "/Scripts/bootstrap.min.js",
                     CdnUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js",
                     GlobalObjectName = "typeof $().emulateTransitionEnd == 'function'",
                     Dependencies = new[] { Constants.BootstrapCssResourceName, Constants.JQueryResourceName }
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.BootstrapCssResourceName,
                 new StylesheetResource()
                 {
-                    Name = Constants.BootstrapCssResourceName,
                     Url = "/Content/bootstrap.min.css"
                 });
 
@@ -181,23 +175,14 @@ namespace Redwood.Framework.Configuration
 
         private static void RegisterGlobalizeResources(RedwoodConfiguration configuration)
         {
-            configuration.Resources.Register(new ScriptResource()
+            configuration.Resources.Register(Constants.GlobalizeResourceName, new ScriptResource()
             {
-                Name = Constants.GlobalizeResourceName,
                 Url = "Redwood.Framework.Resources.Scripts.Globalize.globalize.js",
                 EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name
             });
 
-            foreach (var culture in SupportedGlobalizationCultures)
-            {
-                configuration.Resources.Register(new ScriptResource()
-                {
-                    Name = string.Format(Constants.GlobalizeCultureResourceName, culture),
-                    Url = string.Format("Redwood.Framework.Resources.Scripts.Globalize.cultures.{0}.globalize.js", culture),
-                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
-                    Dependencies = new[] { Constants.GlobalizeResourceName }
-                });    
-            }
+
+            configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }
 
     }
