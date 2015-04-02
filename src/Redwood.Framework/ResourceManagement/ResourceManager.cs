@@ -45,7 +45,7 @@ namespace Redwood.Framework.ResourceManagement
             ResourceBase originalResource;
             if (requiredResources.TryGetValue(name, out originalResource))
             {
-                if (originalResource != resource)
+                if (originalResource.Url != resource.Url)
                 {
                     ThrowNonUniqueName(name);
                 }
