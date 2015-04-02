@@ -10,7 +10,7 @@
 		<h1>User Controls Sample</h1>
 		
 		<sample5:TestControl DataContext="{value: ViewModel1}" Value="{value: ViewModel1.Value}" Name="First Control" />
-		<sample5:TestControl DataContext="{value: ViewModel2}" Name="{value: SecondControlName}" />
+		<sample5:TestControl DataContext="{value: ViewModel2}" Value="{value: ViewModel2.Value}" Name="{value: SecondControlName}" />
 	</div>
 
 	<rw:RequiredResource Name="bootstrap" />

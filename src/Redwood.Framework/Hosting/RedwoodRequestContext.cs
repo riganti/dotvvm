@@ -43,7 +43,10 @@ namespace Redwood.Framework.Hosting
         internal Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 
         internal string RenderedHtml { get; set; }
+
         public JObject ViewModelJson { get; set; }
+
+        public JObject ReceivedViewModelJson { get; set; }
 
 
         public IReadableStringCollection Query

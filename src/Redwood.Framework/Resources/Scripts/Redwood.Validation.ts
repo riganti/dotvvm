@@ -94,7 +94,7 @@ class RedwoodValidation
 
     /// Validates the specified view model
     public validateViewModel(viewModel: any) {
-        if (!viewModel || !viewModel.$type) return;
+        if (!viewModel || !viewModel.$type || !redwood.viewModels.root.validationRules) return;
 
         // find validation rules
         var type = ko.unwrap(viewModel.$type);

@@ -16,12 +16,21 @@ namespace Redwood.Framework.Utils
             foreach (var item in target)
             {
                 var sourceItem = source[item.Key];
-                if (sourceItem == null || sourceItem.Type != item.Value.Type)
+                if (sourceItem == null)
                 {
-                    diff[item.Key] = item.Value;
-                    changed = true;
                 }
-                else if(sourceItem.Type == JTokenType.Object) // == item.Value.Type
+                else if (sourceItem.Type != item.Value.Type)
+                {
+                    if (sourceItem.Type == JTokenType.Object || sourceItem.Type == JTokenType.Array
+                        || item.Value.Type == JTokenType.Object || item.Value.Type == JTokenType.Array
+                        || item.Value.ToString() != sourceItem.ToString())
+                    {
+
+                        diff[item.Key] = item.Value;
+                        changed = true;
+                    }
+                }
+                else if (sourceItem.Type == JTokenType.Object) // == item.Value.Type
                 {
                     bool subchanged;
                     var itemDiff = Diff((JObject)sourceItem, (JObject)item.Value, out subchanged, nullOnRemoved);
@@ -31,24 +40,24 @@ namespace Redwood.Framework.Utils
                         changed = true;
                     }
                 }
-                else if(sourceItem.Type == JTokenType.Array)
+                else if (sourceItem.Type == JTokenType.Array)
                 {
                     var sourceArr = (JArray)sourceItem;
                     var subchanged = false;
                     var arrDiff = Diff(sourceArr, (JArray)item.Value, out subchanged, nullOnRemoved);
-                    if(subchanged)
+                    if (subchanged)
                     {
                         diff[item.Key] = arrDiff;
                         changed = true;
                     }
                 }
-                else if(!JToken.DeepEquals(sourceItem, item.Value))
+                else if (!JToken.DeepEquals(sourceItem, item.Value))
                 {
                     diff[item.Key] = item.Value;
                     changed = true;
                 }
             }
-            if(nullOnRemoved)
+            if (nullOnRemoved)
             {
                 foreach (var item in source)
                 {
@@ -71,7 +80,7 @@ namespace Redwood.Framework.Utils
                     diffs[i] = Diff((JObject)source[i], (JObject)target[i], out subchanged, nullOnRemoved);
                     if (subchanged) changed = true;
                 }
-                else if(target[i].Type == JTokenType.Array && source[i].Type == JTokenType.Array)
+                else if (target[i].Type == JTokenType.Array && source[i].Type == JTokenType.Array)
                 {
                     var subchanged = false;
                     diffs[i] = Diff((JArray)source[i], (JArray)target[i], out subchanged, nullOnRemoved);
@@ -86,17 +95,16 @@ namespace Redwood.Framework.Utils
             }
             for (int i = commonLen; i < diffs.Length; i++)
             {
-                diffs[i] = source[i];
-                if (!JToken.DeepEquals(source[i], target[i]))
-                    changed = true;
+                diffs[i] = target[i];
+                changed = true;
             }
             return new JArray(diffs);
         }
 
-        internal static JObject Diff(JObject defaultJson, JObject jobj)
+        internal static JObject Diff(JObject source, JObject jobj)
         {
             bool c;
-            return Diff(defaultJson, jobj, out c);
+            return Diff(source, jobj, out c);
         }
     }
 }

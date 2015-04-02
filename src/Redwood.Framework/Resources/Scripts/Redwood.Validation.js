@@ -100,7 +100,7 @@ var RedwoodValidation = (function () {
     }
     /// Validates the specified view model
     RedwoodValidation.prototype.validateViewModel = function (viewModel) {
-        if (!viewModel || !viewModel.$type)
+        if (!viewModel || !viewModel.$type || !redwood.viewModels.root.validationRules)
             return;
         // find validation rules
         var type = ko.unwrap(viewModel.$type);

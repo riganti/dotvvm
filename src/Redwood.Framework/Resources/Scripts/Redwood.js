@@ -52,6 +52,9 @@ var Redwood = (function () {
             if (_this.postBackCounter !== currentPostBackCounter)
                 return;
             var resultObject = JSON.parse(result.responseText);
+            if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
+            }
             var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
                 // remove updated controls
@@ -102,6 +105,25 @@ var Redwood = (function () {
                 alert(xhr.responseText);
             }
         });
+    };
+    Redwood.prototype.patch = function (source, patch) {
+        var _this = this;
+        if (source instanceof Array && patch instanceof Array) {
+            return patch.map(function (val, i) { return _this.patch(source[i], val); });
+        }
+        else if (source instanceof Array || patch instanceof Array)
+            return patch;
+        else if (typeof source == "object" && typeof patch == "object") {
+            for (var p in patch) {
+                if (patch[p] == null)
+                    delete source[p];
+                else
+                    source[p] = this.patch(source[p], patch[p]);
+            }
+        }
+        else
+            return patch;
+        return source;
     };
     Redwood.prototype.formatString = function (format, value) {
         if (format == "g") {

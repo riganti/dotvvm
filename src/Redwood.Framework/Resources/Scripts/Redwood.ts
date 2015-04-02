@@ -53,6 +53,9 @@ class Redwood {
             if (this.postBackCounter !== currentPostBackCounter) return;
 
             var resultObject = JSON.parse(result.responseText);
+            if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
+            }
 
             var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
@@ -107,6 +110,24 @@ class Redwood {
                 alert(xhr.responseText);
             }
         });
+    }
+
+    public patch(source: any, patch: any): any {
+        if (source instanceof Array && patch instanceof Array) {
+            return patch.map((val, i) =>
+                this.patch(source[i], val));
+        }
+        else if (source instanceof Array || patch instanceof Array)
+            return patch;
+        else if (typeof source == "object" && typeof patch == "object") {
+            for (var p in patch) {
+                if (patch[p] == null) delete source[p];
+                else source[p] = this.patch(source[p], patch[p]);
+            }
+        }
+        else return patch;
+
+        return source;
     }
 
     public formatString(format: string, value: any) {
