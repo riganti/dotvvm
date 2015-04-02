@@ -29,6 +29,7 @@ namespace Redwood.Framework
 
             app.Use<RedwoodRestrictedStaticFilesMiddleware>();
             app.Use<RedwoodEmbeddedResourceMiddleware>();
+            app.Use<JQueryGlobalizeCultureMiddleware>();
 
             app.Use<RedwoodMiddleware>(configuration);
             

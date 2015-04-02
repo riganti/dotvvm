@@ -10,6 +10,7 @@
 		text-decoration: line-through;
 	}
 	</style>
+	<rw:RequiredResource Name="globalize:cs-CZ" />
 </head>
 <body>
 	<div class="container">

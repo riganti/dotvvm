@@ -11,10 +11,16 @@ namespace Redwood.Framework.ResourceManagement.ClientGlobalize
 {
     public static class JQueryGlobalizeScriptCreator
     {
-        private static readonly string[] patternStrings = { "($n)", "-$n", "$-n", "$n-", "(n$)",
-                                 "-n$", "n-$", "n$-", "-n $", "-$ n",
-                                 "n $-", "$ n-", "$ -n", "n- $", "($ n)",
-                                 "(n $)" };
+        private static readonly string[] numberPatternStrings =
+        { "(n)", "-n", "- n", "n-", "n -" };
+        private static readonly string[] percentPositivePatternStrings =
+        { "n %", "n%", "%n", "% n" };
+        private static readonly string[] percentNegativePatternStrings =
+        { "-n %", "-n%", "-%n", "%-n", "%n", "n-%", "n%-", "-% n", "n %-", "% n-", "% -n", "n- %"};
+        private static readonly string[] currencyNegativePatternStrings =
+        { "($n)", "-$n", "$-n", "$n-", "(n$)", "-n$", "n-$", "n$-", "-n $", "-$ n", "n $-", "$ n-", "$ -n", "n- $", "($ n)", "(n $)" };
+        private static readonly string[] currencyPositivePatternStrings =
+        { "$n", "n$", "$ n", "n $" };
         private static readonly JObject defaultJson = JObject.Parse(@"{
 	name: 'en',
     englishName: 'English',
@@ -95,7 +101,7 @@ namespace Redwood.Framework.ResourceManagement.ClientGlobalize
         {
             var numberFormat = new
             {
-                pattern = new[] { patternStrings[ni.NumberNegativePattern] },
+                pattern = new[] { numberPatternStrings[ni.NumberNegativePattern] },
                 decimals = ni.NumberDecimalDigits,
                 groupSizes = ni.NumberGroupSizes,
                 NaN = ni.NaNSymbol,
@@ -104,8 +110,8 @@ namespace Redwood.Framework.ResourceManagement.ClientGlobalize
                 percent = new
                 {
                     pattern = new[] {
-                            patternStrings[ni.PercentNegativePattern],
-                            patternStrings[ni.PercentPositivePattern]
+                            percentNegativePatternStrings[ni.PercentNegativePattern],
+                            percentPositivePatternStrings[ni.PercentPositivePattern]
                         },
                     decimals = ni.PercentDecimalDigits,
                     groupSizes = ni.PercentGroupSizes,
@@ -115,8 +121,8 @@ namespace Redwood.Framework.ResourceManagement.ClientGlobalize
                 {
                     pattern = new[]
                         {
-                            patternStrings[ni.CurrencyNegativePattern],
-                            patternStrings[ni.CurrencyPositivePattern]
+                            currencyNegativePatternStrings[ni.CurrencyNegativePattern],
+                            currencyPositivePatternStrings[ni.CurrencyPositivePattern]
                         },
                     decimals = ni.CurrencyDecimalDigits,
                     groupSizes = ni.CurrencyGroupSizes,
@@ -169,7 +175,7 @@ namespace Redwood.Framework.ResourceManagement.ClientGlobalize
             var jobj = JObject.FromObject(obj);
             jobj["/"] = di.DateSeparator;
             jobj[":"] = di.TimeSeparator;
-            if(!di.MonthNames.SequenceEqual(di.MonthGenitiveNames))
+            if (!di.MonthNames.SequenceEqual(di.MonthGenitiveNames))
             {
                 var monthsGenitive = jobj["monthsGenitive"] = new JObject();
                 monthsGenitive["names"] = JArray.FromObject(di.MonthGenitiveNames);
