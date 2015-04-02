@@ -164,11 +164,19 @@ namespace Redwood.Framework.Parser.Translation
             {
                 return Convert.ToDouble(node.Token.Value).ToString(CultureInfo.InvariantCulture);
             }
-            else if(node.IsKind(SyntaxKind.NullLiteralExpression))
+            else if (node.IsKind(SyntaxKind.NullLiteralExpression))
             {
                 return "null";
             }
-
+            else if (node.IsKind(SyntaxKind.TrueLiteralExpression))
+            {
+                return "true";
+            }
+            else if (node.IsKind(SyntaxKind.FalseLiteralExpression))
+            {
+                return "false";
+            }
+            
             return base.VisitLiteralExpression(node);
         }
 
