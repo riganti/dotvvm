@@ -76,5 +76,10 @@ namespace Redwood.Framework.ResourceManagement
             this.Resources = new ConcurrentDictionary<string, ResourceBase>();
             this.Parents = new ConcurrentDictionary<string, IRedwoodResourceRepository>();
         }
+
+        internal void Register(object redwoodDebugResourceName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

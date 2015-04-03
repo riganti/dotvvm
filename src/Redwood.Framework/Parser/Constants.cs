@@ -28,6 +28,7 @@ namespace Redwood.Framework.Parser
         public const string KnockoutMapperResourceName = "knockout.mapper";
         public const string RedwoodResourceName = "redwood";
         public const string RedwoodValidationResourceName = "redwood.validation";
+        public const string RedwoodDebugResourceName = "redwood.debug";
         public const string BootstrapResourceName = "bootstrap";
         public const string BootstrapCssResourceName = "bootstrap-css";
         public const string GlobalizeResourceName = "globalize";

@@ -339,6 +339,7 @@
       <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
+    <None Include="Resources\Scripts\Redwood.Debug.js.map" />
     <None Include="Resources\Scripts\Redwood.js.map" />
     <None Include="Resources\Scripts\Redwood.Validation.js.map" />
   </ItemGroup>
@@ -365,8 +366,10 @@
     <EmbeddedResource Include="Resources\Scripts\Redwood.Validation.js" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Resources\Scripts\Redwood.Debug.ts" />
     <TypeScriptCompile Include="Resources\Scripts\Redwood.ts" />
     <TypeScriptCompile Include="Resources\Scripts\Redwood.Validation.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
@@ -376,6 +379,7 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Resources\Scripts\Redwood.Debug.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />

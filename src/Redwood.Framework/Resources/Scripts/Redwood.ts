@@ -107,7 +107,9 @@ class Redwood {
             if (this.postBackCounter !== currentPostBackCounter) return;
 
             // execute error handlers
-            if (!this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
+            var errArgs = new RedwoodErrorEventArgs(viewModel, xhr);
+            this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
                 alert(xhr.responseText);
             }
         });
@@ -224,6 +226,7 @@ class RedwoodEventArgs {
     }
 }
 class RedwoodErrorEventArgs extends RedwoodEventArgs {
+    public handled = false;
     constructor(public viewModel: any, public xhr: XMLHttpRequest) {
         super(viewModel);
     }

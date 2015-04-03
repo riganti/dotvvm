@@ -102,7 +102,9 @@ var Redwood = (function () {
             if (_this.postBackCounter !== currentPostBackCounter)
                 return;
             // execute error handlers
-            if (!_this.events.error.trigger(new RedwoodErrorEventArgs(viewModel, xhr))) {
+            var errArgs = new RedwoodErrorEventArgs(viewModel, xhr);
+            _this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
                 alert(xhr.responseText);
             }
         });
@@ -220,6 +222,7 @@ var RedwoodErrorEventArgs = (function (_super) {
         _super.call(this, viewModel);
         this.viewModel = viewModel;
         this.xhr = xhr;
+        this.handled = false;
     }
     return RedwoodErrorEventArgs;
 })(RedwoodEventArgs);
