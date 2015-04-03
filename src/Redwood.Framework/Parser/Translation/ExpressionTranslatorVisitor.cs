@@ -11,6 +11,7 @@ namespace Redwood.Framework.Parser.Translation
 {
     public class ExpressionTranslatorVisitor : CSharpSyntaxVisitor<string>
     {
+        public bool NullPropagating { get; set; } = true;
 
         /// <summary>
         /// Gets a value indicating whether the syntax contains an expression that prevents us to pass the knockout observable as a result.
@@ -148,7 +149,10 @@ namespace Redwood.Framework.Parser.Translation
         /// </summary>
         public override string VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
         {
-            return Visit(node.Expression) + "." + Visit(node.Name);
+            if (NullPropagating)
+                return "(" + Visit(node.Expression) + "|| {})." + Visit(node.Name);
+            else
+                return Visit(node.Expression) + "." + Visit(node.Name);
         }
 
         /// <summary>
