@@ -61,7 +61,7 @@ namespace Redwood.Framework.Utils
             {
                 foreach (var item in source)
                 {
-                    if (target[item.Key] == null) diff[item.Key] = JToken.Parse("null");
+                    if (target[item.Key] == null) diff[item.Key] = JValue.CreateNull();
                 }
             }
             return diff;

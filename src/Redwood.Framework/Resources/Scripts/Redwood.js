@@ -69,7 +69,8 @@ var Redwood = (function () {
                     }
                 }
                 // update the viewmodel
-                ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
+                if (resultObject.viewModel)
+                    ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
                 isSuccess = true;
                 for (id in resultObject.updatedControls) {
                     if (resultObject.updatedControls.hasOwnProperty(id)) {

@@ -72,7 +72,8 @@ class Redwood {
                 }
 
                 // update the viewmodel
-                ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                if (resultObject.viewModel)
+                    ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
                 isSuccess = true;
 
                 // add updated controls

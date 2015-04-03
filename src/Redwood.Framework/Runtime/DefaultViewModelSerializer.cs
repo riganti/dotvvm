@@ -47,7 +47,9 @@ namespace Redwood.Framework.Runtime
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"]);
+                bool changed;
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], out changed, true);
+                if (!changed) context.ViewModelJson.Remove("viewModelDiff");
                 context.ViewModelJson.Remove("viewModel");
             }
             return context.ViewModelJson.ToString();
