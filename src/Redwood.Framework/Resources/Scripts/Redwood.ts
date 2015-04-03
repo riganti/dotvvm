@@ -2,11 +2,11 @@
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 
-class Redwood { 
+class Redwood {
 
     private postBackCounter = 0;
 
-    public extensions: any = {}; 
+    public extensions: any = {};
     public viewModels: any = {};
     public culture: string;
     public events = {
@@ -24,7 +24,7 @@ class Redwood {
         ko.applyBindings(viewModel);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
     }
-    
+
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: any): void {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
@@ -54,6 +54,7 @@ class Redwood {
 
             var resultObject = JSON.parse(result.responseText);
             if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                // TODO: patch (~deserialize) it to ko.observable viewModel
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
@@ -103,16 +104,16 @@ class Redwood {
                 throw "Invalid response from server!";
             }
         }, xhr => {
-            // if another postback has already been passed, don't do anything
-            if (this.postBackCounter !== currentPostBackCounter) return;
+                // if another postback has already been passed, don't do anything
+                if (this.postBackCounter !== currentPostBackCounter) return;
 
-            // execute error handlers
-            var errArgs = new RedwoodErrorEventArgs(viewModel, xhr);
-            this.events.error.trigger(errArgs);
-            if (!errArgs.handled) {
-                alert(xhr.responseText);
-            }
-        });
+                // execute error handlers
+                var errArgs = new RedwoodErrorEventArgs(viewModel, xhr);
+                this.events.error.trigger(errArgs);
+                if (!errArgs.handled) {
+                    alert(xhr.responseText);
+                }
+            });
     }
 
     public patch(source: any, patch: any): any {
@@ -124,7 +125,8 @@ class Redwood {
             return patch;
         else if (typeof source == "object" && typeof patch == "object") {
             for (var p in patch) {
-                if (patch[p] == null) delete source[p];
+                if (patch[p] == null) source[p] = null;
+                else if (source[p] == null) source[p] = patch[p];
                 else source[p] = this.patch(source[p], patch[p]);
             }
         }
