@@ -13,7 +13,9 @@ class Redwood {
         init: new RedwoodEvent<RedwoodEventArgs>("redwood.events.init", true),
         beforePostback: new RedwoodEvent<RedwoodBeforePostBackEventArgs>("redwood.events.beforePostback"),
         afterPostback: new RedwoodEvent<RedwoodAfterPostBackEventArgs>("redwood.events.afterPostback"),
-        error: new RedwoodEvent<RedwoodErrorEventArgs>("redwood.events.error")
+        error: new RedwoodEvent<RedwoodErrorEventArgs>("redwood.events.error"),
+        spaNavigating: new RedwoodEvent<RedwoodSpaNavigatingEventArgs>("redwood.events.spaNavigating"),
+        spaNavigated: new RedwoodEvent<RedwoodSpaNavigatedEventArgs>("redwood.events.spaNavigated")
     };
 
     public init(viewModelName: string, culture: string): void {
@@ -21,16 +23,28 @@ class Redwood {
         this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
 
         var viewModel = this.viewModels[viewModelName].viewModel;
-        ko.applyBindings(viewModel);
+        ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
+
+        if (document.location.hash.indexOf("#/") === 0) {
+            this.navigateSpaCore(viewModelName, document.location.hash.substring(1));
+        }
     }
     
+    private backUpPostBackConter(): number {
+        this.postBackCounter++;
+        return this.postBackCounter;
+    }
+
+    private isPostBackStillActive(currentPostBackCounter: number): boolean {
+        return this.postBackCounter === currentPostBackCounter;
+    }
+
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: any): void {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // prevent double postbacks
-        this.postBackCounter++;
-        var currentPostBackCounter = this.postBackCounter;
+        var currentPostBackCounter = this.backUpPostBackConter();
 
         // trigger beforePostback event
         var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
@@ -48,9 +62,9 @@ class Redwood {
             controlUniqueId: controlUniqueId,
             validationTargetPath: validationTargetPath || null
         };
-        this.postJSON(document.location.href, "POST", ko.toJSON(data), result => {
+        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
             // if another postback has already been passed, don't do anything
-            if (this.postBackCounter !== currentPostBackCounter) return;
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             var resultObject = JSON.parse(result.responseText);
             if (!resultObject.viewModel && resultObject.viewModelDiff) {
@@ -60,16 +74,7 @@ class Redwood {
             var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
                 // remove updated controls
-                var updatedControls = {};
-                for (var id in resultObject.updatedControls) {
-                    if (resultObject.updatedControls.hasOwnProperty(id)) {
-                        var control = document.getElementById(id);
-                        var nextSibling = control.nextSibling;
-                        var parent = control.parentNode;
-                        ko.removeNode(control);
-                        updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
-                    }
-                }
+                var updatedControls = this.cleanUpdatedControls(resultObject);
 
                 // update the viewmodel
                 if (resultObject.viewModel)
@@ -77,18 +82,7 @@ class Redwood {
                 isSuccess = true;
 
                 // add updated controls
-                for (id in resultObject.updatedControls) {
-                    if (resultObject.updatedControls.hasOwnProperty(id)) {
-                        var updatedControl = updatedControls[id];
-                        if (updatedControl.nextSibling) {
-                            updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
-                        } else {
-                            updatedControl.parent.appendChild(updatedControl.control);
-                        }
-                        updatedControl.control.outerHTML = resultObject.updatedControls[id];
-                        ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
-                    }
-                }
+                this.restoreUpdatedControls(resultObject, updatedControls, true);
 
             } else if (resultObject.action === "redirect") {
                 // redirect
@@ -104,7 +98,7 @@ class Redwood {
             }
         }, xhr => {
             // if another postback has already been passed, don't do anything
-            if (this.postBackCounter !== currentPostBackCounter) return;
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             // execute error handlers
             var errArgs = new RedwoodErrorEventArgs(viewModel, xhr);
@@ -113,6 +107,84 @@ class Redwood {
                 alert(xhr.responseText);
             }
         });
+    }
+
+    public evaluateOnViewModel(context, expression) {
+        return eval("(function (c) { return c." + expression + "; })")(context);
+    }
+
+    public navigateSpa(sender: HTMLElement, viewModelName: string, routePath: string, parametersProvider: (viewModel: any) => any) {
+        var viewModel = ko.dataFor(sender);
+
+        // compose the final URL and navigate
+        var url = "/" + this.buildRouteUrl(routePath, parametersProvider(viewModel));
+        document.location.hash = url;
+
+        this.navigateSpaCore(viewModelName, url);
+    }
+
+    private navigateSpaCore(viewModelName: string, url: string) {
+        var viewModel = this.viewModels[viewModelName].viewModel;
+
+        // prevent double postbacks
+        var currentPostBackCounter = this.backUpPostBackConter();
+
+        // trigger spaNavigating event
+        var spaNavigatingArgs = new RedwoodSpaNavigatingEventArgs(viewModel, viewModelName, url);
+        this.events.spaNavigating.trigger(spaNavigatingArgs);
+        if (spaNavigatingArgs.cancel) {
+            return;
+        }
+
+        // send the request
+        var spaPlaceHolderUniqueId = document.getElementsByName("__rw_SpaContentPlaceHolder")[0].attributes["data-rw-spacontentplaceholder"].value;
+        this.getJSON(url, "GET", spaPlaceHolderUniqueId, result => {
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+
+            var resultObject = JSON.parse(result.responseText);
+            var isSuccess = false;
+            if (resultObject.action === "successfulCommand") {
+                // remove updated controls
+                var updatedControls = this.cleanUpdatedControls(resultObject);
+
+                // update the viewmodel
+                ko.cleanNode(document.documentElement);
+                this.viewModels[viewModelName] = {
+                    viewModel: {},
+                    url: resultObject.url,
+                    action: resultObject.action
+                };
+                ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                isSuccess = true;
+
+                // add updated controls
+                this.restoreUpdatedControls(resultObject, updatedControls, false);
+                ko.applyBindings(this.viewModels[viewModelName].viewModel, document.documentElement);
+
+            } else if (resultObject.action === "redirect") {
+                // redirect
+                document.location.href = resultObject.url;
+                return;
+            } 
+            
+            // trigger spaNavigated event
+            var spaNavigatedArgs = new RedwoodSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+            this.events.spaNavigated.trigger(spaNavigatedArgs);
+            if (!isSuccess && !spaNavigatedArgs.isHandled) {
+                throw "Invalid response from server!";
+            }
+        }, xhr => {
+                // if another postback has already been passed, don't do anything
+                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+
+                // execute error handlers
+                var errArgs = new RedwoodErrorEventArgs(viewModel, xhr, true);
+                this.events.error.trigger(errArgs);
+                if (!errArgs.handled) {
+                    alert(xhr.responseText);
+                }
+            });
     }
 
     public patch(source: any, patch: any): any {
@@ -165,7 +237,7 @@ class Redwood {
     }
 
     private postJSON(url: string, method: string, postData: any, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void) {
-        var xhr = XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
+        var xhr = this.getXHR();
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = () => {
@@ -179,8 +251,61 @@ class Redwood {
         xhr.send(postData);
     }
 
-    public evaluateOnViewModel(context, expression) {
-        return eval("(function (c) { return c." + expression + "; })")(context);
+    private getJSON(url: string, method: string, spaPlaceHolderUniqueId: string, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void) {
+        var xhr = this.getXHR();
+        xhr.open(method, url, true);
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-Redwood-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState != 4) return;
+            if (xhr.status < 400) {
+                success(xhr);
+            } else {
+                error(xhr);
+            }
+        };
+        xhr.send();
+    }
+
+    private getXHR(): XMLHttpRequest {
+        return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
+    }
+    
+    private cleanUpdatedControls(resultObject: any) {
+        var updatedControls = {};
+        for (var id in resultObject.updatedControls) {
+            if (resultObject.updatedControls.hasOwnProperty(id)) {
+                var control = document.getElementById(id);
+                var nextSibling = control.nextSibling;
+                var parent = control.parentNode;
+                ko.removeNode(control);
+                updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+            }
+        }
+        return updatedControls;
+    }
+
+    private restoreUpdatedControls(resultObject: any, updatedControls: any, applyBindingsOnEachControl: boolean) {
+        for (var id in resultObject.updatedControls) {
+            if (resultObject.updatedControls.hasOwnProperty(id)) {
+                var updatedControl = updatedControls[id];
+                if (updatedControl.nextSibling) {
+                    updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                } else {
+                    updatedControl.parent.appendChild(updatedControl.control);
+                }
+                updatedControl.control.outerHTML = resultObject.updatedControls[id];
+
+                if (applyBindingsOnEachControl) {
+                    ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
+                }
+            }
+        }
+    }
+
+    public buildRouteUrl(routePath: string, params: any): string {
+        return routePath.replace(/\{[^\}]+\}/g, s => params[s.substring(1, s.length - 1)] || "");
     }
 }
 
@@ -227,7 +352,7 @@ class RedwoodEventArgs {
 }
 class RedwoodErrorEventArgs extends RedwoodEventArgs {
     public handled = false;
-    constructor(public viewModel: any, public xhr: XMLHttpRequest) {
+    constructor(public viewModel: any, public xhr: XMLHttpRequest, public isSpaNavigationError: boolean = false) {
         super(viewModel);
     }
 }
@@ -243,6 +368,18 @@ class RedwoodAfterPostBackEventArgs extends RedwoodEventArgs {
         super(viewModel);
     }
 }
+class RedwoodSpaNavigatingEventArgs extends RedwoodEventArgs {
+    public cancel: boolean = false;
+    constructor(public viewModel: any, public viewModelName: string, public newUrl: string) {
+        super(viewModel);
+    }
+}
+class RedwoodSpaNavigatedEventArgs extends RedwoodEventArgs {
+    public isHandled: boolean = false;
+    constructor(public viewModel: any, public viewModelName: string, public serverResponseObject: any) {
+        super(viewModel);
+    }
+}
 
 var redwood = new Redwood();
 
@@ -254,7 +391,13 @@ ko.bindingHandlers["redwoodUpdateProgressVisible"] = {
         redwood.events.beforePostback.subscribe(e => {
             element.style.display = "";
         });
+        redwood.events.spaNavigating.subscribe(e => {
+            element.style.display = "";
+        });
         redwood.events.afterPostback.subscribe(e => {
+            element.style.display = "none";
+        });
+        redwood.events.spaNavigated.subscribe(e => {
             element.style.display = "none";
         });
         redwood.events.error.subscribe(e => {

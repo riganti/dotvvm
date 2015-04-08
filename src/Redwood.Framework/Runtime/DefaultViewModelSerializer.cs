@@ -89,6 +89,7 @@ namespace Redwood.Framework.Runtime
             var result = new JObject();
             result["viewModel"] = writer.Token;
             result["action"] = "successfulCommand";
+            result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
             if (validationRules.Count > 0) result["validationRules"] = validationRules;
 
             context.ViewModelJson = result;

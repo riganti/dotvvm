@@ -194,7 +194,7 @@ namespace Redwood.Framework.Controls
                 EnsureControlHasId();
             }
 
-            if (context.RequestContext.IsPostBack && (bool)GetValue(PostBack.UpdateProperty) && !(writer is MultiHtmlWriter))
+            if (context.RequestContext.IsInPartialRenderingMode && (bool)GetValue(PostBack.UpdateProperty) && !(writer is MultiHtmlWriter))
             {
                 // render the control and capture the HTML
                 using (var htmlBuilder = new StringWriter())

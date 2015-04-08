@@ -9,6 +9,7 @@ using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Parser;
 using Redwood.Framework.Routing;
 using Redwood.Framework.ResourceManagement;
 using Redwood.Framework.Runtime;
@@ -17,7 +18,6 @@ namespace Redwood.Framework.Hosting
 {
     public class RedwoodRequestContext
     {
-
         internal string CsrfToken { get; set; }
 
 
@@ -62,6 +62,27 @@ namespace Redwood.Framework.Hosting
         /// This property is typically set from the exception filter.
         /// </summary>
         public bool IsCommandExceptionHandled { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
+        /// </summary>
+        public bool IsSpaRequest
+        {
+            get { return RedwoodPresenter.DetermineSpaRequest(OwinContext); }
+        }
+
+        public bool IsInPartialRenderingMode
+        {
+            get { return RedwoodPresenter.DeterminePartialRendering(OwinContext); }
+        }
+
+        /// <summary>
+        /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
+        /// </summary>
+        public string GetSpaContentPlaceHolderUniqueId()
+        {
+            return RedwoodPresenter.DetermineSpaContentPlaceHolderUniqueId(OwinContext);
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RedwoodRequestContext"/> class.
@@ -112,7 +133,7 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public static void SetRedirectResponse(IOwinContext OwinContext, string url, int statusCode)
         {
-            if (!RedwoodPresenter.DetermineIsPostBack(OwinContext.Request.Method))
+            if (!RedwoodPresenter.DeterminePartialRendering(OwinContext))
             {
                 OwinContext.Response.Headers["Location"] = url;
                 OwinContext.Response.StatusCode = statusCode;

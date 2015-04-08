@@ -61,6 +61,10 @@ namespace Redwood.Framework.Routing
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));
         }
 
+        public RouteBase this[string key]
+        {
+            get { return list.FirstOrDefault(i => i.Key == key).Value; }
+        }
 
         /// <summary>
         /// Returns an enumerator that iterates through the collection.
