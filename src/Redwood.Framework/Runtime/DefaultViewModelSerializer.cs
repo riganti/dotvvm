@@ -104,9 +104,9 @@ namespace Redwood.Framework.Runtime
             foreach (var map in viewModelConverter.UsedSerializationMaps)
             {
                 var rule = new JObject();
-                foreach (var property in map.Properties.Where(p => p.ValidationRules.Any()))
+                foreach (var property in map.Properties.Where(p => p.ClientValidationRules.Any()))
                 {
-                    rule[property.Name] = JToken.FromObject(property.ValidationRules);
+                    rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
                 }
                 if (rule.Count > 0) validationRules[map.Type.ToString()] = rule;
             }

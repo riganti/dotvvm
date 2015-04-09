@@ -10,7 +10,7 @@ namespace Redwood.Framework.ViewModel
     {
 
         [JsonProperty("ruleName")]
-        public string RuleName { get; set; }
+        public string ClientRuleName { get; set; }
 
         [JsonProperty("errorMessage")]
         public string ErrorMessage { get; set; }

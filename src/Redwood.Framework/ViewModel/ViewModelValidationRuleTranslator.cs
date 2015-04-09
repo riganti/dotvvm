@@ -20,7 +20,7 @@ namespace Redwood.Framework.ViewModel
                 {
                     yield return new ViewModelPropertyValidationRule()
                     {
-                        RuleName = "required",
+                        ClientRuleName = "required",
                         SourceValidationAttribute = attribute,
                         ErrorMessage = attribute.FormatErrorMessage(property.Name)
                     };
@@ -30,10 +30,19 @@ namespace Redwood.Framework.ViewModel
                     var typedAttribute = (RegularExpressionAttribute)attribute;
                     yield return new ViewModelPropertyValidationRule()
                     {
-                        RuleName = "regexp",
+                        ClientRuleName = "regexp",
                         SourceValidationAttribute = attribute,
                         ErrorMessage = attribute.FormatErrorMessage(property.Name),
                         Parameters = new Object[] { typedAttribute.Pattern }
+                    };
+                }
+                else
+                {
+                    yield return new ViewModelPropertyValidationRule()
+                    {
+                        ClientRuleName = string.Empty,
+                        SourceValidationAttribute = attribute,
+                        ErrorMessage = attribute.FormatErrorMessage(property.Name)
                     };
                 }
             }

@@ -22,5 +22,10 @@ namespace Redwood.Framework.ViewModel
 
         public List<ViewModelPropertyValidationRule> ValidationRules { get; set; }
 
+        public IEnumerable<ViewModelPropertyValidationRule> ClientValidationRules
+        {
+            get { return ValidationRules.Where(r => !string.IsNullOrEmpty(r.ClientRuleName)); }
+        } 
+
     }
 }

@@ -147,15 +147,15 @@ class RedwoodValidation
                 this.addValidationError(viewModel, validationError);
             } else {
                 // remove
-                validationError.errorMessage("");
                 this.removeValidationError(viewModel, validationError);
+                validationError.errorMessage("");
             }
         }
     }
 
     // clears validation errors
     public clearValidationErrors() {
-        var errors = [];
+        var errors = this.errors();
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
@@ -200,14 +200,14 @@ class RedwoodValidation
     }
 
     private addValidationError(viewModel: any, error: ValidationError) {
-        if (viewModel.$validationErrors.indexOf(error) < 0) {
-            viewModel.$validationErrors.push(error);
-        }
+        this.removeValidationError(viewModel, error);
+        viewModel.$validationErrors.push(error);
         this.errors.push(error);
     }
 
     private removeValidationError(viewModel: any, error: ValidationError) {
-        viewModel.$validationErrors.push(error);
+        var errorMessage = error.errorMessage();
+        viewModel.$validationErrors.remove(e => e.errorMessage() === errorMessage);
         this.errors.remove(error);
     }
 };

@@ -47,6 +47,17 @@ namespace Redwood.Framework.Tests.ViewModel
             Assert.AreEqual("Text", results[3].PropertyPath);
         }
 
+        [TestMethod]
+        public void ViewModelValidator_ServerOnlyRules()
+        {
+            var testViewModel = new TestViewModel3() { Email = "aaa" };
+            var validator = new ViewModelValidator();
+            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual("Email", results[0].PropertyPath);
+        }
+
 
         public class TestViewModel
         {
@@ -66,6 +77,12 @@ namespace Redwood.Framework.Tests.ViewModel
 
             [RegularExpression("^[0-9]{3}$")]
             public string Code { get; set; }
+        }
+
+        public class TestViewModel3
+        {
+            [EmailAddress]
+            public string Email { get; set; }
         }
     }
 }

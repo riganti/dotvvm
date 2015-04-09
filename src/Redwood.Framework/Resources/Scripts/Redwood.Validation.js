@@ -148,14 +148,14 @@ var RedwoodValidation = (function () {
             }
             else {
                 // remove
-                validationError.errorMessage("");
                 this.removeValidationError(viewModel, validationError);
+                validationError.errorMessage("");
             }
         }
     };
     // clears validation errors
     RedwoodValidation.prototype.clearValidationErrors = function () {
-        var errors = [];
+        var errors = this.errors();
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
@@ -195,13 +195,13 @@ var RedwoodValidation = (function () {
         }
     };
     RedwoodValidation.prototype.addValidationError = function (viewModel, error) {
-        if (viewModel.$validationErrors.indexOf(error) < 0) {
-            viewModel.$validationErrors.push(error);
-        }
+        this.removeValidationError(viewModel, error);
+        viewModel.$validationErrors.push(error);
         this.errors.push(error);
     };
     RedwoodValidation.prototype.removeValidationError = function (viewModel, error) {
-        viewModel.$validationErrors.push(error);
+        var errorMessage = error.errorMessage();
+        viewModel.$validationErrors.remove(function (e) { return e.errorMessage() === errorMessage; });
         this.errors.remove(error);
     };
     return RedwoodValidation;
