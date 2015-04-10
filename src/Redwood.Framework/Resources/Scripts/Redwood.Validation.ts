@@ -231,19 +231,22 @@ redwood.events.beforePostback.subscribe(args => {
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
             args.cancel = true;
+            args.clientValidationFailed = true;
         }
     }
 });
 
 redwood.events.afterPostback.subscribe(args => {
-    if (args.serverResponseObject.action === "successfulCommand") {
-        // merge validation rules from postback with those we already have (required when a new type appears in the view model)
-        redwood.extensions.validation.mergeValidationRules(args);
-        args.isHandled = true;
-    } else if (args.serverResponseObject.action === "validationErrors") {
-        // apply validation errors from server
-        redwood.extensions.validation.showValidationErrorsFromServer(args);
-        args.isHandled = true;
+    if (!args.wasInterrupted && args.serverResponseObject) {
+        if (args.serverResponseObject.action === "successfulCommand") {
+            // merge validation rules from postback with those we already have (required when a new type appears in the view model)
+            redwood.extensions.validation.mergeValidationRules(args);
+            args.isHandled = true;
+        } else if (args.serverResponseObject.action === "validationErrors") {
+            // apply validation errors from server
+            redwood.extensions.validation.showValidationErrorsFromServer(args);
+            args.isHandled = true;
+        }
     }
 });
 

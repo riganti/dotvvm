@@ -47,6 +47,10 @@ var Redwood = (function () {
         var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
         this.events.beforePostback.trigger(beforePostbackArgs);
         if (beforePostbackArgs.cancel) {
+            // trigger afterPostback event
+            var afterPostBackArgsCanceled = new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
+            afterPostBackArgsCanceled.wasInterrupted = true;
+            this.events.afterPostback.trigger(afterPostBackArgsCanceled);
             return;
         }
         // perform the postback
@@ -60,8 +64,12 @@ var Redwood = (function () {
         };
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
             // if another postback has already been passed, don't do anything
-            if (!_this.isPostBackStillActive(currentPostBackCounter))
+            if (!_this.isPostBackStillActive(currentPostBackCounter)) {
+                var afterPostBackArgsCanceled = new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
+                afterPostBackArgsCanceled.wasInterrupted = true;
+                _this.events.afterPostback.trigger(afterPostBackArgsCanceled);
                 return;
+            }
             var resultObject = JSON.parse(result.responseText);
             if (!resultObject.viewModel && resultObject.viewModelDiff) {
                 resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
@@ -347,6 +355,7 @@ var RedwoodBeforePostBackEventArgs = (function (_super) {
         this.viewModelName = viewModelName;
         this.validationTargetPath = validationTargetPath;
         this.cancel = false;
+        this.clientValidationFailed = false;
     }
     return RedwoodBeforePostBackEventArgs;
 })(RedwoodEventArgs);
@@ -360,6 +369,7 @@ var RedwoodAfterPostBackEventArgs = (function (_super) {
         this.validationTargetPath = validationTargetPath;
         this.serverResponseObject = serverResponseObject;
         this.isHandled = false;
+        this.wasInterrupted = false;
     }
     return RedwoodAfterPostBackEventArgs;
 })(RedwoodEventArgs);

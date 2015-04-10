@@ -50,6 +50,10 @@ class Redwood {
         var beforePostbackArgs = new RedwoodBeforePostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath);
         this.events.beforePostback.trigger(beforePostbackArgs);
         if (beforePostbackArgs.cancel) {
+            // trigger afterPostback event
+            var afterPostBackArgsCanceled = new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
+            afterPostBackArgsCanceled.wasInterrupted = true;
+            this.events.afterPostback.trigger(afterPostBackArgsCanceled);
             return;
         }
 
@@ -64,7 +68,12 @@ class Redwood {
         };
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
             // if another postback has already been passed, don't do anything
-            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            if (!this.isPostBackStillActive(currentPostBackCounter)) {
+                var afterPostBackArgsCanceled = new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
+                afterPostBackArgsCanceled.wasInterrupted = true;
+                this.events.afterPostback.trigger(afterPostBackArgsCanceled);
+                return;
+            }
 
             var resultObject = JSON.parse(result.responseText);
             if (!resultObject.viewModel && resultObject.viewModelDiff) {
@@ -358,12 +367,14 @@ class RedwoodErrorEventArgs extends RedwoodEventArgs {
 }
 class RedwoodBeforePostBackEventArgs extends RedwoodEventArgs {
     public cancel: boolean = false;
+    public clientValidationFailed: boolean = false;
     constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any) {
         super(viewModel);
     }
 }
 class RedwoodAfterPostBackEventArgs extends RedwoodEventArgs {
     public isHandled: boolean = false;
+    public wasInterrupted: boolean = false;
     constructor(public sender: HTMLElement, public viewModel: any, public viewModelName: string, public validationTargetPath: any, public serverResponseObject: any) {
         super(viewModel);
     }
