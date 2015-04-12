@@ -13,14 +13,14 @@ using Redwood.Framework.Runtime;
 using Redwood.Framework.Runtime.Compilation;
 using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
+using Redwood.Framework.ResourceManagement.ClientGlobalize;
 
 namespace Redwood.Framework.Configuration
 {
     public class RedwoodConfiguration
     {
         public const string RedwoodControlTagPrefix = "rw";
-        public static readonly ImmutableArray<string> SupportedGlobalizationCultures = ImmutableArray.Create(new string[] { "af-ZA", "af", "am-ET", "am", "ar-AE", "ar-BH", "ar-DZ", "ar-EG", "ar-IQ", "ar-JO", "ar-KW", "ar-LB", "ar-LY", "ar-MA", "ar-OM", "ar-QA", "ar-SA", "ar-SY", "ar-TN", "ar-YE", "ar", "arn-CL", "arn", "as-IN", "as", "az-Cyrl-AZ", "az-Cyrl", "az-Latn-AZ", "az-Latn", "az", "ba-RU", "ba", "be-BY", "be", "bg-BG", "bg", "bn-BD", "bn-IN", "bn", "bo-CN", "bo", "br-FR", "br", "bs-Cyrl-BA", "bs-Cyrl", "bs-Latn-BA", "bs-Latn", "bs", "ca-ES", "ca", "co-FR", "co", "cs-CZ", "cs", "cy-GB", "cy", "da-DK", "da", "de-AT", "de-CH", "de-DE", "de-LI", "de-LU", "de", "dsb-DE", "dsb", "dv-MV", "dv", "el-GR", "el", "en-029", "en-AU", "en-BZ", "en-CA", "en-GB", "en-IE", "en-IN", "en-JM", "en-MY", "en-NZ", "en-PH", "en-SG", "en-TT", "en-US", "en-ZA", "en-ZW", "es-AR", "es-BO", "es-CL", "es-CO", "es-CR", "es-DO", "es-EC", "es-ES", "es-GT", "es-HN", "es-MX", "es-NI", "es-PA", "es-PE", "es-PR", "es-PY", "es-SV", "es-US", "es-UY", "es-VE", "es", "et-EE", "et", "eu-ES", "eu", "fa-IR", "fa", "fi-FI", "fi", "fil-PH", "fil", "fo-FO", "fo", "fr-BE", "fr-CA", "fr-CH", "fr-FR", "fr-LU", "fr-MC", "fr", "fy-NL", "fy", "ga-IE", "ga", "gd-GB", "gd", "gl-ES", "gl", "gsw-FR", "gsw", "gu-IN", "gu", "ha-Latn-NG", "ha-Latn", "ha", "he-IL", "he", "hi-IN", "hi", "hr-BA", "hr-HR", "hr", "hsb-DE", "hsb", "hu-HU", "hu", "hy-AM", "hy", "id-ID", "id", "ig-NG", "ig", "ii-CN", "ii", "is-IS", "is", "it-CH", "it-IT", "it", "iu-Cans-CA", "iu-Cans", "iu-Latn-CA", "iu-Latn", "iu", "ja-JP", "ja", "ka-GE", "ka", "kk-KZ", "kk", "kl-GL", "kl", "km-KH", "km", "kn-IN", "kn", "ko-KR", "ko", "kok-IN", "kok", "ky-KG", "ky", "lb-LU", "lb", "lo-LA", "lo", "lt-LT", "lt", "lv-LV", "lv", "mi-NZ", "mi", "mk-MK", "mk", "ml-IN", "ml", "mn-Cyrl", "mn-MN", "mn-Mong-CN", "mn-Mong", "mn", "moh-CA", "moh", "mr-IN", "mr", "ms-BN", "ms-MY", "ms", "mt-MT", "mt", "nb-NO", "nb", "ne-NP", "ne", "nl-BE", "nl-NL", "nl", "nn-NO", "nn", "no", "nso-ZA", "nso", "oc-FR", "oc", "or-IN", "or", "pa-IN", "pa", "pl-PL", "pl", "prs-AF", "prs", "ps-AF", "ps", "pt-BR", "pt-PT", "pt", "qut-GT", "qut", "quz-BO", "quz-EC", "quz-PE", "quz", "rm-CH", "rm", "ro-RO", "ro", "ru-RU", "ru", "rw-RW", "rw", "sa-IN", "sa", "sah-RU", "sah", "se-FI", "se-NO", "se-SE", "se", "si-LK", "si", "sk-SK", "sk", "sl-SI", "sl", "sma-NO", "sma-SE", "sma", "smj-NO", "smj-SE", "smj", "smn-FI", "smn", "sms-FI", "sms", "sq-AL", "sq", "sr-Cyrl-BA", "sr-Cyrl-CS", "sr-Cyrl-ME", "sr-Cyrl-RS", "sr-Cyrl", "sr-Latn-BA", "sr-Latn-CS", "sr-Latn-ME", "sr-Latn-RS", "sr-Latn", "sr", "sv-FI", "sv-SE", "sv", "sw-KE", "sw", "syr-SY", "syr", "ta-IN", "ta", "te-IN", "te", "tg-Cyrl-TJ", "tg-Cyrl", "tg", "th-TH", "th", "tk-TM", "tk", "tn-ZA", "tn", "tr-TR", "tr", "tt-RU", "tt", "tzm-Latn-DZ", "tzm-Latn", "tzm", "ug-CN", "ug", "uk-UA", "uk", "ur-PK", "ur", "uz-Cyrl-UZ", "uz-Cyrl", "uz-Latn-UZ", "uz-Latn", "uz", "vi-VN", "vi", "wo-SN", "wo", "xh-ZA", "xh", "yo-NG", "yo", "zh-CHS", "zh-CHT", "zh-CN", "zh-Hans", "zh-Hant", "zh-HK", "zh-MO", "zh-SG", "zh-TW", "zh", "zu-ZA", "zu" });
-
+        
         /// <summary>
         /// Gets or sets the application physical path.
         /// </summary>
@@ -64,6 +64,9 @@ namespace Redwood.Framework.Configuration
         [JsonProperty("defaultCulture")]
         public string DefaultCulture { get; set; }
 
+        [JsonProperty("debug")]
+        public bool Debug { get; set; }
+
         /// <summary>
         /// Gets an instance of the service locator component.
         /// </summary>
@@ -83,6 +86,7 @@ namespace Redwood.Framework.Configuration
             Resources = new RedwoodResourceRepository();
             Security = new RedwoodSecurityConfiguration();
             Runtime = new RedwoodRuntimeConfiguration();
+            Debug = true;
         }
 
         /// <summary>
@@ -97,7 +101,7 @@ namespace Redwood.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector());
             configuration.ServiceLocator.RegisterSingleton<IRedwoodViewBuilder>(() => new DefaultRedwoodViewBuilder(configuration));
             configuration.ServiceLocator.RegisterSingleton<IViewModelLoader>(() => new DefaultViewModelLoader());
-            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration) { SendDiff = true });
             configuration.ServiceLocator.RegisterSingleton<IOutputRenderer>(() => new DefaultOutputRenderer());
             configuration.ServiceLocator.RegisterSingleton<IRedwoodPresenter>(() => new RedwoodPresenter(configuration));
             configuration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
@@ -113,63 +117,63 @@ namespace Redwood.Framework.Configuration
                 new RedwoodControlConfiguration() { TagPrefix = "bootstrap", Namespace = "Redwood.Framework.Controls.Bootstrap", Assembly = "Redwood.Framework" },
             });
 
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.JQueryResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.JQueryResourceName,
                     CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
                     Url = "Redwood.Framework.Resources.Scripts.jquery-2.1.1.min.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "$"
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.KnockoutJSResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.KnockoutJSResourceName,
                     Url = "Redwood.Framework.Resources.Scripts.knockout-3.2.0.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko"
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.KnockoutMapperResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.KnockoutMapperResourceName,
                     Url = "Redwood.Framework.Resources.Scripts.knockout.mapper.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko.mapper",
                     Dependencies = new[] { Constants.KnockoutJSResourceName }
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.RedwoodResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.RedwoodResourceName,
                     Url = "Redwood.Framework.Resources.Scripts.Redwood.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "redwood",
                     Dependencies = new[] { Constants.KnockoutJSResourceName, Constants.KnockoutMapperResourceName }
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.RedwoodValidationResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.RedwoodValidationResourceName,
                     Url = "Redwood.Framework.Resources.Scripts.Redwood.Validation.js",
                     EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "redwood.validation",
                     Dependencies = new[] { Constants.RedwoodResourceName }
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.RedwoodDebugResourceName,
                 new ScriptResource()
                 {
-                    Name = Constants.BootstrapResourceName,
+                    Url = "Redwood.Framework.Resources.Scripts.Redwood.Debug.js",
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
+                    Dependencies = new[] { Constants.RedwoodResourceName, Constants.JQueryResourceName }
+                });
+            configuration.Resources.Register(Constants.BootstrapResourceName,
+                new ScriptResource()
+                {
                     Url = "/Scripts/bootstrap.min.js",
                     CdnUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js",
                     GlobalObjectName = "typeof $().emulateTransitionEnd == 'function'",
                     Dependencies = new[] { Constants.BootstrapCssResourceName, Constants.JQueryResourceName }
                 });
-            configuration.Resources.Register(
+            configuration.Resources.Register(Constants.BootstrapCssResourceName,
                 new StylesheetResource()
                 {
-                    Name = Constants.BootstrapCssResourceName,
                     Url = "/Content/bootstrap.min.css"
                 });
 
@@ -181,23 +185,14 @@ namespace Redwood.Framework.Configuration
 
         private static void RegisterGlobalizeResources(RedwoodConfiguration configuration)
         {
-            configuration.Resources.Register(new ScriptResource()
+            configuration.Resources.Register(Constants.GlobalizeResourceName, new ScriptResource()
             {
-                Name = Constants.GlobalizeResourceName,
                 Url = "Redwood.Framework.Resources.Scripts.Globalize.globalize.js",
                 EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name
             });
 
-            foreach (var culture in SupportedGlobalizationCultures)
-            {
-                configuration.Resources.Register(new ScriptResource()
-                {
-                    Name = string.Format(Constants.GlobalizeCultureResourceName, culture),
-                    Url = string.Format("Redwood.Framework.Resources.Scripts.Globalize.cultures.{0}.globalize.js", culture),
-                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
-                    Dependencies = new[] { Constants.GlobalizeResourceName }
-                });    
-            }
+
+            configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }
 
     }

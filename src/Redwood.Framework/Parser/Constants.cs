@@ -28,13 +28,19 @@ namespace Redwood.Framework.Parser
         public const string KnockoutMapperResourceName = "knockout.mapper";
         public const string RedwoodResourceName = "redwood";
         public const string RedwoodValidationResourceName = "redwood.validation";
+        public const string RedwoodDebugResourceName = "redwood.debug";
         public const string BootstrapResourceName = "bootstrap";
         public const string BootstrapCssResourceName = "bootstrap-css";
         public const string GlobalizeResourceName = "globalize";
-        public const string GlobalizeCultureResourceName = "globalize.{0}";
+        public const string GlobalizeCultureResourceName = "globalize:{0}";
 
+        public const string GlobalizeCultureUrlPath = "redwoodGlobalizeCulture";
+        public const string GlobalizeCultureUrlIdParameter = "id";
         public const string ResourceHandlerUrl = "/redwoodEmbeddedResource?name={0}&assembly={1}";
         public const string ResourceHandlerMatchUrl = "redwoodEmbeddedResource";
 
+        public const string SpaContentPlaceHolderDataAttributeName = "data-rw-spacontentplaceholder";
+        public const string SpaContentPlaceHolderHeaderName = "X-Redwood-SpaContentPlaceHolder";
+        public const string SpaContentPlaceHolderID = "__rw_SpaContentPlaceHolder";
     }
 }

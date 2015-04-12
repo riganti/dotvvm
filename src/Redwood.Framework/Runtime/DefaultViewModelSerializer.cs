@@ -10,6 +10,7 @@ using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
 using Redwood.Framework.ViewModel;
+using Redwood.Framework.Utils;
 
 namespace Redwood.Framework.Runtime
 {
@@ -19,6 +20,9 @@ namespace Redwood.Framework.Runtime
         private CommandResolver commandResolver = new CommandResolver();
 
         private readonly IViewModelProtector viewModelProtector;
+
+        public bool SendDiff { get; set; }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
@@ -36,12 +40,18 @@ namespace Redwood.Framework.Runtime
             this.viewModelProtector = viewModelProtector;
         }
 
-
         /// <summary>
         /// Serializes the view model.
         /// </summary>
         public string SerializeViewModel(RedwoodRequestContext context)
         {
+            if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
+            {
+                bool changed;
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], out changed, true);
+                if (!changed) context.ViewModelJson.Remove("viewModelDiff");
+                context.ViewModelJson.Remove("viewModel");
+            }
             return context.ViewModelJson.ToString();
         }
 
@@ -60,7 +70,7 @@ namespace Redwood.Framework.Runtime
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
             serializer.Serialize(writer, context.ViewModel);
-            
+
             // save the control state
             var walker = new ViewModelJTokenControlTreeWalker(writer.Token, view);
             walker.ProcessControlTree(walker.SaveControlState);
@@ -69,16 +79,18 @@ namespace Redwood.Framework.Runtime
             writer.Token["$csrfToken"] = context.CsrfToken;
 
             // persist encrypted values
-            writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(), context);
-            
+            if (viewModelConverter.EncryptedValues.Count > 0)
+                writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(), context);
+
             // serialize validation rules
             var validationRules = SerializeValidationRules(viewModelConverter);
-            
+
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
             result["action"] = "successfulCommand";
-            result["validationRules"] = validationRules;
+            result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
+            if (validationRules.Count > 0) result["validationRules"] = validationRules;
 
             context.ViewModelJson = result;
         }
@@ -92,11 +104,11 @@ namespace Redwood.Framework.Runtime
             foreach (var map in viewModelConverter.UsedSerializationMaps)
             {
                 var rule = new JObject();
-                foreach (var property in map.Properties.Where(p => p.ValidationRules.Any()))
+                foreach (var property in map.Properties.Where(p => p.ClientValidationRules.Any()))
                 {
-                    rule[property.Name] = JToken.FromObject(property.ValidationRules);
+                    rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
                 }
-                validationRules[map.Type.ToString()] = rule;
+                if (rule.Count > 0) validationRules[map.Type.ToString()] = rule;
             }
             return validationRules;
         }
@@ -112,7 +124,7 @@ namespace Redwood.Framework.Runtime
             result["action"] = "redirect";
             return result.ToString();
         }
-        
+
         /// <summary>
         /// Serializes the validation errors in case the viewmodel was not valid.
         /// </summary>
@@ -129,32 +141,37 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Populates the view model from the data received from the request.
         /// </summary>
+        /// <returns></returns>
         public void PopulateViewModel(RedwoodRequestContext context, RedwoodView view, string serializedPostData)
         {
+            var viewModelConverter = new ViewModelJsonConverter();
+
             // get properties
-            var data = JObject.Parse(serializedPostData);
+            var data = context.ReceivedViewModelJson = JObject.Parse(serializedPostData);
             var viewModelToken = (JObject)data["viewModel"];
 
             // load CSRF token
             context.CsrfToken = viewModelToken["$csrfToken"].Value<string>();
 
-            // load encrypted values
-            var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-            var encryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
+            if (viewModelToken["$encryptedValues"] != null)
+            {
+                // load encrypted values
+                var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
+                viewModelConverter.EncryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
+            }
+            else viewModelConverter.EncryptedValues = new JArray();
 
             // get validation path
             context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();
 
             // populate the ViewModel
             var serializer = new JsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter() { EncryptedValues = encryptedValues };
             serializer.Converters.Add(viewModelConverter);
             viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
 
             // load the control state
             var walker = new ViewModelJTokenControlTreeWalker(viewModelToken, view);
             walker.ProcessControlTree(walker.LoadControlState);
-
         }
 
         /// <summary>

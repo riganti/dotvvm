@@ -94,7 +94,7 @@ class RedwoodValidation
 
     /// Validates the specified view model
     public validateViewModel(viewModel: any) {
-        if (!viewModel || !viewModel.$type) return;
+        if (!viewModel || !viewModel.$type || !redwood.viewModels.root.validationRules) return;
 
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
@@ -147,15 +147,15 @@ class RedwoodValidation
                 this.addValidationError(viewModel, validationError);
             } else {
                 // remove
-                validationError.errorMessage("");
                 this.removeValidationError(viewModel, validationError);
+                validationError.errorMessage("");
             }
         }
     }
 
     // clears validation errors
     public clearValidationErrors() {
-        var errors = [];
+        var errors = this.errors();
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
@@ -200,14 +200,14 @@ class RedwoodValidation
     }
 
     private addValidationError(viewModel: any, error: ValidationError) {
-        if (viewModel.$validationErrors.indexOf(error) < 0) {
-            viewModel.$validationErrors.push(error);
-        }
+        this.removeValidationError(viewModel, error);
+        viewModel.$validationErrors.push(error);
         this.errors.push(error);
     }
 
     private removeValidationError(viewModel: any, error: ValidationError) {
-        viewModel.$validationErrors.push(error);
+        var errorMessage = error.errorMessage();
+        viewModel.$validationErrors.remove(e => e.errorMessage() === errorMessage);
         this.errors.remove(error);
     }
 };
@@ -231,19 +231,22 @@ redwood.events.beforePostback.subscribe(args => {
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
             args.cancel = true;
+            args.clientValidationFailed = true;
         }
     }
 });
 
 redwood.events.afterPostback.subscribe(args => {
-    if (args.serverResponseObject.action === "successfulCommand") {
-        // merge validation rules from postback with those we already have (required when a new type appears in the view model)
-        redwood.extensions.validation.mergeValidationRules(args);
-        args.isHandled = true;
-    } else if (args.serverResponseObject.action === "validationErrors") {
-        // apply validation errors from server
-        redwood.extensions.validation.showValidationErrorsFromServer(args);
-        args.isHandled = true;
+    if (!args.wasInterrupted && args.serverResponseObject) {
+        if (args.serverResponseObject.action === "successfulCommand") {
+            // merge validation rules from postback with those we already have (required when a new type appears in the view model)
+            redwood.extensions.validation.mergeValidationRules(args);
+            args.isHandled = true;
+        } else if (args.serverResponseObject.action === "validationErrors") {
+            // apply validation errors from server
+            redwood.extensions.validation.showValidationErrorsFromServer(args);
+            args.isHandled = true;
+        }
     }
 });
 

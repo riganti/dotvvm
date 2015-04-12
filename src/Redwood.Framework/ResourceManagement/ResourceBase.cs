@@ -8,13 +8,6 @@ namespace Redwood.Framework.ResourceManagement
 {
     public abstract class ResourceBase
     {
-
-        /// <summary>
-        /// Gets or sets the name of the resource.
-        /// </summary>
-        [JsonProperty("name")]
-        public string Name { get; set; }
-
         /// <summary>
         /// Gets or sets the collection of dependent resources.
         /// </summary>

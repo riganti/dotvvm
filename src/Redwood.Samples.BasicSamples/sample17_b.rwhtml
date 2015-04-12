@@ -1,24 +1,14 @@
-﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample1ViewModel, Redwood.Samples.BasicSamples
+﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample17ViewModel_B, Redwood.Samples.BasicSamples
+@masterPage sample17_master.rwhtml
 
-<!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml">
-<head>
-    <title>Hello from Redwood!</title>
-	<style>
-	.completed {
-		color: maroon;
-		text-decoration: line-through;
-	}
-	</style>
-	<rw:RequiredResource Name="globalize:cs-CZ" />
-</head>
-<body>
-	<div class="container">
+<rw:Content ContentPlaceHolderID="MainContent">
+
+	<div DataContext="{value: Sample1}">
 		<h1>Task List</h1>
 		
 		<fieldset>
 			<legend>Add Task</legend>
-			
+
 			<p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /></p>
 			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>
 		</fieldset>
@@ -40,7 +30,5 @@
 			</rw:Repeater>
 		</table>
 	</div>
-	
-	<rw:RequiredResource Name="bootstrap" />
-</body>
-</html>
+
+</rw:Content>

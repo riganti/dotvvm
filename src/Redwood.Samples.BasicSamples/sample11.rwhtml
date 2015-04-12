@@ -52,6 +52,10 @@
 		</table>
 	</div>
 	
+	<p>
+		<rw:UpdateProgress>Loading...</rw:UpdateProgress>
+	</p>
+
 	<rw:RequiredResource Name="bootstrap" />
 </body>
 </html>

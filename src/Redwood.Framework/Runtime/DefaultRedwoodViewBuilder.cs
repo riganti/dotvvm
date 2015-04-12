@@ -55,7 +55,31 @@ namespace Redwood.Framework.Runtime
                 contentPage = masterPage;
             }
 
+            // verifies the SPA request
+            VerifySpaRequest(context, contentPage);
+
             return contentPage;
+        }
+
+        /// <summary>
+        /// If the request is SPA request, we need to verify that the page contains the same SpaContentPlaceHolder.
+        /// Also we need to check that the placeholder is the same.
+        /// </summary>
+        private void VerifySpaRequest(RedwoodRequestContext context, RedwoodView page)
+        {
+            if (context.IsSpaRequest)
+            {
+                var spaContentPlaceHolders = page.GetAllDescendants().OfType<SpaContentPlaceHolder>().ToList();
+                if (spaContentPlaceHolders.Count > 1)
+                {
+                    throw new Exception("Multiple controls of type <rw:SpaContentPlaceHolder /> found on the page! This control can be used only once!");   // TODO: exception handling
+                }
+                if (spaContentPlaceHolders.Count == 0 || spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId() != context.GetSpaContentPlaceHolderUniqueId())
+                {
+                    // the client has loaded different page which does not contain current SpaContentPlaceHolder - he needs to be redirected
+                    context.Redirect(context.OwinContext.Request.Uri.AbsoluteUri);
+                }
+            }
         }
 
         /// <summary>

@@ -142,6 +142,19 @@ namespace Redwood.Framework.Binding
             {
                 return node.Token.Value as string;
             }
+            else if (node.IsKind(SyntaxKind.NullLiteralExpression))
+            {
+                return null;
+            }
+            else if (node.IsKind(SyntaxKind.TrueLiteralExpression))
+            {
+                return true;
+            }
+            else if (node.IsKind(SyntaxKind.FalseLiteralExpression))
+            {
+                return false;
+            }
+
             return base.VisitLiteralExpression(node);
         }
 

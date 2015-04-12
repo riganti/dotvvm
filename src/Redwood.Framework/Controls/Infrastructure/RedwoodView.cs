@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Redwood.Framework.Runtime;
 using Redwood.Framework.Parser;
+using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Controls.Infrastructure
 {
@@ -28,5 +29,11 @@ namespace Redwood.Framework.Controls.Infrastructure
             ResourceDependencies.Add(Constants.RedwoodValidationResourceName);
         }
 
+        protected internal override void OnPreRender(RedwoodRequestContext context)
+        {
+            if (context.Configuration.Debug)
+                ResourceDependencies.Add(Constants.RedwoodDebugResourceName);
+            base.OnPreRender(context);
+        }
     }
 }

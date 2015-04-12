@@ -11,14 +11,14 @@ namespace Redwood.Framework.ResourceManagement
     /// <summary>
     /// repository of named resources
     /// </summary>
-    public class RedwoodResourceRepository: IRedwoodResourceRepository
+    public class RedwoodResourceRepository : IRedwoodResourceRepository
     {
         /// <summary>
         /// Dictionary of resources
         /// </summary>
         public ConcurrentDictionary<string, ResourceBase> Resources { get; private set; }
 
-        public IRedwoodResourceRepository Parent { get; set; }
+        public ConcurrentDictionary<string, IRedwoodResourceRepository> Parents { get; set; }
 
         /// <summary>
         /// Finds the resource with the specified name.
@@ -26,19 +26,35 @@ namespace Redwood.Framework.ResourceManagement
         public ResourceBase FindResource(string name)
         {
             if (Resources.ContainsKey(name)) return Resources[name];
-            else if (Parent != null) return Parent.FindResource(name);
-            else return null;
+            IRedwoodResourceRepository parent;
+            if (name.Contains(':'))
+            {
+                var split = name.Split(new[] { ':' }, 2);
+                if (Parents.TryGetValue(split[0], out parent))
+                    return parent.FindResource(split[1]);
+            }
+            if (Parents.TryGetValue("", out parent))
+            {
+                var resource = parent.FindResource(name);
+                if (resource != null) return resource;
+            }
+            return null;
         }
 
         /// <summary>
         /// registers a new resource in collection
         /// </summary>
-        public void Register(ResourceBase resource, bool replaceIfExists = true)
+        public void Register(string name, ResourceBase resource, bool replaceIfExists = true)
         {
             if (replaceIfExists)
-                Resources.AddOrUpdate(resource.Name, resource, (key, res) => resource);
-            else if (!Resources.TryAdd(resource.Name, resource))
+                Resources.AddOrUpdate(name, resource, (key, res) => resource);
+            else if (!Resources.TryAdd(name, resource))
                 throw new InvalidOperationException("name already registered");
+        }
+
+        public void RegisterNamedParent(string name, IRedwoodResourceRepository parent)
+        {
+            Parents[name] = parent;
         }
 
         /// <summary>
@@ -49,12 +65,21 @@ namespace Redwood.Framework.ResourceManagement
             return new RedwoodResourceRepository(this);
         }
 
-        public RedwoodResourceRepository(RedwoodResourceRepository parent)
+        public RedwoodResourceRepository(RedwoodResourceRepository parent) : this()
         {
             this.Resources = new ConcurrentDictionary<string, ResourceBase>();
-            this.Parent = parent;
+            this.Parents.TryAdd("", parent);
         }
 
-        public RedwoodResourceRepository() : this(null) { }
+        public RedwoodResourceRepository()
+        {
+            this.Resources = new ConcurrentDictionary<string, ResourceBase>();
+            this.Parents = new ConcurrentDictionary<string, IRedwoodResourceRepository>();
+        }
+
+        internal void Register(object redwoodDebugResourceName)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

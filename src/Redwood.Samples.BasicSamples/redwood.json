@@ -1,4 +1,5 @@
 ﻿{
+    "debug": true,
     "markup": {
         "controls": [
             { "tagPrefix": "rw", "namespace": "Redwood.Framework.Controls", "assembly": "Redwood.Framework" },

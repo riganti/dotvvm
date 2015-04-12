@@ -100,7 +100,7 @@ var RedwoodValidation = (function () {
     }
     /// Validates the specified view model
     RedwoodValidation.prototype.validateViewModel = function (viewModel) {
-        if (!viewModel || !viewModel.$type)
+        if (!viewModel || !viewModel.$type || !redwood.viewModels.root.validationRules)
             return;
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
@@ -148,14 +148,14 @@ var RedwoodValidation = (function () {
             }
             else {
                 // remove
-                validationError.errorMessage("");
                 this.removeValidationError(viewModel, validationError);
+                validationError.errorMessage("");
             }
         }
     };
     // clears validation errors
     RedwoodValidation.prototype.clearValidationErrors = function () {
-        var errors = [];
+        var errors = this.errors();
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
@@ -195,13 +195,13 @@ var RedwoodValidation = (function () {
         }
     };
     RedwoodValidation.prototype.addValidationError = function (viewModel, error) {
-        if (viewModel.$validationErrors.indexOf(error) < 0) {
-            viewModel.$validationErrors.push(error);
-        }
+        this.removeValidationError(viewModel, error);
+        viewModel.$validationErrors.push(error);
         this.errors.push(error);
     };
     RedwoodValidation.prototype.removeValidationError = function (viewModel, error) {
-        viewModel.$validationErrors.push(error);
+        var errorMessage = error.errorMessage();
+        viewModel.$validationErrors.remove(function (e) { return e.errorMessage() === errorMessage; });
         this.errors.remove(error);
     };
     return RedwoodValidation;
@@ -222,19 +222,22 @@ redwood.events.beforePostback.subscribe(function (args) {
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
             args.cancel = true;
+            args.clientValidationFailed = true;
         }
     }
 });
 redwood.events.afterPostback.subscribe(function (args) {
-    if (args.serverResponseObject.action === "successfulCommand") {
-        // merge validation rules from postback with those we already have (required when a new type appears in the view model)
-        redwood.extensions.validation.mergeValidationRules(args);
-        args.isHandled = true;
-    }
-    else if (args.serverResponseObject.action === "validationErrors") {
-        // apply validation errors from server
-        redwood.extensions.validation.showValidationErrorsFromServer(args);
-        args.isHandled = true;
+    if (!args.wasInterrupted && args.serverResponseObject) {
+        if (args.serverResponseObject.action === "successfulCommand") {
+            // merge validation rules from postback with those we already have (required when a new type appears in the view model)
+            redwood.extensions.validation.mergeValidationRules(args);
+            args.isHandled = true;
+        }
+        else if (args.serverResponseObject.action === "validationErrors") {
+            // apply validation errors from server
+            redwood.extensions.validation.showValidationErrorsFromServer(args);
+            args.isHandled = true;
+        }
     }
 });
 // add knockout binding handler

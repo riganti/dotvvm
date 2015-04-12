@@ -58,9 +58,9 @@ namespace Redwood.Framework.ResourceManagement
                 Type type;
                 if (ResourceTypeNames.TryGetValue(prop.Key, out type))
                 {
-                    foreach (var resource in DeserializeResources(prop.Value, type, serializer))
+                    foreach (var resource in DeserializeResources((JObject)prop.Value, type, serializer))
                     {
-                        repo.Register(resource);
+                        repo.Register(resource.Key, resource.Value);
                     }
                 }
                 else
@@ -69,22 +69,13 @@ namespace Redwood.Framework.ResourceManagement
             return repo;
         }
 
-        IEnumerable<ResourceBase> DeserializeResources(JToken jtoken, Type resourceType, JsonSerializer serializer)
+        IEnumerable<KeyValuePair<string, ResourceBase>> DeserializeResources(JObject jtoken, Type resourceType, JsonSerializer serializer)
         {
-            if (jtoken.Type == JTokenType.Array)
-                // read array of resources
-                foreach (var resObj in jtoken as JArray)
-                {
-                    yield return serializer.Deserialize(resObj.CreateReader(), resourceType) as ResourceBase;
-                }
-            else if (jtoken.Type == JTokenType.Object)
-                // read name-resource pairs
-                foreach (var resObj in jtoken as JObject)
-                {
-                    var resource = serializer.Deserialize(resObj.Value.CreateReader(), resourceType) as ResourceBase;
-                    resource.Name = resObj.Key;
-                    yield return resource;
-                }
+            foreach (var resObj in jtoken)
+            {
+                var resource = serializer.Deserialize(resObj.Value.CreateReader(), resourceType) as ResourceBase;
+                yield return new KeyValuePair<string, ResourceBase>(resObj.Key, resource);
+            }
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)

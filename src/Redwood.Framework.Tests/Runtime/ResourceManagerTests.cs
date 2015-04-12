@@ -7,6 +7,8 @@ using Redwood.Framework.Configuration;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ResourceManagement;
+using Redwood.Framework.ResourceManagement.ClientGlobalize;
+using System.Globalization;
 
 namespace Redwood.Framework.Tests.Runtime
 {
@@ -61,8 +63,8 @@ namespace Redwood.Framework.Tests.Runtime
             var json = string.Format(@"
 {{ 
     'resources': {{
-        'scripts': [{{ 'name': '{0}', 'url': 'different url', 'globalObjectName': '$' }}],
-        'stylesheets': [{{ 'name': 'newResource', 'url': 'test' }}]
+        'scripts': {{ '{0}': {{ 'url': 'different url', 'globalObjectName': '$'}} }},
+        'stylesheets': {{ 'newResource': {{ 'url': 'test' }} }}
     }}
 }}", Constants.JQueryResourceName);
             var configuration = RedwoodConfiguration.CreateDefault();
@@ -70,6 +72,15 @@ namespace Redwood.Framework.Tests.Runtime
 
             Assert.AreEqual("different url", configuration.Resources.FindResource(Constants.JQueryResourceName).Url);
             Assert.AreEqual("test", configuration.Resources.FindResource("newResource").Url);
+        }
+
+        [TestMethod]
+        public void JQueryGlobalizeGenerator()
+        {
+            var cultureInfo = CultureInfo.GetCultureInfo("cs-cz");
+            var json = JQueryGlobalizeScriptCreator.BuildCultureInfoJson(cultureInfo);
+            Assert.IsTrue(json.SelectToken("calendars.standard.days.namesAbbr").Values<string>().SequenceEqual(cultureInfo.DateTimeFormat.AbbreviatedDayNames));
+            // TODO: add more assertions
         }
     }
 }
