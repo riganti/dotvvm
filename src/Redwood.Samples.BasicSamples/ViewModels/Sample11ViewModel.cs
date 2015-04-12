@@ -30,7 +30,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
             }
             return base.Init();
         }
-
+        
         public void AddTask()
         {
             Tasks.Add(new TaskViewModel() 

@@ -8,7 +8,6 @@ namespace Redwood.Samples.BasicSamples.ViewModels
 {
     public class Sample1ViewModel : RedwoodViewModelBase  
     {
-        
         public string NewTaskTitle { get; set; }
 
         public List<TaskViewModel> Tasks { get; set; }
