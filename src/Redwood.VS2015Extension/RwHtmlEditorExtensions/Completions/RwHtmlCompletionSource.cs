@@ -131,7 +131,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                             combineWithHtmlCompletions = true;
                         }
                     }
-                    var results = items.OrderBy(v => v.DisplayText).Distinct().ToList();
+                    var results = items.OrderBy(v => v.DisplayText).Distinct(CompletionEqualityComparer.Instance).ToList();
                     
                     // show the session
                     if (!results.Any())
@@ -200,7 +200,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                 htmlCompletionsSet.Moniker,
                 htmlCompletionsSet.DisplayName,
                 htmlCompletionsSet.ApplicableTo,
-                newCompletions.Completions.Concat(originalCompletions).OrderBy(n => n.DisplayText).Distinct(),
+                newCompletions.Completions.Concat(originalCompletions).OrderBy(n => n.DisplayText).Distinct(CompletionEqualityComparer.Instance),
                 htmlCompletionsSet.CompletionBuilders);
 
             completionSets.Remove(htmlCompletionsSet);
