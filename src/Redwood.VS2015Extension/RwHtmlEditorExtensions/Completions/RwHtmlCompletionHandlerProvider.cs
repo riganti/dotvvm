@@ -30,12 +30,9 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             ITextView textView = AdapterService.GetWpfTextView(textViewAdapter);
             if (textView == null)
                 return;
-
-            Func<RwHtmlCompletionCommandHandler> createCommandHandler = delegate()
-            {
-                return new RwHtmlCompletionCommandHandler(textViewAdapter, textView, this);
-            };
-            textView.Properties.GetOrCreateSingletonProperty(createCommandHandler);
+            
+            textView.Properties.GetOrCreateSingletonProperty(() => new RwHtmlCompletionCommandHandler(textViewAdapter, textView, this));
+            textView.Properties.GetOrCreateSingletonProperty(() => new RwHtmlFormatCommandHandler(textViewAdapter, textView));
         }
     }
 }
