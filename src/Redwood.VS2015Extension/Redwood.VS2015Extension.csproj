@@ -193,6 +193,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachedValue.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassificationTypes.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassifier.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassifierProvider.cs" />

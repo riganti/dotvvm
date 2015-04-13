@@ -136,7 +136,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                 .ToList();
 
             var result = new List<CompletionData>();
-            metadata = new ConcurrentDictionary<string, ControlMetadata>();
+            metadata = new ConcurrentDictionary<string, ControlMetadata>(StringComparer.CurrentCultureIgnoreCase);
 
             foreach (var rule in context.Configuration.Markup.Controls)
             {
