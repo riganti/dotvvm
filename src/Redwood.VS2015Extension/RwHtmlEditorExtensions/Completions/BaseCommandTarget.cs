@@ -17,6 +17,16 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         private ITextView textView;
         private IVsTextView textViewAdapter;
 
+        public ITextView TextView
+        {
+            get { return textView; }
+        }
+
+        public IVsTextView TextViewAdapter
+        {
+            get { return textViewAdapter; }
+        }
+
         public BaseCommandTarget(IVsTextView textViewAdapter, ITextView textView)
         {
             this.textViewAdapter = textViewAdapter;

@@ -24,6 +24,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         internal ICompletionBroker CompletionBroker { get; set; }
         [Import]
         internal SVsServiceProvider ServiceProvider { get; set; }
+        
 
         public void VsTextViewCreated(IVsTextView textViewAdapter)
         {

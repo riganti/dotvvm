@@ -6,7 +6,9 @@ using EnvDTE;
 using Microsoft.CodeAnalysis;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 using Project = EnvDTE.Project;
-using System.Threading.Tasks;
+using EnvDTE80;
+using Microsoft.VisualStudio.Shell;
+using Task = System.Threading.Tasks.Task;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 {
@@ -126,6 +128,27 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
             {
                 yield return type.BaseType;
                 type = type.BaseType;
+            }
+        }
+
+
+        private static DTE2 dte = null;
+        private static object dteLocker = new object();
+        public static DTE2 DTE
+        {
+            get
+            {
+                if (dte == null)
+                {
+                    lock (dteLocker)
+                    {
+                        if (dte == null)
+                        {
+                            dte = ServiceProvider.GlobalProvider.GetService(typeof (DTE)) as DTE2;
+                        }
+                    }
+                }
+                return dte;
             }
         }
     }

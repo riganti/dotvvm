@@ -367,13 +367,13 @@ namespace Redwood.Framework.Runtime.Compilation
         /// </summary>
         private void ProcessAttribute(RwHtmlAttributeNode attribute, ControlResolverMetadata controlMetadata, string currentObjectName)
         {
-            if (!string.IsNullOrEmpty(attribute.Prefix))
+            if (!string.IsNullOrEmpty(attribute.AttributePrefix))
             {
                 throw new NotSupportedException("Attributes with XML namespaces are not supported!"); // TODO: exception handling
             }
 
             // find the property
-            var property = FindProperty(controlMetadata, attribute.Name);
+            var property = FindProperty(controlMetadata, attribute.AttributeName);
             if (property != null)
             {
                 // set the property
@@ -398,17 +398,17 @@ namespace Redwood.Framework.Runtime.Compilation
                 {
                     var binding = (RwHtmlBindingNode)attribute.Literal;
                     var bindingObjectName = emitter.EmitCreateObject(controlResolver.ResolveBinding(binding.Name), new object[] { attribute.Literal.Value });
-                    emitter.EmitAddHtmlAttribute(currentObjectName, attribute.Name, emitter.EmitIdentifier(bindingObjectName));
+                    emitter.EmitAddHtmlAttribute(currentObjectName, attribute.AttributeName, emitter.EmitIdentifier(bindingObjectName));
                 }
                 else
                 {
-                    emitter.EmitAddHtmlAttribute(currentObjectName, attribute.Name, attribute.Literal.Value);
+                    emitter.EmitAddHtmlAttribute(currentObjectName, attribute.AttributeName, attribute.Literal.Value);
                 }
             }
             else
             {
                 // TODO: exception handling
-                throw new NotSupportedException(string.Format("The control {0} does not have a property {1}!", controlMetadata.Type, attribute.Name));
+                throw new NotSupportedException(string.Format("The control {0} does not have a property {1}!", controlMetadata.Type, attribute.AttributeName));
             }
         }
 

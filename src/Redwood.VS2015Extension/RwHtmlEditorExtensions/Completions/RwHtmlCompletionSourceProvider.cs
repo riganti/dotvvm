@@ -39,11 +39,16 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 
         [Import(typeof(VisualStudioWorkspace))]
         public VisualStudioWorkspace Workspace { get; set; }
-        
 
-        private RedwoodConfigurationProvider configurationProvider;
-        private MetadataControlResolver metadataControlResolver;
 
+        public RedwoodConfigurationProvider ConfigurationProvider { get; private set; }
+
+        public MetadataControlResolver MetadataControlResolver { get; private set; }
+
+
+        public RwHtmlParser Parser { get; private set; }
+
+        public RwHtmlClassifier Classifier { get; private set; }
 
 
         public ICompletionSource TryCreateCompletionSource(ITextBuffer textBuffer)
@@ -52,16 +57,17 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             {
                 Registry = Registry
             };
-            
-            var dte = ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE2;
-            configurationProvider = new RedwoodConfigurationProvider();
-            metadataControlResolver = new MetadataControlResolver();
+
+            ConfigurationProvider = new RedwoodConfigurationProvider();
+            MetadataControlResolver = new MetadataControlResolver();
 
             WatchWorkspaceChanges();
-            
-            var classifier = (RwHtmlClassifier)classifierProvider.GetClassifier(textBuffer);
-            return new RwHtmlCompletionSource(this, new RwHtmlParser(), classifier, textBuffer, 
-                Workspace, GlyphService, dte, configurationProvider, metadataControlResolver);
+
+            Parser = new RwHtmlParser(); 
+            Classifier = (RwHtmlClassifier)classifierProvider.GetClassifier(textBuffer);
+
+            return new RwHtmlCompletionSource(this, Parser, Classifier, textBuffer, 
+                Workspace, GlyphService, CompletionHelper.DTE, ConfigurationProvider, MetadataControlResolver);
         }
 
 
@@ -72,7 +78,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             CompletionRefreshHandler.Instance.RefreshCompletion += (sender, args) => FireWorkspaceChanged();
 
             Workspace.WorkspaceChanged += (sender, args) => CompletionRefreshHandler.Instance.NotifyRefreshNeeded();
-            configurationProvider.WorkspaceChanged += (sender, args) => CompletionRefreshHandler.Instance.NotifyRefreshNeeded();
+            ConfigurationProvider.WorkspaceChanged += (sender, args) => CompletionRefreshHandler.Instance.NotifyRefreshNeeded();
         } 
 
         private void FireWorkspaceChanged()
@@ -81,7 +87,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             {
                 provider.OnWorkspaceChanged();
             }
-            metadataControlResolver.OnWorkspaceChanged();
+            MetadataControlResolver.OnWorkspaceChanged();
         }
     }
 }

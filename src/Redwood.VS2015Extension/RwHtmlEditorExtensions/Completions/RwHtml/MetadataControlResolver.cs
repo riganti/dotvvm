@@ -11,7 +11,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 {
     public class MetadataControlResolver
     {
-        private ConcurrentDictionary<string, ControlMetadata> metadata = new ConcurrentDictionary<string, ControlMetadata>();
+        private ConcurrentDictionary<string, ControlMetadata> metadata = new ConcurrentDictionary<string, ControlMetadata>(StringComparer.CurrentCultureIgnoreCase);
         private CachedValue<List<CompletionData>> allControls = new CachedValue<List<CompletionData>>();
 
 
@@ -66,7 +66,9 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 
         internal ControlMetadata GetMetadata(string tagName)
         {
-            return metadata[tagName];
+            ControlMetadata result = null;
+            metadata.TryGetValue(tagName, out result);
+            return result;
         }
 
         private IEnumerable<CompletionData> HintPropertyValues(ControlPropertyMetadata property)
@@ -155,7 +157,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                     foreach (var control in controls)
                     {
                         tagName = rule.TagPrefix + ":" + control.Name;
-                        metadata[tagName] = GetControlMetadata(control);
+                        metadata[tagName] = GetControlMetadata(control, rule.TagPrefix, control.Name);
                         result.Add(new CompletionData(tagName));
                     }
                 }
@@ -164,10 +166,12 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
             return result;
         }
 
-        private ControlMetadata GetControlMetadata(INamedTypeSymbol control)
+        private ControlMetadata GetControlMetadata(INamedTypeSymbol control, string tagPrefix, string tagName)
         {
             return new ControlMetadata()
             {
+                TagPrefix = tagPrefix,
+                TagName = tagName,
                 Name = control.Name, 
                 Namespace = control.ContainingNamespace.Name,
                 Properties = CompletionHelper.GetBaseTypes(control).Concat(new[] { control })
