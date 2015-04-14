@@ -193,10 +193,16 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachedValue.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\ClassificationColorManager.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\ClassificationStyle.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlBindingBraceDefinition.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlBindingContentDefinition.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassificationTypes.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassifier.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassifierProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\VisualStudioTheme.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\VisualStudioThemeManager.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\BaseCommandTarget.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\CompletionComparer.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\CompletionRefreshHandler.cs" />
