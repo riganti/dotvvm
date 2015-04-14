@@ -29,6 +29,7 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
 
         public RwHtmlToken TagNameToken { get; set; }
 
+        public RwHtmlElementNode CorrespondingEndTag { get; internal set; }
 
         public RwHtmlElementNode()
         {

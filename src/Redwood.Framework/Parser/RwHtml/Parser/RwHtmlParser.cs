@@ -75,7 +75,8 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                             }
                             else
                             {
-                                var beginTagName = ((RwHtmlElementNode)ElementHierarchy.Peek()).FullTagName;
+                                var beginTag = (RwHtmlElementNode)ElementHierarchy.Peek();
+                                var beginTagName = beginTag.FullTagName;
                                 if (beginTagName != element.FullTagName)
                                 {
                                     element.NodeErrors.Add(string.Format(RwHtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
@@ -84,6 +85,8 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                                 {
                                     ElementHierarchy.Pop();
                                 }
+
+                                beginTag.CorrespondingEndTag = element;
                             }
                         }
                     }

@@ -12,6 +12,7 @@ using Redwood.Framework.Parser.RwHtml.Parser;
 using Redwood.Framework.Parser.RwHtml.Tokenizer;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
+using System.Text;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 {
@@ -46,20 +47,29 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             {
                 // parse the content
                 var tokenizer = new RwHtmlTokenizer();
-                tokenizer.Tokenize(new StringReader(TextView.TextSnapshot.GetText()));
+                var text = TextView.TextSnapshot.GetText();
+                tokenizer.Tokenize(new StringReader(text));
                 var parser = new RwHtmlParser();
                 var node = parser.Parse(tokenizer.Tokens);
-                
-                var metadataControlResolver = TextView.Properties.GetProperty<RwHtmlCompletionSourceProvider>(null).MetadataControlResolver;
+
+                // prepare the metadata control resolver
+                var completionSource = TextView.TextBuffer.Properties.GetProperty<RwHtmlCompletionSource>(typeof(RwHtmlCompletionSource));
+                var metadataControlResolver = completionSource.MetadataControlResolver;
+                metadataControlResolver.ReloadAllControls(completionSource.GetCompletionContext());
+
                 try
                 {
                     CompletionHelper.DTE.UndoContext.Open("Format RWHTML document");
+                    var edit = TextView.TextBuffer.CreateEdit(EditOptions.None, null, null);
 
                     // fix the casing of all elements
+                    var editText = new StringBuilder(text);
                     foreach (var element in node.EnumerateNodes().OfType<RwHtmlElementNode>())
                     {
-                        FixElement(metadataControlResolver, TextView.TextBuffer, element);
+                        FixElement(editText, metadataControlResolver, TextView.TextBuffer, element);
                     }
+                    edit.Replace(0, editText.Length, editText.ToString());
+                    edit.Apply();
                 }
                 finally
                 {
@@ -70,46 +80,50 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             return true;
         }
 
-        private void FixElement(MetadataControlResolver metadataControlResolver, ITextBuffer textBuffer, RwHtmlElementNode element)
+        private void FixElement(StringBuilder edit, MetadataControlResolver metadataControlResolver, ITextBuffer textBuffer, RwHtmlElementNode element)
         {
             // fix element name
             var metadata = metadataControlResolver.GetMetadata(element.FullTagName);
             if (metadata != null)
             {
                 // we have found the metadata for the control
-                if (metadata.Name != element.FullTagName)
+                if (metadata.FullTagName != element.FullTagName)
                 {
                     // the used name differs from the correct, fix the tag name
-                    var edit = textBuffer.CreateEdit();
-                    edit.Replace(element.TagPrefixToken.StartPosition, element.TagPrefixToken.Length, metadata.TagPrefix);
-                    edit.Replace(element.TagNameToken.StartPosition, element.TagNameToken.Length, metadata.TagName);
-                    edit.Apply();
-                }
-            }
+                    edit.SetRange(element.TagPrefixToken.StartPosition, element.TagPrefixToken.Length, metadata.TagPrefix);
+                    edit.SetRange(element.TagNameToken.StartPosition, element.TagNameToken.Length, metadata.TagName);
 
-            // fix attribute names
-            foreach (var attribute in element.Attributes)
-            {
-                var property = metadata.GetProperty(attribute.AttributeName);
-                if (property != null && property.Name != attribute.AttributeName)
-                {
-                    // the used name differs from the correct, fix the tag name
-                    var edit = textBuffer.CreateEdit();
-                    edit.Replace(attribute.AttributeNameToken.StartPosition, attribute.AttributeNameToken.Length, property.Name);
-                    edit.Apply();
+                    if (element.CorrespondingEndTag != null)
+                    {
+                        edit.SetRange(element.CorrespondingEndTag.TagPrefixToken.StartPosition, element.CorrespondingEndTag.TagPrefixToken.Length, metadata.TagPrefix);
+                        edit.SetRange(element.CorrespondingEndTag.TagNameToken.StartPosition, element.CorrespondingEndTag.TagNameToken.Length, metadata.TagName);
+                    }
                 }
-            }
 
-            // fix property elements
-            foreach (var child in element.Content.OfType<RwHtmlElementNode>())
-            {
-                var property = metadata.GetProperty(child.FullTagName);
-                if (property != null && property.IsElement && property.Name != child.FullTagName)
+                // fix attribute names
+                foreach (var attribute in element.Attributes)
                 {
-                    // the used name differs from the correct, fix the tag name
-                    var edit = textBuffer.CreateEdit();
-                    edit.Replace(element.TagNameToken.StartPosition, element.TagNameToken.Length, property.Name);
-                    edit.Apply();
+                    var property = metadata.GetProperty(attribute.AttributeName);
+                    if (property != null && property.Name != attribute.AttributeName)
+                    {
+                        // the used name differs from the correct, fix the tag name
+                        edit.SetRange(attribute.AttributeNameToken.StartPosition, attribute.AttributeNameToken.Length, property.Name);
+                    }
+                }
+
+                // fix property elements
+                foreach (var child in element.Content.OfType<RwHtmlElementNode>())
+                {
+                    var property = metadata.GetProperty(child.FullTagName);
+                    if (property != null && property.IsElement && property.Name != child.FullTagName)
+                    {
+                        // the used name differs from the correct, fix the tag name
+                        edit.SetRange(child.TagNameToken.StartPosition, child.TagNameToken.Length, property.Name);
+                        if (child.CorrespondingEndTag != null)
+                        {
+                            edit.SetRange(child.CorrespondingEndTag.TagNameToken.StartPosition, child.CorrespondingEndTag.TagNameToken.Length, property.Name);
+                        }
+                    }
                 }
             }
         }

@@ -20,6 +20,7 @@ using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml;
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
 {
     [Export(typeof(ICompletionSourceProvider))]
+    [Export(typeof(RwHtmlCompletionSourceProvider))]
     [Name("Redwood IntelliSense")]
     [ContentType(RwHtmlContentTypeDefinitions.RwHtmlContentType)]
     public class RwHtmlCompletionSourceProvider : ICompletionSourceProvider
@@ -49,25 +50,28 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         public RwHtmlParser Parser { get; private set; }
 
         public RwHtmlClassifier Classifier { get; private set; }
-
+        
 
         public ICompletionSource TryCreateCompletionSource(ITextBuffer textBuffer)
         {
-            var classifierProvider = new RwHtmlClassifierProvider()
+            return textBuffer.Properties.GetOrCreateSingletonProperty(() =>
             {
-                Registry = Registry
-            };
+                var classifierProvider = new RwHtmlClassifierProvider()
+                {
+                    Registry = Registry
+                };
 
-            ConfigurationProvider = new RedwoodConfigurationProvider();
-            MetadataControlResolver = new MetadataControlResolver();
+                ConfigurationProvider = new RedwoodConfigurationProvider();
+                MetadataControlResolver = new MetadataControlResolver();
 
-            WatchWorkspaceChanges();
+                WatchWorkspaceChanges();
 
-            Parser = new RwHtmlParser(); 
-            Classifier = (RwHtmlClassifier)classifierProvider.GetClassifier(textBuffer);
+                Parser = new RwHtmlParser();
+                Classifier = (RwHtmlClassifier)classifierProvider.GetClassifier(textBuffer);
 
-            return new RwHtmlCompletionSource(this, Parser, Classifier, textBuffer, 
-                Workspace, GlyphService, CompletionHelper.DTE, ConfigurationProvider, MetadataControlResolver);
+                return new RwHtmlCompletionSource(this, Parser, Classifier, textBuffer,
+                    Workspace, GlyphService, CompletionHelper.DTE, ConfigurationProvider, MetadataControlResolver);
+            });
         }
 
 
