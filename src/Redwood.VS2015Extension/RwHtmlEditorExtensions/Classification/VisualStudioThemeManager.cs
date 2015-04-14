@@ -17,9 +17,13 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Classification
 
         public static VisualStudioTheme GetCurrentTheme()
         {
-            string themeId = GetThemeId();
-            if (string.IsNullOrWhiteSpace(themeId) == false)
+            string themeId = GetThemeIdFromRegistry();
+            if (string.IsNullOrWhiteSpace(themeId))
             {
+                return GetThemeFromColorSettings();
+            }
+            else
+            { 
                 VisualStudioTheme theme;
                 if (Themes.TryGetValue(themeId, out theme))
                 {
@@ -30,7 +34,24 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Classification
             return VisualStudioTheme.Unknown;
         }
 
-        public static string GetThemeId()
+        private static VisualStudioTheme GetThemeFromColorSettings()
+        {
+            try
+            {
+                var background = CompletionHelper.DTE.Properties["FontsAndColors", "TextEditor"].Item("FontsAndColorsItems").Object.Item("Plain Text").Background;
+                var plainTextBackgroundColor = System.Drawing.ColorTranslator.FromOle((int)background);
+                if (plainTextBackgroundColor.R < 100)
+                {
+                    return VisualStudioTheme.Dark;
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+            return VisualStudioTheme.Unknown;
+        }
+
+        public static string GetThemeIdFromRegistry()
         {
             const string CategoryName = "General";
             const string ThemePropertyName = "CurrentTheme";
