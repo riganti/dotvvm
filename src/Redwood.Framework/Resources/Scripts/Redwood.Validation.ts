@@ -11,7 +11,7 @@ class RedwoodValidatorBase {
         return false;
     }
     public isEmpty(value: string): boolean {
-        return value == null || /^\s*$/.test(value);
+        return value == null || value.trim() == "";
     }
 }
 
@@ -77,12 +77,12 @@ class RedwoodValidation
         },
 
         // adds a CSS class when the element is not valid
-        addCssClass(element: any, errorMessage: string, options: any) {
+        addCssClass(element: HTMLElement, errorMessage: string, options: any) {
             var cssClass = (options && options.cssClass) ? options.cssClass : "field-validation-error";
             if (errorMessage) {
                 element.className += " " + cssClass;
             } else {
-                element.className = element.className.replace(new RegExp("\\b" + cssClass + "\\b", "g"), "");
+                element.className = element.className.split(' ').filter(c => c != cssClass).join(' ');
             }
         },
 
