@@ -228,6 +228,10 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 
         private static bool CheckType(INamedTypeSymbol symbol, Type type)
         {
+            if (symbol is IErrorTypeSymbol || symbol.ContainingNamespace == null || string.IsNullOrWhiteSpace(symbol.Name))
+            {
+                return false;
+            }
             return symbol.ContainingNamespace.ToDisplayString() == type.Namespace && symbol.Name == type.Name;
         }
 
