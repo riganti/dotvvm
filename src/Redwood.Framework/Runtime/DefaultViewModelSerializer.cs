@@ -23,6 +23,8 @@ namespace Redwood.Framework.Runtime
 
         public bool SendDiff { get; set; }
 
+        public Formatting JsonFormatting { get; set; }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
@@ -30,6 +32,7 @@ namespace Redwood.Framework.Runtime
         public DefaultViewModelSerializer(RedwoodConfiguration configuration)
         {
             this.viewModelProtector = configuration.ServiceLocator.GetService<IViewModelProtector>();
+            this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
         }
 
         /// <summary>
@@ -52,7 +55,7 @@ namespace Redwood.Framework.Runtime
                 if (!changed) context.ViewModelJson.Remove("viewModelDiff");
                 context.ViewModelJson.Remove("viewModel");
             }
-            return context.ViewModelJson.ToString();
+            return context.ViewModelJson.ToString(JsonFormatting);
         }
 
         /// <summary>
@@ -80,7 +83,7 @@ namespace Redwood.Framework.Runtime
 
             // persist encrypted values
             if (viewModelConverter.EncryptedValues.Count > 0)
-                writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(), context);
+                writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(Formatting.None), context);
 
             // serialize validation rules
             var validationRules = SerializeValidationRules(viewModelConverter);
@@ -116,13 +119,13 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Serializes the redirect action.
         /// </summary>
-        public static string GenerateRedirectActionResponse(string url)
+        public string GenerateRedirectActionResponse(string url)
         {
             // create result object
             var result = new JObject();
             result["url"] = url;
             result["action"] = "redirect";
-            return result.ToString();
+            return result.ToString(JsonFormatting);
         }
 
         /// <summary>
@@ -134,7 +137,7 @@ namespace Redwood.Framework.Runtime
             var result = new JObject();
             result["modelState"] = JArray.FromObject(context.ModelState.Errors);
             result["action"] = "validationErrors";
-            return result.ToString();
+            return result.ToString(JsonFormatting);
         }
 
 
