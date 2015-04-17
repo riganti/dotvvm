@@ -1,4 +1,5 @@
 ﻿using Redwood.Framework.Binding;
+using Redwood.Framework.Hosting;
 using System;
 
 namespace Redwood.Framework.Controls
@@ -68,7 +69,7 @@ namespace Redwood.Framework.Controls
 
 
 
-        public abstract void CreateControls(RedwoodControl container);
+        public abstract void CreateControls(RedwoodRequestContext context, RedwoodControl container);
 
 
 
@@ -88,7 +89,7 @@ namespace Redwood.Framework.Controls
         }
 
 
-        public virtual void CreateHeaderControls(GridView gridView, string sortCommandPath, HtmlGenericControl cell)
+        public virtual void CreateHeaderControls(RedwoodRequestContext context, GridView gridView, string sortCommandPath, HtmlGenericControl cell)
         {
             if (AllowSorting)
             {

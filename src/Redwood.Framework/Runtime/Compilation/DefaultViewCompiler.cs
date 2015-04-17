@@ -57,10 +57,10 @@ namespace Redwood.Framework.Runtime.Compilation
                 // determine wrapper type
                 string wrapperClassName;
                 var wrapperType = ResolveWrapperType(node, className, out wrapperClassName);
-                var metadata = controlResolver.ResolveControl(wrapperType);
+                var metadata = controlResolver.ResolveControl(new ControlType(wrapperType, virtualPath: fileName));
 
                 // build the statements
-                emitter.PushNewMethod("BuildControl");
+                emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName);
                 var pageName = wrapperClassName == null ? emitter.EmitCreateObject(wrapperType) : emitter.EmitCreateObject(wrapperClassName);
                 emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, pageName);
                 foreach (var child in node.Content)
@@ -310,7 +310,7 @@ namespace Redwood.Framework.Runtime.Compilation
         /// </summary>
         private string CompileTemplate(RwHtmlElementNode element)
         {
-            var methodName = "BuildTemplate" + currentTemplateIndex;
+            var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + currentTemplateIndex;
             currentTemplateIndex++;
             emitter.PushNewMethod(methodName);
 
@@ -343,8 +343,8 @@ namespace Redwood.Framework.Runtime.Compilation
             }
             else
             {
-                // markup control    
-                currentObjectName = emitter.EmitInvokeControlBuilder(controlMetadata.Type, controlMetadata.ControlBuilderType);
+                // markup control
+                currentObjectName = emitter.EmitInvokeControlBuilder(controlMetadata.Type, controlMetadata.VirtualPath);
             }
             emitter.EmitSetAttachedProperty(currentObjectName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, currentObjectName);
 

@@ -1,4 +1,5 @@
 ﻿using Redwood.Framework.Binding;
+using Redwood.Framework.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,7 +23,7 @@ namespace Redwood.Framework.Controls
 
 
 
-        public override void CreateControls(RedwoodControl container)
+        public override void CreateControls(RedwoodRequestContext context, RedwoodControl container)
         {
             var literal = new Literal();
             literal.FormatString = FormatString;

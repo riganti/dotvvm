@@ -12,14 +12,17 @@ namespace Redwood.Framework.Runtime
 
         public Type ControlBuilderType { get; private set; }
 
+        public string VirtualPath { get; private set; }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlType"/> class.
         /// </summary>
-        public ControlType(Type type, Type controlBuilderType = null)
+        public ControlType(Type type, Type controlBuilderType = null, string virtualPath = null)
         {
             Type = type;
             ControlBuilderType = controlBuilderType;
+            VirtualPath = virtualPath;
         }
 
 

@@ -1,3 +1,5 @@
+using Redwood.Framework.Hosting;
+using Redwood.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,12 +9,13 @@ namespace Redwood.Framework.Controls
     public class DelegateTemplate : ITemplate
     {
 
-        public Func<RedwoodControl> BuildContentBody { get; set; }
+        public Func<IControlBuilderFactory, RedwoodControl> BuildContentBody { get; set; }
 
 
-        public void BuildContent(RedwoodControl container)
+        public void BuildContent(RedwoodRequestContext context, RedwoodControl container)
         {
-            var control = BuildContentBody();
+            var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            var control = BuildContentBody(controlBuilderFactory);
             container.Children.Add(control);
         }
     }

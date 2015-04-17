@@ -11,9 +11,9 @@ namespace Redwood.Framework.Hosting
 
 
         /// <summary>
-        /// Gets the markup file from the current request URL.
+        /// Gets the markup file virtual path from the current request URL.
         /// </summary>
-        public MarkupFile GetMarkup(RedwoodRequestContext context)
+        public string GetMarkupFileVirtualPath(RedwoodRequestContext context)
         {
             // get file name
             var fileName = context.Route != null ? context.Route.VirtualPath : context.OwinContext.Request.Uri.LocalPath;
@@ -22,7 +22,7 @@ namespace Redwood.Framework.Hosting
                 throw new Exception("The view must be a file with the .rwhtml extension!");     // TODO: exception handling
             }
 
-            return GetMarkupCore(context.Configuration, fileName);
+            return fileName;
         }
 
         /// <summary>
@@ -30,13 +30,8 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public MarkupFile GetMarkup(RedwoodConfiguration configuration, string virtualPath)
         {
-            return GetMarkupCore(configuration, virtualPath);
-        }
-         
-        private static MarkupFile GetMarkupCore(RedwoodConfiguration configuration, string fileName)
-        {
             // check that we are not outside application directory
-            var fullPath = Path.Combine(configuration.ApplicationPhysicalPath, fileName);
+            var fullPath = Path.Combine(configuration.ApplicationPhysicalPath, virtualPath);
             fullPath = Path.GetFullPath(fullPath);
             if (!fullPath.StartsWith(configuration.ApplicationPhysicalPath, StringComparison.CurrentCultureIgnoreCase))
             {
@@ -44,7 +39,7 @@ namespace Redwood.Framework.Hosting
             }
 
             // load the file
-            return new MarkupFile(fileName, fullPath);
+            return new MarkupFile(virtualPath, fullPath);
         }
     }
 }

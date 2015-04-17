@@ -8,7 +8,7 @@ namespace Redwood.Framework.Runtime
     public interface IControlBuilder
     {
 
-        RedwoodControl BuildControl();
+        RedwoodControl BuildControl(IControlBuilderFactory controlBuilderFactory);
 
     }
 }
