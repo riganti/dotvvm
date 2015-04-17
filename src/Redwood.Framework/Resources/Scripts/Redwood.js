@@ -22,7 +22,9 @@ var Redwood = (function () {
         };
     }
     Redwood.prototype.init = function (viewModelName, culture) {
+        var _this = this;
         this.culture = culture;
+        this.viewModels[viewModelName] = JSON.parse(document.getElementById("__rw_viewmodel_" + viewModelName).value);
         this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
         var viewModel = this.viewModels[viewModelName].viewModel;
         ko.applyBindings(viewModel, document.documentElement);
@@ -30,6 +32,25 @@ var Redwood = (function () {
         if (document.location.hash.indexOf("#/") === 0) {
             this.navigateSpaCore(viewModelName, document.location.hash.substring(1));
         }
+        // persist the viewmodel in the hidden field so the Back button will work correctly
+        this.attachEvent(window, "beforeunload", function (e) {
+            _this.persistViewModel(viewModelName);
+        });
+    };
+    Redwood.prototype.onDocumentReady = function (callback) {
+        // many thanks to http://dustindiaz.com/smallest-domready-ever
+        /in/.test(document.readyState) ? setTimeout('redwood.onDocumentReady(' + callback + ')', 9) : callback();
+    };
+    Redwood.prototype.persistViewModel = function (viewModelName) {
+        var viewModel = this.viewModels[viewModelName];
+        var persistedViewModel = {};
+        for (var p in viewModel) {
+            if (viewModel.hasOwnProperty(p)) {
+                persistedViewModel[p] = viewModel[p];
+            }
+        }
+        persistedViewModel["viewModel"] = ko.mapper.toJS(persistedViewModel["viewModel"]);
+        document.getElementById("__rw_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
     };
     Redwood.prototype.backUpPostBackConter = function () {
         this.postBackCounter++;
@@ -287,6 +308,15 @@ var Redwood = (function () {
                     ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
                 }
             }
+        }
+    };
+    Redwood.prototype.attachEvent = function (target, name, callback, useCapture) {
+        if (useCapture === void 0) { useCapture = false; }
+        if (target.addEventListener) {
+            target.addEventListener(name, callback, useCapture);
+        }
+        else {
+            target.attachEvent("on" + name, callback);
         }
     };
     Redwood.prototype.buildRouteUrl = function (routePath, params) {

@@ -20,6 +20,7 @@ class Redwood {
 
     public init(viewModelName: string, culture: string): void {
         this.culture = culture;
+        this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__rw_viewmodel_" + viewModelName)).value);
         this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
 
         var viewModel = this.viewModels[viewModelName].viewModel;
@@ -29,6 +30,28 @@ class Redwood {
         if (document.location.hash.indexOf("#/") === 0) {
             this.navigateSpaCore(viewModelName, document.location.hash.substring(1));
         }
+
+        // persist the viewmodel in the hidden field so the Back button will work correctly
+        this.attachEvent(window, "beforeunload", e => {
+            this.persistViewModel(viewModelName);
+        });
+    }
+
+    public onDocumentReady(callback: () => void) {
+        // many thanks to http://dustindiaz.com/smallest-domready-ever
+        /in/.test(document.readyState) ? setTimeout('redwood.onDocumentReady(' + callback + ')', 9) : callback();
+    }
+
+    private persistViewModel(viewModelName: string) {
+        var viewModel = this.viewModels[viewModelName];
+        var persistedViewModel = {};
+        for (var p in viewModel) {
+            if (viewModel.hasOwnProperty(p)) {
+                persistedViewModel[p] = viewModel[p];
+            }
+        }
+        persistedViewModel["viewModel"] = ko.mapper.toJS(persistedViewModel["viewModel"]);
+        (<HTMLInputElement>document.getElementById("__rw_viewmodel_" + viewModelName)).value = JSON.stringify(persistedViewModel);
     }
     
     private backUpPostBackConter(): number {
@@ -310,6 +333,15 @@ class Redwood {
                     ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
                 }
             }
+        }
+    }
+
+    private attachEvent(target: any, name: string, callback: (ev: PointerEvent) => any, useCapture: boolean = false) {
+        if (target.addEventListener) {
+            target.addEventListener(name, callback, useCapture);
+        }
+        else {
+            target.attachEvent("on" + name, callback);
         }
     }
 
