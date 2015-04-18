@@ -90,6 +90,7 @@ namespace Redwood.Framework.Runtime
             result["viewModel"] = writer.Token;
             result["action"] = "successfulCommand";
             result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
+            result["virtualDirectory"] = context.Configuration.VirtualDirectory;
             if (validationRules.Count > 0) result["validationRules"] = validationRules;
 
             context.ViewModelJson = result;

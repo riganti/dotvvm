@@ -30,28 +30,34 @@ namespace Redwood.Framework.Hosting
         {
             // try resolve the route
             var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
-            
-            // find the route
-            IDictionary<string, object> parameters = null;
-            var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
 
-            if (route != null)
+            // handle virtual directory
+            if (url.StartsWith(configuration.VirtualDirectory))
             {
-                // handle the request
-                await route.ProcessRequest(new RedwoodRequestContext()
+                url = url.Substring(configuration.VirtualDirectory.Length);
+                url = url.TrimStart('/');
+
+                // find the route
+                IDictionary<string, object> parameters = null;
+                var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
+
+                if (route != null)
                 {
-                    Route = route,
-                    OwinContext = context,
-                    Configuration = configuration,
-                    Parameters = parameters,
-                    ResourceManager = new ResourceManager(configuration)
-                });
+                    // handle the request
+                    await route.ProcessRequest(new RedwoodRequestContext()
+                    {
+                        Route = route,
+                        OwinContext = context,
+                        Configuration = configuration,
+                        Parameters = parameters,
+                        ResourceManager = new ResourceManager(configuration)
+                    });
+                    return;
+                }
             }
-            else
-            {
-                // we cannot handle the request, pass it to another component
-                await Next.Invoke(context);
-            }
+
+            // we cannot handle the request, pass it to another component
+            await Next.Invoke(context);
         }
     }
 }

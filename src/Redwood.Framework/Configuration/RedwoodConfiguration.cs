@@ -72,6 +72,8 @@ namespace Redwood.Framework.Configuration
         /// </summary>
         [JsonIgnore]
         public ServiceLocator ServiceLocator { get; private set; }
+        public string VirtualDirectory { get; internal set; }
+
 
 
 

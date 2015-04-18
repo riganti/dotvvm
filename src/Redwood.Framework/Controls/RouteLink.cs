@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Redwood.Framework.Binding;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Routing;
 using Redwood.Framework.Runtime;
 
@@ -42,8 +43,15 @@ namespace Redwood.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddAttribute("href", "#");
-            writer.AddAttribute("onclick", GenerateRouteLink(context));
+            if (!RenderOnServer)
+            {
+                writer.AddAttribute("href", "#");
+                writer.AddAttribute("onclick", GenerateRouteLink(context));
+            }
+            else
+            {
+                writer.AddAttribute("href", GenerateRouteUrl(context));
+            }
 
             writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
 
@@ -66,7 +74,26 @@ namespace Redwood.Framework.Controls
             }
         }
 
-        private string GenerateRouteLink(RenderContext context)
+        private string GenerateRouteUrl(RenderContext context)
+        {
+            var route = GetRoute(context);
+            var parameters = ComposeNewRouteParameters(context, route);
+
+            // evaluate bindings on server
+            foreach (var param in parameters.Where(p => p.Value is BindingExpression).ToList())
+            {
+                if (param.Value is BindingExpression)
+                {
+                    EnsureValidBindingType(param.Value as BindingExpression);
+                    parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(this, null);   // TODO: see below
+                }
+            }
+
+            // generate the URL
+            return route.BuildUrl(parameters);
+        }
+
+        private RouteBase GetRoute(RenderContext context)
         {
             // find the route 
             var route = context.RequestContext.Configuration.RouteTable[RouteName];
@@ -75,12 +102,17 @@ namespace Redwood.Framework.Controls
                 throw new Exception(string.Format("Route with name '{0}' was not found!", RouteName));
             }
 
-            // compose the new route parameters
+            return route;
+        }
+
+        private string GenerateRouteLink(RenderContext context)
+        {
+            var route = GetRoute(context);
             var parameters = ComposeNewRouteParameters(context, route);
 
             // generate the function call
             var sb = new StringBuilder();
-            sb.Append("redwood.navigateSpa(this, ");
+            sb.Append("redwood.navigate(this, ");
             sb.Append(JsonConvert.SerializeObject(context.CurrentPageArea));
             sb.Append(",");
             sb.Append(JsonConvert.SerializeObject(route.Url));
@@ -95,10 +127,7 @@ namespace Redwood.Framework.Controls
             string expression = "";
             if (param.Value is BindingExpression)
             {
-                if (!(param.Value is ValueBindingExpression))
-                {
-                    throw new Exception("Only {value: ...} bindings are supported in <rw:RouteLink Param-xxx='' /> attributes!");
-                }
+                EnsureValidBindingType(param.Value as BindingExpression);
 
                 var binding = param.Value as ValueBindingExpression;
                 expression = "vm." + binding.TranslateToClientScript(this, null); // TODO: pass a special RedwoodProperty for dynamic parameters on this place. The function might need the value in the future.
@@ -108,6 +137,14 @@ namespace Redwood.Framework.Controls
                 expression = JsonConvert.SerializeObject(param.Value);
             }
             return JsonConvert.SerializeObject(param.Key) + ": " + expression;
+        }
+
+        private static void EnsureValidBindingType(BindingExpression binding)
+        {
+            if (!(binding is ValueBindingExpression))
+            {
+                throw new Exception("Only {value: ...} bindings are supported in <rw:RouteLink Param-xxx='' /> attributes!");
+            }
         }
 
         private Dictionary<string, object> ComposeNewRouteParameters(RenderContext context, RouteBase route)
