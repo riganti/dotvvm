@@ -274,7 +274,7 @@ namespace Redwood.Framework.Tests.Runtime
 
 
 
-        private static RedwoodControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false)
+        private RedwoodControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false)
         {
             if (markupFiles == null)
             {
@@ -282,7 +282,7 @@ namespace Redwood.Framework.Tests.Runtime
             }
             markupFiles["default.rwhtml"] = markup;
 
-            var redwoodConfiguration = RedwoodConfiguration.CreateDefault();
+            var redwoodConfiguration = context.Configuration;
             redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.rwhtml" });
             redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.rwhtml" });
             redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.rwhtml" });

@@ -219,6 +219,7 @@
     </Compile>
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtmlCompletionSourceProvider.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtmlFormatCommandHandler.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\AttachedPropertyMetadata.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\BindingNameCompletionProviderBase.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\BindingValueCompletionProviderBase.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\CompletionHelper.cs" />

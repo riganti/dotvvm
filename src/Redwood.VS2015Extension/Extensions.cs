@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Microsoft.CodeAnalysis;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -30,6 +31,16 @@ namespace Redwood.VS2015Extension
                 {
                     sb.Append(content[i]);
                 }
+            }
+        }
+
+        public static IEnumerable<INamedTypeSymbol> GetThisAndAllBaseTypes(this INamedTypeSymbol symbol)
+        {
+            yield return symbol;
+            while (symbol.BaseType != null)
+            {
+                yield return symbol.BaseType;
+                symbol = symbol.BaseType;
             }
         }
 

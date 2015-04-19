@@ -100,6 +100,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                             // attribute name
                             triggerPoint = TriggerPoint.TagAttributeName;
                             items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
+                            combineWithHtmlCompletions = sourceProvider.CompletionProviders.OfType<MainTagAttributeNameCompletionProvider>().Single().CombineWithHtmlCompletions;
                         }
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenTag)

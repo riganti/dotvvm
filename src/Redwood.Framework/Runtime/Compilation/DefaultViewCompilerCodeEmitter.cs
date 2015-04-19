@@ -99,6 +99,8 @@ namespace Redwood.Framework.Runtime.Compilation
         /// </summary>
         public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
+            usedControlBuilderTypes.Add(controlType);
+
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
             var name = "c" + CurrentControlIndex;
