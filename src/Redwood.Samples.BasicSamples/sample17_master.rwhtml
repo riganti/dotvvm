@@ -18,7 +18,7 @@
 		<fieldset>
 			<label></label>
 
-      <p>The generated links use so called hashbang (<code>#!</code>) notation to allow crawlers to index pages fetched using AJAX.</p>
+      <p>The generated links use so called hashbang (<code>#!</code>) notation to allow Googlebot to index pages fetched using AJAX.</p>
       <p>Google Bot will request the pages using a special URLs containing <code>_escaped_fragment_</code> query with encoded original fragment (<code>#</code>).</p>
       <p>The server must be ready to handle <code>_escaped_fragment_</code> URLs and server content for the crawler corresponding to what a visitor would receive on that URL.</p>
       <p>More info on the matter for making AJAX SPAs crawlable at <a href="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started">Google Developers</a>.</p>
