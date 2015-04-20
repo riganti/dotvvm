@@ -11,13 +11,13 @@ namespace Redwood.Framework.Configuration
         /// <summary>
         /// Gets the registered control namespaces.
         /// </summary>
-        [JsonProperty("controls")]
+        [JsonProperty("controls", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public List<RedwoodControlConfiguration> Controls { get; private set; }
 
         /// <summary>
         /// Gets or sets the list of referenced assemblies.
         /// </summary>
-        [JsonProperty("assemblies")]
+        [JsonProperty("assemblies", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public List<string> Assemblies { get; private set; }
 
         /// <summary>
