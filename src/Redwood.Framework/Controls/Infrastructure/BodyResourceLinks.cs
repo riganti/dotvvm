@@ -29,15 +29,14 @@ namespace Redwood.Framework.Controls.Infrastructure
 
             // render the serialized viewmodel
             var serializedViewModel = context.RequestContext.GetSerializedViewModel();
-            writer.RenderBeginTag("script");
-            writer.WriteUnencodedText("redwood.viewModels.");
-            writer.WriteUnencodedText(context.CurrentPageArea);
-            writer.WriteUnencodedText("=");
-            writer.WriteUnencodedText(serializedViewModel);
-            writer.WriteUnencodedText(";\r\n");
+            writer.AddAttribute("type", "hidden");
+            writer.AddAttribute("id", "__rw_viewmodel_" + context.CurrentPageArea);
+            writer.AddAttribute("value", serializedViewModel);
+            writer.RenderSelfClosingTag("input");
 
             // init on load
-            writer.WriteUnencodedText(string.Format("redwood.init('{0}', '{1}');", context.CurrentPageArea, Thread.CurrentThread.CurrentUICulture.Name));
+            writer.RenderBeginTag("script");
+            writer.WriteUnencodedText(string.Format("redwood.onDocumentReady(function () {{ redwood.init('{0}', '{1}'); }});", context.CurrentPageArea, Thread.CurrentThread.CurrentUICulture.Name));
             writer.RenderEndTag();
         }
     }

@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 14
-VisualStudioVersion = 14.0.22728.1
+VisualStudioVersion = 14.0.22609.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Tests", "Tests", "{B760209E-57D7-4AEF-A726-69F73BBE52C0}"
 EndProject
@@ -37,6 +37,10 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2015Extension.RedwoodContentPageTemplate", "Redwood.VS2015Extension.RedwoodContentPageTemplate\Redwood.VS2015Extension.RedwoodContentPageTemplate.csproj", "{0FBAE5E3-467B-4194-B766-67414E6C9F06}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.VS2015Extension.RedwoodViewModelTemplate", "Redwood.VS2015Extension.RedwoodViewModelTemplate\Redwood.VS2015Extension.RedwoodViewModelTemplate.csproj", "{2C479119-B1E8-4C50-86F5-692108A55171}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Samples.VirtualDirectorySamples", "Redwood.Samples.VirtualDirectorySamples\Redwood.Samples.VirtualDirectorySamples.csproj", "{7A07DFD1-10BF-42A2-8A8C-B5AAF41A5AFB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Redwood.Framework.Tools", "Redwood.Framework.Tools\Redwood.Framework.Tools.csproj", "{DC32AB24-9A4F-4DF1-9749-6647EDDB972D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -84,6 +88,14 @@ Global
 		{2C479119-B1E8-4C50-86F5-692108A55171}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{2C479119-B1E8-4C50-86F5-692108A55171}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{2C479119-B1E8-4C50-86F5-692108A55171}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7A07DFD1-10BF-42A2-8A8C-B5AAF41A5AFB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7A07DFD1-10BF-42A2-8A8C-B5AAF41A5AFB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7A07DFD1-10BF-42A2-8A8C-B5AAF41A5AFB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7A07DFD1-10BF-42A2-8A8C-B5AAF41A5AFB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DC32AB24-9A4F-4DF1-9749-6647EDDB972D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DC32AB24-9A4F-4DF1-9749-6647EDDB972D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DC32AB24-9A4F-4DF1-9749-6647EDDB972D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DC32AB24-9A4F-4DF1-9749-6647EDDB972D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -99,5 +111,6 @@ Global
 		{A83D996D-C920-46EE-8D87-0B250CEA9653} = {2899FD45-2A63-4CAF-A351-27389FE3E47A}
 		{0FBAE5E3-467B-4194-B766-67414E6C9F06} = {2899FD45-2A63-4CAF-A351-27389FE3E47A}
 		{2C479119-B1E8-4C50-86F5-692108A55171} = {2899FD45-2A63-4CAF-A351-27389FE3E47A}
+		{7A07DFD1-10BF-42A2-8A8C-B5AAF41A5AFB} = {13011738-A4B3-47B0-9E50-C0323EB19F76}
 	EndGlobalSection
 EndGlobal

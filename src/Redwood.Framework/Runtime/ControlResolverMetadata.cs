@@ -22,6 +22,9 @@ namespace Redwood.Framework.Runtime
 
         public bool IsContentAllowed { get; set; }
 
+        public string VirtualPath { get; internal set; }
+
+
 
         /// <summary>
         /// Finds the property.

@@ -25,7 +25,8 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
         private readonly RedwoodConfigurationProvider configurationProvider;
         private readonly RwHtmlClassifier classifier;
         private readonly RwHtmlParser parser;
-        private readonly MetadataControlResolver metadataControlResolver;
+
+        public MetadataControlResolver MetadataControlResolver { get; private set; }
 
         private static List<ICompletionSession> activeSessions = new List<ICompletionSession>(); 
 
@@ -42,7 +43,24 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             this.glyphService = glyphService;
             this.dte = dte;
             this.configurationProvider = configurationProvider;
-            this.metadataControlResolver = metadataControlResolver;
+            this.MetadataControlResolver = metadataControlResolver;
+        }
+
+        public RwHtmlCompletionContext GetCompletionContext()
+        {
+            var context = new RwHtmlCompletionContext()
+            {
+                Tokens = classifier.Tokens,
+                Parser = parser,
+                Tokenizer = classifier.Tokenizer,
+                RoslynWorkspace = workspace,
+                GlyphService = glyphService,
+                DTE = dte,
+                Configuration = configurationProvider.GetConfiguration(dte.ActiveDocument.ProjectItem.ContainingProject),
+                MetadataControlResolver = MetadataControlResolver
+            };
+            parser.Parse(classifier.Tokens);
+            return context;
         }
 
         public void AugmentCompletionSession(ICompletionSession session, IList<CompletionSet> completionSets)
@@ -55,22 +73,11 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                 var currentToken = tokens.FirstOrDefault(t => t.StartPosition <= cursorPosition && t.StartPosition + t.Length >= cursorPosition);
                 if (currentToken != null) 
                 {
-                    IEnumerable<SimpleRwHtmlCompletion> items = Enumerable.Empty<SimpleRwHtmlCompletion>();
-                    var context = new RwHtmlCompletionContext()
-                    {
-                        Tokens = classifier.Tokens,
-                        CurrentTokenIndex = classifier.Tokens.IndexOf(currentToken),
-                        Parser = parser,
-                        Tokenizer = classifier.Tokenizer,
-                        RoslynWorkspace = workspace,
-                        GlyphService = glyphService,
-                        DTE = dte,
-                        Configuration = configurationProvider.GetConfiguration(dte.ActiveDocument.ProjectItem.ContainingProject),
-                        MetadataControlResolver = metadataControlResolver
-                    };
-                    parser.Parse(classifier.Tokens);
+                    // prepare the context
+                    var items = Enumerable.Empty<SimpleRwHtmlCompletion>();
+                    var context = GetCompletionContext();
+                    context.CurrentTokenIndex = classifier.Tokens.IndexOf(currentToken);
                     context.CurrentNode = parser.Root.FindNodeByPosition(session.TextView.Caret.Position.BufferPosition.Position - 1);
-
                     var combineWithHtmlCompletions = false;
 
                     TriggerPoint triggerPoint = TriggerPoint.None;
@@ -93,6 +100,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                             // attribute name
                             triggerPoint = TriggerPoint.TagAttributeName;
                             items = sourceProvider.CompletionProviders.Where(p => p.TriggerPoint == triggerPoint).SelectMany(p => p.GetItems(context));
+                            combineWithHtmlCompletions = sourceProvider.CompletionProviders.OfType<MainTagAttributeNameCompletionProvider>().Single().CombineWithHtmlCompletions;
                         }
                     }
                     else if (currentToken.Type == RwHtmlTokenType.OpenTag)
@@ -131,7 +139,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                             combineWithHtmlCompletions = true;
                         }
                     }
-                    var results = items.OrderBy(v => v.DisplayText).Distinct().ToList();
+                    var results = items.OrderBy(v => v.DisplayText).Distinct(CompletionEqualityComparer.Instance).ToList();
                     
                     // show the session
                     if (!results.Any())
@@ -200,7 +208,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                 htmlCompletionsSet.Moniker,
                 htmlCompletionsSet.DisplayName,
                 htmlCompletionsSet.ApplicableTo,
-                newCompletions.Completions.Concat(originalCompletions).OrderBy(n => n.DisplayText).Distinct(),
+                newCompletions.Completions.Concat(originalCompletions).OrderBy(n => n.DisplayText).Distinct(CompletionEqualityComparer.Instance),
                 htmlCompletionsSet.CompletionBuilders);
 
             completionSets.Remove(htmlCompletionsSet);

@@ -1,4 +1,6 @@
 ﻿{
+    "$schema": "http://www.riganti.cz/download/redwood.schema.0.6.json",
+
     "debug": true,
     "markup": {
         "controls": [

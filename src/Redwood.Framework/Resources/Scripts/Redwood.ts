@@ -20,6 +20,7 @@ class Redwood {
 
     public init(viewModelName: string, culture: string): void {
         this.culture = culture;
+        this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__rw_viewmodel_" + viewModelName)).value);
         this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
 
         var viewModel = this.viewModels[viewModelName].viewModel;
@@ -27,8 +28,30 @@ class Redwood {
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
 
         if (document.location.hash.indexOf("#/") === 0) {
-            this.navigateSpaCore(viewModelName, document.location.hash.substring(1));
+            this.navigateCore(viewModelName, document.location.hash.substring(1));
         }
+
+        // persist the viewmodel in the hidden field so the Back button will work correctly
+        this.attachEvent(window, "beforeunload", e => {
+            this.persistViewModel(viewModelName);
+        });
+    }
+
+    public onDocumentReady(callback: () => void) {
+        // many thanks to http://dustindiaz.com/smallest-domready-ever
+        /in/.test(document.readyState) ? setTimeout('redwood.onDocumentReady(' + callback + ')', 9) : callback();
+    }
+
+    private persistViewModel(viewModelName: string) {
+        var viewModel = this.viewModels[viewModelName];
+        var persistedViewModel = {};
+        for (var p in viewModel) {
+            if (viewModel.hasOwnProperty(p)) {
+                persistedViewModel[p] = viewModel[p];
+            }
+        }
+        persistedViewModel["viewModel"] = ko.mapper.toJS(persistedViewModel["viewModel"]);
+        (<HTMLInputElement>document.getElementById("__rw_viewmodel_" + viewModelName)).value = JSON.stringify(persistedViewModel);
     }
     
     private backUpPostBackConter(): number {
@@ -122,17 +145,16 @@ class Redwood {
         return eval("(function (c) { return c." + expression + "; })")(context);
     }
 
-    public navigateSpa(sender: HTMLElement, viewModelName: string, routePath: string, parametersProvider: (viewModel: any) => any) {
+    public navigate(sender: HTMLElement, viewModelName: string, routePath: string, parametersProvider: (viewModel: any) => any) {
         var viewModel = ko.dataFor(sender);
 
         // compose the final URL and navigate
-        var url = "/" + this.buildRouteUrl(routePath, parametersProvider(viewModel));
-        document.location.hash = url;
+        var url = this.addLeadingSlash(this.buildRouteUrl(routePath, parametersProvider(viewModel)));
 
-        this.navigateSpaCore(viewModelName, url);
+        this.navigateCore(viewModelName, url);
     }
 
-    private navigateSpaCore(viewModelName: string, url: string) {
+    private navigateCore(viewModelName: string, url: string) {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // prevent double postbacks
@@ -145,9 +167,20 @@ class Redwood {
             return;
         }
 
+        // add virtual directory prefix
+        var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
+        
+        // find SPA placeholder
+        var spaPlaceHolder = document.getElementsByName("__rw_SpaContentPlaceHolder")[0];
+        if (!spaPlaceHolder) {
+            document.location.href = fullUrl;
+            return;
+        }
+        document.location.hash = url;
+        
         // send the request
-        var spaPlaceHolderUniqueId = document.getElementsByName("__rw_SpaContentPlaceHolder")[0].attributes["data-rw-spacontentplaceholder"].value;
-        this.getJSON(url, "GET", spaPlaceHolderUniqueId, result => {
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-rw-spacontentplaceholder"].value;
+        this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
@@ -159,11 +192,12 @@ class Redwood {
 
                 // update the viewmodel
                 ko.cleanNode(document.documentElement);
-                this.viewModels[viewModelName] = {
-                    viewModel: {},
-                    url: resultObject.url,
-                    action: resultObject.action
-                };
+                this.viewModels[viewModelName] = {};
+                for (var p in resultObject) {
+                    if (resultObject.hasOwnProperty(p)) {
+                        this.viewModels[viewModelName][p] = resultObject[p];
+                    }
+                }
                 ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
                 isSuccess = true;
 
@@ -184,16 +218,30 @@ class Redwood {
                 throw "Invalid response from server!";
             }
         }, xhr => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-                // execute error handlers
-                var errArgs = new RedwoodErrorEventArgs(viewModel, xhr, true);
-                this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert(xhr.responseText);
-                }
-            });
+            // execute error handlers
+            var errArgs = new RedwoodErrorEventArgs(viewModel, xhr, true);
+            this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
+                alert(xhr.responseText);
+            }
+        });
+    }
+
+    private addLeadingSlash(url: string) {
+        if (url.length > 0 && url.substring(0, 1) != "/") {
+            return "/" + url;
+        }
+        return url;
+    }
+
+    private concatUrl(url1: string, url2: string) {
+        if (url1.length > 0 && url1.substring(url1.length - 1) == "/") {
+            url1 = url1.substring(0, url1.length - 1);
+        }
+        return url1 + this.addLeadingSlash(url2);
     }
 
     public patch(source: any, patch: any): any {
@@ -310,6 +358,15 @@ class Redwood {
                     ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
                 }
             }
+        }
+    }
+
+    private attachEvent(target: any, name: string, callback: (ev: PointerEvent) => any, useCapture: boolean = false) {
+        if (target.addEventListener) {
+            target.addEventListener(name, callback, useCapture);
+        }
+        else {
+            target.attachEvent("on" + name, callback);
         }
     }
 

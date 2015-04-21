@@ -11,12 +11,25 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
     public class MainTagAttributeNameCompletionProvider : TagAttributeNameHtmlCompletionProviderBase
     {
 
+        public bool CombineWithHtmlCompletions { get; set; }
+
         protected override IEnumerable<SimpleRwHtmlCompletion> GetItemsCore(RwHtmlCompletionContext context, List<string> tagNameHierarchy)
         {
             var glyph = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphGroupProperty, StandardGlyphItem.GlyphItemPublic);
-            return context.MetadataControlResolver.GetControlAttributeNames(context, tagNameHierarchy)
-                .Select(n => new SimpleRwHtmlCompletion(n.DisplayText, n.CompletionText, glyph));
-        }
+            var glyph2 = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphGroupProperty, StandardGlyphItem.GlyphItemShortcut);
 
+            var keepHtmlAttributes = false;
+            var results = Enumerable.Concat(
+                context.MetadataControlResolver.GetControlAttributeNames(context, tagNameHierarchy, out keepHtmlAttributes)
+                    .Select(n => new SimpleRwHtmlCompletion(n.DisplayText, n.CompletionText, glyph)),
+                context.MetadataControlResolver.GetAttachedPropertyNames(context)
+                    .Select(n => new SimpleRwHtmlCompletion(n.DisplayText, n.CompletionText, glyph2))
+            );
+
+            CombineWithHtmlCompletions = keepHtmlAttributes;
+
+            return results;
+        }
     }
+
 }

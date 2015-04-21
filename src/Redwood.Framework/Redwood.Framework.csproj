@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binding\AttachedPropertyAttribute.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />

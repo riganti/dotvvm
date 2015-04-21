@@ -6,14 +6,17 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Redwood.Framework.Controls;
 using Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base;
+using Redwood.Framework.Binding;
 
 namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 {
     public class MetadataControlResolver
     {
-        private ConcurrentDictionary<string, ControlMetadata> metadata = new ConcurrentDictionary<string, ControlMetadata>();
+        private ConcurrentDictionary<string, ControlMetadata> metadata = new ConcurrentDictionary<string, ControlMetadata>(StringComparer.CurrentCultureIgnoreCase);
         private CachedValue<List<CompletionData>> allControls = new CachedValue<List<CompletionData>>();
-
+        private CachedValue<List<AttachedPropertyMetadata>> attachedProperties = new CachedValue<List<AttachedPropertyMetadata>>();
+        private CachedValue<List<INamedTypeSymbol>> allClasses = new CachedValue<List<INamedTypeSymbol>>();
+        private ControlMetadata htmlGenericControlMetadata;
 
         public IEnumerable<CompletionData> GetElementNames(RwHtmlCompletionContext context, List<string> tagNameHierarchy)
         {
@@ -30,7 +33,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
             return controls;
         }
 
-        public IEnumerable<CompletionData> GetControlAttributeNames(RwHtmlCompletionContext context, List<string> tagNameHierarchy)
+        public IEnumerable<CompletionData> GetControlAttributeNames(RwHtmlCompletionContext context, List<string> tagNameHierarchy, out bool combineWithHtmlCompletions)
         {
             allControls.GetOrRetrieve(() => ReloadAllControls(context));
 
@@ -38,11 +41,25 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
             ControlPropertyMetadata currentProperty;
             GetElementContext(tagNameHierarchy, out currentControl, out currentProperty);
 
+            combineWithHtmlCompletions = currentControl != null && currentControl.Name == typeof(HtmlGenericControl).Name && currentControl.Namespace == typeof(HtmlGenericControl).Namespace;
+
             if (currentControl != null && currentProperty == null)
             {
                 return currentControl.Properties.Where(p => !p.IsElement).Select(p => new CompletionData(p.Name));
             }
             return Enumerable.Empty<CompletionData>();
+        }
+
+        public IEnumerable<CompletionData> GetAttachedPropertyNames(RwHtmlCompletionContext context)
+        {
+            return attachedProperties.GetOrRetrieve(() => ReloadAllAttachedProperties(context)).Select(a => new CompletionData(a.Name));
+        }
+
+        public IEnumerable<CompletionData> GetAttachedPropertyValues(RwHtmlCompletionContext context, string attachedPropertyName)
+        {
+            return attachedProperties.GetOrRetrieve(() => ReloadAllAttachedProperties(context))
+                .Where(a => a.Name == attachedPropertyName)
+                .SelectMany(p => HintPropertyValues(p.Type));
         }
 
         public IEnumerable<CompletionData> GetControlAttributeValues(RwHtmlCompletionContext context, List<string> tagNameHierarchy, string attributeName)
@@ -58,7 +75,13 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                 var property = currentControl.Properties.FirstOrDefault(p => p.Name == attributeName);
                 if (property != null)
                 {
-                    return HintPropertyValues(property);
+                    // it is a real property
+                    return HintPropertyValues(property.Type);
+                }
+                else
+                {
+                    // it can be an attached property
+                    return GetAttachedPropertyValues(context, attributeName);
                 }
             }
             return Enumerable.Empty<CompletionData>();
@@ -66,16 +89,18 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
 
         internal ControlMetadata GetMetadata(string tagName)
         {
-            return metadata[tagName];
+            ControlMetadata result = null;
+            metadata.TryGetValue(tagName, out result);
+            return result;
         }
 
-        private IEnumerable<CompletionData> HintPropertyValues(ControlPropertyMetadata property)
+        private IEnumerable<CompletionData> HintPropertyValues(ITypeSymbol propertyType)
         {
-            if (property.Type.TypeKind == TypeKind.Enum)
+            if (propertyType.TypeKind == TypeKind.Enum)
             {
-                return property.Type.GetMembers().Where(m => m.Kind == SymbolKind.Field).Select(m => new CompletionData(m.Name));
+                return propertyType.GetMembers().Where(m => m.Kind == SymbolKind.Field).Select(m => new CompletionData(m.Name));
             }
-            if (CheckType((INamedTypeSymbol)property.Type, typeof(bool)))
+            if (CheckType(propertyType, typeof(bool)))
             {
                 return new[]
                 {
@@ -114,7 +139,8 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                 }
                 else
                 {
-                    // HTML or unknown element, skip it
+                    // HTML or unknown element
+                    currentControl = htmlGenericControlMetadata;
                 }
             }
         }
@@ -123,18 +149,14 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
         internal List<CompletionData> ReloadAllControls(RwHtmlCompletionContext context)
         {
             // get all possible control symbols
-            var syntaxTrees = CompletionHelper.GetSyntaxTrees(context);
-            var ownSymbols = syntaxTrees.SelectMany(t => t.Tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
-                .Select(c => t.SemanticModel.GetDeclaredSymbol(c))).ToList();
-            var referencedSymbols = CompletionHelper.GetReferencedSymbols(context);
-
-            var allClasses = Enumerable.Concat(referencedSymbols, ownSymbols).OfType<INamedTypeSymbol>()
-                .Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsAbstract)
+            var allClasses = ReloadAllClasses(context);
+            var controlClasses = allClasses
                 .Where(c => CompletionHelper.GetBaseTypes(c).Any(t => CheckType(t, typeof(RedwoodControl))))
                 .ToList();
 
             var result = new List<CompletionData>();
-            metadata = new ConcurrentDictionary<string, ControlMetadata>();
+            metadata = new ConcurrentDictionary<string, ControlMetadata>(StringComparer.CurrentCultureIgnoreCase);
+            htmlGenericControlMetadata = null;
 
             foreach (var rule in context.Configuration.Markup.Controls)
             {
@@ -151,12 +173,18 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
                 else
                 {
                     // find all classes declared in the project
-                    var controls = allClasses.Where(c => c.ContainingAssembly.Name == rule.Assembly && c.ContainingNamespace.ToDisplayString() == rule.Namespace);
+                    var controls = controlClasses.Where(c => c.ContainingAssembly.Name == rule.Assembly && c.ContainingNamespace.ToDisplayString() == rule.Namespace);
                     foreach (var control in controls)
                     {
                         tagName = rule.TagPrefix + ":" + control.Name;
-                        metadata[tagName] = GetControlMetadata(control);
+                        var controlMetadata = GetControlMetadata(control, rule.TagPrefix, control.Name);
+                        metadata[tagName] = controlMetadata;
                         result.Add(new CompletionData(tagName));
+
+                        if (CheckType(control, typeof(HtmlGenericControl)))
+                        {
+                            htmlGenericControlMetadata = controlMetadata;
+                        }
                     }
                 }
             }
@@ -164,12 +192,58 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
             return result;
         }
 
-        private ControlMetadata GetControlMetadata(INamedTypeSymbol control)
+        internal List<AttachedPropertyMetadata> ReloadAllAttachedProperties(RwHtmlCompletionContext context)
+        {
+            // get all possible control symbols
+            var allClasses = ReloadAllClasses(context);
+            var attachedPropertyClasses = allClasses
+                .Where(c => c.GetThisAndAllBaseTypes().Any(t => t.GetAttributes().Any(a => CheckType(a.AttributeClass, typeof(ContainsRedwoodPropertiesAttribute)))))
+                .ToList();
+
+            // find all attached properties
+            var attachedProperties = attachedPropertyClasses
+                .SelectMany(c => c.GetMembers().OfType<IFieldSymbol>())
+                .Where(f => CheckType(f.Type, typeof(RedwoodProperty)))
+                .Where(f => f.GetAttributes().Any(a => CheckType(a.AttributeClass, typeof(AttachedPropertyAttribute))));
+
+            return attachedProperties
+                .Select(f => new AttachedPropertyMetadata()
+                {
+                    Name = ComposeAttachedPropertyName(f),
+                    Type = f.GetAttributes().First(a => CheckType(a.AttributeClass, typeof(AttachedPropertyAttribute)))
+                        .ConstructorArguments[0].Value as ITypeSymbol
+                })
+                .ToList();
+        }
+
+        private string ComposeAttachedPropertyName(IFieldSymbol field)
+        {
+            var name = field.ContainingType.Name + "." + field.Name;
+            return name.EndsWith("Property") ? name.Substring(0, name.Length - "Property".Length) : name;
+        }
+
+        private List<INamedTypeSymbol> ReloadAllClasses(RwHtmlCompletionContext context)
+        {
+            return allClasses.GetOrRetrieve(() =>
+            {
+                var syntaxTrees = CompletionHelper.GetSyntaxTrees(context);
+                var ownSymbols = syntaxTrees.SelectMany(t => t.Tree.GetRoot().DescendantNodes().OfType<ClassDeclarationSyntax>()
+                    .Select(c => t.SemanticModel.GetDeclaredSymbol(c))).ToList();
+                var referencedSymbols = CompletionHelper.GetReferencedSymbols(context);
+                return Enumerable.Concat(referencedSymbols, ownSymbols).OfType<INamedTypeSymbol>()
+                    .Where(c => c.DeclaredAccessibility == Accessibility.Public && !c.IsAbstract)
+                    .ToList();
+            });
+        }
+
+        private ControlMetadata GetControlMetadata(INamedTypeSymbol control, string tagPrefix, string tagName)
         {
             return new ControlMetadata()
             {
+                TagPrefix = tagPrefix,
+                TagName = tagName,
                 Name = control.Name, 
-                Namespace = control.ContainingNamespace.Name,
+                Namespace = control.ContainingNamespace.ToDisplayString(),
                 Properties = CompletionHelper.GetBaseTypes(control).Concat(new[] { control })
                     .SelectMany(c => c.GetMembers().OfType<IPropertySymbol>())
                     .Where(p => p.DeclaredAccessibility == Accessibility.Public)
@@ -222,15 +296,21 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
             return metadata;
         }
 
-        private static bool CheckType(INamedTypeSymbol symbol, Type type)
+        private static bool CheckType(ITypeSymbol symbol, Type type)
         {
+            if (symbol is IErrorTypeSymbol || symbol.ContainingNamespace == null || string.IsNullOrWhiteSpace(symbol.Name))
+            {
+                return false;
+            }
             return symbol.ContainingNamespace.ToDisplayString() == type.Namespace && symbol.Name == type.Name;
         }
 
 
         public void OnWorkspaceChanged()
         {
+            allClasses.ClearCachedValue();
             allControls.ClearCachedValue();
+            attachedProperties.ClearCachedValue();
         }
     }
 }

@@ -37,6 +37,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             {
                 return m_nextCommandHandler.Exec(ref pguidCmdGroup, nCmdID, nCmdexecopt, pvaIn, pvaOut);
             }
+
             //make a copy of this so we can look at it after forwarding some commands 
             uint commandID = nCmdID;
             char typedChar = char.MinValue;

@@ -1,4 +1,5 @@
 ﻿
+using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -16,8 +17,10 @@ namespace Redwood.Framework.ResourceManagement
         /// <summary>
         /// Dictionary of resources
         /// </summary>
+        [JsonIgnore]
         public ConcurrentDictionary<string, ResourceBase> Resources { get; private set; }
 
+        [JsonIgnore]
         public ConcurrentDictionary<string, IRedwoodResourceRepository> Parents { get; set; }
 
         /// <summary>

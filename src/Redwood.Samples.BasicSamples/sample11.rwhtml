@@ -19,12 +19,12 @@
 		
 		<fieldset>
 			<legend>Add Task</legend>
-
+			
 			<p>
 				Title: <rw:TextBox Text="{value: NewTaskTitle}" />
 			</p>
 			<p>
-				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" AsteriskText="Validation 1 - HideWhenValid" />
+				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" Mode="HideWhenValid" AsteriskText="Validation 1 - HideWhenValid" />
 				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" Mode="AddCssClass" AsteriskText="Validation 2 - AddCssClass" InvalidCssClass="validator" />
 				<rw:ValidationMessage ValidatedValue="{value: NewTaskTitle}" Mode="DisplayErrorMessage" AsteriskText="Validation 3 - DisplayErrorMessage" />
 			</p>

@@ -6,6 +6,7 @@
     <title>Hello from Redwood!</title>
 </head>
 <body>
+	
 	<div class="container">
 		<h1>Javascript Events test</h1>
 		

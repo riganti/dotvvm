@@ -75,7 +75,8 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                             }
                             else
                             {
-                                var beginTagName = ((RwHtmlElementNode)ElementHierarchy.Peek()).FullTagName;
+                                var beginTag = (RwHtmlElementNode)ElementHierarchy.Peek();
+                                var beginTagName = beginTag.FullTagName;
                                 if (beginTagName != element.FullTagName)
                                 {
                                     element.NodeErrors.Add(string.Format(RwHtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
@@ -84,6 +85,8 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
                                 {
                                     ElementHierarchy.Pop();
                                 }
+
+                                beginTag.CorrespondingEndTag = element;
                             }
                         }
                     }
@@ -153,13 +156,17 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
 
             // element name
             Assert(RwHtmlTokenType.Text);
-            node.TagName = Read().Text;
+            node.TagNameToken = Read();
+            node.TagName = node.TagNameToken.Text;
             if (Peek().Type == RwHtmlTokenType.Colon)
             {
                 Read();
+
                 node.TagPrefix = node.TagName;
+                node.TagPrefixToken = node.TagNameToken;
                 Assert(RwHtmlTokenType.Text);
-                node.TagName = Read().Text;
+                node.TagNameToken = Read();
+                node.TagName = node.TagNameToken.Text;
             }
             SkipWhitespace();
 
@@ -200,13 +207,17 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
 
             // attribute name
             Assert(RwHtmlTokenType.Text);
-            attribute.Name = Read().Text;
+            attribute.AttributeNameToken = Read();
+            attribute.AttributeName = attribute.AttributeNameToken.Text;
             if (Peek().Type == RwHtmlTokenType.Colon)
             {
                 Read();
-                attribute.Prefix = attribute.Name;
+
+                attribute.AttributePrefix = attribute.AttributeName;
+                attribute.AttributePrefixToken = attribute.AttributeNameToken;
                 Assert(RwHtmlTokenType.Text);
-                attribute.Name = Read().Text;
+                attribute.AttributeNameToken = Read();
+                attribute.AttributeName = attribute.AttributeNameToken.Text;
             }
             SkipWhitespace();
 

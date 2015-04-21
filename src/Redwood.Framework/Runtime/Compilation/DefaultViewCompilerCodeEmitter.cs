@@ -11,7 +11,7 @@ namespace Redwood.Framework.Runtime.Compilation
 {
     public class DefaultViewCompilerCodeEmitter
     {
-        
+
         private int CurrentControlIndex
         {
             get { return methods.Peek().ControlIndex; }
@@ -22,6 +22,12 @@ namespace Redwood.Framework.Runtime.Compilation
         {
             get { return methods.Peek().Statements; }
         }
+
+        public const string ControlBuilderFactoryParameterName = "controlBuilderFactory";
+        public const string BuildControlFunctionName = "BuildControl";
+        public const string BuildTemplateFunctionName = "BuildTemplate";
+        public const string GetControlBuilderFunctionName = "GetControlBuilder";
+        
 
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
@@ -91,9 +97,9 @@ namespace Redwood.Framework.Runtime.Compilation
         /// <summary>
         /// Emits the control builder invocation.
         /// </summary>
-        public string EmitInvokeControlBuilder(Type controlType, Type controlBuilderType)
+        public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            usedControlBuilderTypes.Add(controlBuilderType);
+            usedControlBuilderTypes.Add(controlType);
 
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
@@ -105,8 +111,15 @@ namespace Redwood.Framework.Runtime.Compilation
                     SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
                         SyntaxFactory.VariableDeclarator(builderName).WithInitializer(
                             SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(controlBuilderType.FullName))
-                                    .WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()))
+                                SyntaxFactory.InvocationExpression(
+                                    SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                                        SyntaxFactory.IdentifierName(ControlBuilderFactoryParameterName),
+                                        SyntaxFactory.IdentifierName(GetControlBuilderFunctionName)
+                                    ),
+                                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
+                                        SyntaxFactory.Argument(EmitStringLiteral(virtualPath))
+                                    }))
+                                )
                             )
                         )
                     )
@@ -118,11 +131,14 @@ namespace Redwood.Framework.Runtime.Compilation
                         SyntaxFactory.VariableDeclarator(untypedName).WithInitializer(
                             SyntaxFactory.EqualsValueClause(
                                 SyntaxFactory.InvocationExpression(
-                                    SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression, 
+                                    SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
                                         SyntaxFactory.IdentifierName(builderName),
-                                        SyntaxFactory.IdentifierName("BuildControl")
-                                    )
-                                ).WithArgumentList(SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList<ArgumentSyntax>()))
+                                        SyntaxFactory.IdentifierName(BuildControlFunctionName)
+                                    ),
+                                    SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[] {
+                                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(ControlBuilderFactoryParameterName))
+                                    }))
+                                )
                             )
                         )
                     )
@@ -186,7 +202,7 @@ namespace Redwood.Framework.Runtime.Compilation
         private ExpressionSyntax EmitBooleanLiteral(bool value)
         {
             return SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
-        } 
+        }
 
         /// <summary>
         /// Emits the set property statement.
@@ -206,7 +222,7 @@ namespace Redwood.Framework.Runtime.Compilation
                     )
                 )
             );
-        } 
+        }
 
         /// <summary>
         /// Emits the set property statement.
@@ -256,7 +272,7 @@ namespace Redwood.Framework.Runtime.Compilation
                             SyntaxFactory.IdentifierName("SetBinding")
                         ),
                         SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[] { 
+                            SyntaxFactory.SeparatedList(new[] {
                                 SyntaxFactory.Argument(SyntaxFactory.IdentifierName(propertyName)),
                                 SyntaxFactory.Argument(SyntaxFactory.IdentifierName(variableName))
                             })
@@ -281,7 +297,7 @@ namespace Redwood.Framework.Runtime.Compilation
                         ),
                         SyntaxFactory.ArgumentList(
                             SyntaxFactory.SeparatedList(
-                                new[] { 
+                                new[] {
                                     SyntaxFactory.Argument(
                                         SyntaxFactory.MemberAccessExpression(
                                             SyntaxKind.SimpleMemberAccessExpression,
@@ -447,13 +463,18 @@ namespace Redwood.Framework.Runtime.Compilation
                                 ))
                                 .WithMembers(
                                 SyntaxFactory.List<MemberDeclarationSyntax>(
-                                    outputMethods.Select(m => 
+                                    outputMethods.Select(m =>
                                         SyntaxFactory.MethodDeclaration(
                                             SyntaxFactory.ParseTypeName(typeof(RedwoodControl).FullName),
-                                            m.Name
-                                        )
-                                        .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                        .WithBody(SyntaxFactory.Block(m.Statements))
+                                            m.Name)
+                                            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                            .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(new[] {
+                                                SyntaxFactory.Parameter(
+                                                    SyntaxFactory.Identifier(ControlBuilderFactoryParameterName)
+                                                )
+                                                .WithType(SyntaxFactory.ParseTypeName(typeof(IControlBuilderFactory).FullName))
+                                            })))
+                                            .WithBody(SyntaxFactory.Block(m.Statements))
                                         )
                                     )
                                 )
@@ -462,46 +483,45 @@ namespace Redwood.Framework.Runtime.Compilation
                 )
             ).NormalizeWhitespace();
 
-            // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
-            // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
-            SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
-            return new[] { SyntaxTree };
-        }
+        // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
+        // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
+        SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
+            return new[] { SyntaxTree
+    };
+}
 
 
-        /// <summary>
-        /// Pushes the new method.
-        /// </summary>
-        public void PushNewMethod(string name)
-        {
-            methods.Push(new EmitterMethodInfo()
-            {
-                Name = name
-            });
-        }
+/// <summary>
+/// Pushes the new method.
+/// </summary>
+public void PushNewMethod(string name, params ParameterSyntax[] parameters)
+{
+    var emitterMethodInfo = new EmitterMethodInfo() { Name = name };
+    methods.Push(emitterMethodInfo);
+}
 
-        /// <summary>
-        /// Pops the method.
-        /// </summary>
-        public void PopMethod()
-        {
-            outputMethods.Add(methods.Pop());
-        }
+/// <summary>
+/// Pops the method.
+/// </summary>
+public void PopMethod()
+{
+    outputMethods.Add(methods.Pop());
+}
 
 
-        /// <summary>
-        /// Emits the control class.
-        /// </summary>
-        public void EmitControlClass(Type baseType, string className)
-        {
-            otherClassDeclarations.Add(
-                SyntaxFactory.ClassDeclaration(className + "Control")
-                    .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                    .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]
+/// <summary>
+/// Emits the control class.
+/// </summary>
+public void EmitControlClass(Type baseType, string className)
+{
+    otherClassDeclarations.Add(
+        SyntaxFactory.ClassDeclaration(className + "Control")
+            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+            .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]
                     {
                         SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(baseType.ToString()))
                     })))
-                );
-        }
+        );
+}
     }
 }

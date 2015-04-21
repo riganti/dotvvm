@@ -15,10 +15,10 @@ namespace Redwood.Framework.Runtime
     /// </summary>
     public class DefaultRedwoodViewBuilder : IRedwoodViewBuilder
     {
-        
-        public IMarkupFileLoader MarkupFileLoader { get; private set; }
 
-        public IControlBuilderFactory ControlBuilderFactory { get; private set; }
+        private IMarkupFileLoader markupFileLoader;
+
+        private IControlBuilderFactory controlBuilderFactory;
 
 
 
@@ -27,8 +27,8 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         public DefaultRedwoodViewBuilder(RedwoodConfiguration configuration)
         {
-            MarkupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
-            ControlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
+            controlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
         }
 
         /// <summary>
@@ -37,19 +37,18 @@ namespace Redwood.Framework.Runtime
         public RedwoodView BuildView(RedwoodRequestContext context)
         {
             // get the page markup
-            var markup = MarkupFileLoader.GetMarkup(context);
+            var markup = markupFileLoader.GetMarkupFileVirtualPath(context);
 
             // build the page
-            var pageBuilder = ControlBuilderFactory.GetControlBuilder(markup);
-            var contentPage = pageBuilder.BuildControl() as RedwoodView;
+            var pageBuilder = controlBuilderFactory.GetControlBuilder(markup);
+            var contentPage = pageBuilder.BuildControl(controlBuilderFactory) as RedwoodView;
 
             // check for master page and perform composition recursively
             while (IsNestedInMasterPage(contentPage))
             {
                 // load master page
                 var masterPageFile = contentPage.Directives[Constants.MasterPageDirective];
-                var masterPageMarkup = MarkupFileLoader.GetMarkup(context.Configuration, masterPageFile);
-                var masterPage = (RedwoodView)ControlBuilderFactory.GetControlBuilder(masterPageMarkup).BuildControl();
+                var masterPage = (RedwoodView)controlBuilderFactory.GetControlBuilder(masterPageFile).BuildControl(controlBuilderFactory);
 
                 PerformMasterPageComposition(contentPage, masterPage);
                 contentPage = masterPage;

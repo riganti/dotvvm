@@ -12,7 +12,7 @@ namespace Redwood.Framework.Configuration
         /// <summary>
         /// Gets filters that are applied for all requests.
         /// </summary>
-        [JsonProperty("globalFilters")]
+        [JsonIgnore()]
         public List<ActionFilterAttribute> GlobalFilters { get; private set; }
 
 

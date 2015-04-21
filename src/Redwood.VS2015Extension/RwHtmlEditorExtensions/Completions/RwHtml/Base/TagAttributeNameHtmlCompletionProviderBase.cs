@@ -20,7 +20,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
 
                 // if the tag has already some attributes, don't show them in the IntelliSense
                 var tag = context.CurrentNode as RwHtmlElementNode ?? ((RwHtmlAttributeNode)context.CurrentNode).ParentElement;
-                var existingAttributeNames = tag.Attributes.Select(a => a.Name).ToList();
+                var existingAttributeNames = tag.Attributes.Select(a => a.AttributeName).ToList();
 
                 return GetItemsCore(context, tagNameHierarchy)
                     .Where(n => !existingAttributeNames.Contains(n.DisplayText));

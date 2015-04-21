@@ -98,6 +98,7 @@ namespace Redwood.Framework.Binding
         public PropertyInfo EvaluateProperty(ValueBindingExpression expression, RedwoodProperty property, RedwoodBindableControl control, out object target)
         {
             var visitor = EvaluateDataContextPath(control);
+            target = visitor.Result;
 
             // evaluate the final expression
             var node = ParseBinding(expression.Expression);
@@ -108,13 +109,12 @@ namespace Redwood.Framework.Binding
             }
             else if (node is MemberAccessExpressionSyntax)
             {
-                visitor.Visit(((MemberAccessExpressionSyntax)node).Expression);
+                target = visitor.Visit(((MemberAccessExpressionSyntax)node).Expression);
                 propertyName = ((MemberAccessExpressionSyntax)node).Name.ToString();
             }
 
             if (propertyName != null && !visitor.IsSpecialPropertyName(propertyName))
             {
-                target = visitor.Result;
                 var propertyInfo = target.GetType().GetProperty(propertyName);
                 if (propertyInfo != null)
                 {

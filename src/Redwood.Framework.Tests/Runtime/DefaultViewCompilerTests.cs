@@ -17,6 +17,14 @@ namespace Redwood.Framework.Tests.Runtime
     [TestClass]
     public class DefaultViewCompilerTests
     {
+        private RedwoodRequestContext context;
+
+        [TestInitialize]
+        public void TestInit()
+        {
+            context = new RedwoodRequestContext();
+            context.Configuration = RedwoodConfiguration.CreateDefault();
+        }
 
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_ElementWithAttributeProperty()
@@ -127,7 +135,7 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
 
             RedwoodControl placeholder = new Placeholder();
-            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(placeholder);
+            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, placeholder);
             placeholder = placeholder.Children[0];
             
             Assert.AreEqual(3, placeholder.Children.Count);
@@ -213,7 +221,7 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
 
             var container = new Placeholder();
-            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(container);
+            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, container);
             Assert.IsInstanceOfType(container.Children[0], typeof(Placeholder));
 
             var literal1 = container.Children[0].Children[0];
@@ -247,7 +255,7 @@ namespace Redwood.Framework.Tests.Runtime
             Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
 
             var container = new Placeholder();
-            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(container);
+            ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, container);
             Assert.IsInstanceOfType(container.Children[0], typeof(Placeholder));
 
             var literal1 = container.Children[0].Children[0];
@@ -266,22 +274,29 @@ namespace Redwood.Framework.Tests.Runtime
 
 
 
-        private static RedwoodControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false)
+        private RedwoodControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false)
         {
-            var redwoodConfiguration = RedwoodConfiguration.CreateDefault();
+            if (markupFiles == null)
+            {
+                markupFiles = new Dictionary<string, string>();
+            }
+            markupFiles["default.rwhtml"] = markup;
+
+            var redwoodConfiguration = context.Configuration;
             redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.rwhtml" });
             redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.rwhtml" });
             redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.rwhtml" });
             redwoodConfiguration.Markup.Controls.Add(new RedwoodControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.rwhtml" });
             redwoodConfiguration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new FakeMarkupFileLoader(markupFiles));
             redwoodConfiguration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
-            var compiler = redwoodConfiguration.ServiceLocator.GetService<IViewCompiler>();
 
-            var controlBuilder = compiler.CompileView(new StringReader(markup), "file", "assembly", "ns", "c");
-            var result = controlBuilder.BuildControl();
+            var controlBuilderFactory = redwoodConfiguration.ServiceLocator.GetService<IControlBuilderFactory>();
+            var controlBuilder = controlBuilderFactory.GetControlBuilder("default.rwhtml");
+            
+            var result = controlBuilder.BuildControl(controlBuilderFactory);
             if (compileTwice)
             {
-                result = controlBuilder.BuildControl();
+                result = controlBuilder.BuildControl(controlBuilderFactory);
             }
             return result;
         }
@@ -301,14 +316,14 @@ namespace Redwood.Framework.Tests.Runtime
             this.markupFiles = markupFiles ?? new Dictionary<string, string>();
         }
 
-        public MarkupFile GetMarkup(RedwoodRequestContext context)
-        {
-            throw new NotImplementedException();
-        }
-
         public MarkupFile GetMarkup(RedwoodConfiguration configuration, string virtualPath)
         {
             return new MarkupFile(virtualPath, virtualPath, markupFiles[virtualPath]);
+        }
+
+        public string GetMarkupFileVirtualPath(RedwoodRequestContext context)
+        {
+            throw new NotImplementedException();
         }
     }
 }

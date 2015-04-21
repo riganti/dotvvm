@@ -22,14 +22,35 @@ var Redwood = (function () {
         };
     }
     Redwood.prototype.init = function (viewModelName, culture) {
+        var _this = this;
         this.culture = culture;
+        this.viewModels[viewModelName] = JSON.parse(document.getElementById("__rw_viewmodel_" + viewModelName).value);
         this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
         var viewModel = this.viewModels[viewModelName].viewModel;
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
         if (document.location.hash.indexOf("#/") === 0) {
-            this.navigateSpaCore(viewModelName, document.location.hash.substring(1));
+            this.navigateCore(viewModelName, document.location.hash.substring(1));
         }
+        // persist the viewmodel in the hidden field so the Back button will work correctly
+        this.attachEvent(window, "beforeunload", function (e) {
+            _this.persistViewModel(viewModelName);
+        });
+    };
+    Redwood.prototype.onDocumentReady = function (callback) {
+        // many thanks to http://dustindiaz.com/smallest-domready-ever
+        /in/.test(document.readyState) ? setTimeout('redwood.onDocumentReady(' + callback + ')', 9) : callback();
+    };
+    Redwood.prototype.persistViewModel = function (viewModelName) {
+        var viewModel = this.viewModels[viewModelName];
+        var persistedViewModel = {};
+        for (var p in viewModel) {
+            if (viewModel.hasOwnProperty(p)) {
+                persistedViewModel[p] = viewModel[p];
+            }
+        }
+        persistedViewModel["viewModel"] = ko.mapper.toJS(persistedViewModel["viewModel"]);
+        document.getElementById("__rw_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
     };
     Redwood.prototype.backUpPostBackConter = function () {
         this.postBackCounter++;
@@ -111,14 +132,13 @@ var Redwood = (function () {
     Redwood.prototype.evaluateOnViewModel = function (context, expression) {
         return eval("(function (c) { return c." + expression + "; })")(context);
     };
-    Redwood.prototype.navigateSpa = function (sender, viewModelName, routePath, parametersProvider) {
+    Redwood.prototype.navigate = function (sender, viewModelName, routePath, parametersProvider) {
         var viewModel = ko.dataFor(sender);
         // compose the final URL and navigate
-        var url = "/" + this.buildRouteUrl(routePath, parametersProvider(viewModel));
-        document.location.hash = url;
-        this.navigateSpaCore(viewModelName, url);
+        var url = this.addLeadingSlash(this.buildRouteUrl(routePath, parametersProvider(viewModel)));
+        this.navigateCore(viewModelName, url);
     };
-    Redwood.prototype.navigateSpaCore = function (viewModelName, url) {
+    Redwood.prototype.navigateCore = function (viewModelName, url) {
         var _this = this;
         var viewModel = this.viewModels[viewModelName].viewModel;
         // prevent double postbacks
@@ -129,9 +149,18 @@ var Redwood = (function () {
         if (spaNavigatingArgs.cancel) {
             return;
         }
+        // add virtual directory prefix
+        var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
+        // find SPA placeholder
+        var spaPlaceHolder = document.getElementsByName("__rw_SpaContentPlaceHolder")[0];
+        if (!spaPlaceHolder) {
+            document.location.href = fullUrl;
+            return;
+        }
+        document.location.hash = url;
         // send the request
-        var spaPlaceHolderUniqueId = document.getElementsByName("__rw_SpaContentPlaceHolder")[0].attributes["data-rw-spacontentplaceholder"].value;
-        this.getJSON(url, "GET", spaPlaceHolderUniqueId, function (result) {
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-rw-spacontentplaceholder"].value;
+        this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, function (result) {
             // if another postback has already been passed, don't do anything
             if (!_this.isPostBackStillActive(currentPostBackCounter))
                 return;
@@ -142,11 +171,12 @@ var Redwood = (function () {
                 var updatedControls = _this.cleanUpdatedControls(resultObject);
                 // update the viewmodel
                 ko.cleanNode(document.documentElement);
-                _this.viewModels[viewModelName] = {
-                    viewModel: {},
-                    url: resultObject.url,
-                    action: resultObject.action
-                };
+                _this.viewModels[viewModelName] = {};
+                for (var p in resultObject) {
+                    if (resultObject.hasOwnProperty(p)) {
+                        _this.viewModels[viewModelName][p] = resultObject[p];
+                    }
+                }
                 ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
                 isSuccess = true;
                 // add updated controls
@@ -175,6 +205,18 @@ var Redwood = (function () {
                 alert(xhr.responseText);
             }
         });
+    };
+    Redwood.prototype.addLeadingSlash = function (url) {
+        if (url.length > 0 && url.substring(0, 1) != "/") {
+            return "/" + url;
+        }
+        return url;
+    };
+    Redwood.prototype.concatUrl = function (url1, url2) {
+        if (url1.length > 0 && url1.substring(url1.length - 1) == "/") {
+            url1 = url1.substring(0, url1.length - 1);
+        }
+        return url1 + this.addLeadingSlash(url2);
     };
     Redwood.prototype.patch = function (source, patch) {
         var _this = this;
@@ -287,6 +329,15 @@ var Redwood = (function () {
                     ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
                 }
             }
+        }
+    };
+    Redwood.prototype.attachEvent = function (target, name, callback, useCapture) {
+        if (useCapture === void 0) { useCapture = false; }
+        if (target.addEventListener) {
+            target.addEventListener(name, callback, useCapture);
+        }
+        else {
+            target.attachEvent("on" + name, callback);
         }
     };
     Redwood.prototype.buildRouteUrl = function (routePath, params) {

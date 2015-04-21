@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Parser.RwHtml.Tokenizer;
 
 namespace Redwood.Framework.Parser.RwHtml.Parser
 {
@@ -23,6 +24,12 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
         }
 
         public RwHtmlElementNode ParentElement { get; set; }
+
+        public RwHtmlToken TagPrefixToken { get; set; }
+
+        public RwHtmlToken TagNameToken { get; set; }
+
+        public RwHtmlElementNode CorrespondingEndTag { get; internal set; }
 
         public RwHtmlElementNode()
         {
