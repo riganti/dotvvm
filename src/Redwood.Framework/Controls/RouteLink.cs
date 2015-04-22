@@ -45,7 +45,8 @@ namespace Redwood.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                writer.AddAttribute("href", "#");
+                // Render Googlebot hashbang URL so middle and right click works and linking does, too.
+                writer.AddAttribute("href", "#!" + GenerateRouteUrl(context));
                 writer.AddAttribute("onclick", GenerateRouteLink(context));
             }
             else

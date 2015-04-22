@@ -13,6 +13,8 @@ namespace Redwood.Framework.Hosting
     /// </summary>
     public class RedwoodMiddleware : OwinMiddleware
     {
+        private const String GooglebotHashbangEscapedFragment = "_escaped_fragment_=";
+
         private readonly RedwoodConfiguration configuration;
 
         /// <summary>
@@ -28,8 +30,15 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public override async Task Invoke(IOwinContext context)
         {
+            // Attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
+            String url;
+            if (!this.TryParseGooglebotHashbangEscapedFragment(context.Request.QueryString, out url))
+            {
+                url = context.Request.Path.Value;
+            }
+
             // try resolve the route
-            var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
+            url = url.TrimStart('/').TrimEnd('/');
 
             // handle virtual directory
             if (url.StartsWith(configuration.VirtualDirectory))
@@ -58,6 +67,31 @@ namespace Redwood.Framework.Hosting
 
             // we cannot handle the request, pass it to another component
             await Next.Invoke(context);
+        }
+
+        /// <summary>
+        /// Attempts to recognize request made by Googlebot in its effort to crawl links for AJAX SPAs.
+        /// </summary>
+        /// <param name="queryString">
+        /// The query string of the request to try to match the Googlebot hashbang escaped fragment on.
+        /// </param>
+        /// <param name="url">
+        /// The plain URL string that the hasbang escaped fragment represents.
+        /// </param>
+        /// <returns>
+        /// <code>true</code>, if the URL contains valid Googlebot hashbang escaped fragment; otherwise <code>false</code>.
+        /// </returns>
+        /// <seealso cref="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started"/>
+        private Boolean TryParseGooglebotHashbangEscapedFragment(QueryString queryString, out String url)
+        {
+            if (queryString.Value.StartsWith(GooglebotHashbangEscapedFragment, StringComparison.Ordinal))
+            {
+                url = queryString.Value.Substring(GooglebotHashbangEscapedFragment.Length);
+                return true;
+            }
+
+            url = null;
+            return false;
         }
     }
 }

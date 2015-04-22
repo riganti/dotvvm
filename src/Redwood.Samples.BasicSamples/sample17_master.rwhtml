@@ -18,9 +18,20 @@
 		<fieldset>
 			<label></label>
 
+      <p>The generated links use so called hashbang (<code>#!</code>) notation to allow Googlebot to index pages fetched using AJAX.</p>
+      <p>Google Bot will request the pages using a special URLs containing <code>_escaped_fragment_</code> query with encoded original fragment (<code>#</code>).</p>
+      <p>The server must be ready to handle <code>_escaped_fragment_</code> URLs and server content for the crawler corresponding to what a visitor would receive on that URL.</p>
+      <p>More info on the matter for making AJAX SPAs crawlable at <a href="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started">Google Developers</a>.</p>
+
 			<ul>
-				<li><rw:RouteLink RouteName="Sample17" Param-Id="16" Text="Sample 1" /></li>
-				<li><rw:RouteLink RouteName="Sample17_B" Text="Sample 2 - Task List" /></li>
+				<li>
+          <rw:RouteLink RouteName="Sample17" Param-Id="16" Text="Sample 1" />
+          <a href="/Sample17/14?_escaped_fragment_=/Sample17/16">(+ what Google Bot would request for that link)</a>
+        </li>
+				<li>
+          <rw:RouteLink RouteName="Sample17_B" Text="Sample 2 - Task List" />
+          <a href="/Sample17_B?_escaped_fragment_=/Sample17_B">(+ what Google Bot would request for that link)</a>
+        </li>
 			</ul>
 
 		</fieldset>

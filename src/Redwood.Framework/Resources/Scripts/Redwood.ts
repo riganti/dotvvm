@@ -27,7 +27,12 @@ class Redwood {
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
 
-        if (document.location.hash.indexOf("#/") === 0) {
+        // Attempt to server Googlebot hashbang escaped fragment URL, then fall back onto classical hash to avoid breaking backwards compatibility.
+        if (document.location.hash.indexOf("#!/") === 0)
+        {
+            this.navigateCore(viewModelName, document.location.hash.substring(2));
+        }
+        else if (document.location.hash.indexOf("#/") === 0) {
             this.navigateCore(viewModelName, document.location.hash.substring(1));
         }
 
@@ -176,7 +181,9 @@ class Redwood {
             document.location.href = fullUrl;
             return;
         }
-        document.location.hash = url;
+
+        // Render the hash and exclamation point so the fragment URLs are recognized by Googlebot and reconstructed to escaped fragment URL.
+        document.location.hash = "#!" + url;
         
         // send the request
         var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-rw-spacontentplaceholder"].value;
