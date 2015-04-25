@@ -142,7 +142,11 @@ class Redwood {
     }
 
     public evaluateOnViewModel(context, expression) {
-        return eval("(function (c) { return c." + expression + "; })")(context);
+        var result = eval("(function (c) { return c." + expression + "; })")(context);
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
     }
 
     public navigate(sender: HTMLElement, viewModelName: string, routePath: string, parametersProvider: (viewModel: any) => any) {

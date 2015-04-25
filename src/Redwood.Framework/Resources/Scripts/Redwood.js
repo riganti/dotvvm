@@ -130,7 +130,11 @@ var Redwood = (function () {
         });
     };
     Redwood.prototype.evaluateOnViewModel = function (context, expression) {
-        return eval("(function (c) { return c." + expression + "; })")(context);
+        var result = eval("(function (c) { return c." + expression + "; })")(context);
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
     };
     Redwood.prototype.navigate = function (sender, viewModelName, routePath, parametersProvider) {
         var viewModel = ko.dataFor(sender);

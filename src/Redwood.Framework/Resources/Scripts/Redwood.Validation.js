@@ -184,7 +184,8 @@ var RedwoodValidation = (function () {
             // find the observable property
             var propertyPath = modelState[i].propertyPath;
             var observable = redwood.evaluateOnViewModel(validationTarget, propertyPath);
-            var parent = redwood.evaluateOnViewModel(context, propertyPath.substring(0, propertyPath.lastIndexOf(".")) || "$data");
+            var parentPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
+            var parent = parentPath ? redwood.evaluateOnViewModel(validationTarget, parentPath) : validationTarget;
             if (!ko.isObservable(observable) || !parent || !parent.$validationErrors) {
                 throw "Invalid validation path!";
             }
