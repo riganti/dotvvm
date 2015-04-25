@@ -6,12 +6,12 @@
 <body>
     <h2>Application running in virtual directory</h2>
 
-    <p RenderSettings.Mode="Server">
+    <p>
         Menu: 
         <rw:RouteLink RouteName="Sample1">Sample 1</rw:RouteLink>
         |
         <rw:RouteLink RouteName="Sample2">Sample 2</rw:RouteLink>
     </p>
-    <rw:ContentPlaceHolder ID="MainContent" />
+    <rw:SpaContentPlaceHolder ID="MainContent" />
 </body>
 </html>

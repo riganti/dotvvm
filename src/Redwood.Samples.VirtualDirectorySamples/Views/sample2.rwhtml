@@ -8,6 +8,7 @@
 	<p>Guid: {{value: RandomString}}</p>
 	<p>
 		<rw:Button Text="Generate" Click="{command: Generate()}" />
+		<rw:Button Text="Redirect to Sample 1" Click="{command: Redirect()}" />
 	</p>	
 
 </rw:Content>

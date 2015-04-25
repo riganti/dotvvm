@@ -118,7 +118,7 @@ class Redwood {
 
             } else if (resultObject.action === "redirect") {
                 // redirect
-                document.location.href = resultObject.url;
+                this.navigateCore(viewModelName, resultObject.url);
                 return;
             } 
             

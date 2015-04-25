@@ -108,7 +108,7 @@ var Redwood = (function () {
             }
             else if (resultObject.action === "redirect") {
                 // redirect
-                document.location.href = resultObject.url;
+                _this.navigateCore(viewModelName, resultObject.url);
                 return;
             }
             // trigger afterPostback event

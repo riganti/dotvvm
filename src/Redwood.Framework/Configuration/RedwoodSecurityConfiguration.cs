@@ -8,7 +8,7 @@ namespace Redwood.Framework.Configuration
     /// <summary>
     /// Contains the encryption keys for ViewModel protection.
     /// </summary>
-    public class RedwoodSecurityConfiguration
+    public class RedwoodSecurityConfiguration 
     {
 
         /// <summary>

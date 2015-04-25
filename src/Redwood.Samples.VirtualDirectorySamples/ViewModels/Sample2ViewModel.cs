@@ -15,5 +15,10 @@ namespace Redwood.Samples.VirtualDirectorySamples.ViewModels
             RandomString = Guid.NewGuid().ToString();
         }
 
+        public void Redirect()
+        {
+            Context.Redirect("/Sample1");
+        }
+
     }
 }
