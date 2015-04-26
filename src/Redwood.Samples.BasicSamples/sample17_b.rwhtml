@@ -13,6 +13,10 @@
 			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>
 		</fieldset>
 		<p>&nbsp;</p>
+
+		<span class="invisibleText">
+			testResource.css was not loaded correctly
+		</span>
 		
 		<table class="table">
 			<rw:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
@@ -30,5 +34,5 @@
 			</rw:Repeater>
 		</table>
 	</div>
-
+	<rw:RequiredResource Name="testCss" />
 </rw:Content>

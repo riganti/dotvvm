@@ -15,5 +15,10 @@
         // DO NOT USE THESE KEYS IN ANY APP! GENERATE YOUR OWN SET OF KEYS FOR EACH APPLICATION.
         "encryptionKey": "Nk+qs7NeAQoUJjRpfclJeWRHjkRPFBvkLTP/B2/gN8Y=",
         "signingKey": "ig8jvMT5/oKbh54Tq7i/g/E7IvyoNv8wl9dgnFEqYDQ="
+    },
+    "resources": {
+        "stylesheets": {
+            "testCss": { "url": "Content/testResource.css" }
+        }
     }
 }

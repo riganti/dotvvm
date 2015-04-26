@@ -11,6 +11,9 @@ using Redwood.Framework.Runtime.Filters;
 using Redwood.Framework.Security;
 using Redwood.Framework.ViewModel;
 using Redwood.Framework.Utils;
+using Redwood.Framework.ResourceManagement;
+using Redwood.Framework.Controls;
+using System.IO;
 
 namespace Redwood.Framework.Runtime
 {
@@ -91,12 +94,43 @@ namespace Redwood.Framework.Runtime
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            result["action"] = "successfulCommand";
+            // TODO: what?
             result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
             result["virtualDirectory"] = context.Configuration.VirtualDirectory;
+            if (context.IsPostBack || context.IsSpaRequest)
+            {
+                result["action"] = "successfulCommand";
+
+                result["resources"] = BuildResourcesJson(context.ResourceManager, _ => true);
+            }
+            else
+            {
+                result["renderedResources"] = JArray.FromObject(context.ResourceManager.RequiredResources);
+            }
+            // TODO: do not send on postbacks
             if (validationRules.Count > 0) result["validationRules"] = validationRules;
 
             context.ViewModelJson = result;
+        }
+
+        public JObject BuildResourcesJson(ResourceManager manager, Func<string, bool> predicate)
+        {
+            var resourceNames = manager.RequiredResources.ToArray();
+            var resources = resourceNames.Select(manager.FindResource).ToArray();
+            var resourceObj = new JObject();
+            for (int i = 0; i < resources.Length; i++)
+            {
+                if (predicate(resourceNames[i]))
+                {
+                    using (var str = new StringWriter())
+                    {
+                        var w = new HtmlWriter(str);
+                        resources[i].Render(w);
+                        resourceObj[resourceNames[i]] = JValue.CreateString(str.ToString());
+                    }
+                }
+            }
+            return resourceObj;
         }
 
         /// <summary>
