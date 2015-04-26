@@ -9,6 +9,7 @@ namespace Redwood.Framework.Controls
     public class PostBack
     {
 
+        [AttachedProperty(typeof(bool))]
         public static readonly RedwoodProperty UpdateProperty =
             RedwoodProperty.Register<bool, PostBack>("Update", false);
 

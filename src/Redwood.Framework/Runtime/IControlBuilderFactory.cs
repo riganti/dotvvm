@@ -9,7 +9,7 @@ namespace Redwood.Framework.Runtime
     public interface IControlBuilderFactory
     {
         
-        IControlBuilder GetControlBuilder(MarkupFile markupFile);
+        IControlBuilder GetControlBuilder(string virtualPath);
 
     }
 }

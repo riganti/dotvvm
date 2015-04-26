@@ -59,7 +59,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
             }
             else if (SelectedSortColumn == "BirthDate")
             {
-                Customers = GetData().OrderBy(c => c.Name).ToList();
+                Customers = GetData().OrderBy(c => c.BirthDate).ToList();
             }
             else
             {

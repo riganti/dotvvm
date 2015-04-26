@@ -17,8 +17,8 @@
 				<rw:Button class="btn btn-block" Text="Select hotel" Click="{command: SelectedHotelChanged()}" />
 			</div>
 		</div>
-		<div Visible="{value: SelectedHotel != null}">
-			<h2 InnerText="{value: SelectedHotel.Name}" />
+		<div DataContext="{value: SelectedHotel}">
+			<h2 InnerText="{value: Name}" />
 			<p>Hotel has been selected.</p>
 		</div>
 	</div>

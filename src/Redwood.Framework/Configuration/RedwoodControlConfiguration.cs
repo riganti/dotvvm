@@ -9,19 +9,19 @@ namespace Redwood.Framework.Configuration
     public class RedwoodControlConfiguration
     {
 
-        [JsonProperty("tagPrefix")]
+        [JsonProperty("tagPrefix", Required = Required.Always)]
         public string TagPrefix { get; set; }
 
-        [JsonProperty("tagName")]
+        [JsonProperty("tagName", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string TagName { get; set; }
 
-        [JsonProperty("namespace")]
+        [JsonProperty("namespace", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Namespace { get; set; }
 
-        [JsonProperty("assembly")]
+        [JsonProperty("assembly", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Assembly { get; set; }
 
-        [JsonProperty("src")]
+        [JsonProperty("src", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string Src { get; set; }
 
 

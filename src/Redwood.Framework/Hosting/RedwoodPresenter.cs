@@ -5,8 +5,10 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using Microsoft.Owin;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Parser;
 using Redwood.Framework.ViewModel;
 using Redwood.Framework.Runtime;
@@ -96,13 +98,13 @@ namespace Redwood.Framework.Hosting
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 throw new RedwoodHttpException("Only GET and POST methods are supported!");
             }
-            var isPostBack = DetermineIsPostBack(context.OwinContext.Request.Method);
+            var isPostBack = DetermineIsPostBack(context.OwinContext);
             context.IsPostBack = isPostBack;
             context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
 
             // build the page view
             var page = RedwoodViewBuilder.BuildView(context);
-
+            
             // run the preinit phase in the page
             InvokePageLifeCycleEventRecursive(page, c => c.OnPreInit(context));
 
@@ -234,14 +236,14 @@ namespace Redwood.Framework.Hosting
             // render the output
             ViewModelSerializer.BuildViewModel(context, page);
             OutputRenderer.RenderPage(context, page);
-            if (!isPostBack)
+            if (!context.IsInPartialRenderingMode)
             {
                 // standard get
                 await OutputRenderer.WriteHtmlResponse(context);
             }
             else
             {
-                // postback
+                // postback or SPA content
                 ViewModelSerializer.AddPostBackUpdatedControls(context);
                 await OutputRenderer.WriteViewModelResponse(context, page);
             }
@@ -252,10 +254,26 @@ namespace Redwood.Framework.Hosting
             }
         }
 
-        public static bool DetermineIsPostBack(string httpMethod)
+        public static bool DetermineIsPostBack(IOwinContext context)
         {
-            return httpMethod == "POST";
+            return context.Request.Method == "POST";
         }
+
+        public static bool DetermineSpaRequest(IOwinContext context)
+        {
+            return !string.IsNullOrEmpty(context.Request.Headers[Constants.SpaContentPlaceHolderHeaderName]);
+        }
+
+        public static bool DeterminePartialRendering(IOwinContext context)
+        {
+            return DetermineIsPostBack(context) || DetermineSpaRequest(context);
+        }
+
+        public static string DetermineSpaContentPlaceHolderUniqueId(IOwinContext context)
+        {
+            return context.Request.Headers[Constants.SpaContentPlaceHolderHeaderName];
+        }
+
 
         /// <summary>
         /// Invokes the specified method on all controls in the page control tree.

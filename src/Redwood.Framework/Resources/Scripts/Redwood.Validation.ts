@@ -11,7 +11,7 @@ class RedwoodValidatorBase {
         return false;
     }
     public isEmpty(value: string): boolean {
-        return value == null || /^\s*$/.test(value);
+        return value == null || value.trim() == "";
     }
 }
 
@@ -77,12 +77,12 @@ class RedwoodValidation
         },
 
         // adds a CSS class when the element is not valid
-        addCssClass(element: any, errorMessage: string, options: any) {
+        addCssClass(element: HTMLElement, errorMessage: string, options: any) {
             var cssClass = (options && options.cssClass) ? options.cssClass : "field-validation-error";
             if (errorMessage) {
                 element.className += " " + cssClass;
             } else {
-                element.className = element.className.replace(new RegExp("\\b" + cssClass + "\\b", "g"), "");
+                element.className = element.className.split(' ').filter(c => c != cssClass).join(' ');
             }
         },
 
@@ -147,15 +147,15 @@ class RedwoodValidation
                 this.addValidationError(viewModel, validationError);
             } else {
                 // remove
-                validationError.errorMessage("");
                 this.removeValidationError(viewModel, validationError);
+                validationError.errorMessage("");
             }
         }
     }
 
     // clears validation errors
     public clearValidationErrors() {
-        var errors = [];
+        var errors = this.errors();
         for (var i = 0; i < errors.length; i++) {
             errors[i].errorMessage("");
         }
@@ -187,7 +187,8 @@ class RedwoodValidation
             // find the observable property
             var propertyPath = modelState[i].propertyPath;
             var observable = redwood.evaluateOnViewModel(validationTarget, propertyPath);
-            var parent = redwood.evaluateOnViewModel(context, propertyPath.substring(0, propertyPath.lastIndexOf(".")) || "$data");
+            var parentPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
+            var parent = parentPath ? redwood.evaluateOnViewModel(validationTarget, parentPath) : validationTarget;
             if (!ko.isObservable(observable) || !parent || !parent.$validationErrors) {
                 throw "Invalid validation path!";
             }
@@ -200,14 +201,14 @@ class RedwoodValidation
     }
 
     private addValidationError(viewModel: any, error: ValidationError) {
-        if (viewModel.$validationErrors.indexOf(error) < 0) {
-            viewModel.$validationErrors.push(error);
-        }
+        this.removeValidationError(viewModel, error);
+        viewModel.$validationErrors.push(error);
         this.errors.push(error);
     }
 
     private removeValidationError(viewModel: any, error: ValidationError) {
-        viewModel.$validationErrors.push(error);
+        var errorMessage = error.errorMessage();
+        viewModel.$validationErrors.remove(e => e.errorMessage() === errorMessage);
         this.errors.remove(error);
     }
 };
@@ -231,19 +232,22 @@ redwood.events.beforePostback.subscribe(args => {
         redwood.extensions.validation.validateViewModel(validationTarget);
         if (redwood.extensions.validation.errors().length > 0) {
             args.cancel = true;
+            args.clientValidationFailed = true;
         }
     }
 });
 
 redwood.events.afterPostback.subscribe(args => {
-    if (args.serverResponseObject.action === "successfulCommand") {
-        // merge validation rules from postback with those we already have (required when a new type appears in the view model)
-        redwood.extensions.validation.mergeValidationRules(args);
-        args.isHandled = true;
-    } else if (args.serverResponseObject.action === "validationErrors") {
-        // apply validation errors from server
-        redwood.extensions.validation.showValidationErrorsFromServer(args);
-        args.isHandled = true;
+    if (!args.wasInterrupted && args.serverResponseObject) {
+        if (args.serverResponseObject.action === "successfulCommand") {
+            // merge validation rules from postback with those we already have (required when a new type appears in the view model)
+            redwood.extensions.validation.mergeValidationRules(args);
+            args.isHandled = true;
+        } else if (args.serverResponseObject.action === "validationErrors") {
+            // apply validation errors from server
+            redwood.extensions.validation.showValidationErrorsFromServer(args);
+            args.isHandled = true;
+        }
     }
 });
 

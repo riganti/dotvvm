@@ -22,6 +22,7 @@
     <IISExpressUseClassicPipelineMode />
     <TargetFrameworkProfile />
     <TypeScriptToolsVersion>1.4</TypeScriptToolsVersion>
+    <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -129,6 +130,10 @@
     <None Include="Properties\PublishProfiles\CI.pubxml" />
     <Content Include="sample15.rwhtml" />
     <Content Include="sample16.rwhtml" />
+    <Content Include="sample17.rwhtml" />
+    <Content Include="sample17_b.rwhtml" />
+    <Content Include="sample17_master.rwhtml" />
+    <Content Include="sample18.rwhtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -160,6 +165,10 @@
     <Compile Include="ViewModels\Sample14ViewModel.cs" />
     <Compile Include="ViewModels\Sample13ViewModel.cs" />
     <Compile Include="ViewModels\Sample16ViewModel.cs" />
+    <Compile Include="ViewModels\Sample17ViewModel.cs" />
+    <Compile Include="ViewModels\Sample17ViewModel_A.cs" />
+    <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
+    <Compile Include="ViewModels\Sample18ViewModel.cs" />
     <Compile Include="ViewModels\Sample7ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />
     <Compile Include="ViewModels\Sample1ViewModel.cs" />

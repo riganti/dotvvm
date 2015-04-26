@@ -30,19 +30,19 @@ namespace Redwood.Framework.Configuration
         /// <summary>
         /// Gets the settings of the markup.
         /// </summary>
-        [JsonProperty("markup")]
+        [JsonProperty("markup", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public RedwoodMarkupConfiguration Markup { get; private set; }
 
         /// <summary>
         /// Gets the route table.
         /// </summary>
-        [JsonIgnore()]
+        [JsonIgnore]
         public RedwoodRouteTable RouteTable { get; private set; }
 
         /// <summary>
         /// Gets the configuration of resources.
         /// </summary>
-        [JsonProperty("resources")]
+        [JsonProperty("resources", DefaultValueHandling = DefaultValueHandling.Ignore)]
         [JsonConverter(typeof(ResourceRepositoryJsonConverter))]
         public RedwoodResourceRepository Resources { get; private set; }
 
@@ -55,16 +55,19 @@ namespace Redwood.Framework.Configuration
         /// <summary>
         /// Gets the runtime configuration.
         /// </summary>
-        [JsonProperty("runtime")]
+        [JsonProperty("runtime", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public RedwoodRuntimeConfiguration Runtime { get; private set; }
 
         /// <summary>
         /// Gets or sets the default culture.
         /// </summary>
-        [JsonProperty("defaultCulture")]
+        [JsonProperty("defaultCulture", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public string DefaultCulture { get; set; }
 
-        [JsonProperty("debug")]
+        /// <summary>
+        /// Gets or sets whether the application should run in debug mode.
+        /// </summary>
+        [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool Debug { get; set; }
 
         /// <summary>
@@ -72,6 +75,13 @@ namespace Redwood.Framework.Configuration
         /// </summary>
         [JsonIgnore]
         public ServiceLocator ServiceLocator { get; private set; }
+
+        /// <summary>
+        /// Gets a virtual directory in which the application runs (e.g. "/myApp").
+        /// </summary>
+        [JsonIgnore]
+        public string VirtualDirectory { get; internal set; }
+
 
 
 

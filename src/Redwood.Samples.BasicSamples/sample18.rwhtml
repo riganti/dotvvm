@@ -1,0 +1,32 @@
+﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample18ViewModel, Redwood.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from Redwood!</title>
+	<style>
+	.invalid {
+		color: red;
+	}
+	</style>
+	<rw:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+	<div class="container">
+		<h1>Nested validation</h1>
+		
+		<p>Title: <rw:TextBox Text="{value: Child.Text}" /></p>
+		<p><rw:Button Text="Create" Click="{command: Test()}" /></p>
+		
+		<p>
+			<rw:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="DisplayErrorMessage" />
+			<rw:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="AddCssClass" InvalidCssClass="invalid" />
+			<rw:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
+		</p>
+		<p>&nbsp;</p>
+		<rw:ValidationSummary />
+	</div>
+	
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>

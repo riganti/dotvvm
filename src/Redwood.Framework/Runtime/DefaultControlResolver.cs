@@ -20,7 +20,6 @@ namespace Redwood.Framework.Runtime
 
         private readonly RedwoodConfiguration configuration;
         private readonly IControlBuilderFactory controlBuilderFactory;
-        private readonly IMarkupFileLoader markupFileLoader;
 
         private static ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>();
         private static ConcurrentDictionary<Type, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<Type, ControlResolverMetadata>();
@@ -35,7 +34,6 @@ namespace Redwood.Framework.Runtime
         {
             this.configuration = configuration;
             this.controlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
-            this.markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
 
             if (!isInitialized)
             {
@@ -82,7 +80,7 @@ namespace Redwood.Framework.Runtime
             var searchKey = GetSearchKey(tagPrefix, tagName);
             activationParameters = null;
             var controlType = cachedTagMappings.GetOrAdd(searchKey, _ => FindControlMetadata(tagPrefix, tagName));
-            var metadata = ResolveControl(controlType.Type, controlType.ControlBuilderType);
+            var metadata = ResolveControl(controlType);
             return metadata;
         }
 
@@ -94,9 +92,14 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Resolves the control metadata for specified type.
         /// </summary>
-        public ControlResolverMetadata ResolveControl(Type type, Type controlBuilderType = null)
+        public ControlResolverMetadata ResolveControl(ControlType controlType)
         {
-            return cachedMetadata.GetOrAdd(type, _ => BuildControlMetadata(type, controlBuilderType));
+            return cachedMetadata.GetOrAdd(controlType.Type, _ => BuildControlMetadata(controlType));
+        }
+
+        public ControlResolverMetadata ResolveControl(Type controlType)
+        {
+            return ResolveControl(new ControlType(controlType));
         }
 
         /// <summary>
@@ -185,27 +188,27 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         private ControlType FindMarkupControl(string file)
         {
-            var markupFile = markupFileLoader.GetMarkup(configuration, file);
-            var controlBuilder = controlBuilderFactory.GetControlBuilder(markupFile);
-            return new ControlType(controlBuilder.BuildControl().GetType(), controlBuilder.GetType());
+            var controlBuilder = controlBuilderFactory.GetControlBuilder(file);
+            return new ControlType(controlBuilder.BuildControl(controlBuilderFactory).GetType(), controlBuilder.GetType(), file);
         }
 
         /// <summary>
         /// Gets the control metadata.
         /// </summary>
-        private ControlResolverMetadata BuildControlMetadata(Type controlType, Type controlBuilderType)
+        private ControlResolverMetadata BuildControlMetadata(ControlType type)
         {
-            var attribute = controlType.GetCustomAttribute<ControlMarkupOptionsAttribute>();
+            var attribute = type.Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
 
             var metadata = new ControlResolverMetadata()
             {
-                Name = controlType.Name,
-                Namespace = controlType.Namespace,
-                HasHtmlAttributesCollection = typeof(IControlWithHtmlAttributes).IsAssignableFrom(controlType),
-                Type = controlType,
-                ControlBuilderType = controlBuilderType,
-                Properties = GetControlProperties(controlType),
-                IsContentAllowed = attribute.AllowContent
+                Name = type.Type.Name,
+                Namespace = type.Type.Namespace,
+                HasHtmlAttributesCollection = typeof(IControlWithHtmlAttributes).IsAssignableFrom(type.Type),
+                Type = type.Type,
+                ControlBuilderType = type.ControlBuilderType,
+                Properties = GetControlProperties(type.Type),
+                IsContentAllowed = attribute.AllowContent,
+                VirtualPath = type.VirtualPath
             };
             return metadata;
         }

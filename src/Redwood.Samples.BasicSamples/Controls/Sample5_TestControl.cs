@@ -34,5 +34,18 @@ namespace Redwood.Samples.BasicSamples.Controls
         {
             get { return true; }
         }
+
+
+
+
+        public void Up()
+        {
+            Value++;
+        }
+
+        public void Down()
+        {
+            Value--;
+        }
     }
 }

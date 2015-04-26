@@ -79,6 +79,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Binding\AttachedPropertyAttribute.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
@@ -112,6 +113,8 @@
     <Compile Include="Controls\MultiHtmlWriter.cs" />
     <Compile Include="Controls\RenderMode.cs" />
     <Compile Include="Controls\RenderSettings.cs" />
+    <Compile Include="Controls\RouteLink.cs" />
+    <Compile Include="Controls\SpaContentPlaceHolder.cs" />
     <Compile Include="Controls\TextBoxType.cs" />
     <Compile Include="Controls\UpdateProgress.cs" />
     <Compile Include="Controls\Validate.cs" />

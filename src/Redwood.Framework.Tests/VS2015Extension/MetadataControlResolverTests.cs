@@ -68,6 +68,29 @@ namespace Redwood.Framework.Tests.VS2015Extension
         }
 
         [TestMethod]
+        public void MetadataControlResolver_ReloadAttachedProperties()
+        {
+            TestInit();
+
+            var resolver = new MetadataControlResolver();
+            var attachedProperties = resolver.GetAttachedPropertyNames(context);
+
+            Assert.IsTrue(attachedProperties.Any(c => c.DisplayText == "RenderSettings.Mode"));
+        }
+
+        [TestMethod]
+        public void MetadataControlResolver_AttachedPropertyEnumValues()
+        {
+            TestInit();
+
+            var resolver = new MetadataControlResolver();
+            var values = resolver.GetControlAttributeValues(context, new List<string>() { "html" }, "RenderSettings.Mode");
+
+            Assert.IsTrue(values.Any(v => v.DisplayText == "Server"));
+            Assert.IsTrue(values.Any(v => v.DisplayText == "Client"));
+        }
+
+        [TestMethod]
         public void MetadataControlResolver_ElementContext_Control()
         {
             TestInit();
@@ -81,6 +104,25 @@ namespace Redwood.Framework.Tests.VS2015Extension
 
             Assert.IsNotNull(control);
             Assert.IsNull(property);
+        }
+
+        [TestMethod]
+        public void MetadataControlResolver_ElementContext_HtmlGenericControl()
+        {
+            TestInit();
+
+            var resolver = new MetadataControlResolver();
+            var allControls = resolver.ReloadAllControls(context);
+
+            ControlMetadata control;
+            ControlPropertyMetadata property;
+            resolver.GetElementContext(new List<string>() { "html" }, out control, out property);
+
+            Assert.IsNotNull(control);
+            Assert.IsNull(property);
+
+            Assert.IsTrue(control.Properties.Any(p => p.Name == "Visible"));
+            Assert.IsTrue(control.Properties.Any(p => p.Name == "DataContext"));
         }
 
         [TestMethod]
@@ -111,8 +153,11 @@ namespace Redwood.Framework.Tests.VS2015Extension
             ControlPropertyMetadata property;
             resolver.GetElementContext(new List<string>() { "html", "body", "rw:Repeater", "WrapperTagName" }, out control, out property);
 
-            Assert.IsNull(control);
+            Assert.IsNotNull(control);
             Assert.IsNull(property);        // the property cannot be used as element
         }
+
+        
+
     }
 }

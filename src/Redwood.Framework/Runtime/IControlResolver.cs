@@ -16,7 +16,13 @@ namespace Redwood.Framework.Runtime
         /// <summary>
         /// Resolves the control metadata for specified type.
         /// </summary>
-        ControlResolverMetadata ResolveControl(Type type, Type controlBuilderType = null);
+        ControlResolverMetadata ResolveControl(ControlType type);
+
+        /// <summary>
+        /// Resolves the control metadata for specified type.
+        /// </summary>
+        ControlResolverMetadata ResolveControl(Type controlType);
+
 
         /// <summary>
         /// Resolves the binding type.

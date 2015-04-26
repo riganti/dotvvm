@@ -18,9 +18,7 @@
 		
 		<fieldset>
 			<legend>Add Task</legend>
-			<!-- this is comment and the next is CDATA section -->
-			<![CDATA[You can try to include special chars, like ' " &]]>
-
+			
 			<p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /></p>
 			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>
 		</fieldset>

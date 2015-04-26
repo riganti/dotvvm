@@ -51,18 +51,18 @@ namespace Redwood.Framework.Controls
 
         protected internal override void OnLoad(RedwoodRequestContext context)
         {
-            DataBind();
+            DataBind(context);
             base.OnLoad(context);
         }
 
         protected internal override void OnPreRender(RedwoodRequestContext context)
         {
-            DataBind();     // TODO: support for observable collection
+            DataBind(context);     // TODO: support for observable collection
             base.OnPreRender(context);
         }
 
 
-        private void DataBind()
+        private void DataBind(RedwoodRequestContext context)
         {
             Children.Clear();
 
@@ -88,7 +88,7 @@ namespace Redwood.Framework.Controls
             if (dataSource != null)
             {
                 // create header row
-                CreateHeaderRow(sortCommandPath);
+                CreateHeaderRow(context, sortCommandPath);
 
                 foreach (var item in GetIEnumerableFromDataSource(dataSource))
                 {
@@ -97,14 +97,14 @@ namespace Redwood.Framework.Controls
                     placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
                     Children.Add(placeholder);
 
-                    CreateRow(placeholder);
+                    CreateRow(context, placeholder);
 
                     index++;
                 }
             }
         }
 
-        private void CreateHeaderRow(string sortCommandPath)
+        private void CreateHeaderRow(RedwoodRequestContext context, string sortCommandPath)
         {
             var headerRow = new HtmlGenericControl("tr");
             Children.Add(headerRow);
@@ -114,7 +114,7 @@ namespace Redwood.Framework.Controls
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
 
-                column.CreateHeaderControls(this, sortCommandPath, cell);
+                column.CreateHeaderControls(context, this, sortCommandPath, cell);
             }
         }
 
@@ -139,7 +139,7 @@ namespace Redwood.Framework.Controls
             }
         }
 
-        private void CreateRow(DataItemContainer placeholder)
+        private void CreateRow(RedwoodRequestContext context, DataItemContainer placeholder)
         {
             var row = new HtmlGenericControl("tr");
 
@@ -158,7 +158,7 @@ namespace Redwood.Framework.Controls
                 var cell = new HtmlGenericControl("td");
                 SetCellAttributes(column, cell, false);
                 row.Children.Add(cell);
-                column.CreateControls(cell);
+                column.CreateControls(context, cell);
             }
         }
 
@@ -197,7 +197,7 @@ namespace Redwood.Framework.Controls
                 var placeholder = new DataItemContainer { DataContext = null };
                 Children.Add(placeholder);
 
-                CreateRow(placeholder);
+                CreateRow(context.RequestContext, placeholder);
 
                 context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[$index]");
                 placeholder.Render(writer, context);

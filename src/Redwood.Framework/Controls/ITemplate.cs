@@ -1,3 +1,5 @@
+using Redwood.Framework.Hosting;
+
 namespace Redwood.Framework.Controls
 {
     /// <summary>
@@ -9,7 +11,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Builds the content of the template into the specified container.
         /// </summary>
-        void BuildContent(RedwoodControl container);
+        void BuildContent(RedwoodRequestContext context, RedwoodControl container);
 
     }
 }

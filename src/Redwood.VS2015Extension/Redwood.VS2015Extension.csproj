@@ -101,6 +101,7 @@
       <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.Workspaces.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="Microsoft.VisualStudio.CoreUtility, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0\Microsoft.VisualStudio.CoreUtility.dll</HintPath>
@@ -184,6 +185,7 @@
       <HintPath>..\packages\Microsoft.Composition.1.0.27\lib\portable-net45+win8+wp8+wpa81\System.Composition.TypedParts.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Reflection.Metadata, Version=1.0.18.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Reflection.Metadata.1.0.18-beta\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
       <Private>True</Private>
@@ -193,10 +195,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachedValue.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\ClassificationColorManager.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\ClassificationStyle.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlBindingBraceDefinition.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlBindingContentDefinition.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassificationTypes.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassifier.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlClassifierProvider.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\VisualStudioTheme.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Classification\VisualStudioThemeManager.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\BaseCommandTarget.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\CompletionComparer.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\CompletionRefreshHandler.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\CustomCompletionSet.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\FileChangeTracker.cs" />
@@ -207,6 +218,8 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtmlCompletionSourceProvider.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtmlFormatCommandHandler.cs" />
+    <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\AttachedPropertyMetadata.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\BindingNameCompletionProviderBase.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\BindingValueCompletionProviderBase.cs" />
     <Compile Include="RwHtmlEditorExtensions\Completions\RwHtml\Base\CompletionHelper.cs" />

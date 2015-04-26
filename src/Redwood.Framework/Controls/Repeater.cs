@@ -51,7 +51,7 @@ namespace Redwood.Framework.Controls
         /// </summary>
         protected internal override void OnLoad(RedwoodRequestContext context)
         {
-            DataBind();
+            DataBind(context);
             base.OnLoad(context);
         }
 
@@ -60,14 +60,14 @@ namespace Redwood.Framework.Controls
         /// </summary>
         protected internal override void OnPreRender(RedwoodRequestContext context)
         {
-            DataBind();     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
+            DataBind(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
             base.OnPreRender(context);
         }
 
         /// <summary>
         /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
         /// </summary>
-        private void DataBind()
+        private void DataBind(RedwoodRequestContext context)
         {
             Children.Clear();
 
@@ -83,7 +83,7 @@ namespace Redwood.Framework.Controls
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
                     Children.Add(placeholder);
-                    ItemTemplate.BuildContent(placeholder);
+                    ItemTemplate.BuildContent(context, placeholder);
 
                     index++;
                 }
@@ -130,7 +130,7 @@ namespace Redwood.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
                 Children.Add(placeholder);
-                ItemTemplate.BuildContent(placeholder);
+                ItemTemplate.BuildContent(context.RequestContext, placeholder);
 
                 context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[$index]");
                 placeholder.Render(writer, context);

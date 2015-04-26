@@ -65,8 +65,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             var innerElement = (RwHtmlElementNode)((RwHtmlElementNode)nodes[1]).Content[1];
             Assert.AreEqual(1, innerElement.Attributes.Count);
-            Assert.AreEqual("href", innerElement.Attributes[0].Name);
-            Assert.IsNull(innerElement.Attributes[0].Prefix);
+            Assert.AreEqual("href", innerElement.Attributes[0].AttributeName);
+            Assert.IsNull(innerElement.Attributes[0].AttributePrefix);
             Assert.AreEqual("test of a test", innerElement.Attributes[0].Literal.Value);
         }
 
@@ -79,8 +79,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             var innerElement = (RwHtmlElementNode)((RwHtmlElementNode)nodes[1]).Content[1];
             Assert.AreEqual(1, innerElement.Attributes.Count);
-            Assert.AreEqual("href", innerElement.Attributes[0].Name);
-            Assert.IsNull(innerElement.Attributes[0].Prefix);
+            Assert.AreEqual("href", innerElement.Attributes[0].AttributeName);
+            Assert.IsNull(innerElement.Attributes[0].AttributePrefix);
             Assert.AreEqual("test of a test", innerElement.Attributes[0].Literal.Value);
         }
 
@@ -94,8 +94,8 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             var innerElement = (RwHtmlElementNode)((RwHtmlElementNode)nodes[1]).Content[1];
             Assert.AreEqual(1, innerElement.Attributes.Count);
-            Assert.AreEqual("href", innerElement.Attributes[0].Name);
-            Assert.IsNull(innerElement.Attributes[0].Prefix);
+            Assert.AreEqual("href", innerElement.Attributes[0].AttributeName);
+            Assert.IsNull(innerElement.Attributes[0].AttributePrefix);
             Assert.AreEqual("test", innerElement.Attributes[0].Literal.Value);
         }
 
@@ -140,7 +140,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             Assert.AreEqual("a", ((RwHtmlElementNode)nodes[1]).FullTagName);
             Assert.AreEqual(0, ((RwHtmlElementNode)nodes[1]).Content.Count);
 
-            Assert.AreEqual("href", ((RwHtmlElementNode)nodes[1]).Attributes[0].Name);
+            Assert.AreEqual("href", ((RwHtmlElementNode)nodes[1]).Attributes[0].AttributeName);
             Assert.AreEqual("value", ((RwHtmlBindingNode)((RwHtmlElementNode)nodes[1]).Attributes[0].Literal).Name);
             Assert.AreEqual("test", ((RwHtmlElementNode)nodes[1]).Attributes[0].Literal.Value);
         }
@@ -160,7 +160,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             Assert.AreEqual("a", ((RwHtmlElementNode)nodes[1]).FullTagName);
             Assert.AreEqual(0, ((RwHtmlElementNode)nodes[1]).Content.Count);
 
-            Assert.AreEqual("href", ((RwHtmlElementNode)nodes[1]).Attributes[0].Name);
+            Assert.AreEqual("href", ((RwHtmlElementNode)nodes[1]).Attributes[0].AttributeName);
             Assert.AreEqual("value", ((RwHtmlBindingNode)((RwHtmlElementNode)nodes[1]).Attributes[0].Literal).Name);
             Assert.AreEqual("test", ((RwHtmlElementNode)nodes[1]).Attributes[0].Literal.Value);
         }

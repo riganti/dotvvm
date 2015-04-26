@@ -13,6 +13,7 @@ namespace Redwood.Framework.Runtime.Compilation
         public string Name { get; set; }
 
         public int ControlIndex { get; set; }
+        
 
         public EmitterMethodInfo()
         {

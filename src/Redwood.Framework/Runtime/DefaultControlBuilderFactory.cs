@@ -14,26 +14,32 @@ namespace Redwood.Framework.Runtime
     /// </summary>
     public class DefaultControlBuilderFactory : IControlBuilderFactory
     {
-        public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
+        private RedwoodConfiguration configuration;
+        private IMarkupFileLoader markupFileLoader;
 
+        public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
 
         private ConcurrentDictionary<MarkupFile, IControlBuilder> controlBuilders = new ConcurrentDictionary<MarkupFile, IControlBuilder>();
 
 
         public DefaultControlBuilderFactory(RedwoodConfiguration configuration)
         {
+            this.configuration = configuration;
+
             ViewCompilerFactory = () => configuration.ServiceLocator.GetService<IViewCompiler>();
+            markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>(); 
         }
 
 
         /// <summary>
         /// Gets the control builder.
         /// </summary>
-        public IControlBuilder GetControlBuilder(MarkupFile markupFile)
+        public IControlBuilder GetControlBuilder(string virtualPath)
         {
+            var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath);
             return controlBuilders.GetOrAdd(markupFile, CreateControlBuilder);
         }
-
+        
         /// <summary>
         /// Creates the control builder.
         /// </summary>
