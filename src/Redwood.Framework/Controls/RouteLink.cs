@@ -45,8 +45,7 @@ namespace Redwood.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                writer.AddAttribute("href", "#");
-                writer.AddAttribute("onclick", GenerateRouteLink(context));
+                writer.AddKnockoutDataBind("attr", "{ href: '#!/' + " + GenerateRouteLink(context) + "}");
             }
             else
             {
@@ -112,13 +111,11 @@ namespace Redwood.Framework.Controls
 
             // generate the function call
             var sb = new StringBuilder();
-            sb.Append("redwood.navigate(this, ");
-            sb.Append(JsonConvert.SerializeObject(context.CurrentPageArea));
-            sb.Append(",");
+            sb.Append("redwood.buildRouteUrl(");
             sb.Append(JsonConvert.SerializeObject(route.Url));
-            sb.Append(", function(vm) { return { ");
+            sb.Append(", {");
             sb.Append(string.Join(", ", parameters.Select(TranslateRouteParameter)));
-            sb.Append("}; });return false;");
+            sb.Append("})");
             return sb.ToString();
         }
 
@@ -130,7 +127,7 @@ namespace Redwood.Framework.Controls
                 EnsureValidBindingType(param.Value as BindingExpression);
 
                 var binding = param.Value as ValueBindingExpression;
-                expression = "vm." + binding.TranslateToClientScript(this, null); // TODO: pass a special RedwoodProperty for dynamic parameters on this place. The function might need the value in the future.
+                expression = binding.TranslateToClientScript(this, null); // TODO: pass a special RedwoodProperty for dynamic parameters on this place. The function might need the value in the future.
             }
             else
             {

@@ -27,8 +27,16 @@ class Redwood {
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
 
-        if (document.location.hash.indexOf("#/") === 0) {
-            this.navigateCore(viewModelName, document.location.hash.substring(1));
+        // handle SPA
+        if (document.location.hash.indexOf("#!/") === 0) {
+            this.navigateCore(viewModelName, document.location.hash.substring(2));
+        }
+        if (this.getSpaPlaceHolder()) {
+            this.attachEvent(window, "hashchange",() => {
+                if (document.location.hash.indexOf("#!/") === 0) {
+                    this.navigateCore(viewModelName, document.location.hash.substring(2));
+                }
+            });
         }
 
         // persist the viewmodel in the hidden field so the Back button will work correctly
@@ -149,15 +157,14 @@ class Redwood {
         return result;
     }
 
-    public navigate(sender: HTMLElement, viewModelName: string, routePath: string, parametersProvider: (viewModel: any) => any) {
-        var viewModel = ko.dataFor(sender);
-
-        // compose the final URL and navigate
-        var url = this.addLeadingSlash(this.buildRouteUrl(routePath, parametersProvider(viewModel)));
-
-        this.navigateCore(viewModelName, url);
+    private getSpaPlaceHolder() {
+        var elements = document.getElementsByName("__rw_SpaContentPlaceHolder");
+        if (elements.length == 1) {
+            return elements[0];
+        }
+        return null;
     }
-
+    
     private navigateCore(viewModelName: string, url: string) {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
@@ -175,12 +182,11 @@ class Redwood {
         var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
         
         // find SPA placeholder
-        var spaPlaceHolder = document.getElementsByName("__rw_SpaContentPlaceHolder")[0];
+        var spaPlaceHolder = this.getSpaPlaceHolder();
         if (!spaPlaceHolder) {
             document.location.href = fullUrl;
             return;
         }
-        document.location.hash = url;
         
         // send the request
         var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-rw-spacontentplaceholder"].value;
