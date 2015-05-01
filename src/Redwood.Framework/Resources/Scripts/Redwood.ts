@@ -22,7 +22,7 @@ class Redwood {
         this.culture = culture;
         this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__rw_viewmodel_" + viewModelName)).value);
         this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
-
+        
         var viewModel = this.viewModels[viewModelName].viewModel;
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
@@ -108,6 +108,7 @@ class Redwood {
 
             var resultObject = JSON.parse(result.responseText);
             if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                // TODO: patch (~deserialize) it to ko.observable viewModel
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
@@ -164,7 +165,7 @@ class Redwood {
         }
         return null;
     }
-    
+
     private navigateCore(viewModelName: string, url: string) {
         var viewModel = this.viewModels[viewModelName].viewModel;
 
@@ -263,7 +264,8 @@ class Redwood {
             return patch;
         else if (typeof source == "object" && typeof patch == "object") {
             for (var p in patch) {
-                if (patch[p] == null) delete source[p];
+                if (patch[p] == null) source[p] = null;
+                else if (source[p] == null) source[p] = patch[p];
                 else source[p] = this.patch(source[p], patch[p]);
             }
         }

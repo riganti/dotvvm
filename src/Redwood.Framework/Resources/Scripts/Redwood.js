@@ -101,6 +101,7 @@ var Redwood = (function () {
             }
             var resultObject = JSON.parse(result.responseText);
             if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                // TODO: patch (~deserialize) it to ko.observable viewModel
                 resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
             }
             var isSuccess = false;
@@ -240,7 +241,9 @@ var Redwood = (function () {
         else if (typeof source == "object" && typeof patch == "object") {
             for (var p in patch) {
                 if (patch[p] == null)
-                    delete source[p];
+                    source[p] = null;
+                else if (source[p] == null)
+                    source[p] = patch[p];
                 else
                     source[p] = this.patch(source[p], patch[p]);
             }
