@@ -112,7 +112,7 @@ class Redwood {
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
-            this.loadResourceList(resultObject.resources,() => {
+            this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand") {
                     // remove updated controls
@@ -169,11 +169,39 @@ class Redwood {
         else {
             this.resourceLoadCallback = callback;
 
-            html += "<script>setTimeout(redwood.resourceLoadCallback,4);redwood.resourceLoadCallback=null</script>";
-
-            // TODO: make this working
-            document.body.innerHTML += html;
+            var tmp = document.createElement("div");
+            tmp.innerHTML = html;
+            var elements: HTMLElement[] = [];
+            for (var i = 0; i < tmp.children.length; i++) {
+                elements.push(<HTMLElement>tmp.children.item(i));
+            }
+            this.loadResourceElements(elements, 0, callback);
         }
+    }
+
+    private loadResourceElements(elements: HTMLElement[], offset: number, callback: () => void) {
+        if (offset >= elements.length) {
+            callback();
+            return;
+        }
+        var el = elements[offset];
+        if (el.tagName.toLowerCase() == "script") {
+            // do some hacks to load script
+            var script = document.createElement("script");
+            script.src = (<HTMLScriptElement> el).src;
+            script.type = (<HTMLScriptElement> el).type;
+            script.text = (<HTMLScriptElement> el).text;
+            el = script;
+        }
+        else if (el.tagName.toLowerCase() == "link") {
+            var link = document.createElement("link");
+            link.href = (<HTMLLinkElement>el).href;
+            link.rel = (<HTMLLinkElement>el).rel;
+            link.type = (<HTMLLinkElement>el).type;
+            el = link;
+        }
+        el.onload = () => this.loadResourceElements(elements, offset + 1, callback);
+        document.head.appendChild(el);
     }
 
     public evaluateOnViewModel(context, expression) {
@@ -224,7 +252,7 @@ class Redwood {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             var resultObject = JSON.parse(result.responseText);
-            this.loadResourceList(resultObject.resources,() => {
+            this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
                     // remove updated controls

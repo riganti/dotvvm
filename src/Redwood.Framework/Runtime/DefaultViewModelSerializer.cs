@@ -94,7 +94,6 @@ namespace Redwood.Framework.Runtime
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            // TODO: what?
             result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
             result["virtualDirectory"] = context.Configuration.VirtualDirectory;
             if (context.IsPostBack || context.IsSpaRequest)

@@ -151,10 +151,39 @@ var Redwood = (function () {
         }
         else {
             this.resourceLoadCallback = callback;
-            html += "<script>setTimeout(redwood.resourceLoadCallback,4);redwood.resourceLoadCallback=null</script>";
-            // TODO: make this working
-            document.body.innerHTML += html;
+            var tmp = document.createElement("div");
+            tmp.innerHTML = html;
+            var elements = [];
+            for (var i = 0; i < tmp.children.length; i++) {
+                elements.push(tmp.children.item(i));
+            }
+            this.loadResourceElements(elements, 0, callback);
         }
+    };
+    Redwood.prototype.loadResourceElements = function (elements, offset, callback) {
+        var _this = this;
+        if (offset >= elements.length) {
+            callback();
+            return;
+        }
+        var el = elements[offset];
+        if (el.tagName.toLowerCase() == "script") {
+            // do some hacks to load script
+            var script = document.createElement("script");
+            script.src = el.src;
+            script.type = el.type;
+            script.text = el.text;
+            el = script;
+        }
+        else if (el.tagName.toLowerCase() == "link") {
+            var link = document.createElement("link");
+            link.href = el.href;
+            link.rel = el.rel;
+            link.type = el.type;
+            el = link;
+        }
+        el.onload = function () { return _this.loadResourceElements(elements, offset + 1, callback); };
+        document.head.appendChild(el);
     };
     Redwood.prototype.evaluateOnViewModel = function (context, expression) {
         var result = eval("(function (c) { return c." + expression + "; })")(context);
@@ -254,7 +283,9 @@ var Redwood = (function () {
     Redwood.prototype.patch = function (source, patch) {
         var _this = this;
         if (source instanceof Array && patch instanceof Array) {
-            return patch.map(function (val, i) { return _this.patch(source[i], val); });
+            return patch.map(function (val, i) {
+                return _this.patch(source[i], val);
+            });
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
