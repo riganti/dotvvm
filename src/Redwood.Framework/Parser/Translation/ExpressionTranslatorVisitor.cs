@@ -11,12 +11,18 @@ namespace Redwood.Framework.Parser.Translation
 {
     public class ExpressionTranslatorVisitor : CSharpSyntaxVisitor<string>
     {
-        public bool NullPropagating { get; set; } = true;
+        public bool UseNullPropagation { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the syntax contains an expression that prevents us to pass the knockout observable as a result.
         /// </summary>
         public bool IsExpression { get; private set; }
+
+
+        public ExpressionTranslatorVisitor()
+        {
+            UseNullPropagation = true;
+        }
 
         /// <summary>
         /// Visits the prefix unary expression.
@@ -95,7 +101,7 @@ namespace Redwood.Framework.Parser.Translation
             // null coalescing operator
             if (node.OperatorToken.IsKind(SyntaxKind.QuestionQuestionToken))
             {
-                return Visit(node.Left) + " != null ? " + Visit(node.Left) + " : " + Visit(node.Right);
+                return Visit(node.Left) + " !== null ? " + Visit(node.Left) + " : " + Visit(node.Right);
             }
 
             throw new ParserException(string.Format(Parser_RwHtml.Binding_UnsupportedOperator, node.OperatorToken.Text));
@@ -149,10 +155,14 @@ namespace Redwood.Framework.Parser.Translation
         /// </summary>
         public override string VisitMemberAccessExpression(MemberAccessExpressionSyntax node)
         {
-            if (NullPropagating)
+            if (UseNullPropagation)
+            {
                 return "(" + Visit(node.Expression) + "|| {})." + Visit(node.Name);
+            }
             else
+            {
                 return Visit(node.Expression) + "." + Visit(node.Name);
+            }
         }
 
         /// <summary>
