@@ -54,51 +54,51 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp.Desktop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.CSharp.Desktop.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.CSharp.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.Workspaces.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.Workspaces.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.CSharp.Workspaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.CSharp.Workspaces.Desktop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.Workspaces.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.CSharp.Workspaces.Desktop.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.Workspaces.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.CSharp.Workspaces.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.Desktop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.Desktop.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.VisualBasic, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.VisualBasic.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.VisualBasic.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.VisualBasic.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.VisualBasic.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.VisualBasic.Desktop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.VisualBasic.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.VisualBasic.Desktop.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.VisualBasic.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.VisualBasic.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.VisualBasic.Workspaces.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.VisualBasic.Workspaces.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.VisualBasic.Workspaces.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.VisualBasic.Workspaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.VisualBasic.Workspaces.Desktop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.VisualBasic.Workspaces.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.VisualBasic.Workspaces.Desktop.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.VisualBasic.Workspaces.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.VisualBasic.Workspaces.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.Workspaces, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.Workspaces.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CodeAnalysis.Workspaces.Desktop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.0.0-rc1\lib\net45\Microsoft.CodeAnalysis.Workspaces.Desktop.dll</HintPath>
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Workspaces.Common.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.Workspaces.Desktop.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
@@ -115,7 +115,7 @@
       <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0\Microsoft.VisualStudio.Language.Intellisense.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.LanguageServices, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.VisualStudio.LanguageServices.1.0.0-rc1\lib\net45\Microsoft.VisualStudio.LanguageServices.dll</HintPath>
+      <HintPath>..\packages\Microsoft.VisualStudio.LanguageServices.1.0.0-rc2\lib\net45\Microsoft.VisualStudio.LanguageServices.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.VisualStudio.OLE.Interop, Version=7.1.40304.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -153,9 +153,9 @@
       <EmbedInteropTypes>True</EmbedInteropTypes>
       <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0\Microsoft.VisualStudio.TextManager.Interop.12.0.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="PresentationCore" />
     <Reference Include="PresentationFramework" />
@@ -252,46 +252,47 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Content Include="Packages\Redwood.0.5.0-pre.nupkg">
+    <Content Include="Packages\Redwood\Redwood.0.6.0-pre.nuspec" />
+    <Content Include="Packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\Redwood\Redwood.0.5.0-pre.nuspec" />
-    <Content Include="Packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1.nupkg">
+    <Content Include="Packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\Microsoft.CodeAnalysis.Common.1.0.0-rc1.nupkg">
+    <Content Include="Packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc1.nupkg">
+    <Content Include="Packages\Microsoft.Owin.3.0.1.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\Microsoft.Owin.3.0.0.nupkg">
+    <Content Include="Packages\Microsoft.Owin.FileSystems.3.0.1.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\Microsoft.Owin.FileSystems.3.0.0.nupkg">
+    <Content Include="Packages\Microsoft.Owin.Host.SystemWeb.3.0.1.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\Microsoft.Owin.Host.SystemWeb.3.0.0.nupkg">
+    <Content Include="Packages\Microsoft.Owin.StaticFiles.3.0.1.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\Microsoft.Owin.StaticFiles.3.0.0.nupkg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
-    <Content Include="Packages\Newtonsoft.Json.6.0.6.nupkg">
+    <Content Include="Packages\Newtonsoft.Json.7.0.1-beta2.nupkg">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Packages\Owin.1.0.0.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <Content Include="Packages\Redwood.0.6.0-pre.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <None Include="Packages\Redwood\init.ps1" />
+    <None Include="Packages\Redwood\install.ps1" />
+    <None Include="Packages\Redwood\RedwoodModule.psm1" />
     <Content Include="Packages\System.Collections.Immutable.1.1.33-beta.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <Content Include="Packages\System.Reflection.Metadata.1.0.18-beta.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <None Include="Packages\Redwood\init.ps1" />
-    <None Include="Packages\Redwood\install.ps1" />
-    <None Include="Packages\Redwood\RedwoodModule.psm1" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -338,27 +339,26 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1\tools\analyzers\C#\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
-    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1\tools\analyzers\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
-    <PreBuildEvent>copy "$(SolutionDir)packages\Newtonsoft.Json.6.0.6\Newtonsoft.Json.6.0.6.nupkg" "$(ProjectDir)Packages"
+    <PreBuildEvent>copy "$(SolutionDir)packages\Newtonsoft.Json.7.0.1-beta2\Newtonsoft.Json.7.0.1-beta2.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\Owin.1.0\Owin.1.0.nupkg" "$(ProjectDir)Packages\Owin.1.0.0.nupkg"
-copy "$(SolutionDir)packages\Microsoft.Owin.3.0.0\Microsoft.Owin.3.0.0.nupkg" "$(ProjectDir)Packages"
-copy "$(SolutionDir)packages\Microsoft.Owin.FileSystems.3.0.0\Microsoft.Owin.FileSystems.3.0.0.nupkg" "$(ProjectDir)Packages"
-copy "$(SolutionDir)packages\Microsoft.Owin.StaticFiles.3.0.0\Microsoft.Owin.StaticFiles.3.0.0.nupkg" "$(ProjectDir)Packages"
-copy "$(SolutionDir)packages\Microsoft.Owin.Host.SystemWeb.3.0.0\Microsoft.Owin.Host.SystemWeb.3.0.0.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Microsoft.Owin.3.0.1\Microsoft.Owin.3.0.1.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Microsoft.Owin.FileSystems.3.0.1\Microsoft.Owin.FileSystems.3.0.1.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Microsoft.Owin.StaticFiles.3.0.1\Microsoft.Owin.StaticFiles.3.0.1.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Microsoft.Owin.Host.SystemWeb.3.0.1\Microsoft.Owin.Host.SystemWeb.3.0.1.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\System.Collections.Immutable.1.1.33-beta\System.Collections.Immutable.1.1.33-beta.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\System.Reflection.Metadata.1.0.18-beta\System.Reflection.Metadata.1.0.18-beta.nupkg" "$(ProjectDir)Packages"
-copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc1.nupkg" "$(ProjectDir)Packages"
-copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0-rc1\Microsoft.CodeAnalysis.Common.1.0.0-rc1.nupkg" "$(ProjectDir)Packages"
-copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc1\Microsoft.CodeAnalysis.CSharp.1.0.0-rc1.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
 
-if exist "$(ProjectDir)Packages\Redwood.0.5.0-pre.nupkg" del "$(ProjectDir)Packages\Redwood.0.5.0-pre.nupkg"
-"$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\Redwood\Redwood.0.5.0-pre.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
+if exist "$(ProjectDir)Packages\Redwood.0.6.0-pre.nupkg" del "$(ProjectDir)Packages\Redwood.0.6.0-pre.nupkg"
+"$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\Redwood\Redwood.0.6.0-pre.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
