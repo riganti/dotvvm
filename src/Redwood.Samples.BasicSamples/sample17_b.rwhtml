@@ -35,4 +35,6 @@
 		</table>
 	</div>
 	<rw:RequiredResource Name="testCss" />
+	<rw:RequiredResource Name="testJs" />
+
 </rw:Content>

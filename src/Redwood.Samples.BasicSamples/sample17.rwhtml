@@ -3,7 +3,7 @@
 
 <rw:Content ContentPlaceHolderID="MainContent">
 
-	<p>Value: {{value: Value}}</p>
+	<p id="value">Value: {{value: Value}}</p>
 	<p>
 		<rw:Button Text="Increase" Click="{command: IncreaseValue()}"/>
 	</p>

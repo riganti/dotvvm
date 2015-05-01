@@ -36,6 +36,20 @@ let redwoodPath = "http://localhost:8628"
     click button
     count "table.table tr" 4
 
+"SPA Sample (17)" &&& fun _ ->
+    url (redwoodPath + "/Sample17/14")
+
+    click "input[value='Increase']"
+    "#value span" == "1"
+
+    click "#link1"
+    alert() == "javascript resource loaded!"
+    acceptAlert()
+    notDisplayed ".invisibleText"
+
+    click "#link0"
+    click (elementWithText "a" "Exit SPA")
+    on "/Sample1"
   
 start firefox
 run()

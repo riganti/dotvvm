@@ -10,8 +10,6 @@ class Redwood {
     private postBackCounter = 0;
     private resourceSigns: { [name: string]: boolean } = {}
 
-    private resourceLoadCallback: () => void;
-
     public extensions: any = {}; 
     public viewModels: any = {};
     public culture: string;
@@ -162,7 +160,6 @@ class Redwood {
     }
 
     private loadResourceList(resources: RenderedResourceList, callback: () => void) {
-        if (this.resourceLoadCallback) throw "Resource loading conflict";
         var html = "";
         for (var name in resources) {
             if (this.resourceSigns[name]) continue;
@@ -176,8 +173,6 @@ class Redwood {
             return;
         }
         else {
-            this.resourceLoadCallback = callback;
-
             var tmp = document.createElement("div");
             tmp.innerHTML = html;
             var elements: HTMLElement[] = [];

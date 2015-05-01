@@ -19,8 +19,8 @@
 			<label></label>
 
 			<ul>
-				<li><rw:RouteLink RouteName="Sample17" Param-Id="16" Text="Sample 1" /></li>
-				<li><rw:RouteLink RouteName="Sample17_B" Text="Sample 2 - Task List" /></li>
+				<li><rw:RouteLink RouteName="Sample17" Param-Id="16" Text="Sample 1" Id="link0" /></li>
+				<li><rw:RouteLink RouteName="Sample17_B" Text="Sample 2 - Task List" Id="link1" /></li>
 			</ul>
 
 		</fieldset>

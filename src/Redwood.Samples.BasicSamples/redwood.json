@@ -19,6 +19,9 @@
     "resources": {
         "stylesheets": {
             "testCss": { "url": "/Content/testResource.css" }
+        },
+        "scripts": {
+            "testJs": {"url": "/Scripts/testResource.js" }
         }
     }
 }

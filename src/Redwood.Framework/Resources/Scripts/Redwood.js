@@ -145,8 +145,6 @@ var Redwood = (function () {
         });
     };
     Redwood.prototype.loadResourceList = function (resources, callback) {
-        if (this.resourceLoadCallback)
-            throw "Resource loading conflict";
         var html = "";
         for (var name in resources) {
             if (this.resourceSigns[name])
@@ -159,7 +157,6 @@ var Redwood = (function () {
             return;
         }
         else {
-            this.resourceLoadCallback = callback;
             var tmp = document.createElement("div");
             tmp.innerHTML = html;
             var elements = [];
