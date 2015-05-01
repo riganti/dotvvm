@@ -41,7 +41,7 @@
 
 		<p>&nbsp;</p>
 		<p>Protected data in viewmodel: <strong>{{value: ReadOnlyData}}</strong></p>
-		<a href="#" onclick="redwood.viewModels.root.ReadOnlyData('hello');alert('done');return false;">Modify protected data using javascript</a>
+		<a href="#" onclick="redwood.viewModels.root.viewModel.ReadOnlyData('hello');return false;">Modify protected data using javascript</a>
 	</div>
 
 	<rw:RequiredResource Name="bootstrap" />
