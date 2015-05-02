@@ -15,13 +15,14 @@ namespace Redwood.Framework.Controls
         
         internal override void OnPreRenderComplete(RedwoodRequestContext context)
         {
+            EnsureControlHasId();
+
             if (Children.Count != 1 || !(Children[0] is Literal))
             {
                 throw new Exception("The <rw:InlineScript>...</rw:InlineScript> control can only contain text content!");
             }
 
             var script = ((Literal)Children[0]).Text;
-            if (string.IsNullOrEmpty(ID)) throw new Exception("you have to enter ID");
             context.ResourceManager.AddStartupScript("inlinescript_" + ID, script, Constants.RedwoodResourceName);
             
             base.OnPreRenderComplete(context);

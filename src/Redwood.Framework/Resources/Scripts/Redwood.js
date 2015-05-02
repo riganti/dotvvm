@@ -176,16 +176,22 @@ var Redwood = (function () {
         if (el.tagName.toLowerCase() == "script") {
             // do some hacks to load script
             var script = document.createElement("script");
-            script.src = el.src;
-            script.type = el.type;
-            script.text = el.text;
+            if (el.src)
+                script.src = el.src;
+            if (el.type)
+                script.type = el.type;
+            if (el.text)
+                script.text = el.text;
             el = script;
         }
         else if (el.tagName.toLowerCase() == "link") {
             var link = document.createElement("link");
-            link.href = el.href;
-            link.rel = el.rel;
-            link.type = el.type;
+            if (el.href)
+                link.href = el.href;
+            if (el.rel)
+                link.rel = el.rel;
+            if (el.type)
+                link.type = el.type;
             el = link;
         }
         el.onload = function () { return _this.loadResourceElements(elements, offset + 1, callback); };
@@ -289,7 +295,9 @@ var Redwood = (function () {
     Redwood.prototype.patch = function (source, patch) {
         var _this = this;
         if (source instanceof Array && patch instanceof Array) {
-            return patch.map(function (val, i) { return _this.patch(source[i], val); });
+            return patch.map(function (val, i) {
+                return _this.patch(source[i], val);
+            });
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;

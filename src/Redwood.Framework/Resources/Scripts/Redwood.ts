@@ -188,20 +188,20 @@ class Redwood {
             callback();
             return;
         }
-        var el = elements[offset];
+        var el = <any> elements[offset];
         if (el.tagName.toLowerCase() == "script") {
             // do some hacks to load script
             var script = document.createElement("script");
-            script.src = (<HTMLScriptElement> el).src;
-            script.type = (<HTMLScriptElement> el).type;
-            script.text = (<HTMLScriptElement> el).text;
+            if(el.src) script.src = el.src;
+            if(el.type) script.type = el.type;
+            if(el.text) script.text = el.text;
             el = script;
         }
         else if (el.tagName.toLowerCase() == "link") {
             var link = document.createElement("link");
-            link.href = (<HTMLLinkElement>el).href;
-            link.rel = (<HTMLLinkElement>el).rel;
-            link.type = (<HTMLLinkElement>el).type;
+            if(el.href) link.href = el.href;
+            if(el.rel) link.rel = el.rel;
+            if(el.type) link.type = el.type;
             el = link;
         }
         el.onload = () => this.loadResourceElements(elements, offset + 1, callback);
