@@ -40,7 +40,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
 
         public void AddTask()
         {
-            // ValidateSecretDataDecryptedSuccessfully();
+            ValidateEncryptedData();
 
             ProtectedTasks.Add(new ProtectionTaskViewModel()
             {
@@ -52,18 +52,16 @@ namespace Redwood.Samples.BasicSamples.ViewModels
 
         public void CompleteTask(Guid id)
         {
-            // ValidateSecretDataDecryptedSuccessfully();
+            ValidateEncryptedData();
 
             ProtectedTasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
 
-
-
-        private void ValidateSecretDataDecryptedSuccessfully()
+        private void ValidateEncryptedData()
         {
             if (SecretData != "This is encrypted and cannot be displayed on the client.")
             {
-                throw new Exception("The secret data was not decrypted correctly!");
+                throw new Exception("Security error!");
             }
         }
 

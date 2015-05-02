@@ -94,6 +94,23 @@ namespace Redwood.Samples.Tests
             return browser.FindElements(By.CssSelector(cssSelector)).Select(e => new SeleniumElementHelper(e)).ToList();
         }
 
+
+        public string GetAlertText()
+        {
+            var alert = browser.SwitchTo().Alert();
+            if (alert != null)
+            {
+                return alert.Text;
+            }
+            return null;
+        }
+
+        public void ConfirmAlert()
+        {
+            browser.SwitchTo().Alert().Accept();
+            Thread.Sleep(500);
+        }
+
         public void NavigateToUrl(string url)
         {
             browser.Navigate().GoToUrl(url);
