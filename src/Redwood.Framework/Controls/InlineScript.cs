@@ -21,7 +21,7 @@ namespace Redwood.Framework.Controls
             {
                 throw new Exception("The <rw:InlineScript>...</rw:InlineScript> control can only contain text content!");
             }
-
+            
             var script = ((Literal)Children[0]).Text;
             context.ResourceManager.AddStartupScript("inlinescript_" + ID, script, Constants.RedwoodResourceName);
             
