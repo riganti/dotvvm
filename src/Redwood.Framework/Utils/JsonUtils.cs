@@ -18,6 +18,10 @@ namespace Redwood.Framework.Utils
                 var sourceItem = source[item.Key];
                 if (sourceItem == null)
                 {
+                    if (item.Value != null)
+                    {
+                        diff[item.Key] = item.Value;
+                    }
                 }
                 else if (sourceItem.Type != item.Value.Type)
                 {
