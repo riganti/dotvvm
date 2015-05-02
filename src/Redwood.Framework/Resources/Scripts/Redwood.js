@@ -289,9 +289,7 @@ var Redwood = (function () {
     Redwood.prototype.patch = function (source, patch) {
         var _this = this;
         if (source instanceof Array && patch instanceof Array) {
-            return patch.map(function (val, i) {
-                return _this.patch(source[i], val);
-            });
+            return patch.map(function (val, i) { return _this.patch(source[i], val); });
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
