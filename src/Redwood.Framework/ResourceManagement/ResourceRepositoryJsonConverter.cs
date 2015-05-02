@@ -58,10 +58,7 @@ namespace Redwood.Framework.ResourceManagement
                 Type type;
                 if (ResourceTypeNames.TryGetValue(prop.Key, out type))
                 {
-                    foreach (var resource in DeserializeResources((JObject)prop.Value, type, serializer))
-                    {
-                        repo.Register(resource.Key, resource.Value);
-                    }
+                    DeserializeResources((JObject)prop.Value, type, serializer, repo);
                 }
                 else
                     throw new NotSupportedException(string.Format("resource collection name {0} is not supported", prop.Key));
@@ -69,12 +66,12 @@ namespace Redwood.Framework.ResourceManagement
             return repo;
         }
 
-        IEnumerable<KeyValuePair<string, ResourceBase>> DeserializeResources(JObject jtoken, Type resourceType, JsonSerializer serializer)
+        void DeserializeResources(JObject jobj, Type resourceType, JsonSerializer serializer, RedwoodResourceRepository repo)
         {
-            foreach (var resObj in jtoken)
+            foreach (var resObj in jobj)
             {
                 var resource = serializer.Deserialize(resObj.Value.CreateReader(), resourceType) as ResourceBase;
-                yield return new KeyValuePair<string, ResourceBase>(resObj.Key, resource);
+                repo.Register(resObj.Key, resource);
             }
         }
 

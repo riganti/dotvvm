@@ -1,10 +1,14 @@
 ﻿/// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
+interface RenderedResourceList {
+    [name: string]: string;
+}
 
 class Redwood { 
 
     private postBackCounter = 0;
+    private resourceSigns: { [name: string]: boolean } = {}
 
     public extensions: any = {}; 
     public viewModels: any = {};
@@ -20,10 +24,12 @@ class Redwood {
 
     public init(viewModelName: string, culture: string): void {
         this.culture = culture;
-        this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__rw_viewmodel_" + viewModelName)).value);
-        this.viewModels[viewModelName].viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
-        
-        var viewModel = this.viewModels[viewModelName].viewModel;
+        var thisVm = this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__rw_viewmodel_" + viewModelName)).value);
+        if (thisVm.renderedResources) {
+            thisVm.renderedResources.forEach(r => this.resourceSigns[r] = true);
+        }
+        var viewModel = thisVm.viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
+
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
 
@@ -95,7 +101,8 @@ class Redwood {
             currentPath: path,
             command: command,
             controlUniqueId: controlUniqueId,
-            validationTargetPath: validationTargetPath || null
+            validationTargetPath: validationTargetPath || null,
+            renderedResources: this.viewModels[viewModelName].renderedResources
         };
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
             // if another postback has already been passed, don't do anything
@@ -112,6 +119,7 @@ class Redwood {
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
+            this.loadResourceList(resultObject.resources, () => {
             var isSuccess = false;
             if (resultObject.action === "successfulCommand") {
                 // remove updated controls
@@ -137,6 +145,7 @@ class Redwood {
             if (!isSuccess && !afterPostBackArgs.isHandled) {
                 throw "Invalid response from server!";
             }
+            });
         }, xhr => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
@@ -148,6 +157,55 @@ class Redwood {
                 alert(xhr.responseText);
             }
         });
+    }
+
+    private loadResourceList(resources: RenderedResourceList, callback: () => void) {
+        var html = "";
+        for (var name in resources) {
+            if (this.resourceSigns[name]) continue;
+
+            this.resourceSigns[name] = true;
+
+            html += resources[name] + " ";
+        }
+        if (html.trim() == "") {
+            setTimeout(callback, 4);
+            return;
+        }
+        else {
+            var tmp = document.createElement("div");
+            tmp.innerHTML = html;
+            var elements: HTMLElement[] = [];
+            for (var i = 0; i < tmp.children.length; i++) {
+                elements.push(<HTMLElement>tmp.children.item(i));
+            }
+            this.loadResourceElements(elements, 0, callback);
+        }
+    }
+
+    private loadResourceElements(elements: HTMLElement[], offset: number, callback: () => void) {
+        if (offset >= elements.length) {
+            callback();
+            return;
+        }
+        var el = elements[offset];
+        if (el.tagName.toLowerCase() == "script") {
+            // do some hacks to load script
+            var script = document.createElement("script");
+            script.src = (<HTMLScriptElement> el).src;
+            script.type = (<HTMLScriptElement> el).type;
+            script.text = (<HTMLScriptElement> el).text;
+            el = script;
+        }
+        else if (el.tagName.toLowerCase() == "link") {
+            var link = document.createElement("link");
+            link.href = (<HTMLLinkElement>el).href;
+            link.rel = (<HTMLLinkElement>el).rel;
+            link.type = (<HTMLLinkElement>el).type;
+            el = link;
+        }
+        el.onload = () => this.loadResourceElements(elements, offset + 1, callback);
+        document.head.appendChild(el);
     }
 
     public evaluateOnViewModel(context, expression) {
@@ -196,8 +254,9 @@ class Redwood {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             var resultObject = JSON.parse(result.responseText);
+            this.loadResourceList(resultObject.resources, () => {
             var isSuccess = false;
-            if (resultObject.action === "successfulCommand") {
+                if (resultObject.action === "successfulCommand" || !resultObject.action) {
                 // remove updated controls
                 var updatedControls = this.cleanUpdatedControls(resultObject);
 
@@ -228,6 +287,7 @@ class Redwood {
             if (!isSuccess && !spaNavigatedArgs.isHandled) {
                 throw "Invalid response from server!";
             }
+            });
         }, xhr => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;

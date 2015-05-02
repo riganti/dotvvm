@@ -4,6 +4,7 @@ using System.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Parser;
 using System.Threading;
+using System.Collections.Immutable;
 
 namespace Redwood.Framework.ResourceManagement
 {
@@ -13,7 +14,14 @@ namespace Redwood.Framework.ResourceManagement
     public class ResourceManager
     {
         private readonly RedwoodConfiguration configuration;
+        private List<string> requiredResourcesOrdered = new List<string>();
         private Dictionary<string, ResourceBase> requiredResources = new Dictionary<string, ResourceBase>();
+
+        public IReadOnlyCollection<string> RequiredResources
+        {
+            get { return requiredResourcesOrdered.AsReadOnly(); }
+        }
+
         
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceManager"/> class.
@@ -52,6 +60,11 @@ namespace Redwood.Framework.ResourceManagement
             }
             else
             {
+                foreach (var dep in resource.Dependencies)
+                {
+                    AddRequiredResource(dep);
+                }
+                requiredResourcesOrdered.Add(name);
                 requiredResources[name] = resource;
             }
         }
@@ -94,44 +107,14 @@ namespace Redwood.Framework.ResourceManagement
         /// </summary>
         public IEnumerable<ResourceBase> GetResourcesInCorrectOrder()
         {
-            var outputResources = new List<ResourceBase>();
-            var outputResourceNames = new HashSet<string>();
-
-            foreach (var resource in requiredResources)
-            {
-                AddResourceWithDependencies(resource.Key, resource.Value, outputResourceNames, outputResources);
-            }
-
-            return outputResources;
+            return requiredResourcesOrdered.Select(k => requiredResources[k]);
         }
 
-        /// <summary>
-        /// Adds the resource with dependencies.
-        /// </summary>
-        private void AddResourceWithDependencies(string name, ResourceBase resource, HashSet<string> outputResourceNames, List<ResourceBase> outputResources)
-        {
-            // at first, add all dependencies
-            foreach (var dependency in resource.Dependencies)
-            {
-                if (!outputResourceNames.Contains(dependency))
-                {
-                    var dependentResource = FindResource(dependency);
-                    AddResourceWithDependencies(dependency, dependentResource, outputResourceNames, outputResources);
-                }
-            }
-
-            // then, add the resource itself
-            if (!outputResourceNames.Contains(name))
-            {
-                outputResources.Add(resource);
-                outputResourceNames.Add(name);
-            }
-        }
 
         /// <summary>
         /// Finds the resource in required resources or in the resources registered in the configuration file.
         /// </summary>
-        private ResourceBase FindResource(string name)
+        public ResourceBase FindResource(string name)
         {
             ResourceBase resource;
             if (requiredResources.TryGetValue(name, out resource))
@@ -147,7 +130,6 @@ namespace Redwood.Framework.ResourceManagement
 
             return resource;
         }
-
 
         private static void ThrowNonUniqueName(string name)
         {
