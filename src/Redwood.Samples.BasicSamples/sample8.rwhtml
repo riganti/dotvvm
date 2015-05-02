@@ -16,7 +16,7 @@
 	
 	<rw:RequiredResource Name="bootstrap" />
 
-	<rw:InlineScript>
+	<rw:InlineScript ID="eventTests" >
 		redwood.events.init.subscribe(function() { alert("init"); });
 		redwood.events.beforePostback.subscribe(function() { alert("beforePostback"); });
 		redwood.events.afterPostback.subscribe(function() { alert("afterPostback"); });

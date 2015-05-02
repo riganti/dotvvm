@@ -21,7 +21,8 @@ namespace Redwood.Framework.Controls
             }
             
             var script = ((Literal)Children[0]).Text;
-            context.ResourceManager.AddStartupScript(Guid.NewGuid().ToString(), script, Constants.RedwoodResourceName);
+            if (string.IsNullOrEmpty(ID)) throw new Exception("you have to enter ID");
+            context.ResourceManager.AddStartupScript("inlinescript_" + ID, script, Constants.RedwoodResourceName);
             
             base.OnPreRenderComplete(context);
         }
