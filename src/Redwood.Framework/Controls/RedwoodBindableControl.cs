@@ -111,8 +111,8 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public override void SetValue(RedwoodProperty property, object value)
         {
-            object originalValue;
-            if (Properties.TryGetValue(property, out originalValue) && originalValue is IUpdatableBindingExpression && !(value is BindingExpression))
+            var originalValue = base.GetValue(property, false);
+            if (originalValue is IUpdatableBindingExpression && !(value is BindingExpression))
             {
                 // if the property contains a binding and we are not passing another binding, update the value
                 ((IUpdatableBindingExpression)originalValue).UpdateSource(value, this, property);
