@@ -17,6 +17,11 @@ namespace Redwood.Samples.Tests
             this.browser = browser;
         }
 
+        public string CurrentUrl
+        {
+            get { return browser.Url; }
+        }
+
 
         public void Click(string cssSelector)
         {
