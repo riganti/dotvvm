@@ -157,7 +157,7 @@ namespace Redwood.Framework.Parser.Translation
         {
             if (UseNullPropagation)
             {
-                return "(" + Visit(node.Expression) + "|| {})." + Visit(node.Name);
+                return "(" + Visit(node.Expression) + "||{})." + Visit(node.Name);
             }
             else
             {

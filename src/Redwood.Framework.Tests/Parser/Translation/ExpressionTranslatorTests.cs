@@ -46,14 +46,14 @@ namespace Redwood.Framework.Tests.Parser.Translation
         public void ExpressionTranslator_Valid_ExpressionWithDot()
         {
             var translator = new ExpressionTranslator();
-            Assert.AreEqual("Customer().Name", translator.Translate("Customer.Name"));
+            Assert.AreEqual("(Customer()||{}).Name", translator.Translate("Customer.Name"));
         }
 
         [TestMethod]
         public void ExpressionTranslator_Valid_ExpressionWithDots()
         {
             var translator = new ExpressionTranslator();
-            Assert.AreEqual("Customer().Name().FirstName", translator.Translate("Customer.Name.FirstName"));
+            Assert.AreEqual("((Customer()||{}).Name()||{}).FirstName", translator.Translate("Customer.Name.FirstName"));
         }
         
         [TestMethod]

@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Principal;
+using Microsoft.Owin;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Newtonsoft.Json.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
+using Redwood.Framework.ResourceManagement;
 using Redwood.Framework.Runtime;
 using Redwood.Framework.Security;
 using Redwood.Framework.ViewModel;
@@ -36,9 +38,11 @@ namespace Redwood.Framework.Tests.Runtime
                     RequestGet = () => new Microsoft.Owin.Fakes.StubIOwinRequest()
                     {
                         UriGet = () => new Uri("http://localhost:8628/Sample1"),
-                        UserGet = () => new WindowsPrincipal(WindowsIdentity.GetAnonymous())
+                        UserGet = () => new WindowsPrincipal(WindowsIdentity.GetAnonymous()),
+                        HeadersGet = () => new HeaderDictionary(new Dictionary<string, string[]>())
                     }
                 },
+                ResourceManager = new ResourceManager(configuration),
                 Presenter = configuration.RouteTable.GetDefaultPresenter()
             };
         }
