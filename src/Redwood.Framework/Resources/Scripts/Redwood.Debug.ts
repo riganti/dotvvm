@@ -1,5 +1,5 @@
 ﻿var debugWindow = $(document.body)
-    .append("<div id='debugWindow'><h1></h1><iframe /><div id='debugFooter'><button type='button' id='closeDebugWindow'>Close</button></div></div>")
+    .append("<div id='debugWindow'><h1></h1><button type='button' id='closeDebugWindow'>Close</button><iframe /><div id='debugFooter'></div></div>")
     .find("#debugWindow");
 debugWindow.css({
     display: "none",
@@ -13,7 +13,12 @@ debugWindow.css({
 });
 
 debugWindow.find("#closeDebugWindow")
-    .click(() => debugWindow.css({ display: "none" }));
+    .click(() => debugWindow.css({ display: "none" }))
+    .css({
+    position: "absolute",
+    top: 0,
+    right: 0
+});
 debugWindow.find("#debugFooter")
     .css({ flex: "0 1 auto" });
 debugWindow.find("h1")
@@ -35,10 +40,13 @@ redwood.events.error.subscribe(e => {
     e.handled = true;
 });
 
-redwood.events.afterPostback.subscribe(e => {
-    Object.defineProperty(redwood.viewModels[e.viewModelName], "$debugMap", {
+function setDebugMapProperty(obj) {
+    Object.defineProperty(obj, "$debugMap", {
         enumerable: false,
         configurable: true,
-        get: () => ko.mapper.toJS(redwood.viewModels[e.viewModelName])
+        get: () => ko.mapper.toJS(obj)
     });
-});
+}
+
+redwood.events.afterPostback.subscribe(e => setDebugMapProperty(redwood.viewModels[e.viewModelName]));
+redwood.events.init.subscribe(e => setDebugMapProperty(redwood.viewModels["root"]));
