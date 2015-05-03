@@ -41,7 +41,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
             }
             catch (Exception ex)
             {
-                // TODO: report that the configuration cannot be loaded
+                LogService.LogError(new Exception("Cannot load the redwood.json configuration file!", ex));
             }
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
 

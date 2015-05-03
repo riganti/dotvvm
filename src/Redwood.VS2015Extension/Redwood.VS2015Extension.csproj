@@ -195,6 +195,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachedValue.cs" />
+    <Compile Include="LogService.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\ClassificationColorManager.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\ClassificationStyle.cs" />
     <Compile Include="RwHtmlEditorExtensions\Classification\RwHtmlBindingBraceDefinition.cs" />

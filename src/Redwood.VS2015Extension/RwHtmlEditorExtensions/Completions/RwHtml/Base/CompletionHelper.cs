@@ -69,7 +69,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
                 }
                 catch (Exception ex)
                 {
-                    // TODO: report compilation error
+                    LogService.LogError(new Exception("Cannot get the compilation!", ex));
                 }
             }
 
@@ -91,10 +91,11 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml.Base
                 {
                     item = projectItem.ProjectItems.Item(i);
                 }
-                catch (Exception)
+                catch (Exception ex)
                 {
                     // sometimes we get System.ArgumentException: The parameter is incorrect. (Exception from HRESULT: 0x80070057 (E_INVALIDARG)) 
                     // when we open some file in the text editor
+                    LogService.LogError(new Exception("Cannot evaluate items in the project!", ex));
                 }
 
                 if (item != null)
