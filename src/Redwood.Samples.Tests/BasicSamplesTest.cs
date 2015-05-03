@@ -257,7 +257,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        //[TestMethod]
+        [TestMethod]
         public void Sample8Test()
         {
             RunInAllBrowsers(browser =>
@@ -284,7 +284,7 @@ namespace Redwood.Samples.Tests
                 Assert.AreEqual("beforePostback", browser.GetAlertText());
                 browser.ConfirmAlert();
                 Thread.Sleep(WaitTime);
-                Assert.AreEqual("error", browser.GetAlertText());
+                Assert.AreEqual("custom error handler", browser.GetAlertText());
                 browser.ConfirmAlert();
             });
         }
@@ -612,6 +612,47 @@ namespace Redwood.Samples.Tests
                 browser.Click("input[type=button]");
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("3", browser.FindAll("span")[1].GetText());
+            });
+        }
+
+        [TestMethod]
+        public void Sample18Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample18");
+
+                // ensure validators not visible
+                Assert.IsFalse(browser.FindAll("span")[0].IsDisplayed());
+                Assert.IsTrue(browser.FindAll("span")[1].IsDisplayed());
+                Assert.IsFalse(browser.FindAll("span")[1].GetAttribute("class").Contains("validator"));
+                Assert.IsFalse(browser.FindAll("span")[2].IsDisplayed());
+
+                // leave textbox empty and submit the form
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure validators visible
+                Assert.IsTrue(browser.FindAll("span")[0].IsDisplayed());
+                Assert.IsTrue(browser.FindAll("span")[1].IsDisplayed());
+                Assert.IsTrue(browser.FindAll("span")[1].GetAttribute("class").Contains("invalid"));
+                Assert.IsTrue(browser.FindAll("span")[2].IsDisplayed());
+
+                // submit once again and test the validation summary still holds one error
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // fill invalid value in the task title
+                browser.SendKeys("input[type=text]", "test");
+                Thread.Sleep(WaitTime);
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure validators
+                Assert.IsFalse(browser.FindAll("span")[0].IsDisplayed());
+                Assert.IsTrue(browser.FindAll("span")[1].IsDisplayed());
+                Assert.IsFalse(browser.FindAll("span")[1].GetAttribute("class").Contains("validator"));
+                Assert.IsFalse(browser.FindAll("span")[2].IsDisplayed());
             });
         }
     }

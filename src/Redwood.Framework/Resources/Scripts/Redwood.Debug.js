@@ -1,6 +1,4 @@
-var debugWindow = $(document.body)
-    .append("<div id='debugWindow'><h1></h1><iframe /><div id='debugFooter'><button type='button' id='closeDebugWindow'>Close</button></div></div>")
-    .find("#debugWindow");
+var debugWindow = $(document.body).append("<div id='debugWindow'><h1></h1><iframe /><div id='debugFooter'><button type='button' id='closeDebugWindow'>Close</button></div></div>").find("#debugWindow");
 debugWindow.css({
     display: "none",
     flexFlow: "column",
@@ -11,12 +9,9 @@ debugWindow.css({
     backgroundColor: "white",
     top: 0
 });
-debugWindow.find("#closeDebugWindow")
-    .click(function () { return debugWindow.css({ display: "none" }); });
-debugWindow.find("#debugFooter")
-    .css({ flex: "0 1 auto" });
-debugWindow.find("h1")
-    .css({ flex: "0 1 auto" });
+debugWindow.find("#closeDebugWindow").click(function () { return debugWindow.css({ display: "none" }); });
+debugWindow.find("#debugFooter").css({ flex: "0 1 auto" });
+debugWindow.find("h1").css({ flex: "0 1 auto" });
 debugWindow.find("iframe").css({
     flex: "1 1 auto",
     width: "100%"
@@ -24,10 +19,10 @@ debugWindow.find("iframe").css({
 redwood.events.error.subscribe(function (e) {
     if (e.handled)
         return;
-    console.log("error has occured");
-    console.log("xhr: ", e.xhr);
-    console.log("viewModel: ", e.viewModel);
-    debugWindow.find("h1").text("Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "(unknown)"));
+    console.log("Redwood: An unhandled exception returned from the server command.");
+    console.log("XmlHttpRequest: ", e.xhr);
+    console.log("ViewModel: ", e.viewModel);
+    debugWindow.find("h1").text("Redwood Debugger: Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "(unknown)"));
     debugWindow.find("iframe").contents().find('html').html(e.xhr.responseText);
     debugWindow.css({ display: "flex" });
     e.handled = true;

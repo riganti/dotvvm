@@ -120,31 +120,31 @@ class Redwood {
             }
 
             this.loadResourceList(resultObject.resources, () => {
-            var isSuccess = false;
-            if (resultObject.action === "successfulCommand") {
-                // remove updated controls
-                var updatedControls = this.cleanUpdatedControls(resultObject);
+                var isSuccess = false;
+                if (resultObject.action === "successfulCommand") {
+                    // remove updated controls
+                    var updatedControls = this.cleanUpdatedControls(resultObject);
 
-                // update the viewmodel
-                if (resultObject.viewModel)
-                    ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
-                isSuccess = true;
+                    // update the viewmodel
+                    if (resultObject.viewModel)
+                        ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                    isSuccess = true;
 
-                // add updated controls
-                this.restoreUpdatedControls(resultObject, updatedControls, true);
+                    // add updated controls
+                    this.restoreUpdatedControls(resultObject, updatedControls, true);
 
-            } else if (resultObject.action === "redirect") {
-                // redirect
-                this.navigateCore(viewModelName, resultObject.url);
-                return;
-            } 
+                } else if (resultObject.action === "redirect") {
+                    // redirect
+                    this.navigateCore(viewModelName, resultObject.url);
+                    return;
+                } 
             
-            // trigger afterPostback event
-            var afterPostBackArgs = new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
-            this.events.afterPostback.trigger(afterPostBackArgs);
-            if (!isSuccess && !afterPostBackArgs.isHandled) {
-                throw "Invalid response from server!";
-            }
+                // trigger afterPostback event
+                var afterPostBackArgs = new RedwoodAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+                this.events.afterPostback.trigger(afterPostBackArgs);
+                if (!isSuccess && !afterPostBackArgs.isHandled) {
+                    throw "Invalid response from server!";
+                }
             });
         }, xhr => {
             // if another postback has already been passed, don't do anything

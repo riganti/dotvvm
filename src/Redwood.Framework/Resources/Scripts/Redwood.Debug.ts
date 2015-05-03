@@ -26,10 +26,10 @@ debugWindow.find("iframe").css({
 
 redwood.events.error.subscribe(e => {
     if (e.handled) return;
-    console.log("error has occured");
-    console.log("xhr: ", e.xhr);
-    console.log("viewModel: ", e.viewModel);
-    debugWindow.find("h1").text("Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "(unknown)"));
+    console.log("Redwood: An unhandled exception returned from the server command.");
+    console.log("XmlHttpRequest: ", e.xhr);
+    console.log("ViewModel: ", e.viewModel);
+    debugWindow.find("h1").text("Redwood Debugger: Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "(unknown)"));
     debugWindow.find("iframe").contents().find('html').html(e.xhr.responseText);
     debugWindow.css({ display: "flex" });
     e.handled = true;
