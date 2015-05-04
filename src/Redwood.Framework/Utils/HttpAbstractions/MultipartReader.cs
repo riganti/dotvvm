@@ -34,6 +34,10 @@ namespace Microsoft.AspNet.WebUtilities
             }
             _stream = new BufferedReadStream(stream, bufferSize);
             _boundary = boundary;
+
+            HeaderLengthLimit = 1024 * 4;
+            TotalHeaderSizeLimit = 1024 * 16;
+
             // This stream will drain any preamble data and remove the first boundary marker.
             _currentStream = new MultipartReaderStream(_stream, _boundary, expectLeadingCrlf: false);
         }
@@ -41,12 +45,12 @@ namespace Microsoft.AspNet.WebUtilities
         /// <summary>
         /// The limit for individual header lines inside a multipart section.
         /// </summary>
-        public int HeaderLengthLimit { get; set; } = 1024 * 4;
+        public int HeaderLengthLimit { get; set; }
 
         /// <summary>
         /// The combined size limit for headers per multipart section.
         /// </summary>
-        public int TotalHeaderSizeLimit { get; set; } = 1024 * 16;
+        public int TotalHeaderSizeLimit { get; set; }
 
         public async Task<MultipartSection> ReadNextSectionAsync(CancellationToken cancellationToken = new CancellationToken())
         {
