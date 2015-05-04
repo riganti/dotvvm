@@ -39,6 +39,8 @@ namespace Redwood.Framework.Parser
         public const string ResourceHandlerUrl = "/redwoodEmbeddedResource?name={0}&assembly={1}";
         public const string ResourceHandlerMatchUrl = "redwoodEmbeddedResource";
 
+        public const string FileUploadHandlerMatchUrl = "redwoodFileUpload";
+
         public const string SpaContentPlaceHolderDataAttributeName = "data-rw-spacontentplaceholder";
         public const string SpaContentPlaceHolderHeaderName = "X-Redwood-SpaContentPlaceHolder";
         public const string SpaContentPlaceHolderID = "__rw_SpaContentPlaceHolder";

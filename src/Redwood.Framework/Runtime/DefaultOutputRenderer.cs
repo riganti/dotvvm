@@ -2,7 +2,10 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
+using Microsoft.Owin;
+using Newtonsoft.Json;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
@@ -44,6 +47,12 @@ namespace Redwood.Framework.Runtime
             await context.OwinContext.Response.WriteAsync(serializedViewModel);
         }
 
+        public async Task RenderPlainJsonResponse(IOwinContext context, object data)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.ContentType = "application/json; charset=utf-8";
+            await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
+        }
 
 
         /// <summary>

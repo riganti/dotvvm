@@ -129,6 +129,7 @@
     <Compile Include="Hosting\ModelState.cs" />
     <Compile Include="Hosting\RedwoodEmbeddedResourceMiddleware.cs" />
     <Compile Include="Hosting\RedwoodErrorPageMiddleware.cs" />
+    <Compile Include="Hosting\RedwoodFileUploadMiddleware.cs" />
     <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
     <Compile Include="Hosting\RedwoodRestrictedStaticFilesMiddleware.cs" />
     <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
@@ -235,6 +236,9 @@
     <Compile Include="Security\NistSP800108DeriveBytes.cs" />
     <Compile Include="Security\ProtectionHelpers.cs" />
     <Compile Include="ServiceLocator.cs" />
+    <Compile Include="Storage\FileSystemUploadedFileStorage.cs" />
+    <Compile Include="Storage\IUploadedFileStorage.cs" />
+    <Compile Include="Storage\UploadedFile.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\ErrorPageTemplate.cs">
@@ -293,6 +297,12 @@
     <Compile Include="Runtime\DefaultControlResolver.cs" />
     <Compile Include="Runtime\IControlBuilder.cs" />
     <Compile Include="Runtime\IControlResolver.cs" />
+    <Compile Include="Utils\HttpAbstractions\BufferedReadStream.cs" />
+    <Compile Include="Utils\HttpAbstractions\KeyValueAccumulator.cs" />
+    <Compile Include="Utils\HttpAbstractions\MultipartReader.cs" />
+    <Compile Include="Utils\HttpAbstractions\MultipartReaderStream.cs" />
+    <Compile Include="Utils\HttpAbstractions\MultipartSection.cs" />
+    <Compile Include="Utils\HttpAbstractions\StreamHelperExtensions.cs" />
     <Compile Include="Utils\JsonUtils.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
     <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
