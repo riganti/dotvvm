@@ -73,7 +73,7 @@ namespace Redwood.Framework.Utils
 
         public static JArray Diff(JArray source, JArray target, out bool changed, bool nullOnRemoved = false)
         {
-            changed = false;
+            changed = source.Count != target.Count;
             var diffs = new JToken[target.Count];
             var commonLen = Math.Min(diffs.Length, source.Count);
             for (int i = 0; i < commonLen; i++)
