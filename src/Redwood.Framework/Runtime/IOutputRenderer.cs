@@ -2,8 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Owin;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
+using Redwood.Framework.Storage;
 
 namespace Redwood.Framework.Runtime
 {
@@ -16,5 +18,6 @@ namespace Redwood.Framework.Runtime
 
         Task WriteViewModelResponse(RedwoodRequestContext context, RedwoodView view);
 
+        Task RenderPlainJsonResponse(IOwinContext context, object data);
     }
 }

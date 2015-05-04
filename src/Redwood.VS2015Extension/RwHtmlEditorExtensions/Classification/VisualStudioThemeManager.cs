@@ -47,6 +47,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Classification
             }
             catch (Exception ex)
             {
+                LogService.LogError(new Exception("Cannot detect current theme!", ex));
             }
             return VisualStudioTheme.Unknown;
         }

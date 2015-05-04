@@ -120,6 +120,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Classification
             }
             catch (Exception ex)
             {
+                LogService.LogError(new Exception("Classifier error!", ex));
             }
 
             return spans;

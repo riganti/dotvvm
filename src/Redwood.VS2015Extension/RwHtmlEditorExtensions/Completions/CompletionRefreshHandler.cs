@@ -55,7 +55,7 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions
                     }
                     catch (Exception ex)
                     {
-                        Trace.WriteLine(ex.ToString());
+                        LogService.LogError(new Exception("Cannot perform the refresh operation!", ex));
                     }
                 }
             }
