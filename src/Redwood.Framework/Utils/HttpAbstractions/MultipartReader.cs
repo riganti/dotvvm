@@ -30,7 +30,7 @@ namespace Microsoft.AspNet.WebUtilities
         {
             if (bufferSize < boundary.Length + 8) // Size of the boundary + leading and trailing CRLF + leading and trailing '--' markers.
             {
-                throw new ArgumentOutOfRangeException(nameof(bufferSize), bufferSize, "Insufficient buffer space, the buffer must be larger than the boundary: " + boundary);
+                throw new ArgumentOutOfRangeException("bufferSize", bufferSize, "Insufficient buffer space, the buffer must be larger than the boundary: " + boundary);
             }
             _stream = new BufferedReadStream(stream, bufferSize);
             _boundary = boundary;

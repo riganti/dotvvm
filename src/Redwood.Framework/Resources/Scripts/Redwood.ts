@@ -34,13 +34,16 @@ class Redwood {
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
 
         // handle SPA
-        if (document.location.hash.indexOf("#!/") === 0) {
-            this.navigateCore(viewModelName, document.location.hash.substring(2));
-        }
         if (this.getSpaPlaceHolder()) {
+            if (document.location.hash.indexOf("#!/") === 0) {
+                this.navigateCore(viewModelName, document.location.hash.substring(2));
+            }
+
             this.attachEvent(window, "hashchange",() => {
                 if (document.location.hash.indexOf("#!/") === 0) {
                     this.navigateCore(viewModelName, document.location.hash.substring(2));
+                } else {
+                    this.navigateCore(viewModelName, "/");
                 }
             });
         }

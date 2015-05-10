@@ -223,13 +223,14 @@ namespace Redwood.Framework.Controls
             if (dataContextBinding != null)
             {
                 context.PathFragments.Push(dataContextBinding.Expression);
-                writer.AddKnockoutDataBind("with", this, DataContextProperty, () => { });
+                writer.WriteKnockoutDataBindComment("with", dataContextBinding.TranslateToClientScript(this, DataContextProperty));
             }
 
             base.RenderControl(writer, context);
 
             if (dataContextBinding != null)
             {
+                writer.WriteKnockoutDataBindEndComment();
                 context.PathFragments.Pop();
             }
         }

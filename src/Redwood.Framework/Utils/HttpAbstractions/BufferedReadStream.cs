@@ -259,7 +259,7 @@ namespace Microsoft.AspNet.WebUtilities
         {
             if (minCount > _buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(minCount), minCount, "The value must be smaller than the buffer size: " + _buffer.Length);
+                throw new ArgumentOutOfRangeException("minCount", minCount, "The value must be smaller than the buffer size: " + _buffer.Length);
             }
             while (_bufferCount < minCount)
             {
@@ -286,7 +286,7 @@ namespace Microsoft.AspNet.WebUtilities
         {
             if (minCount > _buffer.Length)
             {
-                throw new ArgumentOutOfRangeException(nameof(minCount), minCount, "The value must be smaller than the buffer size: " + _buffer.Length);
+                throw new ArgumentOutOfRangeException("minCount", minCount, "The value must be smaller than the buffer size: " + _buffer.Length);
             }
             while (_bufferCount < minCount)
             {
@@ -380,7 +380,7 @@ namespace Microsoft.AspNet.WebUtilities
         {
             if (_disposed)
             {
-                throw new ObjectDisposedException(nameof(BufferedReadStream));
+                throw new ObjectDisposedException("BufferedReadStream");
             }
         }
 
@@ -390,7 +390,7 @@ namespace Microsoft.AspNet.WebUtilities
             var ignored = new ArraySegment<byte>(buffer, offset, count);
             if (count == 0)
             {
-                throw new ArgumentOutOfRangeException(nameof(count), "The value must be greater than zero.");
+                throw new ArgumentOutOfRangeException("count", "The value must be greater than zero.");
             }
         }
     }

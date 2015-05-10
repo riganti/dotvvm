@@ -78,6 +78,15 @@ namespace Redwood.Framework.Controls
         }
 
 
+        protected internal override void OnPreRender(RedwoodRequestContext context)
+        {
+            if (!string.IsNullOrEmpty(FormatString))
+            {
+                context.ResourceManager.AddCurrentCultureGlobalizationResource();
+            }
+            base.OnPreRender(context);
+        }
+
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
@@ -90,7 +99,6 @@ namespace Redwood.Framework.Controls
                 if (!string.IsNullOrEmpty(FormatString))
                 {
                     expression = "redwood.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
-                    context.ResourceManager.AddCurrentCultureGlobalizationResource();
                 }
 
                 writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", expression);

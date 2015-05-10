@@ -8,16 +8,18 @@
 	<div class="container">
 		<h1>Server Rendering</h1>
 		
-		<rw:Repeater DataSource="{value: Months}" WrapperTagName="table" RenderSettings.Mode="Server">
-			<ItemTemplate>
-				<tr>
-					<td>{{value: MonthName}}</td>
-					<td>
-						<rw:TextBox Text="{value: Hours}" Placeholder="enter number of hours" />
-					</td>
-				</tr>
-			</ItemTemplate>
-		</rw:Repeater>
+		<table>
+			<rw:Repeater DataSource="{value: Months}" WrapperTagName="tbody" RenderSettings.Mode="Server">
+				<ItemTemplate>
+					<tr>
+						<td>{{value: MonthName}}</td>
+						<td>
+							<rw:TextBox Text="{value: Hours}" Placeholder="enter number of hours" />
+						</td>
+					</tr>
+				</ItemTemplate>
+			</rw:Repeater>
+		</table>
 	
 		<p><rw:Button Text="Recalculate" Click="{command: Recalculate()}" /></p>
 

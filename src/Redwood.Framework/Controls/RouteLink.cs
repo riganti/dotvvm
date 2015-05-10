@@ -49,7 +49,7 @@ namespace Redwood.Framework.Controls
             }
             else
             {
-                writer.AddAttribute("href", GenerateRouteUrl(context));
+                writer.AddAttribute("href", "#!/" + GenerateRouteUrl(context));
             }
 
             writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
