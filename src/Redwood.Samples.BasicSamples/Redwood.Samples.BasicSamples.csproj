@@ -135,12 +135,15 @@
     <Content Include="sample17_b.rwhtml" />
     <Content Include="sample17_master.rwhtml" />
     <Content Include="sample18.rwhtml" />
+    <Content Include="sample19.rwhtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\jquery-1.9.1.js" />
     <Content Include="Scripts\jquery-1.9.1.min.js" />
     <Content Include="Scripts\testResource.js" />
+    <Content Include="upload.html" />
+    <Content Include="upload2.html" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>
@@ -170,6 +173,7 @@
     <Compile Include="ViewModels\Sample17ViewModel.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_A.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
+    <Compile Include="ViewModels\Sample19ViewModel.cs" />
     <Compile Include="ViewModels\Sample18ViewModel.cs" />
     <Compile Include="ViewModels\Sample7ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />

@@ -1,4 +1,6 @@
-﻿using System.Web.Hosting;
+﻿using System;
+using System.IO;
+using System.Web.Hosting;
 using Microsoft.Owin;
 using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
@@ -7,6 +9,7 @@ using Redwood.Framework;
 using Redwood.Framework.Configuration;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.AspNet.Identity;
+using Redwood.Framework.Storage;
 
 [assembly: OwinStartup(typeof(Redwood.Samples.BasicSamples.Startup))]
 namespace Redwood.Samples.BasicSamples
@@ -63,8 +66,12 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample17", "Sample17/{Id}", "sample17.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample17_B", "Sample17_B", "sample17_b.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample18", "Sample18", "sample18.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("Sample19", "Sample19", "sample19.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.rwhtml", null);
+
+            redwoodConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
+                () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "TempUpload"), TimeSpan.FromMinutes(30)));
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

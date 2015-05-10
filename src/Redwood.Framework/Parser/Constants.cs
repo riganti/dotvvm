@@ -44,5 +44,9 @@ namespace Redwood.Framework.Parser
         public const string SpaContentPlaceHolderDataAttributeName = "data-rw-spacontentplaceholder";
         public const string SpaContentPlaceHolderHeaderName = "X-Redwood-SpaContentPlaceHolder";
         public const string SpaContentPlaceHolderID = "__rw_SpaContentPlaceHolder";
+
+        public const string RedwoodFileUploadResourceName = "redwood.fileUpload";
+        public const string RedwoodFileUploadCssResourceName = "redwood.fileUpload-css";
+        public const string RedwoodFileUploadAsyncHeaderName = "X-RedwoodAsyncUpload";
     }
 }

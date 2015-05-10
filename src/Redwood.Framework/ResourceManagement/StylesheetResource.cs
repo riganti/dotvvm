@@ -22,7 +22,7 @@ namespace Redwood.Framework.ResourceManagement
         /// </summary>
         public override void Render(IHtmlWriter writer)
         {
-            writer.AddAttribute("href", Url);
+            writer.AddAttribute("href", GetUrl());
             writer.AddAttribute("rel", "stylesheet");
             writer.AddAttribute("type", "text/css");
             writer.RenderSelfClosingTag("link");

@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Newtonsoft.Json;
 using Redwood.Framework.Controls;
+using Redwood.Framework.Parser;
 
 namespace Redwood.Framework.ResourceManagement
 {
@@ -52,5 +54,19 @@ namespace Redwood.Framework.ResourceManagement
         /// Renders the resource in the specified <see cref="IHtmlWriter"/>.
         /// </summary>
         public abstract void Render(IHtmlWriter writer);
+
+
+
+        /// <summary>
+        /// Gets the URL.
+        /// </summary>
+        protected string GetUrl()
+        {
+            if (IsEmbeddedResource)
+            {
+                return string.Format(Constants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
+            }
+            return Url;
+        }
     }
 }

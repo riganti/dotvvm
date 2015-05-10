@@ -22,6 +22,11 @@ namespace Redwood.Framework.Storage
         public FileSystemUploadedFileStorage(string tempDirectory, TimeSpan autoDeleteInterval)
         {
             TempDirectory = tempDirectory;
+            if (!Directory.Exists(tempDirectory))
+            {
+                Directory.CreateDirectory(tempDirectory);
+            }
+
             AutoDeleteInterval = autoDeleteInterval;
 
             autoDeleteTimer = new Timer(state => DeleteOldFiles(DateTime.Now - AutoDeleteInterval), null, AutoDeleteInterval, AutoDeleteInterval);

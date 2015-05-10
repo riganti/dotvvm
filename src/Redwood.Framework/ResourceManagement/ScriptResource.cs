@@ -71,17 +71,5 @@ namespace Redwood.Framework.ResourceManagement
                 writer.RenderEndTag();
             }
         }
-
-        /// <summary>
-        /// Gets the URL.
-        /// </summary>
-        private string GetUrl()
-        {
-            if (IsEmbeddedResource)
-            {
-                return string.Format(Constants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
-            }
-            return Url;
-        }
     }
 }

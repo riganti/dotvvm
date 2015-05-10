@@ -102,6 +102,7 @@
     <Compile Include="Controls\DataPager.cs" />
     <Compile Include="Controls\Decorator.cs" />
     <Compile Include="Controls\EventsDecorator.cs" />
+    <Compile Include="Controls\FileUpload.cs" />
     <Compile Include="Controls\GridView.cs" />
     <Compile Include="Controls\GridViewColumn.cs" />
     <Compile Include="Controls\GridViewTemplateColumn.cs" />
@@ -117,6 +118,7 @@
     <Compile Include="Controls\SpaContentPlaceHolder.cs" />
     <Compile Include="Controls\TextBoxType.cs" />
     <Compile Include="Controls\UpdateProgress.cs" />
+    <Compile Include="Controls\UploadedFilesCollection.cs" />
     <Compile Include="Controls\Validate.cs" />
     <Compile Include="Controls\ListBox.cs" />
     <Compile Include="Controls\SelectHtmlControlBase.cs" />
@@ -125,6 +127,11 @@
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Hosting\FileUploadPageTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
+    </Compile>
     <Compile Include="Hosting\JQueryGlobalizeCultureMiddleware.cs" />
     <Compile Include="Hosting\ModelState.cs" />
     <Compile Include="Hosting\RedwoodEmbeddedResourceMiddleware.cs" />
@@ -239,6 +246,7 @@
     <Compile Include="Storage\FileSystemUploadedFileStorage.cs" />
     <Compile Include="Storage\IUploadedFileStorage.cs" />
     <Compile Include="Storage\UploadedFile.cs" />
+    <Compile Include="Storage\UploadedFileStorageExtensions.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\ErrorPageTemplate.cs">
@@ -353,6 +361,7 @@
     </None>
     <None Include="packages.config" />
     <None Include="Resources\Scripts\Redwood.Debug.js.map" />
+    <EmbeddedResource Include="Resources\Scripts\Redwood.FileUpload.js.map" />
     <None Include="Resources\Scripts\Redwood.js.map" />
     <None Include="Resources\Scripts\Redwood.Validation.js.map" />
   </ItemGroup>
@@ -375,6 +384,7 @@
     <EmbeddedResource Include="Resources\Scripts\Redwood.Validation.js" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\Redwood.FileUpload.ts" />
     <TypeScriptCompile Include="Resources\Scripts\Redwood.Debug.ts" />
     <TypeScriptCompile Include="Resources\Scripts\Redwood.ts" />
     <TypeScriptCompile Include="Resources\Scripts\Redwood.Validation.ts" />
@@ -384,10 +394,16 @@
     <TypeScriptCompile Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Hosting\FileUploadPageTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
+    </Content>
     <Content Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Resources\Scripts\Redwood.FileUpload.css" />
+    <EmbeddedResource Include="Resources\Scripts\Redwood.FileUpload.js" />
     <EmbeddedResource Include="Resources\Scripts\Redwood.Debug.js" />
   </ItemGroup>
   <ItemGroup>

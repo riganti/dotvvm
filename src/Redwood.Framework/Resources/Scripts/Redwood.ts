@@ -334,6 +334,17 @@ class Redwood {
         return source;
     }
 
+    public format(format: string, ...values: string[]) {
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g,(match, group0, group1) => {
+            var value = values[parseInt(group0)];
+            if (group1) {
+                return redwood.formatString(group1, value);
+            } else {
+                return value;
+            }
+        });
+    }
+
     public formatString(format: string, value: any) {
         if (format == "g") {
             return redwood.formatString("d", value) + " " + redwood.formatString("t", value);
@@ -397,7 +408,7 @@ class Redwood {
         xhr.send();
     }
 
-    private getXHR(): XMLHttpRequest {
+    public getXHR(): XMLHttpRequest {
         return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
     }
     

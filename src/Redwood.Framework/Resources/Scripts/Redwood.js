@@ -313,6 +313,21 @@ var Redwood = (function () {
             return patch;
         return source;
     };
+    Redwood.prototype.format = function (format) {
+        var values = [];
+        for (var _i = 1; _i < arguments.length; _i++) {
+            values[_i - 1] = arguments[_i];
+        }
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, function (match, group0, group1) {
+            var value = values[parseInt(group0)];
+            if (group1) {
+                return redwood.formatString(group1, value);
+            }
+            else {
+                return value;
+            }
+        });
+    };
     Redwood.prototype.formatString = function (format, value) {
         if (format == "g") {
             return redwood.formatString("d", value) + " " + redwood.formatString("t", value);

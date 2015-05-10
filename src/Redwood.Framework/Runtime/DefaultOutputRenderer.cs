@@ -54,6 +54,20 @@ namespace Redwood.Framework.Runtime
             await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
         }
 
+        public async Task RenderHtmlResponse(IOwinContext context, string html)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.ContentType = "text/html; charset=utf-8";
+            await context.Response.WriteAsync(html);
+        }
+
+        public async Task RenderPlainTextResponse(IOwinContext context, string text)
+        {
+            context.Response.StatusCode = (int)HttpStatusCode.OK;
+            context.Response.ContentType = "text/plain; charset=utf-8";
+            await context.Response.WriteAsync(text);
+        }
+
 
         /// <summary>
         /// Embeds the resource links in the page.

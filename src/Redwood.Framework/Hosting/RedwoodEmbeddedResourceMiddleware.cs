@@ -49,10 +49,22 @@ namespace Redwood.Framework.Hosting
         private void RenderEmbeddedResource(IOwinContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
-            context.Response.ContentType = "text/javascript";
 
             var resourceName = context.Request.Query["name"];
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == context.Request.Query["assembly"]);
+
+            if (resourceName.EndsWith(".js"))
+            {
+                context.Response.ContentType = "text/javascript";
+            }
+            else if (resourceName.EndsWith(".css"))
+            {
+                context.Response.ContentType = "text/css";
+            }
+            else
+            {
+                context.Response.ContentType = "application/octet-stream";
+            }
 
             using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
             {

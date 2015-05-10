@@ -19,5 +19,9 @@ namespace Redwood.Framework.Runtime
         Task WriteViewModelResponse(RedwoodRequestContext context, RedwoodView view);
 
         Task RenderPlainJsonResponse(IOwinContext context, object data);
+
+        Task RenderHtmlResponse(IOwinContext context, string html);
+
+        Task RenderPlainTextResponse(IOwinContext context, string text);
     }
 }

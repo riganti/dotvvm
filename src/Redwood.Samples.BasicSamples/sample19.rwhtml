@@ -1,0 +1,28 @@
+﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample19ViewModel, Redwood.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from Redwood!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>File upload sample</h1>
+		
+		<rw:FileUpload UploadedFiles="{value: Files}" />
+		<p>
+			<rw:Button Text="Confirm upload" Click="{command: Process()}" Enabled="{value: !Files.IsBusy}" />
+		</p>
+		<p>&nbsp;</p>
+
+		<rw:Repeater DataSource="{value: FilesInStorage}" WrapperTagName="ul">
+			<ItemTemplate>
+				<li>{{value: _this}}</li>
+			</ItemTemplate>
+		</rw:Repeater>
+
+	</div>
+	
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>

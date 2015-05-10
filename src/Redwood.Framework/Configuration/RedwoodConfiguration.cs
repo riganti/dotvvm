@@ -187,6 +187,21 @@ namespace Redwood.Framework.Configuration
                     Url = "/Content/bootstrap.min.css"
                 });
 
+            configuration.Resources.Register(Constants.RedwoodFileUploadResourceName, 
+                new ScriptResource()
+                {
+                    Url = "Redwood.Framework.Resources.Scripts.Redwood.FileUpload.js",
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
+                    Dependencies = new[] { Constants.RedwoodResourceName }
+                });
+            configuration.Resources.Register(Constants.RedwoodFileUploadCssResourceName,
+                new StylesheetResource()
+                {
+                    Url = "Redwood.Framework.Resources.Scripts.Redwood.FileUpload.css",
+                    EmbeddedResourceAssembly = typeof(RedwoodConfiguration).Assembly.GetName().Name,
+                    Dependencies = new[] { Constants.RedwoodFileUploadResourceName }
+                });
+
             RegisterGlobalizeResources(configuration);
 
             return configuration;
