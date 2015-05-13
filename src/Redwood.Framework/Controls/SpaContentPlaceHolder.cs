@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Binding;
 using Redwood.Framework.Controls.Infrastructure;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Parser;
@@ -10,6 +11,17 @@ namespace Redwood.Framework.Controls
 {
     public class SpaContentPlaceHolder : ContentPlaceHolder
     {
+
+        public string DefaultRouteName
+        {
+            get { return (string)GetValue(DefaultRouteNameProperty); }
+            set { SetValue(DefaultRouteNameProperty, value); }
+        }
+
+        public static readonly RedwoodProperty DefaultRouteNameProperty
+            = RedwoodProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
+
+
         public string GetSpaContentPlaceHolderUniqueId()
         {
             return GetAllAncestors().FirstOrDefault(a => a is RedwoodView).GetType().ToString();
@@ -31,6 +43,20 @@ namespace Redwood.Framework.Controls
             writer.AddAttribute("id", ID);
             writer.AddAttribute("name", Constants.SpaContentPlaceHolderID);
             writer.AddAttribute(Constants.SpaContentPlaceHolderDataAttributeName, GetSpaContentPlaceHolderUniqueId());
+
+            if (!string.IsNullOrEmpty(DefaultRouteName))
+            {
+                var route = context.RequestContext.Configuration.RouteTable[DefaultRouteName];
+                if (route == null)
+                {
+                    throw new ArgumentException(string.Format("The route with name {0} does not exist!", DefaultRouteName));
+                }
+                if (route.ParameterNames.Any())
+                {
+                    throw new ArgumentException(string.Format("The route {0} specified in SpaContentPlaceHolder DefaultRouteName property cannot contain route parameters!", DefaultRouteName));
+                }
+                writer.AddAttribute(Constants.SpaContentPlaceHolderDefaultRouteDataAttributeName, route.Url);
+            }
             base.AddAttributesToRender(writer, context);
         }
 

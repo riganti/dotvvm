@@ -131,11 +131,12 @@
     <None Include="Properties\PublishProfiles\CI.pubxml" />
     <Content Include="sample15.rwhtml" />
     <Content Include="sample16.rwhtml" />
-    <Content Include="sample17.rwhtml" />
+    <Content Include="sample17_a.rwhtml" />
     <Content Include="sample17_b.rwhtml" />
     <Content Include="sample17_master.rwhtml" />
     <Content Include="sample18.rwhtml" />
     <Content Include="sample19.rwhtml" />
+    <Content Include="sample17.rwhtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />

@@ -567,8 +567,19 @@ namespace Redwood.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(BaseUrl + "Sample17/14");
+                browser.NavigateToUrl(BaseUrl + "Sample17");
                 Thread.Sleep(WaitTime);
+
+                // make sure the default page loads
+                Thread.Sleep(WaitTime);
+                Assert.IsFalse(string.IsNullOrWhiteSpace(browser.GetAlertText()));
+                browser.ConfirmAlert();
+                Assert.AreEqual(browser.CurrentUrl, BaseUrl + "Sample17#!/Sample17/B");
+
+                // go to first page
+                browser.Click("a");
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(BaseUrl + "Sample17#!/Sample17/A/16", browser.CurrentUrl);
 
                 // test first page
                 Assert.AreEqual("0", browser.FindAll("span")[1].GetText());
@@ -583,10 +594,7 @@ namespace Redwood.Samples.Tests
                 // go to second page
                 browser.FindAll("a").Single(l => l.GetText().Contains("Go to Task List")).Click();
                 Thread.Sleep(WaitTime);
-                Assert.IsFalse(string.IsNullOrWhiteSpace(browser.GetAlertText()));
-                browser.ConfirmAlert();
-                Thread.Sleep(WaitTime);
-                Assert.AreEqual(BaseUrl + "Sample17/14#!/Sample17_B", browser.CurrentUrl);
+                Assert.AreEqual(BaseUrl + "Sample17#!/Sample17/B", browser.CurrentUrl);
 
                 // try the task list
                 Assert.AreEqual(3, browser.FindAll(".table tr").Count);
@@ -598,10 +606,10 @@ namespace Redwood.Samples.Tests
                 Thread.Sleep(WaitTime);
                 Assert.IsTrue(browser.FindAll(".table tr").Last().GetAttribute("class").Contains("completed"));
 
-                // go back to first page
-                browser.Click("a");
+                // test the browse back button
+                browser.NavigateBack();
                 Thread.Sleep(WaitTime);
-                Assert.AreEqual(BaseUrl + "Sample17/14#!/Sample17/16", browser.CurrentUrl);
+                Assert.AreEqual(BaseUrl + "Sample17#!/Sample17/A/16", browser.CurrentUrl);
 
                 // test first page
                 Assert.AreEqual("0", browser.FindAll("span")[1].GetText());
@@ -612,6 +620,20 @@ namespace Redwood.Samples.Tests
                 browser.Click("input[type=button]");
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("3", browser.FindAll("span")[1].GetText());
+
+                // test the forward button
+                browser.NavigateForward();
+                Thread.Sleep(WaitTime);
+
+                // test the redirect inside SPA
+                browser.FindAll("input[type=button]").Last().Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(BaseUrl + "Sample17#!/Sample17/A/15", browser.CurrentUrl);
+
+                // test the redirect outside SPA
+                browser.FindAll("a").Single(l => l.GetText().Contains("Exit SPA")).Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(BaseUrl + "Sample1", browser.CurrentUrl);
             });
         }
 

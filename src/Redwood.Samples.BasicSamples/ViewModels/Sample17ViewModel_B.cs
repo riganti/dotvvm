@@ -24,5 +24,10 @@ namespace Redwood.Samples.BasicSamples.ViewModels
             }
             return base.Init();
         }
+
+        public void Redirect()
+        {
+            Context.Redirect("/Sample17/A/15");
+        }
     }
 }

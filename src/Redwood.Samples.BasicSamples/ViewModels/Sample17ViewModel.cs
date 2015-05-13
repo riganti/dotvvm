@@ -5,7 +5,7 @@ using Redwood.Framework.ViewModel;
 
 namespace Redwood.Samples.BasicSamples.ViewModels
 {
-    public abstract class Sample17ViewModel : RedwoodViewModelBase
+    public class Sample17ViewModel : RedwoodViewModelBase
     {
 
         public string HeaderText { get; set; }

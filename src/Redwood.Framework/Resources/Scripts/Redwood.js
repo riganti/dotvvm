@@ -33,23 +33,30 @@ var Redwood = (function () {
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
         // handle SPA
-        if (this.getSpaPlaceHolder()) {
-            if (document.location.hash.indexOf("#!/") === 0) {
-                this.navigateCore(viewModelName, document.location.hash.substring(2));
-            }
-            this.attachEvent(window, "hashchange", function () {
-                if (document.location.hash.indexOf("#!/") === 0) {
-                    _this.navigateCore(viewModelName, document.location.hash.substring(2));
-                }
-                else {
-                    _this.navigateCore(viewModelName, "/");
-                }
-            });
+        var spaPlaceHolder = this.getSpaPlaceHolder();
+        if (spaPlaceHolder) {
+            this.attachEvent(window, "hashchange", function () { return _this.handleHashChange(viewModelName, spaPlaceHolder); });
+            this.handleHashChange(viewModelName, spaPlaceHolder);
         }
         // persist the viewmodel in the hidden field so the Back button will work correctly
         this.attachEvent(window, "beforeunload", function (e) {
             _this.persistViewModel(viewModelName);
         });
+    };
+    Redwood.prototype.handleHashChange = function (viewModelName, spaPlaceHolder) {
+        if (document.location.hash.indexOf("#!/") === 0) {
+            this.navigateCore(viewModelName, document.location.hash.substring(2));
+        }
+        else {
+            // redirect to the default URL
+            var url = spaPlaceHolder.getAttribute("data-rw-spacontentplaceholder-defaultroute");
+            if (url) {
+                document.location.hash = "#!/" + url;
+            }
+            else {
+                this.navigateCore(viewModelName, "/");
+            }
+        }
     };
     Redwood.prototype.onDocumentReady = function (callback) {
         // many thanks to http://dustindiaz.com/smallest-domready-ever
@@ -125,7 +132,7 @@ var Redwood = (function () {
                 }
                 else if (resultObject.action === "redirect") {
                     // redirect
-                    _this.navigateCore(viewModelName, resultObject.url);
+                    _this.handleRedirect(resultObject);
                     return;
                 }
                 // trigger afterPostback event
@@ -260,8 +267,7 @@ var Redwood = (function () {
                     ko.applyBindings(_this.viewModels[viewModelName].viewModel, document.documentElement);
                 }
                 else if (resultObject.action === "redirect") {
-                    // redirect
-                    document.location.href = resultObject.url;
+                    _this.handleRedirect(resultObject);
                     return;
                 }
                 // trigger spaNavigated event
@@ -282,6 +288,17 @@ var Redwood = (function () {
                 alert(xhr.responseText);
             }
         });
+    };
+    Redwood.prototype.handleRedirect = function (resultObject) {
+        // redirect
+        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
+            // relative URL - keep in SPA mode
+            document.location.href = "#!" + resultObject.url;
+        }
+        else {
+            // absolute URL - load the URL
+            document.location.href = resultObject.url;
+        }
     };
     Redwood.prototype.addLeadingSlash = function (url) {
         if (url.length > 0 && url.substring(0, 1) != "/") {

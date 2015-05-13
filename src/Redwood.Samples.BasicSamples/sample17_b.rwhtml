@@ -32,8 +32,11 @@
 					</tr>
 				</ItemTemplate>
 			</rw:Repeater>
-		</table>
+		</table>	
 	</div>
+
+	<p><rw:Button Click="{command: Redirect()}" Text="Redirect in SPA test" /></p>
+
 	<rw:RequiredResource Name="testCss" />
 	<rw:RequiredResource Name="testJs" />
 

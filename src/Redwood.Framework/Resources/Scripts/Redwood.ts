@@ -34,24 +34,30 @@ class Redwood {
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
 
         // handle SPA
-        if (this.getSpaPlaceHolder()) {
-            if (document.location.hash.indexOf("#!/") === 0) {
-                this.navigateCore(viewModelName, document.location.hash.substring(2));
-            }
-
-            this.attachEvent(window, "hashchange",() => {
-                if (document.location.hash.indexOf("#!/") === 0) {
-                    this.navigateCore(viewModelName, document.location.hash.substring(2));
-                } else {
-                    this.navigateCore(viewModelName, "/");
-                }
-            });
+        var spaPlaceHolder = this.getSpaPlaceHolder();
+        if (spaPlaceHolder) {
+            this.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
+            this.handleHashChange(viewModelName, spaPlaceHolder);
         }
 
         // persist the viewmodel in the hidden field so the Back button will work correctly
         this.attachEvent(window, "beforeunload", e => {
             this.persistViewModel(viewModelName);
         });
+    }
+
+    private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement) {
+        if (document.location.hash.indexOf("#!/") === 0) {
+            this.navigateCore(viewModelName, document.location.hash.substring(2));
+        } else {
+            // redirect to the default URL
+            var url = spaPlaceHolder.getAttribute("data-rw-spacontentplaceholder-defaultroute");
+            if (url) {
+                document.location.hash = "#!/" + url;
+            } else {
+                this.navigateCore(viewModelName, "/");
+            }
+        }
     }
 
     public onDocumentReady(callback: () => void) {
@@ -138,7 +144,7 @@ class Redwood {
 
                 } else if (resultObject.action === "redirect") {
                     // redirect
-                    this.navigateCore(viewModelName, resultObject.url);
+                    this.handleRedirect(resultObject);
                     return;
                 } 
             
@@ -219,10 +225,10 @@ class Redwood {
         return result;
     }
 
-    private getSpaPlaceHolder() {
+    private getSpaPlaceHolder() : HTMLElement {
         var elements = document.getElementsByName("__rw_SpaContentPlaceHolder");
         if (elements.length == 1) {
-            return elements[0];
+            return <HTMLElement>elements[0];
         }
         return null;
     }
@@ -279,8 +285,7 @@ class Redwood {
                 ko.applyBindings(this.viewModels[viewModelName].viewModel, document.documentElement);
 
             } else if (resultObject.action === "redirect") {
-                // redirect
-                document.location.href = resultObject.url;
+                this.handleRedirect(resultObject);
                 return;
             } 
             
@@ -302,6 +307,17 @@ class Redwood {
                 alert(xhr.responseText);
             }
         });
+    }
+
+    private handleRedirect(resultObject: any) {
+        // redirect
+        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
+            // relative URL - keep in SPA mode
+            document.location.href = "#!" + resultObject.url;
+        } else {
+            // absolute URL - load the URL
+            document.location.href = resultObject.url;
+        }
     }
 
     private addLeadingSlash(url: string) {
