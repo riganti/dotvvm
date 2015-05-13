@@ -183,29 +183,44 @@ var Redwood = (function () {
             return;
         }
         var el = elements[offset];
+        var waitForScriptLoaded = true;
         if (el.tagName.toLowerCase() == "script") {
-            // do some hacks to load script
+            // create the script element
             var script = document.createElement("script");
-            if (el.src)
+            if (el.src) {
                 script.src = el.src;
-            if (el.type)
+            }
+            if (el.type) {
                 script.type = el.type;
-            if (el.text)
+            }
+            if (el.text) {
                 script.text = el.text;
+                waitForScriptLoaded = false;
+            }
             el = script;
         }
         else if (el.tagName.toLowerCase() == "link") {
+            // create link
             var link = document.createElement("link");
-            if (el.href)
+            if (el.href) {
                 link.href = el.href;
-            if (el.rel)
+            }
+            if (el.rel) {
                 link.rel = el.rel;
-            if (el.type)
+            }
+            if (el.type) {
                 link.type = el.type;
+            }
             el = link;
         }
-        el.onload = function () { return _this.loadResourceElements(elements, offset + 1, callback); };
+        // load next script when this is finished
+        if (waitForScriptLoaded) {
+            el.onload = function () { return _this.loadResourceElements(elements, offset + 1, callback); };
+        }
         document.head.appendChild(el);
+        if (!waitForScriptLoaded) {
+            this.loadResourceElements(elements, offset + 1, callback);
+        }
     };
     Redwood.prototype.evaluateOnViewModel = function (context, expression) {
         var result = eval("(function (c) { return c." + expression + "; })")(context);
