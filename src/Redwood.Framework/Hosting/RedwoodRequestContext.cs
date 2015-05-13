@@ -20,35 +20,62 @@ namespace Redwood.Framework.Hosting
     {
         internal string CsrfToken { get; set; }
 
-
-
+        /// <summary>
+        /// Gets the underlying <see cref="IOwinContext"/> object for this HTTP request.
+        /// </summary>
         public IOwinContext OwinContext { get; internal set; }
-        
+
+        /// <summary>
+        /// Gets the <see cref="IRedwoodPresenter"/> that is responsible for handling this HTTP request.
+        /// </summary>
         public IRedwoodPresenter Presenter { get; internal set; }
 
+        /// <summary>
+        /// Gets the global configuration of Redwood.
+        /// </summary>
         public RedwoodConfiguration Configuration { get; internal set; }
 
+        /// <summary>
+        /// Gets the route that was used for this request.
+        /// </summary>
         public RouteBase Route { get; internal set; }
 
+        /// <summary>
+        /// Determines whether this HTTP request is a postback or a classic GET request.
+        /// </summary>
         public bool IsPostBack { get; internal set; }
 
+        /// <summary>
+        /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
+        /// </summary>
         public IDictionary<string, object> Parameters { get; set; }
 
+        /// <summary>
+        /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
+        /// </summary>
         public ResourceManager ResourceManager { get; internal set; }
 
+        /// <summary>
+        /// Gets the view model object for the current HTTP request.
+        /// </summary>
         public object ViewModel { get; internal set; }
-        
+
+        /// <summary>
+        /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel.
+        /// </summary>
         public ModelState ModelState { get; private set; }
 
         internal Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 
         internal string RenderedHtml { get; set; }
 
-        public JObject ViewModelJson { get; set; }
+        internal JObject ViewModelJson { get; set; }
 
-        public JObject ReceivedViewModelJson { get; set; }
+        internal JObject ReceivedViewModelJson { get; set; }
 
-
+        /// <summary>
+        /// Gets the query string parameters specified in the URL of the current HTTP request.
+        /// </summary>
         public IReadableStringCollection Query
         {
             get
@@ -71,6 +98,9 @@ namespace Redwood.Framework.Hosting
             get { return RedwoodPresenter.DetermineSpaRequest(OwinContext); }
         }
 
+        /// <summary>
+        /// Gets a value indicating whether this HTTP request is made from single page application and only the SpaContentPlaceHolder content will be rendered.
+        /// </summary>
         public bool IsInPartialRenderingMode
         {
             get { return RedwoodPresenter.DeterminePartialRendering(OwinContext); }
@@ -116,7 +146,16 @@ namespace Redwood.Framework.Hosting
         {
             SetRedirectResponse(OwinContext, url, (int)HttpStatusCode.Redirect);
             InterruptRequest();
+        }
 
+        /// <summary>
+        /// Returns the redirect response and interrupts the execution of current request.
+        /// </summary>
+        public void Redirect(string routeName, object newRouteValues)
+        {
+            var route = Configuration.RouteTable[routeName];
+            var url = route.BuildUrl(Parameters, newRouteValues);
+            Redirect(url);
         }
 
         /// <summary>
@@ -126,6 +165,16 @@ namespace Redwood.Framework.Hosting
         {
             SetRedirectResponse(OwinContext, url, (int)HttpStatusCode.MovedPermanently);
             InterruptRequest();
+        }
+
+        /// <summary>
+        /// Returns the permanent redirect response and interrupts the execution of current request.
+        /// </summary>
+        public void RedirectPermanent(string routeName, object newRouteValues)
+        {
+            var route = Configuration.RouteTable[routeName];
+            var url = route.BuildUrl(Parameters, newRouteValues);
+            RedirectPermanent(url);
         }
 
         /// <summary>
@@ -163,7 +212,7 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Gets the serialized view model.
         /// </summary>
-        public string GetSerializedViewModel()
+        internal string GetSerializedViewModel()
         {
             return Presenter.ViewModelSerializer.SerializeViewModel(this);
         }

@@ -94,14 +94,7 @@ namespace Redwood.Framework.Controls
 
         private RouteBase GetRoute(RenderContext context)
         {
-            // find the route 
-            var route = context.RequestContext.Configuration.RouteTable[RouteName];
-            if (route == null)
-            {
-                throw new Exception(string.Format("Route with name '{0}' was not found!", RouteName));
-            }
-
-            return route;
+            return context.RequestContext.Configuration.RouteTable[RouteName];
         }
 
         private string GenerateRouteLink(RenderContext context)

@@ -47,10 +47,6 @@ namespace Redwood.Framework.Controls
             if (!string.IsNullOrEmpty(DefaultRouteName))
             {
                 var route = context.RequestContext.Configuration.RouteTable[DefaultRouteName];
-                if (route == null)
-                {
-                    throw new ArgumentException(string.Format("The route with name {0} does not exist!", DefaultRouteName));
-                }
                 if (route.ParameterNames.Any())
                 {
                     throw new ArgumentException(string.Format("The route {0} specified in SpaContentPlaceHolder DefaultRouteName property cannot contain route parameters!", DefaultRouteName));

@@ -63,7 +63,15 @@ namespace Redwood.Framework.Routing
 
         public RouteBase this[string key]
         {
-            get { return list.FirstOrDefault(i => i.Key == key).Value; }
+            get
+            {
+                var route = list.FirstOrDefault(i => i.Key == key).Value;
+                if (route == null)
+                {
+                    throw new ArgumentException(string.Format("The route with name {0} does not exist!", key));
+                }
+                return route;
+            }
         }
 
         /// <summary>
