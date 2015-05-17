@@ -129,8 +129,8 @@ namespace Redwood.Framework.ViewModel
                                 levc - ev.Count != (int)GetAndRemove(ev, 0), lastEVcount, encryptedValues),
                             Expression.Throw(Expression.New(typeof(System.Security.SecurityException)))
                         ));
+                    }
                 }
-            }
             }
 
             block.Add(value);
@@ -168,7 +168,7 @@ namespace Redwood.Framework.ViewModel
 
             // usedMaps.Add(serializationMap);
             block.Add(ExpressionUtils.Replace((HashSet<ViewModelSerializationMap> ut, ViewModelSerializationMap sm) => ut.Add(sm), usedTypes, serializationMap));
-            
+
             // value = ({Type})valueParam;
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
@@ -231,12 +231,16 @@ namespace Redwood.Framework.ViewModel
         }
 
         private static readonly string RedwoodAssemblyName = typeof(ViewModelSerializationMap).Assembly.FullName;
+        /// <summary>
+        /// Determines whether type can contain encrypted fields
+        /// </summary>
         private bool ShouldCheckEncrypedValueCount(Type type)
         {
             return !(
+                // primitives can't contain encrypted fields
                 type.IsPrimitive ||
                 type == typeof(string) ||
-                (typeof(IEnumerable<>).IsAssignableFrom(type) && ShouldCheckEncrypedValueCount(type.GenericTypeArguments[0])) ||
+                // types in assemblies than don't reference redwood also can't contain encryped values (as long as generic arguments also met the conditions)
                 (type.Assembly.GetReferencedAssemblies().All(a => a.FullName != RedwoodAssemblyName) &&
                     !type.GenericTypeArguments.Any(ShouldCheckEncrypedValueCount))
            );
