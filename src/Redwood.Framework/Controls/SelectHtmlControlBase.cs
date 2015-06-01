@@ -63,15 +63,23 @@ namespace Redwood.Framework.Controls
             if (RenderOnServer)
             {
                 // render items
+                bool first = true;
                 foreach (var item in GetIEnumerableFromDataSource(DataSource))
                 {
                     var value = string.IsNullOrEmpty(ValueMember) ? item : ReflectionUtils.GetObjectProperty(item, ValueMember);
                     var text = string.IsNullOrEmpty(DisplayMember) ? item : ReflectionUtils.GetObjectProperty(item, DisplayMember);
 
+                    if (first)
+                    {
+                        writer.WriteUnencodedText(Environment.NewLine);
+                        first = false;
+                    }
+                    writer.WriteUnencodedText("    ");  //Indent
                     writer.AddAttribute("value", value != null ? value.ToString() : "");
-                    writer.RenderSelfClosingTag("option");
+                    writer.RenderBeginTag("option");
                     writer.WriteText(text != null ? text.ToString() : "");
                     writer.RenderEndTag();
+                    writer.WriteUnencodedText(Environment.NewLine);
                 }
             }
         }
