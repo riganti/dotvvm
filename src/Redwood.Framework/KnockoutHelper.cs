@@ -11,12 +11,16 @@ namespace Redwood.Framework
     public static class KnockoutHelper
     {
         
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, RedwoodBindableControl control, RedwoodProperty property, Action nullBindingAction)
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, RedwoodBindableControl control, RedwoodProperty property, Action nullBindingAction, string valueUpdate = null)
         {
             var expression = control.GetValueBinding(property);
             if (expression != null)
             {
                 writer.AddAttribute("data-bind", name + ": " + expression.TranslateToClientScript(control, property), true, ", ");
+                if (valueUpdate != null)
+                {
+                    writer.AddAttribute("data-bind", "valueUpdate: '" + valueUpdate + "'", true, ", ");
+                }
             }
             else
             {
