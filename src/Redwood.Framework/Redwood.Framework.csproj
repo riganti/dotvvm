@@ -110,6 +110,7 @@
     <Compile Include="Controls\IEventValidationHandler.cs" />
     <Compile Include="Controls\GridViewDataSet.cs" />
     <Compile Include="Controls\IGridViewDataSet.cs" />
+    <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\MultiHtmlWriter.cs" />
     <Compile Include="Controls\RenderMode.cs" />
