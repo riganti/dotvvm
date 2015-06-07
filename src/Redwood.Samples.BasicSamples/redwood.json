@@ -18,10 +18,10 @@
     },
     "resources": {
         "stylesheets": {
-            "testCss": { "url": "/Content/testResource.css" }
+            "testCss": { "url": "~/Content/testResource.css" }
         },
         "scripts": {
-            "testJs": {"url": "/Scripts/testResource.js" }
+            "testJs": {"url": "~/Scripts/testResource.js" }
         }
     }
 }

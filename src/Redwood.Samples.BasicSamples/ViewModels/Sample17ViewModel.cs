@@ -8,7 +8,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
     public class Sample17ViewModel : RedwoodViewModelBase
     {
 
-        public string HeaderText { get; set; }
+        public string HeaderText { get; set; } 
         
     }
 }

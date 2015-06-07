@@ -58,7 +58,6 @@ namespace Redwood.Framework.Controls
             {
                 throw new Exception("The UploadedFiles property of the FileUpload control must be bound!");   // TODO: Exception handling
             });
-            writer.AddAttribute("data-multiple", AllowMultipleFiles.ToString().ToLower());
             writer.AddAttribute("class", "rw-upload", true);
 
             base.AddAttributesToRender(writer, context);
@@ -68,7 +67,7 @@ namespace Redwood.Framework.Controls
         {
             // render iframe
             writer.AddAttribute("class", "rw-upload-iframe");
-            writer.AddAttribute("src", "/" + Constants.FileUploadHandlerMatchUrl);
+            writer.AddAttribute("src", "~/" + Constants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
             writer.AddAttribute("id", ID + "_iframe");
             writer.AddAttribute("data-target-control-id", ID);
             writer.RenderBeginTag("iframe");

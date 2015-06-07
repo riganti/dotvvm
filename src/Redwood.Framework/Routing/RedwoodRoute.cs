@@ -116,7 +116,7 @@ namespace Redwood.Framework.Routing
         /// </summary>
         protected override string BuildUrlCore(Dictionary<string, object> values)
         {
-            var stringBuilder = new StringBuilder();
+            var stringBuilder = new StringBuilder("~/");
 
             var isFirst = true;
             foreach (var component in components)

@@ -20,7 +20,7 @@
 			<p><rw:Button Text="Login" Click="{command: Login()}" /></p>
 		</fieldset>
 
-		<a href="/AuthSample/SecuredPage">Page for authenticated</a>
+		<a href="~/AuthSample/SecuredPage">Page for authenticated</a>
 	</div>
 </body>
 </html>

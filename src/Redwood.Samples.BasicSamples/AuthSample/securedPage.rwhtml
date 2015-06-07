@@ -22,7 +22,7 @@
 			<p><rw:Button Text="Replace" Click="{command: ReplaceMessage()}" /></p>
 		</fieldset>
 
-		<a href="/AuthSample/Login">Login page - change your credentials</a>
+		<a href="~/AuthSample/Login">Login page - change your credentials</a>
 	</div>
 </body>
 </html>

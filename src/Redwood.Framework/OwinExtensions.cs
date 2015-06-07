@@ -10,13 +10,8 @@ namespace Redwood.Framework
     public static class OwinExtensions
     {
 
-        public static RedwoodConfiguration UseRedwood(this IAppBuilder app, string applicationRootDirectory, string virtualDirectory = "")
+        public static RedwoodConfiguration UseRedwood(this IAppBuilder app, string applicationRootDirectory)
         {
-            if (virtualDirectory.StartsWith("/"))
-            {
-                virtualDirectory = virtualDirectory.Substring(1);
-            }
-
             var configurationFilePath = Path.Combine(applicationRootDirectory, "redwood.json");
             
             // load or create default configuration
@@ -27,7 +22,6 @@ namespace Redwood.Framework
                 JsonConvert.PopulateObject(fileContents, configuration);
             }
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
-            configuration.VirtualDirectory = virtualDirectory;
             configuration.Markup.AddAssembly(Assembly.GetCallingAssembly().FullName);
 
             // add middlewares

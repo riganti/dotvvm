@@ -36,7 +36,7 @@ class Redwood {
         // handle SPA
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.attachEvent(window, "hashchange",() => this.handleHashChange(viewModelName, spaPlaceHolder));
+            this.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
             this.handleHashChange(viewModelName, spaPlaceHolder);
         }
 
@@ -128,7 +128,7 @@ class Redwood {
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
-            this.loadResourceList(resultObject.resources,() => {
+            this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand") {
                     // remove updated controls
@@ -144,7 +144,7 @@ class Redwood {
 
                 } else if (resultObject.action === "redirect") {
                     // redirect
-                    this.handleRedirect(resultObject);
+                    this.handleRedirect(resultObject, viewModelName);
                     return;
                 } 
             
@@ -156,16 +156,16 @@ class Redwood {
                 }
             });
         }, xhr => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-                // execute error handlers
-                var errArgs = new RedwoodErrorEventArgs(viewModel, xhr);
-                this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert(xhr.responseText);
-                }
-            });
+            // execute error handlers
+            var errArgs = new RedwoodErrorEventArgs(viewModel, xhr);
+            this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
+                alert(xhr.responseText);
+            }
+        });
     }
 
     private loadResourceList(resources: RenderedResourceList, callback: () => void) {
@@ -238,85 +238,85 @@ class Redwood {
     }
 
     public evaluateOnViewModel(context, expression) {
-    var result = eval("(function (c) { return c." + expression + "; })")(context);
-    if (result && result.$data) {
-        result = result.$data;
+        var result = eval("(function (c) { return c." + expression + "; })")(context);
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
     }
-    return result;
-}
 
-    private getSpaPlaceHolder() : HTMLElement {
-    var elements = document.getElementsByName("__rw_SpaContentPlaceHolder");
-    if (elements.length == 1) {
-        return <HTMLElement>elements[0];
+    private getSpaPlaceHolder(): HTMLElement {
+        var elements = document.getElementsByName("__rw_SpaContentPlaceHolder");
+        if (elements.length == 1) {
+            return <HTMLElement>elements[0];
+        }
+        return null;
     }
-    return null;
-}
 
     private navigateCore(viewModelName: string, url: string) {
-    var viewModel = this.viewModels[viewModelName].viewModel;
+        var viewModel = this.viewModels[viewModelName].viewModel;
 
-    // prevent double postbacks
-    var currentPostBackCounter = this.backUpPostBackConter();
+        // prevent double postbacks
+        var currentPostBackCounter = this.backUpPostBackConter();
 
-    // trigger spaNavigating event
-    var spaNavigatingArgs = new RedwoodSpaNavigatingEventArgs(viewModel, viewModelName, url);
-    this.events.spaNavigating.trigger(spaNavigatingArgs);
-    if (spaNavigatingArgs.cancel) {
-        return;
-    }
+        // trigger spaNavigating event
+        var spaNavigatingArgs = new RedwoodSpaNavigatingEventArgs(viewModel, viewModelName, url);
+        this.events.spaNavigating.trigger(spaNavigatingArgs);
+        if (spaNavigatingArgs.cancel) {
+            return;
+        }
 
-    // add virtual directory prefix
-    var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
+        // add virtual directory prefix
+        var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
         
-    // find SPA placeholder
-    var spaPlaceHolder = this.getSpaPlaceHolder();
-    if (!spaPlaceHolder) {
-        document.location.href = fullUrl;
-        return;
-    }
+        // find SPA placeholder
+        var spaPlaceHolder = this.getSpaPlaceHolder();
+        if (!spaPlaceHolder) {
+            document.location.href = fullUrl;
+            return;
+        }
         
-    // send the request
-    var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-rw-spacontentplaceholder"].value;
-    this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
-        // if another postback has already been passed, don't do anything
-        if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+        // send the request
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-rw-spacontentplaceholder"].value;
+        this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-        var resultObject = JSON.parse(result.responseText);
-        this.loadResourceList(resultObject.resources,() => {
-            var isSuccess = false;
-            if (resultObject.action === "successfulCommand" || !resultObject.action) {
-                // remove updated controls
-                var updatedControls = this.cleanUpdatedControls(resultObject);
+            var resultObject = JSON.parse(result.responseText);
+            this.loadResourceList(resultObject.resources, () => {
+                var isSuccess = false;
+                if (resultObject.action === "successfulCommand" || !resultObject.action) {
+                    // remove updated controls
+                    var updatedControls = this.cleanUpdatedControls(resultObject);
 
-                // update the viewmodel
-                ko.cleanNode(document.documentElement);
-                this.viewModels[viewModelName] = {};
-                for (var p in resultObject) {
-                    if (resultObject.hasOwnProperty(p)) {
-                        this.viewModels[viewModelName][p] = resultObject[p];
+                    // update the viewmodel
+                    ko.cleanNode(document.documentElement);
+                    this.viewModels[viewModelName] = {};
+                    for (var p in resultObject) {
+                        if (resultObject.hasOwnProperty(p)) {
+                            this.viewModels[viewModelName][p] = resultObject[p];
+                        }
                     }
-                }
-                ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
-                isSuccess = true;
+                    ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                    isSuccess = true;
 
-                // add updated controls
-                this.restoreUpdatedControls(resultObject, updatedControls, false);
-                ko.applyBindings(this.viewModels[viewModelName].viewModel, document.documentElement);
+                    // add updated controls
+                    this.restoreUpdatedControls(resultObject, updatedControls, false);
+                    ko.applyBindings(this.viewModels[viewModelName].viewModel, document.documentElement);
 
-            } else if (resultObject.action === "redirect") {
-                this.handleRedirect(resultObject);
-                return;
-            } 
+                } else if (resultObject.action === "redirect") {
+                    this.handleRedirect(resultObject, viewModelName);
+                    return;
+                } 
             
-            // trigger spaNavigated event
-            var spaNavigatedArgs = new RedwoodSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
-            this.events.spaNavigated.trigger(spaNavigatedArgs);
-            if (!isSuccess && !spaNavigatedArgs.isHandled) {
-                throw "Invalid response from server!";
-            }
-        });
-    }, xhr => {
+                // trigger spaNavigated event
+                var spaNavigatedArgs = new RedwoodSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
+                this.events.spaNavigated.trigger(spaNavigatedArgs);
+                if (!isSuccess && !spaNavigatedArgs.isHandled) {
+                    throw "Invalid response from server!";
+                }
+            });
+        }, xhr => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
@@ -327,174 +327,183 @@ class Redwood {
                 alert(xhr.responseText);
             }
         });
-}
-
-    private handleRedirect(resultObject: any) {
-    // redirect
-    if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
-        // relative URL - keep in SPA mode
-        document.location.href = "#!" + resultObject.url;
-    } else {
-        // absolute URL - load the URL
-        document.location.href = resultObject.url;
     }
-}
+
+    private handleRedirect(resultObject: any, viewModelName: string) {
+        // redirect
+        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
+            // relative URL - keep in SPA mode, but remove the virtual directory
+            document.location.href = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
+        } else {
+            // absolute URL - load the URL
+            document.location.href = resultObject.url;
+        }
+    }
+
+    private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
+        var virtualDirectory = "/" + this.viewModels[viewModelName].virtualDirectory;
+        if (url.indexOf(virtualDirectory) == 0) {
+            return this.addLeadingSlash(url.substring(virtualDirectory.length));
+        } else {
+            return url;
+        }
+    }
 
     private addLeadingSlash(url: string) {
-    if (url.length > 0 && url.substring(0, 1) != "/") {
-        return "/" + url;
+        if (url.length > 0 && url.substring(0, 1) != "/") {
+            return "/" + url;
+        }
+        return url;
     }
-    return url;
-}
 
     private concatUrl(url1: string, url2: string) {
-    if (url1.length > 0 && url1.substring(url1.length - 1) == "/") {
-        url1 = url1.substring(0, url1.length - 1);
+        if (url1.length > 0 && url1.substring(url1.length - 1) == "/") {
+            url1 = url1.substring(0, url1.length - 1);
+        }
+        return url1 + this.addLeadingSlash(url2);
     }
-    return url1 + this.addLeadingSlash(url2);
-}
 
     public patch(source: any, patch: any): any {
-    if (source instanceof Array && patch instanceof Array) {
-        return patch.map((val, i) =>
-            this.patch(source[i], val));
-    }
-    else if (source instanceof Array || patch instanceof Array)
-        return patch;
-    else if (typeof source == "object" && typeof patch == "object") {
-        for (var p in patch) {
-            if (patch[p] == null) source[p] = null;
-            else if (source[p] == null) source[p] = patch[p];
-            else source[p] = this.patch(source[p], patch[p]);
+        if (source instanceof Array && patch instanceof Array) {
+            return patch.map((val, i) =>
+                this.patch(source[i], val));
         }
-    }
-    else return patch;
+        else if (source instanceof Array || patch instanceof Array)
+            return patch;
+        else if (typeof source == "object" && typeof patch == "object") {
+            for (var p in patch) {
+                if (patch[p] == null) source[p] = null;
+                else if (source[p] == null) source[p] = patch[p];
+                else source[p] = this.patch(source[p], patch[p]);
+            }
+        }
+        else return patch;
 
-    return source;
-}
+        return source;
+    }
 
     public format(format: string, ...values: string[]) {
-    return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g,(match, group0, group1) => {
-        var value = values[parseInt(group0)];
-        if (group1) {
-            return redwood.formatString(group1, value);
-        } else {
-            return value;
-        }
-    });
-}
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, (match, group0, group1) => {
+            var value = values[parseInt(group0)];
+            if (group1) {
+                return redwood.formatString(group1, value);
+            } else {
+                return value;
+            }
+        });
+    }
 
     public formatString(format: string, value: any) {
-    if (format == "g") {
-        return redwood.formatString("d", value) + " " + redwood.formatString("t", value);
-    } else if (format == "G") {
-        return redwood.formatString("d", value) + " " + redwood.formatString("T", value);
-    }
+        if (format == "g") {
+            return redwood.formatString("d", value) + " " + redwood.formatString("t", value);
+        } else if (format == "G") {
+            return redwood.formatString("d", value) + " " + redwood.formatString("T", value);
+        }
 
-    value = ko.unwrap(value);
-    if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?$")) {
-        // JSON date in string
-        value = new Date(value);
+        value = ko.unwrap(value);
+        if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?$")) {
+            // JSON date in string
+            value = new Date(value);
+        }
+        return Globalize.format(value, format, redwood.culture);
     }
-    return Globalize.format(value, format, redwood.culture);
-}
 
     public getDataSourceItems(viewModel: any) {
-    var value = ko.unwrap(viewModel);
-    return value.Items || value;
-}
+        var value = ko.unwrap(viewModel);
+        return value.Items || value;
+    }
 
     private updateDynamicPathFragments(sender: HTMLElement, path: string[]): void {
-    var context = ko.contextFor(sender);
+        var context = ko.contextFor(sender);
 
-    for(var i = path.length - 1; i >= 0; i--) {
-    if (path[i].indexOf("[$index]") >= 0) {
-        path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
-    }
-    context = context.$parentContext;
-}
+        for (var i = path.length - 1; i >= 0; i--) {
+            if (path[i].indexOf("[$index]") >= 0) {
+                path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
+            }
+            context = context.$parentContext;
+        }
     }
 
     private postJSON(url: string, method: string, postData: any, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void) {
-    var xhr = this.getXHR();
-    xhr.open(method, url, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState != 4) return;
-        if (xhr.status < 400) {
-            success(xhr);
-        } else {
-            error(xhr);
-        }
-    };
-    xhr.send(postData);
-}
+        var xhr = this.getXHR();
+        xhr.open(method, url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState != 4) return;
+            if (xhr.status < 400) {
+                success(xhr);
+            } else {
+                error(xhr);
+            }
+        };
+        xhr.send(postData);
+    }
 
     private getJSON(url: string, method: string, spaPlaceHolderUniqueId: string, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void) {
-    var xhr = this.getXHR();
-    xhr.open(method, url, true);
-    xhr.open("GET", url, true);
-    xhr.setRequestHeader("Content-Type", "application/json");
-    xhr.setRequestHeader("X-Redwood-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
-    xhr.onreadystatechange = () => {
-        if (xhr.readyState != 4) return;
-        if (xhr.status < 400) {
-            success(xhr);
-        } else {
-            error(xhr);
-        }
-    };
-    xhr.send();
-}
+        var xhr = this.getXHR();
+        xhr.open(method, url, true);
+        xhr.open("GET", url, true);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-Redwood-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
+        xhr.onreadystatechange = () => {
+            if (xhr.readyState != 4) return;
+            if (xhr.status < 400) {
+                success(xhr);
+            } else {
+                error(xhr);
+            }
+        };
+        xhr.send();
+    }
 
     public getXHR(): XMLHttpRequest {
-    return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
-}
-    
-    private cleanUpdatedControls(resultObject: any) {
-    var updatedControls = {};
-    for (var id in resultObject.updatedControls) {
-        if (resultObject.updatedControls.hasOwnProperty(id)) {
-            var control = document.getElementById(id);
-            var nextSibling = control.nextSibling;
-            var parent = control.parentNode;
-            ko.removeNode(control);
-            updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
-        }
+        return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
     }
-    return updatedControls;
-}
+
+    private cleanUpdatedControls(resultObject: any) {
+        var updatedControls = {};
+        for (var id in resultObject.updatedControls) {
+            if (resultObject.updatedControls.hasOwnProperty(id)) {
+                var control = document.getElementById(id);
+                var nextSibling = control.nextSibling;
+                var parent = control.parentNode;
+                ko.removeNode(control);
+                updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+            }
+        }
+        return updatedControls;
+    }
 
     private restoreUpdatedControls(resultObject: any, updatedControls: any, applyBindingsOnEachControl: boolean) {
-    for (var id in resultObject.updatedControls) {
-        if (resultObject.updatedControls.hasOwnProperty(id)) {
-            var updatedControl = updatedControls[id];
-            if (updatedControl.nextSibling) {
-                updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
-            } else {
-                updatedControl.parent.appendChild(updatedControl.control);
-            }
-            updatedControl.control.outerHTML = resultObject.updatedControls[id];
+        for (var id in resultObject.updatedControls) {
+            if (resultObject.updatedControls.hasOwnProperty(id)) {
+                var updatedControl = updatedControls[id];
+                if (updatedControl.nextSibling) {
+                    updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                } else {
+                    updatedControl.parent.appendChild(updatedControl.control);
+                }
+                updatedControl.control.outerHTML = resultObject.updatedControls[id];
 
-            if (applyBindingsOnEachControl) {
-                ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
+                if (applyBindingsOnEachControl) {
+                    ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
+                }
             }
         }
     }
-}
 
     private attachEvent(target: any, name: string, callback: (ev: PointerEvent) => any, useCapture: boolean = false) {
-    if (target.addEventListener) {
-        target.addEventListener(name, callback, useCapture);
+        if (target.addEventListener) {
+            target.addEventListener(name, callback, useCapture);
+        }
+        else {
+            target.attachEvent("on" + name, callback);
+        }
     }
-    else {
-        target.attachEvent("on" + name, callback);
-    }
-}
 
     public buildRouteUrl(routePath: string, params: any): string {
-    return routePath.replace(/\{[^\}]+\}/g, s => params[s.substring(1, s.length - 1)] || "");
-}
+        return routePath.replace(/\{[^\}]+\}/g, s => params[s.substring(1, s.length - 1)] || "");
+    }
 }
 
 // RedwoodEvent is used because CustomEvent is not browser compatible and does not support 

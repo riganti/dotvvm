@@ -96,6 +96,8 @@
     <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
     <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
+    <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
+    <Compile Include="Configuration\HtmlTagAttributePair.cs" />
     <Compile Include="Configuration\RedwoodRuntimeConfiguration.cs" />
     <Compile Include="Controls\ContainsRedwoodPropertiesAttribute.cs" />
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="Controls\IEventValidationHandler.cs" />
     <Compile Include="Controls\GridViewDataSet.cs" />
     <Compile Include="Controls\IGridViewDataSet.cs" />
+    <Compile Include="Controls\IHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\MultiHtmlWriter.cs" />
@@ -118,6 +121,7 @@
     <Compile Include="Controls\RouteLink.cs" />
     <Compile Include="Controls\SpaContentPlaceHolder.cs" />
     <Compile Include="Controls\TextBoxType.cs" />
+    <Compile Include="Controls\TranslateVirtualPathHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\UpdateProgress.cs" />
     <Compile Include="Controls\UploadedFilesCollection.cs" />
     <Compile Include="Controls\Validate.cs" />
@@ -385,7 +389,7 @@
     <EmbeddedResource Include="Resources\Scripts\Redwood.Validation.js" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Scripts\Redwood.FileUpload.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\Redwood.FileUpload.ts" />
     <TypeScriptCompile Include="Resources\Scripts\Redwood.Debug.ts" />
     <TypeScriptCompile Include="Resources\Scripts\Redwood.ts" />
     <TypeScriptCompile Include="Resources\Scripts\Redwood.Validation.ts" />

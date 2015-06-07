@@ -19,8 +19,8 @@ namespace Redwood.Framework.Hosting
 
         public override Task Invoke(IOwinContext context)
         {
-            var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
-            
+            var url = RedwoodMiddleware.GetCleanRequestUrl(context);
+
             if (url.StartsWith(Constants.GlobalizeCultureUrlPath))
             {
                 return RenderResponse(context);
@@ -44,7 +44,6 @@ namespace Redwood.Framework.Hosting
             var id = context.Request.Query[Constants.GlobalizeCultureUrlIdParameter];
 
             var js = JQueryGlobalizeScriptCreator.BuildCultureInfoScript(CultureInfo.GetCultureInfo(id));
-
             return context.Response.WriteAsync(js);
         }
     }

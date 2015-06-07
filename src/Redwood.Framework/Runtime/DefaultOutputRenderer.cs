@@ -25,7 +25,7 @@ namespace Redwood.Framework.Runtime
             // get the HTML
             using (var textWriter = new StringWriter())
             {
-                var htmlWriter = new HtmlWriter(textWriter);
+                var htmlWriter = new HtmlWriter(textWriter, context);
                 view.Render(htmlWriter, renderContext);
                 context.RenderedHtml = textWriter.ToString();
             }

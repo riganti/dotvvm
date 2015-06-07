@@ -14,8 +14,8 @@
 
 		<h3>Switch Language</h3>
 		<ul>
-			<li><a href="/Sample9">English</a></li>
-			<li><a href="/Sample9?lang=cs-CZ">Czech</a></li>
+			<li><a href="~/Sample9">English</a></li>
+			<li><a href="~/Sample9?lang=cs-CZ">Czech</a></li>
 		</ul>
 	</div>
 	

@@ -1,3 +1,4 @@
+/// <reference path="redwood.ts" />
 if (!redwood) {
     throw "Redwood.js is not loaded!";
 }
@@ -8,7 +9,6 @@ var RedwoodFileUpload = (function () {
         var iframe = document.getElementById(iframeId);
         // trigger the file upload dialog
         var fileUpload = iframe.contentWindow.document.getElementById('upload');
-        fileUpload.multiple = iframe.dataset["allowMultiple"] === "true";
         fileUpload.click();
     };
     RedwoodFileUpload.prototype.reportProgress = function (targetControlId, isBusy, progress, result) {

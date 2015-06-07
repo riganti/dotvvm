@@ -1,4 +1,6 @@
-﻿if (!redwood) {
+﻿/// <reference path="redwood.ts" />
+
+if (!redwood) {
     throw "Redwood.js is not loaded!";
 }
 
@@ -9,7 +11,6 @@ class RedwoodFileUpload {
         
         // trigger the file upload dialog
         var fileUpload = <HTMLInputElement>iframe.contentWindow.document.getElementById('upload');
-        fileUpload.multiple = iframe.dataset["allowMultiple"] === "true";
         fileUpload.click();
     }
 

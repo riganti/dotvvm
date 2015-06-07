@@ -9,7 +9,7 @@
 	<div class="container">
 		<h1>File upload sample</h1>
 		
-		<rw:FileUpload UploadedFiles="{value: Files}" />
+		<rw:FileUpload UploadedFiles="{value: Files}" AllowMultipleFiles="true" />
 		<p>
 			<rw:Button Text="Confirm upload" Click="{command: Process()}" Enabled="{value: !Files.IsBusy}" />
 		</p>

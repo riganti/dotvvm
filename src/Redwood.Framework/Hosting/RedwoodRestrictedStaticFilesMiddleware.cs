@@ -19,12 +19,12 @@ namespace Redwood.Framework.Hosting
         public override async Task Invoke(IOwinContext context)
         {
             // try resolve the route
-            var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
-
+            var url = RedwoodMiddleware.GetCleanRequestUrl(context);
+            
             // disable access to the redwood.json file
             if (url.StartsWith("redwood.json", StringComparison.CurrentCultureIgnoreCase))
             {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
+                context.Response.StatusCode = (int) HttpStatusCode.NotFound;
                 throw new UnauthorizedAccessException("The redwood.json cannot be served!");
             }
             else

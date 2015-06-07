@@ -59,6 +59,8 @@
     </CodeAnalysisDependentAssemblyPaths>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BasicSamplesRootDomainTests.cs" />
+    <Compile Include="BasicSamplesVirtDirTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BasicSamplesTest.cs" />
     <Compile Include="SeleniumBrowserHelper.cs" />

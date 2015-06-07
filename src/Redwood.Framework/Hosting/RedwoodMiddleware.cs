@@ -28,45 +28,40 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Process an individual request.
         /// </summary>
-        public override async Task Invoke(IOwinContext context)
+        public override Task Invoke(IOwinContext context)
         {
+            // create the context
+            var redwoodContext = new RedwoodRequestContext()
+            {
+                OwinContext = context,
+                Configuration = configuration,
+                ResourceManager = new ResourceManager(configuration)
+            };
+
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
             string url;
             if (!TryParseGooglebotHashbangEscapedFragment(context.Request.QueryString, out url))
             {
                 url = context.Request.Path.Value;
             }
+            url = url.Trim('/');
 
-            // try resolve the route
-            url = url.TrimStart('/').TrimEnd('/');
+            // find the route
+            IDictionary<string, object> parameters = null;
+            var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
 
-            // handle virtual directory
-            if (url.StartsWith(configuration.VirtualDirectory))
+            if (route != null)
             {
-                url = url.Substring(configuration.VirtualDirectory.Length);
-                url = url.TrimStart('/');
-
-                // find the route
-                IDictionary<string, object> parameters = null;
-                var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
-
-                if (route != null)
-                {
-                    // handle the request
-                    await route.ProcessRequest(new RedwoodRequestContext()
-                    {
-                        Route = route,
-                        OwinContext = context,
-                        Configuration = configuration,
-                        Parameters = parameters,
-                        ResourceManager = new ResourceManager(configuration)
-                    });
-                    return;
-                }
+                // handle the request
+                redwoodContext.Route = route;
+                redwoodContext.Parameters = parameters;
+                return route.ProcessRequest(redwoodContext);
             }
-
-            // we cannot handle the request, pass it to another component
-            await Next.Invoke(context);
+            else
+            {
+                // we cannot handle the request, pass it to another component
+                return Next.Invoke(context);
+            }
         }
 
         /// <summary>
@@ -92,6 +87,30 @@ namespace Redwood.Framework.Hosting
 
             url = null;
             return false;
+        }
+
+        public static bool IsInCurrentVirtualDirectory(IOwinContext context, ref string url)
+        {
+            var virtualDirectory = GetVirtualDirectory(context);
+            if (url.StartsWith(virtualDirectory))
+            {
+                url = url.Substring(virtualDirectory.Length).TrimStart('/');
+                return true;
+            }
+            return false;
+        }
+        
+        /// <summary>
+        /// Determines the current OWIN virtual directory.
+        /// </summary>
+        public static string GetVirtualDirectory(IOwinContext owinContext)
+        {
+            return ((string)owinContext.Request.Environment["owin.RequestPathBase"]).Trim('/');
+        }
+
+        public static string GetCleanRequestUrl(IOwinContext context)
+        {
+            return context.Request.Path.Value.TrimStart('/').TrimEnd('/');
         }
     }
 }

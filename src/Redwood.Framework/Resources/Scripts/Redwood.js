@@ -132,7 +132,7 @@ var Redwood = (function () {
                 }
                 else if (resultObject.action === "redirect") {
                     // redirect
-                    _this.handleRedirect(resultObject);
+                    _this.handleRedirect(resultObject, viewModelName);
                     return;
                 }
                 // trigger afterPostback event
@@ -282,7 +282,7 @@ var Redwood = (function () {
                     ko.applyBindings(_this.viewModels[viewModelName].viewModel, document.documentElement);
                 }
                 else if (resultObject.action === "redirect") {
-                    _this.handleRedirect(resultObject);
+                    _this.handleRedirect(resultObject, viewModelName);
                     return;
                 }
                 // trigger spaNavigated event
@@ -304,15 +304,24 @@ var Redwood = (function () {
             }
         });
     };
-    Redwood.prototype.handleRedirect = function (resultObject) {
+    Redwood.prototype.handleRedirect = function (resultObject, viewModelName) {
         // redirect
         if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
-            // relative URL - keep in SPA mode
-            document.location.href = "#!" + resultObject.url;
+            // relative URL - keep in SPA mode, but remove the virtual directory
+            document.location.href = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
         }
         else {
             // absolute URL - load the URL
             document.location.href = resultObject.url;
+        }
+    };
+    Redwood.prototype.removeVirtualDirectoryFromUrl = function (url, viewModelName) {
+        var virtualDirectory = "/" + this.viewModels[viewModelName].virtualDirectory;
+        if (url.indexOf(virtualDirectory) == 0) {
+            return this.addLeadingSlash(url.substring(virtualDirectory.length));
+        }
+        else {
+            return url;
         }
     };
     Redwood.prototype.addLeadingSlash = function (url) {
@@ -330,7 +339,9 @@ var Redwood = (function () {
     Redwood.prototype.patch = function (source, patch) {
         var _this = this;
         if (source instanceof Array && patch instanceof Array) {
-            return patch.map(function (val, i) { return _this.patch(source[i], val); });
+            return patch.map(function (val, i) {
+                return _this.patch(source[i], val);
+            });
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
@@ -594,4 +605,4 @@ ko.bindingHandlers["redwoodUpdateProgressVisible"] = {
         });
     }
 };
-//# sourceMappingURL=Redwood.js.map
+//# sourceMappingURL=redwood.js.map

@@ -13,7 +13,7 @@ namespace Redwood.Framework.ResourceManagement.ClientGlobalize
         {
             return new ScriptResource()
             {
-                Url = string.Format("/{0}?{1}={2}", Constants.GlobalizeCultureUrlPath, Constants.GlobalizeCultureUrlIdParameter, name),
+                Url = string.Format("~/{0}?{1}={2}", Constants.GlobalizeCultureUrlPath, Constants.GlobalizeCultureUrlIdParameter, name),
                 Dependencies = new[] { Constants.GlobalizeResourceName },
                 // TODO: cdn?
             };
