@@ -40,6 +40,18 @@ namespace Redwood.Framework.Controls
 
 
         /// <summary>
+        /// Gets or sets whether the KO Text property binding should render with valueUpdate:'afterkeydown'
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool UpdateTextAfterKeydown
+        {
+            get { return (bool)GetValue(UpdateTextAfterKeydownProperty); }
+            set { SetValue(UpdateTextAfterKeydownProperty, value); }
+        }
+        public static readonly RedwoodProperty UpdateTextAfterKeydownProperty
+            = RedwoodProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
+
+        /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
@@ -50,7 +62,7 @@ namespace Redwood.Framework.Controls
                 {
                     writer.AddAttribute("value", "Text");
                 }
-            });
+            }, UpdateTextAfterKeydown ? "afterkeydown" : null);
 
             if (Type == TextBoxType.Normal)
             {

@@ -68,6 +68,7 @@ namespace Redwood.Framework.Configuration
         /// Gets or sets whether the application should run in debug mode.
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [System.ComponentModel.DefaultValue(true)]
         public bool Debug { get; set; }
 
         /// <summary>
