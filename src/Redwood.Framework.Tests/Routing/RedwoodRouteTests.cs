@@ -130,7 +130,7 @@ namespace Redwood.Framework.Tests.Routing
 
             var result = route.BuildUrl(new { Id = 15, Title = "Test" });
 
-            Assert.AreEqual("Article/id_15/Test", result);
+            Assert.AreEqual("~/Article/id_15/Test", result);
         }
     }
 }
