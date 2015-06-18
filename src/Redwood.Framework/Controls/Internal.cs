@@ -20,5 +20,8 @@ namespace Redwood.Framework.Controls
 
         public static readonly RedwoodProperty IsControlBindingTargetProperty =
             RedwoodProperty.Register<bool, Internal>("IsControlBindingTarget", defaultValue: false, isValueInherited: false);
+
+        public static readonly RedwoodProperty IsSpaPageProperty =
+            RedwoodProperty.Register<bool, Internal>("IsSpaPageProperty", defaultValue: false, isValueInherited: true);
     }
 }
