@@ -14,7 +14,7 @@ namespace Redwood.Framework.Binding
     /// </summary>
     public class RedwoodProperty
     {
-        
+
         /// <summary>
         /// Gets or sets the name of the property.
         /// </summary>
@@ -114,11 +114,11 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public static RedwoodProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false)
         {
-            var fullName = typeof (TDeclaringType).FullName + "." + propertyName;
-            
+            var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
+
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
-                var propertyInfo = typeof (TDeclaringType).GetProperty(propertyName);
+                var propertyInfo = typeof(TDeclaringType).GetProperty(propertyName);
                 var markupOptions = (propertyInfo != null ? propertyInfo.GetCustomAttribute<MarkupOptionsAttribute>() : null) ?? new MarkupOptionsAttribute()
                 {
                     AllowBinding = true,
@@ -135,8 +135,8 @@ namespace Redwood.Framework.Binding
                 {
                     Name = propertyName,
                     DefaultValue = defaultValue ?? default(TPropertyType),
-                    DeclaringType = typeof (TDeclaringType),
-                    PropertyType = typeof (TPropertyType),
+                    DeclaringType = typeof(TDeclaringType),
+                    PropertyType = typeof(TPropertyType),
                     IsValueInherited = isValueInherited,
                     PropertyInfo = propertyInfo,
                     MarkupOptions = markupOptions

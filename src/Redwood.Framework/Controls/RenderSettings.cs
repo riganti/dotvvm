@@ -9,7 +9,7 @@ namespace Redwood.Framework.Controls
     public class RenderSettings
     {
 
-        [AttachedProperty(typeof(RenderMode))]
+        [AttachedProperty]
         public static readonly RedwoodProperty ModeProperty =
             RedwoodProperty.Register<RenderMode, RenderSettings>("Mode", RenderMode.Client, true);
 

@@ -54,7 +54,8 @@
 								DisplayMember="Title" 
 								ValueMember="Coeff"
 								SelectedValue="{value: TaxCoeff}"
-								style="width: 120px" />
+								style="width: 120px"
+								EventsDecorator.Click="{command: _root.Recalculate()}" />
 						</td>
 						<td>
 							<rw:TextBox Text="{value: Title}" style="width: 200px" />

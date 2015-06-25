@@ -53,6 +53,7 @@ namespace Redwood.Framework.Runtime
         /// </summary>
         private void InvokeStaticConstructorsOnAllControls()
         {
+            // PERF: too many allocations - type.GetCustomAttribute<T> does ~220k allocs -> 4MB, get all types allocates additional 1.5MB
             var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(t => t.IsClass).ToList();
             foreach (var type in allTypes)
             {
