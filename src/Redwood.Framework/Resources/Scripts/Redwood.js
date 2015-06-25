@@ -339,7 +339,9 @@ var Redwood = (function () {
     Redwood.prototype.patch = function (source, patch) {
         var _this = this;
         if (source instanceof Array && patch instanceof Array) {
-            return patch.map(function (val, i) { return _this.patch(source[i], val); });
+            return patch.map(function (val, i) {
+                return _this.patch(source[i], val);
+            });
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
@@ -476,7 +478,7 @@ var Redwood = (function () {
         }
     };
     Redwood.prototype.buildRouteUrl = function (routePath, params) {
-        return routePath.replace(/\{[^\}]+\}/g, function (s) { return params[s.substring(1, s.length - 1)] || ""; });
+        return routePath.replace(/\{[^\}]+\}/g, function (s) { return ko.unwrap(params[s.substring(1, s.length - 1)]) || ""; });
     };
     return Redwood;
 })();

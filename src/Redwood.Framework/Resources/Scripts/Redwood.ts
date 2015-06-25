@@ -502,7 +502,7 @@ class Redwood {
     }
 
     public buildRouteUrl(routePath: string, params: any): string {
-        return routePath.replace(/\{[^\}]+\}/g, s => params[s.substring(1, s.length - 1)] || "");
+        return routePath.replace(/\{[^\}]+\}/g, s => ko.unwrap(params[s.substring(1, s.length - 1)]) || "");
     }
 }
 
