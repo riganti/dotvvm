@@ -102,7 +102,7 @@ namespace Redwood.Framework.ViewModel
                 }
                 else
                 {
-                    var checkEVCount = ShouldCheckEncrypedValueCount(property.Type);
+                    var checkEVCount = property.TransferToClient && ShouldCheckEncrypedValueCount(property.Type);
                     if (checkEVCount)
                     {
                         // lastEncrypedValuesCount = encrypedValues.Count
@@ -124,6 +124,8 @@ namespace Redwood.Framework.ViewModel
 
                     if (checkEVCount)
                     {
+                        block.Add(ExpressionUtils.Replace((int levc, JArray ev) =>
+                            System.Diagnostics.Debug.WriteLine("levc - ev.Count = " + (levc - ev.Count).ToString() + "; get = " + ev.First.ToString()), lastEVcount, encryptedValues));
                         block.Add(Expression.IfThen(
                             ExpressionUtils.Replace((int levc, JArray ev) =>
                                 levc - ev.Count != (int)GetAndRemove(ev, 0), lastEVcount, encryptedValues),
@@ -200,7 +202,7 @@ namespace Redwood.Framework.ViewModel
 
                 if (property.ViewModelProtection == ViewModelProtectionSettings.None || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
-                    var checkEVCount = ShouldCheckEncrypedValueCount(property.Type);
+                    var checkEVCount = property.TransferToServer && ShouldCheckEncrypedValueCount(property.Type);
                     if (checkEVCount)
                     {
                         // lastEncrypedValuesCount = encrypedValues.Count
