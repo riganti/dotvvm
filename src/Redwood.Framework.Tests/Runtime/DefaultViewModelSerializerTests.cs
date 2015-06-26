@@ -39,7 +39,11 @@ namespace Redwood.Framework.Tests.Runtime
                     {
                         UriGet = () => new Uri("http://localhost:8628/Sample1"),
                         UserGet = () => new WindowsPrincipal(WindowsIdentity.GetAnonymous()),
-                        HeadersGet = () => new HeaderDictionary(new Dictionary<string, string[]>())
+                        HeadersGet = () => new HeaderDictionary(new Dictionary<string, string[]>()),
+                        EnvironmentGet = () => new Dictionary<string, object>()
+                        {
+                            { "owin.RequestPathBase", "" }
+                        }
                     }
                 },
                 ResourceManager = new ResourceManager(configuration),

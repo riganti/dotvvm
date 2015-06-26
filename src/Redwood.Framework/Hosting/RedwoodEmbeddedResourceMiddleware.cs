@@ -18,10 +18,10 @@ namespace Redwood.Framework.Hosting
         {
         }
 
-        public override async Task Invoke(IOwinContext context)
+        public override Task Invoke(IOwinContext context)
         {
             // try resolve the route
-            var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
+            var url = RedwoodMiddleware.GetCleanRequestUrl(context);
 
             // disable access to the redwood.json file
             if (url.StartsWith("redwood.json", StringComparison.CurrentCultureIgnoreCase))
@@ -33,11 +33,11 @@ namespace Redwood.Framework.Hosting
             // embedded resource handler URL
             if (url.StartsWith(Constants.ResourceHandlerMatchUrl))
             {
-                RenderEmbeddedResource(context);
+                return RenderEmbeddedResource(context);
             }
             else
             {
-                await Next.Invoke(context);
+                return Next.Invoke(context);
             }
         }
 
@@ -46,7 +46,7 @@ namespace Redwood.Framework.Hosting
         /// <summary>
         /// Renders the embedded resource.
         /// </summary>
-        private void RenderEmbeddedResource(IOwinContext context)
+        private async Task RenderEmbeddedResource(IOwinContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 
@@ -68,7 +68,7 @@ namespace Redwood.Framework.Hosting
 
             using (var resourceStream = assembly.GetManifestResourceStream(resourceName))
             {
-                resourceStream.CopyTo(context.Response.Body);
+                await resourceStream.CopyToAsync(context.Response.Body);
             }
         }
     }

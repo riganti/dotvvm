@@ -103,5 +103,17 @@ namespace Redwood.Framework.Controls
                 writer.WriteUnencodedText(text);
             }
         }
+
+        /// <summary>
+        /// Writes the specified HTML attribute and value (e.g. href="myUrl").
+        /// This method is typically used from <see cref="IHtmlAttributeTransformer" /> implementations.
+        /// </summary>
+        public void WriteHtmlAttribute(string attributeName, string attributeValue)
+        {
+            foreach (var writer in writers)
+            {
+                writer.WriteHtmlAttribute(attributeName, attributeValue);
+            }
+        }
     }
 }

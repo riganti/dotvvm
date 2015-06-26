@@ -5,7 +5,10 @@ using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
 using System.Net;
+using Redwood.Framework.Configuration;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Resources;
+using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls
 {
@@ -15,6 +18,7 @@ namespace Redwood.Framework.Controls
     public class HtmlWriter : IHtmlWriter
     {
         private readonly TextWriter writer;
+        private readonly RedwoodRequestContext requestContext;
 
         private OrderedDictionary attributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
@@ -29,9 +33,10 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlWriter"/> class.
         /// </summary>
-        public HtmlWriter(TextWriter writer)
+        public HtmlWriter(TextWriter writer, RedwoodRequestContext requestContext)
         {
             this.writer = writer;
+            this.requestContext = requestContext;
         }
 
         /// <summary>
@@ -110,16 +115,36 @@ namespace Redwood.Framework.Controls
             {
                 foreach (DictionaryEntry attr in attributes)
                 {
-                    writer.Write(" ");
-                    writer.Write(attr.Key as string);
-                    writer.Write("=");
-                    writer.Write("\"");
-                    writer.Write(WebUtility.HtmlEncode(attr.Value as string ?? "").Replace("\"", "&quot;"));
-                    writer.Write("\"");
+                    var attributeName = (string)attr.Key;
+                    var attributeValue = attr.Value as string ?? "";
+
+                    // allow to use the attribute transformer
+                    var pair = new HtmlTagAttributePair() { TagName = name, AttributeName = attributeName };
+                    HtmlAttributeTransformConfiguration transformConfiguration;
+                    if (requestContext.Configuration.Markup.HtmlAttributeTransforms.TryGetValue(pair, out transformConfiguration))
+                    {
+                        // use the transformer
+                        var transformer = transformConfiguration.GetInstance();
+                        transformer.RenderHtmlAttribute(this, requestContext, attributeName, attributeValue);
+                    }
+                    else
+                    {
+                        WriteHtmlAttribute(attributeName, attributeValue);
+                    }
                 }
             }
 
             attributes.Clear();
+        }
+
+        public void WriteHtmlAttribute(string attributeName, string attributeValue)
+        {
+            WriteUnencodedText(" ");
+            WriteUnencodedText(attributeName);
+            WriteUnencodedText("=");
+            WriteUnencodedText("\"");
+            WriteText(attributeValue);
+            WriteUnencodedText("\"");
         }
 
         /// <summary>
@@ -143,7 +168,7 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public void WriteText(string text)
         {
-            WebUtility.HtmlEncode(text, writer);
+            writer.Write(WebUtility.HtmlEncode(text).Replace("\"", "&quot;"));
         }
 
         /// <summary>

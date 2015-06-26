@@ -12,8 +12,8 @@
 </head>
 <body>
 
-<form method="POST" enctype="multipart/form-data" action="/redwoodFileUpload" id="uploadForm">
-    <input type="file" name="upload" id="upload" multiple="multiple" onchange="redwoodSubmit();"/>
+<form method="POST" enctype="multipart/form-data" action="<#= FormPostUrl #>" id="uploadForm">
+    <input type="file" name="upload" id="upload" <# if (AllowMultipleFiles) { #> multiple="multiple" <# } #> onchange="redwoodSubmit();"/>
 </form>
 
 <script type="text/javascript">
@@ -62,4 +62,6 @@ function reportProgress(isBusy, percent, resultOrError) {
 
 <#+ 
 public string StartupScript { get; set; }
+public string FormPostUrl { get; set; }
+public bool AllowMultipleFiles { get; set; }
 #>

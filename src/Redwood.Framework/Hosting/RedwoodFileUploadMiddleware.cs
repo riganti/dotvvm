@@ -25,19 +25,18 @@ namespace Redwood.Framework.Hosting
             this.configuration = configuration;
         }
 
-        public override async Task Invoke(IOwinContext context)
+        public override Task Invoke(IOwinContext context)
         {
-            // try resolve the route
-            var url = context.Request.Path.Value.TrimStart('/').TrimEnd('/');
-
+            var url = RedwoodMiddleware.GetCleanRequestUrl(context);
+            
             // file upload handler
             if (url == Constants.FileUploadHandlerMatchUrl)
             {
-                await ProcessMultipartRequest(context);
+                return ProcessMultipartRequest(context);
             }
             else
             {
-                await Next.Invoke(context);
+                return Next.Invoke(context);
             }
         }
 
@@ -98,6 +97,8 @@ namespace Redwood.Framework.Hosting
             {
                 // old browser - return HTML
                 var template = new FileUploadPageTemplate();
+                template.FormPostUrl = RedwoodRequestContext.TranslateVirtualPath("~/" + Constants.FileUploadHandlerMatchUrl, context);
+                template.AllowMultipleFiles = context.Request.Query["multiple"] == "true";
 
                 if (isPost)
                 {

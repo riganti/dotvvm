@@ -68,6 +68,7 @@ namespace Redwood.Framework.Configuration
         /// Gets or sets whether the application should run in debug mode.
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        [System.ComponentModel.DefaultValue(true)]
         public bool Debug { get; set; }
 
         /// <summary>
@@ -75,13 +76,7 @@ namespace Redwood.Framework.Configuration
         /// </summary>
         [JsonIgnore]
         public ServiceLocator ServiceLocator { get; private set; }
-
-        /// <summary>
-        /// Gets a virtual directory in which the application runs (e.g. "/myApp").
-        /// </summary>
-        [JsonIgnore]
-        public string VirtualDirectory { get; internal set; }
-
+        
 
 
 
@@ -176,7 +171,7 @@ namespace Redwood.Framework.Configuration
             configuration.Resources.Register(Constants.BootstrapResourceName,
                 new ScriptResource()
                 {
-                    Url = "/Scripts/bootstrap.min.js",
+                    Url = "~/Scripts/bootstrap.min.js",
                     CdnUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js",
                     GlobalObjectName = "typeof $().emulateTransitionEnd == 'function'",
                     Dependencies = new[] { Constants.BootstrapCssResourceName, Constants.JQueryResourceName }
@@ -184,7 +179,7 @@ namespace Redwood.Framework.Configuration
             configuration.Resources.Register(Constants.BootstrapCssResourceName,
                 new StylesheetResource()
                 {
-                    Url = "/Content/bootstrap.min.css"
+                    Url = "~/Content/bootstrap.min.css"
                 });
 
             configuration.Resources.Register(Constants.RedwoodFileUploadResourceName, 
@@ -219,6 +214,6 @@ namespace Redwood.Framework.Configuration
 
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }
-
+        
     }
 }

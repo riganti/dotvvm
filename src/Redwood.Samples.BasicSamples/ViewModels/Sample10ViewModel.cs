@@ -12,7 +12,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
         {
             if (string.IsNullOrEmpty(Context.Query["time"]))
             {
-                Context.Redirect("/Sample10?time=" + DateTime.Now.Ticks);
+                Context.Redirect("~/Sample10?time=" + DateTime.Now.Ticks);
             }
 
             return base.Init();
@@ -20,7 +20,7 @@ namespace Redwood.Samples.BasicSamples.ViewModels
 
         public void RedirectTest()
         {
-            Context.Redirect("/Sample10?time=" + DateTime.Now.Ticks);
+            Context.Redirect("~/Sample10?time=" + DateTime.Now.Ticks);
 
             throw new Exception("This exception should not occur because Redirect interrupts the request execution!");
         }

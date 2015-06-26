@@ -199,7 +199,7 @@ namespace Redwood.Framework.Controls
                 // render the control and capture the HTML
                 using (var htmlBuilder = new StringWriter())
                 {
-                    var controlWriter = new HtmlWriter(htmlBuilder);
+                    var controlWriter = new HtmlWriter(htmlBuilder, context.RequestContext);
                     var multiWriter = new MultiHtmlWriter(writer, controlWriter);
                     base.Render(multiWriter, context);
                     context.RequestContext.PostBackUpdatedControls[ID] = htmlBuilder.ToString();

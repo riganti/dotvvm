@@ -18,7 +18,7 @@ namespace Redwood.Framework.Hosting
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
+    #line 1 "D:\Work\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
     public partial class FileUploadPageTemplate : FileUploadPageTemplateBase
     {
@@ -28,17 +28,29 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write(@"
-<!DOCTYPE html>
-<html>
-<head>
-    <title></title>
-	<meta charset=""utf-8"" />
-</head>
-<body>
-
-<form method=""POST"" enctype=""multipart/form-data"" action=""/redwoodFileUpload"" id=""uploadForm"">
-    <input type=""file"" name=""upload"" id=""upload"" multiple=""multiple"" onchange=""redwoodSubmit();""/>
+            this.Write("\r\n<!DOCTYPE html>\r\n<html>\r\n<head>\r\n    <title></title>\r\n\t<meta charset=\"utf-8\" />" +
+                    "\r\n</head>\r\n<body>\r\n\r\n<form method=\"POST\" enctype=\"multipart/form-data\" action=\"");
+            
+            #line 15 "D:\Work\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(FormPostUrl));
+            
+            #line default
+            #line hidden
+            this.Write("\" id=\"uploadForm\">\r\n    <input type=\"file\" name=\"upload\" id=\"upload\" ");
+            
+            #line 16 "D:\Work\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
+ if (AllowMultipleFiles) { 
+            
+            #line default
+            #line hidden
+            this.Write(" multiple=\"multiple\" ");
+            
+            #line 16 "D:\Work\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
+ } 
+            
+            #line default
+            #line hidden
+            this.Write(@" onchange=""redwoodSubmit();""/>
 </form>
 
 <script type=""text/javascript"">
@@ -81,7 +93,7 @@ function reportProgress(isBusy, percent, resultOrError) {
 
 ");
             
-            #line 57 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
+            #line 57 "D:\Work\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StartupScript ?? ""));
             
             #line default
@@ -90,9 +102,11 @@ function reportProgress(isBusy, percent, resultOrError) {
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 63 "D:\Riganti\External\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
+        #line 63 "D:\Work\Redwood\src\Redwood.Framework\Hosting\FileUploadPageTemplate.tt"
  
 public string StartupScript { get; set; }
+public string FormPostUrl { get; set; }
+public bool AllowMultipleFiles { get; set; }
 
         
         #line default

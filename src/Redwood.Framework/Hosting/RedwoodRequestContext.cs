@@ -144,7 +144,7 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public void Redirect(string url)
         {
-            SetRedirectResponse(OwinContext, url, (int)HttpStatusCode.Redirect);
+            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect);
             InterruptRequest();
         }
 
@@ -163,7 +163,7 @@ namespace Redwood.Framework.Hosting
         /// </summary>
         public void RedirectPermanent(string url)
         {
-            SetRedirectResponse(OwinContext, url, (int)HttpStatusCode.MovedPermanently);
+            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently);
             InterruptRequest();
         }
 
@@ -216,5 +216,36 @@ namespace Redwood.Framework.Hosting
         {
             return Presenter.ViewModelSerializer.SerializeViewModel(this);
         }
+
+        /// <summary>
+        /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
+        /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.rwhtml' will be translated to '/virtDir/myPage.rwhtml'.
+        /// </summary>
+        public string TranslateVirtualPath(string virtualUrl)
+        {
+            return TranslateVirtualPath(virtualUrl, OwinContext);
+        }
+
+        /// <summary>
+        /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
+        /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.rwhtml' will be translated to '/virtDir/myPage.rwhtml'.
+        /// </summary>
+        public static string TranslateVirtualPath(string virtualUrl, IOwinContext owinContext)
+        {
+            if (virtualUrl.StartsWith("~/"))
+            {
+                var url = RedwoodMiddleware.GetVirtualDirectory(owinContext) + "/" + virtualUrl.Substring(2);
+                if (!url.StartsWith("/"))
+                {
+                    url = "/" + url;
+                }
+                return url;
+            }
+            else
+            {
+                return virtualUrl;
+            }
+        }
+        
     }
 }

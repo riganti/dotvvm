@@ -8,15 +8,15 @@ using System.IO;
 
 namespace Redwood.Samples.Tests
 {
-    [TestClass]
-    public class BasicSamplesTests : SeleniumTestBase
+    public abstract class BasicSamplesTests : SeleniumTestBase
     {
 
-        private const string BaseUrl = "http://localhost:8628/";
+        protected abstract string BaseUrl { get; }
+
         private const int WaitTime = 500;
+        
 
-
-        [TestMethod]
+        
         public void Sample1Test()
         {
             RunInAllBrowsers(browser =>
@@ -39,7 +39,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample2Test()
         {
             RunInAllBrowsers(browser =>
@@ -79,7 +79,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample3Test()
         {
             RunInAllBrowsers(browser =>
@@ -159,7 +159,7 @@ namespace Redwood.Samples.Tests
 
         }
 
-        [TestMethod]
+        
         public void Sample4Test()
         {
             RunInAllBrowsers(browser =>
@@ -182,7 +182,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample5Test()
         {
             RunInAllBrowsers(browser =>
@@ -204,7 +204,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample6Test()
         {
             RunInAllBrowsers(browser =>
@@ -231,7 +231,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample7Test()
         {
             RunInAllBrowsers(browser =>
@@ -257,7 +257,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample8Test()
         {
             RunInAllBrowsers(browser =>
@@ -289,7 +289,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample9Test()
         {
             RunInAllBrowsers(browser =>
@@ -306,7 +306,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample10Test()
         {
             RunInAllBrowsers(browser =>
@@ -326,7 +326,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample11Test()
         {
             RunInAllBrowsers(browser =>
@@ -388,7 +388,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample12Test()
         {
             RunInAllBrowsers(browser =>
@@ -412,7 +412,7 @@ namespace Redwood.Samples.Tests
         }
 
 
-        [TestMethod]
+        
         public void Sample13Test()
         {
             RunInAllBrowsers(browser =>
@@ -448,7 +448,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample14Test()
         {
             RunInAllBrowsers(browser =>
@@ -472,7 +472,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample15Test()
         {
             RunInAllBrowsers(browser =>
@@ -505,7 +505,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample16Test()
         {
             RunInAllBrowsers(browser =>
@@ -562,7 +562,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample17Test()
         {
             RunInAllBrowsers(browser =>
@@ -637,7 +637,7 @@ namespace Redwood.Samples.Tests
             });
         }
 
-        [TestMethod]
+        
         public void Sample18Test()
         {
             RunInAllBrowsers(browser =>

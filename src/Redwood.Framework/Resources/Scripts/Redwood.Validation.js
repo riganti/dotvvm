@@ -109,6 +109,7 @@ var RedwoodValidation = (function () {
         var rulesForType = redwood.viewModels.root.validationRules[type];
         if (!rulesForType)
             return;
+        // validate all properties
         for (var property in viewModel) {
             if (!viewModel.hasOwnProperty(property) || property.indexOf("$") >= 0)
                 continue;
@@ -122,6 +123,7 @@ var RedwoodValidation = (function () {
             }
             if (value) {
                 if (Array.isArray(value)) {
+                    // handle collections
                     for (var i = 0; i < value.length; i++) {
                         this.validateViewModel(value[i]);
                     }

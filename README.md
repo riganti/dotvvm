@@ -1,5 +1,5 @@
-Redwood
-=======
+ATTENTION: Redwood is currently being renamed to dotVVM
+=================================================================================
 
 Redwood is an OWIN-based ASP.NET framework that allows you to write rich client applications without writing javascript code. All you have to do is to write a viewmodel in C# and view in HTML and Redwood will generate the javascript part for you.
 
@@ -9,7 +9,7 @@ Redwood is inspired by ASP.NET WebForms, but it is much more modern. It brings f
 How to start
 ------------
 
-First download and install the **[Visual Studio Extension](http://riganti.cz/download/Redwood.VS2015Extension_v0.5.zip)**.
+First download and install the **[Visual Studio Extension](http://riganti.cz/download/Redwood.VS2015Extension_v0.6.zip)**.
 
 Then you can read the tutorial on our **[WIKI](https://github.com/riganti/redwood/wiki)**.
 
@@ -33,8 +33,8 @@ Roadmap
 + **Version 0.2**: Few basic samples, master pages, simple stateless markup controls
 + **Version 0.3**: Stateful controls, Validation
 + **Version 0.4**: Postback.Update and RenderSettings.Mode properties (server side rendering)
-+ **Version 0.5 (current)**: Visual Studio extension
-+ **Version 0.6**: More controls
-+ **Version 0.7**: Xamarin support for hosting Redwood in mobile apps
-+ **Version 0.8**: Styles and other controls
++ **Version 0.5**: Visual Studio extension
++ **Version 0.6 (current)**: Stable version - more controls, several bug fixes
++ **Version 0.7**: DNX support, bug fixes
++ **Version 0.8**: Styles, more framework features and other controls
 + **Version 0.9**: Automated translation of C# ViewModel commands to javascript

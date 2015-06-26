@@ -45,11 +45,11 @@ namespace Redwood.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                writer.AddKnockoutDataBind("attr", "{ href: '#!/' + " + GenerateRouteLink(context) + "}");
+                writer.AddKnockoutDataBind("attr", "{ href: " + GenerateRouteLink(context) + "}");
             }
             else
             {
-                writer.AddAttribute("href", "#!/" + GenerateRouteUrl(context));
+                writer.AddAttribute("href", GenerateRouteUrl(context));
             }
 
             writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
@@ -75,6 +75,20 @@ namespace Redwood.Framework.Controls
 
         private string GenerateRouteUrl(RenderContext context)
         {
+            var coreUrl = GenerateRouteUrlCore(context);
+
+            if ((bool)GetValue(Internal.IsSpaPageProperty))
+            {
+                return "#!/" + coreUrl;
+            }
+            else
+            {
+                return context.RequestContext.TranslateVirtualPath("~/" + coreUrl);
+            }
+        }
+
+        private string GenerateRouteUrlCore(RenderContext context)
+        {
             var route = GetRoute(context);
             var parameters = ComposeNewRouteParameters(context, route);
 
@@ -98,6 +112,20 @@ namespace Redwood.Framework.Controls
         }
 
         private string GenerateRouteLink(RenderContext context)
+        {
+            var link = GenerateRouteLinkCore(context);
+
+            if ((bool)GetValue(Internal.IsSpaPageProperty))
+            {
+                return string.Format("'#!/' + {0}", link);
+            }
+            else
+            {
+                return string.Format("'{0}' + {1}", context.RequestContext.TranslateVirtualPath("~/"), link);
+            }
+        }
+
+        private string GenerateRouteLinkCore(RenderContext context)
         {
             var route = GetRoute(context);
             var parameters = ComposeNewRouteParameters(context, route);

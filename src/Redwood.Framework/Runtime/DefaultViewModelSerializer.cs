@@ -95,12 +95,12 @@ namespace Redwood.Framework.Runtime
             var result = new JObject();
             result["viewModel"] = writer.Token;
             result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
-            result["virtualDirectory"] = context.Configuration.VirtualDirectory;
+            result["virtualDirectory"] = RedwoodMiddleware.GetVirtualDirectory(context.OwinContext);
             if (context.IsPostBack || context.IsSpaRequest)
             {
                 result["action"] = "successfulCommand";
 
-                result["resources"] = BuildResourcesJson(context.ResourceManager, _ => true);
+                result["resources"] = BuildResourcesJson(context, _ => true);
             }
             else
             {
@@ -112,8 +112,9 @@ namespace Redwood.Framework.Runtime
             context.ViewModelJson = result;
         }
 
-        public JObject BuildResourcesJson(ResourceManager manager, Func<string, bool> predicate)
+        public JObject BuildResourcesJson(RedwoodRequestContext context, Func<string, bool> predicate)
         {
+            var manager = context.ResourceManager;
             var resourceNames = manager.RequiredResources.ToArray();
             var resources = resourceNames.Select(manager.FindResource).ToArray();
             var resourceObj = new JObject();
@@ -123,7 +124,7 @@ namespace Redwood.Framework.Runtime
                 {
                     using (var str = new StringWriter())
                     {
-                        var w = new HtmlWriter(str);
+                        var w = new HtmlWriter(str, context);
                         resources[i].Render(w);
                         resourceObj[resourceNames[i]] = JValue.CreateString(str.ToString());
                     }

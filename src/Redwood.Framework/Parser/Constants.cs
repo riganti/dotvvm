@@ -36,7 +36,7 @@ namespace Redwood.Framework.Parser
 
         public const string GlobalizeCultureUrlPath = "redwoodGlobalizeCulture";
         public const string GlobalizeCultureUrlIdParameter = "id";
-        public const string ResourceHandlerUrl = "/redwoodEmbeddedResource?name={0}&assembly={1}";
+        public const string ResourceHandlerUrl = "~/redwoodEmbeddedResource?name={0}&assembly={1}";
         public const string ResourceHandlerMatchUrl = "redwoodEmbeddedResource";
 
         public const string FileUploadHandlerMatchUrl = "redwoodFileUpload";

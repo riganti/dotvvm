@@ -27,6 +27,13 @@ namespace Redwood.Framework.Controls
             return GetAllAncestors().FirstOrDefault(a => a is RedwoodView).GetType().ToString();
         }
 
+        protected internal override void OnInit(RedwoodRequestContext context)
+        {
+            GetRoot().SetValue(Internal.IsSpaPageProperty, true);
+
+            base.OnInit(context);
+        }
+
         protected internal override void OnPreRender(RedwoodRequestContext context)
         {
             if (context.IsSpaRequest)
