@@ -124,8 +124,8 @@ namespace Redwood.Framework.ViewModel
 
                     if (checkEVCount)
                     {
-                        block.Add(ExpressionUtils.Replace((int levc, JArray ev) =>
-                            System.Diagnostics.Debug.WriteLine("levc - ev.Count = " + (levc - ev.Count).ToString() + "; get = " + ev.First.ToString()), lastEVcount, encryptedValues));
+                        //block.Add(ExpressionUtils.Replace((int levc, JArray ev) =>
+                        //    System.Diagnostics.Debug.WriteLine("levc - ev.Count = " + (levc - ev.Count).ToString() + "; get = " + ev.First.ToString()), lastEVcount, encryptedValues));
                         block.Add(Expression.IfThen(
                             ExpressionUtils.Replace((int levc, JArray ev) =>
                                 levc - ev.Count != (int)GetAndRemove(ev, 0), lastEVcount, encryptedValues),
