@@ -4,7 +4,7 @@
 debugWindow.css({
     display: "none",
     flexFlow: "column",
-    zLevel: 10000001,
+    zLevel: 2147483647,
     position: "fixed",
     width: "100%",
     height: "100%",

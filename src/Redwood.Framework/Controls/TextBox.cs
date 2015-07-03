@@ -66,7 +66,6 @@ namespace Redwood.Framework.Controls
 
             if (Type == TextBoxType.Normal)
             {
-                writer.AddAttribute("type", "text");
                 TagName = "input";
             }
             else if (Type == TextBoxType.Password)

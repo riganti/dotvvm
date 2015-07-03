@@ -1,27 +1,21 @@
-var debugWindow = $(document.body)
-    .append("<div id='debugWindow'><h1></h1><button type='button' id='closeDebugWindow'>Close</button><iframe /><div id='debugFooter'></div></div>")
-    .find("#debugWindow");
+var debugWindow = $(document.body).append("<div id='debugWindow'><h1></h1><button type='button' id='closeDebugWindow'>Close</button><iframe /><div id='debugFooter'></div></div>").find("#debugWindow");
 debugWindow.css({
     display: "none",
     flexFlow: "column",
-    zLevel: 10000001,
+    zLevel: 2147483647,
     position: "fixed",
     width: "100%",
     height: "100%",
     backgroundColor: "white",
     top: 0
 });
-debugWindow.find("#closeDebugWindow")
-    .click(function () { return debugWindow.css({ display: "none" }); })
-    .css({
+debugWindow.find("#closeDebugWindow").click(function () { return debugWindow.css({ display: "none" }); }).css({
     position: "absolute",
     top: 0,
     right: 0
 });
-debugWindow.find("#debugFooter")
-    .css({ flex: "0 1 auto" });
-debugWindow.find("h1")
-    .css({ flex: "0 1 auto" });
+debugWindow.find("#debugFooter").css({ flex: "0 1 auto" });
+debugWindow.find("h1").css({ flex: "0 1 auto" });
 debugWindow.find("iframe").css({
     flex: "1 1 auto",
     width: "100%"
