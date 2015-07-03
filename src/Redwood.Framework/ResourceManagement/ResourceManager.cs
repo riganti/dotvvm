@@ -4,7 +4,6 @@ using System.Linq;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Parser;
 using System.Threading;
-using System.Collections.Immutable;
 
 namespace Redwood.Framework.ResourceManagement
 {

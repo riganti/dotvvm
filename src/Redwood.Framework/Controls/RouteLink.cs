@@ -1,11 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using Newtonsoft.Json;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Hosting;
-using Redwood.Framework.Routing;
 using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls
@@ -13,10 +7,7 @@ namespace Redwood.Framework.Controls
     public class RouteLink : HtmlGenericControl
     {
 
-        private const string RouteParameterPrefix = "Param-";
-
-
-
+        
         [MarkupOptions(AllowBinding = false)]
         public string RouteName
         {
@@ -43,14 +34,7 @@ namespace Redwood.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            if (!RenderOnServer)
-            {
-                writer.AddKnockoutDataBind("attr", "{ href: " + GenerateRouteLink(context) + "}");
-            }
-            else
-            {
-                writer.AddAttribute("href", GenerateRouteUrl(context));
-            }
+            RouteLinkHelpers.WriteRouteLinkHrefAttribute(RouteName, this, writer, context);
 
             writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
 
@@ -72,120 +56,6 @@ namespace Redwood.Framework.Controls
                 }
             }
         }
-
-        private string GenerateRouteUrl(RenderContext context)
-        {
-            var coreUrl = GenerateRouteUrlCore(context);
-
-            if ((bool)GetValue(Internal.IsSpaPageProperty))
-            {
-                return "#!/" + coreUrl;
-            }
-            else
-            {
-                return context.RequestContext.TranslateVirtualPath("~/" + coreUrl);
-            }
-        }
-
-        private string GenerateRouteUrlCore(RenderContext context)
-        {
-            var route = GetRoute(context);
-            var parameters = ComposeNewRouteParameters(context, route);
-
-            // evaluate bindings on server
-            foreach (var param in parameters.Where(p => p.Value is BindingExpression).ToList())
-            {
-                if (param.Value is BindingExpression)
-                {
-                    EnsureValidBindingType(param.Value as BindingExpression);
-                    parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(this, null);   // TODO: see below
-                }
-            }
-
-            // generate the URL
-            return route.BuildUrl(parameters);
-        }
-
-        private RouteBase GetRoute(RenderContext context)
-        {
-            return context.RequestContext.Configuration.RouteTable[RouteName];
-        }
-
-        private string GenerateRouteLink(RenderContext context)
-        {
-            var link = GenerateRouteLinkCore(context);
-
-            if ((bool)GetValue(Internal.IsSpaPageProperty))
-            {
-                return string.Format("'#!/' + {0}", link);
-            }
-            else
-            {
-                return string.Format("'{0}' + {1}", context.RequestContext.TranslateVirtualPath("~/"), link);
-            }
-        }
-
-        private string GenerateRouteLinkCore(RenderContext context)
-        {
-            var route = GetRoute(context);
-            var parameters = ComposeNewRouteParameters(context, route);
-
-            // generate the function call
-            var sb = new StringBuilder();
-            sb.Append("redwood.buildRouteUrl(");
-            sb.Append(JsonConvert.SerializeObject(route.Url));
-            sb.Append(", {");
-            sb.Append(string.Join(", ", parameters.Select(TranslateRouteParameter)));
-            sb.Append("})");
-            return sb.ToString();
-        }
-
-        private string TranslateRouteParameter(KeyValuePair<string, object> param)
-        {
-            string expression = "";
-            if (param.Value is BindingExpression)
-            {
-                EnsureValidBindingType(param.Value as BindingExpression);
-
-                var binding = param.Value as ValueBindingExpression;
-                expression = binding.TranslateToClientScript(this, null); // TODO: pass a special RedwoodProperty for dynamic parameters on this place. The function might need the value in the future.
-            }
-            else
-            {
-                expression = JsonConvert.SerializeObject(param.Value);
-            }
-            return JsonConvert.SerializeObject(param.Key) + ": " + expression;
-        }
-
-        private static void EnsureValidBindingType(BindingExpression binding)
-        {
-            if (!(binding is ValueBindingExpression))
-            {
-                throw new Exception("Only {value: ...} bindings are supported in <rw:RouteLink Param-xxx='' /> attributes!");
-            }
-        }
-
-        private Dictionary<string, object> ComposeNewRouteParameters(RenderContext context, RouteBase route)
-        {
-            var parameters = new Dictionary<string, object>(route.DefaultValues);
-            foreach (var param in context.RequestContext.Parameters)
-            {
-                parameters[param.Key] = param.Value;
-            }
-            foreach (var attr in GetRouteParameters())
-            {
-                var parameterName = attr.Key.Substring(RouteParameterPrefix.Length);
-                parameters[parameterName] = attr.Value;
-
-                // remove the attribute because we don't want to be rendered
-                Attributes.Remove(attr.Key);
-            }
-            return parameters;
-        }
-
-        private List<KeyValuePair<string, object>> GetRouteParameters()
-        {
-            return Attributes.Where(a => a.Key.StartsWith(RouteParameterPrefix)).ToList();
-        }
+        
     }
 }
