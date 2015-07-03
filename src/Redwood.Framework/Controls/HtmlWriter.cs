@@ -22,12 +22,18 @@ namespace Redwood.Framework.Controls
 
         private OrderedDictionary attributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
+        private bool tagFullyOpen;
 
 
         private static readonly Dictionary<string, string> separators = new Dictionary<string, string>()
         {
             { "class", " " },
             { "style", ";" }
+        };
+
+        public static readonly ISet<string> SelfClosingTags = new HashSet<string>
+        {
+            "area", "base", "br" , "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"
         };
 
         /// <summary>
@@ -90,8 +96,25 @@ namespace Redwood.Framework.Controls
         public void RenderBeginTag(string name)
         {
             RenderBeginTagCore(name);
-            writer.Write(">");
+            if (SelfClosingTags.Contains(name))
+            {
+                tagFullyOpen = false;
+            }
+            else
+            {
+                tagFullyOpen = true;
+                writer.Write(">");
+            }
             openTags.Push(name);
+        }
+
+        public void EnsureTagFullyOpen()
+        {
+            if(!tagFullyOpen)
+            {
+                writer.Write(">");
+                tagFullyOpen = true;
+            }
         }
 
         /// <summary>
@@ -156,11 +179,18 @@ namespace Redwood.Framework.Controls
             {
                 throw new InvalidOperationException(Parser_RwHtml.HtmlWriter_CannotCloseTagBecauseNoTagIsOpen);
             }
-
+            
             var name = openTags.Pop();
-            writer.Write("</");
-            writer.Write(name);
-            writer.Write(">");
+            if (tagFullyOpen)
+            {
+                writer.Write("</");
+                writer.Write(name);
+                writer.Write(">");
+            }
+            else
+            {
+                writer.Write(" />");
+            }
         }
 
         /// <summary>
@@ -168,6 +198,7 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public void WriteText(string text)
         {
+            EnsureTagFullyOpen();
             writer.Write(WebUtility.HtmlEncode(text).Replace("\"", "&quot;"));
         }
 
@@ -176,6 +207,7 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public void WriteUnencodedText(string text)
         {
+            EnsureTagFullyOpen();
             writer.Write(text);
         }
     }
