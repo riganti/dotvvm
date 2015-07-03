@@ -25,7 +25,7 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty IsSubmitButtonProperty
             = RedwoodProperty.Register<bool, Button>(c => c.IsSubmitButton, false);
 
-
+        
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Button"/> class.
