@@ -1,4 +1,4 @@
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -80,8 +80,12 @@ var Redwood = (function () {
     Redwood.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
-    Redwood.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, validationTargetPath) {
+    Redwood.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath) {
         var _this = this;
+        if (useWindowSetTimeout) {
+            window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath); }, 0);
+            return;
+        }
         var viewModel = this.viewModels[viewModelName].viewModel;
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
