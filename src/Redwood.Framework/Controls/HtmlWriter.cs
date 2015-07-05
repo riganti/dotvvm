@@ -22,7 +22,7 @@ namespace Redwood.Framework.Controls
 
         private OrderedDictionary attributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
-        private bool tagFullyOpen;
+        private bool tagFullyOpen = true;
 
 
         private static readonly Dictionary<string, string> separators = new Dictionary<string, string>()
@@ -190,6 +190,7 @@ namespace Redwood.Framework.Controls
             else
             {
                 writer.Write(" />");
+                tagFullyOpen = true;
             }
         }
 

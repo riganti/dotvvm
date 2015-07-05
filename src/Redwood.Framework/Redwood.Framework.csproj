@@ -80,9 +80,12 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binding\AttachedPropertyAttribute.cs" />
+    <Compile Include="Binding\IBindingContext.cs" />
+    <Compile Include="Runtime\Compilation\BaseBindingCompiler.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
+    <Compile Include="Binding\CompiledBindingExpression.cs" />
     <Compile Include="Binding\ControlCommandBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
     <Compile Include="Binding\ControlStateBindingExpression.cs" />
