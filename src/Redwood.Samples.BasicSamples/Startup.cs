@@ -10,6 +10,7 @@ using Redwood.Framework.Configuration;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.AspNet.Identity;
 using Redwood.Framework.Storage;
+using Redwood.Framework.ResourceManagement;
 
 [assembly: OwinStartup(typeof(Redwood.Samples.BasicSamples.Startup))]
 namespace Redwood.Samples.BasicSamples
@@ -30,7 +31,7 @@ namespace Redwood.Samples.BasicSamples
                     OnApplyRedirect = c =>
                     {
                         // redirect to login page on 401 request
-                        if(c.Response.StatusCode == 401 && c.Request.Method == "GET")
+                        if (c.Response.StatusCode == 401 && c.Request.Method == "GET")
                         {
                             c.Response.StatusCode = 302;
                             c.Response.Headers["Location"] = c.RedirectUri;
@@ -70,6 +71,10 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample19", "Sample19", "sample19.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.rwhtml", null);
+
+            var bundles = new BundlingResourceProcessor();
+            bundles.RegisterBundle(redwoodConfiguration.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
+            redwoodConfiguration.Resources.DefaultResourceProcessors.Add(bundles);
 
             redwoodConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "TempUpload"), TimeSpan.FromMinutes(30)));

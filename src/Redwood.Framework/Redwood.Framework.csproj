@@ -156,6 +156,7 @@
     <Compile Include="Parser\TextRange.cs" />
     <Compile Include="Parser\TokenError.cs" />
     <Compile Include="RedwoodAuthenticationHelper.cs" />
+    <Compile Include="ResourceManagement\BundlingResourceProcessor.cs" />
     <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -168,6 +169,8 @@
     <Compile Include="Configuration\RedwoodConfiguration.cs" />
     <Compile Include="Configuration\RedwoodControlConfiguration.cs" />
     <Compile Include="Configuration\RedwoodMarkupConfiguration.cs" />
+    <Compile Include="ResourceManagement\IResourceProcessor.cs" />
+    <Compile Include="ResourceManagement\NamedResource.cs" />
     <Compile Include="ResourceManagement\RedwoodResourceRepository.cs" />
     <Compile Include="Configuration\RedwoodSecurityConfiguration.cs" />
     <Compile Include="ResourceManagement\ResourceBase.cs" />
@@ -175,6 +178,7 @@
     <Compile Include="ResourceManagement\ResourceRenderPosition.cs" />
     <Compile Include="ResourceManagement\ResourceRepositoryJsonConverter.cs" />
     <Compile Include="ResourceManagement\ScriptResource.cs" />
+    <Compile Include="ResourceManagement\SingleResourceProcessorBase.cs" />
     <Compile Include="ResourceManagement\StylesheetResource.cs" />
     <Compile Include="Controls\Bootstrap\FormGroup.cs" />
     <Compile Include="Controls\Bootstrap\GlyphIcon.cs" />

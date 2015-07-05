@@ -15,6 +15,7 @@ namespace Redwood.Framework.ResourceManagement
         private readonly RedwoodConfiguration configuration;
         private List<string> requiredResourcesOrdered = new List<string>();
         private Dictionary<string, ResourceBase> requiredResources = new Dictionary<string, ResourceBase>();
+        private List<IResourceProcessor> processors = new List<IResourceProcessor>();
 
         public IReadOnlyCollection<string> RequiredResources
         {
@@ -100,13 +101,37 @@ namespace Redwood.Framework.ResourceManagement
             AddRequiredResource(string.Format(Constants.GlobalizeCultureResourceName, Thread.CurrentThread.CurrentCulture.Name));
         }
 
+        public void RegisterProcessor(IResourceProcessor processor)
+        {
+            this.processors.Add(processor);
+        }
+
 
         /// <summary>
         /// Gets the resources in correct order.
         /// </summary>
-        public IEnumerable<ResourceBase> GetResourcesInCorrectOrder()
+        public IEnumerable<ResourceBase> GetResourcesInOrder()
         {
-            return requiredResourcesOrdered.Select(k => requiredResources[k]);
+            if (processors.Count == 0 && configuration.Resources.DefaultResourceProcessors.Count == 0)
+                return requiredResourcesOrdered.Select(k => requiredResources[k]);
+            return GetNamedResourcesInOrder().Select(r => r.Resource);
+        }
+        /// <summary>
+        /// Gets the resources with name in correct order.
+        /// </summary>
+        public IEnumerable<NamedResource> GetNamedResourcesInOrder()
+        {
+            var result = requiredResourcesOrdered.Select(k => new NamedResource(k, requiredResources[k]));
+
+            foreach (var proc in configuration.Resources.DefaultResourceProcessors)
+            {
+                result = proc.Process(result);
+            }
+            foreach (var proc in processors)
+            {
+                result = proc.Process(result);
+            }
+            return result;
         }
 
 

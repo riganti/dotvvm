@@ -23,7 +23,7 @@ namespace Redwood.Framework.Tests.Runtime
             var manager = new ResourceManager(configuration);
 
             manager.AddRequiredResource(Constants.JQueryResourceName);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.JQueryResourceName), manager.GetResourcesInCorrectOrder().First());
+            Assert.AreEqual(configuration.Resources.FindResource(Constants.JQueryResourceName), manager.GetResourcesInOrder().First());
         }
 
 
@@ -34,7 +34,7 @@ namespace Redwood.Framework.Tests.Runtime
             var manager = new ResourceManager(configuration);
 
             manager.AddRequiredResource(Constants.RedwoodResourceName);
-            var resourcesInCorrectOrder = manager.GetResourcesInCorrectOrder().ToList();
+            var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
             Assert.AreEqual(configuration.Resources.FindResource(Constants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
             Assert.AreEqual(configuration.Resources.FindResource(Constants.KnockoutMapperResourceName), resourcesInCorrectOrder[1]);
             Assert.AreEqual(configuration.Resources.FindResource(Constants.RedwoodResourceName), resourcesInCorrectOrder[2]);
@@ -48,7 +48,7 @@ namespace Redwood.Framework.Tests.Runtime
             var manager = new ResourceManager(configuration);
 
             manager.AddRequiredResource(Constants.BootstrapResourceName);
-            var resourcesInCorrectOrder = manager.GetResourcesInCorrectOrder().ToList();
+            var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
             Assert.AreEqual(configuration.Resources.FindResource(Constants.BootstrapCssResourceName), resourcesInCorrectOrder[0]);
             Assert.AreEqual(configuration.Resources.FindResource(Constants.JQueryResourceName), resourcesInCorrectOrder[1]);
             Assert.AreEqual(configuration.Resources.FindResource(Constants.BootstrapResourceName), resourcesInCorrectOrder[2]);
