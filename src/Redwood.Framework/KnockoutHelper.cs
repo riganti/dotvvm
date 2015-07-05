@@ -53,7 +53,7 @@ namespace Redwood.Framework
             writer.AddKnockoutDataBind("foreach", "redwood.getDataSourceItems(" + expression + ")");
         }
 
-        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, RedwoodBindableControl control)
+        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, RedwoodBindableControl control, bool useWindowSetTimeout = false)
         {
             var uniqueControlId = "";
             if (expression is ControlCommandBindingExpression)
@@ -69,7 +69,8 @@ namespace Redwood.Framework
                 "this",
                 "[" + String.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")) + "]",
                 "'" + expression.Expression + "'",
-                "'" + uniqueControlId + "'"
+                "'" + uniqueControlId + "'",
+                useWindowSetTimeout ? "true" : "false"
             };
             
             var validationTargetExpression = GetValidationTargetExpression(control, true);

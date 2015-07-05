@@ -1,3 +1,4 @@
+using System;
 using Redwood.Framework.Binding;
 using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime;
@@ -44,6 +45,34 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<object, CheckableControlBase>(t => t.CheckedValue, null);
 
 
+
+        /// <summary>
+        /// Gets or sets the command that will be triggered when the control check state is changed.
+        /// </summary>
+        public Action Changed
+        {
+            get { return (Action)GetValue(ChangedProperty); }
+            set { SetValue(ChangedProperty, value); }
+        }
+        public static readonly RedwoodProperty ChangedProperty =
+            RedwoodProperty.Register<Action, CheckableControlBase>(t => t.Changed, null);
+
+
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the button is enabled and can be clicked on.
+        /// </summary>
+        public bool Enabled
+        {
+            get { return (bool)GetValue(EnabledProperty); }
+            set { SetValue(EnabledProperty, value); }
+        }
+        public static readonly RedwoodProperty EnabledProperty =
+            RedwoodProperty.Register<bool, CheckableControlBase>(t => t.Enabled, true);
+
+
+
+
         /// <summary>
         /// Initializes a new instance of the <see cref="CheckableControlBase"/> class.
         /// </summary>
@@ -64,6 +93,22 @@ namespace Redwood.Framework.Controls
             {
                 writer.RenderBeginTag("label");
             }
+
+            // prepare changed event attribute
+            var changedBinding = GetCommandBinding(ChangedProperty);
+            if (changedBinding != null)
+            {
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(changedBinding, context, this, true));
+            }
+
+            // handle enabled attribute
+            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            {
+                if (!Enabled)
+                {
+                    writer.AddAttribute("disabled", "disabled");
+                }
+            });
 
             // render the radio button
             RenderInputTag(writer);

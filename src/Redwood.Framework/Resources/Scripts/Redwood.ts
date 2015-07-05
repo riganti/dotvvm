@@ -86,7 +86,12 @@ class Redwood {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, validationTargetPath?: any): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any): void {
+        if (useWindowSetTimeout) {
+            window.setTimeout(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath), 0);
+            return;
+        }
+
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // prevent double postbacks
