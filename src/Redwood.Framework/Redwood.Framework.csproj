@@ -80,12 +80,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binding\AttachedPropertyAttribute.cs" />
-    <Compile Include="Binding\IBindingContext.cs" />
-    <Compile Include="Runtime\Compilation\BaseBindingCompiler.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
-    <Compile Include="Binding\CompiledBindingExpression.cs" />
     <Compile Include="Binding\ControlCommandBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
     <Compile Include="Binding\ControlStateBindingExpression.cs" />
@@ -93,6 +90,11 @@
     <Compile Include="Binding\ExpressionEvaluator.cs" />
     <Compile Include="Binding\IExpressionEvaluator.cs" />
     <Compile Include="Binding\IUpdatableBindingExpression.cs" />
+    <Compile Include="Binding\NumberUtils.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NumberUtils.tt</DependentUpon>
+    </Compile>
     <Compile Include="Binding\RedwoodProperty.cs" />
     <Compile Include="Binding\ResourceBindingExpression.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
@@ -403,6 +405,10 @@
     <TypeScriptCompile Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Binding\NumberUtils.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NumberUtils.cs</LastGenOutput>
+    </Content>
     <Content Include="Hosting\FileUploadPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>

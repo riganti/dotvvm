@@ -250,7 +250,7 @@ namespace Redwood.Framework.Binding
         {
             if (node.OperatorToken.IsKind(SyntaxKind.MinusToken))
             {
-                ThrowArithmeticOperatorsNotSupportedYet();
+                return NumberUtils.Negate(Visit(node.Operand));
             }
             if (node.OperatorToken.IsKind(SyntaxKind.ExclamationToken))
             {
@@ -273,23 +273,23 @@ namespace Redwood.Framework.Binding
             // arithmetic
             if (node.OperatorToken.IsKind(SyntaxKind.PlusToken))
             {
-                ThrowArithmeticOperatorsNotSupportedYet();
+                return NumberUtils.Add(Visit(node.Left), Visit(node.Right));
             }
             if (node.OperatorToken.IsKind(SyntaxKind.MinusToken))
             {
-                ThrowArithmeticOperatorsNotSupportedYet();
+                return NumberUtils.Subtract(Visit(node.Left), Visit(node.Right));
             }
             if (node.OperatorToken.IsKind(SyntaxKind.AsteriskToken))
             {
-                ThrowArithmeticOperatorsNotSupportedYet();
+                return NumberUtils.Multiply(Visit(node.Left), Visit(node.Right));
             }
             if (node.OperatorToken.IsKind(SyntaxKind.SlashToken))
             {
-                ThrowArithmeticOperatorsNotSupportedYet();
+                return NumberUtils.Divide(Visit(node.Left), Visit(node.Right));
             }
             if (node.OperatorToken.IsKind(SyntaxKind.PercentToken))
             {
-                ThrowArithmeticOperatorsNotSupportedYet();
+                return NumberUtils.Mod(Visit(node.Left), Visit(node.Right));
             }
 
             // comparison
