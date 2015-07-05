@@ -143,6 +143,8 @@
     <Content Include="Scripts\jquery-1.9.1.js" />
     <Content Include="Scripts\jquery-1.9.1.min.js" />
     <Content Include="Scripts\testResource.js" />
+    <Content Include="Scripts\testResource2.js" />
+    <Content Include="Scripts\testResourceBundle.js" />
     <Content Include="upload.html" />
     <Content Include="upload2.html" />
     <Content Include="Web.config" />

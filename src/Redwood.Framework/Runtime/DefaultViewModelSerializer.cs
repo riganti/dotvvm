@@ -115,18 +115,16 @@ namespace Redwood.Framework.Runtime
         public JObject BuildResourcesJson(RedwoodRequestContext context, Func<string, bool> predicate)
         {
             var manager = context.ResourceManager;
-            var resourceNames = manager.RequiredResources.ToArray();
-            var resources = resourceNames.Select(manager.FindResource).ToArray();
             var resourceObj = new JObject();
-            for (int i = 0; i < resources.Length; i++)
+            foreach(var resource in manager.GetNamedResourcesInOrder())
             {
-                if (predicate(resourceNames[i]))
+                if (predicate(resource.Name))
                 {
                     using (var str = new StringWriter())
                     {
                         var w = new HtmlWriter(str, context);
-                        resources[i].Render(w);
-                        resourceObj[resourceNames[i]] = JValue.CreateString(str.ToString());
+                        resource.Resource.Render(w);
+                        resourceObj[resource.Name] = JValue.CreateString(str.ToString());
                     }
                 }
             }

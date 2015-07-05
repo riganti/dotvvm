@@ -23,6 +23,9 @@ namespace Redwood.Framework.ResourceManagement
         [JsonIgnore]
         public ConcurrentDictionary<string, IRedwoodResourceRepository> Parents { get; set; }
 
+        [JsonIgnore]
+        public IList<IResourceProcessor> DefaultResourceProcessors { get; set; } = new List<IResourceProcessor>();
+
         /// <summary>
         /// Finds the resource with the specified name.
         /// </summary>
@@ -78,6 +81,11 @@ namespace Redwood.Framework.ResourceManagement
         {
             this.Resources = new ConcurrentDictionary<string, ResourceBase>();
             this.Parents = new ConcurrentDictionary<string, IRedwoodResourceRepository>();
+        }
+
+        public NamedResource FindNamedResource(string name)
+        {
+            return new NamedResource(name, FindResource(name));
         }
     }
 }

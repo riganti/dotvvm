@@ -21,7 +21,7 @@ namespace Redwood.Framework.Controls.Infrastructure
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             // render resource links
-            var resources = context.ResourceManager.GetResourcesInCorrectOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Body);
+            var resources = context.ResourceManager.GetResourcesInOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Body);
             foreach (var resource in resources)
             {
                 resource.Render(writer);

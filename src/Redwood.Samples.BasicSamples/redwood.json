@@ -21,7 +21,9 @@
             "testCss": { "url": "~/Content/testResource.css" }
         },
         "scripts": {
-            "testJs": {"url": "~/Scripts/testResource.js" }
+            "testJs": {"url": "~/Scripts/testResource.js" },
+            "testJs2": {"url": "~/Scripts/testResource2.js" },
+            "testJsBundle": {"url": "~/Scripts/testResourceBundle.js" }
         }
     }
 }
