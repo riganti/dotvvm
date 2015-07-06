@@ -10,7 +10,7 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// Repeats a specified template for each of the items in the <see cref="RedwoodBindableControl.DataContext"/> property.
     /// </summary>
-    [ControlMarkupOptions(AllowContent = false)]
+    [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = "ItemTemplate")]
     public class Repeater : ItemsControl
     {
 

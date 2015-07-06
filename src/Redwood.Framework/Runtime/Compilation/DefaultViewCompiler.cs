@@ -69,7 +69,7 @@ namespace Redwood.Framework.Runtime.Compilation
                 }
 
                 var directivesToApply = node.Directives.Where(d => d.Name != Constants.BaseTypeDirective).ToList();
-                if (wrapperType.IsAssignableFrom(typeof (RedwoodView)))
+                if (wrapperType.IsAssignableFrom(typeof(RedwoodView)))
                 {
                     foreach (var directive in directivesToApply)
                     {
@@ -92,7 +92,7 @@ namespace Redwood.Framework.Runtime.Compilation
         /// </summary>
         private Type ResolveWrapperType(RwHtmlRootNode node, string className, out string controlClassName)
         {
-            var wrapperType = typeof (RedwoodView);
+            var wrapperType = typeof(RedwoodView);
 
             var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
             if (baseControlDirective != null)
@@ -102,7 +102,7 @@ namespace Redwood.Framework.Runtime.Compilation
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_TypeSpecifiedInBaseTypeDirectiveNotFound, baseControlDirective.Value));
                 }
-                if (!typeof (RedwoodMarkupControl).IsAssignableFrom(wrapperType))
+                if (!typeof(RedwoodMarkupControl).IsAssignableFrom(wrapperType))
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_MarkupControlMustDeriveFromRedwoodMarkupControl));
                 }
@@ -116,7 +116,7 @@ namespace Redwood.Framework.Runtime.Compilation
             }
 
             return wrapperType;
-        } 
+        }
 
         /// <summary>
         /// Builds the assembly.
@@ -135,7 +135,7 @@ namespace Redwood.Framework.Runtime.Compilation
                 }
                 .Concat(configuration.Markup.Assemblies.Select(Assembly.Load)).Distinct()
                 .Select(MetadataReference.CreateFromAssembly);
-                
+
                 // add dynamic references
                 var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
                     .Select(a => assemblyCache.GetAssemblyMetadata(a));
@@ -143,8 +143,8 @@ namespace Redwood.Framework.Runtime.Compilation
                 // compile
                 var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
                 var compilation = CSharpCompilation.Create(
-                    assemblyName, 
-                    emitter.BuildTree(namespaceName, className), 
+                    assemblyName,
+                    emitter.BuildTree(namespaceName, className),
                     Enumerable.Concat(staticReferences, dynamicReferences),
                     options);
 
@@ -157,8 +157,8 @@ namespace Redwood.Framework.Runtime.Compilation
                 }
                 else
                 {
-                    throw new Exception("The compilation failed! This is most probably bug in the Redwood framework.\r\n\r\n" 
-                        + string.Join("\r\n", result.Diagnostics) 
+                    throw new Exception("The compilation failed! This is most probably bug in the Redwood framework.\r\n\r\n"
+                        + string.Join("\r\n", result.Diagnostics)
                         + "\r\n\r\n" + compilation.SyntaxTrees[0] + "\r\n\r\n");
                 }
             }
@@ -195,19 +195,11 @@ namespace Redwood.Framework.Runtime.Compilation
             {
                 // HTML element
                 var element = (RwHtmlElementNode)node;
-                var parentProperty = FindProperty(parentMetadata, element.TagName);
-                if (parentProperty != null && string.IsNullOrEmpty(element.TagPrefix) && parentProperty.MarkupOptions.MappingMode == MappingMode.InnerElement)
-                {
-                    ProcessElementProperty(parentName, parentProperty, element);
-                }
-                else
-                {
-                    EnsureContentAllowed(parentMetadata);
-                    
-                    // the element is the content
-                    var currentObjectName = ProcessObjectElement(element);
-                    emitter.EmitAddCollectionItem(parentName, currentObjectName);
-                }
+                EnsureContentAllowed(parentMetadata);
+
+                // the element is the content
+                var currentObjectName = ProcessObjectElement(element);
+                emitter.EmitAddCollectionItem(parentName, currentObjectName);
             }
             else
             {
@@ -226,19 +218,19 @@ namespace Redwood.Framework.Runtime.Compilation
         /// <summary>
         /// Processes the element which contains property value.
         /// </summary>
-        private void ProcessElementProperty(string parentName, RedwoodProperty parentProperty, RwHtmlElementNode element)
+        private void ProcessElementProperty(string parentName, RedwoodProperty parentProperty, IEnumerable<RwHtmlNode> elementContent)
         {
             // the element is a property 
             if (IsTemplateProperty(parentProperty))
             {
                 // template
-                var templateName = ProcessTemplate(element);
+                var templateName = ProcessTemplate(elementContent);
                 emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, templateName);
             }
             else if (IsCollectionProperty(parentProperty))
             {
                 // collection of elements
-                foreach (var child in GetInnerPropertyElements(element, parentProperty))
+                foreach (var child in FilterElementNodes(elementContent, parentProperty))
                 {
                     var childObject = ProcessObjectElement(child);
                     emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.Name);
@@ -247,7 +239,7 @@ namespace Redwood.Framework.Runtime.Compilation
             else
             {
                 // new object
-                var children = GetInnerPropertyElements(element, parentProperty).ToList();
+                var children = FilterElementNodes(elementContent, parentProperty).ToList();
                 if (children.Count > 1)
                 {
                     throw new NotSupportedException(string.Format("The property {0} can have only one child element!", parentProperty.MarkupOptions.Name)); // TODO: exception handling
@@ -272,9 +264,9 @@ namespace Redwood.Framework.Runtime.Compilation
         /// <summary>
         /// Gets the inner property elements and makes sure that no other content is present.
         /// </summary>
-        private IEnumerable<RwHtmlElementNode> GetInnerPropertyElements(RwHtmlElementNode element, RedwoodProperty parentProperty)
+        private IEnumerable<RwHtmlElementNode> FilterElementNodes(IEnumerable<RwHtmlNode> nodes, RedwoodProperty parentProperty)
         {
-            foreach (var child in element.Content)
+            foreach (var child in nodes)
             {
                 if (child is RwHtmlElementNode)
                 {
@@ -295,20 +287,20 @@ namespace Redwood.Framework.Runtime.Compilation
         /// <summary>
         /// Processes the template.
         /// </summary>
-        private string ProcessTemplate(RwHtmlElementNode element)
+        private string ProcessTemplate(IEnumerable<RwHtmlNode> elementContent)
         {
             var templateName = emitter.EmitCreateObject(typeof(DelegateTemplate));
             emitter.EmitSetProperty(
                 templateName,
                 ReflectionUtils.GetPropertyNameFromExpression<DelegateTemplate>(t => t.BuildContentBody),
-                emitter.EmitIdentifier(CompileTemplate(element)));
+                emitter.EmitIdentifier(CompileTemplate(elementContent)));
             return templateName;
         }
 
         /// <summary>
         /// Compiles the template.
         /// </summary>
-        private string CompileTemplate(RwHtmlElementNode element)
+        private string CompileTemplate(IEnumerable<RwHtmlNode> elementContent)
         {
             var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + currentTemplateIndex;
             currentTemplateIndex++;
@@ -317,7 +309,7 @@ namespace Redwood.Framework.Runtime.Compilation
             // build the statements
             var wrapperType = typeof(Placeholder);
             var parentName = emitter.EmitCreateObject(wrapperType);
-            foreach (var child in element.Content)
+            foreach (var child in elementContent)
             {
                 object[] activationParameters;
                 ProcessNode(child, parentName, controlResolver.ResolveControl(RedwoodConfiguration.RedwoodControlTagPrefix, typeof(Placeholder).Name, out activationParameters));
@@ -354,13 +346,50 @@ namespace Redwood.Framework.Runtime.Compilation
                 ProcessAttribute(attribute, controlMetadata, currentObjectName);
             }
 
-            // process inner elements
-            foreach (var child in element.Content)
-            {
-                ProcessNode(child, currentObjectName, controlMetadata);
-            }
+            ProcessControlContent(element.Content, currentObjectName, controlMetadata);
             return currentObjectName;
         }
+
+        public void ProcessControlContent(IEnumerable<RwHtmlNode> nodes, string parentName, ControlResolverMetadata metadata)
+        {
+            var content = new List<RwHtmlNode>();
+            bool properties = true;
+            foreach (var node in nodes)
+            {
+                var element = node as RwHtmlElementNode;
+                if (element != null && properties)
+                {
+                    var property = FindProperty(metadata, element.TagName);
+                    if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode == MappingMode.InnerElement)
+                    {
+                        content.Clear();
+                        ProcessElementProperty(parentName, property, element.Content);
+                    }
+                    else properties = false;
+                }
+                if ((element != null && !properties) || element == null)
+                    content.Add(node);
+                if (properties && node.IsNotEmpty())
+                {
+                    properties = false;
+                }
+            }
+            if (content.Any(RwHtmlNodeHelper.IsNotEmpty))
+            {
+                if(metadata.DefaultContentProperty != null)
+                {
+                    ProcessElementProperty(parentName, metadata.DefaultContentProperty, content);
+                }
+                else
+                {
+                    foreach (var node in content)
+                    {
+                        ProcessNode(node, parentName, metadata);
+                    }
+                }
+            }
+        }
+
 
         /// <summary>
         /// Processes the HTML attribute.

@@ -200,6 +200,7 @@ namespace Redwood.Framework.Runtime
         {
             var attribute = type.Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
 
+            var properties = GetControlProperties(type.Type);
             var metadata = new ControlResolverMetadata()
             {
                 Name = type.Type.Name,
@@ -207,9 +208,10 @@ namespace Redwood.Framework.Runtime
                 HasHtmlAttributesCollection = typeof(IControlWithHtmlAttributes).IsAssignableFrom(type.Type),
                 Type = type.Type,
                 ControlBuilderType = type.ControlBuilderType,
-                Properties = GetControlProperties(type.Type),
+                Properties = properties,
                 IsContentAllowed = attribute.AllowContent,
-                VirtualPath = type.VirtualPath
+                VirtualPath = type.VirtualPath,
+                DefaultContentProperty = attribute.DefaultContentProperty != null ? properties[attribute.DefaultContentProperty] : null
             };
             return metadata;
         }
