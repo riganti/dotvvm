@@ -25,6 +25,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets or sets whether the <see cref="RadioButton" /> is checked.
         /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
         public bool Checked
         {
             get { return (bool)GetValue(CheckedProperty); }

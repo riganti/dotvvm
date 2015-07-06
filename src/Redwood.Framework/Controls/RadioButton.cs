@@ -14,6 +14,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets or sets the <see cref="CheckedValue"/> of the first <see cref="RadioButton" /> that is checked and bound to this collection.
         /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
         public object CheckedItem
         {
             get { return GetValue(CheckedItemProperty); }
@@ -25,6 +26,7 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets or sets an unique name of the radio button group.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string GroupName
         {
             get { return (string)GetValue(GroupNameProperty); }
@@ -53,7 +55,7 @@ namespace Redwood.Framework.Controls
             }
             else
             {
-                throw new Exception("The CheckedItem property of a RadioButton must be set.");
+                writer.AddKnockoutDataBind("checked", this, CheckedProperty, () => { });
             }
 
             // render the input tag
