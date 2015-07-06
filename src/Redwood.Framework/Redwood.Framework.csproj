@@ -152,6 +152,7 @@
     <Compile Include="Hosting\RedwoodRestrictedStaticFilesMiddleware.cs" />
     <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
     <Compile Include="Parser\NullTokenError.cs" />
+    <Compile Include="Parser\RwHtml\Parser\RwHtmlNodeHelper.cs" />
     <Compile Include="Parser\SimpleTokenError.cs" />
     <Compile Include="Parser\TextRange.cs" />
     <Compile Include="Parser\TokenError.cs" />

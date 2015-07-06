@@ -11,7 +11,7 @@ namespace Redwood.Framework.Controls
 
         public bool AllowContent { get; set; }
 
-        
+        public string DefaultContentProperty { get; set; }
 
     }
 }

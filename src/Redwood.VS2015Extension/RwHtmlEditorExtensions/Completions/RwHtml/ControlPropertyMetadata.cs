@@ -14,6 +14,5 @@ namespace Redwood.VS2015Extension.RwHtmlEditorExtensions.Completions.RwHtml
         public bool IsElement { get; set; }
         public bool AllowHtmlContent { get; set; }
         public ITypeSymbol Type { get; set; }
-
     }
 }

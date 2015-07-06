@@ -19,8 +19,10 @@ namespace Redwood.Framework.Runtime
         public bool HasHtmlAttributesCollection { get; set; }
 
         public Dictionary<string, RedwoodProperty> Properties { get; set; }
-
+        
         public bool IsContentAllowed { get; set; }
+
+        public RedwoodProperty DefaultContentProperty { get; set; }
 
         public string VirtualPath { get; internal set; }
 
