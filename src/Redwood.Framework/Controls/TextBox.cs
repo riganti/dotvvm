@@ -51,6 +51,21 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty UpdateTextAfterKeydownProperty
             = RedwoodProperty.Register<bool, TextBox>(c => c.UpdateTextAfterKeydown, false);
 
+
+        /// <summary>
+        /// Gets or sets the command that will be triggered when the control text is changed.
+        /// </summary>
+        public Action Changed
+        {
+            get { return (Action)GetValue(ChangedProperty); }
+            set { SetValue(ChangedProperty, value); }
+        }
+        public static readonly RedwoodProperty ChangedProperty =
+            RedwoodProperty.Register<Action, CheckableControlBase>(t => t.Changed, null);
+
+
+
+
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
@@ -77,7 +92,14 @@ namespace Redwood.Framework.Controls
             {
                 TagName = "textarea";
             }
-            
+
+            // prepare changed event attribute
+            var changedBinding = GetCommandBinding(ChangedProperty);
+            if (changedBinding != null)
+            {
+                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(changedBinding, context, this, true));
+            }
+
             base.AddAttributesToRender(writer, context);
         }
 
