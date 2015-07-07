@@ -1,0 +1,18 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample5ViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>User Controls Sample</h1>
+		
+		<sample5:TestControl DataContext="{value: ViewModel1}" Value="{value: ViewModel1.Value}" Name="First Control" />
+		<sample5:TestControl DataContext="{value: ViewModel2}" Value="{value: ViewModel2.Value}" Name="{value: SecondControlName}" />
+	</div>
+
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>ASP.NET DotVVM Project</Name>
+    <Description>ASP.NET Application using DotVVM framework</Description>
+    <Icon>DotVVM.VS2015Extension.ProjectTemplate.ico</Icon>
+    <ProjectType>CSharp</ProjectType>
+    <RequiredFrameworkVersion>4.5.1</RequiredFrameworkVersion>
+    <SortOrder>1000</SortOrder>
+    <TemplateID>3583473d-09fa-4a33-b6d9-aaa4064a0d22</TemplateID>
+    <CreateNewFolder>true</CreateNewFolder>
+    <DefaultName>DotvvmApplication</DefaultName>
+    <ProvideDefaultName>true</ProvideDefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <Project File="ProjectTemplate.csproj" ReplaceParameters="true">
+      <ProjectItem ReplaceParameters="true" TargetFileName="Properties\AssemblyInfo.cs">AssemblyInfo.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Web.config">Web.config</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Web.Debug.config">Web.Debug.config</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Web.Release.config">Web.Release.config</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Startup.cs">Startup.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="ViewModels\DefaultViewModel.cs">DefaultViewModel.cs</ProjectItem>
+      <ProjectItem ReplaceParameters="true" TargetFileName="Views\default.dothtml">default.dothtml</ProjectItem>
+    </Project>
+  </TemplateContent>
+  <WizardExtension>
+    <Assembly>NuGet.VisualStudio.Interop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</Assembly>
+    <FullClassName>NuGet.VisualStudio.TemplateWizard</FullClassName>
+  </WizardExtension>
+  <WizardData>
+    <packages repository="extension" repositoryId="DotVVM.VS2015Extension..ff9401c7-99da-4a9c-9800-1ffdcd4f13b3">
+      <package id="Newtonsoft.Json" version="7.0.1-beta2" />
+      <package id="Owin" version="1.0.0" />
+      <package id="Microsoft.Owin" version="3.0.1" />
+      <package id="Microsoft.Owin.FileSystems" version="3.0.1" />
+      <package id="Microsoft.Owin.StaticFiles" version="3.0.1" />
+      <package id="Microsoft.Owin.Host.SystemWeb" version="3.0.1" />
+      <package id="System.Collections.Immutable" version="1.1.33-beta" />
+      <package id="System.Reflection.Metadata" version="1.0.18-beta" />
+      <package id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0-rc2" />
+      <package id="Microsoft.CodeAnalysis.Common" version="1.0.0-rc2" />
+      <package id="Microsoft.CodeAnalysis.CSharp" version="1.0.0-rc2" />
+      <package id="DotVVM" version="0.6.0-pre" />
+    </packages>
+  </WizardData>
+</VSTemplate>

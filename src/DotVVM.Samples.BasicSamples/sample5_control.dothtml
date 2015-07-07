@@ -1,0 +1,8 @@
+@baseType DotVVM.Samples.BasicSamples.Controls.Sample5_TestControl, DotVVM.Samples.BasicSamples
+
+<h2>{{controlProperty: Name}}</h2>
+<p>
+	<rw:TextBox Text="{controlProperty: Value}" />
+	<rw:Button Text="Up" Click="{controlCommand: Up()}" />
+	<rw:Button Text="Down" Click="{controlCommand: Down()}" />
+</p>

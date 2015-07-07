@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>DotVVM Page</Name>
+    <Description>ASP.NET DotVVM Page</Description>
+    <Icon>DotVVM.VS2015Extension.DotvvmPageTemplate.ico</Icon>
+    <TemplateID>2f42be36-22d4-4cbb-87a6-22257d141307</TemplateID>
+    <ProjectType>CSharp</ProjectType>
+    <RequiredFrameworkVersion>4.5</RequiredFrameworkVersion>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>page</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$safeitemname$.dothtml">page.dothtml</ProjectItem>
+  </TemplateContent>
+</VSTemplate>

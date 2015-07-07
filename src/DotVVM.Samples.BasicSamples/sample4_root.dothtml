@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>DotVVM MasterPage Sample</title>
+	<style>
+		.completed {
+			color: maroon;
+			text-decoration: line-through;
+		}
+	</style>
+</head>
+<body>
+    
+    <div class="container">
+        <h1>DotVVM Samples</h1>
+        
+        <div class="row">
+			<div class="col-xs-3 well">
+				<rw:ContentPlaceHolder ID="Menu" />
+			</div>
+
+			<div class="col-xs-9">
+				<rw:ContentPlaceHolder ID="Content" />
+			</div>
+		</div>
+    </div>
+
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>

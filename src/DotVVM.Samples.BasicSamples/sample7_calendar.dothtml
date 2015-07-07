@@ -1,0 +1,30 @@
+@baseType DotVVM.Samples.BasicSamples.Controls.Sample7_Calendar, DotVVM.Samples.BasicSamples
+
+<table class="calendar">
+	<thead>
+		<tr>
+			<th><rw:LinkButton Click="{controlCommand: GoToPreviousMonth()}">&laquo;</rw:LinkButton></th>
+			<th colspan="5">{{controlProperty: VisibleMonthText}}</th>
+			<th><rw:LinkButton Click="{controlCommand: GoToNextMonth()}">&raquo;</rw:LinkButton></th>
+		</tr>
+		<rw:Repeater DataSource="{controlProperty: DayNames}" WrapperTagName="tr">
+			<ItemTemplate>
+				<th>{{value: _this}}</th>
+			</ItemTemplate>
+		</rw:Repeater>
+	</thead>
+
+	<rw:Repeater DataSource="{controlProperty: Rows}" WrapperTagName="tbody">
+		<ItemTemplate>
+			
+			<rw:Repeater DataSource="{value: Days}" WrapperTagName="tr">
+				<ItemTemplate>
+					<td class='{value: IsSelected ? "selected" : (IsToday ? "today" : (IsOtherMonth ? "other" : ""))) }'>
+						<rw:LinkButton Click="{controlCommand: SelectDate(Date)}" Text="{value: Number}" />
+					</td>
+				</ItemTemplate>
+			</rw:Repeater>
+
+		</ItemTemplate>
+	</rw:Repeater>
+</table>

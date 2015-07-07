@@ -1,0 +1,445 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{2865B545-E469-417A-B14F-E2CCDD4B6267}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DotVVM.Framework</RootNamespace>
+    <AssemblyName>DotVVM.Framework</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <TypeScriptToolsVersion>1.5</TypeScriptToolsVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp.Desktop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.CSharp.Desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.Desktop, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.Desktop.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1-beta2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.1.33.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>D:\Riganti\External\DotVVM\src\packages\System.Collections.Immutable.1.1.33-beta\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Reflection.Metadata, Version=1.0.18.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.Metadata.1.0.18-beta\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Binding\AttachedPropertyAttribute.cs" />
+    <Compile Include="Binding\BindingExpression.cs" />
+    <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
+    <Compile Include="Binding\CommandBindingExpression.cs" />
+    <Compile Include="Binding\CommandResolver.cs" />
+    <Compile Include="Binding\ControlCommandBindingExpression.cs" />
+    <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
+    <Compile Include="Binding\ControlPropertyDataContextChangeAttribute.cs" />
+    <Compile Include="Binding\ControlStateBindingExpression.cs" />
+    <Compile Include="Binding\DataContextChangeAttribute.cs" />
+    <Compile Include="Binding\EventValidator.cs" />
+    <Compile Include="Binding\ExpressionEvaluator.cs" />
+    <Compile Include="Binding\IExpressionEvaluator.cs" />
+    <Compile Include="Binding\IUpdatableBindingExpression.cs" />
+    <Compile Include="Binding\NumberUtils.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>NumberUtils.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Binding\DotvvmProperty.cs" />
+    <Compile Include="Binding\ResourceBindingExpression.cs" />
+    <Compile Include="Binding\ValueBindingExpression.cs" />
+    <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
+    <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
+    <Compile Include="Binding\ViewModelPathComparer.cs" />
+    <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
+    <Compile Include="Configuration\HtmlTagAttributePair.cs" />
+    <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
+    <Compile Include="Controls\ContainsDotvvmPropertiesAttribute.cs" />
+    <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
+    <Compile Include="Controls\DataPager.cs" />
+    <Compile Include="Controls\Decorator.cs" />
+    <Compile Include="Controls\EventsDecorator.cs" />
+    <Compile Include="Controls\FileUpload.cs" />
+    <Compile Include="Controls\GridView.cs" />
+    <Compile Include="Controls\GridViewColumn.cs" />
+    <Compile Include="Controls\GridViewTemplateColumn.cs" />
+    <Compile Include="Controls\GridViewTextColumn.cs" />
+    <Compile Include="Controls\IEventValidationHandler.cs" />
+    <Compile Include="Controls\GridViewDataSet.cs" />
+    <Compile Include="Controls\IGridViewDataSet.cs" />
+    <Compile Include="Controls\IHtmlAttributeTransformer.cs" />
+    <Compile Include="Controls\Panel.cs" />
+    <Compile Include="Controls\PostBack.cs" />
+    <Compile Include="Controls\MultiHtmlWriter.cs" />
+    <Compile Include="Controls\RenderMode.cs" />
+    <Compile Include="Controls\RenderSettings.cs" />
+    <Compile Include="Controls\RouteLink.cs" />
+    <Compile Include="Controls\RouteLinkHelpers.cs" />
+    <Compile Include="Controls\SpaContentPlaceHolder.cs" />
+    <Compile Include="Controls\TextBoxType.cs" />
+    <Compile Include="Controls\TranslateVirtualPathHtmlAttributeTransformer.cs" />
+    <Compile Include="Controls\UpdateProgress.cs" />
+    <Compile Include="Controls\UploadedFilesCollection.cs" />
+    <Compile Include="Controls\Validate.cs" />
+    <Compile Include="Controls\ListBox.cs" />
+    <Compile Include="Controls\SelectHtmlControlBase.cs" />
+    <Compile Include="Controls\Selector.cs" />
+    <Compile Include="Controls\ValidationMessage.cs" />
+    <Compile Include="Controls\ValidationMessageMode.cs" />
+    <Compile Include="Controls\ValidationSummary.cs" />
+    <Compile Include="Extensions.cs" />
+    <Compile Include="Hosting\FileUploadPageTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Hosting\JQueryGlobalizeCultureMiddleware.cs" />
+    <Compile Include="Hosting\ModelState.cs" />
+    <Compile Include="Hosting\DotvvmEmbeddedResourceMiddleware.cs" />
+    <Compile Include="Hosting\DotvvmErrorPageMiddleware.cs" />
+    <Compile Include="Hosting\DotvvmFileUploadMiddleware.cs" />
+    <Compile Include="Hosting\DotvvmInterruptRequestExecutionException.cs" />
+    <Compile Include="Hosting\DotvvmRestrictedStaticFilesMiddleware.cs" />
+    <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
+    <Compile Include="Parser\NullTokenError.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlNodeHelper.cs" />
+    <Compile Include="Parser\SimpleTokenError.cs" />
+    <Compile Include="Parser\TextRange.cs" />
+    <Compile Include="Parser\TokenError.cs" />
+    <Compile Include="DotvvmAuthenticationHelper.cs" />
+    <Compile Include="ResourceManagement\BundlingResourceProcessor.cs" />
+    <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>JQueryGlobalizeRegisterTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeResourceRepository.cs" />
+    <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeScriptCreator.cs" />
+    <Compile Include="ResourceManagement\InlineScriptResource.cs" />
+    <Compile Include="ResourceManagement\IDotvvmResourceRepository.cs" />
+    <Compile Include="Configuration\DotvvmConfiguration.cs" />
+    <Compile Include="Configuration\DotvvmControlConfiguration.cs" />
+    <Compile Include="Configuration\DotvvmMarkupConfiguration.cs" />
+    <Compile Include="ResourceManagement\IResourceProcessor.cs" />
+    <Compile Include="ResourceManagement\NamedResource.cs" />
+    <Compile Include="ResourceManagement\DotvvmResourceRepository.cs" />
+    <Compile Include="Configuration\DotvvmSecurityConfiguration.cs" />
+    <Compile Include="ResourceManagement\ResourceBase.cs" />
+    <Compile Include="ResourceManagement\ResourceConfigurationCollectionNameAttribute.cs" />
+    <Compile Include="ResourceManagement\ResourceRenderPosition.cs" />
+    <Compile Include="ResourceManagement\ResourceRepositoryJsonConverter.cs" />
+    <Compile Include="ResourceManagement\ScriptResource.cs" />
+    <Compile Include="ResourceManagement\SingleResourceProcessorBase.cs" />
+    <Compile Include="ResourceManagement\StylesheetResource.cs" />
+    <Compile Include="Controls\Bootstrap\FormGroup.cs" />
+    <Compile Include="Controls\Bootstrap\GlyphIcon.cs" />
+    <Compile Include="Controls\Bootstrap\HorizontalForm.cs" />
+    <Compile Include="Controls\Button.cs" />
+    <Compile Include="Controls\ButtonBase.cs" />
+    <Compile Include="Controls\CheckBox.cs" />
+    <Compile Include="Controls\CheckableControlBase.cs" />
+    <Compile Include="Controls\ComboBox.cs" />
+    <Compile Include="Controls\Content.cs" />
+    <Compile Include="Controls\ContentPlaceHolder.cs" />
+    <Compile Include="Controls\DataItemContainer.cs" />
+    <Compile Include="Controls\HtmlGenericControl.cs" />
+    <Compile Include="Controls\HtmlWriter.cs" />
+    <Compile Include="Controls\IControlWithHtmlAttributes.cs" />
+    <Compile Include="Controls\IHtmlWriter.cs" />
+    <Compile Include="Controls\Infrastructure\DotvvmView.cs" />
+    <Compile Include="Controls\Infrastructure\BodyResourceLinks.cs" />
+    <Compile Include="Controls\Infrastructure\HeadResourceLinks.cs" />
+    <Compile Include="Controls\InlineScript.cs" />
+    <Compile Include="Controls\ITemplate.cs" />
+    <Compile Include="Controls\ItemsControl.cs" />
+    <Compile Include="Controls\LinkButton.cs" />
+    <Compile Include="Controls\Literal.cs" />
+    <Compile Include="Controls\MappingMode.cs" />
+    <Compile Include="Controls\RadioButton.cs" />
+    <Compile Include="Controls\Internal.cs" />
+    <Compile Include="Controls\DotvvmMarkupControl.cs" />
+    <Compile Include="Controls\DotvvmBindableControl.cs" />
+    <Compile Include="Controls\DotvvmControl.cs" />
+    <Compile Include="Controls\DotvvmControlCollection.cs" />
+    <Compile Include="Controls\Placeholder.cs" />
+    <Compile Include="Controls\MarkupOptionsAttribute.cs" />
+    <Compile Include="Controls\DelegateTemplate.cs" />
+    <Compile Include="Controls\Repeater.cs" />
+    <Compile Include="Controls\RequiredResource.cs" />
+    <Compile Include="Controls\TextBox.cs" />
+    <Compile Include="ResourceManagement\ResourceManager.cs" />
+    <Compile Include="Resources\DothtmlParserErrors.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DothtmlParserErrors.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\DothtmlTokenizerErrors.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
+    <Compile Include="Runtime\Compilation\DefaultViewCompiler.cs" />
+    <Compile Include="Runtime\Compilation\DefaultViewCompilerCodeEmitter.cs" />
+    <Compile Include="Runtime\Compilation\EmitterMethodInfo.cs" />
+    <Compile Include="Runtime\Compilation\IViewCompiler.cs" />
+    <Compile Include="Runtime\Compilation\RoslynExtensionMethods.cs" />
+    <Compile Include="Runtime\DefaultControlBuilderFactory.cs" />
+    <Compile Include="Runtime\DefaultOutputRenderer.cs" />
+    <Compile Include="Runtime\DefaultDotvvmViewBuilder.cs" />
+    <Compile Include="Runtime\DefaultViewModelLoader.cs" />
+    <Compile Include="Runtime\Filters\ActionFilterAttribute.cs" />
+    <Compile Include="Runtime\Filters\ActionInfo.cs" />
+    <Compile Include="Runtime\Filters\ActionParameterInfo.cs" />
+    <Compile Include="Runtime\Filters\AuthorizeAttribute.cs" />
+    <Compile Include="Runtime\Filters\ExceptionFilterAttribute.cs" />
+    <Compile Include="Runtime\Filters\ModelValidationFilterAttribute.cs" />
+    <Compile Include="Runtime\IControlBuilderFactory.cs" />
+    <Compile Include="Runtime\IOutputRenderer.cs" />
+    <Compile Include="Runtime\IDotvvmViewBuilder.cs" />
+    <Compile Include="Runtime\IViewModelLoader.cs" />
+    <Compile Include="Runtime\IViewModelSerializer.cs" />
+    <Compile Include="Runtime\RenderContext.cs" />
+    <Compile Include="Runtime\DefaultViewModelSerializer.cs" />
+    <Compile Include="Security\ApplicationKeyHelper.cs" />
+    <Compile Include="Security\DefaultCsrfProtector.cs" />
+    <Compile Include="Security\DefaultViewModelProtector.cs" />
+    <Compile Include="Security\ICsrfProtector.cs" />
+    <Compile Include="Security\IViewModelProtector.cs" />
+    <Compile Include="Security\NistSP800108DeriveBytes.cs" />
+    <Compile Include="Security\ProtectionHelpers.cs" />
+    <Compile Include="ServiceLocator.cs" />
+    <Compile Include="Storage\FileSystemUploadedFileStorage.cs" />
+    <Compile Include="Storage\IUploadedFileStorage.cs" />
+    <Compile Include="Storage\UploadedFile.cs" />
+    <Compile Include="Storage\UploadedFileStorageExtensions.cs" />
+    <Compile Include="Utils\ExpressionUtils.cs" />
+    <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
+    <Compile Include="Hosting\ErrorPageTemplate.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ErrorPageTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Hosting\FileReader.cs" />
+    <Compile Include="Hosting\IMarkupFileLoader.cs" />
+    <Compile Include="Hosting\IDotvvmPresenter.cs" />
+    <Compile Include="Hosting\MarkupFile.cs" />
+    <Compile Include="Hosting\DotvvmHttpException.cs" />
+    <Compile Include="Hosting\DotvvmMiddleware.cs" />
+    <Compile Include="Hosting\DotvvmPresenter.cs" />
+    <Compile Include="Hosting\DotvvmRequestContext.cs" />
+    <Compile Include="KnockoutHelper.cs" />
+    <Compile Include="OwinExtensions.cs" />
+    <Compile Include="Parser\Constants.cs" />
+    <Compile Include="Parser\ParserException.cs" />
+    <Compile Include="Parser\IReader.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlAttributeNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlBindingNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlDirectiveNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlElementNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlLiteralNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlNodeWithContent.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlParser.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlRootNode.cs" />
+    <Compile Include="Parser\Dothtml\Tokenizer\DothtmlToken.cs" />
+    <Compile Include="Parser\Dothtml\Tokenizer\DothtmlTokenizer.cs" />
+    <Compile Include="Parser\Dothtml\Tokenizer\DothtmlTokenType.cs" />
+    <Compile Include="Parser\StringReader.cs" />
+    <Compile Include="Parser\TokenBase.cs" />
+    <Compile Include="Parser\TokenizerBase.cs" />
+    <Compile Include="Parser\Translation\ExpressionTranslator.cs" />
+    <Compile Include="Binding\ExpressionEvaluationVisitor.cs" />
+    <Compile Include="Parser\Translation\ExpressionTranslatorVisitor.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\Controls.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Controls.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Resources\Parser.Dothtml.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Parser.Dothtml.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Routing\DotvvmRoute.cs" />
+    <Compile Include="Routing\DotvvmRouteComponent.cs" />
+    <Compile Include="Routing\DotvvmRouteTable.cs" />
+    <Compile Include="Routing\RouteBase.cs" />
+    <Compile Include="Runtime\ControlResolverMetadata.cs" />
+    <Compile Include="Runtime\ControlType.cs" />
+    <Compile Include="Runtime\DefaultControlResolver.cs" />
+    <Compile Include="Runtime\IControlBuilder.cs" />
+    <Compile Include="Runtime\IControlResolver.cs" />
+    <Compile Include="Utils\HttpAbstractions\BufferedReadStream.cs" />
+    <Compile Include="Utils\HttpAbstractions\KeyValueAccumulator.cs" />
+    <Compile Include="Utils\HttpAbstractions\MultipartReader.cs" />
+    <Compile Include="Utils\HttpAbstractions\MultipartReaderStream.cs" />
+    <Compile Include="Utils\HttpAbstractions\MultipartSection.cs" />
+    <Compile Include="Utils\HttpAbstractions\StreamHelperExtensions.cs" />
+    <Compile Include="Utils\JsonUtils.cs" />
+    <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
+    <Compile Include="ViewModel\BindAttribute.cs" />
+    <Compile Include="ViewModel\ClientCommandAttribute.cs" />
+    <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
+    <Compile Include="ViewModel\ControlTreeWalker.cs" />
+    <Compile Include="ViewModel\IViewModelValidationMetadataProvider.cs" />
+    <Compile Include="ViewModel\NonEvaluatingControlTreeWalker.cs" />
+    <Compile Include="ViewModel\NullEvaluator.cs" />
+    <Compile Include="ViewModel\ViewModelJTokenControlTreeWalker.cs" />
+    <Compile Include="ViewModel\ViewModelValidator.cs" />
+    <Compile Include="ViewModel\ViewModelPropertyValidationRule.cs" />
+    <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
+    <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
+    <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
+    <Compile Include="ViewModel\Direction.cs" />
+    <Compile Include="ViewModel\IDotvvmViewModel.cs" />
+    <Compile Include="ViewModel\KeyPropertyAttribute.cs" />
+    <Compile Include="ViewModel\PropertyOptionsAttribute.cs" />
+    <Compile Include="ViewModel\DotvvmViewModelBase.cs" />
+    <Compile Include="ViewModel\ViewModelJsonConverter.cs" />
+    <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
+    <Compile Include="ViewModel\ViewModelSerializationMap.cs" />
+    <Compile Include="ViewModel\ViewModelSerializationMapper.cs" />
+    <Compile Include="ViewModel\ViewModelValidationError.cs" />
+    <Compile Include="ViewModel\ViewModelValidationRuleTranslator.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Controls.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Controls.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Parser.Dothtml.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Parser.Dothtml.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Hosting\ErrorPageTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
+    </None>
+    <None Include="packages.config" />
+    <None Include="Resources\Scripts\DotVVM.Debug.js.map" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.js.map" />
+    <None Include="Resources\Scripts\DotVVM.js.map" />
+    <None Include="Resources\Scripts\DotVVM.Validation.js.map" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\DothtmlParserErrors.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DothtmlParserErrors.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\DothtmlTokenizerErrors.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>DothtmlTokenizerErrors.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-3.2.0.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout.mapper.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.Validation.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.FileUpload.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Debug.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Validation.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\typings\jquery\jquery.d.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Binding\NumberUtils.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>NumberUtils.cs</LastGenOutput>
+    </Content>
+    <Content Include="Hosting\FileUploadPageTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
+    </Content>
+    <Content Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
+      <Generator>TextTemplatingFilePreprocessor</Generator>
+      <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
+    </Content>
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
+  <Metadata>
+    <Identity Id="DotVVM.VS2015Extension..ff9401c7-99da-4a9c-9800-1ffdcd4f13b3" Version="1.0" Language="en-US" Publisher="RIGANTI" />
+    <DisplayName>DotVVM for Visual Studio 2015</DisplayName>
+    <Description xml:space="preserve">An editor extension for http://github.com/riganti/dotvvm</Description>
+  </Metadata>
+  <Installation>
+    <InstallationTarget Id="Microsoft.VisualStudio.Pro" Version="14.0" />
+  </Installation>
+  <Dependencies>
+    <Dependency Id="Microsoft.Framework.NDP" DisplayName="Microsoft .NET Framework" d:Source="Manual" Version="4.5.1" />
+    <Dependency d:Source="Installed" Id="NuGet.0d421874-a3b2-4f67-b53a-ecfce878063b" DisplayName="NuGet Package Manager for Visual Studio 2015" Version="[3.0.60225.100,4.0)" d:InstallSource="Download" />
+  </Dependencies>
+  <Assets>
+    <Asset Type="Microsoft.VisualStudio.MefComponent" d:Source="Project" d:ProjectName="%CurrentProject%" Path="|%CurrentProject%|" />
+    <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.ProjectTemplate" d:TargetPath="|DotVVM.VS2015Extension.ProjectTemplate;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates\DotVVM" />
+    <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmPageTemplate" d:TargetPath="|DotVVM.VS2015Extension.DotvvmPageTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates\DotVVM" />
+    <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmMasterPageTemplate" d:TargetPath="|DotVVM.VS2015Extension.DotvvmMasterPageTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates\DotVVM" />
+    <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmContentPageTemplate" d:TargetPath="|DotVVM.VS2015Extension.DotvvmContentPageTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates\DotVVM" />
+    <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmViewModelTemplate" d:TargetPath="|DotVVM.VS2015Extension.DotvvmViewModelTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates\DotVVM" />
+    <Asset d:Source="File" Type="Newtonsoft.Json.7.0.1-beta2.nupkg" Path="Packages\Newtonsoft.Json.7.0.1-beta2.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="Owin.1.0.0.nupkg" Path="Packages\Owin.1.0.0.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="Microsoft.Owin.3.0.1.nupkg" Path="Packages\Microsoft.Owin.3.0.1.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="Microsoft.Owin.FileSystems.3.0.1.nupkg" Path="Packages\Microsoft.Owin.FileSystems.3.0.1.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="Microsoft.Owin.StaticFiles.3.0.1.nupkg" Path="Packages\Microsoft.Owin.StaticFiles.3.0.1.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="Microsoft.Owin.Host.SystemWeb.3.0.1.nupkg" Path="Packages\Microsoft.Owin.Host.SystemWeb.3.0.1.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="System.Collections.Immutable.1.1.33-beta.nupkg" Path="Packages\System.Collections.Immutable.1.1.33-beta.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="System.Reflection.Metadata.1.0.18-beta.nupkg" Path="Packages\System.Reflection.Metadata.1.0.18-beta.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg" Path="Packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg" Path="Packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg" Path="Packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="DotVVM.0.6.0-pre.nupkg" Path="Packages\DotVVM.0.6.0-pre.nupkg" d:VsixSubPath="Packages" />
+  </Assets>
+</PackageManifest>

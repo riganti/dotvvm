@@ -1,0 +1,17 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample10ViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>Redirect test</h1>
+		
+		<p><rw:Button Text="Test redirect" Click="{command: RedirectTest()}" /></p>
+	</div>
+	
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>
