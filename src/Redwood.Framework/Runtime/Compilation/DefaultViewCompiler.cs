@@ -357,37 +357,69 @@ namespace Redwood.Framework.Runtime.Compilation
 
         public void ProcessControlContent(IEnumerable<RwHtmlNode> nodes, string parentName, ControlResolverMetadata metadata)
         {
+            var contents = new List<List<RwHtmlNode>>();
             var content = new List<RwHtmlNode>();
-            bool properties = true;
+            var defaultPropertyWasSet = false;
+
+            // find property elements
             foreach (var node in nodes)
             {
                 var element = node as RwHtmlElementNode;
-                if (element != null && properties)
+                if (element != null)
                 {
+                    // try whether the element is property
                     var property = FindProperty(metadata, element.TagName);
                     if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode == MappingMode.InnerElement)
                     {
-                        content.Clear();
+                        if (metadata.DefaultContentProperty == property)
+                        {
+                            defaultPropertyWasSet = true;
+                        }
+
+                        if (content.Any())
+                        {
+                            contents.Add(content);
+                        }
+                        content = new List<RwHtmlNode>();
+
                         ProcessElementProperty(parentName, property, element.Content);
                     }
-                    else properties = false;
-                }
-                if ((element != null && !properties) || element == null)
-                    content.Add(node);
-                if (properties && node.IsNotEmpty())
-                {
-                    properties = false;
-                }
-            }
-            if (content.Any(RwHtmlNodeHelper.IsNotEmpty))
-            {
-                if (metadata.DefaultContentProperty != null)
-                {
-                    ProcessElementProperty(parentName, metadata.DefaultContentProperty, content);
+                    else
+                    {
+                        content.Add(node);
+                    }
                 }
                 else
                 {
-                    foreach (var node in content)
+                    content.Add(node);
+                }
+            }
+            if (content.Any())
+            {
+                contents.Add(content);
+            }
+
+            // remove all non-empty contents
+            contents.RemoveAll(c => c.All(n => !n.IsNotEmpty()));
+
+            // if there is one content, use it as a default property
+            if (contents.Count > 1)
+            {
+                throw new Exception("The control content must not be separated with property values!");
+            }
+            else if (contents.Count == 1)
+            {
+                if (metadata.DefaultContentProperty != null)
+                {
+                    if (defaultPropertyWasSet)
+                    {
+                        throw new Exception(string.Format("The control {0} cannot have any content because the default property {1} is set on it!", metadata.Type, metadata.DefaultContentProperty.Name));
+                    }
+                    ProcessElementProperty(parentName, metadata.DefaultContentProperty, contents[0]);
+                }
+                else
+                {
+                    foreach (var node in contents[0])
                     {
                         ProcessNode(node, parentName, metadata);
                     }
