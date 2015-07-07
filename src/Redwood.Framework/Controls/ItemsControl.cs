@@ -9,6 +9,8 @@ namespace Redwood.Framework.Controls
     /// <summary>
     /// A common base for all controls that operate on collection.
     /// </summary>
+    [ControlPropertyDataContextChange("DataSource")]
+    [CollectionElementDataContextChange]
     public abstract class ItemsControl : HtmlGenericControl
     {
         /// <summary>
