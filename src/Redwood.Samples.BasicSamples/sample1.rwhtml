@@ -16,7 +16,7 @@
     <div class="container">
         <h1>Task List</h1>
 
-        <fieldset>
+        <fieldset data-testattribute>
             <legend>Add Task</legend>
 
             <p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /></p>

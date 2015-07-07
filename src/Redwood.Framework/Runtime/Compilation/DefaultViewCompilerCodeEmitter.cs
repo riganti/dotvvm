@@ -352,7 +352,7 @@ namespace Redwood.Framework.Runtime.Compilation
         /// </summary>
         public void EmitAddHtmlAttribute(string controlName, string name, string value)
         {
-            EmitAddHtmlAttribute(controlName, name, EmitStringLiteral(value));
+            EmitAddHtmlAttribute(controlName, name, EmitValue(value));
         }
 
         /// <summary>

@@ -70,7 +70,10 @@ namespace Redwood.Framework.Controls
                         }
 
                         // append the value with the separator
-                        attributes[name] = currentValue + appendSeparator + value;
+                        if (value != null)
+                        {
+                            attributes[name] = currentValue + appendSeparator + value;
+                        }
                         return;
                     }
                 }
@@ -139,7 +142,7 @@ namespace Redwood.Framework.Controls
                 foreach (DictionaryEntry attr in attributes)
                 {
                     var attributeName = (string)attr.Key;
-                    var attributeValue = attr.Value as string ?? "";
+                    var attributeValue = (string)attr.Value;
 
                     // allow to use the attribute transformer
                     var pair = new HtmlTagAttributePair() { TagName = name, AttributeName = attributeName };
@@ -164,10 +167,13 @@ namespace Redwood.Framework.Controls
         {
             WriteUnencodedText(" ");
             WriteUnencodedText(attributeName);
-            WriteUnencodedText("=");
-            WriteUnencodedText("\"");
-            WriteText(attributeValue);
-            WriteUnencodedText("\"");
+            if (attributeValue != null)
+            {
+                WriteUnencodedText("=");
+                WriteUnencodedText("\"");
+                WriteText(attributeValue);
+                WriteUnencodedText("\"");
+            }
         }
 
         /// <summary>

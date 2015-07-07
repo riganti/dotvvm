@@ -21,7 +21,9 @@ namespace Redwood.Framework.Parser.RwHtml.Parser
 
         public override IEnumerable<RwHtmlNode> EnumerateNodes()
         {
-            return base.EnumerateNodes().Concat(Literal.EnumerateNodes());
+            if (Literal != null)
+                return base.EnumerateNodes().Concat(Literal.EnumerateNodes());
+            else return base.EnumerateNodes();
         }
     }
 }

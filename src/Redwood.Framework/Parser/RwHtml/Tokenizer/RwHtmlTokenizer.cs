@@ -362,12 +362,12 @@ namespace Redwood.Framework.Parser.RwHtml.Tokenizer
                     SkipWhitespace();
                 }
             }
-            else
-            {
-                CreateToken(RwHtmlTokenType.Equals, errorProvider: t => CreateTokenError());
-                CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.Text, RwHtmlTokenizerErrors.MissingAttributeValue));
-                return false;
-            }
+            //else
+            //{
+            //    CreateToken(RwHtmlTokenType.Equals, errorProvider: t => CreateTokenError());
+            //    CreateToken(RwHtmlTokenType.Text, errorProvider: t => CreateTokenError(t, RwHtmlTokenType.Text, RwHtmlTokenizerErrors.MissingAttributeValue));
+            //    return false;
+            //}
 
             return true;
         }

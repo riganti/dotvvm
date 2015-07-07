@@ -74,9 +74,9 @@ namespace Redwood.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             // render hard-coded HTML attributes
-            foreach (var attribute in Attributes.Where(a => a.Value is string))
+            foreach (var attribute in Attributes.Where(a => a.Value is string || a.Value == null))
             {
-                writer.AddAttribute(attribute.Key, attribute.Value.ToString(), true);
+                writer.AddAttribute(attribute.Key, (string)attribute.Value, true);
             }
 
             // render binding HTML attributes

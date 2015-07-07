@@ -203,7 +203,7 @@ namespace Redwood.Framework.Runtime.Compilation
             }
             else
             {
-                throw new NotSupportedException();      // TODO: exception handling
+                throw new NotSupportedException($"{ node.GetType().Name } can't be inside element");      // TODO: exception handling
             }
         }
 
@@ -411,7 +411,11 @@ namespace Redwood.Framework.Runtime.Compilation
             if (property != null)
             {
                 // set the property
-                if (attribute.Literal is RwHtmlBindingNode)
+                if(attribute.Literal == null)
+                {
+                    throw new NotSupportedException("empty attributes are not supported in RedwoodPrperties");
+                }
+                else if (attribute.Literal is RwHtmlBindingNode)
                 {
                     // binding
                     var binding = (RwHtmlBindingNode)attribute.Literal;
@@ -436,7 +440,7 @@ namespace Redwood.Framework.Runtime.Compilation
                 }
                 else
                 {
-                    emitter.EmitAddHtmlAttribute(currentObjectName, attribute.AttributeName, attribute.Literal.Value);
+                    emitter.EmitAddHtmlAttribute(currentObjectName, attribute.AttributeName, attribute.Literal?.Value);
                 }
             }
             else
