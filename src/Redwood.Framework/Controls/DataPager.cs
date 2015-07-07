@@ -21,9 +21,59 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty DataSetProperty =
             RedwoodProperty.Register<IGridViewDataSet, DataPager>(c => c.DataSet);
 
+
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public ITemplate FirstPageTemplate
+        {
+            get { return (ITemplate)GetValue(FirstPageTemplateProperty); }
+            set { SetValue(FirstPageTemplateProperty, value); }
+        }
+        public static readonly RedwoodProperty FirstPageTemplateProperty =
+            RedwoodProperty.Register<ITemplate, DataPager>(c => c.FirstPageTemplate, null);
+
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public ITemplate LastPageTemplate
+        {
+            get { return (ITemplate)GetValue(LastPageTemplateProperty); }
+            set { SetValue(LastPageTemplateProperty, value); }
+        }
+        public static readonly RedwoodProperty LastPageTemplateProperty =
+            RedwoodProperty.Register<ITemplate, DataPager>(c => c.LastPageTemplate, null);
+
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public ITemplate PreviousPageTemplate
+        {
+            get { return (ITemplate)GetValue(PreviousPageTemplateProperty); }
+            set { SetValue(PreviousPageTemplateProperty, value); }
+        }
+        public static readonly RedwoodProperty PreviousPageTemplateProperty =
+            RedwoodProperty.Register<ITemplate, DataPager>(c => c.PreviousPageTemplate, null);
+
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        public ITemplate NextPageTemplate
+        {
+            get { return (ITemplate)GetValue(NextPageTemplateProperty); }
+            set { SetValue(NextPageTemplateProperty, value); }
+        }
+        public static readonly RedwoodProperty NextPageTemplateProperty =
+            RedwoodProperty.Register<ITemplate, DataPager>(c => c.NextPageTemplate, null);
+
+        [MarkupOptions(AllowBinding = false)]
+        public bool RenderLinkForCurrentPage
+        {
+            get { return (bool)GetValue(RenderLinkForCurrentPageProperty); }
+            set { SetValue(RenderLinkForCurrentPageProperty, value); }
+        }
+        public static readonly RedwoodProperty RenderLinkForCurrentPageProperty =
+            RedwoodProperty.Register<bool, DataPager>(c => c.RenderLinkForCurrentPage, null);
+
+
+
         private HtmlGenericControl content;
+        private HtmlGenericControl firstLi;
         private HtmlGenericControl previousLi;
         private HtmlGenericControl nextLi;
+        private HtmlGenericControl lastLi;
 
 
         public DataPager() : base("div")
@@ -32,17 +82,17 @@ namespace Redwood.Framework.Controls
 
         protected internal override void OnLoad(RedwoodRequestContext context)
         {
-            DataBind();
+            DataBind(context);
             base.OnLoad(context);
         }
 
         protected internal override void OnPreRender(RedwoodRequestContext context)
         {
-            DataBind();
+            DataBind(context);
             base.OnPreRender(context);
         }
 
-        private void DataBind()
+        private void DataBind(RedwoodRequestContext context)
         {
             Children.Clear();
 
@@ -54,9 +104,18 @@ namespace Redwood.Framework.Controls
             var dataSet = DataSet;
             if (dataSet != null)
             {
+                // first button
+                firstLi = new HtmlGenericControl("li");
+                var firstLink = new LinkButton();
+                SetButtonContent(context, firstLink, "««", FirstPageTemplate);
+                firstLink.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("GoToFirstPage()"));
+                firstLi.Children.Add(firstLink);
+                content.Children.Add(firstLi);
+
                 // previous button
                 previousLi = new HtmlGenericControl("li");
-                var previousLink = new LinkButton() { Text = "«" };
+                var previousLink = new LinkButton();
+                SetButtonContent(context, previousLink, "«", PreviousPageTemplate);
                 previousLink.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("GoToPreviousPage()"));
                 previousLi.Children.Add(previousLink);
                 content.Children.Add(previousLi);
@@ -81,10 +140,31 @@ namespace Redwood.Framework.Controls
 
                 // next button
                 nextLi = new HtmlGenericControl("li");
-                var nextLink = new LinkButton() { Text = "»" };
+                var nextLink = new LinkButton();
+                SetButtonContent(context, nextLink, "»", NextPageTemplate);
                 nextLink.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("GoToNextPage()"));
                 nextLi.Children.Add(nextLink);
                 content.Children.Add(nextLi);
+
+                // last button
+                lastLi = new HtmlGenericControl("li");
+                var lastLink = new LinkButton();
+                SetButtonContent(context, lastLink, "»»", LastPageTemplate);
+                lastLink.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("GoToLastPage()"));
+                lastLi.Children.Add(lastLink);
+                content.Children.Add(lastLi);
+            }
+        }
+
+        private void SetButtonContent(RedwoodRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
+        {
+            if (contentTemplate != null)
+            {
+                contentTemplate.BuildContent(context, button);
+            }
+            else
+            {
+                button.Text = text;
             }
         }
 
@@ -99,14 +179,30 @@ namespace Redwood.Framework.Controls
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsFirstPage() }");
+            firstLi.Render(writer, context);
+
+            writer.AddKnockoutDataBind("css", "{ 'disabled': IsFirstPage() }");
             previousLi.Render(writer, context);
 
             // render template
             writer.WriteKnockoutDataBindComment("foreach", "NearPageIndexes");
             context.PathFragments.Push("NearPageIndexes[$index]");
 
+            // render page number
+            HtmlGenericControl li;
+            if (!RenderLinkForCurrentPage)
+            {
+                writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
+                li = new HtmlGenericControl("li");
+                var literal = new Literal();
+                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression("_this + 1"));
+                li.Children.Add(literal);
+                li.Render(writer, context);
+
+                writer.AddKnockoutDataBind("visible", "$data != $parent.PageIndex()");
+            }
             writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
-            var li = new HtmlGenericControl("li");
+            li = new HtmlGenericControl("li");
             var link = new LinkButton();
             link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression("_this + 1"));
             link.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("_parent.GoToPage(_this)"));
@@ -118,6 +214,9 @@ namespace Redwood.Framework.Controls
 
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsLastPage() }");
             nextLi.Render(writer, context);
+
+            writer.AddKnockoutDataBind("css", "{ 'disabled': IsLastPage() }");
+            lastLi.Render(writer, context);
         }
 
 
