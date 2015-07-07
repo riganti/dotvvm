@@ -111,6 +111,9 @@ namespace Redwood.Framework.Controls
                 }
             });
 
+            // add ID
+            AddControlIdAttribute(writer);
+
             // render the radio button
             RenderInputTag(writer);
 

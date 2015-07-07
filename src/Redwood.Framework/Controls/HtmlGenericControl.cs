@@ -104,12 +104,17 @@ namespace Redwood.Framework.Controls
             });
 
             // hadle Id property
+            AddControlIdAttribute(writer);
+
+            base.AddAttributesToRender(writer, context);
+        }
+
+        protected void AddControlIdAttribute(IHtmlWriter writer)
+        {
             if (!string.IsNullOrEmpty(ID))
             {
                 writer.AddAttribute("id", ID);
             }
-
-            base.AddAttributesToRender(writer, context);
         }
 
         /// <summary>
