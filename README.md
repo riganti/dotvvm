@@ -1,5 +1,5 @@
-ATTENTION: DotVVM is currently being renamed to dotVVM
-=================================================================================
+ATTENTION: Redwood was renamed to DotVVM, see [out rename guide](dotvvm renaming guide)
+=========================================================================================
 
 DotVVM is an OWIN-based ASP.NET framework that allows you to write rich client applications without writing javascript code. All you have to do is to write a viewmodel in C# and view in HTML and DotVVM will generate the javascript part for you.
 
