@@ -230,16 +230,23 @@ namespace Redwood.Framework.Runtime.Compilation
             else if (IsCollectionProperty(parentProperty))
             {
                 // collection of elements
-                foreach (var child in FilterElementNodes(elementContent, parentProperty))
+                foreach (var child in FilterNodes<RwHtmlElementNode>(elementContent))
                 {
                     var childObject = ProcessObjectElement(child);
                     emitter.EmitAddCollectionItem(parentName, childObject, parentProperty.Name);
                 }
             }
-            else
+            else if (parentProperty.DeclaringType == typeof(string))
+            {
+                // string property
+                var strings = FilterNodes<RwHtmlLiteralNode>(elementContent);
+                var value = string.Concat(strings.Select(s => s.Value));
+                emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, emitter.EmitValue(value));
+            }
+            else if (IsControlProperty(parentProperty))
             {
                 // new object
-                var children = FilterElementNodes(elementContent, parentProperty).ToList();
+                var children = FilterNodes<RwHtmlElementNode>(elementContent).ToList();
                 if (children.Count > 1)
                 {
                     throw new NotSupportedException(string.Format("The property {0} can have only one child element!", parentProperty.MarkupOptions.Name)); // TODO: exception handling
@@ -254,6 +261,7 @@ namespace Redwood.Framework.Runtime.Compilation
                     emitter.EmitSetValue(parentName, parentProperty.DescriptorFullName, emitter.EmitIdentifier("null"));
                 }
             }
+            else throw new NotSupportedException($"property type { parentProperty.DeclaringType.FullName } is not supported");
         }
 
         private RedwoodProperty FindProperty(ControlResolverMetadata parentMetadata, string name)
@@ -264,19 +272,16 @@ namespace Redwood.Framework.Runtime.Compilation
         /// <summary>
         /// Gets the inner property elements and makes sure that no other content is present.
         /// </summary>
-        private IEnumerable<RwHtmlElementNode> FilterElementNodes(IEnumerable<RwHtmlNode> nodes, RedwoodProperty parentProperty)
+        private IEnumerable<TNode> FilterNodes<TNode>(IEnumerable<RwHtmlNode> nodes)
+            where TNode : RwHtmlNode
         {
             foreach (var child in nodes)
             {
-                if (child is RwHtmlElementNode)
+                if (child is TNode)
                 {
-                    yield return (RwHtmlElementNode)child;
+                    yield return (TNode)child;
                 }
-                else if (child is RwHtmlLiteralNode && string.IsNullOrWhiteSpace(((RwHtmlLiteralNode)child).Value))
-                {
-                    continue;
-                }
-                else
+                else if (child.IsNotEmpty())
                 {
                     throw new NotSupportedException("Content cannot be inside collection inner property!"); // TODO: exception handling
                 }
@@ -376,7 +381,7 @@ namespace Redwood.Framework.Runtime.Compilation
             }
             if (content.Any(RwHtmlNodeHelper.IsNotEmpty))
             {
-                if(metadata.DefaultContentProperty != null)
+                if (metadata.DefaultContentProperty != null)
                 {
                     ProcessElementProperty(parentName, metadata.DefaultContentProperty, content);
                 }
@@ -451,6 +456,11 @@ namespace Redwood.Framework.Runtime.Compilation
         private static bool IsTemplateProperty(RedwoodProperty parentProperty)
         {
             return parentProperty.PropertyType == typeof(ITemplate);
+        }
+
+        private static bool IsControlProperty(RedwoodProperty property)
+        {
+            return typeof(RedwoodControl).IsAssignableFrom(property.PropertyType);
         }
     }
 }
