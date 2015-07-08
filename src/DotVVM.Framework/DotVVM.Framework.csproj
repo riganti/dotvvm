@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
@@ -232,11 +232,27 @@
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
+    <Compile Include="Runtime\Compilation\ControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompiler.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompilerCodeEmitter.cs" />
     <Compile Include="Runtime\Compilation\EmitterMethodInfo.cs" />
+    <Compile Include="Runtime\Compilation\IControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\IViewCompiler.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\IResolvedTreeNode.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedBinding.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedControl.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\IResolvedControlTreeVisitor.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedControlTreeVisitor.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedContentNode.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyBinding.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertySetter.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyControl.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyControlCollection.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyTemplate.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyValue.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedView.cs" />
     <Compile Include="Runtime\Compilation\RoslynExtensionMethods.cs" />
+    <Compile Include="Runtime\Compilation\ViewCompilingVisitor.cs" />
     <Compile Include="Runtime\DefaultControlBuilderFactory.cs" />
     <Compile Include="Runtime\DefaultOutputRenderer.cs" />
     <Compile Include="Runtime\DefaultDotvvmViewBuilder.cs" />
@@ -266,6 +282,7 @@
     <Compile Include="Storage\IUploadedFileStorage.cs" />
     <Compile Include="Storage\UploadedFile.cs" />
     <Compile Include="Storage\UploadedFileStorageExtensions.cs" />
+    <Compile Include="Styles\StyleMatcher.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\ErrorPageTemplate.cs">

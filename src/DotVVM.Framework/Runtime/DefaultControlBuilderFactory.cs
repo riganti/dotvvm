@@ -45,6 +45,8 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private IControlBuilder CreateControlBuilder(MarkupFile file)
         {
+            // TODO: thread safety: do not call it multiple times for single View
+
             var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
             var assemblyName = namespaceName;
             var className = GetClassFromFileName(file.FileName) + "ControlBuilder";

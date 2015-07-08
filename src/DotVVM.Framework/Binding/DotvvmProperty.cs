@@ -6,12 +6,14 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Binding
 {
     /// <summary>
     /// Represents a property of DotVVM controls.
     /// </summary>
+    [DebuggerDisplay("{FullName}")]
     public class DotvvmProperty
     {
 

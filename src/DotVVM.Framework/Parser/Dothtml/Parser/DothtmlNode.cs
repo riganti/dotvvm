@@ -35,8 +35,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             yield return this;
         }
 
-
-
         public DothtmlNode FindNodeByPosition(int position)
         {
             return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.StartPosition + n.Length);

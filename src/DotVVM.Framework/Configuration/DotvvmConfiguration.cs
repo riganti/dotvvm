@@ -111,6 +111,7 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
             configuration.ServiceLocator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
             configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IControlTreeResolver>(() => new ControlTreeResolver(configuration));
             configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());

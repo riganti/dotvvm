@@ -515,7 +515,7 @@ public void PopMethod()
 public void EmitControlClass(Type baseType, string className)
 {
     otherClassDeclarations.Add(
-        SyntaxFactory.ClassDeclaration(className + "Control")
+        SyntaxFactory.ClassDeclaration(className)
             .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
             .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]
                     {

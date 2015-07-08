@@ -1,4 +1,4 @@
-var __extends = (this && this.__extends) || function (d, b) {
+var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -343,9 +343,7 @@ var DotVVM = (function () {
     DotVVM.prototype.patch = function (source, patch) {
         var _this = this;
         if (source instanceof Array && patch instanceof Array) {
-            return patch.map(function (val, i) {
-                return _this.patch(source[i], val);
-            });
+            return patch.map(function (val, i) { return _this.patch(source[i], val); });
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
