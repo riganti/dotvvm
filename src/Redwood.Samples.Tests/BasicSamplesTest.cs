@@ -514,22 +514,22 @@ namespace Redwood.Samples.Tests
 
                 // go to second page
                 Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-                browser.FindAll("ul")[0].FindAll("li")[2].Find("a").Click();
+                browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "2").Click();
                 Thread.Sleep(WaitTime);
 
                 // go to previous page
                 Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-                browser.FindAll("ul")[0].FindAll("li")[0].Find("a").Click();
+                browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "««").Click();
                 Thread.Sleep(WaitTime);
 
                 // go to next page
                 Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-                browser.FindAll("ul")[0].FindAll("li")[3].Find("a").Click();
+                browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "»»").Click();
                 Thread.Sleep(WaitTime);
 
                 // try the disabled link - nothing should happen
                 Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-                browser.FindAll("ul")[0].FindAll("li")[3].Find("a").Click();
+                browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "»»").Click();
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
 

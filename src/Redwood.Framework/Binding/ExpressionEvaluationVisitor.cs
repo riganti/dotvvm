@@ -318,6 +318,29 @@ namespace Redwood.Framework.Binding
                 return !Equals(Visit(node.Left), Visit(node.Right));
             }
 
+
+            // logical operators
+            if (node.OperatorToken.IsKind(SyntaxKind.AmpersandAmpersandToken))
+            {
+                var left = (bool?)Visit(node.Left);
+                if (left == true) return (bool?)Visit(node.Right);
+                return left;
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.AmpersandToken))
+            {
+                return ((bool?)Visit(node.Left) & (bool?)Visit(node.Right));
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.BarBarToken))
+            {
+                var left = (bool?)Visit(node.Left);
+                if (left == false) return (bool?)Visit(node.Right);
+                return left;
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.BarToken))
+            {
+                return ((bool?)Visit(node.Left) | (bool?)Visit(node.Right));
+            }
+
             // null coalescing operator
             if (node.OperatorToken.IsKind(SyntaxKind.QuestionQuestionToken))
             {

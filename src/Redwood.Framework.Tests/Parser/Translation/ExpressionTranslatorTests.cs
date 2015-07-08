@@ -25,6 +25,10 @@ namespace Redwood.Framework.Tests.Parser.Translation
             Assert.AreEqual("FirstName() >= LastName()", translator.Translate("FirstName >= LastName"));
             Assert.AreEqual("FirstName() === LastName()", translator.Translate("FirstName == LastName"));
             Assert.AreEqual("FirstName() !== LastName()", translator.Translate("FirstName != LastName"));
+            Assert.AreEqual("FirstName() && LastName()", translator.Translate("FirstName && LastName"));
+            Assert.AreEqual("FirstName() & LastName()", translator.Translate("FirstName & LastName"));
+            Assert.AreEqual("FirstName() || LastName()", translator.Translate("FirstName || LastName"));
+            Assert.AreEqual("FirstName() | LastName()", translator.Translate("FirstName | LastName"));
         }
 
         [TestMethod]

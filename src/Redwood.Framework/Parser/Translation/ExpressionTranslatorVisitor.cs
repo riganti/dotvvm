@@ -98,6 +98,25 @@ namespace Redwood.Framework.Parser.Translation
                 return Visit(node.Left) + " !== " + Visit(node.Right);
             }
 
+            // logical operators
+            if (node.OperatorToken.IsKind(SyntaxKind.AmpersandAmpersandToken))
+            {
+                return Visit(node.Left) + " && " + Visit(node.Right);
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.AmpersandToken))
+            {
+                return Visit(node.Left) + " & " + Visit(node.Right);
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.BarBarToken))
+            {
+                return Visit(node.Left) + " || " + Visit(node.Right);
+            }
+            if (node.OperatorToken.IsKind(SyntaxKind.BarToken))
+            {
+                return Visit(node.Left) + " | " + Visit(node.Right);
+            }
+
+
             // null coalescing operator
             if (node.OperatorToken.IsKind(SyntaxKind.QuestionQuestionToken))
             {

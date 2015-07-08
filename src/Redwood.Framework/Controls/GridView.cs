@@ -106,8 +106,11 @@ namespace Redwood.Framework.Controls
 
         private void CreateHeaderRow(RedwoodRequestContext context, string sortCommandPath)
         {
+            var head = new HtmlGenericControl("thead");
+            Children.Add(head);
+
             var headerRow = new HtmlGenericControl("tr");
-            Children.Add(headerRow);
+            head.Children.Add(headerRow);
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("th");
@@ -125,17 +128,18 @@ namespace Redwood.Framework.Controls
                 cell.Attributes["style"] = "width: " + column.Width;
             }
 
-            if (!isHeaderCell)
+            var cssClassBinding = column.GetValueBinding(isHeaderCell ? GridViewColumn.CssClassProperty : GridViewColumn.HeaderCssClassProperty);
+            if (cssClassBinding != null)
             {
-                var cssClassBinding = column.GetValueBinding(GridViewColumn.CssClassProperty);
-                if (cssClassBinding != null)
-                {
-                    cell.Attributes["class"] = cssClassBinding.Clone();
-                }
-                else if (!string.IsNullOrWhiteSpace(column.CssClass))
-                {
-                    cell.Attributes["class"] = column.CssClass;
-                }
+                cell.Attributes["class"] = cssClassBinding.Clone();
+            }
+            else if (!isHeaderCell && !string.IsNullOrWhiteSpace(column.CssClass))
+            {
+                cell.Attributes["class"] = column.CssClass;
+            }
+            else if (isHeaderCell && !string.IsNullOrWhiteSpace(column.HeaderCssClass))
+            {
+                cell.Attributes["class"] = column.HeaderCssClass;
             }
         }
 

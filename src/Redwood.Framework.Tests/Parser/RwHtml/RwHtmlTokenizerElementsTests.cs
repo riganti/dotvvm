@@ -207,6 +207,36 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
 
+
+        [TestMethod]
+        public void RwHtmlTokenizer_ElementParsing_Valid_AttributeWithoutValue()
+        {
+            var input = @" tr <input type=""checkbox"" checked />";
+
+            // parse
+            var tokenizer = new RwHtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
+
+            var i = 0;
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+
         [TestMethod]
         public void RwHtmlTokenizer_ElementParsing_Incomplete_OpenTag_InvalidTagName()
         {
@@ -366,14 +396,6 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
 
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
 
@@ -392,15 +414,7 @@ namespace Redwood.Framework.Tests.Parser.RwHtml
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(RwHtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(RwHtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
+            
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.IsTrue(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(RwHtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);

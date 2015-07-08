@@ -54,6 +54,16 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty CssClassProperty =
             RedwoodProperty.Register<string, GridViewColumn>(c => c.CssClass);
 
+        public string HeaderCssClass
+        {
+            get { return (string)GetValue(HeaderCssClassProperty); }
+            set { SetValue(HeaderCssClassProperty, value); }
+        }
+        public static readonly RedwoodProperty HeaderCssClassProperty =
+            RedwoodProperty.Register<string, GridViewColumn>(c => c.HeaderCssClass);
+
+
+
 
         [MarkupOptions(AllowBinding = false)]
         public string Width

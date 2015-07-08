@@ -61,7 +61,7 @@ namespace Redwood.Framework.Controls
             set { SetValue(ChangedProperty, value); }
         }
         public static readonly RedwoodProperty ChangedProperty =
-            RedwoodProperty.Register<Action, CheckableControlBase>(t => t.Changed, null);
+            RedwoodProperty.Register<Action, TextBox>(t => t.Changed, null);
 
 
 
@@ -82,6 +82,10 @@ namespace Redwood.Framework.Controls
             if (Type == TextBoxType.Normal)
             {
                 TagName = "input";
+                if (!Attributes.ContainsKey("type"))
+                {
+                    writer.AddAttribute("type", "text");
+                }
             }
             else if (Type == TextBoxType.Password)
             {
