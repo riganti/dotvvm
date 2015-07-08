@@ -9,7 +9,7 @@ Redwood is inspired by ASP.NET WebForms, but it is much more modern. It brings f
 How to start
 ------------
 
-First download and install the **[Visual Studio Extension](http://riganti.cz/download/Redwood.VS2015Extension_v0.6.zip)**.
+First download and install the **[Visual Studio Extension](http://riganti.cz/download/Redwood.VS2015Extension_v0.7.zip)**.
 
 Then you can read the tutorial on our **[WIKI](https://github.com/riganti/redwood/wiki)**.
 
