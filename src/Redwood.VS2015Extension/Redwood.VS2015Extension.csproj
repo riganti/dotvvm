@@ -253,7 +253,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Content Include="Packages\Redwood\DotVVM.0.6.0-pre.nuspec" />
     <Content Include="Packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -285,6 +284,7 @@
     <Content Include="Packages\DotVVM.0.7.0-pre.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <None Include="Packages\Redwood\DotVVM.0.7.0-pre.nuspec" />
     <None Include="Packages\Redwood\init.ps1" />
     <None Include="Packages\Redwood\install.ps1" />
     <None Include="Packages\Redwood\RedwoodModule.psm1" />
