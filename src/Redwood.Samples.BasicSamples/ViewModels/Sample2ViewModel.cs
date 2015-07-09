@@ -8,6 +8,8 @@ namespace Redwood.Samples.BasicSamples.ViewModels
     public class Sample2ViewModel
     {
 
+
+
         public bool SCB { get; set; }
 
         public string SCBResult { get; set; }
@@ -54,6 +56,16 @@ namespace Redwood.Samples.BasicSamples.ViewModels
             DBRBResult = DBRB;
         }
 
+
+        public bool ChangedValue { get; set; }
+
+        public int NumberOfChanges { get; set; }
+
+
+        public void OnChanged()
+        {
+            NumberOfChanges++;
+        }
 
         public Sample2ViewModel()
         {

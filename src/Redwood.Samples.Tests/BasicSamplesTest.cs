@@ -76,6 +76,16 @@ namespace Redwood.Samples.Tests
                 boxes[2].Find("input[type=button]").Click();
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("2", boxes[2].FindAll("span").Last().GetText());
+
+                // checked changed
+                boxes[3].FindAll("input[type=checkbox]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("1", boxes[3].FindAll("span").Last().GetText());
+                Assert.IsTrue(boxes[3].FindAll("input[type=checkbox]:checked").Any());
+                boxes[3].FindAll("input[type=checkbox]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("2", boxes[3].FindAll("span").Last().GetText());
+                Assert.IsFalse(boxes[3].FindAll("input[type=checkbox]:checked").Any());
             });
         }
 
