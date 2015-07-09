@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Binding;
 using Redwood.Framework.Configuration;
 using Redwood.Framework.Controls;
 using Redwood.Framework.Controls.Infrastructure;
@@ -56,6 +57,9 @@ namespace Redwood.Framework.Runtime
 
             // verifies the SPA request
             VerifySpaRequest(context, contentPage);
+
+            // set up default values
+            contentPage.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
 
             return contentPage;
         }

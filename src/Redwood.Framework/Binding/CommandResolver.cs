@@ -44,7 +44,8 @@ namespace Redwood.Framework.Binding
             // resolve validation target
             if (!string.IsNullOrEmpty(validationTargetPath))
             {
-                context.ModelState.ValidationTarget = EvaluateOnViewModel(viewModel, viewRootControl, hierarchy, validationTargetPath);
+                var hierarchyCopy = new List<object>(hierarchy);
+                context.ModelState.ValidationTarget = EvaluateOnViewModel(viewModel, viewRootControl, hierarchyCopy, validationTargetPath);
             }
 
             // find the function

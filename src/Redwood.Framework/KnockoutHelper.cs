@@ -97,7 +97,7 @@ namespace Redwood.Framework
             int dataSourceChanges;
             var validationTargetControl = (RedwoodBindableControl)control.GetClosestWithPropertyValue(
                 out dataSourceChanges, 
-                c => c is RedwoodBindableControl && ((RedwoodBindableControl)c).GetValueBinding(Validate.TargetProperty) != null);
+                c => c is RedwoodBindableControl && ((RedwoodBindableControl)c).GetValueBinding(Validate.TargetProperty, false) != null);
             if (validationTargetControl == null)
             {
                 return null;
@@ -109,14 +109,21 @@ namespace Redwood.Framework
             if (translateToClientScript)
             {
                 validationExpression = validationBindingExpression.TranslateToClientScript(control, Validate.TargetProperty);
+
+                var prefix = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parentContext."));
+                if (!validationExpression.StartsWith("$"))
+                {
+                    prefix += "$data.";
+                }
+                return prefix + validationExpression;
             }
             else
             {
                 validationExpression = validationBindingExpression.Expression;
-            }
-            validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
 
-            return validationExpression;
+                var prefix = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "_parent."));
+                return prefix + validationExpression;
+            }
         }
 
         /// <summary>
