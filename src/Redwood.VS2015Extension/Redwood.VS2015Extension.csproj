@@ -359,7 +359,7 @@ copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\Microsof
 copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
 
-if exist "$(ProjectDir)Packages\DotVVM.0.7.0.2-pre.nupkg" del "$(ProjectDir)Packages\DotVVM.0.7.0.2-pre.nupkg"
+del "$(ProjectDir)Packages\DotVVM.*.nupkg" -y
 "$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\Redwood\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
