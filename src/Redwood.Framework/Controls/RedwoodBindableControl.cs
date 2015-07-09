@@ -292,9 +292,13 @@ namespace Redwood.Framework.Controls
             numberOfDataContextChanges = 0;
             while (current != null)
             {
-                if (current is RedwoodBindableControl && ((RedwoodBindableControl)current).GetValueBinding(DataContextProperty, false) != null)
+                if (current is RedwoodBindableControl)
                 {
-                    numberOfDataContextChanges++;
+                    var bindable = (RedwoodBindableControl)current;
+                    if (bindable.GetValueBinding(DataContextProperty, false) != null || ((bool?)bindable.GetValue(Internal.IsDataContextBoundaryProperty, false) == true))
+                    {
+                        numberOfDataContextChanges++;
+                    }
                 }
                 if (filterFunction(current))
                 {

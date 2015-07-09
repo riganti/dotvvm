@@ -23,5 +23,8 @@ namespace Redwood.Framework.Controls
 
         public static readonly RedwoodProperty IsSpaPageProperty =
             RedwoodProperty.Register<bool, Internal>("IsSpaPageProperty", defaultValue: false, isValueInherited: true);
+
+        public static readonly RedwoodProperty IsDataContextBoundaryProperty =
+            RedwoodProperty.Register<bool, Internal>("IsDataContextBoundary", defaultValue: false, isValueInherited: false);
     }
 }

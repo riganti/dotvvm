@@ -72,6 +72,7 @@ namespace Redwood.Framework.Controls
         private HtmlGenericControl content;
         private HtmlGenericControl firstLi;
         private HtmlGenericControl previousLi;
+        private Placeholder numbersPlaceholder; 
         private HtmlGenericControl nextLi;
         private HtmlGenericControl lastLi;
 
@@ -121,6 +122,9 @@ namespace Redwood.Framework.Controls
                 content.Children.Add(previousLi);
 
                 // number fields
+                numbersPlaceholder = new Placeholder();
+                content.Children.Add(numbersPlaceholder);
+
                 var i = 0;
                 foreach (var number in dataSet.NearPageIndexes)
                 {
@@ -133,7 +137,7 @@ namespace Redwood.Framework.Controls
                     var link = new LinkButton() { Text = (number + 1).ToString() };
                     link.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("_parent.GoToPage(_this)"));
                     li.Children.Add(link);
-                    content.Children.Add(li);
+                    numbersPlaceholder.Children.Add(li);
 
                     i++;
                 }
@@ -189,24 +193,29 @@ namespace Redwood.Framework.Controls
             context.PathFragments.Push("NearPageIndexes[$index]");
 
             // render page number
+            numbersPlaceholder.Children.Clear();
             HtmlGenericControl li;
             if (!RenderLinkForCurrentPage)
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
                 li = new HtmlGenericControl("li");
+                li.SetValue(Internal.IsDataContextBoundaryProperty, true);
                 var literal = new Literal();
                 literal.SetBinding(Literal.TextProperty, new ValueBindingExpression("_this + 1"));
                 li.Children.Add(literal);
+                numbersPlaceholder.Children.Add(li);
                 li.Render(writer, context);
 
                 writer.AddKnockoutDataBind("visible", "$data != $parent.PageIndex()");
             }
             writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
             li = new HtmlGenericControl("li");
+            li.SetValue(Internal.IsDataContextBoundaryProperty, true);
             var link = new LinkButton();
             link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression("_this + 1"));
             link.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("_parent.GoToPage(_this)"));
             li.Children.Add(link);
+            numbersPlaceholder.Children.Add(li);
             li.Render(writer, context);
 
             context.PathFragments.Pop();

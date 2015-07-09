@@ -10,10 +10,10 @@ namespace Redwood.Framework.Controls
     {
 
         [AttachedProperty(typeof(bool))]
-        public static RedwoodProperty EnabledProperty = RedwoodProperty.Register<bool, Validate>("Enabled", true);
+        public static RedwoodProperty EnabledProperty = RedwoodProperty.Register<bool, Validate>("Enabled", true, true);
 
         [AttachedProperty(typeof(object))]
-        public static RedwoodProperty TargetProperty = RedwoodProperty.Register<object, Validate>("Target", new ValueBindingExpression("_root"), true);
+        public static RedwoodProperty TargetProperty = RedwoodProperty.Register<object, Validate>("Target", null, true);
 
     }
 }
