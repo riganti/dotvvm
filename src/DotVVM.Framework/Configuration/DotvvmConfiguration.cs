@@ -13,6 +13,7 @@ using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ResourceManagement.ClientGlobalize;
+using DotVVM.Framework.Styles;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -75,7 +76,10 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonIgnore]
         public ServiceLocator ServiceLocator { get; private set; }
-        
+
+        [JsonIgnore]
+        public StyleRepository Styles { get; set; }
+
 
 
 
@@ -91,6 +95,7 @@ namespace DotVVM.Framework.Configuration
             Security = new DotvvmSecurityConfiguration();
             Runtime = new DotvvmRuntimeConfiguration();
             Debug = true;
+            Styles = new StyleRepository();
         }
 
         /// <summary>

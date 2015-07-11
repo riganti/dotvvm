@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Binding
 {
     public class CollectionElementDataContextChangeAttribute : DataContextChangeAttribute
     {
-        public override Type GetChildDataContextType(Type dataContext, Type parentDataContext, DotvvmControl control)
+        public override Type GetChildDataContextType(Type dataContext, Type parentDataContext)
         {
             if(dataContext.IsArray)
             {

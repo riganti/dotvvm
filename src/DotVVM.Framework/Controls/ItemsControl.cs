@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// A common base for all controls that operate on collection.
     /// </summary>
-    [ControlPropertyDataContextChange("DataSource")]
+    [ControlPropertyBindingDataContextChange("DataSource")]
     [CollectionElementDataContextChange]
     public abstract class ItemsControl : HtmlGenericControl
     {

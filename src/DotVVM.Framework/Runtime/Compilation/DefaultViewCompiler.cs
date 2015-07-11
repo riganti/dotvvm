@@ -16,6 +16,7 @@ using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
+using DotVVM.Framework.Styles;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -45,6 +46,9 @@ namespace DotVVM.Framework.Runtime.Compilation
             var node = parser.Parse(tokenizer.Tokens);
 
             var resolvedView = controlTreeResolver.ResolveTree(node, fileName);
+
+            var styleVisitor = new StylingVisitor(configuration.Styles);
+            resolvedView.Accept(styleVisitor);
 
             var emitter = new DefaultViewCompilerCodeEmitter();
             var compilingVisitor = new ViewCompilingVisitor(emitter, className);

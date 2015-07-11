@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -12,5 +13,6 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
     {
         public Type Type { get; set; }
         public string Value { get; set; }
+        public Expression Expression { get; set; }
     }
 }

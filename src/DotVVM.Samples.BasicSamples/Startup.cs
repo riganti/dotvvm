@@ -47,36 +47,38 @@ namespace DotVVM.Samples.BasicSamples
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM
-            DotvvmConfiguration dotvvmonfiguration = app.UseDotVVM(applicationPhysicalPath);
-            dotvvmonfiguration.RouteTable.Add("Sample1", "Sample1", "sample1.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample2", "Sample2", "sample2.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample3", "Sample3", "sample3.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample4", "Sample4", "sample4.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample5", "Sample5", "sample5.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample6", "Sample6", "sample6.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample7", "Sample7", "sample7.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample8", "Sample8", "sample8.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample9", "Sample9", "sample9.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample10", "Sample10", "sample10.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample11", "Sample11", "sample11.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample12", "Sample12", "sample12.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample13", "Sample13", "sample13.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample14", "Sample14", "sample14.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample15", "Sample15", "sample15.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample16", "Sample16", "sample16.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample17_SPA", "Sample17", "sample17.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample17_A", "Sample17/A/{Id}", "sample17_a.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample17_B", "Sample17/B", "sample17_b.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample18", "Sample18", "sample18.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("Sample19", "Sample19", "sample19.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.dothtml", null);
-            dotvvmonfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.dothtml", null);
+            DotvvmConfiguration dotvvmconfiguration = app.UseDotVVM(applicationPhysicalPath);
+            dotvvmconfiguration.RouteTable.Add("Sample1", "Sample1", "sample1.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample2", "Sample2", "sample2.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample3", "Sample3", "sample3.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample4", "Sample4", "sample4.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample5", "Sample5", "sample5.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample6", "Sample6", "sample6.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample7", "Sample7", "sample7.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample8", "Sample8", "sample8.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample9", "Sample9", "sample9.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample10", "Sample10", "sample10.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample11", "Sample11", "sample11.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample12", "Sample12", "sample12.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample13", "Sample13", "sample13.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample14", "Sample14", "sample14.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample15", "Sample15", "sample15.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample16", "Sample16", "sample16.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample17_SPA", "Sample17", "sample17.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample17_A", "Sample17/A/{Id}", "sample17_a.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample17_B", "Sample17/B", "sample17_b.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample18", "Sample18", "sample18.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("Sample19", "Sample19", "sample19.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.dothtml", null);
+            dotvvmconfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.dothtml", null);
 
             var bundles = new BundlingResourceProcessor();
-            bundles.RegisterBundle(dotvvmonfiguration.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
-            dotvvmonfiguration.Resources.DefaultResourceProcessors.Add(bundles);
+            bundles.RegisterBundle(dotvvmconfiguration.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
+            dotvvmconfiguration.Resources.DefaultResourceProcessors.Add(bundles);
 
-            dotvvmonfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
+            dotvvmconfiguration.Styles.Register("div").SetAttribute("data-testAttribute", "this is attribute was set by styling engine because this element is div");
+
+            dotvvmconfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "TempUpload"), TimeSpan.FromMinutes(30)));
 
             // use static files

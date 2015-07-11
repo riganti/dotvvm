@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ExpressionEvaluator, Version=2.0.3.0, Culture=neutral, PublicKeyToken=90d9f15d622e2348, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExpressionEvaluator.2.0.3.0\lib\net40\ExpressionEvaluator.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
       <Private>True</Private>
@@ -86,7 +94,7 @@
     <Compile Include="Binding\CommandResolver.cs" />
     <Compile Include="Binding\ControlCommandBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
-    <Compile Include="Binding\ControlPropertyDataContextChangeAttribute.cs" />
+    <Compile Include="Binding\ControlPropertyBindingDataContextChangeAttribute.cs" />
     <Compile Include="Binding\ControlStateBindingExpression.cs" />
     <Compile Include="Binding\DataContextChangeAttribute.cs" />
     <Compile Include="Binding\EventValidator.cs" />
@@ -282,7 +290,14 @@
     <Compile Include="Storage\IUploadedFileStorage.cs" />
     <Compile Include="Storage\UploadedFile.cs" />
     <Compile Include="Storage\UploadedFileStorageExtensions.cs" />
+    <Compile Include="Styles\CompileTimeStyleBase.cs" />
+    <Compile Include="Styles\IStyle.cs" />
+    <Compile Include="Styles\IStyleApplicator.cs" />
+    <Compile Include="Styles\StyleBuilder.cs" />
     <Compile Include="Styles\StyleMatcher.cs" />
+    <Compile Include="Styles\StyleMatchingInfo.cs" />
+    <Compile Include="Styles\StylingVisitor.cs" />
+    <Compile Include="Styles\StyleRepository.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\ErrorPageTemplate.cs">
@@ -438,6 +453,7 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
     </Content>
+    <Content Include="LICENSE.txt" />
     <Content Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>

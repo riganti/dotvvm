@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Binding
     [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
     public abstract class DataContextChangeAttribute: Attribute
     {
-        public abstract Type GetChildDataContextType(Type dataContext, Type parentDataContext, DotvvmControl control);
+        public abstract Type GetChildDataContextType(Type dataContext, Type parentDataContext);
 
         public static Type GetDataContextType(Type parentDataContext, DotvvmControl control)
         {
@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Binding
             var attributes = control.GetType().GetCustomAttributes<DataContextChangeAttribute>();
             foreach (var attribute in attributes)
             {
-                dataContext = attribute.GetChildDataContextType(dataContext, parentDataContext, control);
+                dataContext = attribute.GetChildDataContextType(dataContext, parentDataContext);
             }
             return dataContext;
         }
