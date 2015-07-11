@@ -13,11 +13,11 @@
 <body>
 
 <form method="POST" enctype="multipart/form-data" action="<#= FormPostUrl #>" id="uploadForm">
-    <input type="file" name="upload" id="upload" <# if (AllowMultipleFiles) { #> multiple="multiple" <# } #> onchange="dotvvmubmit();"/>
+    <input type="file" name="upload" id="upload" <# if (AllowMultipleFiles) { #> multiple="multiple" <# } #> onchange="dotvvmSubmit();"/>
 </form>
 
 <script type="text/javascript">
-function dotvvmubmit() {
+function dotvvmSubmit() {
 	var form = document.getElementById("uploadForm");
 
 	if (window.FormData) {

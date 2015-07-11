@@ -496,12 +496,12 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
 
                 // test update progress control
-                Assert.IsFalse(browser.IsDisplayed("div[data-bind='dotvvmpdateProgressVisible: true']"));
+                Assert.IsFalse(browser.IsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']"));
                 browser.FindAll("input[type=button]")[2].Click();
                 Thread.Sleep(WaitTime);
-                Assert.IsTrue(browser.IsDisplayed("div[data-bind='dotvvmpdateProgressVisible: true']"));
+                Assert.IsTrue(browser.IsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']"));
                 Thread.Sleep(6000);
-                Assert.IsFalse(browser.IsDisplayed("div[data-bind='dotvvmpdateProgressVisible: true']"));
+                Assert.IsFalse(browser.IsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']"));
             });
         }
 

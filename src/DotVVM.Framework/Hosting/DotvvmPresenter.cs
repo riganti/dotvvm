@@ -45,14 +45,14 @@ namespace DotVVM.Framework.Hosting
         /// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
         /// </summary>
         public DotvvmPresenter(
-            IDotvvmViewBuilder dotvvmiewBuilder,
+            IDotvvmViewBuilder dotvvmViewBuilder,
             IViewModelLoader viewModelLoader,
             IViewModelSerializer viewModelSerializer,
             IOutputRenderer outputRenderer,
             ICsrfProtector csrfProtector
         )
         {
-            DotvvmViewBuilder = dotvvmiewBuilder;
+            DotvvmViewBuilder = dotvvmViewBuilder;
             ViewModelLoader = viewModelLoader;
             ViewModelSerializer = viewModelSerializer;
             OutputRenderer = outputRenderer;

@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Hosting
         public override Task Invoke(IOwinContext context)
         {
             // create the context
-            var dotvvmontext = new DotvvmRequestContext()
+            var dotvvmContext = new DotvvmRequestContext()
             {
                 OwinContext = context,
                 Configuration = configuration,
@@ -53,9 +53,9 @@ namespace DotVVM.Framework.Hosting
             if (route != null)
             {
                 // handle the request
-                dotvvmontext.Route = route;
-                dotvvmontext.Parameters = parameters;
-                return route.ProcessRequest(dotvvmontext);
+                dotvvmContext.Route = route;
+                dotvvmContext.Parameters = parameters;
+                return route.ProcessRequest(dotvvmContext);
             }
             else
             {

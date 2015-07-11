@@ -34,12 +34,12 @@ namespace DotVVM.Framework.Parser
         public const string GlobalizeResourceName = "globalize";
         public const string GlobalizeCultureResourceName = "globalize:{0}";
 
-        public const string GlobalizeCultureUrlPath = "dotvvmlobalizeCulture";
+        public const string GlobalizeCultureUrlPath = "dotvvmGlobalizeCulture";
         public const string GlobalizeCultureUrlIdParameter = "id";
-        public const string ResourceHandlerUrl = "~/dotvvmmbeddedResource?name={0}&assembly={1}";
-        public const string ResourceHandlerMatchUrl = "dotvvmmbeddedResource";
+        public const string ResourceHandlerUrl = "~/dotvvmEmbeddedResource?name={0}&assembly={1}";
+        public const string ResourceHandlerMatchUrl = "dotvvmEmbeddedResource";
 
-        public const string FileUploadHandlerMatchUrl = "dotvvmileUpload";
+        public const string FileUploadHandlerMatchUrl = "dotvvmFileUpload";
 
         public const string SpaContentPlaceHolderDataAttributeName = "data-rw-spacontentplaceholder";
         public const string SpaContentPlaceHolderHeaderName = "X-DotVVM-SpaContentPlaceHolder";

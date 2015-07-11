@@ -242,12 +242,12 @@ dotvvm.events.afterPostback.subscribe(function (args) {
     }
 });
 // add knockout binding handler
-ko.bindingHandlers["dotvvmalidation"] = {
+ko.bindingHandlers["dotvvmValidation"] = {
     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         var observableProperty = valueAccessor();
         if (ko.isObservable(observableProperty)) {
             // try to get the options
-            var options = allBindingsAccessor.get("dotvvmalidationOptions");
+            var options = allBindingsAccessor.get("dotvvmValidationOptions");
             var mode = (options && options.mode) ? options.mode : "addCssClass";
             var updateFunction = dotvvm.extensions.validation.elementUpdateFunctions[mode];
             // subscribe to the observable property changes

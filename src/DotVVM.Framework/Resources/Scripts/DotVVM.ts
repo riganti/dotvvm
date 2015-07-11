@@ -589,7 +589,7 @@ var dotvvm = new DotVVM();
 
 
 // add knockout binding handler for update progress control
-ko.bindingHandlers["dotvvmpdateProgressVisible"] = {
+ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
     init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
         element.style.display = "none";
         dotvvm.events.beforePostback.subscribe(e => {

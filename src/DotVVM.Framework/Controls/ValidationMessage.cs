@@ -82,10 +82,10 @@ namespace DotVVM.Framework.Controls
             var validatedValueBinding = GetValueBinding(ValidatedValueProperty);
             if (validatedValueBinding != null)
             {
-                writer.AddKnockoutDataBind("dotvvmalidation", this, ValidatedValueProperty, () => { });
+                writer.AddKnockoutDataBind("dotvvmValidation", this, ValidatedValueProperty, () => { });
                 
                 var options = string.Format("{{'mode':'{0}', 'cssClass':{1}}}", KnockoutHelper.ConvertToCamelCase(Mode.ToString()), KnockoutHelper.MakeStringLiteral(InvalidCssClass));
-                writer.AddKnockoutDataBind("dotvvmalidationOptions", options);
+                writer.AddKnockoutDataBind("dotvvmValidationOptions", options);
             }
 
             base.AddAttributesToRender(writer, context);

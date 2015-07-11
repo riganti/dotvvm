@@ -282,15 +282,15 @@ namespace DotVVM.Framework.Tests.Runtime
             }
             markupFiles["default.dothtml"] = markup;
 
-            var dotvvmonfiguration = context.Configuration;
-            dotvvmonfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
-            dotvvmonfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
-            dotvvmonfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
-            dotvvmonfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
-            dotvvmonfiguration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new FakeMarkupFileLoader(markupFiles));
-            dotvvmonfiguration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+            var dotvvmConfiguration = context.Configuration;
+            dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
+            dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
+            dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
+            dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
+            dotvvmConfiguration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new FakeMarkupFileLoader(markupFiles));
+            dotvvmConfiguration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
 
-            var controlBuilderFactory = dotvvmonfiguration.ServiceLocator.GetService<IControlBuilderFactory>();
+            var controlBuilderFactory = dotvvmConfiguration.ServiceLocator.GetService<IControlBuilderFactory>();
             var controlBuilder = controlBuilderFactory.GetControlBuilder("default.dothtml");
             
             var result = controlBuilder.BuildControl(controlBuilderFactory);

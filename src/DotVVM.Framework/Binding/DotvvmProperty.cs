@@ -80,16 +80,16 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
-        internal virtual object GetValue(DotvvmControl dotvvmontrol, bool inherit = true)
+        internal virtual object GetValue(DotvvmControl dotvvcmontrol, bool inherit = true)
         {
             object value;
-            if (dotvvmontrol.properties != null && dotvvmontrol.properties.TryGetValue(this, out value))
+            if (dotvvcmontrol.properties != null && dotvvcmontrol.properties.TryGetValue(this, out value))
             {
                 return value;
             }
-            if (IsValueInherited && inherit && dotvvmontrol.Parent != null)
+            if (IsValueInherited && inherit && dotvvcmontrol.Parent != null)
             {
-                return GetValue(dotvvmontrol.Parent);
+                return GetValue(dotvvcmontrol.Parent);
             }
             return DefaultValue;
         }
@@ -97,9 +97,9 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Sets the value of the property.
         /// </summary>
-        internal virtual void SetValue(DotvvmControl dotvvmontrol, object value)
+        internal virtual void SetValue(DotvvmControl dotvvmControl, object value)
         {
-            dotvvmontrol.Properties[this] = value;
+            dotvvmControl.Properties[this] = value;
         }
 
 
@@ -207,12 +207,12 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Called when a control of the property type is created and initialized.
         /// </summary>
-        protected internal virtual void OnControlInitialized(DotvvmControl dotvvmontrol)
+        protected internal virtual void OnControlInitialized(DotvvmControl dotvvmControl)
         {
-            if (DefaultValue is ControlStateBindingExpression && dotvvmontrol is DotvvmBindableControl)
+            if (DefaultValue is ControlStateBindingExpression && dotvvmControl is DotvvmBindableControl)
             {
                 // register the default value to the control state
-                var bindableControl = (DotvvmBindableControl)dotvvmontrol;
+                var bindableControl = (DotvvmBindableControl)dotvvmControl;
                 if (bindableControl.RequiresControlState)
                 {
                     if (bindableControl.GetBinding(this) == null)
@@ -222,7 +222,7 @@ namespace DotVVM.Framework.Binding
 
                     if (PropertyInfo.SetMethod == null)
                     {
-                        var value = PropertyInfo.GetValue(dotvvmontrol);
+                        var value = PropertyInfo.GetValue(dotvvmControl);
                         ((ControlStateBindingExpression)DefaultValue).UpdateSource(value, bindableControl, this);
                     }
                 }
@@ -232,15 +232,15 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Called right before the page is rendered.
         /// </summary>
-        public void OnControlRendering(DotvvmControl dotvvmontrol)
+        public void OnControlRendering(DotvvmControl dotvvmControl)
         {
-            if (DefaultValue is ControlStateBindingExpression && dotvvmontrol is DotvvmBindableControl)
+            if (DefaultValue is ControlStateBindingExpression && dotvvmControl is DotvvmBindableControl)
             {
                 // save the property value to the control state
-                var bindableControl = (DotvvmBindableControl)dotvvmontrol;
+                var bindableControl = (DotvvmBindableControl)dotvvmControl;
                 if (bindableControl.RequiresControlState)
                 {
-                    var value = PropertyInfo.GetValue(dotvvmontrol);
+                    var value = PropertyInfo.GetValue(dotvvmControl);
                     ((ControlStateBindingExpression)DefaultValue).UpdateSource(value, bindableControl, this);
                 }
             }

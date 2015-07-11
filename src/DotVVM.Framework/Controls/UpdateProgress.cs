@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("dotvvmpdateProgressVisible", "true");
+            writer.AddKnockoutDataBind("dotvvmUpdateProgressVisible", "true");
 
             base.AddAttributesToRender(writer, context);
         }

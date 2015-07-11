@@ -7,7 +7,7 @@ namespace DotVVM.Samples.Tests
     {
         protected override string BaseUrl
         {
-            get { return "http://localhost:8627/dotvvmamples/"; }
+            get { return "http://localhost:8627/dotvvmSamples/"; }
         }
 
 

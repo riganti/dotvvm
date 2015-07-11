@@ -587,7 +587,7 @@ var DotvvmSpaNavigatedEventArgs = (function (_super) {
 })(DotvvmEventArgs);
 var dotvvm = new DotVVM();
 // add knockout binding handler for update progress control
-ko.bindingHandlers["dotvvmpdateProgressVisible"] = {
+ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
     init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
         element.style.display = "none";
         dotvvm.events.beforePostback.subscribe(function (e) {
