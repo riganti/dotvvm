@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding
 {
@@ -11,18 +12,7 @@ namespace DotVVM.Framework.Binding
     {
         public override Type GetChildDataContextType(Type dataContext, Type parentDataContext)
         {
-            if(dataContext.IsArray)
-            {
-                return dataContext.GetElementType();
-            }
-            var ienumerable = dataContext.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-
-            if (ienumerable != null)
-            {
-                return ienumerable.GetGenericArguments()[0];
-            }
-            else throw new NotSupportedException();
+            return ReflectionUtils.GetEnumerableType(dataContext);
         }
     }
 }

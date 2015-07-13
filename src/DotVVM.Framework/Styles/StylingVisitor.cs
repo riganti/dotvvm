@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Styles
 
         public override void VisitControl(ResolvedControl control)
         {
-            Matcher.PushElement(control);
+            Matcher.PushControl(control);
             foreach (var style in Matcher.GetMatchingStyles())
             {
                 style.ApplyStyle(control);

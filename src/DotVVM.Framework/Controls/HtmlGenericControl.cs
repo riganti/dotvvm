@@ -79,6 +79,14 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute(attribute.Key, (string)attribute.Value, true);
             }
 
+            foreach (var attrList in Attributes.Where(a => a.Value is string[]))
+            {
+                foreach (var value in (string[])attrList.Value)
+                {
+                    writer.AddAttribute(attrList.Key, value);
+                }
+            }
+
             // render binding HTML attributes
             var propertyValuePairs = Attributes.Where(a => a.Value is ValueBindingExpression)
                 .Select(a => new KeyValuePair<string, ValueBindingExpression>(a.Key, (ValueBindingExpression)a.Value)).ToList();

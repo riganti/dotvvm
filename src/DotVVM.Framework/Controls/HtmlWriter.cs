@@ -45,6 +45,22 @@ namespace DotVVM.Framework.Controls
             this.requestContext = requestContext;
         }
 
+        public static string JoinAttributeValues(string attributeName, string valueA, string valueB, string separator = null)
+        {
+            if (string.IsNullOrWhiteSpace(valueA))
+                return valueB;
+            if (string.IsNullOrWhiteSpace(valueB))
+                return valueA;
+
+            if (separator == null && !separators.TryGetValue(attributeName, out separator))
+            {
+                separator = ";";
+            }
+
+            // append the value with the separator
+            return valueA + separator + valueB;
+        }
+
         /// <summary>
         /// Adds the specified attribute to the next HTML element that is being rendered. 
         /// </summary>
@@ -62,20 +78,7 @@ namespace DotVVM.Framework.Controls
                 if (attributes.Contains(name))
                 {
                     var currentValue = attributes[name] as string;
-                    if (!string.IsNullOrWhiteSpace(currentValue))
-                    {
-                        if (appendSeparator == null && !separators.TryGetValue(name, out appendSeparator))
-                        {
-                            appendSeparator = ";";
-                        }
-
-                        // append the value with the separator
-                        if (value != null)
-                        {
-                            attributes[name] = currentValue + appendSeparator + value;
-                        }
-                        return;
-                    }
+                    attributes[name] = JoinAttributeValues(name, currentValue, value, appendSeparator);
                 }
             }
 
@@ -113,7 +116,7 @@ namespace DotVVM.Framework.Controls
 
         public void EnsureTagFullyOpen()
         {
-            if(!tagFullyOpen)
+            if (!tagFullyOpen)
             {
                 writer.Write(">");
                 tagFullyOpen = true;
@@ -185,7 +188,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new InvalidOperationException(Parser_Dothtml.HtmlWriter_CannotCloseTagBecauseNoTagIsOpen);
             }
-            
+
             var name = openTags.Pop();
             if (tagFullyOpen)
             {

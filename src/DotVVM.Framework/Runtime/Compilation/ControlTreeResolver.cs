@@ -160,8 +160,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     (object)ProcessBinding((DothtmlBindingNode)attribute.Literal) :
                     attribute.Literal?.Value;
 
-                if (control.HtmlAttributes == null) control.HtmlAttributes = new Dictionary<string, object>();
-                control.HtmlAttributes.Add(attribute.AttributeName, value);
+                control.SetHtmlAttribute(attribute.AttributeName, value);
             }
             else
             {

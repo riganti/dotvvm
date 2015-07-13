@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -8,7 +9,7 @@ namespace DotVVM.Framework.Styles
 {
     public interface IStyle
     {
-        bool Matches(StyleMatchingInfo matcher);
+        bool Matches(StyleMatchContext currentControl);
         IStyleApplicator Applicator { get; }
         Type ControlType { get; }
         bool ExactTypeMatch { get; }

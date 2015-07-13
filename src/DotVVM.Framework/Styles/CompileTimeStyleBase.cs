@@ -10,8 +10,8 @@ namespace DotVVM.Framework.Styles
 {
     public abstract class CompileTimeStyleBase : IStyle
     {
-        public Dictionary<string, object> SetHtmlAttributes { get; set; }
-        public Dictionary<DotvvmProperty, ResolvedPropertySetter> SetProperties { get; set; }
+        internal Dictionary<string, HtmlAttributeInsertionInfo> SetHtmlAttributes { get; set; }
+        internal Dictionary<DotvvmProperty, ResolvedPropertySetter> SetProperties { get; set; }
 
         public IStyleApplicator Applicator => new StyleApplicator(this);
 
@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Styles
 
         public bool ExactTypeMatch { get; protected set; }
 
-        public abstract bool Matches(StyleMatchingInfo matcher);
+        public abstract bool Matches(StyleMatchContext matcher);
 
         protected virtual void ApplyStyle(ResolvedControl control)
         {
@@ -27,9 +27,9 @@ namespace DotVVM.Framework.Styles
             {
                 foreach (var attr in SetHtmlAttributes)
                 {
-                    if(!control.HtmlAttributes.ContainsKey(attr.Key))
+                    if(!control.HtmlAttributes.ContainsKey(attr.Key) || attr.Value.append)
                     {
-                        control.HtmlAttributes.Add(attr.Key, attr.Value);
+                        control.SetHtmlAttribute(attr.Key, attr.Value.value);
                     }
                 }
             }
@@ -58,6 +58,12 @@ namespace DotVVM.Framework.Styles
             {
                 @this.ApplyStyle(control);
             }
+        }
+
+        public struct HtmlAttributeInsertionInfo
+        {
+            public object value;
+            public bool append;
         }
     }
 }

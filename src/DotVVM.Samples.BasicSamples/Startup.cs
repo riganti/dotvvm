@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.IO;
 using System.Web.Hosting;
 using Microsoft.Owin;
@@ -11,6 +12,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.AspNet.Identity;
 using DotVVM.Framework.Storage;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Controls;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.BasicSamples.Startup))]
 namespace DotVVM.Samples.BasicSamples
@@ -76,7 +78,7 @@ namespace DotVVM.Samples.BasicSamples
             bundles.RegisterBundle(dotvvmConfiguration.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
             dotvvmConfiguration.Resources.DefaultResourceProcessors.Add(bundles);
 
-            dotvvmConfiguration.Styles.Register("div").SetAttribute("data-testAttribute", "this is attribute was set by styling engine because this element is div");
+            dotvvmConfiguration.Styles.Register("div").SetAttribute("class", "div", true);
 
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "TempUpload"), TimeSpan.FromMinutes(30)));

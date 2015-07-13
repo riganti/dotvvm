@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Binding
         public static DotvvmProperty ResolveProperty(Type type, string name)
         {
             var fullName = type.FullName + "." + name;
-
+            
             DotvvmProperty property;
             while (!registeredProperties.TryGetValue(fullName, out property) && type.BaseType != null)
             {

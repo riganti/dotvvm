@@ -9,7 +9,7 @@ using System.Collections;
 
 namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
 {
-    public class ResolvedControl: ResolvedContentNode
+    public class ResolvedControl : ResolvedContentNode
     {
         public Dictionary<DotvvmProperty, ResolvedPropertySetter> Properties { get; set; } = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
         public Dictionary<string, object> HtmlAttributes { get; set; }
@@ -27,6 +27,18 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
         public void SetPropertyValue(DotvvmProperty property, object value)
         {
             Properties[property] = new ResolvedPropertyValue(property, value);
+        }
+
+        public void SetHtmlAttribute(string attributeName, object value)
+        {
+            if (HtmlAttributes == null) HtmlAttributes = new Dictionary<string, object>();
+            object currentValue;
+            if (HtmlAttributes.TryGetValue(attributeName, out currentValue))
+            {
+                if (!(value is string && currentValue is string)) throw new NotSupportedException("multiple binding values are not supported in one attribute");
+                HtmlAttributes[attributeName] = Controls.HtmlWriter.JoinAttributeValues(attributeName, (string)currentValue, (string)value);
+            }
+            else HtmlAttributes[attributeName] = value;
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

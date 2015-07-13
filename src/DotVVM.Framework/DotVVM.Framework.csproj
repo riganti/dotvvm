@@ -295,7 +295,8 @@
     <Compile Include="Styles\IStyleApplicator.cs" />
     <Compile Include="Styles\StyleBuilder.cs" />
     <Compile Include="Styles\StyleMatcher.cs" />
-    <Compile Include="Styles\StyleMatchingInfo.cs" />
+    <Compile Include="Styles\StyleMatchingHelper.cs" />
+    <Compile Include="Styles\StyleMatchContext.cs" />
     <Compile Include="Styles\StylingVisitor.cs" />
     <Compile Include="Styles\StyleRepository.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
@@ -466,6 +467,7 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

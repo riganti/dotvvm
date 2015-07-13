@@ -6,6 +6,8 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Controls;
+using System.Collections;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -27,7 +29,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         public const string BuildControlFunctionName = "BuildControl";
         public const string BuildTemplateFunctionName = "BuildTemplate";
         public const string GetControlBuilderFunctionName = "GetControlBuilder";
-        
+
 
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
@@ -193,7 +195,26 @@ namespace DotVVM.Framework.Runtime.Compilation
                         SyntaxFactory.IdentifierName(value.ToString())
                     );
             }
+            if (type.IsArray || typeof(IEnumerable).IsAssignableFrom(type))
+            {
+                return EmitCreateArray(ReflectionUtils.GetEnumerableType(type), (IEnumerable)value);
+            }
             throw new NotSupportedException();
+        }
+
+        public ExpressionSyntax EmitCreateArray(Type arrayType, IEnumerable values)
+        {
+            return SyntaxFactory.ArrayCreationExpression(
+                                    SyntaxFactory.ArrayType(
+                                        SyntaxFactory.ParseTypeName(arrayType.FullName),
+                                        SyntaxFactory.SingletonList(
+                                            SyntaxFactory.ArrayRankSpecifier(
+                                                SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
+                                                    SyntaxFactory.OmittedArraySizeExpression())))),
+                                    SyntaxFactory.InitializerExpression(
+                                        SyntaxKind.ArrayInitializerExpression,
+                                        SyntaxFactory.SeparatedList(
+                                            values.Cast<object>().Select(EmitValue))));
         }
 
         /// <summary>
@@ -483,45 +504,45 @@ namespace DotVVM.Framework.Runtime.Compilation
                 )
             ).NormalizeWhitespace();
 
-        // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
-        // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
-        SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
+            // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
+            // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
+            SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
             return new[] { SyntaxTree
     };
-}
+        }
 
 
-/// <summary>
-/// Pushes the new method.
-/// </summary>
-public void PushNewMethod(string name, params ParameterSyntax[] parameters)
-{
-    var emitterMethodInfo = new EmitterMethodInfo() { Name = name };
-    methods.Push(emitterMethodInfo);
-}
+        /// <summary>
+        /// Pushes the new method.
+        /// </summary>
+        public void PushNewMethod(string name, params ParameterSyntax[] parameters)
+        {
+            var emitterMethodInfo = new EmitterMethodInfo() { Name = name };
+            methods.Push(emitterMethodInfo);
+        }
 
-/// <summary>
-/// Pops the method.
-/// </summary>
-public void PopMethod()
-{
-    outputMethods.Add(methods.Pop());
-}
+        /// <summary>
+        /// Pops the method.
+        /// </summary>
+        public void PopMethod()
+        {
+            outputMethods.Add(methods.Pop());
+        }
 
 
-/// <summary>
-/// Emits the control class.
-/// </summary>
-public void EmitControlClass(Type baseType, string className)
-{
-    otherClassDeclarations.Add(
-        SyntaxFactory.ClassDeclaration(className)
-            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-            .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]
-                    {
+        /// <summary>
+        /// Emits the control class.
+        /// </summary>
+        public void EmitControlClass(Type baseType, string className)
+        {
+            otherClassDeclarations.Add(
+                SyntaxFactory.ClassDeclaration(className)
+                    .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                    .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]
+                            {
                         SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName(baseType.ToString()))
-                    })))
-        );
-}
+                            })))
+                );
+        }
     }
 }

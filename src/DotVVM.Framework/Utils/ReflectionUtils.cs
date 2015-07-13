@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
-        public static string GetPropertyNameFromExpression<T>(Expression<Func<T, object>> expression)
+        public static string GetPropertyNameFromExpression<T, TProperty>(Expression<Func<T, TProperty>> expression)
         {
             var body = expression.Body as MemberExpression;
 
@@ -108,5 +108,20 @@ namespace DotVVM.Framework.Utils
             return Convert.ChangeType(value, type);
         }
 
+        public static Type GetEnumerableType(Type collectionType)
+        {
+            if (collectionType.IsArray)
+            {
+                return collectionType.GetElementType();
+            }
+            var ienumerable = collectionType.GetInterfaces()
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+
+            if (ienumerable != null)
+            {
+                return ienumerable.GetGenericArguments()[0];
+            }
+            else throw new NotSupportedException();
+        }
     }
 }

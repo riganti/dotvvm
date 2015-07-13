@@ -12,10 +12,7 @@ namespace DotVVM.Framework.Styles
 {
     public class StyleMatcher
     {
-        public Stack<ResolvedControl> ControlStack { get; set; } = new Stack<ResolvedControl>();
-        public Dictionary<Type, int> Ancestors { get; set; } = new Dictionary<Type, int>();
-
-        public ResolvedControl Control { get; set; }
+        public StyleMatchContext Context { get; set; }
 
         public ILookup<Type, IStyle> Styles { get; set; }
 
@@ -24,29 +21,25 @@ namespace DotVVM.Framework.Styles
             Styles = styles.ToLookup(s => s.ControlType);
         }
 
-        public void PushElement(ResolvedControl element)
+        public void PushControl(ResolvedControl control)
         {
-            if (Control != null)
-                ControlStack.Push(Control);
-            Control = element;
+            Context = new StyleMatchContext() { Control = control, Parent = Context };
         }
 
         public void PopControl()
         {
-            if (ControlStack.Any())
-                Control = ControlStack.Pop();
-            else Control = null;
+            if (Context == null) throw new InvalidOperationException("Stack is already empty");
+            Context = Context.Parent;
         }
 
         public IEnumerable<IStyleApplicator> GetMatchingStyles()
         {
-            var mi = GetMatchingInfo();
-            return GetStyleCandidatesForControl().Where(s => s.Matches(mi)).Select(s => s.Applicator);
+            return GetStyleCandidatesForControl().Where(s => s.Matches(Context)).Select(s => s.Applicator);
         }
 
         protected IEnumerable<IStyle> GetStyleCandidatesForControl()
         {
-            var type = Control.Metadata.Type;
+            var type = Context.Control.Metadata.Type;
             foreach (var s in Styles[type])
                 yield return s;
             do
@@ -58,16 +51,6 @@ namespace DotVVM.Framework.Styles
                         yield return s;
 
             } while (type != typeof(object));
-        }
-
-        public StyleMatchingInfo GetMatchingInfo()
-        {
-            return new StyleMatchingInfo()
-            {
-                ParentStack = ControlStack,
-                Parents = Ancestors,
-                Control = Control
-            };
         }
     }
 }
