@@ -46,8 +46,22 @@ namespace Redwood.Framework.Binding
             var node = expr.ChildNodes().First();
 
             // translate the expression
-            return visitor.Visit(node);
+            var result = visitor.Visit(node);
+            visitor.Hierarchy.Push(result);
+            return result;
         }
 
+        public List<JToken> Hierarchy
+        {
+            get { return visitor.Hierarchy.Reverse().ToList(); }
+            set
+            {
+                visitor.Hierarchy.Clear();
+                foreach (var item in value)
+                {
+                    visitor.Hierarchy.Push(item);
+                }
+            }
+        }
     }
 }

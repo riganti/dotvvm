@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Redwood.Framework.Hosting;
 using Redwood.Framework.Runtime;
 
 namespace Redwood.Framework.Controls
@@ -18,6 +19,13 @@ namespace Redwood.Framework.Controls
         {
             SetValue(Internal.IsNamingContainerProperty, true);
             SetValue(Internal.IsControlBindingTargetProperty, true);
+        }
+
+        protected internal override void OnLoad(RedwoodRequestContext context)
+        {
+            EnsureControlHasId(true);
+
+            base.OnLoad(context);
         }
     }
 }

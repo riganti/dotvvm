@@ -12,14 +12,15 @@ namespace Redwood.Framework.Binding
 {
     public class ViewModelJTokenEvaluationVisitor : CSharpSyntaxVisitor<JToken>
     {
-        private Stack<JToken> hierarchy = new Stack<JToken>(); 
+        public Stack<JToken> Hierarchy { get; internal set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelJTokenEvaluationVisitor"/> class.
         /// </summary>
         public ViewModelJTokenEvaluationVisitor(JToken root)
         {
-            hierarchy.Push(root);
+            Hierarchy = new Stack<JToken>();
+            Hierarchy.Push(root);
         }
 
         /// <summary>
@@ -27,7 +28,7 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public void BackUpCurrentPosition(JToken current)
         {
-            hierarchy.Push(current);
+            Hierarchy.Push(current);
         }
 
         /// <summary>
@@ -43,7 +44,7 @@ namespace Redwood.Framework.Binding
         /// </summary>
         public override JToken VisitIdentifierName(IdentifierNameSyntax node)
         {
-            return GetObjectProperty(hierarchy.Peek(), node.Identifier.ToString());
+            return GetObjectProperty(Hierarchy.Peek(), node.Identifier.ToString());
         }
 
         /// <summary>
@@ -104,16 +105,16 @@ namespace Redwood.Framework.Binding
 
             if (propertyName == Constants.ParentSpecialBindingProperty)
             {
-                hierarchy.Pop();
-                return hierarchy.Peek();
+                Hierarchy.Pop();
+                return Hierarchy.Peek();
             }
             else if (propertyName == Constants.RootSpecialBindingProperty)
             {
-                while (hierarchy.Count > 1)
+                while (Hierarchy.Count > 1)
                 {
-                    hierarchy.Pop();
+                    Hierarchy.Pop();
                 }
-                return hierarchy.Peek();
+                return Hierarchy.Peek();
             }
             else if (propertyName == Constants.ThisSpecialBindingProperty)
             {

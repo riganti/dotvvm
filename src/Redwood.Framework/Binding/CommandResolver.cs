@@ -182,6 +182,9 @@ namespace Redwood.Framework.Binding
         private List<object> ResolveViewModelPath(object viewModel, RedwoodControl viewRootControl, string[] path)
         {
             var visitor = new ExpressionEvaluationVisitor(viewModel, viewRootControl);
+
+            var outputHierarchy = new List<object>();
+            outputHierarchy.Add(viewModel);
             foreach (var expression in path)
             {
                 // evaluate path fragment
@@ -190,10 +193,9 @@ namespace Redwood.Framework.Binding
 
                 var result = visitor.Visit(pathExpr);
                 visitor.BackupCurrentPosition(result, expression);
+                outputHierarchy.Add(result);
             }
-            var hierarchy = visitor.Hierarchy.ToList();
-            hierarchy.Reverse();
-            return hierarchy;
+            return outputHierarchy;
         }
     }
 }

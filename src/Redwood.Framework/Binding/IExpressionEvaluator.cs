@@ -10,5 +10,6 @@ namespace Redwood.Framework.Binding
 
         T Evaluate(string expression);
 
+        List<T> Hierarchy { get; set; }
     }
 }

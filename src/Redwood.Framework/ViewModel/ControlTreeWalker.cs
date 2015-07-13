@@ -67,9 +67,11 @@ namespace Redwood.Framework.ViewModel
             // if there is a DataContext binding, locate the correct token
             ValueBindingExpression binding;
             var hasDataContext = false;
+            List<T> hierarchyBackup = null;
             if (control is RedwoodBindableControl && 
                 (binding = ((RedwoodBindableControl)control).GetBinding(RedwoodBindableControl.DataContextProperty, false) as ValueBindingExpression) != null)
             {
+                hierarchyBackup = evaluator.Hierarchy;
                 viewModel = evaluator.Evaluate(binding.Expression);
                 CurrentPath.Push(binding.GetViewModelPathExpression((RedwoodBindableControl)control, RedwoodBindableControl.DataContextProperty));
                 RefreshCurrentPathArray();
@@ -89,6 +91,7 @@ namespace Redwood.Framework.ViewModel
             {
                 CurrentPath.Pop();
                 RefreshCurrentPathArray();
+                evaluator.Hierarchy = hierarchyBackup;
             }
         }
 

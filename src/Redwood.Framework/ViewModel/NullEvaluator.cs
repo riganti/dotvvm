@@ -11,5 +11,7 @@ namespace Redwood.Framework.ViewModel
         {
             return null;
         }
+
+        public List<object> Hierarchy { get; set; }
     }
 }
