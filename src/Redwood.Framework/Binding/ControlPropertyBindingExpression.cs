@@ -39,6 +39,10 @@ namespace Redwood.Framework.Binding
                 if (originalBinding != null && originalBinding.GetType() == typeof(ValueBindingExpression))
                 {
                     // ValueBindingExpression must be modified to be evaluated against the original DataContext
+                    if (property == RedwoodBindableControl.DataContextProperty)
+                    {
+                        numberOfDataContextChanges--;
+                    }
                     return new ValueBindingExpression(string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => "_parent").Concat(new[] { originalBinding.Expression })));
                 }
                 else if (originalBinding != null)

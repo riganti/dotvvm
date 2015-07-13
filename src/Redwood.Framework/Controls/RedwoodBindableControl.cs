@@ -295,7 +295,7 @@ namespace Redwood.Framework.Controls
                 if (current is RedwoodBindableControl)
                 {
                     var bindable = (RedwoodBindableControl)current;
-                    if (bindable.GetValueBinding(DataContextProperty, false) != null || ((bool?)bindable.GetValue(Internal.IsDataContextBoundaryProperty, false) == true))
+                    if (bindable.HasBinding(DataContextProperty) || ((bool?)bindable.GetValue(Internal.IsDataContextBoundaryProperty, false) == true))
                     {
                         numberOfDataContextChanges++;
                     }
@@ -308,6 +308,12 @@ namespace Redwood.Framework.Controls
                 current = current.Parent;
             }
             return current;
+        }
+
+        protected bool HasBinding(RedwoodProperty property)
+        {
+            object value;
+            return Properties.TryGetValue(property, out value) && value is BindingExpression;
         }
 
         /// <summary>
