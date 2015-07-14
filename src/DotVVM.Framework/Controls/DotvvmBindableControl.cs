@@ -140,7 +140,7 @@ namespace DotVVM.Framework.Controls
             var binding = base.GetValue(property, inherit) as BindingExpression;
             
             // if there is a controlProperty or controlCommand binding, evaluate it
-            while (binding != null && !(binding is ValueBindingExpression || binding is CommandBindingExpression))
+            while (binding != null && !(binding is ValueBindingExpression || binding is CommandBindingExpression || binding is StaticCommandBindingExpression))
             {
                 binding = binding.Evaluate(this, property) as BindingExpression;
             }

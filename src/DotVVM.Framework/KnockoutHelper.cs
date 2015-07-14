@@ -10,7 +10,7 @@ namespace DotVVM.Framework
 {
     public static class KnockoutHelper
     {
-        
+
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction, string valueUpdate = null)
         {
             var expression = control.GetValueBinding(property);
@@ -72,7 +72,7 @@ namespace DotVVM.Framework
                 "'" + uniqueControlId + "'",
                 useWindowSetTimeout ? "true" : "false"
             };
-            
+
             var validationTargetExpression = GetValidationTargetExpression(control, true);
             if (validationTargetExpression != null)
             {
@@ -81,6 +81,13 @@ namespace DotVVM.Framework
 
             // postback without validation
             return String.Format("dotvvm.postBack({0});return false;", String.Join(", ", arguments));
+        }
+
+        public static string GenerateClientPostbackScript(StaticCommandBindingExpression expression, RenderContext context, DotvvmBindableControl control)
+        {
+            var args = string.Join(", ", expression.GetArgumentPaths().Select(f => "'" + f + "'"));
+            var command = expression.GetMethodName(control);
+            return $"dotvvm.staticCommandPostback('{ context.CurrentPageArea }', this, '{ command }', [ { args } ]);return false;";
         }
 
         /// <summary>
@@ -96,7 +103,7 @@ namespace DotVVM.Framework
             // find the closest control
             int dataSourceChanges;
             var validationTargetControl = (DotvvmBindableControl)control.GetClosestWithPropertyValue(
-                out dataSourceChanges, 
+                out dataSourceChanges,
                 c => c is DotvvmBindableControl && ((DotvvmBindableControl)c).GetValueBinding(Validate.TargetProperty) != null);
             if (validationTargetControl == null)
             {

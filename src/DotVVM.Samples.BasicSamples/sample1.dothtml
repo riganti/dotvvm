@@ -36,6 +36,8 @@
                 </tr>
             </rw:Repeater>
         </table>
+
+		<rw:Button Click="{staticCommand: CoolAction(NewTaskTitle)}"
     </div>
 
     <rw:RequiredResource Name="bootstrap" />

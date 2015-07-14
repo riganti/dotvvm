@@ -16,6 +16,7 @@ namespace DotVVM.Framework.Parser
         public const string ControlPropertyBinding = "controlProperty";
         public const string ControlCommandBinding = "controlCommand";
         public const string ResourceBinding = "resource";
+        public const string StaticCommandBinding = "staticCommand";
 
 
         public const string RootSpecialBindingProperty = "_root";

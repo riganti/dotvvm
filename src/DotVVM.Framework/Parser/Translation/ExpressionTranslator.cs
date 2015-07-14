@@ -20,6 +20,28 @@ namespace DotVVM.Framework.Parser.Translation
         /// </summary>
         public string Translate(string expression)
         {
+            var node = ParseExpression(expression);
+
+            return TranslateExpression(node);
+        }
+
+        public string TranslateExpression(ExpressionSyntax expression)
+        {
+            var visitor = new ExpressionTranslatorVisitor();
+            var result = visitor.Visit(expression);
+
+            if (!visitor.IsExpression)
+            {
+                if (result.EndsWith("()"))
+                {
+                    return result.Substring(0, result.Length - 2);
+                }
+            }
+            return result;
+        }
+
+        public static ExpressionSyntax ParseExpression(string expression)
+        {
             // parse
             var tree = CSharpSyntaxTree.ParseText(expression, new CSharpParseOptions(LanguageVersion.CSharp5, DocumentationMode.Parse, SourceCodeKind.Interactive));
 
@@ -34,22 +56,7 @@ namespace DotVVM.Framework.Parser.Translation
             {
                 throw new ParserException("The expression in binding must be a compilable C# expression!");
             }
-            var node = expr.ChildNodes().First();
-
-            // translate the expression
-            var visitor = new ExpressionTranslatorVisitor();
-            var result = visitor.Visit(node);
-
-            if (!visitor.IsExpression)
-            {
-                if (result.EndsWith("()"))
-                {
-                    return result.Substring(0, result.Length - 2);
-                }
-            }
-            return result;
+            return expr.Expression;
         }
-
-
     }
 }

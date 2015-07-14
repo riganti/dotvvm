@@ -42,6 +42,5 @@ namespace DotVVM.Framework.Runtime.Filters
         protected internal virtual void OnResponseRendering(DotvvmRequestContext context)
         {
         }
-
     }
 }

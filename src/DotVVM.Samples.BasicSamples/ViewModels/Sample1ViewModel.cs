@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels
 {
@@ -42,7 +43,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         {
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
+        [StaticCommandCallable]
+        public static void CoolAction(string newTaskTitle)
+        {
 
+        }
     }
 
     public class TaskViewModel

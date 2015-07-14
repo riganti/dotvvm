@@ -132,6 +132,10 @@ namespace DotVVM.Framework.Runtime
             {
                 return typeof (ResourceBindingExpression);
             }
+            else if(bindingType == Constants.StaticCommandBinding)
+            {
+                return typeof(StaticCommandBindingExpression);
+            }
             else
             {
                 throw new NotSupportedException(string.Format("The binding {{{0}: ... }} is unknown!", bindingType));   // TODO: exception handling

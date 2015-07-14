@@ -12,7 +12,6 @@ using DotVVM.Framework.Parser;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections;
-using ExpressionEvaluator;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -109,12 +108,10 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         private ResolvedBinding ProcessBinding(DothtmlBindingNode node)
         {
-            var c = new CompiledExpression(node.Value);
             return new ResolvedBinding()
             {
                 Type = controlResolver.ResolveBinding(node.Name),
-                Value = node.Value,
-                Expression = c.Expression
+                Value = node.Value
             };
         }
 

@@ -86,6 +86,28 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
+    public staticCommandPostback(viewModeName: string, sender: HTMLElement, command: string, argumentPaths: string[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
+        var args = argumentPaths.map(
+            a => this.evaluateOnContext(ko.contextFor(sender), a));
+        // TODO: events for static command postback
+
+        // prevent double postbacks
+        var currentPostBackCounter = this.backUpPostBackConter();
+
+        var data = ko.mapper.toJS({
+            "args": args,
+            "command": command
+        });
+
+        this.postJSON(this.viewModels[viewModeName].url, "POST", ko.toJSON(data), response => {
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            callback(JSON.parse(response.responseText));
+        }, errorCallback,
+        xhr => {
+            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+        });
+    }
+
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any): void {
         if (useWindowSetTimeout) {
             window.setTimeout(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath), 0);
@@ -248,6 +270,18 @@ class DotVVM {
             result = result.$data;
         }
         return result;
+    }
+
+    public evaluateOnContext(context, expression: string) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) == 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty) expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
     }
 
     private getSpaPlaceHolder(): HTMLElement {
@@ -429,10 +463,11 @@ class DotVVM {
         }
     }
 
-    private postJSON(url: string, method: string, postData: any, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void) {
+    private postJSON(url: string, method: string, postData: any, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void, preprocessRequest = (xhr: XMLHttpRequest) => { }) {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
+        preprocessRequest(xhr);
         xhr.onreadystatechange = () => {
             if (xhr.readyState != 4) return;
             if (xhr.status < 400) {

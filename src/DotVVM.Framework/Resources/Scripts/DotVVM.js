@@ -80,6 +80,28 @@ var DotVVM = (function () {
     DotVVM.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
+    DotVVM.prototype.staticCommandPostback = function (viewModeName, sender, command, argumentPaths, callback, errorCallback) {
+        var _this = this;
+        if (callback === void 0) { callback = function (_) {
+        }; }
+        if (errorCallback === void 0) { errorCallback = function (xhr) {
+        }; }
+        var args = argumentPaths.map(function (a) { return _this.evaluateOnContext(ko.contextFor(sender), a); });
+        // TODO: events for static command postback
+        // prevent double postbacks
+        var currentPostBackCounter = this.backUpPostBackConter();
+        var data = ko.mapper.toJS({
+            "args": args,
+            "command": command
+        });
+        this.postJSON(this.viewModels[viewModeName].url, "POST", ko.toJSON(data), function (response) {
+            if (!_this.isPostBackStillActive(currentPostBackCounter))
+                return;
+            callback(JSON.parse(response.responseText));
+        }, errorCallback, function (xhr) {
+            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+        });
+    };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath) {
         var _this = this;
         if (useWindowSetTimeout) {
@@ -232,6 +254,18 @@ var DotVVM = (function () {
             result = result.$data;
         }
         return result;
+    };
+    DotVVM.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) == 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
     };
     DotVVM.prototype.getSpaPlaceHolder = function () {
         var elements = document.getElementsByName("__rw_SpaContentPlaceHolder");
@@ -403,10 +437,13 @@ var DotVVM = (function () {
             context = context.$parentContext;
         }
     };
-    DotVVM.prototype.postJSON = function (url, method, postData, success, error) {
+    DotVVM.prototype.postJSON = function (url, method, postData, success, error, preprocessRequest) {
+        if (preprocessRequest === void 0) { preprocessRequest = function (xhr) {
+        }; }
         var xhr = this.getXHR();
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
+        preprocessRequest(xhr);
         xhr.onreadystatechange = function () {
             if (xhr.readyState != 4)
                 return;
@@ -607,4 +644,4 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         });
     }
 };
-//# sourceMappingURL=dotvvm.js.map
+//# sourceMappingURL=DotVVM.js.map

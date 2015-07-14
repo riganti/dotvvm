@@ -42,10 +42,14 @@ namespace DotVVM.Framework.Controls
         {
             writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
 
-            var clickBinding = GetCommandBinding(ClickProperty);
-            if (clickBinding != null)
+            var clickBinding = GetBinding(ClickProperty);
+            if (clickBinding is CommandBindingExpression)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding, context, this));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript((CommandBindingExpression)clickBinding, context, this));
+            }
+            else if(clickBinding is StaticCommandBindingExpression)
+            {
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostbackScript((StaticCommandBindingExpression)clickBinding, context, this));
             }
 
             writer.AddKnockoutDataBind("value", this, TextProperty, () => writer.AddAttribute("value", Text));
