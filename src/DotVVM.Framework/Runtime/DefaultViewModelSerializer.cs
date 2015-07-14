@@ -99,8 +99,8 @@ namespace DotVVM.Framework.Runtime
             if (context.IsPostBack || context.IsSpaRequest)
             {
                 result["action"] = "successfulCommand";
-
-                result["resources"] = BuildResourcesJson(context, _ => true);
+                var renderedResources = new HashSet<string>(context.ReceivedViewModelJson?["renderedResources"]?.Values<string>() ?? new string[] { });
+                result["resources"] = BuildResourcesJson(context, rn => !renderedResources.Contains(rn));
             }
             else
             {

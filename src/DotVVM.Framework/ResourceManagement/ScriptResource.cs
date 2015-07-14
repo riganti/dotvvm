@@ -47,7 +47,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
         /// </summary>
-        public override void Render(IHtmlWriter writer)
+        public override void Render(IHtmlWriter writer, string friendlyName = null)
         {
             if (CdnUrl != null)
             {
@@ -59,13 +59,13 @@ namespace DotVVM.Framework.ResourceManagement
                 if (Url != null && GlobalObjectName != null)
                 {
                     writer.RenderBeginTag("script");
-                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, GlobalObjectName, GetUrl()));
+                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, GlobalObjectName, GetUrl(friendlyName)));
                     writer.RenderEndTag();
                 }
             }
             else if (Url != null)
             {
-                writer.AddAttribute("src", GetUrl());
+                writer.AddAttribute("src", GetUrl(friendlyName));
                 writer.AddAttribute("type", "text/javascript");
                 writer.RenderBeginTag("script");
                 writer.RenderEndTag();

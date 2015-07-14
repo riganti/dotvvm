@@ -78,7 +78,8 @@ namespace DotVVM.Samples.BasicSamples
             bundles.RegisterBundle(dotvvmConfiguration.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
             dotvvmConfiguration.Resources.DefaultResourceProcessors.Add(bundles);
 
-            dotvvmConfiguration.Styles.Register("div").SetAttribute("class", "div", true);
+            dotvvmConfiguration.Styles.Register("div")
+                .SetAttribute("class", "div", append: true);
 
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "TempUpload"), TimeSpan.FromMinutes(30)));

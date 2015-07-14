@@ -5,6 +5,7 @@ using System.Net;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Parser;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -53,18 +54,18 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter"/>.
         /// </summary>
-        public abstract void Render(IHtmlWriter writer);
+        public abstract void Render(IHtmlWriter writer, string friendlyName = null);
 
 
 
         /// <summary>
         /// Gets the URL.
         /// </summary>
-        protected string GetUrl()
+        protected string GetUrl(string friendlyName = null)
         {
             if (IsEmbeddedResource)
             {
-                return string.Format(Constants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
+                return string.Format(Constants.ResourceHandlerUrl, WebUtility.UrlEncode(DotvvmEmbeddedResourceMiddleware.RegisterHandledResource(EmbeddedResourceAssembly, Url, friendlyName)));
             }
             return Url;
         }

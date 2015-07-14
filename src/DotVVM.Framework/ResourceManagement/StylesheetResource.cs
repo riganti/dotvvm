@@ -20,9 +20,9 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
         /// </summary>
-        public override void Render(IHtmlWriter writer)
+        public override void Render(IHtmlWriter writer, string friendlyName = null)
         {
-            writer.AddAttribute("href", GetUrl());
+            writer.AddAttribute("href", GetUrl(friendlyName));
             writer.AddAttribute("rel", "stylesheet");
             writer.AddAttribute("type", "text/css");
             writer.RenderSelfClosingTag("link");

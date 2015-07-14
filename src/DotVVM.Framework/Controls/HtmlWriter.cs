@@ -79,6 +79,7 @@ namespace DotVVM.Framework.Controls
                 {
                     var currentValue = attributes[name] as string;
                     attributes[name] = JoinAttributeValues(name, currentValue, value, appendSeparator);
+                    return;
                 }
             }
 
