@@ -1,6 +1,6 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
-var __extends = (this && this.__extends) || function (d, b) {
+var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -109,7 +109,6 @@ var RedwoodValidation = (function () {
         var rulesForType = redwood.viewModels.root.validationRules[type];
         if (!rulesForType)
             return;
-        // validate all properties
         for (var property in viewModel) {
             if (!viewModel.hasOwnProperty(property) || property.indexOf("$") >= 0)
                 continue;
@@ -123,7 +122,6 @@ var RedwoodValidation = (function () {
             }
             if (value) {
                 if (Array.isArray(value)) {
-                    // handle collections
                     for (var i = 0; i < value.length; i++) {
                         this.validateViewModel(value[i]);
                     }

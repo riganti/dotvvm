@@ -48,6 +48,8 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty SortChangedProperty =
             RedwoodProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
+        private string dataSourcePath;
+
 
         protected internal override void OnLoad(RedwoodRequestContext context)
         {
@@ -67,7 +69,7 @@ namespace Redwood.Framework.Controls
             Children.Clear();
 
             var dataSourceBinding = GetDataSourceBinding();
-            var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
+            dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
             var dataSource = DataSource;
 
             string sortCommandPath = "";
@@ -198,9 +200,14 @@ namespace Redwood.Framework.Controls
             else
             {
                 // render on client
-                var placeholder = new DataItemContainer { DataContext = null };
-                Children.Add(placeholder);
+                for (var i = Children.Count - 1; i > 0; i--)
+                {
+                    Children.RemoveAt(i);
+                }
 
+                var placeholder = new DataItemContainer();
+                placeholder.SetValue(Internal.IsDataContextBoundaryProperty, true);
+                Children.Add(placeholder);
                 CreateRow(context.RequestContext, placeholder);
 
                 context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[$index]");
