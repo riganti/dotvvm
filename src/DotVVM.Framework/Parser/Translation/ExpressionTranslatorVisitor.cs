@@ -134,6 +134,10 @@ namespace DotVVM.Framework.Parser.Translation
             {
                 return "$data";
             }
+            else if(node.Identifier.Text == "Count" || node.Identifier.Text == "Length")
+            {
+                return "length";
+            }
             else
             {
                 return node.Identifier.Text + "()";

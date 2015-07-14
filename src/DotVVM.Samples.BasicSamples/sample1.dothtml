@@ -37,7 +37,7 @@
             </rw:Repeater>
         </table>
 
-		<rw:Button Click="{staticCommand: CoolAction(NewTaskTitle)}"
+		<rw:Button Click="{staticCommand: CoolAction(NewTaskTitle)}" Text="Test static command" />
     </div>
 
     <rw:RequiredResource Name="bootstrap" />

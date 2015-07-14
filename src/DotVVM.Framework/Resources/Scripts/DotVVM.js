@@ -644,4 +644,4 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         });
     }
 };
-//# sourceMappingURL=DotVVM.js.map
+//# sourceMappingURL=dotvvm.js.map
