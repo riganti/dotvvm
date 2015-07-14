@@ -160,13 +160,15 @@ namespace DotVVM.Framework.Hosting
                     postData = await sr.ReadToEndAsync();
                 }
                 ViewModelSerializer.PopulateViewModel(context, page, postData);
+
+                // validate CSRF token 
+                CsrfProtector.VerifyToken(context, context.CsrfToken);
+
                 if (context.ViewModel is IDotvvmViewModel)
                 {
                     await ((IDotvvmViewModel)context.ViewModel).Load();
                 }
 
-                // validate CSRF token 
-                CsrfProtector.VerifyToken(context, context.CsrfToken);
 
                 // run the load phase in the page
                 InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
@@ -269,6 +271,9 @@ namespace DotVVM.Framework.Hosting
             {
                 postData = JObject.Load(jsonReader);
             }
+            // validate csrf token
+            context.CsrfToken = postData["$csrfToken"].Value<string>();
+            CsrfProtector.VerifyToken(context, context.CsrfToken);
 
             var command = postData["command"].Value<string>();
             var arguments = postData["args"].ToObject<object[]>();

@@ -92,7 +92,8 @@ var DotVVM = (function () {
         var currentPostBackCounter = this.backUpPostBackConter();
         var data = ko.mapper.toJS({
             "args": args,
-            "command": command
+            "command": command,
+            "$csrfToken": this.viewModels[viewModeName].viewModel.$csrfToken
         });
         this.postJSON(this.viewModels[viewModeName].url, "POST", ko.toJSON(data), function (response) {
             if (!_this.isPostBackStillActive(currentPostBackCounter))
