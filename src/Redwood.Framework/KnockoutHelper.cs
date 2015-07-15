@@ -53,7 +53,7 @@ namespace Redwood.Framework
             writer.AddKnockoutDataBind("foreach", "redwood.getDataSourceItems(" + expression + ")");
         }
 
-        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, RedwoodBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false)
+        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, RedwoodBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
         {
             var uniqueControlId = "";
             if (expression is ControlCommandBindingExpression)
@@ -80,9 +80,10 @@ namespace Redwood.Framework
             }
 
             // return the script
+            var condition = isOnChange ? "if (!redwood.isViewModelUpdating) " : "";
             var returnStatement = returnValue != null ? string.Format("return {0};", returnValue.ToString().ToLower()) : "";
             var postBackCall = String.Format("redwood.postBack({0});", String.Join(", ", arguments));
-            return postBackCall + returnStatement;
+            return condition + postBackCall + returnStatement;
         }
 
         /// <summary>

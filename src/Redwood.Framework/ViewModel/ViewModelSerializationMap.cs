@@ -90,6 +90,10 @@ namespace Redwood.Framework.ViewModel
             {
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
+#if DEBUG
+                    block.Add(ExpressionUtils.Replace((int levc, JArray ev) =>
+                        System.Diagnostics.Debug.WriteLine("ev read " + ev.First.ToString(Formatting.None) + ": " + property.Name + " in " + Type.Name), lastEVcount, encryptedValues));
+#endif
                     var callDeserialize = ExpressionUtils.Replace(
                         (JsonSerializer s, JArray ev, JObject j) => s.Deserialize(GetAndRemove(ev, 0).CreateReader(), property.Type),
                         serializer, encryptedValues, jobj);
@@ -124,8 +128,10 @@ namespace Redwood.Framework.ViewModel
 
                     if (checkEVCount)
                     {
-                        //block.Add(ExpressionUtils.Replace((int levc, JArray ev) =>
-                        //    System.Diagnostics.Debug.WriteLine("levc - ev.Count = " + (levc - ev.Count).ToString() + "; get = " + ev.First.ToString()), lastEVcount, encryptedValues));
+#if DEBUG
+                        block.Add(ExpressionUtils.Replace((int levc, JArray ev) =>
+                            System.Diagnostics.Debug.WriteLine("ev checksum expected " + (levc - ev.Count).ToString() + ", actual " + ev.First.ToString() + ": " + property.Name + " in " + Type.Name), lastEVcount, encryptedValues));
+#endif
                         block.Add(Expression.IfThen(
                             ExpressionUtils.Replace((int levc, JArray ev) =>
                                 levc - ev.Count != (int)GetAndRemove(ev, 0), lastEVcount, encryptedValues),
@@ -197,12 +203,16 @@ namespace Redwood.Framework.ViewModel
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
                     // encryptedValues.Add(JsonConvert.SerializeObject({value}));
-                    block.Add(ExpressionUtils.Replace((JArray ev, object p) => ev.Add(JToken.FromObject(p)), encryptedValues, prop));
+#if DEBUG
+                    block.Add(ExpressionUtils.Replace((JArray ev) =>
+                        System.Diagnostics.Debug.WriteLine("ev[" + ev.Count + "]: " + property.Name + " in " + Type.Name), encryptedValues));
+#endif
+                    block.Add(ExpressionUtils.Replace((JArray ev, object p) => ev.Add(p != null ? JToken.FromObject(p) : JValue.CreateNull()), encryptedValues, prop));
                 }
 
                 if (property.ViewModelProtection == ViewModelProtectionSettings.None || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
-                    var checkEVCount = property.TransferToServer && ShouldCheckEncrypedValueCount(property.Type);
+                    var checkEVCount = property.ViewModelProtection == ViewModelProtectionSettings.None && property.TransferToServer && ShouldCheckEncrypedValueCount(property.Type);
                     if (checkEVCount)
                     {
                         // lastEncrypedValuesCount = encrypedValues.Count
@@ -217,6 +227,10 @@ namespace Redwood.Framework.ViewModel
                     if (checkEVCount)
                     {
                         // encryptedValues.Add(encryptedValues.Count - lastEVcount)
+#if DEBUG
+                        block.Add(ExpressionUtils.Replace((JArray ev) =>
+                            System.Diagnostics.Debug.WriteLine("ev[" + ev.Count + "]: checksum of " + property.Name + " in " + Type.Name), encryptedValues));
+#endif
                         block.Add(ExpressionUtils.Replace((int lastC, JArray ev) =>
                             ev.Add(ev.Count - lastC),
                             lastEVcount, encryptedValues));

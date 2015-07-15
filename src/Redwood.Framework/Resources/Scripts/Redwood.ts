@@ -9,6 +9,7 @@ class Redwood {
 
     private postBackCounter = 0;
     private resourceSigns: { [name: string]: boolean } = {}
+    private isViewModelUpdating: boolean = true;
 
     public extensions: any = {};
     public viewModels: any = {};
@@ -32,6 +33,7 @@ class Redwood {
 
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new RedwoodEventArgs(viewModel));
+        this.isViewModelUpdating = false;
 
         // handle SPA
         var spaPlaceHolder = this.getSpaPlaceHolder();
@@ -130,22 +132,27 @@ class Redwood {
             var resultObject = JSON.parse(result.responseText);
             if (!resultObject.viewModel && resultObject.viewModelDiff) {
                 // TODO: patch (~deserialize) it to ko.observable viewModel
+                this.isViewModelUpdating = true;
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
             this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand") {
+                    this.isViewModelUpdating = true;
+
                     // remove updated controls
                     var updatedControls = this.cleanUpdatedControls(resultObject);
 
                     // update the viewmodel
-                    if (resultObject.viewModel)
+                    if (resultObject.viewModel) {
                         ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                    }
                     isSuccess = true;
 
                     // add updated controls
                     this.restoreUpdatedControls(resultObject, updatedControls, true);
+                    this.isViewModelUpdating = false;
 
                 } else if (resultObject.action === "redirect") {
                     // redirect
@@ -291,6 +298,8 @@ class Redwood {
             this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
+                    this.isViewModelUpdating = true;
+
                     // remove updated controls
                     var updatedControls = this.cleanUpdatedControls(resultObject);
 
@@ -302,6 +311,7 @@ class Redwood {
                             this.viewModels[viewModelName][p] = resultObject[p];
                         }
                     }
+
                     ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
                     isSuccess = true;
 
@@ -309,6 +319,7 @@ class Redwood {
                     this.restoreUpdatedControls(resultObject, updatedControls, false);
                     ko.applyBindings(this.viewModels[viewModelName].viewModel, document.documentElement);
 
+                    this.isViewModelUpdating = false;
                 } else if (resultObject.action === "redirect") {
                     this.handleRedirect(resultObject, viewModelName);
                     return;
