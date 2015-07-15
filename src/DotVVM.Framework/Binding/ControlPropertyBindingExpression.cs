@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Parser;
 
 namespace DotVVM.Framework.Binding
 {
@@ -39,7 +40,7 @@ namespace DotVVM.Framework.Binding
                 if (originalBinding != null && originalBinding.GetType() == typeof(ValueBindingExpression))
                 {
                     // ValueBindingExpression must be modified to be evaluated against the original DataContext
-                    return new ValueBindingExpression(string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => "_parent").Concat(new[] { originalBinding.Expression })));
+                    return new ValueBindingExpression(string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => Constants.ParentSpecialBindingProperty).Concat(new[] { originalBinding.Expression })));
                 }
                 else if (originalBinding != null)
                 {

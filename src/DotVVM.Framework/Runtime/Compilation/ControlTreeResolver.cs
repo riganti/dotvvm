@@ -12,6 +12,7 @@ using DotVVM.Framework.Parser;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections;
+using DotVVM.Framework.Runtime.Compilation.BindingExpressionTree;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -27,24 +28,25 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             var wrapperType = ResolveWrapperType(root);
             var viewMetadata = controlResolver.ResolveControl(new ControlType(wrapperType, virtualPath: fileName));
-            var view = new ResolvedView(viewMetadata, root);
+            var view = new ResolvedView(viewMetadata, root, null);
 
             foreach (var directive in root.Directives)
             {
-                if(directive.Name != Constants.BaseTypeDirective)
+                if (directive.Name != Constants.BaseTypeDirective)
                 {
                     view.Directives.Add(directive.Name, directive.Value);
                 }
             }
+            view.DataContextTypeStack = new DataContextStack(Type.GetType(view.Directives["viewModel"]));
 
             foreach (var node in root.Content)
             {
-                view.Content.Add(ProcessNode(node, viewMetadata));
+                view.Content.Add(ProcessNode(node, viewMetadata, view.DataContextTypeStack));
             }
             return view;
         }
 
-        private ResolvedControl ProcessNode(DothtmlNode node, ControlResolverMetadata parentMetadata)
+        private ResolvedControl ProcessNode(DothtmlNode node, ControlResolverMetadata parentMetadata, DataContextStack dataContext)
         {
             if (node is DothtmlBindingNode)
             {
@@ -52,8 +54,8 @@ namespace DotVVM.Framework.Runtime.Compilation
 
                 // binding in text
                 var binding = (DothtmlBindingNode)node;
-                var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node);
-                literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding)));
+                var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
+                literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding, dataContext)));
                 return literal;
             }
             else if (node is DothtmlLiteralNode)
@@ -64,7 +66,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 {
                     EnsureContentAllowed(parentMetadata);
                 }
-                var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node);
+                var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
                 literal.SetPropertyValue(Literal.HtmlEncodeProperty, false);
                 literal.SetPropertyValue(Literal.TextProperty, literalValue);
                 return literal;
@@ -76,7 +78,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 EnsureContentAllowed(parentMetadata);
 
                 // the element is the content
-                return ProcessObjectElement(element);
+                return ProcessObjectElement(element, dataContext);
             }
             else
             {
@@ -87,31 +89,62 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Processes the HTML element that represents a new object.
         /// </summary>
-        private ResolvedControl ProcessObjectElement(DothtmlElementNode element)
+        private ResolvedControl ProcessObjectElement(DothtmlElementNode element, DataContextStack dataContext)
         {
             object[] constructorParameters;
 
             var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
-            var control = new ResolvedControl(controlMetadata, element)
+            var control = new ResolvedControl(controlMetadata, element, dataContext)
             {
                 ContructorParameters = constructorParameters
             };
+
+            var dataContextAttribute = element.Attributes.FirstOrDefault(a => a.AttributeName == "DataContext");
+            if (dataContextAttribute != null)
+            {
+                ProcessAttribute(dataContextAttribute, control, dataContext);
+            }
+            bool dcChanged = false;
+            if (control.Properties.ContainsKey(DotvvmBindableControl.DataContextProperty) && control.Properties[DotvvmBindableControl.DataContextProperty] is ResolvedPropertyBinding)
+            {
+                dataContext = new DataContextStack(
+                    ((ResolvedPropertyBinding)control.Properties[DotvvmBindableControl.DataContextProperty]).Binding.Expression.Type,
+                    dataContext);
+                dcChanged = true;
+            }
+            
+
             // set properties from attributes
             foreach (var attribute in element.Attributes)
             {
-                ProcessAttribute(attribute, control);
+                ProcessAttribute(attribute, control, dataContext);
             }
 
-            ProcessControlContent(element.Content, control);
+            if (dcChanged)
+            {
+                dataContext.DataContextType = DataContextChangeAttribute.GetDataContextType(dataContext, control);
+            }
+            else
+            {
+                var type = DataContextChangeAttribute.GetDataContextType(dataContext, control);
+                if (type != dataContext.DataContextType)
+                {
+                    dataContext = new DataContextStack(type, dataContext);
+                }
+            }
+
+            ProcessControlContent(element.Content, control, dataContext);
             return control;
         }
 
-        private ResolvedBinding ProcessBinding(DothtmlBindingNode node)
+        private ResolvedBinding ProcessBinding(DothtmlBindingNode node, DataContextStack context)
         {
+            var expression = BindingParser.Parse(node.Value, context);
             return new ResolvedBinding()
             {
                 Type = controlResolver.ResolveBinding(node.Name),
-                Value = node.Value
+                Value = node.Value,
+                Expression = expression
             };
         }
 
@@ -119,7 +152,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Processes the HTML attribute.
         /// </summary>
-        private void ProcessAttribute(DothtmlAttributeNode attribute, ResolvedControl control)
+        private void ProcessAttribute(DothtmlAttributeNode attribute, ResolvedControl control, DataContextStack dataContext)
         {
             if (!string.IsNullOrEmpty(attribute.AttributePrefix))
             {
@@ -139,7 +172,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 {
                     // binding
                     var bindingNode = (DothtmlBindingNode)attribute.Literal;
-                    var resolvedBinding = ProcessBinding(bindingNode);
+                    var resolvedBinding = ProcessBinding(bindingNode, dataContext);
                     control.SetProperty(new ResolvedPropertyBinding(property, resolvedBinding));
                 }
                 else
@@ -154,7 +187,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 // if the property is not found, add it as an HTML attribute
                 object value = (attribute.Literal is DothtmlBindingNode) ?
-                    (object)ProcessBinding((DothtmlBindingNode)attribute.Literal) :
+                    (object)ProcessBinding((DothtmlBindingNode)attribute.Literal, dataContext) :
                     attribute.Literal?.Value;
 
                 control.SetHtmlAttribute(attribute.AttributeName, value);
@@ -166,7 +199,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        private void ProcessControlContent(IEnumerable<DothtmlNode> nodes, ResolvedControl control)
+        private void ProcessControlContent(IEnumerable<DothtmlNode> nodes, ResolvedControl control, DataContextStack dataContext)
         {
             var content = new List<DothtmlNode>();
             bool properties = true;
@@ -179,7 +212,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode == MappingMode.InnerElement)
                     {
                         content.Clear();
-                        control.SetProperty(ProcessElementProperty(control, property, element.Content));
+                        control.SetProperty(ProcessElementProperty(control, property, element.Content, dataContext));
                     }
                     else properties = false;
                 }
@@ -194,13 +227,13 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 if (control.Metadata.DefaultContentProperty != null)
                 {
-                    control.SetProperty(ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
+                    control.SetProperty(ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content, dataContext));
                 }
                 else
                 {
                     foreach (var node in content)
                     {
-                        control.Content.Add(ProcessNode(node, control.Metadata));
+                        control.Content.Add(ProcessNode(node, control.Metadata, dataContext));
                     }
                 }
             }
@@ -209,19 +242,19 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Processes the element which contains property value.
         /// </summary>
-        private ResolvedPropertySetter ProcessElementProperty(ResolvedControl control, DotvvmProperty property, IEnumerable<DothtmlNode> elementContent)
+        private ResolvedPropertySetter ProcessElementProperty(ResolvedControl control, DotvvmProperty property, IEnumerable<DothtmlNode> elementContent, DataContextStack dataContext)
         {
             // the element is a property 
             if (IsTemplateProperty(property))
             {
                 // template
-                return new ResolvedPropertyTemplate(property, ProcessTemplate(elementContent));
+                return new ResolvedPropertyTemplate(property, ProcessTemplate(elementContent, dataContext));
             }
             else if (IsCollectionProperty(property))
             {
                 // collection of elements
                 var collection = FilterNodes<DothtmlElementNode>(elementContent)
-                    .Select(childObject => ProcessObjectElement(childObject));
+                    .Select(childObject => ProcessObjectElement(childObject, dataContext));
                 return new ResolvedPropertyControlCollection(property, collection.ToList());
             }
             else if (property.DeclaringType == typeof(string))
@@ -239,9 +272,9 @@ namespace DotVVM.Framework.Runtime.Compilation
                 {
                     throw new NotSupportedException(string.Format("The property {0} can have only one child element!", property.MarkupOptions.Name)); // TODO: exception handling
                 }
-                else if(children.Count == 1)
+                else if (children.Count == 1)
                 {
-                    return new ResolvedPropertyControl(property, ProcessObjectElement(children[0]));
+                    return new ResolvedPropertyControl(property, ProcessObjectElement(children[0], dataContext));
                 }
                 else
                 {
@@ -251,10 +284,10 @@ namespace DotVVM.Framework.Runtime.Compilation
             else throw new NotSupportedException($"property type { property.DeclaringType.FullName } is not supported");
         }
 
-        private List<ResolvedControl> ProcessTemplate(IEnumerable<DothtmlNode> elementContent)
+        private List<ResolvedControl> ProcessTemplate(IEnumerable<DothtmlNode> elementContent, DataContextStack dataContext)
         {
             var placeholderMetadata = controlResolver.ResolveControl(typeof(Placeholder));
-            var content = elementContent.Select(e => ProcessNode(e, placeholderMetadata));
+            var content = elementContent.Select(e => ProcessNode(e, placeholderMetadata, dataContext));
             return content.ToList();
         }
 

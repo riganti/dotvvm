@@ -87,5 +87,14 @@ namespace DotVVM.Framework.Styles
             return null;
         }
 
+        public Type DataContext()
+        {
+            return Control.DataContextTypeStack.DataContextType;
+        }
+
+        public bool HasDataContext<T>()
+        {
+            return typeof(T).IsAssignableFrom(Control.DataContextTypeStack.DataContextType);
+        }
     }
 }

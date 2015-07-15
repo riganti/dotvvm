@@ -33,6 +33,14 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="ExpressionEvaluator, Version=2.0.3.0, Culture=neutral, PublicKeyToken=90d9f15d622e2348, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExpressionEvaluator.2.0.3.0\lib\net40\ExpressionEvaluator.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
       <Private>True</Private>
@@ -233,13 +241,25 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\BasicMethods.cs" />
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionBuildingVisitor.cs" />
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionNode.cs" />
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionTreeVisitor.cs" />
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingParser.cs" />
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\ConstantExpression.cs" />
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\KeywordExpression.cs" />
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\MethodInvocation.cs" />
+    <Compile Include="Runtime\Compilation\BindingExpressionTree\ViewModelPropertyAccess.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
     <Compile Include="Runtime\Compilation\ControlTreeResolver.cs" />
+    <Compile Include="Runtime\Compilation\DataContextStack.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompiler.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompilerCodeEmitter.cs" />
     <Compile Include="Runtime\Compilation\EmitterMethodInfo.cs" />
     <Compile Include="Runtime\Compilation\IControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\IViewCompiler.cs" />
+    <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptCompilationHelper.cs" />
+    <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptCompilingVisitor.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\IResolvedTreeNode.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedBinding.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedControl.cs" />
@@ -448,6 +468,7 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
     </Content>
+    <Content Include="LICENSE.txt" />
     <Content Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>

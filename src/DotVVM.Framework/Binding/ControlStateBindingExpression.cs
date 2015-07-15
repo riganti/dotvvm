@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Parser;
 
 namespace DotVVM.Framework.Binding
 {
@@ -71,7 +72,7 @@ namespace DotVVM.Framework.Binding
             var current = control.GetClosestControlBindingTarget(out numberOfDataContextChanges) as DotvvmBindableControl;
 
             current.EnsureControlHasId();
-            return string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => "_parent").Concat(new[] { "_controlState_" + current.ID, Expression }));
+            return string.Join(".", Enumerable.Range(0, numberOfDataContextChanges).Select(i => Constants.ParentSpecialBindingProperty).Concat(new[] { "_controlState_" + current.ID, Expression }));
         }
 
         /// <summary>

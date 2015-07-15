@@ -11,8 +11,8 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
     {
         public Dictionary<string, string> Directives { get; set; } = new Dictionary<string, string>();
 
-        public ResolvedView(ControlResolverMetadata metadata, DothtmlNode node)
-            : base(metadata, node)
+        public ResolvedView(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
+            : base(metadata, node, dataContext)
         { }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

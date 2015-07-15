@@ -37,7 +37,7 @@
             </rw:Repeater>
         </table>
 
-		<rw:Button Click="{staticCommand: CoolAction(NewTaskTitle)}" Text="Test static command" />
+		<rw:Button Click="{staticCommand: Sample1ViewModel.CoolAction(NewTaskTitle)}" Text="Test static command" />
     </div>
 
     <rw:RequiredResource Name="bootstrap" />

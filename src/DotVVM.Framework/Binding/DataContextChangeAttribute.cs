@@ -5,21 +5,23 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
+using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
 {
     [AttributeUsage(AttributeTargets.Class, Inherited = true, AllowMultiple = true)]
     public abstract class DataContextChangeAttribute: Attribute
     {
-        public abstract Type GetChildDataContextType(Type dataContext, Type parentDataContext);
+        public abstract Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control);
 
-        public static Type GetDataContextType(Type parentDataContext, DotvvmControl control)
+        public static Type GetDataContextType(DataContextStack dataContextStack, ResolvedControl control)
         {
-            var dataContext = (control as DotvvmBindableControl)?.DataContext?.GetType() ?? parentDataContext;
-            var attributes = control.GetType().GetCustomAttributes<DataContextChangeAttribute>();
+            var attributes = control.Metadata.Type.GetCustomAttributes<DataContextChangeAttribute>();
+            var dataContext = dataContextStack.DataContextType;
             foreach (var attribute in attributes)
             {
-                dataContext = attribute.GetChildDataContextType(dataContext, parentDataContext);
+                dataContext = attribute.GetChildDataContextType(dataContext, dataContextStack, control);
             }
             return dataContext;
         }

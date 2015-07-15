@@ -12,16 +12,18 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
         public DothtmlNode DothtmlNode { get; set; }
         public List<ResolvedControl> Content { get; set; }
         public ControlResolverMetadata Metadata { get; set; }
+        public DataContextStack DataContextTypeStack { get; set; }
 
-        public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode node, List<ResolvedControl> content)
+        public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode node, List<ResolvedControl> content, DataContextStack dataContext)
         {
             Metadata = metadata;
             DothtmlNode = node;
             Content = content;
+            DataContextTypeStack = dataContext;
         }
 
-        public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode node)
-            : this(metadata, node, new List<ResolvedControl>())
+        public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
+            : this(metadata, node, new List<ResolvedControl>(), dataContext)
         { }
 
         public abstract void Accept(IResolvedControlTreeVisitor visitor);

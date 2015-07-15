@@ -13,6 +13,6 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
     {
         public Type Type { get; set; }
         public string Value { get; set; }
-        public Expression Expression { get; set; }
+        public BindingExpressionTree.BindingExpressionNode Expression { get; set; }
     }
 }
