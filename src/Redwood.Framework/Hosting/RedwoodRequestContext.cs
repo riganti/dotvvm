@@ -2,8 +2,10 @@
 using System.CodeDom;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
+using System.Runtime.Remoting.Contexts;
 using System.Threading;
 using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
@@ -13,6 +15,7 @@ using Redwood.Framework.Parser;
 using Redwood.Framework.Routing;
 using Redwood.Framework.ResourceManagement;
 using Redwood.Framework.Runtime;
+using Redwood.Framework.Storage;
 
 namespace Redwood.Framework.Hosting
 {
@@ -246,6 +249,35 @@ namespace Redwood.Framework.Hosting
                 return virtualUrl;
             }
         }
-        
+
+        /// <summary>
+        /// Sends data stream to client.
+        /// </summary>
+        /// <param name="bytes">Data to be sent.</param>
+        /// <param name="fileName">Name of file.</param>
+        /// <param name="mimeType">MIME type.</param>
+        /// <param name="additionalHeaders">Additional headers.</param>
+        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        {
+            var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
+            var generatedFileId = returnedFileStorage.GenerateFileId();
+            returnedFileStorage.StoreFile(generatedFileId, bytes, fileName, mimeType, additionalHeaders);
+            Redirect("~/redwoodReturnedFile?id=" + generatedFileId);
+        }
+
+        /// <summary>
+        /// Sends data stream to client.
+        /// </summary>
+        /// <param name="stream">Data to be sent.</param>
+        /// <param name="fileName">Name of file.</param>
+        /// <param name="mimeType">MIME type.</param>
+        /// <param name="additionalHeaders">Additional headers.</param>
+        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        {
+            var bytes = new byte[stream.Length];
+            stream.Read(bytes, 0, bytes.Length);
+            ReturnFile(bytes, fileName, mimeType, additionalHeaders);
+        }
+
     }
 }

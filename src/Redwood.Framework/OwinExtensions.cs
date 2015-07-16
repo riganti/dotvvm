@@ -32,6 +32,8 @@ namespace Redwood.Framework
             app.Use<RedwoodFileUploadMiddleware>(configuration);
             app.Use<JQueryGlobalizeCultureMiddleware>();
 
+            app.Use<RedwoodReturnedFileMiddleware>(configuration);
+
             app.Use<RedwoodMiddleware>(configuration);
             
             return configuration;
