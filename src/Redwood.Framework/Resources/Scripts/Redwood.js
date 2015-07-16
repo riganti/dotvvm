@@ -124,7 +124,6 @@ var Redwood = (function () {
                 // TODO: patch (~deserialize) it to ko.observable viewModel
                 _this.isViewModelUpdating = true;
                 resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
-                _this.isViewModelUpdating = false;
             }
             _this.loadResourceList(resultObject.resources, function () {
                 var isSuccess = false;

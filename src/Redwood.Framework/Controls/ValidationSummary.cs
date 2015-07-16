@@ -28,7 +28,7 @@ namespace Redwood.Framework.Controls
             var expression = KnockoutHelper.GetValidationTargetExpression(this, true);
             if (expression != null)
             {
-                writer.AddKnockoutDataBind("foreach", expression + ".$validationErrors");
+                writer.AddKnockoutDataBind("foreach", "ko.unwrap(" + expression + ").$validationErrors");
             }
 
             base.AddAttributesToRender(writer, context);
