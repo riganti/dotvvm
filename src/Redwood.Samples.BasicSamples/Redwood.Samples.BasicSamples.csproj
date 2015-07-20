@@ -137,6 +137,9 @@
     <Content Include="sample18.rwhtml" />
     <Content Include="sample19.rwhtml" />
     <Content Include="sample17.rwhtml" />
+    <Content Include="ReturnFileSample\sample.rwhtml" />
+    <Content Include="ReturnFileSample\excel-file.xlsx" />
+    <Content Include="ReturnFileSample\word-file.docx" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -156,6 +159,7 @@
     <Compile Include="Controls\Sample7_Calendar.cs" />
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReturnFileSample\SampleViewModel.cs" />
     <Compile Include="Sample9_Resources.cs-CZ.Designer.cs">
       <DependentUpon>Sample9_Resources.cs-CZ.resx</DependentUpon>
       <AutoGen>True</AutoGen>
@@ -214,6 +218,7 @@
       <LastGenOutput>Sample9_Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

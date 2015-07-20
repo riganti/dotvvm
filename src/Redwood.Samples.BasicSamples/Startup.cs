@@ -71,6 +71,7 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample19", "Sample19", "sample19.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("ReturnFileSample", "ReturnFileSample", "ReturnFileSample/sample.rwhtml", null);
 
             var bundles = new BundlingResourceProcessor();
             bundles.RegisterBundle(redwoodConfiguration.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
@@ -78,6 +79,9 @@ namespace Redwood.Samples.BasicSamples
 
             redwoodConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "TempUpload"), TimeSpan.FromMinutes(30)));
+
+            redwoodConfiguration.ServiceLocator.RegisterSingleton<IReturnedFileStorage>(() =>
+                new FileSystemReturnedFileStorage(Path.Combine(HostingEnvironment.ApplicationPhysicalPath, "TempFolder"), TimeSpan.FromMinutes(1)));
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

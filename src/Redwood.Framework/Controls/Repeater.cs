@@ -129,6 +129,7 @@ namespace Redwood.Framework.Controls
             {
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
+                placeholder.SetValue(Internal.IsDataContextBoundaryProperty, true);
                 Children.Add(placeholder);
                 ItemTemplate.BuildContent(context.RequestContext, placeholder);
 

@@ -72,6 +72,7 @@
       <HintPath>..\packages\System.Reflection.Metadata.1.0.18-beta\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.Web" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -154,6 +155,7 @@
     <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
     <Compile Include="Hosting\RedwoodRestrictedStaticFilesMiddleware.cs" />
     <Compile Include="KnockoutBindingGroup.cs" />
+    <Compile Include="Hosting\RedwoodReturnedFileMiddleware.cs" />
     <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
     <Compile Include="Parser\NullTokenError.cs" />
     <Compile Include="Parser\RwHtml\Parser\RwHtmlNodeHelper.cs" />
@@ -263,7 +265,9 @@
     <Compile Include="Security\NistSP800108DeriveBytes.cs" />
     <Compile Include="Security\ProtectionHelpers.cs" />
     <Compile Include="ServiceLocator.cs" />
+    <Compile Include="Storage\FileSystemReturnedFileStorage.cs" />
     <Compile Include="Storage\FileSystemUploadedFileStorage.cs" />
+    <Compile Include="Storage\IReturnedFileStorage.cs" />
     <Compile Include="Storage\IUploadedFileStorage.cs" />
     <Compile Include="Storage\UploadedFile.cs" />
     <Compile Include="Storage\UploadedFileStorageExtensions.cs" />

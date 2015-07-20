@@ -99,7 +99,7 @@ namespace Redwood.Framework.Controls
             var changedBinding = GetCommandBinding(ChangedProperty);
             if (changedBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(changedBinding, context, this, true, true));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(changedBinding, context, this, true, true, isOnChange: true));
             }
 
             // handle enabled attribute

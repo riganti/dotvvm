@@ -140,6 +140,7 @@ namespace Redwood.Framework.Tests.Runtime
         }
 
 
+
         public class TestViewModel3
         {
             public string Property1 { get; set; }
@@ -159,6 +160,37 @@ namespace Redwood.Framework.Tests.Runtime
             [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
             public int PropertyB { get; set; }
         }
+
+
+
+        [TestMethod]
+        public void DefaultViewModelSerializer_SignedAndEncryptedValue_NullableInt_NullValue()
+        {
+            var oldViewModel = new TestViewModel5()
+            {
+                ProtectedNullable = null
+            };
+            context.ViewModel = oldViewModel;
+
+            serializer.BuildViewModel(context, new RedwoodView());
+            var result = context.GetSerializedViewModel();
+            result = UnwrapSerializedViewModel(result);
+            result = WrapSerializedViewModel(result);
+
+            var newViewModel = new TestViewModel5();
+            context.ViewModel = newViewModel;
+            serializer.PopulateViewModel(context, new RedwoodView(), result);
+            
+            Assert.AreEqual(oldViewModel.ProtectedNullable, newViewModel.ProtectedNullable);
+        }
+
+
+        class TestViewModel5
+        {
+            [ViewModelProtection(ViewModelProtectionSettings.SignData)]
+            public int? ProtectedNullable { get; set; }
+        }
+
 
 
 

@@ -179,6 +179,7 @@ class RedwoodValidation
         // resolve validation target
         var context = ko.contextFor(args.sender);
         var validationTarget = redwood.evaluateOnViewModel(context, args.validationTargetPath);
+        validationTarget = ko.unwrap(validationTarget);
 
         // add validation errors
         this.clearValidationErrors();
@@ -189,6 +190,7 @@ class RedwoodValidation
             var observable = redwood.evaluateOnViewModel(validationTarget, propertyPath);
             var parentPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
             var parent = parentPath ? redwood.evaluateOnViewModel(validationTarget, parentPath) : validationTarget;
+            parent = ko.unwrap(parent);
             if (!ko.isObservable(observable) || !parent || !parent.$validationErrors) {
                 throw "Invalid validation path!";
             }
