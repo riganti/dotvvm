@@ -153,6 +153,7 @@
     <Compile Include="Hosting\RedwoodFileUploadMiddleware.cs" />
     <Compile Include="Hosting\RedwoodInterruptRequestExecutionException.cs" />
     <Compile Include="Hosting\RedwoodRestrictedStaticFilesMiddleware.cs" />
+    <Compile Include="KnockoutBindingGroup.cs" />
     <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
     <Compile Include="Parser\NullTokenError.cs" />
     <Compile Include="Parser\RwHtml\Parser\RwHtmlNodeHelper.cs" />
