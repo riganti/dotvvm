@@ -118,10 +118,14 @@ namespace Redwood.Framework.Controls
                     writer.RenderBeginTag("span");
                 }
 
-                var textToDisplay = Text;
+                var textToDisplay = "";
                 if (!string.IsNullOrEmpty(FormatString))
                 {
-                    textToDisplay = string.Format("{0:" + FormatString + "}", textToDisplay);
+                    textToDisplay = string.Format("{0:" + FormatString + "}", GetValue(TextProperty));
+                }
+                else
+                {
+                    textToDisplay = GetValue(TextProperty)?.ToString() ?? "";
                 }
 
                 if (HtmlEncode)
