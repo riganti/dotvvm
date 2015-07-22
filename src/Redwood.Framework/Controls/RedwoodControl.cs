@@ -354,7 +354,7 @@ namespace Redwood.Framework.Controls
 
         public bool IsWhiteSpaceLiteral()
         {
-            return (this is Literal) && !((Literal)this).HasBinding(Literal.TextProperty) && string.IsNullOrEmpty(((Literal)this).Text);
+            return (this is Literal) && !((Literal)this).HasBinding(Literal.TextProperty) && string.IsNullOrWhiteSpace(((Literal)this).Text);
         }
 
         /// <summary>
