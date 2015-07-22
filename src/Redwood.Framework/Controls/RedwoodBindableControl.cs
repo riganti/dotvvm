@@ -310,7 +310,7 @@ namespace Redwood.Framework.Controls
             return current;
         }
 
-        protected bool HasBinding(RedwoodProperty property)
+        protected internal bool HasBinding(RedwoodProperty property)
         {
             object value;
             return Properties.TryGetValue(property, out value) && value is BindingExpression;

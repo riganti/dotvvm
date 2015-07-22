@@ -40,7 +40,10 @@ namespace Redwood.Framework
 
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, KnockoutBindingGroup bindingGroup)
         {
-            writer.AddKnockoutDataBind(name, bindingGroup.ToString());
+            if (!bindingGroup.IsEmpty)
+            {
+                writer.AddKnockoutDataBind(name, bindingGroup.ToString());
+            }
         }
 
         public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, string expression)

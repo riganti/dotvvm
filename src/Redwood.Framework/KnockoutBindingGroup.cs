@@ -8,7 +8,9 @@ namespace Redwood.Framework
     public class KnockoutBindingGroup
     {
 
-        private List<KnockoutBindingInfo> info = new List<KnockoutBindingInfo>(); 
+        private List<KnockoutBindingInfo> info = new List<KnockoutBindingInfo>();
+        
+        public bool IsEmpty => info.Count == 0;
 
         public void Add(string name, RedwoodBindableControl control, RedwoodProperty property, Action nullBindingAction)
         {

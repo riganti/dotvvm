@@ -50,6 +50,10 @@ namespace Redwood.Framework.Controls
             RedwoodProperty.Register<string, Literal>(c => c.FormatString);
 
 
+        protected virtual bool AlwaysRenderSpan
+        {
+            get { return false; }
+        }
 
 
         /// <summary>
@@ -102,11 +106,18 @@ namespace Redwood.Framework.Controls
                 }
 
                 writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", expression);
+                AddAttributesToRender(writer, context);
                 writer.RenderBeginTag("span");
                 writer.RenderEndTag();
             }
             else
             {
+                if (AlwaysRenderSpan)
+                {
+                    AddAttributesToRender(writer, context);
+                    writer.RenderBeginTag("span");
+                }
+
                 var textToDisplay = Text;
                 if (!string.IsNullOrEmpty(FormatString))
                 {
@@ -120,6 +131,11 @@ namespace Redwood.Framework.Controls
                 else
                 {
                     writer.WriteUnencodedText(textToDisplay);
+                }
+
+                if (AlwaysRenderSpan)
+                {
+                    writer.RenderEndTag();
                 }
             }
         }

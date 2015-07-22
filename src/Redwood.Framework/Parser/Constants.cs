@@ -23,6 +23,10 @@ namespace Redwood.Framework.Parser
         public const string ThisSpecialBindingProperty = "_this";
         public const string ControlStateSpecialBindingProperty = "_controlState_";
 
+        public const string TrueBindingKeyword = "true";
+        public const string FalseBindingKeyword = "false";
+        public const string EmptyStringBindingKeyword = "\"\"";
+
         public const string JQueryResourceName = "jquery";
         public const string KnockoutJSResourceName = "knockout";
         public const string KnockoutMapperResourceName = "knockout.mapper";

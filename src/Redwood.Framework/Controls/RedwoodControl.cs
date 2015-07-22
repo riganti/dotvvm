@@ -352,6 +352,11 @@ namespace Redwood.Framework.Controls
         }
 
 
+        public bool IsWhiteSpaceLiteral()
+        {
+            return (this is Literal) && !((Literal)this).HasBinding(Literal.TextProperty) && string.IsNullOrEmpty(((Literal)this).Text);
+        }
+
         /// <summary>
         /// Occurs before the viewmodel is applied to the page.
         /// </summary>
