@@ -104,26 +104,33 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Gets this control and all of its descendants.
         /// </summary>
-        public IEnumerable<RedwoodControl> GetThisAndAllDescendants()
+        public IEnumerable<RedwoodControl> GetThisAndAllDescendants(Func<RedwoodControl, bool> enumerateChildrenCondition = null)
         {
             yield return this;
-            foreach (var descendant in GetAllDescendants())
+            if (enumerateChildrenCondition == null || enumerateChildrenCondition(this))
             {
-                yield return descendant;
+                foreach (var descendant in GetAllDescendants(enumerateChildrenCondition))
+                {
+                    yield return descendant;
+                }
             }
         } 
 
         /// <summary>
         /// Gets all descendant controls of this control.
         /// </summary>
-        public IEnumerable<RedwoodControl> GetAllDescendants()
+        public IEnumerable<RedwoodControl> GetAllDescendants(Func<RedwoodControl, bool> enumerateChildrenCondition = null)
         {
             foreach (var child in Children)
             {
                 yield return child;
-                foreach (var grandChild in child.GetAllDescendants())
+
+                if (enumerateChildrenCondition == null || enumerateChildrenCondition(child))
                 {
-                    yield return grandChild;
+                    foreach (var grandChild in child.GetAllDescendants())
+                    {
+                        yield return grandChild;
+                    }
                 }
             }
         }
@@ -255,16 +262,54 @@ namespace Redwood.Framework.Controls
         /// <summary>
         /// Finds the control by its ID.
         /// </summary>
-        public RedwoodControl FindControl(string id)
+        public RedwoodControl FindControl(string id, bool throwIfNotFound = false)
         {
             if (string.IsNullOrEmpty(id))
             {
                 throw new ArgumentNullException("id");
             }
 
-            return GetAllDescendants().SingleOrDefault(c => c.ID == id);
+            var control = GetAllDescendants(c => !IsNamingContainer(c)).SingleOrDefault(c => c.ID == id);
+            if (control == null && throwIfNotFound)
+            {
+                throw new Exception(string.Format("The control with ID '{0}' was not found.", id));
+            }
+            return control;
         }
 
+        /// <summary>
+        /// Finds the control by its ID.
+        /// </summary>
+        public T FindControl<T>(string id, bool throwIfNotFound = false) where T : RedwoodControl
+        {
+            var control = FindControl(id, throwIfNotFound);
+            if (!(control is T))
+            {
+                throw new Exception(string.Format("The control with ID '{0}' was found, however it is not an instance of the desired type '{1}'.", id, typeof(T)));
+            }
+            return (T)control;
+        }
+
+        /// <summary>
+        /// Gets the naming container of the current control.
+        /// </summary>
+        public RedwoodControl GetNamingContainer()
+        {
+            var control = this;
+            while (!IsNamingContainer(control) && control.Parent != null)
+            {
+                control = control.Parent;
+            }
+            return control;
+        }
+
+        /// <summary>
+        /// Determines whether the specified control is a naming container.
+        /// </summary>
+        public static bool IsNamingContainer(RedwoodControl control)
+        {
+            return control is RedwoodBindableControl && (bool) ((RedwoodBindableControl) control).GetValue(Internal.IsNamingContainerProperty);
+        }
 
 
         /// <summary>
