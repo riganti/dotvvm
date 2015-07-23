@@ -723,5 +723,21 @@ namespace Redwood.Samples.Tests
                 Assert.AreEqual(0, browser.FindAll("li").Count());
             });
         }
+
+        public void Sample22Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample22");
+
+                // verify link urls
+                var urls = browser.FindAll("a").Select(a => a.GetAttribute("href")).ToList();
+
+                for (int i = 0; i < 3; i++)
+                {
+                    Assert.AreEqual(urls[i], urls[i + 3]);
+                }
+            });
+        }
     }
 }

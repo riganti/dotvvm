@@ -70,6 +70,8 @@ namespace Redwood.Samples.BasicSamples
             redwoodConfiguration.RouteTable.Add("Sample18", "Sample18", "sample18.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample19", "Sample19", "sample19.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("Sample20", "Sample20", "sample20.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("Sample22", "Sample22", "sample22.rwhtml", null);
+            redwoodConfiguration.RouteTable.Add("Sample22-PageDetail", "Sample22/{Id}", "sample22.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.rwhtml", null);
             redwoodConfiguration.RouteTable.Add("ReturnFileSample", "ReturnFileSample", "ReturnFileSample/sample.rwhtml", null);
