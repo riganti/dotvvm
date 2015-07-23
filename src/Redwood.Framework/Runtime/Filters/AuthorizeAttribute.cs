@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Redwood.Framework.Hosting;
 
 namespace Redwood.Framework.Runtime.Filters
@@ -52,7 +53,7 @@ namespace Redwood.Framework.Runtime.Filters
             // the user must not be anonymous
             if (context.OwinContext.Request.User == null || !context.OwinContext.Request.User.Identity.IsAuthenticated)
             {
-                throw new UnauthorizedAccessException();
+                SetUnauthorizedResponse(context);
             }
 
             // if the role is set
@@ -60,9 +61,14 @@ namespace Redwood.Framework.Runtime.Filters
             {
                 if (!Roles.Any(r => context.OwinContext.Request.User.IsInRole(r)))
                 {
-                    throw new UnauthorizedAccessException();
+                    SetUnauthorizedResponse(context);
                 }
             }
+        }
+
+        protected virtual void SetUnauthorizedResponse(RedwoodRequestContext context)
+        {
+            throw new UnauthorizedAccessException();
         }
     }
 }

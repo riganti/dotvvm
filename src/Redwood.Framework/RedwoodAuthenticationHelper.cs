@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using Microsoft.Owin;
 using Redwood.Framework.Hosting;
 
@@ -14,9 +15,9 @@ namespace Redwood.Framework
         /// </summary>
         public static void ApplyRedirectResponse(IOwinContext context, string redirectUri)
         {
-            if (context.Response.StatusCode == 401)
+            if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
             {
-                RedwoodRequestContext.SetRedirectResponse(context, redirectUri, 200);
+                RedwoodRequestContext.SetRedirectResponse(context, redirectUri, (int)HttpStatusCode.Redirect);
             }
         }
 
