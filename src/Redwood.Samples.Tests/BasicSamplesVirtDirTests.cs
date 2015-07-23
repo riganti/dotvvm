@@ -47,6 +47,8 @@ namespace Redwood.Samples.Tests
         public void Sample17Test_VirtDir() { Sample17Test(); }
         [TestMethod]
         public void Sample18Test_VirtDir() { Sample18Test(); }
+        [TestMethod]
+        public void Sample20Test_VirtDir() { Sample20Test(); }
 
     }
 }

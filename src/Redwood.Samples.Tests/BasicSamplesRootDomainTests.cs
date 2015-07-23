@@ -47,6 +47,8 @@ namespace Redwood.Samples.Tests
         public void Sample17Test_FullDomain() { Sample17Test(); }
         [TestMethod]
         public void Sample18Test_FullDomain() { Sample18Test(); }
+        [TestMethod]
+        public void Sample20Test_FullDomain() { Sample20Test(); }
 
     }
 }

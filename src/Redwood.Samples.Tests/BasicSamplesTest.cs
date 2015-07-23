@@ -687,5 +687,41 @@ namespace Redwood.Samples.Tests
                 Assert.IsFalse(browser.FindAll("span")[2].IsDisplayed());
             });
         }
+
+        public void Sample20Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample20");
+                 
+                // click the validate button
+                browser.FindAll("input[type=button]").Last().Click();
+                Thread.Sleep(WaitTime);
+
+                // ensure validators are hidden
+                Assert.AreEqual("true", browser.FindAll("span").Last().GetText());
+                Assert.AreEqual(0, browser.FindAll("li").Count());
+
+                // load the customer
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // try to validate
+                browser.FindAll("input[type=button]").Last().Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(1, browser.FindAll("li").Count());
+                Assert.IsTrue(browser.Find("li").GetText().Contains("Email"));
+
+                // fix the e-mail address
+                browser.FindAll("input[type=text]").Last().Clear();
+                browser.FindAll("input[type=text]").Last().SendKeys("test@mail.com");
+                browser.FindAll("input[type=button]").Last().Click();
+                Thread.Sleep(WaitTime);
+
+                // try to validate
+                Assert.AreEqual("true", browser.FindAll("span").Last().GetText());
+                Assert.AreEqual(0, browser.FindAll("li").Count());
+            });
+        }
     }
 }

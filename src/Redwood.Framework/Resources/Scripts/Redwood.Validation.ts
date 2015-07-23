@@ -166,12 +166,24 @@ class RedwoodValidation
     public mergeValidationRules(args: RedwoodAfterPostBackEventArgs) {
         if (args.serverResponseObject.validationRules) {
             var existingRules = redwood.viewModels[args.viewModelName].validationRules;
-
+            if (typeof existingRules === "undefined") {
+                redwood.viewModels[args.viewModelName].validationRules = {};
+                existingRules = redwood.viewModels[args.viewModelName].validationRules;
+            }
             for (var type in args.serverResponseObject) {
                 if (!args.serverResponseObject.hasOwnProperty(type)) continue;
                 existingRules[type] = args.serverResponseObject[type];
             }
         }
+    }
+
+    // get validation errors
+    public getValidationErrors(viewModel) {
+        var target = ko.unwrap(viewModel);
+        if (target && target.$validationErrors) {
+            return target.$validationErrors;
+        }
+        return [];
     }
 
     // shows the validation errors from server
