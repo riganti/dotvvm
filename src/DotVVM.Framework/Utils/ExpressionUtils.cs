@@ -102,6 +102,13 @@ namespace DotVVM.Framework.Utils
         }
         #endregion
 
+        public static void ForEachMember(this Expression expression, Action<MemberInfo> memberAction)
+        {
+            var visitor = new MemberInfoWalkingVisitor();
+            visitor.MemberInfoAction = memberAction;
+            visitor.Visit(expression);
+        }
+
         private class ReplaceVisitor : ExpressionVisitor
         {
             public Dictionary<ParameterExpression, Expression> Params { get; } = new Dictionary<ParameterExpression, Expression>();
@@ -111,6 +118,65 @@ namespace DotVVM.Framework.Utils
                 if (Params.ContainsKey(node)) return Params[node];
                 else if (!string.IsNullOrEmpty(node.Name) && NamedParams.ContainsKey(node.Name)) return NamedParams[node.Name];
                 else return base.VisitParameter(node);
+            }
+        }
+
+        private class MemberInfoWalkingVisitor: ExpressionVisitor
+        {
+            public Action<MemberInfo> MemberInfoAction { get; set; }
+            public Action<PropertyInfo> PropertyInfoAction { get; set; }
+            public Action<MethodInfo> MethodInfoAction { get; set; }
+
+            private void Invoke(MethodInfo method)
+            {
+                if (method == null) return;
+                if (MethodInfoAction != null) MethodInfoAction(method);
+                if (MemberInfoAction != null) MemberInfoAction(method);
+            }
+
+            private void Invoke(PropertyInfo property)
+            {
+                if (property == null) return;
+                if (MethodInfoAction != null) PropertyInfoAction(property);
+                if (MemberInfoAction != null) MemberInfoAction(property);
+            }
+
+            private void Invoke(MemberInfo memberInfo)
+            {
+                if (memberInfo == null) return;
+                if (memberInfo is PropertyInfo) Invoke(memberInfo as PropertyInfo);
+                else if (memberInfo is MethodInfo) Invoke(memberInfo as MethodInfo);
+                else if (MemberInfoAction != null) MemberInfoAction(memberInfo);
+            }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                Invoke(node.Method);
+                return base.VisitMethodCall(node);
+            }
+
+            protected override Expression VisitBinary(BinaryExpression node)
+            {
+                Invoke(node.Method);
+                return base.VisitBinary(node);
+            }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                Invoke(node.Member);
+                return base.VisitMember(node);
+            }
+
+            protected override Expression VisitUnary(UnaryExpression node)
+            {
+                Invoke(node.Method);
+                return base.VisitUnary(node);
+            }
+
+            protected override Expression VisitNew(NewExpression node)
+            {
+                Invoke(node.Constructor);
+                return base.VisitNew(node);
             }
         }
 

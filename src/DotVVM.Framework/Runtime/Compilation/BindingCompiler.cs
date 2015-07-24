@@ -14,6 +14,7 @@ using DotVVM.Framework.Controls;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -101,6 +102,16 @@ namespace DotVVM.Framework.Runtime.Compilation
             return script;
         }
 
+        public List<ActionFilterAttribute> GetActionFilters(Expression expression)
+        {
+            var list = new List<ActionFilterAttribute>();
+            expression.ForEachMember(m =>
+            {
+                list.AddRange(m.GetCustomAttributes<ActionFilterAttribute>());
+            });
+            return list;
+        }
+
         public ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id)
         {
             var requirements = GetRequirements(binding.BindingType);
@@ -111,6 +122,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             compiled.Expression = TryExecute(requirements.Expression, () => binding.GetExpression());
             compiled.Id = id;
             compiled.Javascript = TryExecute(requirements.Javascript, () => CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack));
+            compiled.ActionFilters = TryExecute(requirements.ActionFilters, () => GetActionFilters(binding.GetExpression()).ToArray());
 
             var index = Interlocked.Increment(ref globalBindingIndex);
             if (!GlobalBindingList.TryAdd(index, compiled))

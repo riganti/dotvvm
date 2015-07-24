@@ -44,6 +44,7 @@ namespace DotVVM.Framework.Binding
             Delegate = compiledBinding.Delegate;
             UpdateDelegate = compiledBinding.UpdateDelegate;
             BindingId = compiledBinding.Id;
+            ActionFilters = compiledBinding.ActionFilters;
         }
 
         /// <summary>
