@@ -13,6 +13,7 @@ using DotVVM.Framework.Parser;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -72,6 +73,8 @@ namespace DotVVM.Framework.Hosting
         internal JObject ViewModelJson { get; set; }
 
         internal JObject ReceivedViewModelJson { get; set; }
+
+        public Dictionary<string, BindingExpression> RegisteredBindings { get; set; } = new Dictionary<string, BindingExpression>();
 
         /// <summary>
         /// Gets the query string parameters specified in the URL of the current HTTP request.
@@ -136,7 +139,14 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void InterruptRequest()
         {
-            throw new DotvvmInterruptRequestExecutionException();    
+            throw new DotvvmInterruptRequestExecutionException();
+        }
+
+        public void RegisterBinding(BindingExpression binding)
+        {
+            if (!RegisteredBindings.ContainsKey(binding.BindingId))
+                RegisteredBindings.Add(binding.BindingId, binding);
+            //else if (RegisteredBindings[binding.BindingId] != binding) throw new InvalidOperationException();
         }
 
         /// <summary>
@@ -246,6 +256,6 @@ namespace DotVVM.Framework.Hosting
                 return virtualUrl;
             }
         }
-        
+
     }
 }

@@ -1,4 +1,5 @@
 @masterPage sample4_root.dothtml
+@viewModel object
 		
 <rw:Content ContentPlaceHolderID="Menu">
 	<ul>

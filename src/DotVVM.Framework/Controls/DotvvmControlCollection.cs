@@ -11,7 +11,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class DotvvmControlCollection : IList<DotvvmControl>
     {
-
         private DotvvmControl parent;
         private List<DotvvmControl> controls = new List<DotvvmControl>();
 
@@ -176,6 +175,10 @@ namespace DotVVM.Framework.Controls
                 throw new InvalidOperationException(Parser_Dothtml.ControlCollection_ControlAlreadyHasParent);
             }
             item.Parent = parent;
+            if(item.GetValue(Internal.UniqueIDProperty) == null)
+            {
+                item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + Count);
+            }
         }
     }
 }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
@@ -12,9 +13,14 @@ namespace DotVVM.Framework.Binding
         {
         }
 
-        public ControlCommandBindingExpression(string expression)
+        public ControlCommandBindingExpression(CompiledBindingExpression expression)
             : base(expression)
         {
+        }
+
+        public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
+        {
+            return ExecDelegate(control, true, true);
         }
 
     }

@@ -5,6 +5,7 @@ using System.Net;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework
 {
@@ -13,8 +14,8 @@ namespace DotVVM.Framework
 
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction, string valueUpdate = null)
         {
-            var expression = control.GetValueBinding(property);
-            if (expression != null)
+            var expression = control.GetBinding(property);
+            if (expression?.Javascript != null)
             {
                 writer.AddAttribute("data-bind", name + ": " + expression.TranslateToClientScript(control, property), true, ", ");
                 if (valueUpdate != null)
@@ -51,6 +52,12 @@ namespace DotVVM.Framework
         public static void AddKnockoutForeachDataBind(this IHtmlWriter writer, string expression)
         {
             writer.AddKnockoutDataBind("foreach", "dotvvm.getDataSourceItems(" + expression + ")");
+            writer.AddPathChangeAttribute(JavascriptCompilationHelper.AddIndexerToViewModel(expression, "$index"));
+        }
+
+        public static void AddPathChangeAttribute(this IHtmlWriter writer, string path)
+        {
+            writer.AddAttribute("data-path", path);
         }
 
         public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false)
@@ -67,13 +74,13 @@ namespace DotVVM.Framework
             {
                 "'" + context.CurrentPageArea + "'",
                 "this",
-                "[" + String.Join(", ", context.PathFragments.Reverse().Select(f => "'" + f + "'")) + "]",
-                "'" + expression.Expression + "'",
+                "null", // "[" + String.Join(", ", GetContextPath(control)) + "]",
+                "'" + expression.BindingId + "'",
                 "'" + uniqueControlId + "'",
                 useWindowSetTimeout ? "true" : "false"
             };
 
-            var validationTargetExpression = GetValidationTargetExpression(control, true);
+            var validationTargetExpression = GetValidationTargetExpression(control);
             if (validationTargetExpression != null)
             {
                 arguments.Add("'" + validationTargetExpression + "'");
@@ -81,6 +88,22 @@ namespace DotVVM.Framework
 
             // postback without validation
             return String.Format("dotvvm.postBack({0});return false;", String.Join(", ", arguments));
+        }
+
+        private static IEnumerable<string> GetContextPath(DotvvmControl control)
+        {
+            while (control != null)
+            {
+                if (control is DotvvmBindableControl)
+                {
+                    var binding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as ValueBindingExpression;
+                    if (binding != null)
+                    {
+                        yield return binding.Javascript;
+                    }
+                }
+                control = control.Parent;
+            }
         }
 
         public static string GenerateClientPostbackScript(StaticCommandBindingExpression expression, RenderContext context, DotvvmBindableControl control)
@@ -93,7 +116,7 @@ namespace DotVVM.Framework
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        public static string GetValidationTargetExpression(DotvvmBindableControl control, bool translateToClientScript)
+        public static string GetValidationTargetExpression(DotvvmBindableControl control)
         {
             if (!(bool)control.GetValue(Validate.EnabledProperty))
             {
@@ -112,15 +135,7 @@ namespace DotVVM.Framework
 
             // reparent the expression to work in current DataContext
             var validationBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
-            string validationExpression;
-            if (translateToClientScript)
-            {
-                validationExpression = validationBindingExpression.TranslateToClientScript(control, Validate.TargetProperty);
-            }
-            else
-            {
-                validationExpression = validationBindingExpression.Expression;
-            }
+            string validationExpression = validationBindingExpression.TranslateToClientScript(control, Validate.TargetProperty);
             validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
 
             return validationExpression;

@@ -1,4 +1,6 @@
+using DotVVM.Framework.Controls;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
@@ -53,7 +55,7 @@ namespace DotVVM.Framework.Utils
             }
             return item != null ? item.ToString() : "";
         }
-        
+
 
         /// <summary>
         /// Converts a value to a specified type
@@ -99,7 +101,7 @@ namespace DotVVM.Framework.Utils
             }
 
             // generic to string
-            if (type == typeof (string))
+            if (type == typeof(string))
             {
                 return value.ToString();
             }
@@ -114,13 +116,20 @@ namespace DotVVM.Framework.Utils
             {
                 return collectionType.GetElementType();
             }
-            var ienumerable = collectionType.GetInterfaces()
+            var ienumerable = collectionType.GetGenericTypeDefinition() == typeof(IEnumerable<>) ? collectionType :
+                collectionType.GetInterfaces()
                     .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
 
             if (ienumerable != null)
             {
                 return ienumerable.GetGenericArguments()[0];
             }
+            else if (typeof(IGridViewDataSet).IsAssignableFrom(collectionType))
+            {
+                var itemsType = collectionType.GetProperty(nameof(IGridViewDataSet.Items)).PropertyType;
+                return GetEnumerableType(itemsType);
+            }
+            else if (typeof(IEnumerable).IsAssignableFrom(collectionType)) return typeof(object);
             else throw new NotSupportedException();
         }
     }

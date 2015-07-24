@@ -139,11 +139,11 @@ namespace DotVVM.Framework.Controls
         {
             var binding = base.GetValue(property, inherit) as BindingExpression;
             
-            // if there is a controlProperty or controlCommand binding, evaluate it
-            while (binding != null && !(binding is ValueBindingExpression || binding is CommandBindingExpression || binding is StaticCommandBindingExpression))
-            {
-                binding = binding.Evaluate(this, property) as BindingExpression;
-            }
+            //// if there is a controlProperty or controlCommand binding, evaluate it
+            //while (binding != null && !(binding is ValueBindingExpression || binding is CommandBindingExpression || binding is StaticCommandBindingExpression))
+            //{
+            //    binding = binding.Evaluate(this, property) as BindingExpression;
+            //}
 
             return binding;
         }
@@ -222,7 +222,6 @@ namespace DotVVM.Framework.Controls
             var dataContextBinding = GetValueBinding(DataContextProperty, false);
             if (dataContextBinding != null)
             {
-                context.PathFragments.Push(dataContextBinding.Expression);
                 writer.WriteKnockoutDataBindComment("with", dataContextBinding.TranslateToClientScript(this, DataContextProperty));
             }
 
@@ -231,8 +230,18 @@ namespace DotVVM.Framework.Controls
             if (dataContextBinding != null)
             {
                 writer.WriteKnockoutDataBindEndComment();
-                context.PathFragments.Pop();
             }
+        }
+
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        {
+            // if the DataContext is set, set data-path attribute
+            var dataContextBinding = GetValueBinding(DataContextProperty, false);
+            if (dataContextBinding != null)
+            {
+                writer.AddAttribute("data-path", dataContextBinding.Javascript);
+            }
+            base.AddAttributesToRender(writer, context);
         }
 
 

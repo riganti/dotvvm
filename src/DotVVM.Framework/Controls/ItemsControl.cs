@@ -3,14 +3,13 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
     /// A common base for all controls that operate on collection.
     /// </summary>
-    [ControlPropertyBindingDataContextChange("DataSource")]
-    [CollectionElementDataContextChange]
     public abstract class ItemsControl : HtmlGenericControl
     {
         /// <summary>
@@ -55,6 +54,15 @@ namespace DotVVM.Framework.Controls
             return binding;
         }
 
+
+        protected ValueBindingExpression GetItemBinding(IList items, string dataSourceJs, int index)
+        {
+            return new ValueBindingExpression(new CompiledBindingExpression()
+            {
+                Delegate = (h, c) => items[index],
+                Javascript = JavascriptCompilationHelper.AddIndexerToViewModel(dataSourceJs, index)
+            });
+        }
 
         public IEnumerable GetIEnumerableFromDataSource(object dataSource)
         {

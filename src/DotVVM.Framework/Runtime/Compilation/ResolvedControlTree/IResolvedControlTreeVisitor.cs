@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
     public interface IResolvedControlTreeVisitor
     {
         void VisitControl(ResolvedControl control);
-        void VisitView(ResolvedView view);
+        void VisitView(ResolvedTreeRoot view);
         void VisitPropertyValue(ResolvedPropertyValue propertyValue);
         void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding);
         void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate);

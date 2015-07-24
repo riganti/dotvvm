@@ -103,7 +103,6 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-
         /// <summary>
         /// Renders the contents inside the control begin and end tags.
         /// </summary>

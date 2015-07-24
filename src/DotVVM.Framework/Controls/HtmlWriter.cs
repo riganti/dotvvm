@@ -141,6 +141,24 @@ namespace DotVVM.Framework.Controls
             writer.Write("<");
             writer.Write(name);
 
+            //if(openTags.Peek().AutomaticAttributes != null)
+            //{
+            //    foreach (DictionaryEntry attr in openTags.Peek().AutomaticAttributes)
+            //    {
+            //        if(attr.Value is IEnumerable)
+            //        {
+            //            foreach (var val in (IEnumerable)attr.Value)
+            //            {
+            //                AddAttribute((string)attr.Key, val.ToString(), true);
+            //            }
+            //        }
+            //        else
+            //        {
+            //            AddAttribute((string)attr.Key, attr.Value.ToString(), true);
+            //        }
+            //    }
+            //}
+
             if (attributes.Count > 0)
             {
                 foreach (DictionaryEntry attr in attributes)
@@ -190,11 +208,11 @@ namespace DotVVM.Framework.Controls
                 throw new InvalidOperationException(Parser_Dothtml.HtmlWriter_CannotCloseTagBecauseNoTagIsOpen);
             }
 
-            var name = openTags.Pop();
+            var tag = openTags.Pop();
             if (tagFullyOpen)
             {
                 writer.Write("</");
-                writer.Write(name);
+                writer.Write(tag);
                 writer.Write(">");
             }
             else
@@ -221,5 +239,16 @@ namespace DotVVM.Framework.Controls
             EnsureTagFullyOpen();
             writer.Write(text);
         }
+
+        //class HtmlElementInfo
+        //{
+        //    public string Name { get; }
+        //    public OrderedDictionary AutomaticAttributes { get; set; }
+
+        //    public HtmlElementInfo(string name)
+        //    {
+        //        this.Name = name;
+        //    }
+        //}
     }
 }

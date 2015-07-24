@@ -7,9 +7,9 @@ using System.Resources;
 
 namespace DotVVM.Framework.Binding
 {
+    [BindingCompilationRequirements(OriginalString = BindingCompilationRequirementType.StronglyRequire, Delegate = BindingCompilationRequirementType.IfPossible)]
     public class ResourceBindingExpression : BindingExpression
     {
-
         private static ConcurrentDictionary<string, ResourceManager> cachedResourceManagers = new ConcurrentDictionary<string, ResourceManager>();
 
         /// <summary>
@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceBindingExpression"/> class.
         /// </summary>
-        public ResourceBindingExpression(string expression) : base(expression)
+        public ResourceBindingExpression(CompiledBindingExpression expression) : base(expression)
         {
         }
 
@@ -31,15 +31,17 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public override object Evaluate(Controls.DotvvmBindableControl control, DotvvmProperty property)
         {
-            if (!Expression.Contains("."))
+            if (Delegate != null) return Delegate(new object[0], null);
+
+            if (!OriginalString.Contains("."))
             {
                 throw new Exception("Invalid resource name! Use Namespace.ResourceType.ResourceKey!");
             }
 
             // parse expression
-            var lastDotPosition = Expression.LastIndexOf(".");
-            var resourceType = Expression.Substring(0, lastDotPosition);
-            var resourceKey = Expression.Substring(lastDotPosition + 1);
+            var lastDotPosition = OriginalString.LastIndexOf(".");
+            var resourceType = OriginalString.Substring(0, lastDotPosition);
+            var resourceKey = OriginalString.Substring(lastDotPosition + 1);
 
             // find the resource manager
             var resourceManager = cachedResourceManagers.GetOrAdd(resourceType, GetResourceManager);

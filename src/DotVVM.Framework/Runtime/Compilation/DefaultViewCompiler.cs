@@ -51,8 +51,8 @@ namespace DotVVM.Framework.Runtime.Compilation
             resolvedView.Accept(styleVisitor);
 
             var emitter = new DefaultViewCompilerCodeEmitter();
-            var compilingVisitor = new ViewCompilingVisitor(emitter, className);
-
+            var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
+            
             resolvedView.Accept(compilingVisitor);
 
             // create the assembly

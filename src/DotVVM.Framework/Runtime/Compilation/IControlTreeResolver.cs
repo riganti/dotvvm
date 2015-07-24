@@ -10,6 +10,6 @@ namespace DotVVM.Framework.Runtime.Compilation
 {
     public interface IControlTreeResolver
     {
-        ResolvedView ResolveTree(DothtmlRootNode root, string fileName);
+        ResolvedTreeRoot ResolveTree(DothtmlRootNode root, string fileName);
     }
 }

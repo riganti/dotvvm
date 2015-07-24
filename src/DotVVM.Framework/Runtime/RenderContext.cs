@@ -25,11 +25,11 @@ namespace DotVVM.Framework.Runtime
         public string CurrentPageArea { get; set; }
 
 
-        /// <summary>
-        /// Gets or sets the stack of path fragments that represent current position in the viewmodel. 
-        /// This is needed to render postBack function calls properly.
-        /// </summary>
-        public Stack<string> PathFragments { get; set; }
+        ///// <summary>
+        ///// Gets or sets the stack of path fragments that represent current position in the viewmodel. 
+        ///// This is needed to render postBack function calls properly.
+        ///// </summary>
+        //public Stack<string> PathFragments { get; set; }
 
 
         /// <summary>
@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Runtime
         {
             CurrentPageArea = "root";
             RequestContext = request;
-            PathFragments = new Stack<string>();
+            //PathFragments = new Stack<string>();
         }
     }
 }

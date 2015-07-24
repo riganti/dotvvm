@@ -11,11 +11,11 @@ namespace DotVVM.Samples.BasicSamples.Controls
 
         public string Name
         {
-            get { return (string)GetValue(NameProperty); } 
+            get { return (string)GetValue(NameProperty); }
             set { SetValue(NameProperty, value); }
         }
 
-        public static readonly DotvvmProperty NameProperty = 
+        public static readonly DotvvmProperty NameProperty =
             DotvvmProperty.Register<string, Sample5_TestControl>(c => c.Name, string.Empty);
 
 
@@ -27,7 +27,7 @@ namespace DotVVM.Samples.BasicSamples.Controls
         }
 
         public static readonly DotvvmProperty ValueProperty =
-            DotvvmProperty.RegisterControlStateProperty<int, Sample5_TestControl>(c => c.Value, 0);
+            DotvvmProperty.Register<int, Sample5_TestControl>(c => c.Value, 0);
 
 
         protected override bool RequiresControlState

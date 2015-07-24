@@ -11,8 +11,16 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
     [DebuggerDisplay("{Type.Name}: {Value}")]
     public class ResolvedBinding
     {
-        public Type Type { get; set; }
+        public Type BindingType { get; set; }
         public string Value { get; set; }
-        public BindingExpressionTree.BindingExpressionNode Expression { get; set; }
+        public Expression Expression { get; set; }
+        public DataContextStack DataContextTypeStack { get; set; }
+        public Exception ParsingError { get; set; }
+
+        public Expression GetExpression()
+        {
+            if (ParsingError != null) throw new Exception("can't get expression, parsing failed", ParsingError);
+            return Expression;
+        }
     }
 }

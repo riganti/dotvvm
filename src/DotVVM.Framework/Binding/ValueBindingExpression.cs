@@ -9,13 +9,13 @@ namespace DotVVM.Framework.Binding
     /// <summary>
     /// A binding that gets the value from a viewmodel property.
     /// </summary>
+    [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
+        OriginalString = BindingCompilationRequirementType.IfPossible,
+        Javascript = BindingCompilationRequirementType.IfPossible,
+        Expression = BindingCompilationRequirementType.IfPossible,
+        UpdateDelegate = BindingCompilationRequirementType.IfPossible)]
     public class ValueBindingExpression : BindingExpression, IUpdatableBindingExpression
     {
-
-        private static ExpressionTranslator translator = new ExpressionTranslator();
-        private static ExpressionEvaluator evaluator = new ExpressionEvaluator();
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueBindingExpression"/> class.
         /// </summary>
@@ -23,10 +23,24 @@ namespace DotVVM.Framework.Binding
         {
         }
 
+        public ValueBindingExpression(Func<object[], object> func, string javascript)
+            : this((h, c) => func(h), javascript)
+        { }
+
+        public ValueBindingExpression(CompiledBindingExpression.BindingDelegate func, string javascript = null, CompiledBindingExpression.BindingUpdateDelegate updateFunc = null)
+            : base(new CompiledBindingExpression()
+            {
+                Delegate = func,
+                Javascript = javascript,
+                UpdateDelegate = updateFunc
+            })
+        {
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueBindingExpression"/> class.
         /// </summary>
-        public ValueBindingExpression(string expression)
+        public ValueBindingExpression(CompiledBindingExpression expression)
             : base(expression)
         {
         }
@@ -36,7 +50,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
         {
-            return evaluator.Evaluate(this, property, control);
+            return ExecDelegate(control, property != DotvvmBindableControl.DataContextProperty);
         }
 
         /// <summary>
@@ -44,15 +58,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public override string TranslateToClientScript(DotvvmBindableControl control, DotvvmProperty property)
         {
-            return translator.Translate(Expression);
-        }
-
-        /// <summary>
-        /// Gets the view model path expression.
-        /// </summary>
-        public virtual string GetViewModelPathExpression(DotvvmBindableControl control, DotvvmProperty property)
-        {
-            return Expression;
+            return Javascript;
         }
 
         /// <summary>
@@ -60,19 +66,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public virtual void UpdateSource(object value, DotvvmBindableControl control, DotvvmProperty property)
         {
-            object target;
-            var propertyInfo = evaluator.EvaluateProperty(this, property, control, out target);
-            propertyInfo.SetValue(target, ReflectionUtils.ConvertValue(value, propertyInfo.PropertyType));
-        }
-
-
-
-        /// <summary>
-        /// Creates an expression for specified member property. 
-        /// </summary>
-        public static ValueBindingExpression FromMember(string propertyName)
-        {
-            return new ValueBindingExpression(string.IsNullOrEmpty(propertyName) ? Constants.ThisSpecialBindingProperty : propertyName);
+            ExecUpdateDelegate(control, value, property != DotvvmBindableControl.DataContextProperty);
         }
     }
 }

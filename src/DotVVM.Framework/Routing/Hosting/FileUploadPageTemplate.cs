@@ -7,22 +7,20 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace DotVVM.Framework.Hosting
+namespace DotVVM.Framework.Routing.Hosting
 {
-    using System;
-    using System.IO;
     using System.Linq;
+    using System.Text;
     using System.Collections.Generic;
-    using System.Net;
-    using System.Reflection;
+    using System;
     
     /// <summary>
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+    #line 1 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Routing\Hosting\FileUploadPageTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
-    public partial class ErrorPageTemplate : ErrorPageTemplateBase
+    public partial class FileUploadPageTemplate : FileUploadPageTemplateBase
     {
 #line hidden
         /// <summary>
@@ -30,341 +28,85 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write(@"
-<!DOCTYPE html>
-<html>
-	<head>
-		<title>Server Error in Application</title>
-		<style type=""text/css"">
-body { font-family: Arial,Tahoma,sans-serif; font-size: 11pt; }
-h1 { color: #e00000; font-weight: normal; font-size: 24pt; }
-h2 { font-style: normal; font-size: 16pt; font-weight: bold; margin-bottom: 35px; }
-h3 { color: #e00000; font-weight: normal; font-size: 14pt; }
-pre { background-color: #ffffc0; padding: 20px; font-size: 12pt; }
-span.current-line { color: red; }
-		</style>
-	</head>
-	<body>
-		<h1>Server Error in Application</h1>
-		<h2>HTTP ");
+            this.Write("\r\n<!DOCTYPE html>\r\n<html>\r\n<head>\r\n    <title></title>\r\n\t<meta charset=\"utf-8\" />" +
+                    "\r\n</head>\r\n<body>\r\n\r\n<form method=\"POST\" enctype=\"multipart/form-data\" action=\"");
             
-            #line 24 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(ErrorCode));
+            #line 15 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Routing\Hosting\FileUploadPageTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(FormPostUrl));
             
             #line default
             #line hidden
-            this.Write(" ");
+            this.Write("\" id=\"uploadForm\">\r\n    <input type=\"file\" name=\"upload\" id=\"upload\" ");
             
-            #line 24 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ErrorDescription)));
-            
-            #line default
-            #line hidden
-            this.Write("</h2>\r\n\t\t<p><strong>");
-            
-            #line 25 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Exception.GetType().FullName));
+            #line 16 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Routing\Hosting\FileUploadPageTemplate.tt"
+ if (AllowMultipleFiles) { 
             
             #line default
             #line hidden
-            this.Write(": ");
+            this.Write(" multiple=\"multiple\" ");
             
-            #line 25 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Exception.Message)));
-            
-            #line default
-            #line hidden
-            this.Write("</strong></p>\r\n\r\n");
-            
-            #line 27 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- if (Url != null) { 
-            
-            #line default
-            #line hidden
-            this.Write("\t\t<p>Request URL: <strong>");
-            
-            #line 28 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(Verb));
-            
-            #line default
-            #line hidden
-            this.Write(" ");
-            
-            #line 28 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Url)));
-            
-            #line default
-            #line hidden
-            this.Write("</strong></p>\r\n");
-            
-            #line 29 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 16 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Routing\Hosting\FileUploadPageTemplate.tt"
  } 
             
             #line default
             #line hidden
-            this.Write("\r\n");
-            
-            #line 31 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- if (ClassName != null) { 
-            
-            #line default
-            #line hidden
-            this.Write("\t\t<p>Source Class: <strong>");
-            
-            #line 32 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ClassName.AssemblyQualifiedName)));
-            
-            #line default
-            #line hidden
-            this.Write("</strong></p>\r\n");
-            
-            #line 33 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- } 
-            
-            #line default
-            #line hidden
-            this.Write("\r\n");
-            
-            #line 35 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- if (!string.IsNullOrEmpty(FileName)) { 
-            
-            #line default
-            #line hidden
-            this.Write("\t\t<p>Source File: <strong>");
-            
-            #line 36 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(FileName)));
-            
-            #line default
-            #line hidden
-            this.Write("</strong></p>\r\n");
-            
-            #line 37 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- } 
-            
-            #line default
-            #line hidden
-            this.Write("\r\n");
-            
-            #line 39 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- if (LineNumber > 0) { 
-            
-            #line default
-            #line hidden
-            this.Write("\t\t<p>Line: <strong>");
-            
-            #line 40 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(LineNumber));
-            
-            #line default
-            #line hidden
-            this.Write("</strong></p>\r\n");
-            
-            #line 41 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- } 
-            
-            #line default
-            #line hidden
-            this.Write("\r\n");
-            
-            #line 43 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- if (!string.IsNullOrEmpty(CurrentUserName)) { 
-            
-            #line default
-            #line hidden
-            this.Write("\t\t<p>Current User: <strong>");
-            
-            #line 44 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(CurrentUserName)));
-            
-            #line default
-            #line hidden
-            this.Write("</strong></p>\r\n");
-            
-            #line 45 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- } 
-            
-            #line default
-            #line hidden
-            this.Write("\r\n");
-            
-            #line 47 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- if (!string.IsNullOrEmpty(IpAddress)) { 
-            
-            #line default
-            #line hidden
-            this.Write("\t\t<p>Client IP: <strong>");
-            
-            #line 48 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-            this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(IpAddress)));
-            
-            #line default
-            #line hidden
-            this.Write("</strong></p>\r\n");
-            
-            #line 49 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- } 
-            
-            #line default
-            #line hidden
-            this.Write("\r\n");
-            
-            #line 51 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
- 
-	var sourceLines = GetSourceLines();
-    if (sourceLines != null)
-    {
+            this.Write(@" onchange=""dotvvmSubmit();""/>
+</form>
 
-            
-            #line default
-            #line hidden
-            this.Write("\t\t<p>&nbsp;</p>\r\n\t\t<h3>Source Location</h3>\r\n");
-            
-            #line 58 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+<script type=""text/javascript"">
+function dotvvmSubmit() {
+	var form = document.getElementById(""uploadForm"");
 
-        this.Write("<pre>");
-        foreach (var line in sourceLines)
-        {
-            if (line.LineNumber == LineNumber)
-            {
-                this.Write("<span class='current-line'>");
-            }
+	if (window.FormData) {
+		
+		// send the form using AJAX
+		var xhr = parent.window.dotvvm.getXHR();
+		xhr.open(""POST"", form.action, true);
+		xhr.setRequestHeader(""X-DotvvmAsyncUpload"", ""true"");
+		xhr.upload.onprogress = function (e) {
+			if (e.lengthComputable) {
+				reportProgress(true, Math.round(e.loaded * 100 / e.total, 0), '');
+			}
+		};		
+		xhr.onload = function(e) {
+			if (xhr.status == 200) {
+				reportProgress(false, 100, JSON.parse(xhr.responseText));
+				form.reset();
+			} else {
+				reportProgress(false, 0, ""Upload failed."");
+			}
+		};
+		xhr.send(new FormData(form));
 
-            if (line.LineNumber == null)
-            {
-                this.Write(new string(' ', 15));
-            }
-            else
-            {
-                this.Write(("Line " + line.LineNumber + ": ").PadLeft(15));
-            }
-            this.Write(WebUtility.HtmlEncode(line.Text));
+	} else {
 
-			if (line.LineNumber == LineNumber)
-            {
-                this.Write("</span>");
-            }
-            this.Write("<br />");
-        }
-		this.Write("</pre>");
-    }
+		// fallback for old browsers
+		reportProgress(true, -1, '');	
+		form.submit();
 
-            
-            #line default
-            #line hidden
-            this.Write("\t\t\r\n\t\t<p>&nbsp;</p>\r\n\t\t<h3>Stack Trace</h3>\r\n");
-            
-            #line 89 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-
-    this.Write("<pre>");
-    WriteException(Exception);
-
-	if (Exception is ReflectionTypeLoadException) {
-		var loaderExceptions = ((ReflectionTypeLoadException)Exception).LoaderExceptions;
-		foreach (var ex in loaderExceptions) {
-			this.Write("<br />");
-			WriteException(ex);
-		}
 	}
+}
 
-	this.Write("</pre>");
+function reportProgress(isBusy, percent, resultOrError) {
+	parent.window.dotvvm.fileUpload.reportProgress(window.frameElement.dataset.targetControlId, isBusy, percent, resultOrError);
+}
 
+");
+            
+            #line 57 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Routing\Hosting\FileUploadPageTemplate.tt"
+            this.Write(this.ToStringHelper.ToStringWithCulture(StartupScript ?? ""));
             
             #line default
             #line hidden
-            this.Write("</pre>\r\n\t\t<p>&nbsp;</p>\r\n\r\n\t</body>\r\n</html>\r\n\r\n\r\n\r\n\r\n");
+            this.Write("\r\n</script>\r\n\r\n</body>\r\n</html>\r\n\r\n");
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 111 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
-
-	public int ErrorCode { get; set; }
-
-	public string ErrorDescription { get; set; }
-
-	public string FileName { get; set; }
-
-	public Type ClassName { get; set; }
-
-	public int LineNumber { get; set; }
-
-	public int PositionOnLine { get; set; }
-
-	public string Url { get; set; }
-
-	public string Verb { get; set; }
-
-	public string IpAddress { get; set; }
-
-	public string CurrentUserName { get; set; }
-
-	public Exception Exception { get; set; }
-
-
-	private void WriteException(Exception ex) 
-	{
-		using (var sr = new StringReader(ex.ToString()))
-		{
-			string line;
-			while ((line = sr.ReadLine()) != null)
-			{
-				this.Write(WebUtility.HtmlEncode(line));
-				this.Write("<br />");
-			}
-		}
-	}
-
-
-	/// <summary>
-	/// Gets the source lines near the error and highlights the error.
-	/// </summary>
-    private IList<SourceLine> GetSourceLines()
-	{
-	    if (string.IsNullOrEmpty(FileName))
-	    {
-	        return null;
-	    }
-
-        try
-        {
-            var lines = new List<SourceLine>();
-            using (var sr = new StreamReader(FileName, true))
-            {
-                string line;
-                int lineNumber = 0;
-                while (!sr.EndOfStream && lineNumber < LineNumber + 2)
-                {
-                    line = sr.ReadLine();
-                    lineNumber++;
-
-                    if (lineNumber >= LineNumber - 2)
-                    {
-                        // write the line to the output
-						lines.Add(new SourceLine() { LineNumber = lineNumber, Text = line });
-
-						// mark the position on the problem line
-                        if (lineNumber == LineNumber)
-                        {
-                            lines.Add(new SourceLine() { Text = new string('-', PositionOnLine) + '^' });
-                        }
-                    }
-                }
-            }
-            return lines;
-        }
-        catch
-        {
-            return null;
-        } 
-    }
-
-
-    class SourceLine
-    {
-        public int? LineNumber { get; set; }
-
-        public string Text { get; set; }
-	}
+        #line 63 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Routing\Hosting\FileUploadPageTemplate.tt"
+ 
+public string StartupScript { get; set; }
+public string FormPostUrl { get; set; }
+public bool AllowMultipleFiles { get; set; }
 
         
         #line default
@@ -378,7 +120,7 @@ span.current-line { color: red; }
     /// Base class for this transformation
     /// </summary>
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
-    public class ErrorPageTemplateBase
+    public class FileUploadPageTemplateBase
     {
         #region Fields
         private global::System.Text.StringBuilder generationEnvironmentField;

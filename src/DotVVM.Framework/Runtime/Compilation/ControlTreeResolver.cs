@@ -13,6 +13,8 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections;
 using DotVVM.Framework.Runtime.Compilation.BindingExpressionTree;
+using System.Linq.Expressions;
+using System.Threading;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -24,11 +26,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             controlResolver = configuration.ServiceLocator.GetService<IControlResolver>();
         }
 
-        public ResolvedView ResolveTree(DothtmlRootNode root, string fileName)
+        public ResolvedTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
         {
             var wrapperType = ResolveWrapperType(root);
             var viewMetadata = controlResolver.ResolveControl(new ControlType(wrapperType, virtualPath: fileName));
-            var view = new ResolvedView(viewMetadata, root, null);
+            var view = new ResolvedTreeRoot(viewMetadata, root, null);
 
             foreach (var directive in root.Directives)
             {
@@ -37,7 +39,10 @@ namespace DotVVM.Framework.Runtime.Compilation
                     view.Directives.Add(directive.Name, directive.Value);
                 }
             }
-            view.DataContextTypeStack = new DataContextStack(Type.GetType(view.Directives["viewModel"]));
+            view.DataContextTypeStack = new DataContextStack(Type.GetType(view.Directives[Constants.ViewModelDirectiveName]) ?? typeof(object))
+            {
+                RootControlType = wrapperType
+            };
 
             foreach (var node in root.Content)
             {
@@ -104,47 +109,56 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 ProcessAttribute(dataContextAttribute, control, dataContext);
             }
-            bool dcChanged = false;
             if (control.Properties.ContainsKey(DotvvmBindableControl.DataContextProperty) && control.Properties[DotvvmBindableControl.DataContextProperty] is ResolvedPropertyBinding)
             {
                 dataContext = new DataContextStack(
                     ((ResolvedPropertyBinding)control.Properties[DotvvmBindableControl.DataContextProperty]).Binding.Expression.Type,
                     dataContext);
-                dcChanged = true;
+                control.DataContextTypeStack = dataContext;
             }
-            
+
+            if (controlMetadata.DataContextConstraint != null && !controlMetadata.DataContextConstraint.IsAssignableFrom(dataContext.DataContextType))
+            {
+                throw new Exception($"control { controlMetadata.Name } requires data context of type { controlMetadata.DataContextConstraint.FullName }");
+            }
 
             // set properties from attributes
-            foreach (var attribute in element.Attributes)
+            foreach (var attribute in element.Attributes.Where(a => a.AttributeName != "DataContext"))
             {
                 ProcessAttribute(attribute, control, dataContext);
             }
 
-            if (dcChanged)
+            var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control);
+            if (typeChange != null)
             {
-                dataContext.DataContextType = DataContextChangeAttribute.GetDataContextType(dataContext, control);
-            }
-            else
-            {
-                var type = DataContextChangeAttribute.GetDataContextType(dataContext, control);
-                if (type != dataContext.DataContextType)
-                {
-                    dataContext = new DataContextStack(type, dataContext);
-                }
+                dataContext = new DataContextStack(typeChange, dataContext);
             }
 
-            ProcessControlContent(element.Content, control, dataContext);
+            ProcessControlContent(element.Content, control);
             return control;
         }
 
         private ResolvedBinding ProcessBinding(DothtmlBindingNode node, DataContextStack context)
         {
-            var expression = BindingParser.Parse(node.Value, context);
+            var value = node.Value;
+            var bindingType = controlResolver.ResolveBinding(node.Name, ref value);
+            Expression expression = null;
+            Exception parsingError = null;
+            try
+            {
+                expression = BindingParser.Parse(value, context);
+            }
+            catch (Exception exception)
+            {
+                parsingError = exception;
+            }
             return new ResolvedBinding()
             {
-                Type = controlResolver.ResolveBinding(node.Name),
+                BindingType = bindingType,
                 Value = node.Value,
-                Expression = expression
+                Expression = expression,
+                DataContextTypeStack = context,
+                ParsingError = parsingError
             };
         }
 
@@ -163,6 +177,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             var property = FindProperty(control.Metadata, attribute.AttributeName);
             if (property != null)
             {
+                var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
+                if (typeChange != null)
+                {
+                    dataContext = new DataContextStack(typeChange, dataContext);
+                }
                 // set the property
                 if (attribute.Literal == null)
                 {
@@ -199,7 +218,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        private void ProcessControlContent(IEnumerable<DothtmlNode> nodes, ResolvedControl control, DataContextStack dataContext)
+        private void ProcessControlContent(IEnumerable<DothtmlNode> nodes, ResolvedControl control)
         {
             var content = new List<DothtmlNode>();
             bool properties = true;
@@ -212,7 +231,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode == MappingMode.InnerElement)
                     {
                         content.Clear();
-                        control.SetProperty(ProcessElementProperty(control, property, element.Content, dataContext));
+                        control.SetProperty(ProcessElementProperty(control, property, element.Content));
                     }
                     else properties = false;
                 }
@@ -227,13 +246,14 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 if (control.Metadata.DefaultContentProperty != null)
                 {
-                    control.SetProperty(ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content, dataContext));
+                    control.SetProperty(ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
                 }
                 else
                 {
                     foreach (var node in content)
                     {
-                        control.Content.Add(ProcessNode(node, control.Metadata, dataContext));
+                        // TODO: data context from parent
+                        control.Content.Add(ProcessNode(node, control.Metadata, control.DataContextTypeStack));
                     }
                 }
             }
@@ -242,8 +262,14 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Processes the element which contains property value.
         /// </summary>
-        private ResolvedPropertySetter ProcessElementProperty(ResolvedControl control, DotvvmProperty property, IEnumerable<DothtmlNode> elementContent, DataContextStack dataContext)
+        private ResolvedPropertySetter ProcessElementProperty(ResolvedControl control, DotvvmProperty property, IEnumerable<DothtmlNode> elementContent)
         {
+            var dataContext = control.DataContextTypeStack;
+            var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
+            if (typeChange != null)
+            {
+                dataContext = new DataContextStack(typeChange, dataContext);
+            }
             // the element is a property 
             if (IsTemplateProperty(property))
             {

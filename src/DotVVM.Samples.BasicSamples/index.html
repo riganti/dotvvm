@@ -2,14 +2,13 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>DotVVM Samples HomePage</title>
-    <link rel="stylesheet" href="Content/bootstrap/bootstrap.min.css" />
-    <script src="Scripts/jquery-2.1.1.min.js"></script>
+    <link rel="stylesheet" href="Content/bootstrap/bootstrap.css" />
+    <script src="Scripts/jquery-1.9.1.min.js"></script>
 </head>
 <body>
-    
     <div class="container">
         <h1>DotVVM Samples</h1>
-        
+
         <ul>
             <li><a href="Sample1">Sample 1 - Task List</a></li>
             <li><a href="Sample2">Sample 2 - CheckBox &amp; RadioButton</a></li>
@@ -32,9 +31,19 @@
             <li><a href="Sample19">Sample 19 - File upload test</a></li>
             <li><a href="AuthSample/SecuredPage">Authentication and authorization Sample - Page for signed users</a></li>
         </ul>
-        
+
 
     </div>
 
+    <script>
+        var quickAction = "";
+        function showQA(key) {
+            quickAction += String.fromCharCode(key.charCode);
+            $("a").css({ fontWeight: "inherit" });
+            if (key.charCode == 13) document.getElementsByTagName("a").item(parseInt(quickAction.trim())).click();
+            else $(document.getElementsByTagName("a").item(parseInt(quickAction.trim()))).css({ fontWeight: "bold" });
+        }
+        $(document).keypress(showQA);
+    </script>
 </body>
 </html>

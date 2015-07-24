@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
             DefaultVisit(propertyValue);
         }
 
-        public virtual void VisitView(ResolvedView view)
+        public virtual void VisitView(ResolvedTreeRoot view)
         {
             DefaultVisit(view);
         }

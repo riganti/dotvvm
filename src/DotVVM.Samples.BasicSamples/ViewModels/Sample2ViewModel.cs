@@ -32,19 +32,25 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public int DBRB { get; set; }
 
-        public IEnumerable DBRBChoices
+        public IEnumerable<DRBChoice> DBRBChoices
         {
             get
             {
-                return new[]
+                return new DRBChoice[]
                 {
-                    new { Id = 1, Title = "One" },
-                    new { Id = 2, Title = "Two" },
-                    new { Id = 3, Title = "Three" },
-                    new { Id = 4, Title = "Four" },
-                    new { Id = 5, Title = "Five" }
+                    new DRBChoice{ Id = 1, Title = "One" },
+                    new DRBChoice{ Id = 2, Title = "Two" },
+                    new DRBChoice{ Id = 3, Title = "Three" },
+                    new DRBChoice{ Id = 4, Title = "Four" },
+                    new DRBChoice{ Id = 5, Title = "Five" }
                 };
             }
+        }
+
+        public class DRBChoice
+        {
+            public int Id { get; set; }
+            public string Title { get; set; }
         }
 
         public int DBRBResult { get; set; }

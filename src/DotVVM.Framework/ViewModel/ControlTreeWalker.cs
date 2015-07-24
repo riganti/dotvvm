@@ -1,15 +1,14 @@
 using System;
 using System.Collections.Generic;
-using System.Linq; 
+using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.ViewModel
 {
-    public abstract class ControlTreeWalker<T>
+    public class ControlTreeWalker
     {
 
-        private T viewModel;
         private DotvvmControl root;
 
         public Stack<string> CurrentPath { get; private set; }
@@ -19,9 +18,8 @@ namespace DotVVM.Framework.ViewModel
         /// <summary>
         /// Initializes a new instance of the <see cref="ViewModelJTokenControlTreeWalker"/> class.
         /// </summary>
-        public ControlTreeWalker(T viewModel, DotvvmControl root)
+        public ControlTreeWalker(DotvvmControl root)
         {
-            this.viewModel = viewModel;
             this.root = root;
         }
 
@@ -29,13 +27,12 @@ namespace DotVVM.Framework.ViewModel
         /// <summary>
         /// Processes the control tree.
         /// </summary>
-        public void ProcessControlTree(Action<T, DotvvmControl> action)
+        public void ProcessControlTree(Action<DotvvmControl> action)
         {
             CurrentPath = new Stack<string>();
             RefreshCurrentPathArray();
-            var evaluator = CreateEvaluator(viewModel);
 
-            ProcessControlTreeCore(evaluator, viewModel, root, action);
+            ProcessControlTreeCore(root, action);
         }
 
         /// <summary>
@@ -47,42 +44,27 @@ namespace DotVVM.Framework.ViewModel
         }
 
         /// <summary>
-        /// Creates the expression evaluator.
-        /// </summary>
-        protected abstract IExpressionEvaluator<T> CreateEvaluator(T viewModel);
-
-        /// <summary>
-        /// Determines whether the walker shoulds the process children for current viewModel value.
-        /// </summary>
-        protected abstract bool ShouldProcessChildren(T viewModel);
-
-
-        /// <summary>
         /// Processes the control tree.
         /// </summary>
-        private void ProcessControlTreeCore(IExpressionEvaluator<T> evaluator, T viewModel, DotvvmControl control, Action<T, DotvvmControl> action)
+        private void ProcessControlTreeCore(DotvvmControl control, Action<DotvvmControl> action)
         {
-            action(viewModel, control);
+            action(control);
 
             // if there is a DataContext binding, locate the correct token
             ValueBindingExpression binding;
             var hasDataContext = false;
-            if (control is DotvvmBindableControl && 
+            if (control is DotvvmBindableControl &&
                 (binding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as ValueBindingExpression) != null)
             {
-                viewModel = evaluator.Evaluate(binding.Expression);
-                CurrentPath.Push(binding.GetViewModelPathExpression((DotvvmBindableControl)control, DotvvmBindableControl.DataContextProperty));
+                CurrentPath.Push(binding.Javascript);
                 RefreshCurrentPathArray();
                 hasDataContext = true;
             }
 
-            if (ShouldProcessChildren(viewModel))
+            // go through all children
+            foreach (var child in control.Children)
             {
-                // go through all children
-                foreach (var child in control.Children)
-                {
-                    ProcessControlTreeCore(evaluator, viewModel, child, action);
-                }
+                ProcessControlTreeCore(child, action);
             }
 
             if (hasDataContext)

@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Runtime
             // find cached value
             var searchKey = GetSearchKey(tagPrefix, tagName);
             activationParameters = null;
-            var controlType = cachedTagMappings.GetOrAdd(searchKey, _ => FindControlMetadata(tagPrefix, tagName));
+            var controlType = cachedTagMappings.GetOrAdd(searchKey, _ => FindControlType(tagPrefix, tagName));
             var metadata = ResolveControl(controlType);
             return metadata;
         }
@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Resolves the binding type.
         /// </summary>
-        public Type ResolveBinding(string bindingType)
+        public Type ResolveBinding(string bindingType, ref string bindingValue)
         {
             if (bindingType == Constants.ValueBinding)
             {
@@ -116,16 +116,18 @@ namespace DotVVM.Framework.Runtime
             {
                 return typeof (CommandBindingExpression);
             }
-            else if (bindingType == Constants.ControlStateBinding)
-            {
-                return typeof (ControlStateBindingExpression);
-            }
+            //else if (bindingType == Constants.ControlStateBinding)
+            //{
+            //    return typeof (ControlStateBindingExpression);
+            //}
             else if (bindingType == Constants.ControlPropertyBinding)
             {
+                bindingValue = "_control." + bindingValue;
                 return typeof (ControlPropertyBindingExpression);
             }
             else if (bindingType == Constants.ControlCommandBinding)
             {
+                bindingValue = "_control." + bindingValue;
                 return typeof(ControlCommandBindingExpression);
             }
             else if (bindingType == Constants.ResourceBinding)
@@ -145,7 +147,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Finds the control metadata.
         /// </summary>
-        private ControlType FindControlMetadata(string tagPrefix, string tagName)
+        private ControlType FindControlType(string tagPrefix, string tagName)
         {
             // try to match the tag prefix and tag name
             var rules = configuration.Markup.Controls.Where(r => r.IsMatch(tagPrefix, tagName));
@@ -194,6 +196,7 @@ namespace DotVVM.Framework.Runtime
         private ControlType FindMarkupControl(string file)
         {
             var controlBuilder = controlBuilderFactory.GetControlBuilder(file);
+            // TODO: do not build the control when i only need the type (?)
             return new ControlType(controlBuilder.BuildControl(controlBuilderFactory).GetType(), controlBuilder.GetType(), file);
         }
 
@@ -215,6 +218,7 @@ namespace DotVVM.Framework.Runtime
                 Properties = properties,
                 IsContentAllowed = attribute.AllowContent,
                 VirtualPath = type.VirtualPath,
+                DataContextConstraint = type.DataContextRequirement,
                 DefaultContentProperty = attribute.DefaultContentProperty != null ? properties[attribute.DefaultContentProperty] : null
             };
             return metadata;

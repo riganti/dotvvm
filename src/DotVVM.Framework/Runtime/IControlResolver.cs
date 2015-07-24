@@ -27,6 +27,6 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Resolves the binding type.
         /// </summary>
-        Type ResolveBinding(string bindingType);
+        Type ResolveBinding(string bindingType, ref string bindingValue);
     }
 }

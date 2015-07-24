@@ -4,17 +4,24 @@ using DotVVM.Framework.Parser.Translation;
 
 namespace DotVVM.Framework.Binding
 {
+    [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
+        ActionFilters = BindingCompilationRequirementType.IfPossible)]
     public class CommandBindingExpression : BindingExpression
     {
-
-        private static ExpressionTranslator translator = new ExpressionTranslator();
-
-
         public CommandBindingExpression()
         {
         }
 
-        public CommandBindingExpression(string expression)
+        public CommandBindingExpression(Action<object[]> command, string id)
+            : this((h, o) => { command(h); return null; }, id)
+        { }
+
+        public CommandBindingExpression(CompiledBindingExpression.BindingDelegate command, string id)
+            : base(new CompiledBindingExpression() { Delegate = command, Id = id })
+        {
+        }
+
+        public CommandBindingExpression(CompiledBindingExpression expression)
             : base(expression)
         {
         }
@@ -25,8 +32,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
         {
-            // TODO: implement server evaluation
-            throw new NotImplementedException();
+            return ExecDelegate(control, property != DotvvmBindableControl.DataContextProperty);
         }
 
         /// <summary>
@@ -36,9 +42,7 @@ namespace DotVVM.Framework.Binding
         /// <param name="property"></param>
         public override string TranslateToClientScript(DotvvmBindableControl control, DotvvmProperty property)
         {
-            return translator.Translate(Expression);
+            throw new NotSupportedException("can't translate command to javascript");
         }
-
-        
     }
 }

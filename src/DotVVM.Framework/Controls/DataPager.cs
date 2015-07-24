@@ -11,6 +11,13 @@ namespace DotVVM.Framework.Controls
 {
     public class DataPager : HtmlGenericControl
     {
+        private static CommandBindingExpression GoToNextPageCommand =
+            new CommandBindingExpression(h => ((IGridViewDataSet)h[h.Length - 1]).GoToNextPage(), "__$DataPager_GoToNextPage");
+        private static CommandBindingExpression GoToThisPageCommand =
+            new CommandBindingExpression(h => ((IGridViewDataSet)h[h.Length - 2]).GoToPage((int)h[h.Length - 1]), "__$DataPager_GoToThisPage");
+        private static CommandBindingExpression GoToPrevPageCommand =
+            new CommandBindingExpression(h => ((IGridViewDataSet)h[h.Length - 1]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
+
 
         [MarkupOptions(AllowHardCodedValue = false)]
         public IGridViewDataSet DataSet
@@ -57,7 +64,7 @@ namespace DotVVM.Framework.Controls
                 // previous button
                 previousLi = new HtmlGenericControl("li");
                 var previousLink = new LinkButton() { Text = "«" };
-                previousLink.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("GoToPreviousPage()"));
+                previousLink.SetBinding(ButtonBase.ClickProperty, GoToPrevPageCommand);
                 previousLi.Children.Add(previousLink);
                 content.Children.Add(previousLi);
 
@@ -66,13 +73,13 @@ namespace DotVVM.Framework.Controls
                 foreach (var number in dataSet.NearPageIndexes)
                 {
                     var li = new HtmlGenericControl("li");
-                    li.SetBinding(DataContextProperty, new ValueBindingExpression("NearPageIndexes[" + i + "]"));
+                    li.SetBinding(DataContextProperty, GetNearIndexesBinding(i));
                     if (number == dataSet.PageIndex)
                     {
                         li.Attributes["class"] = "active";
                     }
                     var link = new LinkButton() { Text = (number + 1).ToString() };
-                    link.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("_parent.GoToPage(_this)"));
+                    link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
                     li.Children.Add(link);
                     content.Children.Add(li);
 
@@ -82,17 +89,24 @@ namespace DotVVM.Framework.Controls
                 // next button
                 nextLi = new HtmlGenericControl("li");
                 var nextLink = new LinkButton() { Text = "»" };
-                nextLink.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("GoToNextPage()"));
+                nextLink.SetBinding(ButtonBase.ClickProperty, GoToNextPageCommand);
                 nextLi.Children.Add(nextLink);
                 content.Children.Add(nextLi);
             }
         }
 
+        private ValueBindingExpression GetNearIndexesBinding(int i)
+        {
+            return new ValueBindingExpression(
+                        (h, c) => ((IGridViewDataSet)h[h.Length - 1]).NearPageIndexes[i],
+                        "NearPageIndexes[" + i + "]");
+        }
+
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { });
+            writer.AddAttribute("data-path", GetBinding(DataSetProperty).Javascript);
             writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().TranslateToClientScript(this, DataSetProperty) + ").TotalItemsCount() > 0");
-            context.PathFragments.Push(GetDataSetBinding().GetViewModelPathExpression(this, DataSetProperty));
             writer.RenderBeginTag("ul");
         }
 
@@ -103,17 +117,17 @@ namespace DotVVM.Framework.Controls
 
             // render template
             writer.WriteKnockoutDataBindComment("foreach", "NearPageIndexes");
-            context.PathFragments.Push("NearPageIndexes[$index]");
 
             writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
             var li = new HtmlGenericControl("li");
+            li.Attributes["data-path"] = "NearPageIndexes[$index]";
             var link = new LinkButton();
-            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression("_this + 1"));
-            link.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("_parent.GoToPage(_this)"));
             li.Children.Add(link);
+            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => (int)vm.Last() + 1, "$data + 1"));
+            //link.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("_parent.GoToPage(_this)"));
+            link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
             li.Render(writer, context);
 
-            context.PathFragments.Pop();
             writer.WriteKnockoutDataBindEndComment();
 
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsLastPage() }");
@@ -124,7 +138,6 @@ namespace DotVVM.Framework.Controls
         protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
         {
             writer.RenderEndTag();
-            context.PathFragments.Pop();
         }
 
 
@@ -138,5 +151,5 @@ namespace DotVVM.Framework.Controls
             return binding;
         }
     }
-        
+
 }

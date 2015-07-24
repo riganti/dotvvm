@@ -6,18 +6,22 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 using DotVVM.Framework.Runtime.Compilation;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Binding
 {
     public class ControlPropertyBindingDataContextChangeAttribute : DataContextChangeAttribute
     {
         public string PropertyName { get; set; }
+
+        public override int ParameterCount => 0;
+
         public ControlPropertyBindingDataContextChangeAttribute(string propertyName)
         {
             this.PropertyName = propertyName;
         }
 
-        public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control)
+        public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control, DotvvmProperty dproperty = null)
         {
             var property = DotvvmProperty.ResolveProperty(control.Metadata.Type, PropertyName);
             ResolvedPropertySetter propertyValue;
@@ -25,13 +29,9 @@ namespace DotVVM.Framework.Binding
             {
                 var binding = propertyValue as ResolvedPropertyBinding;
                 if (binding == null) return dataContext;
-                return binding.Binding.Expression.Type;
+                return binding.Binding.GetExpression().Type;
             }
             else return dataContext;
-            //var property = control.Properties.FirstOrDefault(p => p.Key.Name == PropertyName).Value as ResolvedPropertyBinding;
-            //if (property == null) throw new Exception($"property { PropertyName } does not exists on the control.");
-            //return property.GetValue(control).GetType();
-            throw new NotImplementedException();
         }
     }
 }

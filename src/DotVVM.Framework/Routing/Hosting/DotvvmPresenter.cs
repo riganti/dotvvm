@@ -179,11 +179,11 @@ namespace DotVVM.Framework.Hosting
 
                 if (actionInfo != null)
                 {
-                    // get filters
-                    var methodFilters = actionInfo.MethodInfo.GetCustomAttributes<ActionFilterAttribute>(true).ToList();
+                    var methodFilters = actionInfo.Binding.ActionFilters == null ? globalFilters.Concat(viewModelFilters).ToArray() :
+                       globalFilters.Concat(viewModelFilters).Concat(actionInfo.Binding.ActionFilters).ToArray();
 
                     // run OnCommandExecuting on action filters
-                    foreach (var filter in globalFilters.Concat(viewModelFilters).Concat(methodFilters))
+                    foreach (var filter in methodFilters)
                     {
                         filter.OnCommandExecuting(context, actionInfo);
                     }
@@ -191,8 +191,7 @@ namespace DotVVM.Framework.Hosting
                     Exception commandException = null;
                     try
                     {
-                        var invokedAction = actionInfo.GetAction();
-                        invokedAction();
+                        actionInfo.Action();
                     }
                     catch (Exception ex)
                     {
@@ -208,7 +207,7 @@ namespace DotVVM.Framework.Hosting
                     }
 
                     // run OnCommandExecuted on action filters
-                    foreach (var filter in globalFilters.Concat(viewModelFilters).Concat(methodFilters))
+                    foreach (var filter in methodFilters)
                     {
                         filter.OnCommandExecuted(context, actionInfo, commandException);
                     }
@@ -289,13 +288,7 @@ namespace DotVVM.Framework.Hosting
             var actionInfo = new ActionInfo()
             {
                 IsControlCommand = false,
-                Target = null,
-                MethodInfo = methodInfo,
-                Arguments = methodInfo.GetParameters().Select((param, index) => new ActionParameterInfo()
-                {
-                    ParameterInfo = param,
-                    Value = arguments[index]
-                }).ToArray()
+                Action = () => methodInfo.Invoke(null, arguments)
             };
             var filters = methodInfo.GetCustomAttributes<ActionFilterAttribute>();
             foreach (var filter in filters)
@@ -304,7 +297,8 @@ namespace DotVVM.Framework.Hosting
             }
             Exception exception = null;
             object result = null;
-            try {
+            try
+            {
                 result = methodInfo.Invoke(null, arguments);
             }
             catch (Exception ex)
@@ -323,12 +317,12 @@ namespace DotVVM.Framework.Hosting
             {
                 filter.OnCommandExecuted(context, actionInfo, exception);
             }
-            if(exception != null)
+            if (exception != null)
             {
                 throw new Exception("unhandled exception in command", exception);
             }
 
-            if(result != null)
+            if (result != null)
             {
                 using (var writer = new StreamWriter(context.OwinContext.Response.Body))
                 {

@@ -13,7 +13,11 @@ namespace DotVVM.Framework.Controls
         public static DotvvmProperty EnabledProperty = DotvvmProperty.Register<bool, Validate>("Enabled", true);
 
         [AttachedProperty]
-        public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validate>("Target", new ValueBindingExpression("_root"), true);
+        public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validate>("Target", new ValueBindingExpression(new CompiledBindingExpression()
+        {
+            Delegate = (h, c) => h[0],
+            Javascript = "$root"
+        }), true);
 
     }
 }

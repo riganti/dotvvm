@@ -4,6 +4,9 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using System.Collections;
+using System.Diagnostics;
+using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Controls
 {
@@ -18,6 +21,8 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the template for each <see cref="Repeater"/> item.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        [ControlPropertyBindingDataContextChange("DataSource")]
+        [CollectionElementDataContextChange]
         public ITemplate ItemTemplate
         {
             get { return (ITemplate)GetValue(ItemTemplateProperty); }
@@ -25,7 +30,6 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty ItemTemplateProperty =
             DotvvmProperty.Register<ITemplate, Repeater>(t => t.ItemTemplate, null);
-
 
         /// <summary>
         /// Gets or sets the name of the tag that wraps the Repeater.
@@ -72,19 +76,21 @@ namespace DotVVM.Framework.Controls
             Children.Clear();
 
             var dataSourceBinding = GetDataSourceBinding();
-            var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
 
             var index = 0;
             var dataSource = DataSource;
             if (dataSource != null)
             {
-                foreach (var item in GetIEnumerableFromDataSource(dataSource))
+                var items = GetIEnumerableFromDataSource(dataSource);
+
+                foreach (var item in items)
                 {
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
-                    Children.Add(placeholder);
+                    // placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
                     ItemTemplate.BuildContent(context, placeholder);
-
+                    Children.Add(placeholder);
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, dataSourceBinding.Javascript, index));
+                    Debug.Assert(placeholder.properties[DataContextProperty] != null);
                     index++;
                 }
             }
@@ -119,22 +125,19 @@ namespace DotVVM.Framework.Controls
                 var index = 0;
                 foreach (var child in Children)
                 {
-                    context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[" + index + "]");
                     Children[index].Render(writer, context);
-                    context.PathFragments.Pop();
                     index++;
                 }
             }
             else
             {
                 // render on client
-                var placeholder = new DataItemContainer { DataContext = null };
+                var placeholder = new DataItemContainer() { DataContext = null };
                 Children.Add(placeholder);
+                //placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(null, dataSourceBinding.Javascript + "[$index]"));
                 ItemTemplate.BuildContent(context.RequestContext, placeholder);
 
-                context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[$index]");
                 placeholder.Render(writer, context);
-                context.PathFragments.Pop();
             }
         }
     }

@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Parser
         /// </summary>
         protected void SkipWhitespace(bool allowEndLine = true)
         {
-            while (Char.IsWhiteSpace(Peek()) && (allowEndLine || (Peek() != '\r' && Peek() != '\n')))
+            while (char.IsWhiteSpace(Peek()) && (allowEndLine || (Peek() != '\r' && Peek() != '\n')))
             {
                 if (Read() == NullChar)
                 {

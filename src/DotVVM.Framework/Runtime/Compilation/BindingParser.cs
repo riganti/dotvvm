@@ -8,8 +8,9 @@ using ExpressionEvaluator.Parser;
 using System.Reflection;
 using System.Linq.Expressions;
 using DotVVM.Framework.Parser;
+using DotVVM.Framework.Runtime.Compilation.BindingExpressionTree;
 
-namespace DotVVM.Framework.Runtime.Compilation.BindingExpressionTree
+namespace DotVVM.Framework.Runtime.Compilation
 {
     public static class BindingParser
     {
@@ -17,22 +18,29 @@ namespace DotVVM.Framework.Runtime.Compilation.BindingExpressionTree
             typeof(CompiledExpression)
             .GetMethods().First(m => m.Name == "ScopeCompile" && m.ContainsGenericParameters);
 
-        public static BindingExpressionNode Parse(string bindingExpressionText, Type contextType, params Type[] parentContexts)
+        public static Expression Parse(string bindingExpressionText, Type contextType, Type[] parentContexts, Type controlType)
         {
             var parser = new AntlrParser(bindingExpressionText);
             parser.ExternalParameters = parser.ExternalParameters ?? new List<ParameterExpression>();
-            parser.ExternalParameters.AddRange(GetParameters(contextType, parentContexts));
+            parser.ExternalParameters.AddRange(GetParameters(contextType, parentContexts, controlType));
             parser.TypeRegistry = InitTypeRegistry(contextType, parentContexts);
-            var scope = Expression.Parameter(contextType, "scope");
-            var expression = parser.Parse(scope);
+            var scope = Expression.Parameter(contextType, Constants.ThisSpecialBindingProperty);
+            return parser.Parse(scope);
+        }
 
+        public static BindingExpressionNode ToBindingExpression(Expression expression)
+        {
             var builder = new BindingExpressionBuildingVisitor();
             builder.Visit(expression);
             return builder.Expression;
         }
 
-        private static IEnumerable<ParameterExpression> GetParameters(Type contextType, Type[] parents)
+        private static IEnumerable<ParameterExpression> GetParameters(Type contextType, Type[] parents, Type controlType = null)
         {
+            if (controlType != null)
+            {
+                yield return Expression.Parameter(controlType, "_control");
+            }
             yield return Expression.Parameter(contextType, "_this");
             if (parents.Length > 0)
             {
@@ -56,15 +64,17 @@ namespace DotVVM.Framework.Runtime.Compilation.BindingExpressionTree
             t.RegisterType("RootViewModel", parents.LastOrDefault() ?? contextType);
             for (int i = parents.Length - 1; i >= 0; i--)
             {
-                t.RegisterType(parents[i].Name, parents[i]);
+                if (!t.ContainsKey(parents[i].Name))
+                    t.RegisterType(parents[i].Name, parents[i]);
             }
-            t.RegisterType(contextType.Name, contextType);
+            if (!t.ContainsKey(contextType.Name))
+                t.RegisterType(contextType.Name, contextType);
             return t;
         }
 
-        public static BindingExpressionNode Parse(string value, DataContextStack context)
+        public static Expression Parse(string value, DataContextStack context)
         {
-            return Parse(value, context.DataContextType, context.Parents().ToArray());
+            return Parse(value, context.DataContextType, context.Parents().ToArray(), context.RootControlType);
         }
     }
 }

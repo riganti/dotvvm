@@ -130,9 +130,10 @@ class DotVVM {
             this.events.afterPostback.trigger(afterPostBackArgsCanceled);
             return;
         }
+        if (!path) path = this.getViewModelPath(sender);
+        this.updateDynamicPathFragments(sender, path);
 
         // perform the postback
-        this.updateDynamicPathFragments(sender, path);
         var data = {
             viewModel: ko.mapper.toJS(viewModel),
             currentPath: path,
@@ -453,6 +454,18 @@ class DotVVM {
         return value.Items || value;
     }
 
+    private getViewModelPath(sender: HTMLElement): string[]{
+        var path = [];
+        var element = sender.parentElement;
+        while (element) {
+            if (element.hasAttribute("data-path")) {
+                path.push(element.getAttribute("data-path"));
+            }
+            element = element.parentElement;
+        }
+        return path.reverse();
+    }
+
     private updateDynamicPathFragments(sender: HTMLElement, path: string[]): void {
         var context = ko.contextFor(sender);
 
@@ -546,6 +559,20 @@ class DotVVM {
         return routePath.replace(/\{[^\}]+\}/g, s => ko.unwrap(params[s.substring(1, s.length - 1)]) || "");
     }
 }
+
+interface KnockoutBindingHandlers {
+    withControlProperties: KnockoutBindingHandler;
+}
+ko.virtualElements.allowedBindings["withControlProperties"] = true
+ko.bindingHandlers.withControlProperties = {
+    init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+        var innerBindingContext = bindingContext.extend({ $control: valueAccessor() });
+        ko.applyBindingsToDescendants(innerBindingContext, element);
+ 
+        return { controlsDescendantBindings: true }; // do not apply binding again
+    }
+};
+
 
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support 
 // calling missed events for handler that subscribed too late.

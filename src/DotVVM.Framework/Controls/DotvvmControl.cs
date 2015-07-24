@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = true)]
     public abstract class DotvvmControl
     {
-       
+
         protected internal Dictionary<DotvvmProperty, object> properties;
 
         /// <summary>
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
         protected List<string> ResourceDependencies = new List<string>();
 
 
-            /// <summary>
+        /// <summary>
         /// Gets the parent control.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Controls
             {
                 yield return descendant;
             }
-        } 
+        }
 
         /// <summary>
         /// Gets all descendant controls of this control.
@@ -246,7 +246,7 @@ namespace DotVVM.Framework.Controls
                     id = control.GetValue(Internal.UniqueIDProperty) + "_" + id;
                 }
                 control = control.Parent;
-            } 
+            }
             while (control != null);
             return id;
         }
@@ -285,6 +285,15 @@ namespace DotVVM.Framework.Controls
             foreach (var property in GetDeclaredProperties())
             {
                 property.OnControlInitialized(this);
+            }
+
+            foreach (var prop in properties)
+            {
+                var binding = prop.Value as BindingExpression;
+                if (binding is CommandBindingExpression)
+                {
+                    context.RegisterBinding(binding);
+                }
             }
         }
 

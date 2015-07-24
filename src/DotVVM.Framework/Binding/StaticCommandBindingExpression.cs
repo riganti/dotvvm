@@ -9,17 +9,18 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Reflection;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Binding
 {
+    [BindingCompilationRequirements(Expression = BindingCompilationRequirementType.StronglyRequire, OriginalString = BindingCompilationRequirementType.StronglyRequire)]
     public class StaticCommandBindingExpression : BindingExpression
     {
         private static ExpressionTranslator translator = new ExpressionTranslator();
-        public StaticCommandBindingExpression(string expression) : base(expression)
-        {
 
-        }
-
+        public StaticCommandBindingExpression(CompiledBindingExpression expression)
+            : base(expression)
+        { } 
         public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
         {
             throw new NotImplementedException();
@@ -32,7 +33,7 @@ namespace DotVVM.Framework.Binding
 
         public IEnumerable<string> GetArgumentPaths()
         {
-            var expression = ExpressionTranslator.ParseExpression(Expression) as InvocationExpressionSyntax;
+            var expression = ExpressionTranslator.ParseExpression(OriginalString) as InvocationExpressionSyntax;
             if (expression == null) throw new Exception("static command must be invocation expression");
             var arguments = expression.ArgumentList.Arguments;
             return arguments.Select(argument => translator.TranslateExpression(argument.Expression));
@@ -40,7 +41,7 @@ namespace DotVVM.Framework.Binding
 
         public string GetMethodName(DotvvmBindableControl control)
         {
-            var expression = ExpressionTranslator.ParseExpression(Expression) as InvocationExpressionSyntax;
+            var expression = ExpressionTranslator.ParseExpression(OriginalString) as InvocationExpressionSyntax;
             if (expression == null) throw new Exception("static command must be invocation expression");
             var accessor = expression.Expression;
             if (accessor.Kind() == SyntaxKind.IdentifierName)

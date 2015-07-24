@@ -334,8 +334,8 @@ namespace DotVVM.Framework.Binding
         {
             Dictionary<string, object> result = null;
 
-            var treeWalker = new NonEvaluatingControlTreeWalker(ViewRootControl);
-            treeWalker.ProcessControlTree((viewModel, control) =>
+            var treeWalker = new ControlTreeWalker(ViewRootControl);
+            treeWalker.ProcessControlTree((control) =>
             {
                 // if the hierarchies are equal, return the control
                 if (control is DotvvmBindableControl && ((DotvvmBindableControl)control).RequiresControlState)

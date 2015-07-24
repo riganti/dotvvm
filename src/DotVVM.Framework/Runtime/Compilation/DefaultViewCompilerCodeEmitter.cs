@@ -26,14 +26,16 @@ namespace DotVVM.Framework.Runtime.Compilation
         }
 
         public const string ControlBuilderFactoryParameterName = "controlBuilderFactory";
-        public const string BuildControlFunctionName = "BuildControl";
+        public const string BuildControlFunctionName = nameof(IControlBuilder.BuildControl);
         public const string BuildTemplateFunctionName = "BuildTemplate";
-        public const string GetControlBuilderFunctionName = "GetControlBuilder";
+        public const string GetControlBuilderFunctionName = nameof(IControlBuilderFactory.GetControlBuilder);
+        public const string DataContextTypePropertyName = nameof(IControlBuilder.DataContextType);
 
 
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
         public SyntaxTree SyntaxTree { get; private set; }
+        public Type BuilderDataContextType { get; set; }
 
 
         private List<Type> usedControlBuilderTypes = new List<Type>();
@@ -51,6 +53,22 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         private List<ClassDeclarationSyntax> otherClassDeclarations = new List<ClassDeclarationSyntax>();
 
+        public string EmitCreateVariable(ExpressionSyntax expression)
+        {
+            var name = "c" + CurrentControlIndex;
+            CurrentControlIndex++;
+
+            CurrentStatements.Add(
+                SyntaxFactory.LocalDeclarationStatement(
+                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
+                        SyntaxFactory.VariableDeclarator(name).WithInitializer(
+                            SyntaxFactory.EqualsValueClause(expression)
+                        )
+                    )
+                )
+            );
+            return name;
+        }
 
         /// <summary>
         /// Emits the create object expression.
@@ -62,28 +80,32 @@ namespace DotVVM.Framework.Runtime.Compilation
                 constructorArguments = new object[] { };
             }
 
-            var name = "c" + CurrentControlIndex;
-            CurrentControlIndex++;
-
-            CurrentStatements.Add(
-                SyntaxFactory.LocalDeclarationStatement(
-                    SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
-                        SyntaxFactory.VariableDeclarator(name).WithInitializer(
-                            SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(typeName)).WithArgumentList(
-                                    SyntaxFactory.ArgumentList(
-                                        SyntaxFactory.SeparatedList(
-                                            constructorArguments.Select(a => SyntaxFactory.Argument(EmitValue(a)))
-                                        )
-                                    )
-                                )
-                            )
+            return EmitCreateVariable(
+                SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(typeName)).WithArgumentList(
+                    SyntaxFactory.ArgumentList(
+                        SyntaxFactory.SeparatedList(
+                            constructorArguments.Select(a => SyntaxFactory.Argument(EmitValue(a)))
                         )
                     )
                 )
             );
+        }
 
-            return name;
+        public ExpressionSyntax CreateObject(string typeName, IEnumerable<ExpressionSyntax> arguments)
+        {
+            return SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(typeName)).WithArgumentList(
+                SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SeparatedList(
+                        arguments.Select(a => SyntaxFactory.Argument(a))
+                    )
+                )
+            );
+        }
+
+        public ExpressionSyntax CreateObject(Type type, IEnumerable<ExpressionSyntax> arguments)
+        {
+            UsedAssemblies.Add(type.Assembly);
+            return CreateObject(type.FullName, arguments);
         }
 
 
@@ -282,7 +304,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Emits the set binding statement.
         /// </summary>
-        public void EmitSetBinding(string controlName, string propertyName, string variableName)
+        public void EmitSetBinding(string controlName, string propertyName, ExpressionSyntax binding)
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
@@ -295,7 +317,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                         SyntaxFactory.ArgumentList(
                             SyntaxFactory.SeparatedList(new[] {
                                 SyntaxFactory.Argument(SyntaxFactory.IdentifierName(propertyName)),
-                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName(variableName))
+                                SyntaxFactory.Argument(binding)
                             })
                         )
                     )
@@ -484,7 +506,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                                 ))
                                 .WithMembers(
                                 SyntaxFactory.List<MemberDeclarationSyntax>(
-                                    outputMethods.Select(m =>
+                                    outputMethods.Select<EmitterMethodInfo, MemberDeclarationSyntax>(m =>
                                         SyntaxFactory.MethodDeclaration(
                                             SyntaxFactory.ParseTypeName(typeof(DotvvmControl).FullName),
                                             m.Name)
@@ -496,7 +518,12 @@ namespace DotVVM.Framework.Runtime.Compilation
                                                 .WithType(SyntaxFactory.ParseTypeName(typeof(IControlBuilderFactory).FullName))
                                             })))
                                             .WithBody(SyntaxFactory.Block(m.Statements))
-                                        )
+                                        ).Concat(new [] { SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("System.Type"), nameof(IControlBuilder.DataContextType))
+                                            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                            .WithExpressionBody(
+                                                SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(BuilderDataContextType.FullName))))
+                                            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                                        })
                                     )
                                 )
                         })
@@ -507,8 +534,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
             // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
             SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
-            return new[] { SyntaxTree
-    };
+            return new[] { SyntaxTree };
         }
 
 

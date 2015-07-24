@@ -13,16 +13,19 @@ namespace DotVVM.Framework.Runtime
         public Type ControlBuilderType { get; private set; }
 
         public string VirtualPath { get; private set; }
+        public Type DataContextRequirement { get; private set; }
+
 
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlType"/> class.
         /// </summary>
-        public ControlType(Type type, Type controlBuilderType = null, string virtualPath = null)
+        public ControlType(Type type, Type controlBuilderType = null, string virtualPath = null, Type dataContextRequirement = null)
         {
             Type = type;
             ControlBuilderType = controlBuilderType;
             VirtualPath = virtualPath;
+            DataContextRequirement = dataContextRequirement;
         }
 
 

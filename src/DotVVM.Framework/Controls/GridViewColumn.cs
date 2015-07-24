@@ -4,7 +4,7 @@ using System;
 
 namespace DotVVM.Framework.Controls
 {
-    public abstract class GridViewColumn : DotvvmBindableControl 
+    public abstract class GridViewColumn : DotvvmBindableControl
     {
 
         [MarkupOptions(AllowBinding = false)]
@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false)]
         public object ValueBinding
         {
-            get { return GetValue(ValueBindingProperty); }    
+            get { return GetValue(ValueBindingProperty); }
             set { SetValue(ValueBindingProperty, value); }
         }
         public static readonly DotvvmProperty ValueBindingProperty =
@@ -78,33 +78,33 @@ namespace DotVVM.Framework.Controls
             var binding = GetValueBinding(ValueBindingProperty);
             if (binding == null)
             {
-                ThrowValueBindingNotSet();
+                throw ValueBindingNotSet();
             }
             return (ValueBindingExpression)binding.Clone();
         }
 
-        private void ThrowValueBindingNotSet()
+        private Exception ValueBindingNotSet()
         {
-            throw new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
+            return new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
         }
 
 
-        public virtual void CreateHeaderControls(DotvvmRequestContext context, GridView gridView, string sortCommandPath, HtmlGenericControl cell)
+        public virtual void CreateHeaderControls(DotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell)
         {
             if (AllowSorting)
             {
-                if (string.IsNullOrEmpty(sortCommandPath))
+                if (sortCommand == null)
                 {
                     throw new Exception("Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
                 }
 
                 var sortExpression = GetSortExpression();
 
-                // TODO: verify that sortExpression is a single property name
-
                 var linkButton = new LinkButton() { Text = HeaderText };
-                linkButton.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression(string.Format("{0} (\"{1}\")", sortCommandPath, sortExpression)));
                 cell.Children.Add(linkButton);
+                var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
+                var binding = new CommandBindingExpression((o, i) => { sortCommand(sortExpression); return null; }, bindingId);
+                linkButton.SetBinding(ButtonBase.ClickProperty, binding);
             }
             else
             {
@@ -115,24 +115,23 @@ namespace DotVVM.Framework.Controls
 
         private string GetSortExpression()
         {
-            string sortExpression = null;
+            // TODO: verify that sortExpression is a single property name
             if (string.IsNullOrEmpty(SortExpression))
             {
                 var valueBinding = GetValueBinding(ValueBindingProperty);
                 if (valueBinding != null)
                 {
-                    sortExpression = valueBinding.Expression;
+                    return valueBinding.OriginalString;
                 }
                 else
                 {
-                    ThrowValueBindingNotSet();
+                    throw ValueBindingNotSet();
                 }
             }
             else
             {
-                sortExpression = SortExpression;
+                return SortExpression;
             }
-            return sortExpression;
         }
     }
 

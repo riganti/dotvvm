@@ -88,18 +88,19 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Binding\AttachedPropertyAttribute.cs" />
+    <Compile Include="Binding\BindingBuildingExtensions.cs" />
+    <Compile Include="Binding\BindingCompilationRequirements.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
+    <Compile Include="Binding\CompiledBindingExpression.cs" />
+    <Compile Include="Binding\ConstantDataContextChangeAttribute.cs" />
     <Compile Include="Binding\ControlCommandBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingDataContextChangeAttribute.cs" />
-    <Compile Include="Binding\ControlStateBindingExpression.cs" />
     <Compile Include="Binding\DataContextChangeAttribute.cs" />
     <Compile Include="Binding\EventValidator.cs" />
-    <Compile Include="Binding\ExpressionEvaluator.cs" />
-    <Compile Include="Binding\IExpressionEvaluator.cs" />
     <Compile Include="Binding\IUpdatableBindingExpression.cs" />
     <Compile Include="Binding\NumberUtils.cs">
       <AutoGen>True</AutoGen>
@@ -111,8 +112,6 @@
     <Compile Include="Binding\StaticCommandBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandCallableAttribute.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
-    <Compile Include="Binding\ViewModelJTokenEvaluationVisitor.cs" />
-    <Compile Include="Binding\ViewModelJTokenEvaluator.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
     <Compile Include="Configuration\HtmlTagAttributePair.cs" />
@@ -151,18 +150,18 @@
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Hosting\FileUploadPageTemplate.cs">
+    <Compile Include="Routing\Hosting\FileUploadPageTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="Hosting\JQueryGlobalizeCultureMiddleware.cs" />
-    <Compile Include="Hosting\ModelState.cs" />
-    <Compile Include="Hosting\DotvvmEmbeddedResourceMiddleware.cs" />
-    <Compile Include="Hosting\DotvvmErrorPageMiddleware.cs" />
-    <Compile Include="Hosting\DotvvmFileUploadMiddleware.cs" />
-    <Compile Include="Hosting\DotvvmInterruptRequestExecutionException.cs" />
-    <Compile Include="Hosting\DotvvmRestrictedStaticFilesMiddleware.cs" />
+    <Compile Include="Routing\Hosting\JQueryGlobalizeCultureMiddleware.cs" />
+    <Compile Include="Routing\Hosting\ModelState.cs" />
+    <Compile Include="Routing\Hosting\DotvvmEmbeddedResourceMiddleware.cs" />
+    <Compile Include="Routing\Hosting\DotvvmErrorPageMiddleware.cs" />
+    <Compile Include="Routing\Hosting\DotvvmFileUploadMiddleware.cs" />
+    <Compile Include="Routing\Hosting\DotvvmInterruptRequestExecutionException.cs" />
+    <Compile Include="Routing\Hosting\DotvvmRestrictedStaticFilesMiddleware.cs" />
     <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
     <Compile Include="Parser\NullTokenError.cs" />
     <Compile Include="Parser\Dothtml\Parser\DothtmlNodeHelper.cs" />
@@ -245,7 +244,7 @@
     <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionBuildingVisitor.cs" />
     <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionNode.cs" />
     <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionTreeVisitor.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingParser.cs" />
+    <Compile Include="Runtime\Compilation\BindingParser.cs" />
     <Compile Include="Runtime\Compilation\BindingExpressionTree\ConstantExpression.cs" />
     <Compile Include="Runtime\Compilation\BindingExpressionTree\KeywordExpression.cs" />
     <Compile Include="Runtime\Compilation\BindingExpressionTree\MethodInvocation.cs" />
@@ -256,10 +255,13 @@
     <Compile Include="Runtime\Compilation\DefaultViewCompiler.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompilerCodeEmitter.cs" />
     <Compile Include="Runtime\Compilation\EmitterMethodInfo.cs" />
+    <Compile Include="Runtime\Compilation\IBindingCompiler.cs" />
     <Compile Include="Runtime\Compilation\IControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\IViewCompiler.cs" />
+    <Compile Include="Runtime\Compilation\JavascriptCompilation\IJsMethodTranslator.cs" />
     <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptCompilationHelper.cs" />
-    <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptCompilingVisitor.cs" />
+    <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptTranslator.cs" />
+    <Compile Include="Runtime\Compilation\BindingCompiler.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\IResolvedTreeNode.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedBinding.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedControl.cs" />
@@ -272,7 +274,7 @@
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyControlCollection.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyTemplate.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyValue.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedView.cs" />
+    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedTreeRoot.cs" />
     <Compile Include="Runtime\Compilation\RoslynExtensionMethods.cs" />
     <Compile Include="Runtime\Compilation\ViewCompilingVisitor.cs" />
     <Compile Include="Runtime\DefaultControlBuilderFactory.cs" />
@@ -314,20 +316,20 @@
     <Compile Include="Styles\StylingVisitor.cs" />
     <Compile Include="Styles\StyleRepository.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
-    <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
-    <Compile Include="Hosting\ErrorPageTemplate.cs">
+    <Compile Include="Routing\Hosting\DefaultMarkupFileLoader.cs" />
+    <Compile Include="Routing\Hosting\ErrorPageTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ErrorPageTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="Hosting\FileReader.cs" />
-    <Compile Include="Hosting\IMarkupFileLoader.cs" />
-    <Compile Include="Hosting\IDotvvmPresenter.cs" />
-    <Compile Include="Hosting\MarkupFile.cs" />
-    <Compile Include="Hosting\DotvvmHttpException.cs" />
-    <Compile Include="Hosting\DotvvmMiddleware.cs" />
-    <Compile Include="Hosting\DotvvmPresenter.cs" />
-    <Compile Include="Hosting\DotvvmRequestContext.cs" />
+    <Compile Include="Routing\Hosting\FileReader.cs" />
+    <Compile Include="Routing\Hosting\IMarkupFileLoader.cs" />
+    <Compile Include="Routing\Hosting\IDotvvmPresenter.cs" />
+    <Compile Include="Routing\Hosting\MarkupFile.cs" />
+    <Compile Include="Routing\Hosting\DotvvmHttpException.cs" />
+    <Compile Include="Routing\Hosting\DotvvmMiddleware.cs" />
+    <Compile Include="Routing\Hosting\DotvvmPresenter.cs" />
+    <Compile Include="Routing\Hosting\DotvvmRequestContext.cs" />
     <Compile Include="KnockoutHelper.cs" />
     <Compile Include="OwinExtensions.cs" />
     <Compile Include="Parser\Constants.cs" />
@@ -385,9 +387,6 @@
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
     <Compile Include="ViewModel\ControlTreeWalker.cs" />
     <Compile Include="ViewModel\IViewModelValidationMetadataProvider.cs" />
-    <Compile Include="ViewModel\NonEvaluatingControlTreeWalker.cs" />
-    <Compile Include="ViewModel\NullEvaluator.cs" />
-    <Compile Include="ViewModel\ViewModelJTokenControlTreeWalker.cs" />
     <Compile Include="ViewModel\ViewModelValidator.cs" />
     <Compile Include="ViewModel\ViewModelPropertyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
@@ -421,7 +420,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Hosting\ErrorPageTemplate.tt">
+    <None Include="Routing\Hosting\ErrorPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
     </None>
@@ -464,7 +463,7 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NumberUtils.cs</LastGenOutput>
     </Content>
-    <Content Include="Hosting\FileUploadPageTemplate.tt">
+    <Content Include="Routing\Hosting\FileUploadPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
     </Content>

@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
 {
-    public class ResolvedView: ResolvedContentNode
+    public class ResolvedTreeRoot: ResolvedContentNode
     {
         public Dictionary<string, string> Directives { get; set; } = new Dictionary<string, string>();
 
-        public ResolvedView(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
+        public ResolvedTreeRoot(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
             : base(metadata, node, dataContext)
         { }
 

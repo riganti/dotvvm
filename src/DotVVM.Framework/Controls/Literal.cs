@@ -93,9 +93,9 @@ namespace DotVVM.Framework.Controls
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             var textBinding = GetBinding(TextProperty);
-            if (textBinding != null && !RenderOnServer)
+            if (textBinding != null && !RenderOnServer && textBinding.Javascript != null)
             {
-                var expression = textBinding.TranslateToClientScript(this, TextProperty);
+                var expression = textBinding.Javascript;
                 if (!string.IsNullOrEmpty(FormatString))
                 {
                     expression = "dotvvm.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";

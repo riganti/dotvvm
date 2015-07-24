@@ -10,11 +10,38 @@ namespace DotVVM.Framework.Utils
 {
     public static class ExpressionUtils
     {
-        public static Expression Indexer(Expression instance, Expression index, Type returnType)
+        public static Expression ConvertToObject(Expression expr)
+        {
+            if (expr.Type == typeof(object)) return expr;
+            else if (expr.Type == typeof(void)) return WrapInReturnNull(expr);
+            else return Expression.Convert(expr, typeof(object));
+        }
+
+        public static Expression WrapInReturnNull(Expression expr)
+        {
+            return Expression.Block(expr, Expression.Constant(null));
+        }
+
+        public static Expression Indexer(Expression instance, Expression index)
         {
             return Expression.Property(instance,
-                            instance.Type.GetProperty("Item", returnType, new[] { index.Type }),
+                            instance.Type.GetProperty("Item", new[] { index.Type }),
                             index);
+        }
+
+        public static Expression Replace(Expression ex, string paramName, Expression paramValue)
+        {
+            return Replace(ex, new[] { new KeyValuePair<string, Expression>(paramName, paramValue) });
+        }
+
+        public static Expression Replace(Expression ex, IEnumerable<KeyValuePair<string, Expression>> namedParameters)
+        {
+            var visitor = new ReplaceVisitor();
+            foreach (var p in namedParameters)
+            {
+                visitor.NamedParams.Add(p.Key, p.Value);
+            }
+            return visitor.Visit(ex);
         }
 
         public static Expression Replace(LambdaExpression ex, params Expression[] parameters)
@@ -77,10 +104,12 @@ namespace DotVVM.Framework.Utils
 
         private class ReplaceVisitor : ExpressionVisitor
         {
-            public Dictionary<ParameterExpression, Expression> Params = new Dictionary<ParameterExpression, Expression>();
+            public Dictionary<ParameterExpression, Expression> Params { get; } = new Dictionary<ParameterExpression, Expression>();
+            public Dictionary<string, Expression> NamedParams { get; } = new Dictionary<string, Expression>();
             protected override Expression VisitParameter(ParameterExpression node)
             {
                 if (Params.ContainsKey(node)) return Params[node];
+                else if (!string.IsNullOrEmpty(node.Name) && NamedParams.ContainsKey(node.Name)) return NamedParams[node.Name];
                 else return base.VisitParameter(node);
             }
         }

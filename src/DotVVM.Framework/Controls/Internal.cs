@@ -11,7 +11,6 @@ namespace DotVVM.Framework.Controls
     [ContainsDotvvmProperties]
     public class Internal
     {
-        
         public static readonly DotvvmProperty UniqueIDProperty =
             DotvvmProperty.Register<string, Internal>("UniqueID", isValueInherited: false);
 
@@ -23,5 +22,8 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty IsSpaPageProperty =
             DotvvmProperty.Register<bool, Internal>("IsSpaPageProperty", defaultValue: false, isValueInherited: true);
+
+        //public static readonly DotvvmProperty ChildDataContext =
+        //    DotvvmProperty.Register<object, Internal>(nameof(ChildDataContext), null, false);
     }
 }

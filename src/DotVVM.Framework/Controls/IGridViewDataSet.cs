@@ -21,5 +21,6 @@ namespace DotVVM.Framework.Controls
         void GoToPage(int index);
         void GoToPreviousPage();
         void Reset();
+        void SetSortExpression(string expression);
     }
 }

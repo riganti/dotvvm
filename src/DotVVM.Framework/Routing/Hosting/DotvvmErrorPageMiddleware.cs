@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using DotVVM.Framework.Routing.Hosting;
 
 namespace DotVVM.Framework.Hosting
 {

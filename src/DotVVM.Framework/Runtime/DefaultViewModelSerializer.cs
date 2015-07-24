@@ -77,10 +77,6 @@ namespace DotVVM.Framework.Runtime
             var writer = new JTokenWriter();
             serializer.Serialize(writer, context.ViewModel);
 
-            // save the control state
-            var walker = new ViewModelJTokenControlTreeWalker(writer.Token, view);
-            walker.ProcessControlTree(walker.SaveControlState);
-
             // persist CSRF token
             writer.Token["$csrfToken"] = context.CsrfToken;
 
@@ -204,10 +200,6 @@ namespace DotVVM.Framework.Runtime
             var serializer = new JsonSerializer();
             serializer.Converters.Add(viewModelConverter);
             viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
-
-            // load the control state
-            var walker = new ViewModelJTokenControlTreeWalker(viewModelToken, view);
-            walker.ProcessControlTree(walker.LoadControlState);
         }
 
         /// <summary>

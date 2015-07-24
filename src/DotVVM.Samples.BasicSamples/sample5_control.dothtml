@@ -1,4 +1,5 @@
 @baseType DotVVM.Samples.BasicSamples.Controls.Sample5_TestControl, DotVVM.Samples.BasicSamples
+@viewModel object
 
 <h2>{{controlProperty: Name}}</h2>
 <p>

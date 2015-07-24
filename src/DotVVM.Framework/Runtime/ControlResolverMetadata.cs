@@ -25,6 +25,7 @@ namespace DotVVM.Framework.Runtime
         public DotvvmProperty DefaultContentProperty { get; set; }
 
         public string VirtualPath { get; internal set; }
+        public Type DataContextConstraint { get; set; }
 
 
 

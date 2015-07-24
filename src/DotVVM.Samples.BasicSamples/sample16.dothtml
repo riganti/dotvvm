@@ -21,7 +21,7 @@
 		<p>&nbsp;</p>
 
 		<h1>GridView with simple collection</h1>
-		<rw:GridView DataSource="{value: Customers}" SortChanged="{command: SortCustomers}" class="table table-bordered">
+		<rw:GridView DataSource="{value: Customers}" SortChanged="{command: _parent.SortCustomers(_this)}" class="table table-bordered">
 			<Columns>
 				<rw:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
 				<rw:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />

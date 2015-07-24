@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using System.Collections;
 
 namespace DotVVM.Framework.Controls
 {
@@ -20,6 +21,8 @@ namespace DotVVM.Framework.Controls
 
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        [ControlPropertyBindingDataContextChange("DataSource")]
+        [CollectionElementDataContextChange]
         public List<GridViewColumn> Columns
         {
             get { return (List<GridViewColumn>)GetValue(ColumnsProperty); }
@@ -30,6 +33,8 @@ namespace DotVVM.Framework.Controls
 
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        [ControlPropertyBindingDataContextChange("DataSource")]
+        [CollectionElementDataContextChange]
         public List<Decorator> RowDecorators
         {
             get { return (List<Decorator>)GetValue(RowDecoratorsProperty); }
@@ -38,7 +43,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty RowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
-
+        [ConstantDataContextChange(typeof(string))]
         [MarkupOptions(AllowHardCodedValue = false)]
         public Action<string> SortChanged
         {
@@ -67,20 +72,20 @@ namespace DotVVM.Framework.Controls
             Children.Clear();
 
             var dataSourceBinding = GetDataSourceBinding();
-            var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
+            // var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
             var dataSource = DataSource;
 
-            string sortCommandPath = "";
+            Action<string> sortCommand = null;
             if (dataSource is IGridViewDataSet)
             {
-                sortCommandPath = dataSourcePath + ".SetSortExpression";
+                sortCommand = ((IGridViewDataSet)dataSource).SetSortExpression; // dataSourcePath + ".SetSortExpression";
             }
             else
             {
                 var sortCommandBinding = GetCommandBinding(SortChangedProperty);
                 if (sortCommandBinding != null)
                 {
-                    sortCommandPath = sortCommandBinding.Expression;
+                    sortCommand = s => sortCommandBinding.Delegate(BindingExpression.GetDataContexts(this, true).Concat(new[] { s }).ToArray(), null);
                 }
             }
 
@@ -88,13 +93,13 @@ namespace DotVVM.Framework.Controls
             if (dataSource != null)
             {
                 // create header row
-                CreateHeaderRow(context, sortCommandPath);
-
-                foreach (var item in GetIEnumerableFromDataSource(dataSource))
+                CreateHeaderRow(context, sortCommand);
+                var items = GetIEnumerableFromDataSource(dataSource);
+                foreach (var item in items)
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, dataSourceBinding.Javascript, index));
                     Children.Add(placeholder);
 
                     CreateRow(context, placeholder);
@@ -104,7 +109,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(DotvvmRequestContext context, string sortCommandPath)
+        private void CreateHeaderRow(DotvvmRequestContext context, Action<string> sortCommand)
         {
             var headerRow = new HtmlGenericControl("tr");
             Children.Add(headerRow);
@@ -114,7 +119,7 @@ namespace DotVVM.Framework.Controls
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
 
-                column.CreateHeaderControls(context, this, sortCommandPath, cell);
+                column.CreateHeaderControls(context, this, sortCommand, cell);
             }
         }
 
@@ -185,9 +190,7 @@ namespace DotVVM.Framework.Controls
                 var index = 0;
                 foreach (var child in Children.Skip(1))
                 {
-                    context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[" + index + "]");
                     Children[index].Render(writer, context);
-                    context.PathFragments.Pop();
                     index++;
                 }
             }
@@ -199,9 +202,7 @@ namespace DotVVM.Framework.Controls
 
                 CreateRow(context.RequestContext, placeholder);
 
-                context.PathFragments.Push(dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty) + "[$index]");
                 placeholder.Render(writer, context);
-                context.PathFragments.Pop();
             }
 
             writer.RenderEndTag();

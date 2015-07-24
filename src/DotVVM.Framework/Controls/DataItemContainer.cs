@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
@@ -22,7 +23,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the index of the data item in the data source control.
         /// </summary>
-        public int? DataItemIndex 
+        public int? DataItemIndex
         {
             get
             {

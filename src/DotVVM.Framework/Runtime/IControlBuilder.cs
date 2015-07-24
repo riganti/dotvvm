@@ -7,8 +7,7 @@ namespace DotVVM.Framework.Runtime
 {
     public interface IControlBuilder
     {
-
         DotvvmControl BuildControl(IControlBuilderFactory controlBuilderFactory);
-
+        Type DataContextType { get; }
     }
 }

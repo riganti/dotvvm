@@ -15,23 +15,26 @@ namespace DotVVM.Framework.Runtime.Compilation
     public class ViewCompilingVisitor: ResolvedControlTreeVisitor
     {
         protected readonly DefaultViewCompilerCodeEmitter emitter;
+        protected readonly IBindingCompiler bindingCompiler;
 
         protected int currentTemplateIndex;
         protected string className;
         protected ControlResolverMetadata lastMetadata;
         protected string controlName;
+        protected int bindingIdCounter;
 
-        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, string className)
+        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler, string className)
         {
             this.emitter = emitter;
             this.className = className;
+            this.bindingCompiler = bindingCompiler;
         }
 
-        public override void VisitView(ResolvedView view)
+        public override void VisitView(ResolvedTreeRoot view)
         {
             lastMetadata = view.Metadata;
             var wrapperClassName = CreateControlClass(className, view.Metadata.Type);
-
+            emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
             // build the statements
             emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName);
             var pageName = emitter.EmitCreateObject(wrapperClassName);
@@ -123,11 +126,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             emitter.EmitSetValue(controlName, propertyTemplate.Property.DescriptorFullName, templateName);
         }
 
-        protected void ProcessHtmlAttributes(string controlName, IDictionary<string, object> attributes)
+        protected void ProcessHtmlAttributes(string controlName, IDictionary<string, object> attributes, DataContextStack dataContext)
         {
             foreach (var attr in attributes)
             {
-                var value = ProcessBindingOrValue(attr.Value);
+                var value = ProcessBindingOrValue(attr.Value, dataContext);
                 emitter.EmitAddHtmlAttribute(controlName, attr.Key, value);
             }
         }
@@ -135,10 +138,10 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Emits value or binding and returns 
         /// </summary>
-        protected ExpressionSyntax ProcessBindingOrValue(object obj)
+        protected ExpressionSyntax ProcessBindingOrValue(object obj, DataContextStack dataContext)
         {
             var binding = obj as ResolvedBinding;
-            if (binding != null) return SyntaxFactory.IdentifierName(ProcessBinding(binding));
+            if (binding != null) return ProcessBinding(binding);
             else return emitter.EmitValue(obj);
         }
 
@@ -155,7 +158,6 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             else return wrapperType.FullName;
         }
-
 
         /// <summary>
         /// Processes the HTML element that represents a new object.
@@ -177,7 +179,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             emitter.EmitSetAttachedProperty(name, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, name);
             if(control.HtmlAttributes != null && control.Metadata.HasHtmlAttributesCollection)
             {
-                ProcessHtmlAttributes(name, control.HtmlAttributes);
+                ProcessHtmlAttributes(name, control.HtmlAttributes, control.DataContextTypeStack);
             }
             return name;
         }
@@ -185,9 +187,10 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Emits binding contructor and returns variable name
         /// </summary>
-        protected string ProcessBinding(ResolvedBinding binding)
+        protected ExpressionSyntax ProcessBinding(ResolvedBinding binding)
         {
-            return emitter.EmitCreateObject(binding.Type, new object[] { binding.Value });
+            //return emitter.EmitCreateObject(binding.Type, new object[] { binding.Value });
+            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(emitter, binding, "__b" + bindingIdCounter++) });
         }
 
         /// <summary>

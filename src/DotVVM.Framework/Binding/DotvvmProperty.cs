@@ -146,23 +146,6 @@ namespace DotVVM.Framework.Binding
             });
         }
 
-        /// <summary>
-        /// Registers the specified DotVVM property.
-        /// </summary>
-        public static DotvvmProperty RegisterControlStateProperty<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName, object defaultValue = null)
-        {
-            return RegisterControlStateProperty<TPropertyType, TDeclaringType>(ReflectionUtils.GetPropertyNameFromExpression(propertyName), defaultValue);
-        }
-
-        /// <summary>
-        /// Registers the specified DotVVM property.
-        /// </summary>
-        public static DotvvmProperty RegisterControlStateProperty<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null)
-        {
-            return Register<TPropertyType, TDeclaringType>(propertyName, defaultValue: new ControlStateBindingExpression(propertyName) { DefaultValue = defaultValue ?? default(TPropertyType) });
-        }
-
-
         private static ConcurrentDictionary<string, DotvvmProperty> registeredProperties = new ConcurrentDictionary<string, DotvvmProperty>();
 
         /// <summary>
@@ -209,24 +192,6 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         protected internal virtual void OnControlInitialized(DotvvmControl dotvvmControl)
         {
-            if (DefaultValue is ControlStateBindingExpression && dotvvmControl is DotvvmBindableControl)
-            {
-                // register the default value to the control state
-                var bindableControl = (DotvvmBindableControl)dotvvmControl;
-                if (bindableControl.RequiresControlState)
-                {
-                    if (bindableControl.GetBinding(this) == null)
-                    {
-                        bindableControl.SetBinding(this, (ControlStateBindingExpression)DefaultValue);
-                    }
-
-                    if (PropertyInfo.SetMethod == null)
-                    {
-                        var value = PropertyInfo.GetValue(dotvvmControl);
-                        ((ControlStateBindingExpression)DefaultValue).UpdateSource(value, bindableControl, this);
-                    }
-                }
-            }
         }
 
         /// <summary>
@@ -234,16 +199,6 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public void OnControlRendering(DotvvmControl dotvvmControl)
         {
-            if (DefaultValue is ControlStateBindingExpression && dotvvmControl is DotvvmBindableControl)
-            {
-                // save the property value to the control state
-                var bindableControl = (DotvvmBindableControl)dotvvmControl;
-                if (bindableControl.RequiresControlState)
-                {
-                    var value = PropertyInfo.GetValue(dotvvmControl);
-                    ((ControlStateBindingExpression)DefaultValue).UpdateSource(value, bindableControl, this);
-                }
-            }
         }
     }
 }

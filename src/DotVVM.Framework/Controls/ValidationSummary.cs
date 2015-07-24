@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            var expression = KnockoutHelper.GetValidationTargetExpression(this, true);
+            var expression = KnockoutHelper.GetValidationTargetExpression(this);
             if (expression != null)
             {
                 writer.AddKnockoutDataBind("foreach", expression + ".$validationErrors");

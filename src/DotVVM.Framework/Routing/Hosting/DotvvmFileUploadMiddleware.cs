@@ -12,6 +12,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
+using DotVVM.Framework.Routing.Hosting;
 
 namespace DotVVM.Framework.Hosting
 {
