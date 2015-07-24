@@ -25,7 +25,16 @@ namespace Redwood.Framework.Controls
         public static readonly RedwoodProperty IsSubmitButtonProperty
             = RedwoodProperty.Register<bool, Button>(c => c.IsSubmitButton, false);
 
-        
+        [MarkupOptions(AllowBinding = false)]
+        public ButtonTagName ButtonTagName
+        {
+            get { return (ButtonTagName)GetValue(ButtonTagNameProperty); }
+            set { SetValue(ButtonTagNameProperty, value); }
+        }
+        public static readonly RedwoodProperty ButtonTagNameProperty
+            = RedwoodProperty.Register<ButtonTagName, Button>(c => c.ButtonTagName, ButtonTagName.input);
+
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Button"/> class.
@@ -40,6 +49,10 @@ namespace Redwood.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            if (ButtonTagName == ButtonTagName.button)
+            {
+                TagName = "button";
+            }
             writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
 
             var clickBinding = GetCommandBinding(ClickProperty);
