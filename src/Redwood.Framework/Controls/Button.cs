@@ -41,6 +41,10 @@ namespace Redwood.Framework.Controls
         /// </summary>
         public Button() : base("input")
         {
+            if (ButtonTagName==ButtonTagName.button)
+            {
+                TagName = "button";
+            }
         }
 
 
