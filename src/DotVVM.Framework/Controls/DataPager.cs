@@ -105,7 +105,6 @@ namespace DotVVM.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { });
-            writer.AddAttribute("data-path", GetBinding(DataSetProperty).Javascript);
             writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().TranslateToClientScript(this, DataSetProperty) + ").TotalItemsCount() > 0");
             writer.RenderBeginTag("ul");
         }
@@ -116,15 +115,15 @@ namespace DotVVM.Framework.Controls
             previousLi.Render(writer, context);
 
             // render template
-            writer.WriteKnockoutDataBindComment("foreach", "NearPageIndexes");
+            writer.WriteKnockoutForeachComment("NearPageIndexes");
 
             writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
             var li = new HtmlGenericControl("li");
-            li.Attributes["data-path"] = "NearPageIndexes[$index]";
+            content.Children.Add(li);
+            li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
             link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => (int)vm.Last() + 1, "$data + 1"));
-            //link.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression("_parent.GoToPage(_this)"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
             li.Render(writer, context);
 

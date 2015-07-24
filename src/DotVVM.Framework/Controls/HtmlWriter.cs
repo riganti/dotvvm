@@ -240,15 +240,23 @@ namespace DotVVM.Framework.Controls
             writer.Write(text);
         }
 
-        //class HtmlElementInfo
-        //{
-        //    public string Name { get; }
-        //    public OrderedDictionary AutomaticAttributes { get; set; }
+    }
+    public class HtmlElementInfo
+    {
+        public string Name { get; internal set; }
+        private Dictionary<string, object> properties;
 
-        //    public HtmlElementInfo(string name)
-        //    {
-        //        this.Name = name;
-        //    }
-        //}
+        public void SetProperty(string name, object value)
+        {
+            if (properties == null) properties = new Dictionary<string, object>();
+            properties[name] = value;
+        }
+        public object GetProperty(string name)
+        {
+            if (properties == null) return null;
+            object result = null;
+            properties.TryGetValue(name, out result);
+            return result;
+        }
     }
 }

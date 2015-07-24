@@ -36,7 +36,7 @@ class DotVVM {
         // handle SPA
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
+            this.attachEvent(window, "hashchange",() => this.handleHashChange(viewModelName, spaPlaceHolder));
             this.handleHashChange(viewModelName, spaPlaceHolder);
         }
 
@@ -104,9 +104,9 @@ class DotVVM {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
             callback(JSON.parse(response.responseText));
         }, errorCallback,
-        xhr => {
-            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-        });
+            xhr => {
+                xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+            });
     }
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any): void {
@@ -157,7 +157,7 @@ class DotVVM {
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
-            this.loadResourceList(resultObject.resources, () => {
+            this.loadResourceList(resultObject.resources,() => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand") {
                     // remove updated controls
@@ -185,16 +185,16 @@ class DotVVM {
                 }
             });
         }, xhr => {
-            // if another postback has already been passed, don't do anything
-            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+                // if another postback has already been passed, don't do anything
+                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-            // execute error handlers
-            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-            this.events.error.trigger(errArgs);
-            if (!errArgs.handled) {
-                alert(xhr.responseText);
-            }
-        });
+                // execute error handlers
+                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+                this.events.error.trigger(errArgs);
+                if (!errArgs.handled) {
+                    alert(xhr.responseText);
+                }
+            });
     }
 
     private loadResourceList(resources: RenderedResourceList, callback: () => void) {
@@ -324,7 +324,7 @@ class DotVVM {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             var resultObject = JSON.parse(result.responseText);
-            this.loadResourceList(resultObject.resources, () => {
+            this.loadResourceList(resultObject.resources,() => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
                     // remove updated controls
@@ -358,16 +358,16 @@ class DotVVM {
                 }
             });
         }, xhr => {
-            // if another postback has already been passed, don't do anything
-            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+                // if another postback has already been passed, don't do anything
+                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-            // execute error handlers
-            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
-            this.events.error.trigger(errArgs);
-            if (!errArgs.handled) {
-                alert(xhr.responseText);
-            }
-        });
+                // execute error handlers
+                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
+                this.events.error.trigger(errArgs);
+                if (!errArgs.handled) {
+                    alert(xhr.responseText);
+                }
+            });
     }
 
     private handleRedirect(resultObject: any, viewModelName: string) {
@@ -424,7 +424,7 @@ class DotVVM {
     }
 
     public format(format: string, ...values: string[]) {
-        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, (match, group0, group1) => {
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g,(match, group0, group1) => {
             var value = values[parseInt(group0)];
             if (group1) {
                 return dotvvm.formatString(group1, value);
@@ -454,15 +454,17 @@ class DotVVM {
         return value.Items || value;
     }
 
-    private getViewModelPath(sender: HTMLElement): string[]{
+    private getViewModelPath(sender: HTMLElement): string[] {
         var path = [];
-        var element = sender.parentElement;
-        while (element) {
-            if (element.hasAttribute("data-path")) {
-                path.push(element.getAttribute("data-path"));
-            }
-            element = element.parentElement;
+
+        var context = ko.contextFor(sender);
+        while (context) {
+            if (context.$pathFragment)
+                path.push(context.$pathFragment);
+            else throw "invalid path";
+            context = context.$parentContext;
         }
+
         return path.reverse();
     }
 
@@ -559,19 +561,6 @@ class DotVVM {
         return routePath.replace(/\{[^\}]+\}/g, s => ko.unwrap(params[s.substring(1, s.length - 1)]) || "");
     }
 }
-
-interface KnockoutBindingHandlers {
-    withControlProperties: KnockoutBindingHandler;
-}
-ko.virtualElements.allowedBindings["withControlProperties"] = true
-ko.bindingHandlers.withControlProperties = {
-    init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-        var innerBindingContext = bindingContext.extend({ $control: valueAccessor() });
-        ko.applyBindingsToDescendants(innerBindingContext, element);
- 
-        return { controlsDescendantBindings: true }; // do not apply binding again
-    }
-};
 
 
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support 
@@ -672,3 +661,18 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         });
     }
 };
+interface KnockoutBindingHandlers {
+    withControlProperties: KnockoutBindingHandler;
+    withPath: KnockoutBindingHandler;
+}
+(function () {
+    ko.virtualElements.allowedBindings["withControlProperties"] = true
+    ko.bindingHandlers.withControlProperties = {
+        init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            var innerBindingContext = bindingContext.extend({ $control: valueAccessor() });
+            ko.applyBindingsToDescendants(innerBindingContext, element);
+
+            return { controlsDescendantBindings: true }; // do not apply binding again
+        }
+    };
+})();

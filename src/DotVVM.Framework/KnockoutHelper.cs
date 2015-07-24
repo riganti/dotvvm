@@ -6,13 +6,13 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework
 {
     public static class KnockoutHelper
     {
-
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction, string valueUpdate = null)
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null, string valueUpdate = null)
         {
             var expression = control.GetBinding(property);
             if (expression?.Javascript != null)
@@ -25,7 +25,7 @@ namespace DotVVM.Framework
             }
             else
             {
-                nullBindingAction();
+                if(nullBindingAction != null) nullBindingAction();
             }
         }
 
@@ -39,9 +39,19 @@ namespace DotVVM.Framework
             writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.TranslateToClientScript(control, property))) + "}", true, ", ");
         }
 
+        public static void WriteKnockoutForeachComment(this IHtmlWriter writer, string binding)
+        {
+            writer.WriteKnockoutDataBindComment("foreach", binding);
+        }
+
+        public static void WriteKnockoutWithComment(this IHtmlWriter writer, string binding)
+        {
+            writer.WriteKnockoutDataBindComment("with", binding);
+        }
+
         public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, string expression)
         {
-            writer.WriteUnencodedText("<!-- ko " + name + ": " + expression + " -->");
+            writer.WriteUnencodedText($"<!-- ko { name }: { expression } -->");
         }
 
         public static void WriteKnockoutDataBindEndComment(this IHtmlWriter writer)
@@ -52,12 +62,7 @@ namespace DotVVM.Framework
         public static void AddKnockoutForeachDataBind(this IHtmlWriter writer, string expression)
         {
             writer.AddKnockoutDataBind("foreach", "dotvvm.getDataSourceItems(" + expression + ")");
-            writer.AddPathChangeAttribute(JavascriptCompilationHelper.AddIndexerToViewModel(expression, "$index"));
-        }
-
-        public static void AddPathChangeAttribute(this IHtmlWriter writer, string path)
-        {
-            writer.AddAttribute("data-path", path);
+            //writer.SetPathFragment(JavascriptCompilationHelper.AddIndexerToViewModel(expression, "$index"));
         }
 
         public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false)
@@ -74,7 +79,7 @@ namespace DotVVM.Framework
             {
                 "'" + context.CurrentPageArea + "'",
                 "this",
-                "null", // "[" + String.Join(", ", GetContextPath(control)) + "]",
+                "[" + String.Join(", ", GetContextPath(control).Reverse().Select(p => '"' + p + '"')) + "]",
                 "'" + expression.BindingId + "'",
                 "'" + uniqueControlId + "'",
                 useWindowSetTimeout ? "true" : "false"
@@ -89,17 +94,21 @@ namespace DotVVM.Framework
             // postback without validation
             return String.Format("dotvvm.postBack({0});return false;", String.Join(", ", arguments));
         }
-
         private static IEnumerable<string> GetContextPath(DotvvmControl control)
         {
             while (control != null)
             {
                 if (control is DotvvmBindableControl)
                 {
-                    var binding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as ValueBindingExpression;
-                    if (binding != null)
+                    var dataContextBinding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as ValueBindingExpression;
+                    var pathFragment = ((DotvvmBindableControl)control).GetValue(Internal.PathFragmentProperty, false) as string;
+                    if (pathFragment != null)
                     {
-                        yield return binding.Javascript;
+                        yield return pathFragment;
+                    }
+                    if (dataContextBinding != null)
+                    {
+                        yield return dataContextBinding.Javascript;
                     }
                 }
                 control = control.Parent;

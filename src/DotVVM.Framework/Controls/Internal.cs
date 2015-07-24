@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IsSpaPageProperty =
             DotvvmProperty.Register<bool, Internal>("IsSpaPageProperty", defaultValue: false, isValueInherited: true);
 
-        //public static readonly DotvvmProperty ChildDataContext =
-        //    DotvvmProperty.Register<object, Internal>(nameof(ChildDataContext), null, false);
+        public static readonly DotvvmProperty PathFragmentProperty =
+            DotvvmProperty.Register<string, Internal>("PathFragment");
     }
 }

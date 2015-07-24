@@ -433,12 +433,13 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.getViewModelPath = function (sender) {
         var path = [];
-        var element = sender.parentElement;
-        while (element) {
-            if (element.hasAttribute("data-path")) {
-                path.push(element.getAttribute("data-path"));
-            }
-            element = element.parentElement;
+        var context = ko.contextFor(sender);
+        while (context) {
+            if (context.$pathFragment)
+                path.push(context.$pathFragment);
+            else
+                throw "invalid path";
+            context = context.$parentContext;
         }
         return path.reverse();
     };
@@ -535,14 +536,6 @@ var DotVVM = (function () {
     };
     return DotVVM;
 })();
-ko.virtualElements.allowedBindings["withControlProperties"] = true;
-ko.bindingHandlers.withControlProperties = {
-    init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-        var innerBindingContext = bindingContext.extend({ $control: valueAccessor() });
-        ko.applyBindingsToDescendants(innerBindingContext, element);
-        return { controlsDescendantBindings: true }; // do not apply binding again
-    }
-};
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support 
 // calling missed events for handler that subscribed too late.
 var DotvvmEvent = (function () {
@@ -666,4 +659,14 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         });
     }
 };
+(function () {
+    ko.virtualElements.allowedBindings["withControlProperties"] = true;
+    ko.bindingHandlers.withControlProperties = {
+        init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            var innerBindingContext = bindingContext.extend({ $control: valueAccessor() });
+            ko.applyBindingsToDescendants(innerBindingContext, element);
+            return { controlsDescendantBindings: true }; // do not apply binding again
+        }
+    };
+})();
 //# sourceMappingURL=dotvvm.js.map

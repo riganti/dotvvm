@@ -222,7 +222,7 @@ namespace DotVVM.Framework.Controls
             var dataContextBinding = GetValueBinding(DataContextProperty, false);
             if (dataContextBinding != null)
             {
-                writer.WriteKnockoutDataBindComment("with", dataContextBinding.TranslateToClientScript(this, DataContextProperty));
+                writer.WriteKnockoutWithComment(dataContextBinding.TranslateToClientScript(this, DataContextProperty));
             }
 
             base.RenderControl(writer, context);
@@ -231,17 +231,6 @@ namespace DotVVM.Framework.Controls
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
-        }
-
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
-        {
-            // if the DataContext is set, set data-path attribute
-            var dataContextBinding = GetValueBinding(DataContextProperty, false);
-            if (dataContextBinding != null)
-            {
-                writer.AddAttribute("data-path", dataContextBinding.Javascript);
-            }
-            base.AddAttributesToRender(writer, context);
         }
 
 
