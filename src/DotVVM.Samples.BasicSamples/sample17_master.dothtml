@@ -1,3 +1,4 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample17ViewModel, DotVVM.Samples.BasicSamples 
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
