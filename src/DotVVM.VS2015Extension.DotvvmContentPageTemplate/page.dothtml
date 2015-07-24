@@ -1,0 +1,8 @@
+@viewModel $rootnamespace$.$safeitemname$ViewModel, $rootnamespace$
+@masterPage master.dothtml
+
+<rw:Content ContentPlaceHolderID="MainContent">
+
+
+
+</rw:Content>

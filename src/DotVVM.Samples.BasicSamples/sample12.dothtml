@@ -1,0 +1,22 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample12ViewModel, DotVVM.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>PostBack.Update test</h1>
+		
+		<div class="well">
+			<p>Enter a number: <rw:TextBox Text="{value: Value}" /></p>
+			<p><rw:Button Text="Refresh control" Click="{command: Apply()}" /></p>
+		</div>
+		<p>&nbsp;</p>
+		
+		<p>... <sample12:ServerRenderedLabel Text="{value: Result}" PostBack.Update="true" /> ...</p>
+	</div>
+	
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>

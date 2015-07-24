@@ -1,0 +1,40 @@
+.rw-upload {
+    margin: 1em 0px;
+}
+
+.rw-upload .rw-upload-iframe {
+    position: absolute;
+    left: -100000px;
+    top: 0px;
+}
+
+.rw-upload .rw-upload-files {
+    display: inline-block;
+    margin-left: 2em;
+}
+
+.rw-upload .rw-upload-progress-wrapper {
+    display: inline-block;
+    margin-left: 2em;
+    width: 100px;
+    height: 14px;
+    line-height: 10px;
+    padding: 1px;
+    border: 1px solid #a0a0a0;
+    vertical-align: middle;
+}
+    .rw-upload .rw-upload-progress-wrapper .rw-upload-progress {
+        height: 10px;
+        background-color: #0094ff;
+        display: inline-block;
+    }
+
+.rw-upload .rw-upload-result {
+    display: inline-block;
+    margin-left: 2em;
+}
+    .rw-upload .rw-upload-result.rw-upload-result-success {
+    }
+    .rw-upload .rw-upload-result.rw-upload-result-error {
+        color: #cc0000;
+    }

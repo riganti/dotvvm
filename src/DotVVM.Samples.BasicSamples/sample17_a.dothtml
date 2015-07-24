@@ -1,0 +1,16 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample17ViewModel_A, DotVVM.Samples.BasicSamples
+@masterPage sample17_master.dothtml
+
+<rw:Content ContentPlaceHolderID="MainContent">
+
+	<p id="value">Value: {{value: Value}}</p>
+	<p>
+		<rw:Button Text="Increase" Click="{command: IncreaseValue()}"/>
+	</p>
+
+	<p>
+		<rw:RouteLink RouteName="Sample17_B" Text="Go to Task List"/><br />
+		<rw:RouteLink RouteName="Sample1" Text="Exit SPA"/>
+	</p>
+
+</rw:Content>

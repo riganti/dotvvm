@@ -1,0 +1,5 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample17ViewModel, DotVVM.Samples.BasicSamples
+@masterPage sample17_master.dothtml
+
+<rw:Content ContentPlaceHolderID="MainContent">
+</rw:Content>

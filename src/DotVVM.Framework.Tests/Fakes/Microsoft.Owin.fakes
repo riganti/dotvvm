@@ -1,0 +1,3 @@
+<Fakes xmlns="http://schemas.microsoft.com/fakes/2011/">
+  <Assembly Name="Microsoft.Owin" Version="3.0.1.0"/>
+</Fakes>

@@ -1,8 +1,0 @@
-﻿@viewModel $rootnamespace$.$safeitemname$ViewModel, $rootnamespace$
-@masterPage master.rwhtml
-
-<rw:Content ContentPlaceHolderID="MainContent">
-
-
-
-</rw:Content>

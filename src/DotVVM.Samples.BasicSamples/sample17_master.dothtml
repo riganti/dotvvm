@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>SPA test application</title>
+	<style>
+		.completed {
+			color: maroon;
+			text-decoration: line-through;
+		}
+	</style>
+</head>
+<body>
+	<div class="container">
+		<h1>{{value: HeaderText}}</h1>
+
+		<fieldset>
+			<label></label>
+
+			<ul>
+				<li><rw:RouteLink RouteName="Sample17_A" Param-Id="16" Text="Sample 1" Id="link0" /></li>
+				<li><rw:RouteLink RouteName="Sample17_B" Text="Sample 2 - Task List" Id="link1" /></li>
+			</ul>
+
+		</fieldset>
+	
+		<rw:SpaContentPlaceHolder ID="MainContent" DefaultRouteName="Sample17_B" />
+	
+		<rw:RequiredResource Name="bootstrap" />
+	</div>
+</body>
+</html>

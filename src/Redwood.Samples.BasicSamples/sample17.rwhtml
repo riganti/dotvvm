@@ -1,5 +1,0 @@
-﻿@viewModel Redwood.Samples.BasicSamples.ViewModels.Sample17ViewModel, Redwood.Samples.BasicSamples
-@masterPage sample17_master.rwhtml
-
-<rw:Content ContentPlaceHolderID="MainContent">
-</rw:Content>

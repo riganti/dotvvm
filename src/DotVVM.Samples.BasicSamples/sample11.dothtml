@@ -1,0 +1,61 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample11ViewModel, DotVVM.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+	<style>
+	.completed {
+		color: maroon;
+		text-decoration: line-through;
+	}
+	.validator {
+		color: red;
+	}
+	</style>
+</head>
+<body>
+<div class="container">
+	<h1>Task List With Validation</h1>
+		
+		<fieldset>
+			<legend>Add Task</legend>
+			
+			<p>
+				Title: <rw:TextBox Text="{value: NewTaskTitle}" />
+			</p>
+			<p>
+				<rw:ValidationMessage Id="hideWhenValid" ValidatedValue="{value: NewTaskTitle}" Mode="HideWhenValid" AsteriskText="Validation 1 - HideWhenValid" />
+				<rw:ValidationMessage Id="addCssClass" ValidatedValue="{value: NewTaskTitle}" Mode="AddCssClass" AsteriskText="Validation 2 - AddCssClass" InvalidCssClass="validator" />
+				<rw:ValidationMessage Id="displayErrorMessage" ValidatedValue="{value: NewTaskTitle}" Mode="DisplayErrorMessage" AsteriskText="Validation 3 - DisplayErrorMessage" />
+			</p>
+			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p> 
+
+			<div class="validator"><rw:ValidationSummary Id="validationSummary" /></div>
+		</fieldset>
+		<p>&nbsp;</p>
+		
+		<table class="table">
+			<rw:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+				<ItemTemplate>
+					<tr class="{value: IsCompleted ? "completed" : ""}">
+						<td>{{value: Title}}</td>
+						<td>
+							<rw:LinkButton 
+								Text="done" 
+								Click="{command: _parent.CompleteTask(TaskId)}" 
+								Visible="{value: !IsCompleted}"
+								Validate.Enabled="false" />
+						</td>
+					</tr>
+				</ItemTemplate>
+			</rw:Repeater>
+		</table>
+	</div>
+	
+	<p>
+		<rw:UpdateProgress>Loading...</rw:UpdateProgress>
+	</p>
+
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>
