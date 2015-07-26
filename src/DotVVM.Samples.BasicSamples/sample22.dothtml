@@ -1,0 +1,30 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample22ViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>ReouteLink in Repeater</h1>
+		
+		<h3>Client rendered</h3>
+		<rw:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Client">
+			<ItemTemplate>
+				<rw:RouteLink RouteName="Sample22-PageDetail" Param-Id="{value: Id}" Text="{value: Name}" />
+			</ItemTemplate>
+		</rw:Repeater>
+
+		<h3>Server rendered</h3>
+		<rw:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Server">
+			<ItemTemplate>
+				<rw:RouteLink RouteName="Sample22-PageDetail" Param-Id="{value: Id}" Text="{value: Name}" />
+			</ItemTemplate>
+		</rw:Repeater>
+
+	</div>
+	
+	<rw:RequiredResource Name="bootstrap" />
+</body>
+</html>

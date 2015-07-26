@@ -9,15 +9,11 @@ namespace DotVVM.Framework.Controls
     public class Validate
     {
 
-        [AttachedProperty]
-        public static DotvvmProperty EnabledProperty = DotvvmProperty.Register<bool, Validate>("Enabled", true);
+        [AttachedProperty(typeof(bool))]
+        public static DotvvmProperty EnabledProperty = DotvvmProperty.Register<bool, Validate>("Enabled", true, true);
 
-        [AttachedProperty]
-        public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validate>("Target", new ValueBindingExpression(new CompiledBindingExpression()
-        {
-            Delegate = (h, c) => h[0],
-            Javascript = "$root"
-        }), true);
+        [AttachedProperty(typeof(object))]
+        public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validate>("Target", null, true);
 
     }
 }

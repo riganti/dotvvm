@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Id="DotVVM.VS2015Extension..ff9401c7-99da-4a9c-9800-1ffdcd4f13b3" Version="1.0" Language="en-US" Publisher="RIGANTI" />
+    <Identity Id="DotVVM.VS2015Extension..ff9401c7-99da-4a9c-9800-1ffdcd4f13b3" Version="1.0.1" Language="en-US" Publisher="RIGANTI" />
     <DisplayName>DotVVM for Visual Studio 2015</DisplayName>
     <Description xml:space="preserve">An editor extension for http://github.com/riganti/dotvvm</Description>
   </Metadata>
@@ -30,6 +30,6 @@
     <Asset d:Source="File" Type="Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg" Path="Packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg" Path="Packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg" Path="Packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg" d:VsixSubPath="Packages" />
-    <Asset d:Source="File" Type="DotVVM.0.6.0-pre.nupkg" Path="Packages\DotVVM.0.6.0-pre.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="DotVVM.0.7.0.8-pre.nupkg" d:VsixSubPath="Packages" Path="Packages\DotVVM.0.7.0.8-pre.nupkg" />
   </Assets>
 </PackageManifest>

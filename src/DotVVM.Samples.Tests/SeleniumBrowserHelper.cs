@@ -119,21 +119,25 @@ namespace DotVVM.Samples.Tests
         public void NavigateToUrl(string url)
         {
             browser.Navigate().GoToUrl(url);
+            Thread.Sleep(500);
         }
 
         public void NavigateBack()
         {
             browser.Navigate().Back();
+            Thread.Sleep(500);
         }
 
         public void NavigateForward()
         {
             browser.Navigate().Forward();
+            Thread.Sleep(500);
         }
 
         public void Refresh()
         {
             browser.Navigate().Refresh();
+            Thread.Sleep(500);
         }
 
         /// <summary>

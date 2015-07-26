@@ -65,7 +65,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             if (IsEmbeddedResource)
             {
-                return string.Format(Constants.ResourceHandlerUrl, WebUtility.UrlEncode(DotvvmEmbeddedResourceMiddleware.RegisterHandledResource(EmbeddedResourceAssembly, Url, friendlyName)));
+                return string.Format(Constants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
             }
             return Url;
         }

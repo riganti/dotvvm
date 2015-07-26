@@ -41,7 +41,14 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(viewModel.GetType().GetMethod("Test"), evaluator.Evaluate("_root.Test", viewModel));
             Assert.AreEqual(viewModel.GetType().GetMethod("Test2"), evaluator.Evaluate("_root.TestProp.Test2", viewModel));
         }
-        
+
+        [TestMethod]
+        public void ExpressionEvaluator_Standalone_BinaryExpressions()
+        {
+            var evaluator = new ExpressionEvaluator() { AllowMethods = true };
+            Assert.AreEqual(true, evaluator.Evaluate("true || aaa", null));     // short evaluation
+        }
+
         public class TestA
         {
             public void Test(int i)

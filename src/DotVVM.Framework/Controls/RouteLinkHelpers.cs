@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                return context.RequestContext.TranslateVirtualPath("~/" + coreUrl);
+                return context.RequestContext.TranslateVirtualPath(coreUrl);
             }
         }
 

@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Controls
     [ContainsDotvvmProperties]
     public class PostBack
     {
-        [AttachedProperty]
+        [AttachedProperty(typeof(bool))]
         public static readonly DotvvmProperty UpdateProperty =
             DotvvmProperty.Register<bool, PostBack>("Update", false);
     }

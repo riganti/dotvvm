@@ -1,5 +1,4 @@
 using System;
-using System.Linq;
 using System.IO;
 using System.Web.Hosting;
 using Microsoft.Owin;
@@ -12,7 +11,6 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.AspNet.Identity;
 using DotVVM.Framework.Storage;
 using DotVVM.Framework.ResourceManagement;
-using DotVVM.Framework.Controls;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.BasicSamples.Startup))]
 namespace DotVVM.Samples.BasicSamples
@@ -71,8 +69,12 @@ namespace DotVVM.Samples.BasicSamples
             dotvvmConfiguration.RouteTable.Add("Sample17_B", "Sample17/B", "sample17_b.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample18", "Sample18", "sample18.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample19", "Sample19", "sample19.dothtml", null);
+            dotvvmConfiguration.RouteTable.Add("Sample20", "Sample20", "sample20.dothtml", null);
+            dotvvmConfiguration.RouteTable.Add("Sample22", "Sample22", "sample22.dothtml", null);
+            dotvvmConfiguration.RouteTable.Add("Sample22-PageDetail", "Sample22/{Id}", "sample22.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.dothtml", null);
+            dotvvmConfiguration.RouteTable.Add("ReturnFileSample", "ReturnFileSample", "ReturnFileSample/sample.dothtml", null);
 
             var bundles = new BundlingResourceProcessor();
             bundles.RegisterBundle(dotvvmConfiguration.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
@@ -84,6 +86,9 @@ namespace DotVVM.Samples.BasicSamples
 
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "TempUpload"), TimeSpan.FromMinutes(30)));
+
+            dotvvmConfiguration.ServiceLocator.RegisterSingleton<IReturnedFileStorage>(() =>
+                new FileSystemReturnedFileStorage(Path.Combine(HostingEnvironment.ApplicationPhysicalPath, "TempFolder"), TimeSpan.FromMinutes(1)));
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

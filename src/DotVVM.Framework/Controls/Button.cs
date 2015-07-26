@@ -25,13 +25,26 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IsSubmitButtonProperty
             = DotvvmProperty.Register<bool, Button>(c => c.IsSubmitButton, false);
 
-        
+        [MarkupOptions(AllowBinding = false)]
+        public ButtonTagName ButtonTagName
+        {
+            get { return (ButtonTagName)GetValue(ButtonTagNameProperty); }
+            set { SetValue(ButtonTagNameProperty, value); }
+        }
+        public static readonly DotvvmProperty ButtonTagNameProperty
+            = DotvvmProperty.Register<ButtonTagName, Button>(c => c.ButtonTagName, ButtonTagName.input);
+
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Button"/> class.
         /// </summary>
         public Button() : base("input")
         {
+            if (ButtonTagName==ButtonTagName.button)
+            {
+                TagName = "button";
+            }
         }
 
 
@@ -40,6 +53,10 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            if (ButtonTagName == ButtonTagName.button)
+            {
+                TagName = "button";
+            }
             writer.AddAttribute("type", IsSubmitButton ? "submit" : "button");
 
             var clickBinding = GetBinding(ClickProperty);
@@ -47,7 +64,7 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript((CommandBindingExpression)clickBinding, context, this));
             }
-            else if(clickBinding is StaticCommandBindingExpression)
+            else if (clickBinding is StaticCommandBindingExpression)
             {
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostbackScript((StaticCommandBindingExpression)clickBinding, context, this));
             }

@@ -35,7 +35,20 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty UploadedFilesProperty
             = DotvvmProperty.Register<UploadedFilesCollection, FileUpload>(p => p.UploadedFiles, null);
-        
+
+
+        /// <summary>
+        /// Gets or sets a command that is called when the upload is complete.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public Action UploadCompleted
+        {
+            get { return (Action)GetValue(UploadCompletedProperty); }
+            set { SetValue(UploadCompletedProperty, value); }
+        }
+        public static readonly DotvvmProperty UploadCompletedProperty
+            = DotvvmProperty.Register<Action, FileUpload>(p => p.UploadCompleted, null);
+
 
 
 
@@ -59,6 +72,12 @@ namespace DotVVM.Framework.Controls
                 throw new Exception("The UploadedFiles property of the FileUpload control must be bound!");   // TODO: Exception handling
             });
             writer.AddAttribute("class", "rw-upload", true);
+
+            var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
+            if (uploadCompletedBinding != null)
+            {
+                writer.AddAttribute("data-upload-completed", KnockoutHelper.GenerateClientPostBackScript(uploadCompletedBinding, context, this, true, null));
+            }
 
             base.AddAttributesToRender(writer, context);
         }

@@ -292,7 +292,11 @@ namespace DotVVM.Framework.Controls
             {
                 if (current is DotvvmBindableControl && ((DotvvmBindableControl)current).GetValueBinding(DataContextProperty, false) != null)
                 {
-                    numberOfDataContextChanges++;
+                    var bindable = (DotvvmBindableControl)current;
+                    if (bindable.HasBinding(DataContextProperty) || ((bool?)bindable.GetValue(Internal.IsDataContextBoundaryProperty, false) == true))
+                    {
+                        numberOfDataContextChanges++;
+                    }
                 }
                 if (filterFunction(current))
                 {
@@ -303,11 +307,17 @@ namespace DotVVM.Framework.Controls
             }
             return current;
         }
+        
+        protected internal bool HasBinding(DotvvmProperty property)
+        {
+            object value;
+            return Properties.TryGetValue(property, out value) && value is BindingExpression;
+        }
 
-        /// <summary>
-        /// Gets all bindings set on the control.
-        /// </summary>
-        internal IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
+    /// <summary>
+    /// Gets all bindings set on the control.
+    /// </summary>
+    internal IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
         {
             return Properties.Where(p => p.Value is BindingExpression)
                 .Select(p => new KeyValuePair<DotvvmProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));

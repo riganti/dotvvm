@@ -253,7 +253,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <Content Include="Packages\DotVVM\DotVVM.0.6.0-pre.nuspec" />
     <Content Include="Packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
@@ -282,10 +281,11 @@
     <Content Include="Packages\Owin.1.0.0.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.0.6.0-pre.nupkg">
+    <Content Include="Packages\DotVVM.0.7.0.8-pre.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <None Include="Packages\DotVVM\DotVVM.nuspec" />
     <None Include="Packages\DotVVM\init.ps1" />
     <None Include="Packages\DotVVM\install.ps1" />
     <None Include="Packages\DotVVM\DotvvmModule.psm1" />
@@ -359,8 +359,8 @@ copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\Microsof
 copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
 
-if exist "$(ProjectDir)Packages\DotVVM.0.6.0-pre.nupkg" del "$(ProjectDir)Packages\DotVVM.0.6.0-pre.nupkg"
-"$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.0.6.0-pre.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
+del "$(ProjectDir)Packages\DotVVM.*.nupkg" -y
+"$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

@@ -9,6 +9,7 @@ class DotVVM {
 
     private postBackCounter = 0;
     private resourceSigns: { [name: string]: boolean } = {}
+    private isViewModelUpdating: boolean = true;
 
     public extensions: any = {};
     public viewModels: any = {};
@@ -32,11 +33,12 @@ class DotVVM {
 
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
+        this.isViewModelUpdating = false;
 
         // handle SPA
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.attachEvent(window, "hashchange",() => this.handleHashChange(viewModelName, spaPlaceHolder));
+            this.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
             this.handleHashChange(viewModelName, spaPlaceHolder);
         }
 
@@ -130,10 +132,9 @@ class DotVVM {
             this.events.afterPostback.trigger(afterPostBackArgsCanceled);
             return;
         }
-        if (!path) path = this.getViewModelPath(sender);
-        this.updateDynamicPathFragments(sender, path);
 
         // perform the postback
+        this.updateDynamicPathFragments(sender, path);
         var data = {
             viewModel: ko.mapper.toJS(viewModel),
             currentPath: path,
@@ -154,22 +155,27 @@ class DotVVM {
             var resultObject = JSON.parse(result.responseText);
             if (!resultObject.viewModel && resultObject.viewModelDiff) {
                 // TODO: patch (~deserialize) it to ko.observable viewModel
+                this.isViewModelUpdating = true;
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
-            this.loadResourceList(resultObject.resources,() => {
+            this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand") {
+                    this.isViewModelUpdating = true;
+
                     // remove updated controls
                     var updatedControls = this.cleanUpdatedControls(resultObject);
 
                     // update the viewmodel
-                    if (resultObject.viewModel)
+                    if (resultObject.viewModel) {
                         ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                    }
                     isSuccess = true;
 
                     // add updated controls
                     this.restoreUpdatedControls(resultObject, updatedControls, true);
+                    this.isViewModelUpdating = false;
 
                 } else if (resultObject.action === "redirect") {
                     // redirect
@@ -185,16 +191,16 @@ class DotVVM {
                 }
             });
         }, xhr => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-                // execute error handlers
-                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-                this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert(xhr.responseText);
-                }
-            });
+            // execute error handlers
+            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+            this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
+                alert(xhr.responseText);
+            }
+        });
     }
 
     private loadResourceList(resources: RenderedResourceList, callback: () => void) {
@@ -324,9 +330,11 @@ class DotVVM {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             var resultObject = JSON.parse(result.responseText);
-            this.loadResourceList(resultObject.resources,() => {
+            this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
+                    this.isViewModelUpdating = true;
+
                     // remove updated controls
                     var updatedControls = this.cleanUpdatedControls(resultObject);
 
@@ -338,6 +346,7 @@ class DotVVM {
                             this.viewModels[viewModelName][p] = resultObject[p];
                         }
                     }
+
                     ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
                     isSuccess = true;
 
@@ -345,6 +354,7 @@ class DotVVM {
                     this.restoreUpdatedControls(resultObject, updatedControls, false);
                     ko.applyBindings(this.viewModels[viewModelName].viewModel, document.documentElement);
 
+                    this.isViewModelUpdating = false;
                 } else if (resultObject.action === "redirect") {
                     this.handleRedirect(resultObject, viewModelName);
                     return;
@@ -358,16 +368,16 @@ class DotVVM {
                 }
             });
         }, xhr => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-                // execute error handlers
-                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
-                this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert(xhr.responseText);
-                }
-            });
+            // execute error handlers
+            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
+            this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
+                alert(xhr.responseText);
+            }
+        });
     }
 
     private handleRedirect(resultObject: any, viewModelName: string) {
@@ -424,7 +434,7 @@ class DotVVM {
     }
 
     public format(format: string, ...values: string[]) {
-        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g,(match, group0, group1) => {
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, (match, group0, group1) => {
             var value = values[parseInt(group0)];
             if (group1) {
                 return dotvvm.formatString(group1, value);
@@ -452,20 +462,6 @@ class DotVVM {
     public getDataSourceItems(viewModel: any) {
         var value = ko.unwrap(viewModel);
         return value.Items || value;
-    }
-
-    private getViewModelPath(sender: HTMLElement): string[] {
-        var path = [];
-
-        var context = ko.contextFor(sender);
-        while (context) {
-            if (context.$pathFragment)
-                path.push(context.$pathFragment);
-            else throw "invalid path";
-            context = context.$parentContext;
-        }
-
-        return path.reverse();
     }
 
     private updateDynamicPathFragments(sender: HTMLElement, path: string[]): void {

@@ -29,6 +29,11 @@ class DotvvmFileUpload {
             for (var i = 0; i < result.length; i++) {
                 viewModel.Files.push(ko.mapper.fromJS(result[i]));
             }
+
+            // call the handler
+            if (targetControl.dataset["uploadCompleted"]) {
+                eval("(function () {" + targetControl.dataset["uploadCompleted"] + "})").call(targetControl);
+            }
         }
         viewModel.Progress(progress);
         viewModel.IsBusy(isBusy);

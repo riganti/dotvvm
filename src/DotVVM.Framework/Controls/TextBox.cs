@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(ChangedProperty, value); }
         }
         public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Action, CheckableControlBase>(t => t.Changed, null);
+            DotvvmProperty.Register<Action, TextBox>(t => t.Changed, null);
 
 
 
@@ -82,6 +82,10 @@ namespace DotVVM.Framework.Controls
             if (Type == TextBoxType.Normal)
             {
                 TagName = "input";
+                if (!Attributes.ContainsKey("type"))
+                {
+                    writer.AddAttribute("type", "text");
+                }
             }
             else if (Type == TextBoxType.Password)
             {
@@ -97,11 +101,12 @@ namespace DotVVM.Framework.Controls
             var changedBinding = GetCommandBinding(ChangedProperty);
             if (changedBinding != null)
             {
-                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(changedBinding, context, this, true));
+                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(changedBinding, context, this, true, isOnChange: true));
             }
 
             base.AddAttributesToRender(writer, context);
         }
+
 
         /// <summary>
         /// Renders the contents inside the control begin and end tags.

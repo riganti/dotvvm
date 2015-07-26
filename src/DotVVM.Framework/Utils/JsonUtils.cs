@@ -21,6 +21,7 @@ namespace DotVVM.Framework.Utils
                     if (item.Value != null)
                     {
                         diff[item.Key] = item.Value;
+                        changed = true;
                     }
                 }
                 else if (sourceItem.Type != item.Value.Type)

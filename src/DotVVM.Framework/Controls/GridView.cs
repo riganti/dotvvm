@@ -53,6 +53,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty SortChangedProperty =
             DotvvmProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
+        private string dataSourcePath;
+
 
         protected internal override void OnLoad(DotvvmRequestContext context)
         {
@@ -111,8 +113,11 @@ namespace DotVVM.Framework.Controls
 
         private void CreateHeaderRow(DotvvmRequestContext context, Action<string> sortCommand)
         {
+            var head = new HtmlGenericControl("thead");
+            Children.Add(head);
+
             var headerRow = new HtmlGenericControl("tr");
-            Children.Add(headerRow);
+            head.Children.Add(headerRow);
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("th");
@@ -130,17 +135,15 @@ namespace DotVVM.Framework.Controls
                 cell.Attributes["style"] = "width: " + column.Width;
             }
 
-            if (!isHeaderCell)
+            var cssClassBinding = column.GetValueBinding(isHeaderCell ? GridViewColumn.CssClassProperty : GridViewColumn.HeaderCssClassProperty);
+
+            if (cssClassBinding != null)
             {
-                var cssClassBinding = column.GetValueBinding(GridViewColumn.CssClassProperty);
-                if (cssClassBinding != null)
-                {
-                    cell.Attributes["class"] = cssClassBinding.Clone();
-                }
-                else if (!string.IsNullOrWhiteSpace(column.CssClass))
-                {
-                    cell.Attributes["class"] = column.CssClass;
-                }
+                cell.Attributes["class"] = cssClassBinding.Clone();
+            }
+            else if (!string.IsNullOrWhiteSpace(column.CssClass))
+            {
+                cell.Attributes["class"] = column.CssClass;
             }
         }
 

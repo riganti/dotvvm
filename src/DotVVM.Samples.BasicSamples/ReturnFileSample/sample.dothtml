@@ -1,0 +1,38 @@
+@viewModel DotVVM.Samples.BasicSamples.ReturnFileSample.SampleViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Return file sample!</title>
+	<link href="../Content/bootstrap.min.css" rel="stylesheet" type="text/css">
+</head>
+<body>
+	<div class="container">
+		<h1>Return file test</h1>
+
+		<div class="row">
+			<div class="col-md-6">
+
+				<fieldset>
+					<legend>Excel file</legend>
+
+					Return excel file: <rw:Button Text="Download" Click="{command: ReturnFile1()}"></rw:Button>
+				</fieldset>
+
+			</div>
+
+			<div class="col-md-6">
+
+				<fieldset>
+					<legend>Word file</legend>
+
+					Return word file: <rw:Button Text="Download" Click="{command: ReturnFile2()}"></rw:Button>
+				</fieldset>
+
+			</div>
+		</div>
+
+	</div>
+
+</body>
+</html>

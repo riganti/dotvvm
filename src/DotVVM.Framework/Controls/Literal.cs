@@ -50,6 +50,10 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Literal>(c => c.FormatString);
 
 
+        protected virtual bool AlwaysRenderSpan
+        {
+            get { return false; }
+        }
 
 
         /// <summary>
@@ -102,15 +106,26 @@ namespace DotVVM.Framework.Controls
                 }
 
                 writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", expression);
+                AddAttributesToRender(writer, context);
                 writer.RenderBeginTag("span");
                 writer.RenderEndTag();
             }
             else
             {
-                var textToDisplay = Text;
+                if (AlwaysRenderSpan)
+                {
+                    AddAttributesToRender(writer, context);
+                    writer.RenderBeginTag("span");
+                }
+
+                var textToDisplay = "";
                 if (!string.IsNullOrEmpty(FormatString))
                 {
-                    textToDisplay = string.Format("{0:" + FormatString + "}", textToDisplay);
+                    textToDisplay = string.Format("{0:" + FormatString + "}", GetValue(TextProperty));
+                }
+                else
+                {
+                    textToDisplay = GetValue(TextProperty)?.ToString() ?? "";
                 }
 
                 if (HtmlEncode)
@@ -120,6 +135,11 @@ namespace DotVVM.Framework.Controls
                 else
                 {
                     writer.WriteUnencodedText(textToDisplay);
+                }
+
+                if (AlwaysRenderSpan)
+                {
+                    writer.RenderEndTag();
                 }
             }
         }

@@ -25,5 +25,8 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty PathFragmentProperty =
             DotvvmProperty.Register<string, Internal>("PathFragment");
+
+        public static readonly DotvvmProperty IsDataContextBoundaryProperty =
+            DotvvmProperty.Register<bool, Internal>("IsDataContextBoundary", defaultValue: false, isValueInherited: false);
     }
 }

@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Controls
     public class RenderSettings
     {
 
-        [AttachedProperty]
+        [AttachedProperty(typeof(RenderMode))]
         public static readonly DotvvmProperty ModeProperty =
             DotvvmProperty.Register<RenderMode, RenderSettings>("Mode", RenderMode.Client, true);
 

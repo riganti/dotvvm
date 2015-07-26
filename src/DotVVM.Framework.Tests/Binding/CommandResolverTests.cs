@@ -28,6 +28,7 @@ namespace DotVVM.Framework.Tests.Binding
                 NumberToPass = 16
             };
             var viewRoot = new DotvvmView() { DataContext = testObject };
+            viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
 
             var placeholder = new HtmlGenericControl("div");
             placeholder.SetBinding(DotvvmBindableControl.DataContextProperty, new ValueBindingExpression(path[0]));
@@ -39,6 +40,8 @@ namespace DotVVM.Framework.Tests.Binding
 
             var resolver = new CommandResolver();
             var context = new DotvvmRequestContext() { ViewModel = testObject };
+            context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button, true);
+
             resolver.GetFunction(viewRoot, context, path, command).GetAction()();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
@@ -60,6 +63,7 @@ namespace DotVVM.Framework.Tests.Binding
                 NumberToPass = 16
             };
             var viewRoot = new DotvvmView() { DataContext = testObject };
+            viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
 
             var placeholder = new HtmlGenericControl("div");
             placeholder.SetBinding(DotvvmBindableControl.DataContextProperty, new ValueBindingExpression(path[0]));
@@ -75,6 +79,7 @@ namespace DotVVM.Framework.Tests.Binding
 
             var resolver = new CommandResolver();
             var context = new DotvvmRequestContext() { ViewModel = testObject };
+            context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button, true);
             resolver.GetFunction(viewRoot, context, path, command).GetAction()();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
@@ -90,6 +95,7 @@ namespace DotVVM.Framework.Tests.Binding
                 StringToPass = "a"
             };
             var viewRoot = new DotvvmView() { DataContext = testObject };
+            viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
             viewRoot.SetBinding(DotvvmProperty.Register<Action, DotvvmView>("Test"), new CommandBindingExpression("set_StringToPass(StringToPass)"));
 
             var path = new string[] { };

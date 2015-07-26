@@ -85,6 +85,22 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
         }
 
 
+        [TestMethod]
+        public void DothtmlParser_Valid_AttributeWithoutValue()
+        {
+            var markup = @"this <input type=checkbox checked /> a test";
+            var nodes = ParseMarkup(markup).Content;
+
+            var innerElement = (DothtmlElementNode)nodes[1];
+            Assert.AreEqual(2, innerElement.Attributes.Count);
+
+            Assert.AreEqual("type", innerElement.Attributes[0].AttributeName);
+            Assert.IsNull(innerElement.Attributes[0].AttributePrefix);
+
+            Assert.AreEqual("checked", innerElement.Attributes[1].AttributeName);
+            Assert.IsNull(innerElement.Attributes[1].AttributePrefix);
+            Assert.IsNull(innerElement.Attributes[1].Literal);
+        }
 
         [TestMethod]
         public void DothtmlParser_Valid_UnquotedAttribute()

@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Controls
             var expression = KnockoutHelper.GetValidationTargetExpression(this);
             if (expression != null)
             {
-                writer.AddKnockoutDataBind("foreach", expression + ".$validationErrors");
+                writer.AddKnockoutDataBind("foreach", "dotvvm.extensions.validation.getValidationErrors(" + expression + ")");
             }
 
             base.AddAttributesToRender(writer, context);

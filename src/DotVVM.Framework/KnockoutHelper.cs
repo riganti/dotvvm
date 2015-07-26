@@ -65,7 +65,7 @@ namespace DotVVM.Framework
             //writer.SetPathFragment(JavascriptCompilationHelper.AddIndexerToViewModel(expression, "$index"));
         }
 
-        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false)
+        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
         {
             var uniqueControlId = "";
             if (expression is ControlCommandBindingExpression)
@@ -91,8 +91,11 @@ namespace DotVVM.Framework
                 arguments.Add("'" + validationTargetExpression + "'");
             }
 
-            // postback without validation
-            return String.Format("dotvvm.postBack({0});return false;", String.Join(", ", arguments));
+            // return the script
+            var condition = isOnChange ? "if (!dotvvm.isViewModelUpdating) " : "";
+            var returnStatement = returnValue != null ? string.Format("return {0};", returnValue.ToString().ToLower()) : "";
+            var postBackCall = String.Format("dotvvm.postBack({0});", String.Join(", ", arguments));
+            return condition + postBackCall + returnStatement;
         }
         private static IEnumerable<string> GetContextPath(DotvvmControl control)
         {

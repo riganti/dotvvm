@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls
 			var selectionChangedBinding = GetCommandBinding(SelectionChangedProperty);
 			if (selectionChangedBinding != null)
 			{
-				writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(selectionChangedBinding, context, this));
+				writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(selectionChangedBinding, context, this, isOnChange: true));
 			}
 
 			// selected value

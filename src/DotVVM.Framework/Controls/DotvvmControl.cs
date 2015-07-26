@@ -104,26 +104,34 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets this control and all of its descendants.
         /// </summary>
-        public IEnumerable<DotvvmControl> GetThisAndAllDescendants()
+        public IEnumerable<DotvvmControl> GetThisAndAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null)
         {
+            // PERF: non-linear complexity
             yield return this;
-            foreach (var descendant in GetAllDescendants())
+            if (enumerateChildrenCondition == null || enumerateChildrenCondition(this))
             {
-                yield return descendant;
+                foreach (var descendant in GetAllDescendants())
+                {
+                    yield return descendant;
+                }
             }
         }
 
         /// <summary>
         /// Gets all descendant controls of this control.
         /// </summary>
-        public IEnumerable<DotvvmControl> GetAllDescendants()
+        public IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null)
         {
+            // PERF: non-linear complexity
             foreach (var child in Children)
             {
                 yield return child;
-                foreach (var grandChild in child.GetAllDescendants())
+                if (enumerateChildrenCondition == null || enumerateChildrenCondition(this))
                 {
-                    yield return grandChild;
+                    foreach (var grandChild in child.GetAllDescendants())
+                    {
+                        yield return grandChild;
+                    }
                 }
             }
         }
@@ -285,15 +293,6 @@ namespace DotVVM.Framework.Controls
             foreach (var property in GetDeclaredProperties())
             {
                 property.OnControlInitialized(this);
-            }
-
-            foreach (var prop in properties)
-            {
-                var binding = prop.Value as BindingExpression;
-                if (binding is CommandBindingExpression)
-                {
-                    context.RegisterBinding(binding);
-                }
             }
         }
 

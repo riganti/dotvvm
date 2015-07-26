@@ -32,6 +32,8 @@ namespace DotVVM.Framework
             app.Use<DotvvmFileUploadMiddleware>(configuration);
             app.Use<JQueryGlobalizeCultureMiddleware>();
 
+            app.Use<DotvvmReturnedFileMiddleware>(configuration);
+
             app.Use<DotvvmMiddleware>(configuration);
             
             return configuration;

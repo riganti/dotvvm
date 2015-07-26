@@ -165,6 +165,10 @@ var DotvvmValidation = (function () {
     DotvvmValidation.prototype.mergeValidationRules = function (args) {
         if (args.serverResponseObject.validationRules) {
             var existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
+            if (typeof existingRules === "undefined") {
+                dotvvm.viewModels[args.viewModelName].validationRules = {};
+                existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
+            }
             for (var type in args.serverResponseObject) {
                 if (!args.serverResponseObject.hasOwnProperty(type))
                     continue;
@@ -172,11 +176,20 @@ var DotvvmValidation = (function () {
             }
         }
     };
+    // get validation errors
+    DotvvmValidation.prototype.getValidationErrors = function (viewModel) {
+        var target = ko.unwrap(viewModel);
+        if (target && target.$validationErrors) {
+            return target.$validationErrors;
+        }
+        return [];
+    };
     // shows the validation errors from server
     DotvvmValidation.prototype.showValidationErrorsFromServer = function (args) {
         // resolve validation target
         var context = ko.contextFor(args.sender);
         var validationTarget = dotvvm.evaluateOnViewModel(context, args.validationTargetPath);
+        validationTarget = ko.unwrap(validationTarget);
         // add validation errors
         this.clearValidationErrors();
         var modelState = args.serverResponseObject.modelState;
@@ -186,6 +199,7 @@ var DotvvmValidation = (function () {
             var observable = dotvvm.evaluateOnViewModel(validationTarget, propertyPath);
             var parentPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
             var parent = parentPath ? dotvvm.evaluateOnViewModel(validationTarget, parentPath) : validationTarget;
+            parent = ko.unwrap(parent);
             if (!ko.isObservable(observable) || !parent || !parent.$validationErrors) {
                 throw "Invalid validation path!";
             }

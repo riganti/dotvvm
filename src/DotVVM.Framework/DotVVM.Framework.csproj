@@ -116,6 +116,7 @@
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
     <Compile Include="Configuration\HtmlTagAttributePair.cs" />
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
+    <Compile Include="Controls\ButtonTagName.cs" />
     <Compile Include="Controls\ContainsDotvvmPropertiesAttribute.cs" />
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DataPager.cs" />
@@ -150,18 +151,20 @@
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="Routing\Hosting\FileUploadPageTemplate.cs">
+    <Compile Include="Hosting\FileUploadPageTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="Routing\Hosting\JQueryGlobalizeCultureMiddleware.cs" />
-    <Compile Include="Routing\Hosting\ModelState.cs" />
-    <Compile Include="Routing\Hosting\DotvvmEmbeddedResourceMiddleware.cs" />
-    <Compile Include="Routing\Hosting\DotvvmErrorPageMiddleware.cs" />
-    <Compile Include="Routing\Hosting\DotvvmFileUploadMiddleware.cs" />
-    <Compile Include="Routing\Hosting\DotvvmInterruptRequestExecutionException.cs" />
-    <Compile Include="Routing\Hosting\DotvvmRestrictedStaticFilesMiddleware.cs" />
+    <Compile Include="Hosting\JQueryGlobalizeCultureMiddleware.cs" />
+    <Compile Include="Hosting\ModelState.cs" />
+    <Compile Include="Hosting\DotvvmEmbeddedResourceMiddleware.cs" />
+    <Compile Include="Hosting\DotvvmErrorPageMiddleware.cs" />
+    <Compile Include="Hosting\DotvvmFileUploadMiddleware.cs" />
+    <Compile Include="Hosting\DotvvmInterruptRequestExecutionException.cs" />
+    <Compile Include="Hosting\DotvvmRestrictedStaticFilesMiddleware.cs" />
+    <Compile Include="KnockoutBindingGroup.cs" />
+    <Compile Include="Hosting\DotvvmReturnedFileMiddleware.cs" />
     <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
     <Compile Include="Parser\NullTokenError.cs" />
     <Compile Include="Parser\Dothtml\Parser\DothtmlNodeHelper.cs" />
@@ -302,7 +305,9 @@
     <Compile Include="Security\NistSP800108DeriveBytes.cs" />
     <Compile Include="Security\ProtectionHelpers.cs" />
     <Compile Include="ServiceLocator.cs" />
+    <Compile Include="Storage\FileSystemReturnedFileStorage.cs" />
     <Compile Include="Storage\FileSystemUploadedFileStorage.cs" />
+    <Compile Include="Storage\IReturnedFileStorage.cs" />
     <Compile Include="Storage\IUploadedFileStorage.cs" />
     <Compile Include="Storage\UploadedFile.cs" />
     <Compile Include="Storage\UploadedFileStorageExtensions.cs" />
@@ -316,20 +321,20 @@
     <Compile Include="Styles\StylingVisitor.cs" />
     <Compile Include="Styles\StyleRepository.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
-    <Compile Include="Routing\Hosting\DefaultMarkupFileLoader.cs" />
-    <Compile Include="Routing\Hosting\ErrorPageTemplate.cs">
+    <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
+    <Compile Include="Hosting\ErrorPageTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>ErrorPageTemplate.tt</DependentUpon>
     </Compile>
-    <Compile Include="Routing\Hosting\FileReader.cs" />
-    <Compile Include="Routing\Hosting\IMarkupFileLoader.cs" />
-    <Compile Include="Routing\Hosting\IDotvvmPresenter.cs" />
-    <Compile Include="Routing\Hosting\MarkupFile.cs" />
-    <Compile Include="Routing\Hosting\DotvvmHttpException.cs" />
-    <Compile Include="Routing\Hosting\DotvvmMiddleware.cs" />
-    <Compile Include="Routing\Hosting\DotvvmPresenter.cs" />
-    <Compile Include="Routing\Hosting\DotvvmRequestContext.cs" />
+    <Compile Include="Hosting\FileReader.cs" />
+    <Compile Include="Hosting\IMarkupFileLoader.cs" />
+    <Compile Include="Hosting\IDotvvmPresenter.cs" />
+    <Compile Include="Hosting\MarkupFile.cs" />
+    <Compile Include="Hosting\DotvvmHttpException.cs" />
+    <Compile Include="Hosting\DotvvmMiddleware.cs" />
+    <Compile Include="Hosting\DotvvmPresenter.cs" />
+    <Compile Include="Hosting\DotvvmRequestContext.cs" />
     <Compile Include="KnockoutHelper.cs" />
     <Compile Include="OwinExtensions.cs" />
     <Compile Include="Parser\Constants.cs" />
@@ -420,7 +425,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Routing\Hosting\ErrorPageTemplate.tt">
+    <None Include="Hosting\ErrorPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
     </None>
@@ -463,11 +468,10 @@
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>NumberUtils.cs</LastGenOutput>
     </Content>
-    <Content Include="Routing\Hosting\FileUploadPageTemplate.tt">
+    <Content Include="Hosting\FileUploadPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
     </Content>
-    <Content Include="LICENSE.txt" />
     <Content Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
@@ -480,7 +484,6 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\tools\analyzers\C#\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
-  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

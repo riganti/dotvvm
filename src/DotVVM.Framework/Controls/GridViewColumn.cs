@@ -55,6 +55,14 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, GridViewColumn>(c => c.CssClass);
 
 
+        public string HeaderCssClass
+        {
+            get { return (string)GetValue(HeaderCssClassProperty); }
+            set { SetValue(HeaderCssClassProperty, value); }
+        }
+        public static readonly DotvvmProperty HeaderCssClassProperty =
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderCssClass);
+
         [MarkupOptions(AllowBinding = false)]
         public string Width
         {

@@ -166,7 +166,10 @@ class DotvvmValidation
     public mergeValidationRules(args: DotvvmAfterPostBackEventArgs) {
         if (args.serverResponseObject.validationRules) {
             var existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
-
+            if (typeof existingRules === "undefined") {
+                dotvvm.viewModels[args.viewModelName].validationRules = {};
+                existingRules = dotvvm.viewModels[args.viewModelName].validationRules;
+            }
             for (var type in args.serverResponseObject) {
                 if (!args.serverResponseObject.hasOwnProperty(type)) continue;
                 existingRules[type] = args.serverResponseObject[type];
@@ -174,11 +177,21 @@ class DotvvmValidation
         }
     }
 
+    // get validation errors
+    public getValidationErrors(viewModel) {
+        var target = ko.unwrap(viewModel);
+        if (target && target.$validationErrors) {
+            return target.$validationErrors;
+        }
+        return [];
+    }
+
     // shows the validation errors from server
     public showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs) {
         // resolve validation target
         var context = ko.contextFor(args.sender);
         var validationTarget = dotvvm.evaluateOnViewModel(context, args.validationTargetPath);
+        validationTarget = ko.unwrap(validationTarget);
 
         // add validation errors
         this.clearValidationErrors();
@@ -189,6 +202,7 @@ class DotvvmValidation
             var observable = dotvvm.evaluateOnViewModel(validationTarget, propertyPath);
             var parentPath = propertyPath.substring(0, propertyPath.lastIndexOf("."));
             var parent = parentPath ? dotvvm.evaluateOnViewModel(validationTarget, parentPath) : validationTarget;
+            parent = ko.unwrap(parent);
             if (!ko.isObservable(observable) || !parent || !parent.$validationErrors) {
                 throw "Invalid validation path!";
             }
