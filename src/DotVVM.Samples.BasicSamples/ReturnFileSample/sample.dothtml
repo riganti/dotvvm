@@ -16,7 +16,7 @@
 				<fieldset>
 					<legend>Excel file</legend>
 
-					Return excel file: <rw:Button Text="Download" Click="{command: ReturnFile1()}"></rw:Button>
+					Return excel file: <dot:Button Text="Download" Click="{command: ReturnFile1()}"></dot:Button>
 				</fieldset>
 
 			</div>
@@ -26,7 +26,7 @@
 				<fieldset>
 					<legend>Word file</legend>
 
-					Return word file: <rw:Button Text="Download" Click="{command: ReturnFile2()}"></rw:Button>
+					Return word file: <dot:Button Text="Download" Click="{command: ReturnFile2()}"></dot:Button>
 				</fieldset>
 
 			</div>

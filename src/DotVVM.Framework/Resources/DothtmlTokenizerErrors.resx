@@ -162,11 +162,11 @@
   </data>
   <data name="MissingTagName" xml:space="preserve">
     <value>The tag name cannot end with the ':'. Example:
-&lt;rw:Button /&gt;</value>
+&lt;dot:Button /&gt;</value>
   </data>
   <data name="MissingTagPrefix" xml:space="preserve">
     <value>The tag name cannot start with the ':'. Example:
-&lt;rw:Button /&gt;</value>
+&lt;dot:Button /&gt;</value>
   </data>
   <data name="TagNameExpected" xml:space="preserve">
     <value>The tag name expected after '&lt;' character. Example:

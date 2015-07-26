@@ -20,10 +20,10 @@
 			
 			<bootstrap:HorizontalForm>
 				<bootstrap:HorizontalFormGroup LabelText="Invoice #:">
-					<rw:TextBox Text="{value: Number}" />
+					<dot:TextBox Text="{value: Number}" />
 				</bootstrap:HorizontalFormGroup>
 				<bootstrap:HorizontalFormGroup LabelText="Due date:">
-					<rw:TextBox Text="{value: DueDate}" />
+					<dot:TextBox Text="{value: DueDate}" />
 				</bootstrap:HorizontalFormGroup>
 			</bootstrap:HorizontalForm>
 
@@ -43,14 +43,14 @@
 					<th></th>
 				</tr>
 			</thead>
-			<rw:Repeater DataSource="{value: InvoiceLines}" WrapperTagName="tbody">
+			<dot:Repeater DataSource="{value: InvoiceLines}" WrapperTagName="tbody">
 				<ItemTemplate>
 					<tr>
 						<td>
-							<rw:TextBox Text="{value: Number}" style="width: 80px" />
+							<dot:TextBox Text="{value: Number}" style="width: 80px" />
 						</td>
 						<td>
-							<rw:ComboBox DataSource="{value: _parent.TaxRates}" 
+							<dot:ComboBox DataSource="{value: _parent.TaxRates}" 
 								DisplayMember="Title" 
 								ValueMember="Coeff"
 								SelectedValue="{value: TaxCoeff}"
@@ -58,25 +58,25 @@
 								EventsDecorator.Click="{command: _root.Recalculate()}" />
 						</td>
 						<td>
-							<rw:TextBox Text="{value: Title}" style="width: 200px" />
+							<dot:TextBox Text="{value: Title}" style="width: 200px" />
 						</td>
 						<td>
-							<rw:TextBox Text="{value: UnitPrice}" style="width: 80px" />
+							<dot:TextBox Text="{value: UnitPrice}" style="width: 80px" />
 						</td>
 						<td>
-							<rw:TextBox Text="{value: Quantity}" style="width: 80px" />
+							<dot:TextBox Text="{value: Quantity}" style="width: 80px" />
 						</td>
 						<td>
 							{{value: UnitPrice * Quantity * TaxCoeff}}
 						</td>
 						<td>
-							<rw:LinkButton Click="{command: _parent.RemoveLine(_this)}">
+							<dot:LinkButton Click="{command: _parent.RemoveLine(_this)}">
 								<bootstrap:GlyphIcon Icon="Remove" />
-							</rw:LinkButton>
+							</dot:LinkButton>
 						</td>
 					</tr>
 				</ItemTemplate>
-			</rw:Repeater>
+			</dot:Repeater>
 			<tfoot>
 				<tr>
 					<th colspan="5">TOTAL</th>
@@ -87,16 +87,16 @@
 		</table>
 		<div class="row">
 			<div class="col-xs-6">
-				<rw:LinkButton Click="{command: AddLine()}">
+				<dot:LinkButton Click="{command: AddLine()}">
 					<bootstrap:GlyphIcon Icon="Plus" /> Add Invoice Line
-				</rw:LinkButton>
+				</dot:LinkButton>
 			</div>
 			<div class="col-xs-6">
-				<rw:LinkButton Click="{command: Recalculate()}" Text="Recalculate" />
+				<dot:LinkButton Click="{command: Recalculate()}" Text="Recalculate" />
 			</div>
 		</div>
 	</div>
 
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

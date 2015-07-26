@@ -1,19 +1,19 @@
-.rw-upload {
+.dot-upload {
     margin: 1em 0px;
 }
 
-.rw-upload .rw-upload-iframe {
+.dot-upload .dot-upload-iframe {
     position: absolute;
     left: -100000px;
     top: 0px;
 }
 
-.rw-upload .rw-upload-files {
+.dot-upload .dot-upload-files {
     display: inline-block;
     margin-left: 2em;
 }
 
-.rw-upload .rw-upload-progress-wrapper {
+.dot-upload .dot-upload-progress-wrapper {
     display: inline-block;
     margin-left: 2em;
     width: 100px;
@@ -23,18 +23,18 @@
     border: 1px solid #a0a0a0;
     vertical-align: middle;
 }
-    .rw-upload .rw-upload-progress-wrapper .rw-upload-progress {
+    .dot-upload .dot-upload-progress-wrapper .dot-upload-progress {
         height: 10px;
         background-color: #0094ff;
         display: inline-block;
     }
 
-.rw-upload .rw-upload-result {
+.dot-upload .dot-upload-result {
     display: inline-block;
     margin-left: 2em;
 }
-    .rw-upload .rw-upload-result.rw-upload-result-success {
+    .dot-upload .dot-upload-result.dot-upload-result-success {
     }
-    .rw-upload .rw-upload-result.rw-upload-result-error {
+    .dot-upload .dot-upload-result.dot-upload-result-error {
         color: #cc0000;
     }

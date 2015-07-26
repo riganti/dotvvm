@@ -215,7 +215,6 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
                 li = new HtmlGenericControl("li");
-                li.SetValue(Internal.IsDataContextBoundaryProperty, true);
                 var literal = new Literal();
                 literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => (int)vm.Last() + 1, "$data + 1"));
                 li.Children.Add(literal);
@@ -256,7 +255,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetValueBinding(DataSetProperty);
             if (binding == null)
             {
-                throw new NotSupportedException("The DataSet property of the rw:DataPager control must be set!");
+                throw new NotSupportedException("The DataSet property of the dot:DataPager control must be set!");
             }
             return binding;
         }

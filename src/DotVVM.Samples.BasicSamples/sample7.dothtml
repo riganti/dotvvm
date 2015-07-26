@@ -47,7 +47,7 @@
 		</div>
 	</div>
 
-	<p><rw:Literal Text="{value: SelectedDate}" /></p>
+	<p><dot:Literal Text="{value: SelectedDate}" /></p>
 
 	<p>
 		Disclaimer: The Calendar control generates the table contents on the server side and passes them to the client in the control state (so you don't have to keep it in the viewmodel).
@@ -55,6 +55,6 @@
 		would only remember the VisibleDate (and maybe the SelectedDate) in the control state!
 	</p>
 
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

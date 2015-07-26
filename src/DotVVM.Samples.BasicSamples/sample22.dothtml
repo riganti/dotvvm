@@ -10,21 +10,21 @@
 		<h1>ReouteLink in Repeater</h1>
 		
 		<h3>Client rendered</h3>
-		<rw:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Client">
+		<dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Client">
 			<ItemTemplate>
-				<rw:RouteLink RouteName="Sample22-PageDetail" Param-Id="{value: Id}" Text="{value: Name}" />
+				<dot:RouteLink RouteName="Sample22-PageDetail" Param-Id="{value: Id}" Text="{value: Name}" />
 			</ItemTemplate>
-		</rw:Repeater>
+		</dot:Repeater>
 
 		<h3>Server rendered</h3>
-		<rw:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Server">
+		<dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Server">
 			<ItemTemplate>
-				<rw:RouteLink RouteName="Sample22-PageDetail" Param-Id="{value: Id}" Text="{value: Name}" />
+				<dot:RouteLink RouteName="Sample22-PageDetail" Param-Id="{value: Id}" Text="{value: Name}" />
 			</ItemTemplate>
-		</rw:Repeater>
+		</dot:Repeater>
 
 	</div>
 	
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

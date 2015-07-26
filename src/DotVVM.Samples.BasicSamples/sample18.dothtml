@@ -9,24 +9,24 @@
 		color: red;
 	}
 	</style>
-	<rw:RequiredResource Name="globalize:cs-CZ" />
+	<dot:RequiredResource Name="globalize:cs-CZ" />
 </head>
 <body>
 	<div class="container">
 		<h1>Nested validation</h1>
 		
-		<p>Title: <rw:TextBox Text="{value: Child.Text}" /></p>
-		<p><rw:Button Text="Create" Click="{command: Test()}" /></p>
+		<p>Title: <dot:TextBox Text="{value: Child.Text}" /></p>
+		<p><dot:Button Text="Create" Click="{command: Test()}" /></p>
 		
 		<p>
-			<rw:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="DisplayErrorMessage" />
-			<rw:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="AddCssClass" InvalidCssClass="invalid" />
-			<rw:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="DisplayErrorMessage" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="AddCssClass" InvalidCssClass="invalid" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
 		</p>
 		<p>&nbsp;</p>
-		<rw:ValidationSummary />
+		<dot:ValidationSummary />
 	</div>
 	
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

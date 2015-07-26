@@ -18,25 +18,25 @@
 		<fieldset>
 			<legend>Add Task</legend>
 
-			<p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /></p>
-			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>
+			<p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
+			<p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
 		</fieldset>
 		<p>&nbsp;</p>
 		
 		<table class="table">
-			<rw:Repeater DataSource="{value: ProtectedTasks}" WrapperTagName="tbody">
+			<dot:Repeater DataSource="{value: ProtectedTasks}" WrapperTagName="tbody">
 				<ItemTemplate>
 					<tr class="{value: IsCompleted ? "completed" : ""}">
 						<td>{{value: Title}}</td>
 						<td>
-							<rw:LinkButton 
+							<dot:LinkButton 
 								Text="done" 
 								Click="{command: _parent.CompleteTask(TaskId)}" 
 								Visible="{value: !IsCompleted}" />
 						</td>
 					</tr>
 				</ItemTemplate>
-			</rw:Repeater>
+			</dot:Repeater>
 		</table>
 
 		<p>&nbsp;</p>
@@ -44,6 +44,6 @@
 		<a href="#" onclick="dotvvm.viewModels.root.viewModel.ReadOnlyData('hello');return false;">Modify protected data using javascript</a>
 	</div>
 
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

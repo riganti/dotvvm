@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Controls
             yield return this;
             if (enumerateChildrenCondition == null || enumerateChildrenCondition(this))
             {
-                foreach (var descendant in GetAllDescendants())
+                foreach (var descendant in GetAllDescendants(enumerateChildrenCondition))
                 {
                     yield return descendant;
                 }
@@ -126,7 +126,8 @@ namespace DotVVM.Framework.Controls
             foreach (var child in Children)
             {
                 yield return child;
-                if (enumerateChildrenCondition == null || enumerateChildrenCondition(this))
+
+                if (enumerateChildrenCondition == null || enumerateChildrenCondition(child))
                 {
                     foreach (var grandChild in child.GetAllDescendants())
                     {
@@ -259,19 +260,58 @@ namespace DotVVM.Framework.Controls
             return id;
         }
 
-
         /// <summary>
         /// Finds the control by its ID.
         /// </summary>
-        public DotvvmControl FindControl(string id)
+        public DotvvmControl FindControl(string id, bool throwIfNotFound = false)
         {
             if (string.IsNullOrEmpty(id))
             {
                 throw new ArgumentNullException("id");
             }
 
-            return GetAllDescendants().SingleOrDefault(c => c.ID == id);
+            var control = GetAllDescendants(c => !IsNamingContainer(c)).SingleOrDefault(c => c.ID == id);
+            if (control == null && throwIfNotFound)
+            {
+                throw new Exception(string.Format("The control with ID '{0}' was not found.", id));
+            }
+            return control;
         }
+
+        /// <summary>
+        /// Finds the control by its ID.
+        /// </summary>
+        public T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
+        {
+            var control = FindControl(id, throwIfNotFound);
+            if (!(control is T))
+            {
+                throw new Exception(string.Format("The control with ID '{0}' was found, however it is not an instance of the desired type '{1}'.", id, typeof(T)));
+            }
+            return (T)control;
+        }
+
+        /// <summary>
+        /// Gets the naming container of the current control.
+        /// </summary>
+        public DotvvmControl GetNamingContainer()
+        {
+            var control = this;
+            while (!IsNamingContainer(control) && control.Parent != null)
+            {
+                control = control.Parent;
+            }
+            return control;
+        }
+
+        /// <summary>
+        /// Determines whether the specified control is a naming container.
+        /// </summary>
+        public static bool IsNamingContainer(DotvvmControl control)
+        {
+            return control is DotvvmBindableControl && (bool)((DotvvmBindableControl)control).GetValue(Internal.IsNamingContainerProperty);
+        }
+
 
 
 
@@ -314,6 +354,11 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+
+        public bool IsWhiteSpaceLiteral()
+        {
+            return (this is Literal) && !((Literal)this).HasBinding(Literal.TextProperty) && string.IsNullOrWhiteSpace(((Literal)this).Text);
+        }
 
         /// <summary>
         /// Occurs before the viewmodel is applied to the page.

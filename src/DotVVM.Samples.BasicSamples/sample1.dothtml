@@ -10,7 +10,7 @@
             text-decoration: line-through;
         }
     </style>
-    <rw:RequiredResource Name="globalize:cs-CZ" />
+    <dot:RequiredResource Name="globalize:cs-CZ" />
 </head>
 <body>
     <div class="container" class="a">
@@ -19,27 +19,27 @@
         <fieldset data-testattribute>
             <legend>Add Task</legend>
 
-            <p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /></p>
-            <p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>
+            <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
+            <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
         </fieldset>
         <p>&nbsp;</p>
 
         <table class="table">
-            <rw:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+            <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
                 <tr class="{value: IsCompleted ? " completed" : "" }">
                     <td>{{value: Title}}</td>
                     <td>
-                        <rw:LinkButton Text="done"
+                        <dot:LinkButton Text="done"
                                        Click="{command: _parent.CompleteTask(TaskId)}"
                                        Visible="{value: !IsCompleted}" />
                     </td>
                 </tr>
-            </rw:Repeater>
+            </dot:Repeater>
         </table>
 
-		<rw:Button Click="{staticCommand: Sample1ViewModel.CoolAction(NewTaskTitle)}" Text="Test static command" />
+		<dot:Button Click="{staticCommand: Sample1ViewModel.CoolAction(NewTaskTitle)}" Text="Test static command" />
     </div>
 
-    <rw:RequiredResource Name="bootstrap" />
+    <dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

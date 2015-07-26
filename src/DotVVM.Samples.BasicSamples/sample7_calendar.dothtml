@@ -3,28 +3,28 @@
 <table class="calendar">
 	<thead>
 		<tr>
-			<th><rw:LinkButton Click="{controlCommand: GoToPreviousMonth()}">&laquo;</rw:LinkButton></th>
+			<th><dot:LinkButton Click="{controlCommand: GoToPreviousMonth()}">&laquo;</dot:LinkButton></th>
 			<th colspan="5">{{controlProperty: VisibleMonthText}}</th>
-			<th><rw:LinkButton Click="{controlCommand: GoToNextMonth()}">&raquo;</rw:LinkButton></th>
+			<th><dot:LinkButton Click="{controlCommand: GoToNextMonth()}">&raquo;</dot:LinkButton></th>
 		</tr>
-		<rw:Repeater DataSource="{controlProperty: DayNames}" WrapperTagName="tr">
+		<dot:Repeater DataSource="{controlProperty: DayNames}" WrapperTagName="tr">
 			<ItemTemplate>
 				<th>{{value: _this}}</th>
 			</ItemTemplate>
-		</rw:Repeater>
+		</dot:Repeater>
 	</thead>
 
-	<rw:Repeater DataSource="{controlProperty: Rows}" WrapperTagName="tbody">
+	<dot:Repeater DataSource="{controlProperty: Rows}" WrapperTagName="tbody">
 		<ItemTemplate>
 			
-			<rw:Repeater DataSource="{value: Days}" WrapperTagName="tr">
+			<dot:Repeater DataSource="{value: Days}" WrapperTagName="tr">
 				<ItemTemplate>
 					<td class='{value: IsSelected ? "selected" : (IsToday ? "today" : (IsOtherMonth ? "other" : ""))) }'>
-						<rw:LinkButton Click="{controlCommand: SelectDate(Date)}" Text="{value: Number}" />
+						<dot:LinkButton Click="{controlCommand: SelectDate(Date)}" Text="{value: Number}" />
 					</td>
 				</ItemTemplate>
-			</rw:Repeater>
+			</dot:Repeater>
 
 		</ItemTemplate>
-	</rw:Repeater>
+	</dot:Repeater>
 </table>

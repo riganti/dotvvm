@@ -293,7 +293,7 @@ namespace DotVVM.Framework.Controls
                 if (current is DotvvmBindableControl && ((DotvvmBindableControl)current).GetValueBinding(DataContextProperty, false) != null)
                 {
                     var bindable = (DotvvmBindableControl)current;
-                    if (bindable.HasBinding(DataContextProperty) || ((bool?)bindable.GetValue(Internal.IsDataContextBoundaryProperty, false) == true))
+                    if (bindable.HasBinding(DataContextProperty) || bindable.HasBinding(Internal.PathFragmentProperty))
                     {
                         numberOfDataContextChanges++;
                     }

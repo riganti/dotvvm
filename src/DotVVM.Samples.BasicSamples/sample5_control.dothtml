@@ -3,7 +3,7 @@
 
 <h2>{{controlProperty: Name}}</h2>
 <p>
-	<rw:TextBox Text="{controlProperty: Value}" />
-	<rw:Button Text="Up" Click="{controlCommand: Up()}" />
-	<rw:Button Text="Down" Click="{controlCommand: Down()}" />
+	<dot:TextBox Text="{controlProperty: Value}" />
+	<dot:Button Text="Up" Click="{controlCommand: Up()}" />
+	<dot:Button Text="Down" Click="{controlCommand: Down()}" />
 </p>

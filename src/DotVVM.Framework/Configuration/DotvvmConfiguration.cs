@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Configuration
 {
     public class DotvvmConfiguration
     {
-        public const string DotvvmControlTagPrefix = "rw";
+        public const string DotvvmControlTagPrefix = "dot";
         
         /// <summary>
         /// Gets or sets the application physical path.
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Configuration
             
             configuration.Markup.Controls.AddRange(new[]
             {
-                new DotvvmControlConfiguration() { TagPrefix = "rw", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" },
+                new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" },
                 new DotvvmControlConfiguration() { TagPrefix = "bootstrap", Namespace = "DotVVM.Framework.Controls.Bootstrap", Assembly = "DotVVM.Framework" },
             });
 

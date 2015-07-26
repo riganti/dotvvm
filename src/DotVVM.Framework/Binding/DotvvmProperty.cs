@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
-        internal virtual object GetValue(DotvvmControl dotvvcmontrol, bool inherit = true)
+        public virtual object GetValue(DotvvmControl dotvvcmontrol, bool inherit = true)
         {
             object value;
             if (dotvvcmontrol.properties != null && dotvvcmontrol.properties.TryGetValue(this, out value))
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Sets the value of the property.
         /// </summary>
-        internal virtual void SetValue(DotvvmControl dotvvmControl, object value)
+        public virtual void SetValue(DotvvmControl dotvvmControl, object value)
         {
             dotvvmControl.Properties[this] = value;
         }

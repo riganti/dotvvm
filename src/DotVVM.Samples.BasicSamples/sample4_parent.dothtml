@@ -1,23 +1,23 @@
 @masterPage sample4_root.dothtml
 @viewModel object
 		
-<rw:Content ContentPlaceHolderID="Menu">
+<dot:Content ContentPlaceHolderID="Menu">
 	<ul>
 		<li>Menu 1</li>
 		<li>Menu 2</li>
 		<li>Menu 3</li>
 		<li>Menu 4</li>
 	</ul>
-</rw:Content>
+</dot:Content>
 		
-<rw:Content ContentPlaceHolderID="Content">
+<dot:Content ContentPlaceHolderID="Content">
 	<p>Main page content</p>
 
-	<rw:ContentPlaceHolder ID="SubContent">
-	</rw:ContentPlaceHolder>
+	<dot:ContentPlaceHolder ID="SubContent">
+	</dot:ContentPlaceHolder>
 
-	<rw:ContentPlaceHolder ID="SubContent_NoContentSpecifiedInContentPage">
+	<dot:ContentPlaceHolder ID="SubContent_NoContentSpecifiedInContentPage">
 		<p>default content</p>
-	</rw:ContentPlaceHolder>
-</rw:Content>
+	</dot:ContentPlaceHolder>
+</dot:Content>
    

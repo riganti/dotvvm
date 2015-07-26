@@ -10,17 +10,17 @@
 	<div class="container">
 		<h1>Javascript Events test</h1>
 		
-		<rw:Button Text="Test successful postback" Click="{command: Test()}" />
-		<rw:Button Text="Test error postback" Click="{command: TestError()}" />
+		<dot:Button Text="Test successful postback" Click="{command: Test()}" />
+		<dot:Button Text="Test error postback" Click="{command: TestError()}" />
 	</div>
 	
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 
-	<rw:InlineScript ID="eventTests" >
+	<dot:InlineScript ID="eventTests" >
 		dotvvm.events.init.subscribe(function() { alert("init"); });
 		dotvvm.events.beforePostback.subscribe(function() { alert("beforePostback"); });
 		dotvvm.events.afterPostback.subscribe(function() { alert("afterPostback"); });
 		dotvvm.events.error.subscribe(function() { alert("custom error handler"); return true; });
-	</rw:InlineScript>
+	</dot:InlineScript>
 </body>
 </html>

@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Controls
 
             if (Children.Count != 1 || !(Children[0] is Literal))
             {
-                throw new Exception("The <rw:InlineScript>...</rw:InlineScript> control can only contain text content!");
+                throw new Exception("The <dot:InlineScript>...</dot:InlineScript> control can only contain text content!");
             }
             
             var script = ((Literal)Children[0]).Text;

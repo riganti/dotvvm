@@ -4,7 +4,7 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Login</title>
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </head>
 <body>
 	<div class="container">
@@ -13,11 +13,11 @@
 		<fieldset>
 			<legend>Login form</legend>
 			<p>This is sample without db - you don't have to know password</p>
-			<p>User name: <rw:TextBox Text="{value: UserName}" /></p>
+			<p>User name: <dot:TextBox Text="{value: UserName}" /></p>
 			<p>
-				<rw:CheckBox ID="adminRole" Text="Admin role" Checked="{value: AdminRole}" />
+				<dot:CheckBox ID="adminRole" Text="Admin role" Checked="{value: AdminRole}" />
 			</p>
-			<p><rw:Button Text="Login" Click="{command: Login()}" /></p>
+			<p><dot:Button Text="Login" Click="{command: Login()}" /></p>
 		</fieldset>
 
 		<a href="~/AuthSample/SecuredPage">Page for authenticated</a>

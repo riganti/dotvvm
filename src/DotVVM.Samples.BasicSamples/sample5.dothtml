@@ -13,6 +13,6 @@
 		<sample5:TestControl DataContext="{value: ViewModel2}" Value="{value: Value}" Name="{value: _root.SecondControlName}" />
 	</div>
 
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

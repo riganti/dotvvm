@@ -1,7 +1,7 @@
 @viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample17ViewModel_B, DotVVM.Samples.BasicSamples
 @masterPage sample17_master.dothtml
 
-<rw:Content ContentPlaceHolderID="MainContent">
+<dot:Content ContentPlaceHolderID="MainContent">
 
 	<div DataContext="{value: Sample1}">
 		<h1>Task List</h1>
@@ -9,8 +9,8 @@
 		<fieldset>
 			<legend>Add Task</legend>
 
-			<p>Title: <rw:TextBox Text="{value: NewTaskTitle}" /></p>
-			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p>
+			<p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
+			<p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
 		</fieldset>
 		<p>&nbsp;</p>
 
@@ -19,25 +19,25 @@
 		</span>
 		
 		<table class="table">
-			<rw:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+			<dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
 				<ItemTemplate>
 					<tr class="{value: IsCompleted ? "completed" : ""}">
 						<td>{{value: Title}}</td>
 						<td>
-							<rw:LinkButton 
+							<dot:LinkButton 
 								Text="done" 
 								Click="{command: _parent.CompleteTask(TaskId)}" 
 								Visible="{value: !IsCompleted}" />
 						</td>
 					</tr>
 				</ItemTemplate>
-			</rw:Repeater>
+			</dot:Repeater>
 		</table>	
 	</div>
 
-	<p><rw:Button Click="{command: Redirect()}" Text="Redirect in SPA test" /></p>
+	<p><dot:Button Click="{command: Redirect()}" Text="Redirect in SPA test" /></p>
 
-	<rw:RequiredResource Name="testCss" />
-	<rw:RequiredResource Name="testJs" />
+	<dot:RequiredResource Name="testCss" />
+	<dot:RequiredResource Name="testJs" />
 
-</rw:Content>
+</dot:Content>

@@ -26,7 +26,7 @@ var DotVVM = (function () {
     DotVVM.prototype.init = function (viewModelName, culture) {
         var _this = this;
         this.culture = culture;
-        var thisVm = this.viewModels[viewModelName] = JSON.parse(document.getElementById("__rw_viewmodel_" + viewModelName).value);
+        var thisVm = this.viewModels[viewModelName] = JSON.parse(document.getElementById("__dot_viewmodel_" + viewModelName).value);
         if (thisVm.renderedResources) {
             thisVm.renderedResources.forEach(function (r) { return _this.resourceSigns[r] = true; });
         }
@@ -51,7 +51,7 @@ var DotVVM = (function () {
         }
         else {
             // redirect to the default URL
-            var url = spaPlaceHolder.getAttribute("data-rw-spacontentplaceholder-defaultroute");
+            var url = spaPlaceHolder.getAttribute("data-dot-spacontentplaceholder-defaultroute");
             if (url) {
                 document.location.hash = "#!/" + url;
             }
@@ -73,7 +73,7 @@ var DotVVM = (function () {
             }
         }
         persistedViewModel["viewModel"] = ko.mapper.toJS(persistedViewModel["viewModel"]);
-        document.getElementById("__rw_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
+        document.getElementById("__dot_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
     };
     DotVVM.prototype.backUpPostBackConter = function () {
         this.postBackCounter++;
@@ -301,7 +301,7 @@ var DotVVM = (function () {
             return;
         }
         // send the request
-        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-rw-spacontentplaceholder"].value;
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dot-spacontentplaceholder"].value;
         this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, function (result) {
             // if another postback has already been passed, don't do anything
             if (!_this.isPostBackStillActive(currentPostBackCounter))

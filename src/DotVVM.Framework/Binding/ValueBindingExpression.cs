@@ -3,6 +3,8 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Parser.Translation;
 using DotVVM.Framework.Utils;
+using System.Collections;
+using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Binding
 {
@@ -16,6 +18,7 @@ namespace DotVVM.Framework.Binding
         UpdateDelegate = BindingCompilationRequirementType.IfPossible)]
     public class ValueBindingExpression : BindingExpression, IUpdatableBindingExpression
     {
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ValueBindingExpression"/> class.
         /// </summary>
@@ -68,5 +71,21 @@ namespace DotVVM.Framework.Binding
         {
             ExecUpdateDelegate(control, value, property != DotvvmBindableControl.DataContextProperty);
         }
+
+        #region Helpers
+
+        public static readonly ValueBindingExpression ThisBinding
+             = new ValueBindingExpression(vm => vm[vm.Length - 1], "$data");
+
+        public ValueBindingExpression MakeListIndexer(int index)
+        {
+            return new ValueBindingExpression((vm, control) => ((IList)Delegate(vm, control))[index], JavascriptCompilationHelper.AddIndexerToViewModel(Javascript, index));
+        }
+
+        public ValueBindingExpression MakeKoContextIndexer()
+        {
+            return new ValueBindingExpression(null, JavascriptCompilationHelper.AddIndexerToViewModel(Javascript, "$index"));
+        }
+        #endregion
     }
 }

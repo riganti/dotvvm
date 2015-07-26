@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Runtime
                 var spaContentPlaceHolders = page.GetAllDescendants().OfType<SpaContentPlaceHolder>().ToList();
                 if (spaContentPlaceHolders.Count > 1)
                 {
-                    throw new Exception("Multiple controls of type <rw:SpaContentPlaceHolder /> found on the page! This control can be used only once!");   // TODO: exception handling
+                    throw new Exception("Multiple controls of type <dot:SpaContentPlaceHolder /> found on the page! This control can be used only once!");   // TODO: exception handling
                 }
                 if (spaContentPlaceHolders.Count == 0 || spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId() != context.GetSpaContentPlaceHolderUniqueId())
                 {
@@ -158,14 +158,14 @@ namespace DotVVM.Framework.Runtime
             // make sure that the body contains only whitespace and Content controls
             if (!childPage.Children.All(c => (c is Literal && ((Literal)c).HasWhiteSpaceContentOnly()) || (c is Content)))
             {
-                throw new Exception("If the page contains @masterpage directive, it can only contain white space and <rw:Content /> controls!");    // TODO: exception handling
+                throw new Exception("If the page contains @masterpage directive, it can only contain white space and <dot:Content /> controls!");    // TODO: exception handling
             }
 
             // make sure that the Content controls are not nested in other elements
             var contents = childPage.GetAllDescendants().OfType<Content>().ToList();
             if (contents.Any(c => c.Parent != childPage))
             {
-                throw new Exception("The control <rw:Content /> cannot be placed inside any control!");    // TODO: exception handling
+                throw new Exception("The control <dot:Content /> cannot be placed inside any control!");    // TODO: exception handling
             }
 
             return contents;

@@ -9,31 +9,31 @@
 	<div class="container">
 		<h1>Validation rules loaded dynamically</h1>
 		
-		<p><rw:Button Text="Load Validated Object" Click="{command: LoadCustomer()}" Validate.Enabled="false" /></p>
+		<p><dot:Button Text="Load Validated Object" Click="{command: LoadCustomer()}" Validate.Enabled="false" /></p>
 
 		<fieldset>
 			<legend>Customer Data</legend>
 			<table DataContext="{value: Customer}">
 				<tr>
 					<td>Name:</td>
-					<td><rw:TextBox Text="{value: Name}" /></td>
+					<td><dot:TextBox Text="{value: Name}" /></td>
 				</tr>
 				<tr>
 					<td>E-mail:</td>
-					<td><rw:TextBox Text="{value: Email}" /></td>
+					<td><dot:TextBox Text="{value: Email}" /></td>
 				</tr>
 			</table>
 		</fieldset>
 
 		<div Validate.Target="{value: Customer}">
-			<rw:ValidationSummary/>
+			<dot:ValidationSummary/>
 		</div>
 
-		<p><rw:Button Text="Validate" Click="{command: Validate()}" Validate.Target="{value: Customer}" /></p>
+		<p><dot:Button Text="Validate" Click="{command: Validate()}" Validate.Target="{value: Customer}" /></p>
 		<p>{{value: IsValid}}</p>
 
 	</div>
 	
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

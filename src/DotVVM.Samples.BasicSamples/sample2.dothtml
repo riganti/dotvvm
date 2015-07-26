@@ -16,9 +16,9 @@
 					<legend>Single CheckBox</legend>
 
 					<p>
-						<rw:CheckBox Text="Simple Test" Checked="{value: SCB}" /> 
+						<dot:CheckBox Text="Simple Test" Checked="{value: SCB}" /> 
 						&nbsp; &nbsp;
-						<rw:Button Text="Postback" Click="{command: UpdateSCB()}" />
+						<dot:Button Text="Postback" Click="{command: UpdateSCB()}" />
 						&nbsp; &nbsp;
 						{{value: SCBResult}}
 					</p>
@@ -31,13 +31,13 @@
 					<legend>Multiple CheckBoxes</legend>
 
 					<p>
-						<rw:CheckBox Text="Red" CheckedItems="{value: MCB}" CheckedValue="r" /> 
+						<dot:CheckBox Text="Red" CheckedItems="{value: MCB}" CheckedValue="r" /> 
 						&nbsp; &nbsp;
-						<rw:CheckBox Text="Green" CheckedItems="{value: MCB}" CheckedValue="g" /> 
+						<dot:CheckBox Text="Green" CheckedItems="{value: MCB}" CheckedValue="g" /> 
 						&nbsp; &nbsp;
-						<rw:CheckBox Text="Blue" CheckedItems="{value: MCB}" CheckedValue="b" /> 
+						<dot:CheckBox Text="Blue" CheckedItems="{value: MCB}" CheckedValue="b" /> 
 						&nbsp; &nbsp;
-						<rw:Button Text="Postback" Click="{command: UpdateMCB()}" />
+						<dot:Button Text="Postback" Click="{command: UpdateMCB()}" />
 						&nbsp; &nbsp;
 						{{value: MCBResult}}
 					</p>
@@ -56,13 +56,13 @@
 					<legend>Data-bound RadioButtons</legend>
 
 					<p>
-						<rw:Repeater DataSource="{value: DBRBChoices}">
+						<dot:Repeater DataSource="{value: DBRBChoices}">
 							<ItemTemplate>
-								<rw:RadioButton Text="{value: Title}" GroupName="group2" CheckedItem="{value: _parent.DBRB}" CheckedValue="{value: Id}" /> 
+								<dot:RadioButton Text="{value: Title}" GroupName="group2" CheckedItem="{value: _parent.DBRB}" CheckedValue="{value: Id}" /> 
 								&nbsp; &nbsp;
 							</ItemTemplate>
-						</rw:Repeater>
-						<rw:Button Text="Postback" Click="{command: UpdateDBRB()}" />
+						</dot:Repeater>
+						<dot:Button Text="Postback" Click="{command: UpdateDBRB()}" />
 						&nbsp; &nbsp;
 						{{value: DBRBResult}}
 					</p>
@@ -74,13 +74,13 @@
 
 				<fieldset>
 					<legend>Changed event</legend>
-					<rw:CheckBox Checked="{value: ChangedValue}" Changed="{command: OnChanged()}" />
+					<dot:CheckBox Checked="{value: ChangedValue}" Changed="{command: OnChanged()}" />
 					{{value: NumberOfChanges}}
 				</fieldset>
 			</div>
 		</div>
 	</div>
 
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

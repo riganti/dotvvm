@@ -11,6 +11,7 @@ using Microsoft.Owin.Security.Cookies;
 using Microsoft.AspNet.Identity;
 using DotVVM.Framework.Storage;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Controls;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.BasicSamples.Startup))]
 namespace DotVVM.Samples.BasicSamples
@@ -83,6 +84,10 @@ namespace DotVVM.Samples.BasicSamples
             dotvvmConfiguration.Styles.Register("td")
                 .WithCondition(s => s.HasDataContext<ViewModels.TaskViewModel>())
                 .SetAttribute("class", "task-td", append: true);
+
+            dotvvmConfiguration.Styles.Register<Repeater>()
+                .SetAttribute("class", "repeater")
+                .SetProperty(r => r.WrapperTagName, "div");
 
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "TempUpload"), TimeSpan.FromMinutes(30)));

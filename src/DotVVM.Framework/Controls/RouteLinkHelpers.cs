@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Controls
         {
             if (!(binding is ValueBindingExpression))
             {
-                throw new Exception("Only {value: ...} bindings are supported in <rw:RouteLink Param-xxx='' /> attributes!");
+                throw new Exception("Only {value: ...} bindings are supported in <dot:RouteLink Param-xxx='' /> attributes!");
             }
         }
 

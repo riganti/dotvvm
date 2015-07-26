@@ -9,12 +9,12 @@
 		<h1>Selectors</h1>
 		<div class="row">
 			<div class="col-md-6">
-				<rw:ComboBox class="form-control" DataSource="{value: Cities}" SelectedValue="{value: SelectedCityId}" ValueMember="Id" DisplayMember="Name" />
-				<rw:Button class="btn btn-block" Text="Select city" Click="{command: SelectedCityChanged()}" />
+				<dot:ComboBox class="form-control" DataSource="{value: Cities}" SelectedValue="{value: SelectedCityId}" ValueMember="Id" DisplayMember="Name" />
+				<dot:Button class="btn btn-block" Text="Select city" Click="{command: SelectedCityChanged()}" />
 			</div>
 			<div class="col-md-6" Visible="{value: HotelsInCity != null}">
-				<rw:ListBox class="form-control" DataSource="{value: HotelsInCity}" SelectedValue="{value: SelectedHotelId}" ValueMember="Id" DisplayMember="Name" />
-				<rw:Button class="btn btn-block" Text="Select hotel" Click="{command: SelectedHotelChanged()}" />
+				<dot:ListBox class="form-control" DataSource="{value: HotelsInCity}" SelectedValue="{value: SelectedHotelId}" ValueMember="Id" DisplayMember="Name" />
+				<dot:Button class="btn btn-block" Text="Select hotel" Click="{command: SelectedHotelChanged()}" />
 			</div>
 		</div>
 		<div DataContext="{value: SelectedHotel}">
@@ -23,6 +23,6 @@
 		</div>
 	</div>
 	
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

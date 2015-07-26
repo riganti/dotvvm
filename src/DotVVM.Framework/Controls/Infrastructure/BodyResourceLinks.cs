@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             // render the serialized viewmodel
             var serializedViewModel = context.RequestContext.GetSerializedViewModel();
             writer.AddAttribute("type", "hidden");
-            writer.AddAttribute("id", "__rw_viewmodel_" + context.CurrentPageArea);
+            writer.AddAttribute("id", "__dot_viewmodel_" + context.CurrentPageArea);
             writer.AddAttribute("value", serializedViewModel);
             writer.RenderSelfClosingTag("input");
 

@@ -21,26 +21,26 @@
 			<legend>Add Task</legend>
 			
 			<p>
-				Title: <rw:TextBox Text="{value: NewTaskTitle}" />
+				Title: <dot:TextBox Text="{value: NewTaskTitle}" />
 			</p>
 			<p>
-				<rw:ValidationMessage Id="hideWhenValid" ValidatedValue="{value: NewTaskTitle}" Mode="HideWhenValid" AsteriskText="Validation 1 - HideWhenValid" />
-				<rw:ValidationMessage Id="addCssClass" ValidatedValue="{value: NewTaskTitle}" Mode="AddCssClass" AsteriskText="Validation 2 - AddCssClass" InvalidCssClass="validator" />
-				<rw:ValidationMessage Id="displayErrorMessage" ValidatedValue="{value: NewTaskTitle}" Mode="DisplayErrorMessage" AsteriskText="Validation 3 - DisplayErrorMessage" />
+				<dot:ValidationMessage Id="hideWhenValid" ValidatedValue="{value: NewTaskTitle}" Mode="HideWhenValid" AsteriskText="Validation 1 - HideWhenValid" />
+				<dot:ValidationMessage Id="addCssClass" ValidatedValue="{value: NewTaskTitle}" Mode="AddCssClass" AsteriskText="Validation 2 - AddCssClass" InvalidCssClass="validator" />
+				<dot:ValidationMessage Id="displayErrorMessage" ValidatedValue="{value: NewTaskTitle}" Mode="DisplayErrorMessage" AsteriskText="Validation 3 - DisplayErrorMessage" />
 			</p>
-			<p><rw:Button Text="Create" Click="{command: AddTask()}" /></p> 
+			<p><dot:Button Text="Create" Click="{command: AddTask()}" /></p> 
 
-			<div class="validator"><rw:ValidationSummary Id="validationSummary" /></div>
+			<div class="validator"><dot:ValidationSummary Id="validationSummary" /></div>
 		</fieldset>
 		<p>&nbsp;</p>
 		
 		<table class="table">
-			<rw:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+			<dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
 				<ItemTemplate>
 					<tr class="{value: IsCompleted ? "completed" : ""}">
 						<td>{{value: Title}}</td>
 						<td>
-							<rw:LinkButton 
+							<dot:LinkButton 
 								Text="done" 
 								Click="{command: _parent.CompleteTask(TaskId)}" 
 								Visible="{value: !IsCompleted}"
@@ -48,14 +48,14 @@
 						</td>
 					</tr>
 				</ItemTemplate>
-			</rw:Repeater>
+			</dot:Repeater>
 		</table>
 	</div>
 	
 	<p>
-		<rw:UpdateProgress>Loading...</rw:UpdateProgress>
+		<dot:UpdateProgress>Loading...</dot:UpdateProgress>
 	</p>
 
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

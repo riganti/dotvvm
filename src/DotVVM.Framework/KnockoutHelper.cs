@@ -38,6 +38,13 @@ namespace DotVVM.Framework
         {
             writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.TranslateToClientScript(control, property))) + "}", true, ", ");
         }
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, KnockoutBindingGroup bindingGroup)
+        {
+            if (!bindingGroup.IsEmpty)
+            {
+                writer.AddKnockoutDataBind(name, bindingGroup.ToString());
+            }
+        }
 
         public static void WriteKnockoutForeachComment(this IHtmlWriter writer, string binding)
         {

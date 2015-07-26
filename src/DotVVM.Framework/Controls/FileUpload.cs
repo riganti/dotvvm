@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new Exception("The UploadedFiles property of the FileUpload control must be bound!");   // TODO: Exception handling
             });
-            writer.AddAttribute("class", "rw-upload", true);
+            writer.AddAttribute("class", "dot-upload", true);
 
             var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
             if (uploadCompletedBinding != null)
@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Controls
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             // render iframe
-            writer.AddAttribute("class", "rw-upload-iframe");
+            writer.AddAttribute("class", "dot-upload-iframe");
             writer.AddAttribute("src", "~/" + Constants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
             writer.AddAttribute("id", ID + "_iframe");
             writer.AddAttribute("data-target-control-id", ID);
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
 
             // render upload button
-            writer.AddAttribute("class", "rw-upload-button");
+            writer.AddAttribute("class", "dot-upload-button");
             writer.AddKnockoutDataBind("visible", "!IsBusy()");
             writer.RenderBeginTag("span");
             writer.AddAttribute("href", "#");
@@ -104,26 +104,26 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
 
             // render upload files
-            writer.AddAttribute("class", "rw-upload-files");
+            writer.AddAttribute("class", "dot-upload-files");
             writer.AddKnockoutDataBind("html", "dotvvm.format('{0} files', Files().length)");     // TODO: localization
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
 
             // render progress wrapper
             writer.AddKnockoutDataBind("visible", "IsBusy");
-            writer.AddAttribute("class", "rw-upload-progress-wrapper");
+            writer.AddAttribute("class", "dot-upload-progress-wrapper");
             writer.RenderBeginTag("span");
-            writer.AddAttribute("class", "rw-upload-progress");
+            writer.AddAttribute("class", "dot-upload-progress");
             writer.AddKnockoutDataBind("style", "{ 'width': (Progress() == -1 ? '50' : Progress()) + '%' }");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
             writer.RenderEndTag();
 
             // render result
-            writer.AddAttribute("class", "rw-upload-result");
+            writer.AddAttribute("class", "dot-upload-result");
             writer.AddKnockoutDataBind("html", "Error() ? 'Error occured.' : 'The files are uploaded.'");       // TODO: localization
             writer.AddKnockoutDataBind("attr", "{ title: Error }");
-            writer.AddKnockoutDataBind("css", "{ 'rw-upload-result-success': !Error(), 'rw-upload-result-error': Error }");
+            writer.AddKnockoutDataBind("css", "{ 'dot-upload-result-success': !Error(), 'dot-upload-result-error': Error }");
             writer.AddKnockoutDataBind("visible", "!IsBusy() && Files().length > 0");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();

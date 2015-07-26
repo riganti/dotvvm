@@ -42,10 +42,10 @@ namespace DotVVM.Framework.Parser
 
         public const string FileUploadHandlerMatchUrl = "dotvvmFileUpload";
 
-        public const string SpaContentPlaceHolderDataAttributeName = "data-rw-spacontentplaceholder";
+        public const string SpaContentPlaceHolderDataAttributeName = "data-dot-spacontentplaceholder";
         public const string SpaContentPlaceHolderHeaderName = "X-DotVVM-SpaContentPlaceHolder";
-        public const string SpaContentPlaceHolderID = "__rw_SpaContentPlaceHolder";
-        public const string SpaContentPlaceHolderDefaultRouteDataAttributeName = "data-rw-spacontentplaceholder-defaultroute";
+        public const string SpaContentPlaceHolderID = "__dot_SpaContentPlaceHolder";
+        public const string SpaContentPlaceHolderDefaultRouteDataAttributeName = "data-dot-spacontentplaceholder-defaultroute";
         
         public const string DotvvmFileUploadResourceName = "dotvvm.fileUpload";
         public const string DotvvmFileUploadCssResourceName = "dotvvm.fileUpload-css";

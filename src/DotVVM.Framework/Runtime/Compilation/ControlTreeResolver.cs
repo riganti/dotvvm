@@ -233,14 +233,17 @@ namespace DotVVM.Framework.Runtime.Compilation
                         content.Clear();
                         control.SetProperty(ProcessElementProperty(control, property, element.Content));
                     }
-                    else properties = false;
+                    else
+                    {
+                        content.Add(node);
+                        if(node.IsNotEmpty())
+                        {
+                            properties = false;
+                        }
+                    }
                 }
-                if ((element != null && !properties) || element == null)
+                else
                     content.Add(node);
-                if (properties && node.IsNotEmpty())
-                {
-                    properties = false;
-                }
             }
             if (content.Any(DothtmlNodeHelper.IsNotEmpty))
             {

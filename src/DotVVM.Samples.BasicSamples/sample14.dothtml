@@ -9,23 +9,23 @@
 		<h1>Server Rendering</h1>
 		
 		<table>
-			<rw:Repeater DataSource="{value: Months}" WrapperTagName="tbody" RenderSettings.Mode="Server">
+			<dot:Repeater DataSource="{value: Months}" WrapperTagName="tbody" RenderSettings.Mode="Server">
 				<ItemTemplate>
 					<tr>
 						<td>{{value: MonthName}}</td>
 						<td>
-							<rw:TextBox Text="{value: Hours}" Placeholder="enter number of hours" />
+							<dot:TextBox Text="{value: Hours}" Placeholder="enter number of hours" />
 						</td>
 					</tr>
 				</ItemTemplate>
-			</rw:Repeater>
+			</dot:Repeater>
 		</table>
 	
-		<p><rw:Button Text="Recalculate" Click="{command: Recalculate()}" /></p>
+		<p><dot:Button Text="Recalculate" Click="{command: Recalculate()}" /></p>
 
 		<p>{{value: TotalHours}}</p>
 
 	</div>
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>

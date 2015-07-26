@@ -9,20 +9,20 @@
 	<div class="container">
 		<h1>File upload sample</h1>
 		
-		<rw:FileUpload UploadedFiles="{value: Files}" AllowMultipleFiles="true" />
+		<dot:FileUpload UploadedFiles="{value: Files}" AllowMultipleFiles="true" />
 		<p>
-			<rw:Button Text="Confirm upload" Click="{command: Process()}" Enabled="{value: !Files.IsBusy}" />
+			<dot:Button Text="Confirm upload" Click="{command: Process()}" Enabled="{value: !Files.IsBusy}" />
 		</p>
 		<p>&nbsp;</p>
 
-		<rw:Repeater DataSource="{value: FilesInStorage}" WrapperTagName="ul">
+		<dot:Repeater DataSource="{value: FilesInStorage}" WrapperTagName="ul">
 			<ItemTemplate>
 				<li>{{value: _this}}</li>
 			</ItemTemplate>
-		</rw:Repeater>
+		</dot:Repeater>
 
 	</div>
 	
-	<rw:RequiredResource Name="bootstrap" />
+	<dot:RequiredResource Name="bootstrap" />
 </body>
 </html>
