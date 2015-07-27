@@ -37,6 +37,8 @@
             </dot:Repeater>
         </table>
 
+		{{value: Tasks.Count}}
+
 		<dot:Button Click="{staticCommand: Sample1ViewModel.CoolAction(NewTaskTitle)}" Text="Test static command" />
     </div>
 

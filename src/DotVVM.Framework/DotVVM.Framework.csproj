@@ -265,6 +265,7 @@
     <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptCompilationHelper.cs" />
     <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptTranslator.cs" />
     <Compile Include="Runtime\Compilation\BindingCompiler.cs" />
+    <Compile Include="Runtime\Compilation\JavascriptCompilation\StringJsMethodCompiler.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\IResolvedTreeNode.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedBinding.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedControl.cs" />
