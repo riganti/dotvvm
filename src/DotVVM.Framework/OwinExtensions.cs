@@ -10,10 +10,10 @@ namespace DotVVM.Framework
     public static class OwinExtensions
     {
 
-        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootDirectory)
+        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootDirectory, bool errorPages = true)
         {
             var configurationFilePath = Path.Combine(applicationRootDirectory, "dotvvm.json");
-            
+
             // load or create default configuration
             var configuration = DotvvmConfiguration.CreateDefault();
             if (File.Exists(configurationFilePath))
@@ -25,7 +25,8 @@ namespace DotVVM.Framework
             configuration.Markup.AddAssembly(Assembly.GetCallingAssembly().FullName);
 
             // add middlewares
-            app.Use<DotvvmErrorPageMiddleware>();
+            if (errorPages)
+                app.Use<DotvvmErrorPageMiddleware>();
 
             app.Use<DotvvmRestrictedStaticFilesMiddleware>();
             app.Use<DotvvmEmbeddedResourceMiddleware>();
@@ -35,9 +36,9 @@ namespace DotVVM.Framework
             app.Use<DotvvmReturnedFileMiddleware>(configuration);
 
             app.Use<DotvvmMiddleware>(configuration);
-            
+
             return configuration;
         }
-        
+
     }
 }

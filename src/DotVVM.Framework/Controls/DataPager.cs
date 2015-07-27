@@ -12,15 +12,15 @@ namespace DotVVM.Framework.Controls
     public class DataPager : HtmlGenericControl
     {
         private static CommandBindingExpression GoToNextPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[h.Length - 1]).GoToNextPage(), "__$DataPager_GoToNextPage");
+            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToNextPage(), "__$DataPager_GoToNextPage");
         private static CommandBindingExpression GoToThisPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[h.Length - 2]).GoToPage((int)h[h.Length - 1]), "__$DataPager_GoToThisPage");
+            new CommandBindingExpression(h => ((IGridViewDataSet)h[1]).GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
         private static CommandBindingExpression GoToPrevPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[h.Length - 1]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
+            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
         private static CommandBindingExpression GoToFirstPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[h.Length - 1]).GoToFirstPage(), "__$DataPager_GoToFirstPage");
+            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToFirstPage(), "__$DataPager_GoToFirstPage");
         private static CommandBindingExpression GoToLastPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[h.Length - 1]).GoToLastPage(), "__$DataPager_GoToLastPage");
+            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
 
 
         [MarkupOptions(AllowHardCodedValue = false)]
@@ -216,7 +216,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
-                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => (int)vm.Last() + 1, "$data + 1"));
+                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => (int)vm[0] + 1, "$data + 1"));
                 li.Children.Add(literal);
                 numbersPlaceholder.Children.Add(li);
                 li.Render(writer, context);
@@ -225,11 +225,10 @@ namespace DotVVM.Framework.Controls
             }
             writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
             li = new HtmlGenericControl("li");
-            content.Children.Add(li);
             li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
-            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => (int)vm.Last() + 1, "$data + 1"));
+            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => (int)vm[0] + 1, "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
             numbersPlaceholder.Children.Add(li);
             li.Render(writer, context);

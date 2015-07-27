@@ -20,12 +20,19 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public static Expression Parse(string bindingExpressionText, Type contextType, Type[] parentContexts, Type controlType)
         {
-            var parser = new AntlrParser(bindingExpressionText);
-            parser.ExternalParameters = parser.ExternalParameters ?? new List<ParameterExpression>();
-            parser.ExternalParameters.AddRange(GetParameters(contextType, parentContexts, controlType));
-            parser.TypeRegistry = InitTypeRegistry(contextType, parentContexts);
-            var scope = Expression.Parameter(contextType, Constants.ThisSpecialBindingProperty);
-            return parser.Parse(scope);
+            try
+            {
+                var parser = new AntlrParser(bindingExpressionText);
+                parser.ExternalParameters = parser.ExternalParameters ?? new List<ParameterExpression>();
+                parser.ExternalParameters.AddRange(GetParameters(contextType, parentContexts, controlType));
+                parser.TypeRegistry = InitTypeRegistry(contextType, parentContexts);
+                var scope = Expression.Parameter(contextType, Constants.ThisSpecialBindingProperty);
+                return parser.Parse(scope);
+            }
+            catch (Exception exception)
+            {
+                throw new BidningParserExpception(contextType, bindingExpressionText, parentContexts, controlType, exception); 
+            }
         }
 
         public static BindingExpressionNode ToBindingExpression(Expression expression)

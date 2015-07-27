@@ -489,6 +489,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className)
         {
+            UsedAssemblies.Add(BuilderDataContextType.Assembly);
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName(namespaceName)).WithMembers(
                     SyntaxFactory.List<MemberDeclarationSyntax>(

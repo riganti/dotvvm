@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
 
         public Expression GetExpression()
         {
-            if (ParsingError != null) throw new Exception("can't get expression, parsing failed", ParsingError);
+            if (ParsingError != null) throw new Exception($"can't get expression, parsing of binding {{{ BindingType.Name }: { Value }}} failed", ParsingError);
             return Expression;
         }
     }

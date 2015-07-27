@@ -78,12 +78,12 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static object[] GetDataContexts(DotvvmBindableControl contextControl, bool seeThis)
         {
-            var context = seeThis ? contextControl.GetValue(DotvvmBindableControl.DataContextProperty, false):  null;
-            return contextControl.GetAllAncestors().OfType<DotvvmBindableControl>()
+            var context = seeThis ? contextControl.GetValue(DotvvmBindableControl.DataContextProperty, false) : null;
+            return
+                (context == null ? new object[0] : new[] { context })
+                .Concat(contextControl.GetAllAncestors().OfType<DotvvmBindableControl>()
                 .Select(c => c.GetValue(DotvvmBindableControl.DataContextProperty, false))
-                .Where(b => b != null)
-                .Reverse()
-                .Concat(context == null ? new object[0] : new[] { context })
+                .Where(b => b != null))
                 .ToArray();
         }
 
