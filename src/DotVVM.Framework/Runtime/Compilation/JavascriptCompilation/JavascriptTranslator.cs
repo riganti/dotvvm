@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Linq.Expressions;
+using System.Collections;
 
 namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 {
     public class JavascriptTranslator
     {
-
         public static string CompileToJavascript(Expression binding, DataContextStack dataContext)
         {
             var translator = new JavascriptTranslator();
@@ -19,6 +19,54 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
         }
 
         public static readonly Dictionary<MethodInfo, IJsMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJsMethodTranslator>();
+        public static readonly HashSet<Type> Interfaces = new HashSet<Type>();
+
+        static JavascriptTranslator()
+        {
+            AddDefaultMethodTranslators();
+        }
+
+        public static void AddMethodTranslator(Type declaringType, string methodName, IJsMethodTranslator translator, Type[] parameters = null)
+        {
+            var methods = declaringType.GetMethods()
+                .Where(m => m.Name == methodName);
+            if (parameters != null)
+            {
+                methods = methods.Where(m =>
+                {
+                    var mp = m.GetParameters();
+                    return mp.Length == parameters.Length && parameters.Zip(mp, (specified, method) => method.ParameterType.IsAssignableFrom(specified)).All(t => t);
+                });
+            }
+            AddMethodTranslator(methods.Single(), translator);
+        }
+
+        public static void AddMethodTranslator(MethodInfo method, IJsMethodTranslator translator)
+        {
+            MethodTranslators.Add(method, translator);
+            if (method.DeclaringType.IsInterface)
+                Interfaces.Add(method.DeclaringType);
+        }
+
+        public static void AddPropertySetterTranslator(Type declaringType, string methodName, IJsMethodTranslator translator)
+        {
+            var property = declaringType.GetProperty(methodName);
+            AddMethodTranslator(property.SetMethod, translator);
+        }
+
+        public static void AddPropertyGetterTranslator(Type declaringType, string methodName, IJsMethodTranslator translator)
+        {
+            var property = declaringType.GetProperty(methodName);
+            AddMethodTranslator(property.GetMethod, translator);
+        }
+
+        public static void AddDefaultMethodTranslators()
+        {
+            var lengthMethod = new StringJsMethodCompiler("{0}.length");
+            AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
+            AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
+            //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
+        }
 
         public DataContextStack DataContexts { get; set; }
 
@@ -82,10 +130,24 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         protected string TryTranslateMethodCall(string context, string[] args, MethodInfo method)
         {
+            if (method == null) return null;
             IJsMethodTranslator translator;
             if (MethodTranslators.TryGetValue(method, out translator))
             {
                 return translator.TranslateCall(context, args, method);
+            }
+            if (!method.DeclaringType.IsInterface)
+            {
+                foreach (var iface in method.DeclaringType.GetInterfaces())
+                {
+                    if (Interfaces.Contains(iface))
+                    {
+                        var map = method.DeclaringType.GetInterfaceMap(iface);
+                        var imIndex = Array.IndexOf(map.TargetMethods, method);
+                        if (MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]))
+                            return MethodTranslators[map.InterfaceMethods[imIndex]].TranslateCall(context, args, method);
+                    }
+                }
             }
             return null;
         }
@@ -190,7 +252,9 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string TranslateMemberAccess(MemberExpression expression)
         {
-            return TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
+            var getter = (expression.Member as PropertyInfo)?.GetMethod;
+            return TryTranslateMethodCall(Translate(expression.Expression), new string[0], getter) ??
+                TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
         }
 
         public string TranslateViewModelProperty(string context, MemberInfo propInfo)

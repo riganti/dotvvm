@@ -69,6 +69,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var t = new TypeRegistry();
             t.RegisterType("ViewModel", contextType);
             t.RegisterType("RootViewModel", parents.LastOrDefault() ?? contextType);
+            t.RegisterType("Enumerable", typeof(Enumerable));
             for (int i = parents.Length - 1; i >= 0; i--)
             {
                 if (!t.ContainsKey(parents[i].Name))
