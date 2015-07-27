@@ -172,6 +172,13 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void RenderControl(IHtmlWriter writer, RenderContext context)
         {
+            foreach(var item in properties)
+            {
+                if(item.Key is ActiveDotvvmProperty)
+                {
+                    ((ActiveDotvvmProperty)item.Key).AddAttributesToRender(writer, context, item.Value, this);
+                }
+            }
             AddAttributesToRender(writer, context);
             RenderBeginTag(writer, context);
             RenderContents(writer, context);

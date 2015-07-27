@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="container" class="a">
-        <h1>Task List</h1>
+        <h1 Events.Click="{command: AddTask()}">Task List</h1>
 
         <fieldset data-testattribute>
             <legend>Add Task</legend>

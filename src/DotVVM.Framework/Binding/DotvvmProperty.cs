@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Registers the specified DotVVM property.
         /// </summary>
-        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false)
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false, DotvvmProperty property = null)
         {
             var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
 
@@ -133,16 +133,15 @@ namespace DotVVM.Framework.Binding
                     markupOptions.Name = propertyName;
                 }
 
-                return new DotvvmProperty()
-                {
-                    Name = propertyName,
-                    DefaultValue = defaultValue ?? default(TPropertyType),
-                    DeclaringType = typeof(TDeclaringType),
-                    PropertyType = typeof(TPropertyType),
-                    IsValueInherited = isValueInherited,
-                    PropertyInfo = propertyInfo,
-                    MarkupOptions = markupOptions
-                };
+                if (property == null) property = new DotvvmProperty();
+                property.Name = propertyName;
+                property.DefaultValue = defaultValue ?? default(TPropertyType);
+                property.DeclaringType = typeof(TDeclaringType);
+                property.PropertyType = typeof(TPropertyType);
+                property.IsValueInherited = isValueInherited;
+                property.PropertyInfo = propertyInfo;
+                property.MarkupOptions = markupOptions;
+                return property;
             });
         }
 
@@ -154,7 +153,7 @@ namespace DotVVM.Framework.Binding
         public static DotvvmProperty ResolveProperty(Type type, string name)
         {
             var fullName = type.FullName + "." + name;
-            
+
             DotvvmProperty property;
             while (!registeredProperties.TryGetValue(fullName, out property) && type.BaseType != null)
             {
