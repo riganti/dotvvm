@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Binding
         public BindingUpdateDelegate UpdateDelegate { get; set; }
         public string Id { get; set; }
         public ActionFilterAttribute[] ActionFilters { get; set; }
+        public Dictionary<string, object> Extensions { get; set; }
 
         public delegate object BindingDelegate(object[] dataContextHierarchy, DotvvmControl rootControl);
         public delegate void BindingUpdateDelegate(object[] dataContextHierarchy, DotvvmControl rootControl, object value);

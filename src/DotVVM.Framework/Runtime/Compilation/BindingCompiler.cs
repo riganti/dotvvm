@@ -92,16 +92,6 @@ namespace DotVVM.Framework.Runtime.Compilation
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
             return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter).Compile();
         }
-
-        public static string CompileToJavascript(Expression binding, DataContextStack dataContext)
-        {
-            var translator = new JavascriptCompilation.JavascriptTranslator();
-            translator.DataContexts = dataContext;
-            var script = translator.Translate(binding).Trim();
-            if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()")) script = script.Remove(script.Length - 2);
-            return script;
-        }
-
         public List<ActionFilterAttribute> GetActionFilters(Expression expression)
         {
             var list = new List<ActionFilterAttribute>();
@@ -121,7 +111,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             compiled.OriginalString = TryExecute(requirements.OriginalString, () => binding.Value);
             compiled.Expression = TryExecute(requirements.Expression, () => binding.GetExpression());
             compiled.Id = id;
-            compiled.Javascript = TryExecute(requirements.Javascript, () => CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack));
+            compiled.Javascript = TryExecute(requirements.Javascript, () => JavascriptCompilation.JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack));
             compiled.ActionFilters = TryExecute(requirements.ActionFilters, () => GetActionFilters(binding.GetExpression()).ToArray());
 
             var index = Interlocked.Increment(ref globalBindingIndex);
