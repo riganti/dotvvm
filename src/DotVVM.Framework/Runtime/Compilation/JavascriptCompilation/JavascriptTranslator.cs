@@ -8,6 +8,16 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 {
     public class JavascriptTranslator
     {
+
+        public static string CompileToJavascript(Expression binding, DataContextStack dataContext)
+        {
+            var translator = new JavascriptTranslator();
+            translator.DataContexts = dataContext;
+            var script = translator.Translate(binding).Trim();
+            if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()")) script = script.Remove(script.Length - 2);
+            return script;
+        }
+
         public static readonly Dictionary<MethodInfo, IJsMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJsMethodTranslator>();
 
         public DataContextStack DataContexts { get; set; }

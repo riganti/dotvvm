@@ -14,6 +14,9 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
+using Newtonsoft.Json.Linq;
+using Newtonsoft.Json;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -87,13 +90,18 @@ namespace DotVVM.Framework.Hosting
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 throw new DotvvmHttpException("Only GET and POST methods are supported!");
             }
+            if (context.OwinContext.Request.Headers["X-PostbackType"] == "StaticCommand")
+            {
+                ProcessStaticCommandRequest(context);
+                return;
+            }
             var isPostBack = DetermineIsPostBack(context.OwinContext);
             context.IsPostBack = isPostBack;
             context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
 
             // build the page view
             var page = DotvvmViewBuilder.BuildView(context);
-            
+
             // run the preinit phase in the page
             InvokePageLifeCycleEventRecursive(page, c => c.OnPreInit(context));
 
@@ -141,6 +149,10 @@ namespace DotVVM.Framework.Hosting
                     postData = await sr.ReadToEndAsync();
                 }
                 ViewModelSerializer.PopulateViewModel(context, page, postData);
+
+                // validate CSRF token 
+                CsrfProtector.VerifyToken(context, context.CsrfToken);
+
                 if (context.ViewModel is IDotvvmViewModel)
                 {
                     await ((IDotvvmViewModel)context.ViewModel).Load();
@@ -162,9 +174,8 @@ namespace DotVVM.Framework.Hosting
                     var methodFilters = actionInfo.Binding.ActionFilters == null ? globalFilters.Concat(viewModelFilters).ToArray() :
                        globalFilters.Concat(viewModelFilters).Concat(actionInfo.Binding.ActionFilters).ToArray();
 
-
                     // run OnCommandExecuting on action filters
-                    foreach (var filter in globalFilters.Concat(viewModelFilters).Concat(methodFilters))
+                    foreach (var filter in methodFilters)
                     {
                         filter.OnCommandExecuting(context, actionInfo);
                     }
@@ -188,7 +199,7 @@ namespace DotVVM.Framework.Hosting
                     }
 
                     // run OnCommandExecuted on action filters
-                    foreach (var filter in globalFilters.Concat(viewModelFilters).Concat(methodFilters))
+                    foreach (var filter in methodFilters)
                     {
                         filter.OnCommandExecuted(context, actionInfo, commandException);
                     }
@@ -241,6 +252,74 @@ namespace DotVVM.Framework.Hosting
             if (context.ViewModel != null)
             {
                 ViewModelLoader.DisposeViewModel(context.ViewModel);
+            }
+        }
+
+        public void ProcessStaticCommandRequest(DotvvmRequestContext context)
+        {
+            JObject postData;
+            using (var jsonReader = new JsonTextReader(new StreamReader(context.OwinContext.Request.Body)))
+            {
+                postData = JObject.Load(jsonReader);
+            }
+            // validate csrf token
+            context.CsrfToken = postData["$csrfToken"].Value<string>();
+            CsrfProtector.VerifyToken(context, context.CsrfToken);
+
+            var command = postData["command"].Value<string>();
+            var arguments = postData["args"].ToObject<object[]>();
+            var lastDot = command.LastIndexOf('.');
+            var typeName = command.Remove(lastDot);
+            var methodName = command.Substring(lastDot + 1);
+            var methodInfo = Type.GetType(typeName).GetMethod(methodName);
+
+            if (!Attribute.IsDefined(methodInfo, typeof(StaticCommandCallableAttribute)))
+            {
+                throw new DotvvmHttpException("method validation failed");
+            }
+            var actionInfo = new ActionInfo()
+            {
+                IsControlCommand = false,
+                Action = () => methodInfo.Invoke(null, arguments)
+            };
+            var filters = methodInfo.GetCustomAttributes<ActionFilterAttribute>();
+            foreach (var filter in filters)
+            {
+                filter.OnCommandExecuting(context, actionInfo);
+            }
+            Exception exception = null;
+            object result = null;
+            try
+            {
+                result = methodInfo.Invoke(null, arguments);
+            }
+            catch (Exception ex)
+            {
+                if (ex is TargetInvocationException)
+                {
+                    ex = ex.InnerException;
+                }
+                if (ex is DotvvmInterruptRequestExecutionException)
+                {
+                    throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
+                }
+                exception = ex;
+            }
+            foreach (var filter in filters)
+            {
+                filter.OnCommandExecuted(context, actionInfo, exception);
+            }
+            if (exception != null)
+            {
+                throw new Exception("unhandled exception in command", exception);
+            }
+
+            if (result != null)
+            {
+                using (var writer = new StreamWriter(context.OwinContext.Response.Body))
+                {
+                    writer.WriteLine(JsonConvert.SerializeObject(result));
+                }
             }
         }
 
