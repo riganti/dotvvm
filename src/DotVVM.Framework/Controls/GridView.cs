@@ -53,8 +53,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty SortChangedProperty =
             DotvvmProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
-        private string dataSourcePath;
-
 
         protected internal override void OnLoad(DotvvmRequestContext context)
         {
@@ -87,7 +85,7 @@ namespace DotVVM.Framework.Controls
                 var sortCommandBinding = GetCommandBinding(SortChangedProperty);
                 if (sortCommandBinding != null)
                 {
-                    sortCommand = s => sortCommandBinding.Delegate(BindingExpression.GetDataContexts(this, true).Concat(new[] { s }).ToArray(), null);
+                    sortCommand = s => sortCommandBinding.Delegate(new []{ s }.Concat(BindingExpression.GetDataContexts(this, true)).ToArray(), null);
                 }
             }
 

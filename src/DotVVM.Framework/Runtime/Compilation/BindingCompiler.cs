@@ -45,17 +45,18 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public static IEnumerable<KeyValuePair<string, Expression>> GetParameters(DataContextStack dataContext, Expression vmArray, Expression controlRoot)
         {
-            var par = dataContext.Enumerable().Reverse().ToArray();
-            yield return GetParameter(par.Length - 1, Constants.ThisSpecialBindingProperty, vmArray, par);
-            yield return GetParameter(0, Constants.RootSpecialBindingProperty, vmArray, par);
+            var par = dataContext.Enumerable().ToArray();
+            yield return GetParameter(0, Constants.ThisSpecialBindingProperty, vmArray, par);
+            yield return GetParameter(par.Length - 1, Constants.RootSpecialBindingProperty, vmArray, par);
             yield return new KeyValuePair<string, Expression>("_control", controlRoot);
+            yield return new KeyValuePair<string, Expression>("_parents", vmArray);
             if (par.Length > 0)
             {
                 if (par.Length > 1)
-                    yield return GetParameter(par.Length - 2, Constants.ParentSpecialBindingProperty, vmArray, par);
+                    yield return GetParameter(1, Constants.ParentSpecialBindingProperty, vmArray, par);
                 for (int i = 1; i < par.Length; i++)
                 {
-                    yield return GetParameter(par.Length - i, Constants.ParentSpecialBindingProperty + i, vmArray, par);
+                    yield return GetParameter(i, Constants.ParentSpecialBindingProperty + i, vmArray, par);
                 }
             }
         }

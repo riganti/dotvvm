@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Binding
         #region Helpers
 
         public static readonly ValueBindingExpression ThisBinding
-             = new ValueBindingExpression(vm => vm[vm.Length - 1], "$data");
+             = new ValueBindingExpression(vm => vm[0], "$data");
 
         public ValueBindingExpression MakeListIndexer(int index)
         {

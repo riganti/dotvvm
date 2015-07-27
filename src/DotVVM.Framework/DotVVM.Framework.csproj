@@ -243,6 +243,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
+    <Compile Include="Runtime\Compilation\BidningParserExpception.cs" />
     <Compile Include="Runtime\Compilation\BindingExpressionTree\BasicMethods.cs" />
     <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionBuildingVisitor.cs" />
     <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionNode.cs" />

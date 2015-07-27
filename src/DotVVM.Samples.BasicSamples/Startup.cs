@@ -48,7 +48,7 @@ namespace DotVVM.Samples.BasicSamples
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM
-            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM(applicationPhysicalPath);
+            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM(applicationPhysicalPath, errorPages: false);
             dotvvmConfiguration.RouteTable.Add("Sample1", "Sample1", "sample1.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample2", "Sample2", "sample2.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample3", "Sample3", "sample3.dothtml", null);
