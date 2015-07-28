@@ -70,6 +70,18 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public DataContextStack DataContexts { get; set; }
 
+        public string ParenthesizedTranslate(Expression parent, Expression expression)
+        {
+            if(NeedsParens(parent, expression))
+            {
+                return "(" + Translate(expression) + ")";
+            }
+            else
+            {
+                return Translate(expression);
+            }
+        }
+
         public string Translate(Expression expression)
         {
             if (expression is BinaryExpression) return TranslateBinary((BinaryExpression)expression);
@@ -92,9 +104,37 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             }
         }
 
+        /// <summary>
+        /// Determines if the expression will have to be parenthised when called from parent expression
+        /// </summary>
+        public bool NeedsParens(Expression parent, Expression expression)
+        {
+            var exType = expression.NodeType;
+            switch (exType)
+            {
+                case ExpressionType.ArrayLength:
+                case ExpressionType.ArrayIndex:
+                case ExpressionType.Call:
+                case ExpressionType.Constant:
+                case ExpressionType.Invoke:
+                case ExpressionType.ListInit:
+                case ExpressionType.MemberAccess:
+                case ExpressionType.MemberInit:
+                case ExpressionType.New:
+                case ExpressionType.NewArrayInit:
+                case ExpressionType.NewArrayBounds:
+                case ExpressionType.Parameter:
+                case ExpressionType.Default:
+                case ExpressionType.Index:
+                    return false;
+            }
+            // TODO: more clever brackets
+            return true;
+        }
+
         public string TranslateConditional(ConditionalExpression expression)
         {
-            return $"({ Translate(expression.Test) }) ? ({ Translate(expression.IfTrue) }) : ({ Translate(expression.IfFalse) })";
+            return $"{ ParenthesizedTranslate(expression, expression.Test) } ? { ParenthesizedTranslate(expression, expression.IfTrue) } : { ParenthesizedTranslate(expression, expression.IfFalse) })";
         }
 
         public string TranslateParameter(ParameterExpression expression)
@@ -119,7 +159,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string TranslateMethodCall(MethodCallExpression expression)
         {
-            var thisExpression = Translate(expression.Object);
+            var thisExpression = ParenthesizedTranslate(expression, expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
             var result = TryTranslateMethodCall(thisExpression, args, expression.Method);
             if (result == null)
@@ -154,8 +194,8 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string TranslateBinary(BinaryExpression expression)
         {
-            var left = Translate(expression.Left);
-            var right = Translate(expression.Right);
+            var left = ParenthesizedTranslate(expression, expression.Left);
+            var right = ParenthesizedTranslate(expression, expression.Right);
             var method = expression.Method;
             if (method != null)
             {
@@ -210,7 +250,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string TranslateUnary(UnaryExpression expression)
         {
-            var operand = Translate(expression.Operand);
+            var operand = ParenthesizedTranslate(expression, expression.Operand);
             var method = expression.Method;
             if (method != null)
             {
@@ -253,8 +293,8 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
         public string TranslateMemberAccess(MemberExpression expression)
         {
             var getter = (expression.Member as PropertyInfo)?.GetMethod;
-            return TryTranslateMethodCall(Translate(expression.Expression), new string[0], getter) ??
-                TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
+            return TryTranslateMethodCall(ParenthesizedTranslate(expression, expression.Expression), new string[0], getter) ??
+                TranslateViewModelProperty(ParenthesizedTranslate(expression, expression.Expression), expression.Member);
         }
 
         public string TranslateViewModelProperty(string context, MemberInfo propInfo)
