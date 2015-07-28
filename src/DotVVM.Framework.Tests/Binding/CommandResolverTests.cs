@@ -1,5 +1,5 @@
 using System;
-using System.Collections.Generic; 
+using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Binding;
@@ -16,8 +16,9 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void CommandResolver_Valid_SimpleTest()
         {
-            var path = new[] { "A[0]" };
-            var command = "Test(StringToPass, _parent.NumberToPass)";
+            var path = new[] { new ValueBindingExpression(vm => ((dynamic)vm[0]).A[0], "A()[0]") };
+            var commandId = "someCommand";
+            var command = new CommandBindingExpression(vm => ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass), commandId);
 
             var testObject = new
             {
@@ -28,83 +29,45 @@ namespace DotVVM.Framework.Tests.Binding
                 NumberToPass = 16
             };
             var viewRoot = new DotvvmView() { DataContext = testObject };
-            viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
+            viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression(vm => vm.Last(), "$root"));
 
             var placeholder = new HtmlGenericControl("div");
-            placeholder.SetBinding(DotvvmBindableControl.DataContextProperty, new ValueBindingExpression(path[0]));
+            placeholder.SetBinding(DotvvmBindableControl.DataContextProperty, path[0]);
             viewRoot.Children.Add(placeholder);
 
             var button = new Button();
-            button.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression(command));
+            button.SetBinding(ButtonBase.ClickProperty, command);
             placeholder.Children.Add(button);
 
             var resolver = new CommandResolver();
             var context = new DotvvmRequestContext() { ViewModel = testObject };
-            context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button, true);
+            context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button);
 
-            resolver.GetFunction(viewRoot, context, path, command).GetAction()();
-
-            Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
-            Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
-        }
-
-        [TestMethod]
-        public void CommandResolver_Valid_SimpleTest2()
-        {
-            var path = new[] { "A[0]", "StringToPass" };
-            var command = "_parent.Test(_parent.StringToPass, _root.NumberToPass)";
-            
-            var testObject = new
-            {
-                A = new[]
-                {
-                    new TestA() { StringToPass = "test" }
-                },
-                NumberToPass = 16
-            };
-            var viewRoot = new DotvvmView() { DataContext = testObject };
-            viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
-
-            var placeholder = new HtmlGenericControl("div");
-            placeholder.SetBinding(DotvvmBindableControl.DataContextProperty, new ValueBindingExpression(path[0]));
-            viewRoot.Children.Add(placeholder);
-
-            var placeholder2 = new HtmlGenericControl("div");
-            placeholder2.SetBinding(DotvvmBindableControl.DataContextProperty, new ValueBindingExpression(path[1]));
-            placeholder.Children.Add(placeholder2);
-
-            var button = new Button();
-            button.SetBinding(ButtonBase.ClickProperty, new CommandBindingExpression(command));
-            placeholder2.Children.Add(button);
-
-            var resolver = new CommandResolver();
-            var context = new DotvvmRequestContext() { ViewModel = testObject };
-            context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button, true);
-            resolver.GetFunction(viewRoot, context, path, command).GetAction()();
+            resolver.GetFunction(viewRoot, context, path.Select(v => v.Javascript).ToArray(), commandId).Action();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
         }
 
-        [TestMethod]
-        [ExpectedException(typeof(UnauthorizedAccessException))]
-        public void CommandResolver_CannotCallSetter()
-        {
-            var testObject = new TestA()
-            {
-                StringToPass = "a"
-            };
-            var viewRoot = new DotvvmView() { DataContext = testObject };
-            viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
-            viewRoot.SetBinding(DotvvmProperty.Register<Action, DotvvmView>("Test"), new CommandBindingExpression("set_StringToPass(StringToPass)"));
+        //[TestMethod]
+        //[ExpectedException(typeof(UnauthorizedAccessException))]
+        //public void CommandResolver_CannotCallSetter()
+        //{
+        //    var testObject = new TestA()
+        //    {
+        //        StringToPass = "a"
+        //    };
+        //    var viewRoot = new DotvvmView() { DataContext = testObject };
+        //    viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
+        //    viewRoot.SetBinding(DotvvmProperty.Register<Action, DotvvmView>("Test"), new CommandBindingExpression("set_StringToPass(StringToPass)"));
 
-            var path = new string[] { };
-            var command = "set_StringToPass(StringToPass)";
+        //    var path = new string[] { };
+        //    var command = "set_StringToPass(StringToPass)";
 
-            var resolver = new CommandResolver();
-            var context = new DotvvmRequestContext() { ViewModel = testObject };
-            resolver.GetFunction(viewRoot, context, path, command).GetAction()();
-        }
+        //    var resolver = new CommandResolver();
+        //    var context = new DotvvmRequestContext() { ViewModel = testObject };
+        //    resolver.GetFunction(viewRoot, context, path, command).GetAction()();
+        //}
 
         public class TestA
         {

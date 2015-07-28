@@ -247,15 +247,7 @@
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
     <Compile Include="Runtime\Compilation\BidningParserExpception.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\BasicMethods.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionBuildingVisitor.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionNode.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\BindingExpressionTreeVisitor.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\ConstantExpression.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\KeywordExpression.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\MethodInvocation.cs" />
-    <Compile Include="Runtime\Compilation\BindingExpressionTree\ViewModelPropertyAccess.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
     <Compile Include="Runtime\Compilation\ControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\DataContextStack.cs" />
@@ -263,6 +255,7 @@
     <Compile Include="Runtime\Compilation\DefaultViewCompilerCodeEmitter.cs" />
     <Compile Include="Runtime\Compilation\EmitterMethodInfo.cs" />
     <Compile Include="Runtime\Compilation\IBindingCompiler.cs" />
+    <Compile Include="Runtime\Compilation\IBindingParser.cs" />
     <Compile Include="Runtime\Compilation\IControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\IViewCompiler.cs" />
     <Compile Include="Runtime\Compilation\JavascriptCompilation\IJsMethodTranslator.cs" />

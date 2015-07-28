@@ -15,10 +15,5 @@ namespace DotVVM.Framework.Tests
             control.SetBinding(property, expression);
             return control;
         }
-
-        public static object Evaluate(this ExpressionEvaluator evaluator, string expression, object viewModel)
-        {
-            return evaluator.Evaluate(new ValueBindingExpression(expression), DotvvmBindableControl.DataContextProperty, new DotvvmView() { DataContext = viewModel });
-        }
     }
 }
