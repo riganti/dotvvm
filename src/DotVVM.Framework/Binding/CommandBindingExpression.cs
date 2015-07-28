@@ -1,6 +1,5 @@
 using System;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Parser.Translation;
 
 namespace DotVVM.Framework.Binding
 {

@@ -1,7 +1,6 @@
 using System;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Translation;
 using DotVVM.Framework.Utils;
 using System.Collections;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;

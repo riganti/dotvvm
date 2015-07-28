@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Parser.Translation;
 using System.Reflection;
 using System.Linq.Expressions;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
@@ -16,8 +15,6 @@ namespace DotVVM.Framework.Binding
     [StaticCommandJsCompile]
     public class StaticCommandBindingExpression : CommandBindingExpression
     {
-        private static ExpressionTranslator translator = new ExpressionTranslator();
-
         public StaticCommandBindingExpression(CompiledBindingExpression expression)
             : base(expression)
         { } 

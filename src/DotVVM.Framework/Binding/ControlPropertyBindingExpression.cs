@@ -9,7 +9,8 @@ namespace DotVVM.Framework.Binding
 {
     [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
         Javascript = BindingCompilationRequirementType.IfPossible)]
-    public class ControlPropertyBindingExpression : BindingExpression
+    [CompileJavascript]
+    public class ControlPropertyBindingExpression : ValueBindingExpression
     {
         public ControlPropertyBindingExpression()
         {
