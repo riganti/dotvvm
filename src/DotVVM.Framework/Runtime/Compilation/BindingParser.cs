@@ -8,17 +8,16 @@ using ExpressionEvaluator.Parser;
 using System.Reflection;
 using System.Linq.Expressions;
 using DotVVM.Framework.Parser;
-using DotVVM.Framework.Runtime.Compilation.BindingExpressionTree;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
-    public static class BindingParser
+    public class BindingParser : IBindingParser
     {
         private static MethodInfo ScopeCompileMethod =
             typeof(CompiledExpression)
             .GetMethods().First(m => m.Name == "ScopeCompile" && m.ContainsGenericParameters);
 
-        public static Expression Parse(string bindingExpressionText, Type contextType, Type[] parentContexts, Type controlType)
+        public Expression Parse(string bindingExpressionText, Type contextType, Type[] parentContexts, Type controlType)
         {
             try
             {
@@ -31,18 +30,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             catch (Exception exception)
             {
-                throw new BidningParserExpception(contextType, bindingExpressionText, parentContexts, controlType, exception); 
+                throw new BidningParserExpception(contextType, bindingExpressionText, parentContexts, controlType, exception);
             }
         }
 
-        public static BindingExpressionNode ToBindingExpression(Expression expression)
-        {
-            var builder = new BindingExpressionBuildingVisitor();
-            builder.Visit(expression);
-            return builder.Expression;
-        }
-
-        private static IEnumerable<ParameterExpression> GetParameters(Type contextType, Type[] parents, Type controlType = null)
+        private IEnumerable<ParameterExpression> GetParameters(Type contextType, Type[] parents, Type controlType = null)
         {
             if (controlType != null)
             {
@@ -64,7 +56,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        private static TypeRegistry InitTypeRegistry(Type contextType, params Type[] parents)
+        private TypeRegistry InitTypeRegistry(Type contextType, params Type[] parents)
         {
             var t = new TypeRegistry();
             t.RegisterType("ViewModel", contextType);
@@ -80,7 +72,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             return t;
         }
 
-        public static Expression Parse(string value, DataContextStack context)
+        public Expression Parse(string value, DataContextStack context)
         {
             return Parse(value, context.DataContextType, context.Parents().ToArray(), context.RootControlType);
         }

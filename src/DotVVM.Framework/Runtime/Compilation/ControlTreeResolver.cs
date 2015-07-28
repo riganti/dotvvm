@@ -12,7 +12,6 @@ using DotVVM.Framework.Parser;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections;
-using DotVVM.Framework.Runtime.Compilation.BindingExpressionTree;
 using System.Linq.Expressions;
 using System.Threading;
 
@@ -21,9 +20,11 @@ namespace DotVVM.Framework.Runtime.Compilation
     public class ControlTreeResolver : IControlTreeResolver
     {
         private IControlResolver controlResolver;
+        private IBindingParser bindingParser;
         public ControlTreeResolver(DotvvmConfiguration configuration)
         {
             controlResolver = configuration.ServiceLocator.GetService<IControlResolver>();
+            bindingParser = configuration.ServiceLocator.GetService<IBindingParser>();
         }
 
         public ResolvedTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
@@ -146,7 +147,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             Exception parsingError = null;
             try
             {
-                expression = BindingParser.Parse(value, context);
+                expression = bindingParser.Parse(value, context);
             }
             catch (Exception exception)
             {

@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Tests.Runtime
             
             var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
             Assert.IsNotNull(binding);
-            Assert.AreEqual("FirstName", binding.Expression);
+            Assert.AreEqual("FirstName", binding.OriginalString);
         }
 
         [TestMethod]
@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
             Assert.IsNotNull(binding);
-            Assert.AreEqual("FirstName", binding.Expression);
+            Assert.AreEqual("FirstName", binding.OriginalString);
         }
 
         [TestMethod]
