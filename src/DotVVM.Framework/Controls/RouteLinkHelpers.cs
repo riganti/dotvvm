@@ -113,7 +113,7 @@ namespace DotVVM.Framework.Controls
 
         private static void EnsureValidBindingType(BindingExpression binding)
         {
-            if (!(binding is ValueBindingExpression))
+            if (binding?.Javascript == null)
             {
                 throw new Exception("Only {value: ...} bindings are supported in <dot:RouteLink Param-xxx='' /> attributes!");
             }

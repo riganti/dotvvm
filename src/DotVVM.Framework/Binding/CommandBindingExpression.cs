@@ -5,7 +5,9 @@ using DotVVM.Framework.Parser.Translation;
 namespace DotVVM.Framework.Binding
 {
     [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
+        Javascript = BindingCompilationRequirementType.StronglyRequire,
         ActionFilters = BindingCompilationRequirementType.IfPossible)]
+    [CommandPostbackJsCompile]
     public class CommandBindingExpression : BindingExpression
     {
         public CommandBindingExpression()

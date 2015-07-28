@@ -16,6 +16,7 @@ namespace DotVVM.Framework.Binding
         Javascript = BindingCompilationRequirementType.IfPossible,
         Expression = BindingCompilationRequirementType.IfPossible,
         UpdateDelegate = BindingCompilationRequirementType.IfPossible)]
+    [CompileJavascript]
     public class ValueBindingExpression : BindingExpression, IUpdatableBindingExpression
     {
 

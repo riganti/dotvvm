@@ -94,8 +94,10 @@
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
+    <Compile Include="Binding\CommandPostbackJsCompile.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
     <Compile Include="Binding\CompiledBindingExpression.cs" />
+    <Compile Include="Binding\CompileJavascriptAttribute.cs" />
     <Compile Include="Binding\ConstantDataContextChangeAttribute.cs" />
     <Compile Include="Binding\ControlCommandBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
@@ -113,6 +115,7 @@
     <Compile Include="Binding\ResourceBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandCallableAttribute.cs" />
+    <Compile Include="Binding\StaticCommandJsCompile.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />

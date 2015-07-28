@@ -64,6 +64,19 @@ var DotVVM = (function () {
         // many thanks to http://dustindiaz.com/smallest-domready-ever
         /in/.test(document.readyState) ? setTimeout('dotvvm.onDocumentReady(' + callback + ')', 9) : callback();
     };
+    // binding helpers
+    DotVVM.prototype.postbackScript = function (bindingId) {
+        var _this = this;
+        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
+            _this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget);
+        };
+    };
+    DotVVM.prototype.staticCommandPostbackScript = function (methodName, args) {
+        var _this = this;
+        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
+            _this.staticCommandPostback(pageArea, sender, methodName, args.map(function (a) { return a == null ? null : _this.evaluateOnContext(ko.contextFor(sender), a); }));
+        };
+    };
     DotVVM.prototype.persistViewModel = function (viewModelName) {
         var viewModel = this.viewModels[viewModelName];
         var persistedViewModel = {};
@@ -82,14 +95,13 @@ var DotVVM = (function () {
     DotVVM.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
-    DotVVM.prototype.staticCommandPostback = function (viewModeName, sender, command, argumentPaths, callback, errorCallback) {
+    DotVVM.prototype.staticCommandPostback = function (viewModeName, sender, command, args, callback, errorCallback) {
+        // TODO: events for static command postback
         var _this = this;
         if (callback === void 0) { callback = function (_) {
         }; }
         if (errorCallback === void 0) { errorCallback = function (xhr) {
         }; }
-        var args = argumentPaths.map(function (a) { return _this.evaluateOnContext(ko.contextFor(sender), a); });
-        // TODO: events for static command postback
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
         var data = ko.mapper.toJS({

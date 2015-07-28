@@ -134,7 +134,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string TranslateConditional(ConditionalExpression expression)
         {
-            return $"{ ParenthesizedTranslate(expression, expression.Test) } ? { ParenthesizedTranslate(expression, expression.IfTrue) } : { ParenthesizedTranslate(expression, expression.IfFalse) })";
+            return $"{ ParenthesizedTranslate(expression, expression.Test) } ? { ParenthesizedTranslate(expression, expression.IfTrue) } : { ParenthesizedTranslate(expression, expression.IfFalse) }";
         }
 
         public string TranslateParameter(ParameterExpression expression)
