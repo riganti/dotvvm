@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Binding
     /// </summary>
     [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
         OriginalString = BindingCompilationRequirementType.IfPossible,
-        Javascript = BindingCompilationRequirementType.IfPossible,
+        Javascript = BindingCompilationRequirementType.StronglyRequire,
         Expression = BindingCompilationRequirementType.IfPossible,
         UpdateDelegate = BindingCompilationRequirementType.IfPossible)]
     [CompileJavascript]

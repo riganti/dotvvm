@@ -41,6 +41,19 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             AddMethodTranslator(methods.Single(), translator);
         }
 
+        public static void AddMethodTranslator(Type declaringType, string methodName, IJsMethodTranslator translator, int parameterCount, bool allowMultipleMethods = false)
+        {
+            var methods = declaringType.GetMethods()
+                .Where(m => m.Name == methodName)
+                .Where(m => m.GetParameters().Length == parameterCount)
+                .ToArray();
+            if (methods.Length > 1 && !allowMultipleMethods) throw new Exception("more then one methods");
+            foreach (var method in methods)
+            {
+                AddMethodTranslator(method, translator);
+            }
+        }
+
         public static void AddMethodTranslator(MethodInfo method, IJsMethodTranslator translator)
         {
             MethodTranslators.Add(method, translator);
@@ -65,6 +78,8 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             var lengthMethod = new StringJsMethodCompiler("{0}.length");
             AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
+            AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
+            AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
         }
 
@@ -159,7 +174,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string TranslateMethodCall(MethodCallExpression expression)
         {
-            var thisExpression = ParenthesizedTranslate(expression, expression.Object);
+            var thisExpression = expression.Object == null ? null : ParenthesizedTranslate(expression, expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
             var result = TryTranslateMethodCall(thisExpression, args, expression.Method);
             if (result == null)
