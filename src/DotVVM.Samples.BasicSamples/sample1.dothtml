@@ -13,12 +13,16 @@
     <dot:RequiredResource Name="globalize:cs-CZ" />
 </head>
 <body>
-    <div class="container" class="a">
+    <div class="container">
         <h1 Events.Click="{command: AddTask()}">Task List</h1>
 
         <fieldset data-testattribute>
             <legend>Add Task</legend>
-
+			<p>
+				Special text:
+				<!-- {{ not a binding }} -->
+				<!CDATA[  {{{{}}}} <<<<{{}}>>>>><<<<>>>> & ^ | |   ]]>
+			</p>
             <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
             <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
         </fieldset>
