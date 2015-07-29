@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<object, DotvvmBindableControl>(c => c.DataContext, isValueInherited: true);
 
 
-        
+
         private Dictionary<DotvvmProperty, BindingExpression> dataBindings = new Dictionary<DotvvmProperty, BindingExpression>();
         /// <summary>
         /// Gets a collection of all data-bindings set on this control.
@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Controls
         public BindingExpression GetBinding(DotvvmProperty property, bool inherit = true)
         {
             var binding = base.GetValue(property, inherit) as BindingExpression;
-            
+
             //// if there is a controlProperty or controlCommand binding, evaluate it
             //while (binding != null && !(binding is ValueBindingExpression || binding is CommandBindingExpression || binding is StaticCommandBindingExpression))
             //{
@@ -252,7 +252,7 @@ namespace DotVVM.Framework.Controls
                     }
                 }
                 current = current.Parent;
-            } 
+            }
             while (current != null);
 
             bindings.Reverse();
@@ -307,17 +307,17 @@ namespace DotVVM.Framework.Controls
             }
             return current;
         }
-        
+
         protected internal bool HasBinding(DotvvmProperty property)
         {
             object value;
             return Properties.TryGetValue(property, out value) && value is BindingExpression;
         }
 
-    /// <summary>
-    /// Gets all bindings set on the control.
-    /// </summary>
-    internal IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
+        /// <summary>
+        /// Gets all bindings set on the control.
+        /// </summary>
+        internal IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
         {
             return Properties.Where(p => p.Value is BindingExpression)
                 .Select(p => new KeyValuePair<DotvvmProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));

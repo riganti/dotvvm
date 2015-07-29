@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System.Collections;
+using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Controls
 {
@@ -199,6 +200,8 @@ namespace DotVVM.Framework.Controls
             {
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
+                placeholder.SetValue(Internal.PathFragmentProperty, 
+                    JavascriptCompilationHelper.AddIndexerToViewModel(dataSourceBinding.Javascript, "$index"));
                 Children.Add(placeholder);
 
                 CreateRow(context.RequestContext, placeholder);

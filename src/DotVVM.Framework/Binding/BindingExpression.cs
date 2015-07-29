@@ -82,8 +82,8 @@ namespace DotVVM.Framework.Binding
             return
                 (context == null ? new object[0] : new[] { context })
                 .Concat(contextControl.GetAllAncestors().OfType<DotvvmBindableControl>()
-                .Select(c => c.GetValue(DotvvmBindableControl.DataContextProperty, false))
-                .Where(b => b != null))
+                .Where(c => c.properties.ContainsKey(DotvvmBindableControl.DataContextProperty))
+                .Select(c => c.GetValue(DotvvmBindableControl.DataContextProperty, false)))
                 .ToArray();
         }
 
