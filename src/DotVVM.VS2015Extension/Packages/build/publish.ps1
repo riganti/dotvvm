@@ -1,4 +1,5 @@
-$key = Read-Host "Enter NuGet key"
+param([String]$key)
+
 $file = dir ../dotvvm.*.nupkg
 $file = $file.FullName
 
