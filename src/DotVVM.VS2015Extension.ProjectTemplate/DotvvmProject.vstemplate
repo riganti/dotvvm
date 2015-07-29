@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <VSTemplate Version="3.0.0" Type="Project" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
   <TemplateData>
     <Name>ASP.NET DotVVM Project</Name>
@@ -40,7 +40,7 @@
       <package id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0-rc2" />
       <package id="Microsoft.CodeAnalysis.Common" version="1.0.0-rc2" />
       <package id="Microsoft.CodeAnalysis.CSharp" version="1.0.0-rc2" />
-      <package id="DotVVM" version="0.7.0.8-pre" />
+      <package id="DotVVM" version="0.8.0-pre" />
     </packages>
   </WizardData>
 </VSTemplate>
