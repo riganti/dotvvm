@@ -285,7 +285,7 @@ var DotVVM = (function () {
         return this.evaluateOnViewModel(context, expression);
     };
     DotVVM.prototype.getSpaPlaceHolder = function () {
-        var elements = document.getElementsByName("__rw_SpaContentPlaceHolder");
+        var elements = document.getElementsByName("__dot_SpaContentPlaceHolder");
         if (elements.length == 1) {
             return elements[0];
         }

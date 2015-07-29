@@ -186,7 +186,7 @@ namespace DotVVM.Framework.Controls
         private ValueBindingExpression GetNearIndexesBinding(int i)
         {
             return new ValueBindingExpression(
-                        (h, c) => ((IGridViewDataSet)h[h.Length - 1]).NearPageIndexes[i],
+                        (h, c) => ((IGridViewDataSet)h[0]).NearPageIndexes[i],
                         "NearPageIndexes[" + i + "]");
         }
 

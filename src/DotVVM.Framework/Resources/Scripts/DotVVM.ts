@@ -310,7 +310,7 @@ class DotVVM {
     }
 
     private getSpaPlaceHolder(): HTMLElement {
-        var elements = document.getElementsByName("__rw_SpaContentPlaceHolder");
+        var elements = document.getElementsByName("__dot_SpaContentPlaceHolder");
         if (elements.length == 1) {
             return <HTMLElement>elements[0];
         }
