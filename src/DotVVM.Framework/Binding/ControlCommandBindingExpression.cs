@@ -5,6 +5,7 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding
 {
+    [CommandPostbackJsCompile]
     public class ControlCommandBindingExpression : CommandBindingExpression
     {
 

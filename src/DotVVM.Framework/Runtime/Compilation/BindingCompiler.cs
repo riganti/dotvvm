@@ -38,6 +38,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             });
         }
 
+        public static CompileJavascriptAttribute GetJsCompiler(Type bindingType)
+        {
+            return bindingType.GetCustomAttributes<CompileJavascriptAttribute>().FirstOrDefault();
+        }
+
         private static KeyValuePair<string, Expression> GetParameter(int index, string name, Expression vmArray, Type[] parents)
         {
             return new KeyValuePair<string, Expression>(name, Expression.Convert(Expression.ArrayIndex(vmArray, Expression.Constant(index)), parents[index]));
@@ -112,8 +117,10 @@ namespace DotVVM.Framework.Runtime.Compilation
             compiled.OriginalString = TryExecute(requirements.OriginalString, () => binding.Value);
             compiled.Expression = TryExecute(requirements.Expression, () => binding.GetExpression());
             compiled.Id = id;
-            compiled.Javascript = TryExecute(requirements.Javascript, () => JavascriptCompilation.JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack));
             compiled.ActionFilters = TryExecute(requirements.ActionFilters, () => GetActionFilters(binding.GetExpression()).ToArray());
+            //compiled.Javascript = TryExecute(requirements.Javascript, () => JavascriptCompilation.JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack));
+            var jsCompiler = GetJsCompiler(binding.BindingType);
+            compiled.Javascript = TryExecute(requirements.Javascript, () => jsCompiler.CompileToJs(binding, compiled));
 
             var index = Interlocked.Increment(ref globalBindingIndex);
             if (!GlobalBindingList.TryAdd(index, compiled))

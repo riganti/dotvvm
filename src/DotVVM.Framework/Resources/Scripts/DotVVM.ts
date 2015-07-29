@@ -5,6 +5,10 @@ interface RenderedResourceList {
     [name: string]: string;
 }
 
+interface DotvvmPostbackScriptFunction {
+    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string): void
+}
+
 class DotVVM {
 
     private postBackCounter = 0;
@@ -38,7 +42,7 @@ class DotVVM {
         // handle SPA
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
+            this.attachEvent(window, "hashchange",() => this.handleHashChange(viewModelName, spaPlaceHolder));
             this.handleHashChange(viewModelName, spaPlaceHolder);
         }
 
@@ -67,6 +71,21 @@ class DotVVM {
         /in/.test(document.readyState) ? setTimeout('dotvvm.onDocumentReady(' + callback + ')', 9) : callback();
     }
 
+    // binding helpers
+    private postbackScript(bindingId: string): DotvvmPostbackScriptFunction {
+        return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) => {
+            this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget);
+        }
+    }
+
+    private staticCommandPostbackScript(methodName: string, args: string[]) {
+        return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) => {
+            this.staticCommandPostback(pageArea, sender, methodName, args.map(
+                a => a == null ? null : this.evaluateOnContext(ko.contextFor(sender), a)));
+        }
+    }
+
+
     private persistViewModel(viewModelName: string) {
         var viewModel = this.viewModels[viewModelName];
         var persistedViewModel = {};
@@ -88,9 +107,7 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModeName: string, sender: HTMLElement, command: string, argumentPaths: string[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
-        var args = argumentPaths.map(
-            a => this.evaluateOnContext(ko.contextFor(sender), a));
+    public staticCommandPostback(viewModeName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
         // TODO: events for static command postback
 
         // prevent double postbacks
@@ -159,7 +176,7 @@ class DotVVM {
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
-            this.loadResourceList(resultObject.resources, () => {
+            this.loadResourceList(resultObject.resources,() => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand") {
                     this.isViewModelUpdating = true;
@@ -191,16 +208,16 @@ class DotVVM {
                 }
             });
         }, xhr => {
-            // if another postback has already been passed, don't do anything
-            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+                // if another postback has already been passed, don't do anything
+                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-            // execute error handlers
-            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-            this.events.error.trigger(errArgs);
-            if (!errArgs.handled) {
-                alert(xhr.responseText);
-            }
-        });
+                // execute error handlers
+                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+                this.events.error.trigger(errArgs);
+                if (!errArgs.handled) {
+                    alert(xhr.responseText);
+                }
+            });
     }
 
     private loadResourceList(resources: RenderedResourceList, callback: () => void) {
@@ -330,7 +347,7 @@ class DotVVM {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             var resultObject = JSON.parse(result.responseText);
-            this.loadResourceList(resultObject.resources, () => {
+            this.loadResourceList(resultObject.resources,() => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
                     this.isViewModelUpdating = true;
@@ -368,16 +385,16 @@ class DotVVM {
                 }
             });
         }, xhr => {
-            // if another postback has already been passed, don't do anything
-            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+                // if another postback has already been passed, don't do anything
+                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-            // execute error handlers
-            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
-            this.events.error.trigger(errArgs);
-            if (!errArgs.handled) {
-                alert(xhr.responseText);
-            }
-        });
+                // execute error handlers
+                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
+                this.events.error.trigger(errArgs);
+                if (!errArgs.handled) {
+                    alert(xhr.responseText);
+                }
+            });
     }
 
     private handleRedirect(resultObject: any, viewModelName: string) {
@@ -434,7 +451,7 @@ class DotVVM {
     }
 
     public format(format: string, ...values: string[]) {
-        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, (match, group0, group1) => {
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g,(match, group0, group1) => {
             var value = values[parseInt(group0)];
             if (group1) {
                 return dotvvm.formatString(group1, value);

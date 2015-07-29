@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DotVVM.Framework.Parser.Translation;
 
 namespace DotVVM.Framework.Tests.Parser.Translation
 {

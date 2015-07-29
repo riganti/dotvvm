@@ -64,10 +64,6 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript((CommandBindingExpression)clickBinding, context, this));
             }
-            else if (clickBinding is StaticCommandBindingExpression)
-            {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostbackScript((StaticCommandBindingExpression)clickBinding, context, this));
-            }
 
             writer.AddKnockoutDataBind("value", this, TextProperty, () => writer.AddAttribute("value", Text));
 

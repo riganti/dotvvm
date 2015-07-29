@@ -1,4 +1,4 @@
-var __extends = (this && this.__extends) || function (d, b) {
+var __extends = this.__extends || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -64,6 +64,19 @@ var DotVVM = (function () {
         // many thanks to http://dustindiaz.com/smallest-domready-ever
         /in/.test(document.readyState) ? setTimeout('dotvvm.onDocumentReady(' + callback + ')', 9) : callback();
     };
+    // binding helpers
+    DotVVM.prototype.postbackScript = function (bindingId) {
+        var _this = this;
+        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
+            _this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget);
+        };
+    };
+    DotVVM.prototype.staticCommandPostbackScript = function (methodName, args) {
+        var _this = this;
+        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
+            _this.staticCommandPostback(pageArea, sender, methodName, args.map(function (a) { return a == null ? null : _this.evaluateOnContext(ko.contextFor(sender), a); }));
+        };
+    };
     DotVVM.prototype.persistViewModel = function (viewModelName) {
         var viewModel = this.viewModels[viewModelName];
         var persistedViewModel = {};
@@ -82,12 +95,13 @@ var DotVVM = (function () {
     DotVVM.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
-    DotVVM.prototype.staticCommandPostback = function (viewModeName, sender, command, argumentPaths, callback, errorCallback) {
-        var _this = this;
-        if (callback === void 0) { callback = function (_) { }; }
-        if (errorCallback === void 0) { errorCallback = function (xhr) { }; }
-        var args = argumentPaths.map(function (a) { return _this.evaluateOnContext(ko.contextFor(sender), a); });
+    DotVVM.prototype.staticCommandPostback = function (viewModeName, sender, command, args, callback, errorCallback) {
         // TODO: events for static command postback
+        var _this = this;
+        if (callback === void 0) { callback = function (_) {
+        }; }
+        if (errorCallback === void 0) { errorCallback = function (xhr) {
+        }; }
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
         var data = ko.mapper.toJS({
@@ -384,9 +398,7 @@ var DotVVM = (function () {
     DotVVM.prototype.patch = function (source, patch) {
         var _this = this;
         if (source instanceof Array && patch instanceof Array) {
-            return patch.map(function (val, i) {
-                return _this.patch(source[i], val);
-            });
+            return patch.map(function (val, i) { return _this.patch(source[i], val); });
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
@@ -447,7 +459,8 @@ var DotVVM = (function () {
         }
     };
     DotVVM.prototype.postJSON = function (url, method, postData, success, error, preprocessRequest) {
-        if (preprocessRequest === void 0) { preprocessRequest = function (xhr) { }; }
+        if (preprocessRequest === void 0) { preprocessRequest = function (xhr) {
+        }; }
         var xhr = this.getXHR();
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");

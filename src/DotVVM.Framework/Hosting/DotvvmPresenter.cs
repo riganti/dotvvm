@@ -277,10 +277,12 @@ namespace DotVVM.Framework.Hosting
             {
                 throw new DotvvmHttpException("method validation failed");
             }
+            var target = arguments[0];
+            arguments = arguments.Skip(1).ToArray();
             var actionInfo = new ActionInfo()
             {
                 IsControlCommand = false,
-                Action = () => methodInfo.Invoke(null, arguments)
+                Action = () => methodInfo.Invoke(target, arguments)
             };
             var filters = methodInfo.GetCustomAttributes<ActionFilterAttribute>();
             foreach (var filter in filters)

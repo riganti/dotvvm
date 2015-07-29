@@ -72,7 +72,7 @@ namespace DotVVM.Framework
             //writer.SetPathFragment(JavascriptCompilationHelper.AddIndexerToViewModel(expression, "$index"));
         }
 
-        public static string GenerateClientPostBackScript(CommandBindingExpression expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
+        public static string GenerateClientPostBackScript(BindingExpression expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
         {
             var uniqueControlId = "";
             if (expression is ControlCommandBindingExpression)
@@ -87,23 +87,19 @@ namespace DotVVM.Framework
                 "'" + context.CurrentPageArea + "'",
                 "this",
                 "[" + String.Join(", ", GetContextPath(control).Reverse().Select(p => '"' + p + '"')) + "]",
-                "'" + expression.BindingId + "'",
                 "'" + uniqueControlId + "'",
-                useWindowSetTimeout ? "true" : "false"
+                useWindowSetTimeout ? "true" : "false",
+                JsonConvert.SerializeObject(GetValidationTargetExpression(control))
             };
-
-            var validationTargetExpression = GetValidationTargetExpression(control);
-            if (validationTargetExpression != null)
-            {
-                arguments.Add("'" + validationTargetExpression + "'");
-            }
 
             // return the script
             var condition = isOnChange ? "if (!dotvvm.isViewModelUpdating) " : "";
             var returnStatement = returnValue != null ? string.Format("return {0};", returnValue.ToString().ToLower()) : "";
-            var postBackCall = String.Format("dotvvm.postBack({0});", String.Join(", ", arguments));
+            // call the function returned from binding js with runtime arguments
+            var postBackCall = String.Format("({0})({1});", expression.Javascript, String.Join(", ", arguments));
             return condition + postBackCall + returnStatement;
         }
+
         private static IEnumerable<string> GetContextPath(DotvvmControl control)
         {
             while (control != null)
@@ -123,13 +119,6 @@ namespace DotVVM.Framework
                 }
                 control = control.Parent;
             }
-        }
-
-        public static string GenerateClientPostbackScript(StaticCommandBindingExpression expression, RenderContext context, DotvvmBindableControl control)
-        {
-            var args = string.Join(", ", expression.GetArgumentPaths().Select(f => "'" + f + "'"));
-            var command = expression.GetMethodName(control);
-            return $"dotvvm.staticCommandPostback('{ context.CurrentPageArea }', this, '{ command }', [ { args } ]);return false;";
         }
 
         /// <summary>

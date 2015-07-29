@@ -40,6 +40,9 @@ namespace DotVVM.Framework.Runtime.Compilation
                     view.Directives.Add(directive.Name, directive.Value);
                 }
             }
+            if (!view.Directives.ContainsKey(Constants.ViewModelDirectiveName))
+                throw new Exception($"viewModel directive is missing in { fileName }");
+
             view.DataContextTypeStack = new DataContextStack(Type.GetType(view.Directives[Constants.ViewModelDirectiveName]) ?? typeof(object))
             {
                 RootControlType = wrapperType
