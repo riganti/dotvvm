@@ -240,33 +240,7 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual(originalValue, browser.Find("strong span").GetText());
             });
         }
-
         
-        public void Sample7Test()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(BaseUrl + "Sample7");
-
-                // select value in first calendar
-                browser.FindAll("table")[0].FindAll("tr")[6].FindAll("td")[3].Find("a").Click();
-                Thread.Sleep(WaitTime);
-
-                // select value in the second calendar
-                Assert.IsTrue(string.IsNullOrWhiteSpace(browser.FindAll("span").Last().GetText()));
-                browser.FindAll("table")[1].FindAll("tr")[5].FindAll("td")[5].Find("a").Click();
-                Thread.Sleep(WaitTime);
-                Assert.IsFalse(string.IsNullOrWhiteSpace(browser.FindAll("span").Last().GetText()));
-
-                // select value in third calendar
-                browser.FindAll("table")[2].FindAll("tr")[4].FindAll("td")[1].Find("a").Click();
-                Thread.Sleep(WaitTime);
-
-                // verify that the selection is persisted
-                Assert.IsTrue(browser.FindAll("table")[0].FindAll("tr")[6].FindAll("td")[3].GetAttribute("class").Contains("selected"));
-            });
-        }
-
         
         public void Sample8Test()
         {

@@ -29,7 +29,8 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_ElementWithAttributeProperty()
         {
-            var markup = @"test <rw:Literal Text='test' />";
+            var markup = @"@viewModel System.Object, mscorlib
+test <dot:Literal Text='test' />";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -44,7 +45,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_ElementWithBindingProperty()
         {
-            var markup = @"test <rw:Literal Text='{value: FirstName}' />";
+            var markup = string.Format("@viewModel {0}, {1}\r\ntest <dot:Literal Text='{{{{value: FirstName}}}}' />", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name);
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -62,7 +63,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_BindingInText()
         {
-            var markup = @"test {{value: FirstName}}";
+            var markup = string.Format("@viewModel {0}, {1}\r\ntest {{{{value: FirstName}}}}", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name);
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -80,7 +81,8 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_NestedControls()
         {
-            var markup = @"<rw:Placeholder>test <rw:Literal /></rw:Placeholder>";
+            var markup = @"@viewModel System.Object, mscorlib
+<dot:Placeholder>test <dot:Literal /></dot:Placeholder>";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -99,7 +101,8 @@ namespace DotVVM.Framework.Tests.Runtime
         [ExpectedException(typeof(Exception))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_TextInside()
         {
-            var markup = @"test <rw:Literal>aaa</rw:Literal>";
+            var markup = @"@viewModel System.Object, mscorlib
+test <dot:Literal>aaa</dot:Literal>";
             var page = CompileMarkup(markup);
         }
 
@@ -107,7 +110,8 @@ namespace DotVVM.Framework.Tests.Runtime
         [ExpectedException(typeof(Exception))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_BindingAndWhiteSpaceInside()
         {
-            var markup = @"test <rw:Literal>{{value: Test}}  </rw:Literal>";
+            var markup = @"@viewModel System.Object, mscorlib
+test <dot:Literal>{{value: FirstName}}  </dot:Literal>";
             var page = CompileMarkup(markup);
         }
 
@@ -115,18 +119,20 @@ namespace DotVVM.Framework.Tests.Runtime
         [ExpectedException(typeof(Exception))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_ElementInside()
         {
-            var markup = @"test <rw:Literal><a /></rw:Literal>";
+            var markup = @"@viewModel System.Object, mscorlib
+test <dot:Literal><a /></dot:Literal>";
             var page = CompileMarkup(markup);
         }
         
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_Template()
         {
-            var markup = @"<rw:Repeater>
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
+@"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <p>This is a test</p>
     </ItemTemplate>
-</rw:Repeater>";
+</dot:Repeater>";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -150,7 +156,8 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_AttachedProperty()
         {
-            var markup = @"<rw:Button Validate.Enabled=""false"" /><rw:Button Validate.Enabled=""true"" /><rw:Button />";
+            var markup = @"@viewModel System.Object, mscorlib
+<dot:Button Validate.Enabled=""false"" /><dot:Button Validate.Enabled=""true"" /><dot:Button />";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -173,10 +180,12 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl()
         {
-            var markup = @"<cc:Test1 />";
+            var markup = @"@viewModel System.Object, mscorlib
+<cc:Test1 />";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test1.dothtml", "<rw:Literal Text='aaa' />" }
+                { "test1.dothtml", @"@viewModel System.Object, mscorlib
+<dot:Literal Text='aaa' />" }
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -190,10 +199,11 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControlWithBaseType()
         {
-            var markup = @"<cc:Test2 />";
+            var markup = @"@viewModel System.Object, mscorlib
+<cc:Test2 />";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test2.dothtml", string.Format("@baseType {0}, {1}\r\n<rw:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).Assembly.GetName().Name) }
+                { "test2.dothtml", string.Format("@baseType {0}, {1}\r\n@viewModel System.Object, mscorlib\r\n<dot:Literal Text='aaa' />", typeof(TestControl), typeof(TestControl).Assembly.GetName().Name) }
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -207,14 +217,15 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate()
         {
-            var markup = @"<rw:Repeater>
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
+@"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <cc:Test3 />
     </ItemTemplate>
-</rw:Repeater>";
+</dot:Repeater>";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test3.dothtml", "<rw:Literal Text='aaa' />" }
+                { "test3.dothtml", "@viewModel System.Char, mscorlib\r\n<dot:Literal Text='aaa' />" }
             });
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -241,14 +252,15 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_MarkupControl_InTemplate_CacheTest()
         {
-            var markup = @"<rw:Repeater>
+            var markup = string.Format("@viewModel {0}, {1}\r\n", typeof(ViewCompilerTestViewModel).FullName, typeof(ViewCompilerTestViewModel).Assembly.GetName().Name) +
+@"<dot:Repeater DataSource=""{value: FirstName}"">
     <ItemTemplate>
         <cc:Test4 />
     </ItemTemplate>
-</rw:Repeater>";
+</dot:Repeater>";
             var page = CompileMarkup(markup, new Dictionary<string, string>()
             {
-                { "test4.dothtml", "<rw:Literal Text='aaa' />" }
+                { "test4.dothtml", "@viewModel System.Char, mscorlib\r\n<dot:Literal Text='aaa' />" }
             }, compileTwice: true);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
@@ -300,6 +312,12 @@ namespace DotVVM.Framework.Tests.Runtime
             }
             return result;
         }
+        
+    }
+
+    public class ViewCompilerTestViewModel
+    {
+        public string FirstName { get; set; }
     }
 
     public class TestControl : DotvvmMarkupControl

@@ -55,7 +55,6 @@ namespace DotVVM.Samples.BasicSamples
             dotvvmConfiguration.RouteTable.Add("Sample4", "Sample4", "sample4.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample5", "Sample5", "sample5.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample6", "Sample6", "sample6.dothtml", null);
-            dotvvmConfiguration.RouteTable.Add("Sample7", "Sample7", "sample7.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample8", "Sample8", "sample8.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample9", "Sample9", "sample9.dothtml", null);
             dotvvmConfiguration.RouteTable.Add("Sample10", "Sample10", "sample10.dothtml", null);

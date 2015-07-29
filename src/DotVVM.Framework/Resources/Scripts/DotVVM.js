@@ -1,4 +1,4 @@
-var __extends = this.__extends || function (d, b) {
+var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
     __.prototype = b.prototype;
@@ -98,10 +98,8 @@ var DotVVM = (function () {
     DotVVM.prototype.staticCommandPostback = function (viewModeName, sender, command, args, callback, errorCallback) {
         // TODO: events for static command postback
         var _this = this;
-        if (callback === void 0) { callback = function (_) {
-        }; }
-        if (errorCallback === void 0) { errorCallback = function (xhr) {
-        }; }
+        if (callback === void 0) { callback = function (_) { }; }
+        if (errorCallback === void 0) { errorCallback = function (xhr) { }; }
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
         var data = ko.mapper.toJS({
@@ -398,7 +396,9 @@ var DotVVM = (function () {
     DotVVM.prototype.patch = function (source, patch) {
         var _this = this;
         if (source instanceof Array && patch instanceof Array) {
-            return patch.map(function (val, i) { return _this.patch(source[i], val); });
+            return patch.map(function (val, i) {
+                return _this.patch(source[i], val);
+            });
         }
         else if (source instanceof Array || patch instanceof Array)
             return patch;
@@ -459,8 +459,7 @@ var DotVVM = (function () {
         }
     };
     DotVVM.prototype.postJSON = function (url, method, postData, success, error, preprocessRequest) {
-        if (preprocessRequest === void 0) { preprocessRequest = function (xhr) {
-        }; }
+        if (preprocessRequest === void 0) { preprocessRequest = function (xhr) { }; }
         var xhr = this.getXHR();
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
