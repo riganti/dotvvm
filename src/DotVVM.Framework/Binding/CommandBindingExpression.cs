@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Binding
         { }
 
         public CommandBindingExpression(CompiledBindingExpression.BindingDelegate command, string id)
-            : base(new CompiledBindingExpression() { Delegate = command, Id = id })
+            : base(new CompiledBindingExpression() { Delegate = command, Id = id, Javascript = $"dotvvm.postbackScript('{ id }')" })
         {
         }
 
