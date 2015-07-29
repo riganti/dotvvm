@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Utils
             Type iEnumerable;
             if (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
             {
-                iEnumerable = collectionType.GetGenericTypeDefinition();
+                iEnumerable = collectionType;
             }
             else
             {

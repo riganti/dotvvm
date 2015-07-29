@@ -66,5 +66,15 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
             MCB = new List<string>();
         }
 
+
+
+        public bool ChangedValue { get; set; }
+
+        public int NumberOfChanges { get; set; }
+
+        public void OnChanged()
+        {
+            NumberOfChanges++;
+        }
     }
 }

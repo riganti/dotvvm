@@ -24,8 +24,6 @@ namespace DotVVM.Samples.Tests
         [TestMethod]
         public void Sample6Test_FullDomain() { Sample6Test(); }
         [TestMethod]
-        public void Sample7Test_FullDomain() { Sample7Test(); }
-        [TestMethod]
         public void Sample8Test_FullDomain() { Sample8Test(); }
         [TestMethod]
         public void Sample9Test_FullDomain() { Sample9Test(); }
