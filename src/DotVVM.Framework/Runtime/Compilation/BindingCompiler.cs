@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Runtime.Compilation
     public class BindingCompiler : IBindingCompiler
     {
         public static ConcurrentDictionary<int, CompiledBindingExpression> GlobalBindingList = new ConcurrentDictionary<int, CompiledBindingExpression>();
-        private int globalBindingIndex = 0;
+        private static int globalBindingIndex = 0;
         private static ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute> requirementCache = new ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute>();
 
         private static BindingCompilationRequirementsAttribute GetRequirements(Type bindingType)

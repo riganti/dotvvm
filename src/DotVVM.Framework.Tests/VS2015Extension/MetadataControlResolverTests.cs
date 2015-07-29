@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Tests.VS2015Extension
             var resolver = new MetadataControlResolver();
             var allControls = resolver.ReloadAllControls(context);
 
-            Assert.IsTrue(allControls.Any(c => c.DisplayText == "rw:TextBox"));
+            Assert.IsTrue(allControls.Any(c => c.DisplayText == "dot:TextBox"));
         }
 
         [TestMethod]
@@ -60,9 +60,9 @@ namespace DotVVM.Framework.Tests.VS2015Extension
             var resolver = new MetadataControlResolver();
             var allControls = resolver.ReloadAllControls(context);
 
-            var repeater = allControls.FirstOrDefault(c => c.DisplayText == "rw:Repeater");
+            var repeater = allControls.FirstOrDefault(c => c.DisplayText == "dot:Repeater");
 
-            var itemTemplateProperty = resolver.GetMetadata("rw:Repeater").Properties.FirstOrDefault(p => p.Name == "ItemTemplate");
+            var itemTemplateProperty = resolver.GetMetadata("dot:Repeater").Properties.FirstOrDefault(p => p.Name == "ItemTemplate");
             Assert.IsTrue(itemTemplateProperty.IsTemplate);
             Assert.IsTrue(itemTemplateProperty.IsElement);
         }
@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
             ControlMetadata control;
             ControlPropertyMetadata property;
-            resolver.GetElementContext(new List<string>() { "html", "body", "rw:Button" }, out control, out property);
+            resolver.GetElementContext(new List<string>() { "html", "body", "dot:Button" }, out control, out property);
 
             Assert.IsNotNull(control);
             Assert.IsNull(property);
@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
             ControlMetadata control;
             ControlPropertyMetadata property;
-            resolver.GetElementContext(new List<string>() { "html", "body", "rw:Repeater", "ItemTemplate" }, out control, out property);
+            resolver.GetElementContext(new List<string>() { "html", "body", "dot:Repeater", "ItemTemplate" }, out control, out property);
 
             Assert.IsNotNull(control);
             Assert.IsNotNull(property);
@@ -151,7 +151,7 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
             ControlMetadata control;
             ControlPropertyMetadata property;
-            resolver.GetElementContext(new List<string>() { "html", "body", "rw:Repeater", "WrapperTagName" }, out control, out property);
+            resolver.GetElementContext(new List<string>() { "html", "body", "dot:Repeater", "WrapperTagName" }, out control, out property);
 
             Assert.IsNotNull(control);
             Assert.IsNull(property);        // the property cannot be used as element

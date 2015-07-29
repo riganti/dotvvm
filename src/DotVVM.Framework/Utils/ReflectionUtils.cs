@@ -112,25 +112,42 @@ namespace DotVVM.Framework.Utils
 
         public static Type GetEnumerableType(Type collectionType)
         {
+            // handle array
             if (collectionType.IsArray)
             {
                 return collectionType.GetElementType();
             }
-            var ienumerable = collectionType.GetGenericTypeDefinition() == typeof(IEnumerable<>) ? collectionType :
-                collectionType.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
 
-            if (ienumerable != null)
+            // handle iEnumerables
+            Type iEnumerable;
+            if (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
             {
-                return ienumerable.GetGenericArguments()[0];
+                iEnumerable = collectionType.GetGenericTypeDefinition();
             }
-            else if (typeof(IGridViewDataSet).IsAssignableFrom(collectionType))
+            else
+            {
+                iEnumerable = collectionType.GetInterfaces()
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
+            }
+            if (iEnumerable != null)
+            {
+                return iEnumerable.GetGenericArguments()[0];
+            }
+
+            // handle GridViewDataSet
+            if (typeof(IGridViewDataSet).IsAssignableFrom(collectionType))
             {
                 var itemsType = collectionType.GetProperty(nameof(IGridViewDataSet.Items)).PropertyType;
                 return GetEnumerableType(itemsType);
             }
-            else if (typeof(IEnumerable).IsAssignableFrom(collectionType)) return typeof(object);
-            else throw new NotSupportedException();
+
+            // handle object collections
+            if (typeof (IEnumerable).IsAssignableFrom(collectionType))
+            {
+                return typeof(object);
+            }
+
+            throw new NotSupportedException();      // TODO
         }
     }
 }
