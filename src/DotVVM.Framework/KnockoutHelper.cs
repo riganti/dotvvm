@@ -138,7 +138,7 @@ namespace DotVVM.Framework
                 c => c is DotvvmBindableControl && ((DotvvmBindableControl)c).GetValueBinding(Validate.TargetProperty) != null);
             if (validationTargetControl == null)
             {
-                return null;
+                return "$root";
             }
 
             // reparent the expression to work in current DataContext

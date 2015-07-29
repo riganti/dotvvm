@@ -668,7 +668,13 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
     ko.virtualElements.allowedBindings["withControlProperties"] = true;
     ko.bindingHandlers.withControlProperties = {
         init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-            var innerBindingContext = bindingContext.extend({ $control: valueAccessor() });
+            var value = valueAccessor();
+            for (var prop in value) {
+                if (!ko.isObservable(value[prop])) {
+                    value[prop] = ko.observable(value[prop]);
+                }
+            }
+            var innerBindingContext = bindingContext.extend({ $control: value });
             ko.applyBindingsToDescendants(innerBindingContext, element);
             return { controlsDescendantBindings: true }; // do not apply binding again
         }
