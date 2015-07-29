@@ -86,7 +86,6 @@ namespace DotVVM.Framework.Controls
                 foreach (var item in items)
                 {
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    // placeholder.SetBinding(DataContextProperty, new ValueBindingExpression(dataSourcePath + "[" + index + "]"));
                     ItemTemplate.BuildContent(context, placeholder);
                     Children.Add(placeholder);
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, dataSourceBinding.Javascript, index));

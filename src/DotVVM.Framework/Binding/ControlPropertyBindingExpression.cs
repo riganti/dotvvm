@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Binding
         {
             // I can execute the delegate, or find the property and get its value
             // TODO: whats better ??
-            return ExecDelegate(control, true);
+            return ExecDelegate(control, property != DotvvmBindableControl.DataContextProperty, setRootControl: true);
 
 
             //// find the parent markup control and calculate number of DataContext changes
