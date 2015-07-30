@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         public MetadataReference GetAssemblyMetadata(Assembly assembly)
         {
-            return cachedAssemblyMetadata.GetOrAdd(assembly, MetadataReference.CreateFromAssembly);
+            return cachedAssemblyMetadata.GetOrAdd(assembly, a => MetadataReference.CreateFromFile(a.Location));
         }
 
         /// <summary>
