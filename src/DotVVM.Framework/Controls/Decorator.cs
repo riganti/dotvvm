@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Base class for all controls that decorates another control (e.g. adds attributes).
     /// </summary>
-    public abstract class Decorator : DotvvmBindableControl 
+    public class Decorator : DotvvmBindableControl 
     {
 
         public virtual Decorator Clone()

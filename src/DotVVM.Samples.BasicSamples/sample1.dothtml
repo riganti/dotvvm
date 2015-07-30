@@ -22,7 +22,7 @@
 			<p>
 				Special text:
 				<![CDATA[
-					{{ < < > "" ' & &
+					{{ < < > "" ' & & }}
 				]]>
 
 			</p>
@@ -33,13 +33,17 @@
 
         <table class="table">
             <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
-                <tr class="{value: IsCompleted ? " completed" : "" }">
-                    <td>{{value: Title}}</td>
+                <tr>
+                    <td class='{value: IsCompleted ? " completed" : "" }'>{{value: Title}}</td>
                     <td>
                         <dot:LinkButton Text="done"
                                        Click="{command: _parent.CompleteTask(TaskId)}"
                                        Visible="{value: !IsCompleted}" />
                     </td>
+					<td>
+						<dot:LinkButton Text="Print name to debug"
+										Click="{staticCommand: PrintToDebug()}" />
+					</td>
                 </tr>
             </dot:Repeater>
         </table>

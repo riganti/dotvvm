@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Binding;
+using System.Diagnostics;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels
 {
@@ -59,5 +60,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public bool IsCompleted { get; set; }
 
+        [StaticCommandCallable]
+        public void PrintToDebug()
+        {
+            Debug.WriteLine(Title);
+        }
     }
 }

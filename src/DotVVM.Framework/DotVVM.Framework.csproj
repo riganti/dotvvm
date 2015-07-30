@@ -119,7 +119,6 @@
     <Compile Include="Controls\DataPager.cs" />
     <Compile Include="Controls\Decorator.cs" />
     <Compile Include="Controls\Events.cs" />
-    <Compile Include="Controls\EventsDecorator.cs" />
     <Compile Include="Controls\FileUpload.cs" />
     <Compile Include="Controls\GridView.cs" />
     <Compile Include="Controls\GridViewColumn.cs" />

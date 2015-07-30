@@ -80,10 +80,6 @@ namespace DotVVM.Samples.BasicSamples
             bundles.RegisterBundle(dotvvmConfiguration.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
             dotvvmConfiguration.Resources.DefaultResourceProcessors.Add(bundles);
 
-            dotvvmConfiguration.Styles.Register("td")
-                .WithCondition(s => s.HasDataContext<ViewModels.TaskViewModel>())
-                .SetAttribute("class", "task-td", append: true);
-
             dotvvmConfiguration.Styles.Register<Repeater>()
                 .SetAttribute("class", "repeater")
                 .SetProperty(r => r.WrapperTagName, "div");

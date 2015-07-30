@@ -274,7 +274,7 @@ var DotVVM = (function () {
         }
     };
     DotVVM.prototype.evaluateOnViewModel = function (context, expression) {
-        var result = eval("(function (c) { return c." + expression + "; })")(context);
+        var result = eval("(function (c) { with(c) { return " + expression + "; } })")(context);
         if (result && result.$data) {
             result = result.$data;
         }
