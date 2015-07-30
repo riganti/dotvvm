@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework
 {
@@ -21,9 +22,20 @@ namespace DotVVM.Framework
             }
             else
             {
-                info.Add(new KnockoutBindingInfo() { Name = name, Control = control, Property = property });
+                info.Add(new KnockoutBindingInfo() { Name = name, Expression = control.GetValueBinding(property).TranslateToClientScript(control, property) });
             }
         }
+
+        public void Add(string name, string expression, bool surroundWithDoubleQuotes = false)
+        {
+            if (surroundWithDoubleQuotes)
+            {
+                expression = JsonConvert.SerializeObject(expression);
+            }
+
+            info.Add(new KnockoutBindingInfo() { Name = name, Expression = expression });
+        }
+        
 
 
         public override string ToString()
@@ -35,12 +47,11 @@ namespace DotVVM.Framework
         class KnockoutBindingInfo
         {
             public string Name { get; set; }
-            public DotvvmBindableControl Control { get; set; }
-            public DotvvmProperty Property { get; set; }
+            public string Expression { get; set; }
 
             public override string ToString()
             {
-                return "\"" + Name + "\": " + Control.GetValueBinding(Property).TranslateToClientScript(Control, Property);
+                return "\"" + Name + "\": " + Expression;
             }
         }
 

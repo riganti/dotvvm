@@ -7,7 +7,7 @@
 </head>
 <body>
 
-	<rw:ContentPlaceHolder ID="MainContent" />
+	<dot:ContentPlaceHolder ID="MainContent" />
 
 </body>
 </html>
