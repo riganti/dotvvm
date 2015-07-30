@@ -101,15 +101,24 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                     // binding
                     CurrentElementContent.Add(ReadBinding());
                 }
+                else if(Peek().Type == DothtmlTokenType.OpenCData)
+                {
+                    CurrentElementContent.Add(ReadCData());
+                }
                 else
                 {
                     // text
-                    if (CurrentElementContent.Count > 0 && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof (DothtmlLiteralNode))
+                    if (CurrentElementContent.Count > 0 && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof(DothtmlLiteralNode))
                     {
                         // append to the previous literal
                         var lastLiteral = (DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
-                        lastLiteral.Value += Peek().Text;
-                        lastLiteral.Tokens.Add(Peek());
+                        if (lastLiteral.Escape != false)
+                            CurrentElementContent.Add(new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
+                        else
+                        {
+                            lastLiteral.Value += Peek().Text;
+                            lastLiteral.Tokens.Add(Peek());
+                        }
                     }
                     else
                     {
@@ -133,6 +142,27 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             Root = root;
             return root;
+        }
+
+        private DothtmlLiteralNode ReadCData()
+        {
+            Assert(DothtmlTokenType.OpenCData);
+            var node = new DothtmlLiteralNode()
+            {
+                StartPosition = Peek().StartPosition
+            };
+            node.Tokens.Add(Peek());
+            Read();
+            Assert(DothtmlTokenType.CDataBody);
+            var body = Peek().Text;
+            node.Value = body;
+            node.Tokens.Add(Peek());
+            node.Escape = true;
+            Read();
+            Assert(DothtmlTokenType.CloseCData);
+            node.Tokens.Add(Peek());
+            Read();
+            return node;
         }
 
         /// <summary>

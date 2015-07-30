@@ -228,7 +228,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 // CDATA section
                 CreateToken(DothtmlTokenType.OpenCData);
-                if (ReadTextUntil(DothtmlTokenType.CDataBody, "]]>"))
+                if (ReadTextUntil(DothtmlTokenType.CDataBody, "]]>", false))
                 {
                     CreateToken(DothtmlTokenType.CloseCData);
                 }
@@ -242,7 +242,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 // comment
                 CreateToken(DothtmlTokenType.OpenComment);
-                if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->"))
+                if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->", false))
                 {
                     CreateToken(DothtmlTokenType.CloseComment);
                 }
@@ -256,7 +256,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 // DOCTYPE
                 CreateToken(DothtmlTokenType.OpenDoctype);
-                if (ReadTextUntil(DothtmlTokenType.DoctypeBody, ">"))
+                if (ReadTextUntil(DothtmlTokenType.DoctypeBody, ">", true))
                 {
                     CreateToken(DothtmlTokenType.CloseDoctype);
                 }
@@ -270,7 +270,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 // XML processing instruction
                 CreateToken(DothtmlTokenType.OpenXmlProcessingInstruction);
-                if (ReadTextUntil(DothtmlTokenType.XmlProcessingInstructionBody, "?>"))
+                if (ReadTextUntil(DothtmlTokenType.XmlProcessingInstructionBody, "?>", true))
                 {
                     CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction);
                 }
