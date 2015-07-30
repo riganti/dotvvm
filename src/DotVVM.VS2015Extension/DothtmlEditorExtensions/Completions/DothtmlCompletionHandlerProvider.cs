@@ -34,13 +34,13 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
 
             Dispatcher.CurrentDispatcher.InvokeAsync(() =>
             {
+                textView.Properties.GetOrCreateSingletonProperty(() => new DothtmlCompletionCommandHandler(textViewAdapter, textView, this));
+                textView.Properties.GetOrCreateSingletonProperty(() => new DothtmlFormatCommandHandler(textViewAdapter, textView));
+
                 var tempSession = CompletionBroker.CreateCompletionSession(textView, textView.TextSnapshot.CreateTrackingPoint(0, Microsoft.VisualStudio.Text.PointTrackingMode.Negative), true);
                 tempSession.Start();
                 tempSession.Dismiss();
             }, DispatcherPriority.ApplicationIdle);
-            
-            textView.Properties.GetOrCreateSingletonProperty(() => new DothtmlCompletionCommandHandler(textViewAdapter, textView, this));
-            textView.Properties.GetOrCreateSingletonProperty(() => new DothtmlFormatCommandHandler(textViewAdapter, textView));
         }
     }
 }
