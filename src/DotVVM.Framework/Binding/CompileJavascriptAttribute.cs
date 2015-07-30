@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Binding
     {
         public virtual string CompileToJs(ResolvedBinding binding, CompiledBindingExpression expression)
         {
-            return JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack);
+            return "dotvvm.tryEval(function(){return " + JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack) + "})";
         }
     }
 }

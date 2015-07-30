@@ -9,7 +9,6 @@ namespace DotVVM.Framework
 {
     public class DotvvmAuthenticationHelper
     {
-
         /// <summary>
         /// Fixes the response created by the OWIN Security Challenge call to be accepted by DotVVM client library.
         /// </summary>
@@ -20,6 +19,5 @@ namespace DotVVM.Framework
                 DotvvmRequestContext.SetRedirectResponse(context, redirectUri, (int)HttpStatusCode.Redirect);
             }
         }
-
     }
 }

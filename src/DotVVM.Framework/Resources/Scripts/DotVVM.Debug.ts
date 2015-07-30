@@ -28,6 +28,17 @@ debugWindow.find("iframe").css({
     width: "100%"
 });
 
+dotvvm.tryEval = function (func: () => any) {
+    try
+    {
+        return func()
+    }
+    catch (error) {
+        console.log(`error '${ error }' occured in ${ func }`);
+        return null;
+    }
+}
+
 
 dotvvm.events.error.subscribe(e => {
     if (e.handled) return;
