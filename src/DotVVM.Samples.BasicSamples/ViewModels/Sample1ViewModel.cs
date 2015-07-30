@@ -3,12 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
-using DotVVM.Framework.Binding;
-using System.Diagnostics;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels
 {
-    public class Sample1ViewModel : DotvvmViewModelBase  
+    public class Sample1ViewModel : DotvvmViewModelBase
     {
         public string NewTaskTitle { get; set; }
 
@@ -32,10 +30,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public void AddTask()
         {
-            Tasks.Add(new TaskViewModel() 
-            { 
-                Title = NewTaskTitle, 
-                TaskId = Guid.NewGuid() 
+            Tasks.Add(new TaskViewModel()
+            {
+                Title = NewTaskTitle,
+                TaskId = Guid.NewGuid()
             });
             NewTaskTitle = string.Empty;
         }
@@ -44,11 +42,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         {
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
-        [StaticCommandCallable]
-        public static void CoolAction(string newTaskTitle)
-        {
 
-        }
     }
 
     public class TaskViewModel
@@ -60,10 +54,5 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public bool IsCompleted { get; set; }
 
-        [StaticCommandCallable]
-        public void PrintToDebug()
-        {
-            Debug.WriteLine(Title);
-        }
     }
 }

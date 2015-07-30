@@ -140,6 +140,7 @@
     <Content Include="ReturnFileSample\word-file.docx" />
     <Content Include="sample20.dothtml" />
     <Content Include="sample22.dothtml" />
+    <Content Include="sample23.dothtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -179,6 +180,7 @@
     <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
     <Compile Include="ViewModels\Sample19ViewModel.cs" />
     <Compile Include="ViewModels\Sample18ViewModel.cs" />
+    <Compile Include="ViewModels\Sample23ViewModel.cs" />
     <Compile Include="ViewModels\Sample22ViewModel.cs" />
     <Compile Include="ViewModels\Sample20ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />

@@ -73,8 +73,7 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.staticCommandPostbackScript = function (methodName, args, callback) {
         var _this = this;
-        if (callback === void 0) { callback = function (result) {
-        }; }
+        if (callback === void 0) { callback = function (result) { }; }
         return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
             _this.staticCommandPostback(pageArea, methodName, args.map(function (a) { return a == null ? null : _this.evaluateOnContext(ko.contextFor(sender), a); }), callback);
         };
