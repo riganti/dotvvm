@@ -30,8 +30,8 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
                 project = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "TestProj", "TestProj", LanguageNames.CSharp)
                     .WithMetadataReferences(new[] {
-                        MetadataReference.CreateFromAssembly(typeof(DotvvmConfiguration).Assembly),
-                        MetadataReference.CreateFromAssembly(typeof(object).Assembly)
+                        MetadataReference.CreateFromFile(typeof(DotvvmConfiguration).Assembly.Location),
+                        MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
                     });
                 workspace.AddProject(project);
 

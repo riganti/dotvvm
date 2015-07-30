@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     Assembly.GetExecutingAssembly()
                 }
                 .Concat(configuration.Markup.Assemblies.Select(Assembly.Load)).Distinct()
-                .Select(MetadataReference.CreateFromAssembly);
+                .Select(a => assemblyCache.GetAssemblyMetadata(a));
 
                 // add dynamic references
                 var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()

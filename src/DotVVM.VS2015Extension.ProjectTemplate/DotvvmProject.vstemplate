@@ -29,17 +29,17 @@
   </WizardExtension>
   <WizardData>
     <packages repository="extension" repositoryId="DotVVM.VS2015Extension..ff9401c7-99da-4a9c-9800-1ffdcd4f13b3">
-      <package id="Newtonsoft.Json" version="7.0.1-beta2" />
+      <package id="Newtonsoft.Json" version="7.0.1" />
       <package id="Owin" version="1.0.0" />
       <package id="Microsoft.Owin" version="3.0.1" />
       <package id="Microsoft.Owin.FileSystems" version="3.0.1" />
       <package id="Microsoft.Owin.StaticFiles" version="3.0.1" />
       <package id="Microsoft.Owin.Host.SystemWeb" version="3.0.1" />
-      <package id="System.Collections.Immutable" version="1.1.33-beta" />
-      <package id="System.Reflection.Metadata" version="1.0.18-beta" />
-      <package id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0-rc2" />
-      <package id="Microsoft.CodeAnalysis.Common" version="1.0.0-rc2" />
-      <package id="Microsoft.CodeAnalysis.CSharp" version="1.0.0-rc2" />
+      <package id="System.Collections.Immutable" version="1.1.36" />
+      <package id="System.Reflection.Metadata" version="1.0.21" />
+      <package id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0" />
+      <package id="Microsoft.CodeAnalysis.Common" version="1.0.0" />
+      <package id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
       <package id="ExpressionEvaluator" version="2.0.3.0" />
       <package id="Antlr" version="3.5.0.2" />
       <package id="DotVVM" version="0.8.1-pre" />

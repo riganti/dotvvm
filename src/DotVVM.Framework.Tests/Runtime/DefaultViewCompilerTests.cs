@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
@@ -286,13 +287,13 @@ test <dot:Literal><a /></dot:Literal>";
 
 
 
-        private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false)
+        private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
             {
                 markupFiles = new Dictionary<string, string>();
             }
-            markupFiles["default.dothtml"] = markup;
+            markupFiles[fileName + ".dothtml"] = markup;
 
             var dotvvmConfiguration = context.Configuration;
             dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
@@ -303,7 +304,7 @@ test <dot:Literal><a /></dot:Literal>";
             dotvvmConfiguration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
 
             var controlBuilderFactory = dotvvmConfiguration.ServiceLocator.GetService<IControlBuilderFactory>();
-            var controlBuilder = controlBuilderFactory.GetControlBuilder("default.dothtml");
+            var controlBuilder = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
             
             var result = controlBuilder.BuildControl(controlBuilderFactory);
             if (compileTwice)
