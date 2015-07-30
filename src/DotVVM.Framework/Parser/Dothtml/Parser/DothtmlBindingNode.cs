@@ -9,5 +9,10 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public string Name { get; set; }
         
+
+        public DothtmlBindingNode()
+        {
+            Escape = true;
+        }
     }
 }

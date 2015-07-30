@@ -8,6 +8,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     {
 
         public string Value { get; set; }
-
+        public bool Escape { get; set; } = false;
     }
 }

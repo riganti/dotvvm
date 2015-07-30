@@ -71,12 +71,13 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 // text content
                 var literalValue = ((DothtmlLiteralNode)node).Value;
+                var escape = ((DothtmlLiteralNode)node).Escape;
                 if (node.IsNotEmpty())
                 {
                     EnsureContentAllowed(parentMetadata);
                 }
                 var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
-                literal.SetPropertyValue(Literal.HtmlEncodeProperty, false);
+                literal.SetPropertyValue(Literal.HtmlEncodeProperty, escape);
                 literal.SetPropertyValue(Literal.TextProperty, literalValue);
                 return literal;
             }

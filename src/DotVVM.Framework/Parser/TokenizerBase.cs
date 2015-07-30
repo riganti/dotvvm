@@ -130,7 +130,7 @@ namespace DotVVM.Framework.Parser
         /// When the new line is hit, the method automatically consumes it and creates WhiteSpace token.
         /// When the stopchar is hit, it is not consumed.
         /// </summary>
-        protected void ReadTextUntilNewLine(TTokenType tokenType, params char[] stopChars) 
+        protected void ReadTextUntilNewLine(TTokenType tokenType, params char[] stopChars)
         {
             while (Peek() != '\r' && Peek() != '\n' && !stopChars.Contains(Peek()))
             {
@@ -161,47 +161,34 @@ namespace DotVVM.Framework.Parser
         }
 
 
-        protected bool ReadTextUntil(TTokenType tokenType, string stopString)
+        protected bool ReadTextUntil(TTokenType tokenType, string stopString, bool stopOnNewLine)
         {
-            var index = 0;
-            while (Peek() != '\r' && Peek() != '\n' && index < stopString.Length)
+            var startLine = CurrentLine;
+            var stopStringIndex = 0;
+            while (stopStringIndex != stopString.Length)
             {
                 var ch = Read();
                 if (ch == NullChar)
                 {
-                    break;
+                    return false;
                 }
-                else if (ch == stopString[index])
+                else if (ch == stopString[stopStringIndex])
                 {
-                    index++;
+                    stopStringIndex++;
                 }
                 else
                 {
-                    var newIndex = 0;
-                    for (int k = index - 1; k >= 0; k--)
-                    {
-                        if (stopString[k] == ch)
-                        {
-                            newIndex = k;
-                            break;
-                        }
-                    }
-                    index = newIndex;
+                    stopStringIndex = 0;
+                }
+
+                if (stopOnNewLine && startLine != CurrentLine)
+                {
+                    return false;
                 }
             }
 
-            if (index == stopString.Length)
-            {
-                if (DistanceSinceLastToken > stopString.Length)
-                {
-                    CreateToken(tokenType, stopString.Length);
-                }
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            CreateToken(tokenType, stopString.Length);
+            return true;
         }
 
         protected string ReadOneOf(params string[] strings)
