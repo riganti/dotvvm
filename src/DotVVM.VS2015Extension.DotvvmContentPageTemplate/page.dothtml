@@ -1,8 +1,8 @@
 @viewModel $rootnamespace$.$safeitemname$ViewModel, $rootnamespace$
 @masterPage master.dothtml
 
-<rw:Content ContentPlaceHolderID="MainContent">
+<dot:Content ContentPlaceHolderID="MainContent">
 
 
 
-</rw:Content>
+</dot:Content>
