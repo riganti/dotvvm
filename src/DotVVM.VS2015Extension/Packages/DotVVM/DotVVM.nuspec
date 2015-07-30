@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>DotVVM</id>
-        <version>0.8.0-pre</version>
+        <version>0.8.0.0-pre</version>
         <authors>RIGANTI</authors>
         <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
         <projectUrl>http://github.org/riganti/dotvvm</projectUrl>
@@ -22,7 +22,7 @@
         </dependencies>
     </metadata>
     <files>
-        <file src="..\..\..\DotVVM.Framework\bin\Release\DotVVM.Framework.dll" target="lib\net451\DotVVM.Framework.dll" />
+        <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.dll" target="lib\net451\DotVVM.Framework.dll" />
         <file src="init.ps1" target="tools\init.ps1" />
         <file src="install.ps1" target="tools\install.ps1" />
         <file src="DotvvmModule.psm1" target="tools\DotvvmModule.psm1" />
