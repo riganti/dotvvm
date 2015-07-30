@@ -21,7 +21,7 @@
             <legend>Add Task</legend>
 			<p>
 				Special text:
-				<![CDATA[ 
+				<![CDATA[
 					{{ < < > "" ' & &
 				]]>
 

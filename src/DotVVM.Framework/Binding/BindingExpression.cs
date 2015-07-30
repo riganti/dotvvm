@@ -65,7 +65,14 @@ namespace DotVVM.Framework.Binding
         {
             var dataContexts = GetDataContexts(contextControl, seeThis);
             var control = setRootControl ? GetRootControl(contextControl) : null;
-            return Delegate(dataContexts, control);
+            try
+            {
+                return Delegate(dataContexts, control);
+            }
+            catch (NullReferenceException)
+            {
+                return null;
+            }
         }
 
         private DotvvmControl GetRootControl(DotvvmBindableControl control)
