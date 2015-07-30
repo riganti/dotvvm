@@ -281,7 +281,7 @@
     <Content Include="Packages\Owin.1.0.0.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.0.8.0.0-pre.nupkg">
+    <Content Include="Packages\DotVVM.0.8.1-pre.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

@@ -88,6 +88,14 @@ var DotVVM = (function () {
         persistedViewModel["viewModel"] = ko.mapper.toJS(persistedViewModel["viewModel"]);
         document.getElementById("__dot_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
     };
+    DotVVM.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
     DotVVM.prototype.backUpPostBackConter = function () {
         this.postBackCounter++;
         return this.postBackCounter;

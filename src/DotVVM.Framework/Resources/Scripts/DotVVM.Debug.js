@@ -20,6 +20,15 @@ debugWindow.find("iframe").css({
     flex: "1 1 auto",
     width: "100%"
 });
+dotvvm.tryEval = function (func) {
+    try {
+        return func();
+    }
+    catch (error) {
+        console.log("error '" + error + "' occured in " + func);
+        return null;
+    }
+};
 dotvvm.events.error.subscribe(function (e) {
     if (e.handled)
         return;

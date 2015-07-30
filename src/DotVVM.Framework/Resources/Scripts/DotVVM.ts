@@ -98,6 +98,17 @@ class DotVVM {
         (<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value = JSON.stringify(persistedViewModel);
     }
 
+    public tryEval(func: () => any): any {
+        try
+        {
+            return func()
+        }
+        catch(error)
+        {
+            return null;
+        }
+    }
+
     private backUpPostBackConter(): number {
         this.postBackCounter++;
         return this.postBackCounter;
