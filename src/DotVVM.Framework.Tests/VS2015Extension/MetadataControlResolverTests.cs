@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
@@ -23,21 +24,30 @@ namespace DotVVM.Framework.Tests.VS2015Extension
         [TestInitialize]
         public void TestInit()
         {
-            workspace = new AdhocWorkspace();
-            project = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "TestProj", "TestProj", LanguageNames.CSharp)
-                .WithMetadataReferences(new[] {
-                    MetadataReference.CreateFromAssembly(typeof(DotvvmConfiguration).Assembly),
-                    MetadataReference.CreateFromAssembly(typeof(object).Assembly)
-                });
-            workspace.AddProject(project);
-
-            workspace.AddDocument(project.Id, "test", SourceText.From("class A {}"));
-
-            context = new DothtmlCompletionContext()
+            try
             {
-                Configuration = DotvvmConfiguration.CreateDefault(),
-                RoslynWorkspace = workspace
-            };
+                workspace = new AdhocWorkspace();
+
+                project = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "TestProj", "TestProj", LanguageNames.CSharp)
+                    .WithMetadataReferences(new[] {
+                        MetadataReference.CreateFromAssembly(typeof(DotvvmConfiguration).Assembly),
+                        MetadataReference.CreateFromAssembly(typeof(object).Assembly)
+                    });
+                workspace.AddProject(project);
+
+                workspace.AddDocument(project.Id, "test", SourceText.From("class A {}"));
+
+                context = new DothtmlCompletionContext()
+                {
+                    Configuration = DotvvmConfiguration.CreateDefault(),
+                    RoslynWorkspace = workspace
+                };
+
+            }
+            catch (ReflectionTypeLoadException ex)
+            {
+                throw new Exception(string.Join("\r\n", ex.LoaderExceptions.Select(e => e.ToString())));
+            }
         }
 
 
