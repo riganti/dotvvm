@@ -317,12 +317,9 @@ namespace DotVVM.Framework.Hosting
                 throw new Exception("unhandled exception in command", exception);
             }
 
-            if (result != null)
+            using (var writer = new StreamWriter(context.OwinContext.Response.Body))
             {
-                using (var writer = new StreamWriter(context.OwinContext.Response.Body))
-                {
-                    writer.WriteLine(JsonConvert.SerializeObject(result));
-                }
+                writer.WriteLine(JsonConvert.SerializeObject(result));
             }
         }
 

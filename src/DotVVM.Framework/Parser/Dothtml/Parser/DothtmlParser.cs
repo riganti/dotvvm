@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Resources;
+using System.Diagnostics;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
@@ -11,6 +13,11 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     /// </summary>
     public class DothtmlParser
     {
+        public static readonly HashSet<string> AutomaticClosingTags = new HashSet<string>
+        {
+            "html", "head", "body", "p", "dt", "dd", "li", "option", "thead", "th", "tbody", "tr", "td", "tfoot", "colgroup"
+        };
+
         private IList<DothtmlToken> Tokens { get; set; }
         private Stack<DothtmlNodeWithContent> ElementHierarchy { get; set; }
         private int CurrentIndex { get; set; }
@@ -45,7 +52,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             }
 
             SkipWhitespace();
-            
+
             // read content
             while (Peek() != null)
             {
@@ -80,6 +87,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                                 if (beginTagName != element.FullTagName)
                                 {
                                     element.NodeErrors.Add(string.Format(DothtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
+                                    ResolveWrongClosingTag(element);
+                                    beginTag = (DothtmlElementNode)ElementHierarchy.Peek();
                                 }
                                 else
                                 {
@@ -101,7 +110,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                     // binding
                     CurrentElementContent.Add(ReadBinding());
                 }
-                else if(Peek().Type == DothtmlTokenType.OpenCData)
+                else if (Peek().Type == DothtmlTokenType.OpenCData)
                 {
                     CurrentElementContent.Add(ReadCData());
                 }
@@ -142,6 +151,38 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             Root = root;
             return root;
+        }
+
+        private void ResolveWrongClosingTag(DothtmlElementNode element)
+        {
+            Debug.Assert(element.IsClosingTag);
+            var startElement = ElementHierarchy.Peek() as DothtmlElementNode;
+            Debug.Assert(startElement != null);
+            Debug.Assert(startElement.FullTagName != element.FullTagName);
+
+            while (startElement.FullTagName != element.FullTagName)
+            {
+                ElementHierarchy.Pop();
+                if (HtmlWriter.SelfClosingTags.Contains(startElement.FullTagName))
+                {
+                    // automatic immediate close of the tag (for <img src="">)
+                    ElementHierarchy.Peek().Content.AddRange(startElement.Content);
+                    startElement.Content.Clear();
+                }
+                else if (AutomaticClosingTags.Contains(startElement.FullTagName))
+                {
+                    // elements than can contain itself like <p> are closed on the first occurance of element with the same name
+                    var sameElementIndex = startElement.Content.FindIndex(a => (a as DothtmlElementNode)?.FullTagName == startElement.FullTagName);
+                    if (sameElementIndex >= 0)
+                    {
+                        var count = startElement.Content.Count - sameElementIndex;
+                        ElementHierarchy.Peek().Content.AddRange(startElement.Content.Skip(sameElementIndex));
+                        startElement.Content.RemoveRange(sameElementIndex, count);
+                    }
+                }
+                // otherwise just pop the element
+                startElement = (DothtmlElementNode)ElementHierarchy.Peek();
+            }
         }
 
         private DothtmlLiteralNode ReadCData()
@@ -338,7 +379,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Assert(DothtmlTokenType.DirectiveName);
             var directiveNameToken = Read();
             node.Name = directiveNameToken.Text.Trim();
-            
+
             SkipWhitespace();
 
             Assert(DothtmlTokenType.DirectiveValue);
@@ -349,7 +390,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
         }
-        
+
         /// <summary>
         /// Gets the tokens from.
         /// </summary>

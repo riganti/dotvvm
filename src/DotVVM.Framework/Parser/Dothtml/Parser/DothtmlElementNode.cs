@@ -2,12 +2,24 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
+    [DebuggerDisplay("{debuggerDisplay,nq}")]
     public class DothtmlElementNode : DothtmlNodeWithContent
     {
-        
+        #region debbuger display
+        [DebuggerBrowsable(DebuggerBrowsableState.Never)]
+        private string debuggerDisplay
+        {
+            get
+            {
+                return "<" + (IsClosingTag ? "/" : "") + FullTagName + ( Attributes.Any() ? " ..." : "" ) + (IsSelfClosingTag ? " /" : "") +  ">";
+            }
+        }
+        #endregion
+
         public string TagName { get; set; }
 
         public List<DothtmlAttributeNode> Attributes { get; set; }

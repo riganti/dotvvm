@@ -16,12 +16,20 @@ namespace DotVVM.Framework.Binding
     {
         public override string CompileToJs(ResolvedBinding binding, CompiledBindingExpression compiledExpression)
         {
-            var expression = binding.GetExpression() as MethodCallExpression;
-            if (expression == null) throw new NotSupportedException("static command binding must be method call");
-            var target = expression.Object == null ? "null" : JavascriptTranslator.CompileToJavascript(expression.Object, binding.DataContextTypeStack);
-            var arguments = new[] { target }.Concat(expression.Arguments.Select(a => JavascriptTranslator.CompileToJavascript(a, binding.DataContextTypeStack)));
-            var argsScript = String.Join(", ", arguments.Select(a => JsonConvert.SerializeObject(a)));
-            return $"dotvvm.staticCommandPostbackScript('{GetMethodName(expression)}', [{ argsScript }])";
+            var methodExpression = binding.GetExpression() as MethodCallExpression;
+            if (methodExpression == null)
+            {
+                throw new NotSupportedException("static command binding must be method call");
+            }
+            var argsScript = GetArgsScript(methodExpression, binding.DataContextTypeStack);
+            return $"dotvvm.staticCommandPostbackScript('{GetMethodName(methodExpression)}', [{ argsScript }])";
+        }
+
+        public static string GetArgsScript(MethodCallExpression expression, DataContextStack dataContext)
+        {
+            var target = expression.Object == null ? "null" : JavascriptTranslator.CompileToJavascript(expression.Object, dataContext);
+            var arguments = new[] { target }.Concat(expression.Arguments.Select(a => JavascriptTranslator.CompileToJavascript(a, dataContext)));
+            return "[" + String.Join(", ", arguments.Select(a => JsonConvert.SerializeObject(a))) + "]";
         }
 
         public static string GetMethodName(MethodCallExpression methodInvocation)

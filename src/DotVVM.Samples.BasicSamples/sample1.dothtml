@@ -24,10 +24,8 @@
 				<![CDATA[
 					{{ < < > "" ' & & }}
 				]]>
-
-			</p>
-            <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
-            <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
+            <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" />
+            <p><dot:Button Text="Create" Click="{command: AddTask()}" />
         </fieldset>
         <p>&nbsp;</p>
 

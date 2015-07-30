@@ -78,13 +78,12 @@ class DotVVM {
         }
     }
 
-    private staticCommandPostbackScript(methodName: string, args: string[]) {
+    private staticCommandPostbackScript(methodName: string, args: string[], callback = result => { }) {
         return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) => {
-            this.staticCommandPostback(pageArea, sender, methodName, args.map(
-                a => a == null ? null : this.evaluateOnContext(ko.contextFor(sender), a)));
+            this.staticCommandPostback(pageArea, methodName, args.map(
+                a => a == null ? null : this.evaluateOnContext(ko.contextFor(sender), a)), callback);
         }
     }
-
 
     private persistViewModel(viewModelName: string) {
         var viewModel = this.viewModels[viewModelName];
@@ -118,7 +117,7 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModeName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
+    public staticCommandPostback(viewModeName: string, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
         // TODO: events for static command postback
 
         // prevent double postbacks

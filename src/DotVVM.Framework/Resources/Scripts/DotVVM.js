@@ -71,10 +71,12 @@ var DotVVM = (function () {
             _this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget);
         };
     };
-    DotVVM.prototype.staticCommandPostbackScript = function (methodName, args) {
+    DotVVM.prototype.staticCommandPostbackScript = function (methodName, args, callback) {
         var _this = this;
+        if (callback === void 0) { callback = function (result) {
+        }; }
         return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
-            _this.staticCommandPostback(pageArea, sender, methodName, args.map(function (a) { return a == null ? null : _this.evaluateOnContext(ko.contextFor(sender), a); }));
+            _this.staticCommandPostback(pageArea, methodName, args.map(function (a) { return a == null ? null : _this.evaluateOnContext(ko.contextFor(sender), a); }), callback);
         };
     };
     DotVVM.prototype.persistViewModel = function (viewModelName) {
@@ -103,7 +105,7 @@ var DotVVM = (function () {
     DotVVM.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
-    DotVVM.prototype.staticCommandPostback = function (viewModeName, sender, command, args, callback, errorCallback) {
+    DotVVM.prototype.staticCommandPostback = function (viewModeName, command, args, callback, errorCallback) {
         // TODO: events for static command postback
         var _this = this;
         if (callback === void 0) { callback = function (_) {
