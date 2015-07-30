@@ -103,6 +103,9 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             var i = 0;
             Assert.AreEqual("<!DOCTYPE", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.OpenDoctype, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.DoctypeBody, tokenizer.Tokens[i++].Type);
             
             Assert.AreEqual(">", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.CloseDoctype, tokenizer.Tokens[i++].Type);
