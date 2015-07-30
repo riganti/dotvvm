@@ -175,7 +175,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
                         }
 
                         // show the session
-                        var newCompletionSet = new CustomCompletionSet("HTML", "HTML", FindTokenSpanAtPosition(session), results, null);
+                        var newCompletionSet = new CustomCompletionSet("dotVVM", "dotVVM", FindTokenSpanAtPosition(session), results, null);
                         if (combineWithHtmlCompletions && completionSets.Any())
                         {
                             newCompletionSet = MergeCompletionSets(completionSets, newCompletionSet);

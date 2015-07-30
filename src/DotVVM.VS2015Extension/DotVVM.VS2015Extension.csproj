@@ -281,9 +281,12 @@
     <Content Include="Packages\Owin.1.0.0.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.0.8.0.0-pre.nupkg">
+    <Content Include="Packages\DotVVM.0.8.1-pre.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Packages\Antlr.3.5.0.2.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="Packages\DotVVM\DotVVM.nuspec" />
     <None Include="Packages\DotVVM\init.ps1" />
@@ -294,6 +297,10 @@
     </Content>
     <Content Include="Packages\System.Reflection.Metadata.1.0.18-beta.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
+    </Content>
+    <Content Include="Packages\ExpressionEvaluator.2.0.3.0.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
@@ -358,6 +365,8 @@ copy "$(SolutionDir)packages\System.Reflection.Metadata.1.0.18-beta\System.Refle
 copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2\Microsoft.CodeAnalysis.Analyzers.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0-rc2\Microsoft.CodeAnalysis.Common.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
 copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2\Microsoft.CodeAnalysis.CSharp.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\ExpressionEvaluator.2.0.3.0\ExpressionEvaluator.2.0.3.0.nupkg" "$(ProjectDir)Packages"
+copy "$(SolutionDir)packages\Antlr.3.5.0.2\Antlr.3.5.0.2.nupkg" "$(ProjectDir)Packages"
 
 del "$(ProjectDir)Packages\DotVVM.*.nupkg" -y
 "$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
