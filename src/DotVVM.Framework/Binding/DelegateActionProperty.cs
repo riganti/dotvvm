@@ -26,5 +26,6 @@ namespace DotVVM.Framework.Binding
         {
             return DotvvmProperty.Register<TValue, TDeclaringType>(name, defaultValue, false, new DelegateActionProperty<TValue>(func)) as DelegateActionProperty<TValue>;
         }
+
     }
 }

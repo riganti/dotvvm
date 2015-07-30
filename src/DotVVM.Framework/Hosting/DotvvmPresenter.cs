@@ -267,7 +267,7 @@ namespace DotVVM.Framework.Hosting
             CsrfProtector.VerifyToken(context, context.CsrfToken);
 
             var command = postData["command"].Value<string>();
-            var arguments = postData["args"].ToObject<object[]>();
+            var arguments = postData["args"] as JArray;
             var lastDot = command.LastIndexOf('.');
             var typeName = command.Remove(lastDot);
             var methodName = command.Substring(lastDot + 1);
@@ -277,12 +277,13 @@ namespace DotVVM.Framework.Hosting
             {
                 throw new DotvvmHttpException("method validation failed");
             }
-            var target = arguments[0];
-            arguments = arguments.Skip(1).ToArray();
+            var target = methodInfo.IsStatic ? null : arguments[0].ToObject(methodInfo.DeclaringType);
+            var marguments = arguments.Skip(1).Zip(methodInfo.GetParameters(),
+                (arg, parameter) => arg.ToObject(parameter.ParameterType)).ToArray();
             var actionInfo = new ActionInfo()
             {
                 IsControlCommand = false,
-                Action = () => methodInfo.Invoke(target, arguments)
+                Action = () => methodInfo.Invoke(target, marguments)
             };
             var filters = methodInfo.GetCustomAttributes<ActionFilterAttribute>();
             foreach (var filter in filters)
@@ -293,7 +294,7 @@ namespace DotVVM.Framework.Hosting
             object result = null;
             try
             {
-                result = methodInfo.Invoke(null, arguments);
+                result = methodInfo.Invoke(target, marguments);
             }
             catch (Exception ex)
             {
