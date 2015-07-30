@@ -78,6 +78,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             var lengthMethod = new StringJsMethodCompiler("{0}.length");
             AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
+            AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
             AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
             AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
@@ -87,7 +88,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string ParenthesizedTranslate(Expression parent, Expression expression)
         {
-            if(NeedsParens(parent, expression))
+            if (NeedsParens(parent, expression))
             {
                 return "(" + Translate(expression) + ")";
             }
@@ -191,17 +192,33 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             {
                 return translator.TranslateCall(context, args, method);
             }
-            if (!method.DeclaringType.IsInterface)
+            if (method.IsGenericMethod)
             {
-                foreach (var iface in method.DeclaringType.GetInterfaces())
+                var genericMethod = method.GetGenericMethodDefinition();
+                if (MethodTranslators.TryGetValue(genericMethod, out translator))
                 {
-                    if (Interfaces.Contains(iface))
-                    {
-                        var map = method.DeclaringType.GetInterfaceMap(iface);
-                        var imIndex = Array.IndexOf(map.TargetMethods, method);
-                        if (MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]))
-                            return MethodTranslators[map.InterfaceMethods[imIndex]].TranslateCall(context, args, method);
-                    }
+                    return translator.TranslateCall(context, args, method);
+                }
+            }
+
+            foreach (var iface in method.DeclaringType.GetInterfaces())
+            {
+                if (Interfaces.Contains(iface))
+                {
+                    var map = method.DeclaringType.GetInterfaceMap(iface);
+                    var imIndex = Array.IndexOf(map.TargetMethods, method);
+                    if (MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]))
+                        return MethodTranslators[map.InterfaceMethods[imIndex]].TranslateCall(context, args, method);
+                }
+            }
+            if (method.DeclaringType.IsGenericType && !method.DeclaringType.IsGenericTypeDefinition)
+            {
+                var genericType = method.DeclaringType.GetGenericTypeDefinition();
+                var m2 = genericType.GetMethod(method.Name);
+                if (m2 != null)
+                {
+                    var r2 = TryTranslateMethodCall(context, args, m2);
+                    if (r2 != null) return r2;
                 }
             }
             return null;
@@ -260,7 +277,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
             if (!op.Contains('{')) op = "{0}" + op + "{1}";
-            return string.Format(op, right, left);
+            return string.Format(op, left, right);
         }
 
         public string TranslateUnary(UnaryExpression expression)
