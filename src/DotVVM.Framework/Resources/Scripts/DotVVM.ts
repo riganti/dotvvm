@@ -18,6 +18,7 @@ class DotVVM {
     public extensions: any = {};
     public viewModels: any = {};
     public culture: string;
+    public serialization: DotvvmSerialization = new DotvvmSerialization();
     public events = {
         init: new DotvvmEvent<DotvvmEventArgs>("dotvvm.events.init", true),
         beforePostback: new DotvvmEvent<DotvvmBeforePostBackEventArgs>("dotvvm.events.beforePostback"),
@@ -93,7 +94,7 @@ class DotVVM {
                 persistedViewModel[p] = viewModel[p];
             }
         }
-        persistedViewModel["viewModel"] = ko.mapper.toJS(persistedViewModel["viewModel"]);
+        persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"]);
         (<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value = JSON.stringify(persistedViewModel);
     }
 
@@ -123,7 +124,7 @@ class DotVVM {
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
 
-        var data = ko.mapper.toJS({
+        var data = this.serialization.serialize({
             "args": args,
             "command": command,
             "$csrfToken": this.viewModels[viewModeName].viewModel.$csrfToken
@@ -163,7 +164,7 @@ class DotVVM {
         // perform the postback
         this.updateDynamicPathFragments(sender, path);
         var data = {
-            viewModel: ko.mapper.toJS(viewModel),
+            viewModel: this.serialization.serialize(viewModel),
             currentPath: path,
             command: command,
             controlUniqueId: controlUniqueId,
@@ -659,6 +660,82 @@ class DotvvmSpaNavigatedEventArgs extends DotvvmEventArgs {
         super(viewModel);
     }
 }
+
+
+class DotvvmSerialization {
+
+    public serialize(viewModel: any): any {
+
+        if (typeof (viewModel) === "undefined" || viewModel == null) {
+            return viewModel;
+        }
+
+        if (typeof (viewModel) === "string" || typeof (viewModel) === "number" || typeof (viewModel) === "boolean") {
+            return viewModel;
+        }
+
+        if (ko.isObservable(viewModel)) {
+            return this.serialize(ko.unwrap(viewModel));
+        }
+
+        if (typeof (viewModel) === "function") {
+            return null;
+        }
+
+        if (viewModel instanceof Array) {
+            var array = [];
+            for (var i = 0; i < viewModel.length; i++) {
+                array.push(this.serialize(viewModel[i]));
+            }
+            return array;
+        }
+
+        if (viewModel instanceof Date) {
+            return this.serializeDate(viewModel);
+        }
+
+        var result = {};
+        for (var prop in viewModel) {
+            if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
+                var value = viewModel[prop];
+
+                if (typeof (value) === "undefined" || (viewModel[prop + "$options"] && !viewModel[prop + "$options"].doNotPost)) {
+                    continue;
+                }
+                if (!ko.isObservable(value) && typeof (value) === "function") {
+                    continue;
+                }
+
+                result[prop] = this.serialize(value);
+            }
+        }
+        return result;
+    }
+
+    private pad(value: string, digits: number) {
+        while (value.length < digits) {
+            value = "0" + value;
+        }
+        return value;
+    }
+
+    private serializeDate(date: Date): string {
+        var y = this.pad(date.getFullYear().toString(), 4);
+        var m = this.pad((date.getMonth() + 1).toString(), 2)
+        var d = this.pad(date.getDate().toString(), 2);
+        var h = this.pad(date.getHours().toString(), 2);
+        var mi = this.pad(date.getMinutes().toString(), 2);
+        var s = this.pad(date.getSeconds().toString(), 2);
+        var ms = this.pad(date.getMilliseconds().toString(), 3);
+
+        var sign = date.getTimezoneOffset() <= 0 ? "+" : "-";
+        var offsetHour = this.pad((Math.abs(date.getTimezoneOffset() / 60) | 0).toString(), 2);
+        var offsetMinute = this.pad(Math.abs(date.getTimezoneOffset() % 60).toString(), 2);
+
+        return y + "-" + m + "-" + d + "T" + h + ":" + m + ":" + s + "." + ms + sign + offsetHour + ":" + offsetMinute;
+    }
+}
+
 
 var dotvvm = new DotVVM();
 

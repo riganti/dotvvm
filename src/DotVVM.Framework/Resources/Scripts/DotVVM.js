@@ -14,6 +14,7 @@ var DotVVM = (function () {
         this.isViewModelUpdating = true;
         this.extensions = {};
         this.viewModels = {};
+        this.serialization = new DotvvmSerialization();
         this.events = {
             init: new DotvvmEvent("dotvvm.events.init", true),
             beforePostback: new DotvvmEvent("dotvvm.events.beforePostback"),
@@ -86,7 +87,7 @@ var DotVVM = (function () {
                 persistedViewModel[p] = viewModel[p];
             }
         }
-        persistedViewModel["viewModel"] = ko.mapper.toJS(persistedViewModel["viewModel"]);
+        persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"]);
         document.getElementById("__dot_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
     };
     DotVVM.prototype.tryEval = function (func) {
@@ -111,7 +112,7 @@ var DotVVM = (function () {
         if (errorCallback === void 0) { errorCallback = function (xhr) { }; }
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
-        var data = ko.mapper.toJS({
+        var data = this.serialization.serialize({
             "args": args,
             "command": command,
             "$csrfToken": this.viewModels[viewModeName].viewModel.$csrfToken
@@ -146,7 +147,7 @@ var DotVVM = (function () {
         // perform the postback
         this.updateDynamicPathFragments(sender, path);
         var data = {
-            viewModel: ko.mapper.toJS(viewModel),
+            viewModel: this.serialization.serialize(viewModel),
             currentPath: path,
             command: command,
             controlUniqueId: controlUniqueId,
@@ -651,6 +652,68 @@ var DotvvmSpaNavigatedEventArgs = (function (_super) {
     }
     return DotvvmSpaNavigatedEventArgs;
 })(DotvvmEventArgs);
+var DotvvmSerialization = (function () {
+    function DotvvmSerialization() {
+    }
+    DotvvmSerialization.prototype.serialize = function (viewModel) {
+        if (typeof (viewModel) === "undefined" || viewModel == null) {
+            return viewModel;
+        }
+        if (typeof (viewModel) === "string" || typeof (viewModel) === "number" || typeof (viewModel) === "boolean") {
+            return viewModel;
+        }
+        if (ko.isObservable(viewModel)) {
+            return this.serialize(ko.unwrap(viewModel));
+        }
+        if (typeof (viewModel) === "function") {
+            return null;
+        }
+        if (viewModel instanceof Array) {
+            var array = [];
+            for (var i = 0; i < viewModel.length; i++) {
+                array.push(this.serialize(viewModel[i]));
+            }
+            return array;
+        }
+        if (viewModel instanceof Date) {
+            return this.serializeDate(viewModel);
+        }
+        var result = {};
+        for (var prop in viewModel) {
+            if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
+                var value = viewModel[prop];
+                if (typeof (value) === "undefined" || (viewModel[prop + "$options"] && !viewModel[prop + "$options"].doNotPost)) {
+                    continue;
+                }
+                if (!ko.isObservable(value) && typeof (value) === "function") {
+                    continue;
+                }
+                result[prop] = this.serialize(value);
+            }
+        }
+        return result;
+    };
+    DotvvmSerialization.prototype.pad = function (value, digits) {
+        while (value.length < digits) {
+            value = "0" + value;
+        }
+        return value;
+    };
+    DotvvmSerialization.prototype.serializeDate = function (date) {
+        var y = this.pad(date.getFullYear().toString(), 4);
+        var m = this.pad((date.getMonth() + 1).toString(), 2);
+        var d = this.pad(date.getDate().toString(), 2);
+        var h = this.pad(date.getHours().toString(), 2);
+        var mi = this.pad(date.getMinutes().toString(), 2);
+        var s = this.pad(date.getSeconds().toString(), 2);
+        var ms = this.pad(date.getMilliseconds().toString(), 3);
+        var sign = date.getTimezoneOffset() <= 0 ? "+" : "-";
+        var offsetHour = this.pad((Math.abs(date.getTimezoneOffset() / 60) | 0).toString(), 2);
+        var offsetMinute = this.pad(Math.abs(date.getTimezoneOffset() % 60).toString(), 2);
+        return y + "-" + m + "-" + d + "T" + h + ":" + m + ":" + s + "." + ms + sign + offsetHour + ":" + offsetMinute;
+    };
+    return DotvvmSerialization;
+})();
 var dotvvm = new DotVVM();
 // add knockout binding handler for update progress control
 ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
