@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
         {
             var literal = new Literal();
             literal.FormatString = FormatString;
-            literal.SetBinding(Literal.TextProperty, CloneValueBinding());
+            literal.SetBinding(Literal.TextProperty, GetValueBinding(ValueBindingProperty));
 
             container.Children.Add(literal);
         }

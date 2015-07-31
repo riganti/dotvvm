@@ -47,13 +47,10 @@ namespace DotVVM.Framework.Controls
             var parameters = ComposeNewRouteParameters(control, context, route);
 
             // evaluate bindings on server
-            foreach (var param in parameters.Where(p => p.Value is BindingExpression).ToList())
+            foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
             {
-                if (param.Value is BindingExpression)
-                {
-                    EnsureValidBindingType(param.Value as BindingExpression);
-                    parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(control, null);   // TODO: see below
-                }
+                EnsureValidBindingType(param.Value as BindingExpression);
+                parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(control, null);   // TODO: see below
             }
 
             // generate the URL
@@ -97,12 +94,12 @@ namespace DotVVM.Framework.Controls
         private static string TranslateRouteParameter(HtmlGenericControl control, KeyValuePair<string, object> param)
         {
             string expression = "";
-            if (param.Value is BindingExpression)
+            if (param.Value is IBinding)
             {
-                EnsureValidBindingType(param.Value as BindingExpression);
+                EnsureValidBindingType(param.Value as IBinding);
 
-                var binding = param.Value as ValueBindingExpression;
-                expression = binding.GetKnockoutBindingExpression();
+                expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression()
+                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control, null));
             }
             else
             {
@@ -111,11 +108,11 @@ namespace DotVVM.Framework.Controls
             return JsonConvert.SerializeObject(param.Key) + ": " + expression;
         }
 
-        private static void EnsureValidBindingType(BindingExpression binding)
+        private static void EnsureValidBindingType(IBinding binding)
         {
-            if (binding?.Javascript == null)
+            if (!(binding is IStaticValueBinding))
             {
-                throw new Exception("Only {value: ...} bindings are supported in <dot:RouteLink Param-xxx='' /> attributes!");
+                throw new Exception("Only value bindings are supported in <dot:RouteLink Param-xxx='' /> attributes!");
             }
         }
 

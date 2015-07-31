@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Controls
             var groupNameBinding = GetBinding(GroupNameProperty);
             if (groupNameBinding != null)
             {
-                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, ValueBindingExpression>("name", groupNameBinding as ValueBindingExpression) }, this, GroupNameProperty);
+                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, IValueBinding>("name", groupNameBinding as IValueBinding) }, this, GroupNameProperty);
             }
             else
             {

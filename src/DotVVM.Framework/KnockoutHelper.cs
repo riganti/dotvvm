@@ -34,7 +34,7 @@ namespace DotVVM.Framework
             writer.AddAttribute("data-bind", name + ": " + expression, true, ", ");
         }
 
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, ValueBindingExpression>> expressions, DotvvmBindableControl control, DotvvmProperty property)
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableControl control, DotvvmProperty property)
         {
             writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression())) + "}", true, ", ");
         }
@@ -106,7 +106,7 @@ namespace DotVVM.Framework
             {
                 if (control is DotvvmBindableControl)
                 {
-                    var dataContextBinding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as ValueBindingExpression;
+                    var dataContextBinding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as IValueBinding;
                     var pathFragment = ((DotvvmBindableControl)control).GetValue(Internal.PathFragmentProperty, false) as string;
                     if (pathFragment != null)
                     {
@@ -114,7 +114,7 @@ namespace DotVVM.Framework
                     }
                     if (dataContextBinding != null)
                     {
-                        yield return dataContextBinding.Javascript;
+                        yield return dataContextBinding.GetKnockoutBindingExpression();
                     }
                 }
                 control = control.Parent;
