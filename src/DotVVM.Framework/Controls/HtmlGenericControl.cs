@@ -88,8 +88,8 @@ namespace DotVVM.Framework.Controls
             }
 
             // render binding HTML attributes
-            var propertyValuePairs = Attributes.Where(a => a.Value is ValueBindingExpression)
-                .Select(a => new KeyValuePair<string, ValueBindingExpression>(a.Key, (ValueBindingExpression)a.Value)).ToList();
+            var propertyValuePairs = Attributes.Where(a => a.Value is IValueBinding)
+                .Select(a => new KeyValuePair<string, IValueBinding>(a.Key, (IValueBinding)a.Value)).ToList();
             if (propertyValuePairs.Any())
             {
                 writer.AddKnockoutDataBind("attr", propertyValuePairs, this, null);

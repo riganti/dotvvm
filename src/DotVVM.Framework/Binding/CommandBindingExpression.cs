@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Binding
         Javascript = BindingCompilationRequirementType.StronglyRequire,
         ActionFilters = BindingCompilationRequirementType.IfPossible)]
     [CommandPostbackJsCompile]
-    public class CommandBindingExpression : BindingExpression
+    public class CommandBindingExpression : BindingExpression, ICommandBinding
     {
         public CommandBindingExpression()
         {
@@ -31,19 +31,14 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Evaluates the binding.
         /// </summary>
-        public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
+        public virtual object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
         {
             return ExecDelegate(control, property != DotvvmBindableControl.DataContextProperty);
         }
 
-        /// <summary>
-        /// Translates the binding to client script.
-        /// </summary>
-        /// <param name="control"></param>
-        /// <param name="property"></param>
-        public override string TranslateToClientScript(DotvvmBindableControl control, DotvvmProperty property)
+        public string GetCommandJavascript()
         {
-            throw new NotSupportedException("can't translate command to javascript");
+            return Javascript;
         }
     }
 }

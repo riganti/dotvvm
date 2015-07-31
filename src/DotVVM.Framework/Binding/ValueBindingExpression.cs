@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Binding
         Expression = BindingCompilationRequirementType.IfPossible,
         UpdateDelegate = BindingCompilationRequirementType.IfPossible)]
     [CompileJavascript]
-    public class ValueBindingExpression : BindingExpression, IUpdatableBindingExpression
+    public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
     {
 
         /// <summary>
@@ -51,17 +51,9 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Evaluates the binding.
         /// </summary>
-        public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
+        public virtual object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
         {
             return ExecDelegate(control, property != DotvvmBindableControl.DataContextProperty);
-        }
-
-        /// <summary>
-        /// Translates the binding to client script.
-        /// </summary>
-        public override string TranslateToClientScript(DotvvmBindableControl control, DotvvmProperty property)
-        {
-            return Javascript;
         }
 
         /// <summary>
@@ -70,6 +62,10 @@ namespace DotVVM.Framework.Binding
         public virtual void UpdateSource(object value, DotvvmBindableControl control, DotvvmProperty property)
         {
             ExecUpdateDelegate(control, value, property != DotvvmBindableControl.DataContextProperty);
+        }
+        public string GetKnockoutBindingExpression()
+        {
+            return Javascript;
         }
 
         #region Helpers
@@ -86,6 +82,7 @@ namespace DotVVM.Framework.Binding
         {
             return new ValueBindingExpression(null, JavascriptCompilationHelper.AddIndexerToViewModel(Javascript, "$index"));
         }
+
         #endregion
     }
 }

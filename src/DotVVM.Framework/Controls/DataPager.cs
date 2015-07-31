@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Controls
             Children.Clear();
 
             content = new HtmlGenericControl("ul");
-            content.SetBinding(DataContextProperty, GetDataSetBinding().Clone());
+            content.SetBinding(DataContextProperty, GetDataSetBinding());
             Children.Add(content);
 
 
@@ -193,7 +193,7 @@ namespace DotVVM.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { });
-            writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().TranslateToClientScript(this, DataSetProperty) + ").TotalItemsCount() > 0");
+            writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").TotalItemsCount() > 0");
             writer.RenderBeginTag("ul");
         }
 
@@ -249,7 +249,7 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        private ValueBindingExpression GetDataSetBinding()
+        private IValueBinding GetDataSetBinding()
         {
             var binding = GetValueBinding(DataSetProperty);
             if (binding == null)

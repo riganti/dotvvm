@@ -80,17 +80,6 @@ namespace DotVVM.Framework.Controls
         public abstract void CreateControls(DotvvmRequestContext context, DotvvmControl container);
 
 
-
-        protected ValueBindingExpression CloneValueBinding()
-        {
-            var binding = GetValueBinding(ValueBindingProperty);
-            if (binding == null)
-            {
-                throw ValueBindingNotSet();
-            }
-            return (ValueBindingExpression)binding.Clone();
-        }
-
         private Exception ValueBindingNotSet()
         {
             return new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
@@ -126,7 +115,7 @@ namespace DotVVM.Framework.Controls
             // TODO: verify that sortExpression is a single property name
             if (string.IsNullOrEmpty(SortExpression))
             {
-                var valueBinding = GetValueBinding(ValueBindingProperty);
+                var valueBinding = GetValueBinding(ValueBindingProperty) as ValueBindingExpression;
                 if (valueBinding != null)
                 {
                     return valueBinding.OriginalString;

@@ -148,7 +148,7 @@ namespace DotVVM.Framework.Binding
 
     public class FindBindingResult
     {
-        public BindingExpression Binding { get; set; }
+        public CommandBindingExpression Binding { get; set; }
         public DotvvmBindableControl Control { get; set; }
         public DotvvmProperty Property { get; set; }
     }

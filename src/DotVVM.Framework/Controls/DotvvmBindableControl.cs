@@ -97,11 +97,19 @@ namespace DotVVM.Framework.Controls
         public override object GetValue(DotvvmProperty property, bool inherit = true)
         {
             var value = base.GetValue(property, inherit);
-            while (value is BindingExpression)
+            while (value is IBinding)
             {
-                // handle binding
-                var binding = (BindingExpression)value;
-                value = binding.Evaluate(this, property);
+                if (value is IStaticValueBinding)
+                {
+                    // handle binding
+                    var binding = (IStaticValueBinding)value;
+                    value = binding.Evaluate(this, property);
+                }
+                if (value is CommandBindingExpression)
+                {
+                    var binding = (CommandBindingExpression)value;
+                    value = (Action)(() => binding.Evaluate(this, property));
+                }
             }
             return value;
         }
@@ -112,10 +120,10 @@ namespace DotVVM.Framework.Controls
         public override void SetValue(DotvvmProperty property, object value)
         {
             var originalValue = base.GetValue(property, false);
-            if (originalValue is IUpdatableBindingExpression && !(value is BindingExpression))
+            if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))
             {
                 // if the property contains a binding and we are not passing another binding, update the value
-                ((IUpdatableBindingExpression)originalValue).UpdateSource(value, this, property);
+                ((IUpdatableValueBinding)originalValue).UpdateSource(value, this, property);
             }
             else
             {
@@ -151,14 +159,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the value binding set to a specified property.
         /// </summary>
-        public ValueBindingExpression GetValueBinding(DotvvmProperty property, bool inherit = true)
+        public IValueBinding GetValueBinding(DotvvmProperty property, bool inherit = true)
         {
             var binding = GetBinding(property, inherit);
-            if (binding != null && !(binding is ValueBindingExpression))
+            if (binding != null && !(binding is IValueBinding))
             {
                 throw new Exception("ValueBindingExpression was expected!");        // TODO: exception handling
             }
-            return binding as ValueBindingExpression;
+            return binding as IValueBinding;
         }
 
         /// <summary>
@@ -177,7 +185,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Sets the binding to a specified property.
         /// </summary>
-        public void SetBinding(DotvvmProperty property, BindingExpression binding)
+        public void SetBinding(DotvvmProperty property, IBinding binding)
         {
             base.SetValue(property, binding);
         }
@@ -222,7 +230,7 @@ namespace DotVVM.Framework.Controls
             var dataContextBinding = GetValueBinding(DataContextProperty, false);
             if (dataContextBinding != null)
             {
-                writer.WriteKnockoutWithComment(dataContextBinding.TranslateToClientScript(this, DataContextProperty));
+                writer.WriteKnockoutWithComment(dataContextBinding.GetKnockoutBindingExpression());
             }
 
             base.RenderControl(writer, context);
@@ -237,9 +245,9 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the hierarchy of all DataContext bindings from the root to current control.
         /// </summary>
-        internal IEnumerable<ValueBindingExpression> GetDataContextHierarchy()
+        internal IEnumerable<IValueBinding> GetDataContextHierarchy()
         {
-            var bindings = new List<ValueBindingExpression>();
+            var bindings = new List<IValueBinding>();
             DotvvmControl current = this;
             do
             {

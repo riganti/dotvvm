@@ -15,9 +15,9 @@ namespace DotVVM.Framework
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null, string valueUpdate = null)
         {
             var expression = control.GetBinding(property);
-            if (expression?.Javascript != null)
+            if (expression is IValueBinding)
             {
-                writer.AddAttribute("data-bind", name + ": " + expression.TranslateToClientScript(control, property), true, ", ");
+                writer.AddAttribute("data-bind", name + ": " + (expression as IValueBinding).GetKnockoutBindingExpression(), true, ", ");
                 if (valueUpdate != null)
                 {
                     writer.AddAttribute("data-bind", "valueUpdate: '" + valueUpdate + "'", true, ", ");
@@ -34,9 +34,9 @@ namespace DotVVM.Framework
             writer.AddAttribute("data-bind", name + ": " + expression, true, ", ");
         }
 
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, ValueBindingExpression>> expressions, DotvvmBindableControl control, DotvvmProperty property)
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableControl control, DotvvmProperty property)
         {
-            writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.TranslateToClientScript(control, property))) + "}", true, ", ");
+            writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression())) + "}", true, ", ");
         }
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, KnockoutBindingGroup bindingGroup)
         {
@@ -106,7 +106,7 @@ namespace DotVVM.Framework
             {
                 if (control is DotvvmBindableControl)
                 {
-                    var dataContextBinding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as ValueBindingExpression;
+                    var dataContextBinding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as IValueBinding;
                     var pathFragment = ((DotvvmBindableControl)control).GetValue(Internal.PathFragmentProperty, false) as string;
                     if (pathFragment != null)
                     {
@@ -114,7 +114,7 @@ namespace DotVVM.Framework
                     }
                     if (dataContextBinding != null)
                     {
-                        yield return dataContextBinding.Javascript;
+                        yield return dataContextBinding.GetKnockoutBindingExpression();
                     }
                 }
                 control = control.Parent;
@@ -143,7 +143,7 @@ namespace DotVVM.Framework
 
             // reparent the expression to work in current DataContext
             var validationBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
-            string validationExpression = validationBindingExpression.TranslateToClientScript(control, Validate.TargetProperty);
+            string validationExpression = validationBindingExpression.GetKnockoutBindingExpression();
             validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
 
             return validationExpression;
