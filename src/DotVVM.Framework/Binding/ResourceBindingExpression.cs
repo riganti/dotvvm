@@ -8,7 +8,7 @@ using System.Resources;
 namespace DotVVM.Framework.Binding
 {
     [BindingCompilationRequirements(OriginalString = BindingCompilationRequirementType.StronglyRequire, Delegate = BindingCompilationRequirementType.IfPossible)]
-    public class ResourceBindingExpression : BindingExpression
+    public class ResourceBindingExpression : BindingExpression, IStaticValueBinding
     {
         private static ConcurrentDictionary<string, ResourceManager> cachedResourceManagers = new ConcurrentDictionary<string, ResourceManager>();
 
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Evaluates the binding.
         /// </summary>
-        public override object Evaluate(Controls.DotvvmBindableControl control, DotvvmProperty property)
+        public object Evaluate(Controls.DotvvmBindableControl control, DotvvmProperty property)
         {
             if (Delegate != null) return Delegate(new object[0], null);
 
@@ -68,12 +68,6 @@ namespace DotVVM.Framework.Binding
                 throw new Exception(string.Format("The resource file '{0}' was not found!", resourceType));
             }
             return (ResourceManager)type.GetProperty("ResourceManager", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
-        }
-
-
-        public override string TranslateToClientScript(Controls.DotvvmBindableControl control, DotvvmProperty property)
-        {
-            throw new NotSupportedException();
         }
     }
 }

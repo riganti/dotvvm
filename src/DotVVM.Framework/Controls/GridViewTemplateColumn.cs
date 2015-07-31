@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
             ContentTemplate.BuildContent(context, container);
         }
 
-        private ValueBindingExpression GetValueBinding()
+        private IValueBinding GetValueBinding()
         {
             var binding = GetValueBinding(ValueBindingProperty);
             if (binding == null)

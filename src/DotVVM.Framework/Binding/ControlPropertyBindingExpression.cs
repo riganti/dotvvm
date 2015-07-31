@@ -61,9 +61,5 @@ namespace DotVVM.Framework.Binding
             //// otherwise evaluate on server
             //return current.GetValue(sourceProperty);
         }
-        public override string TranslateToClientScript(DotvvmBindableControl control, DotvvmProperty property)
-        {
-            return Javascript;
-        }
     }
 }

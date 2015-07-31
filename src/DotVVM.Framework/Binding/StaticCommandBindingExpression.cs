@@ -23,11 +23,5 @@ namespace DotVVM.Framework.Binding
         {
             throw new NotImplementedException();
         }
-
-        public override string TranslateToClientScript(DotvvmBindableControl control, DotvvmProperty property)
-        {
-            throw new NotImplementedException();
-        }
-
     }
 }

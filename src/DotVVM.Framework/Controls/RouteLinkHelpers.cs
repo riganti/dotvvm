@@ -102,7 +102,7 @@ namespace DotVVM.Framework.Controls
                 EnsureValidBindingType(param.Value as BindingExpression);
 
                 var binding = param.Value as ValueBindingExpression;
-                expression = binding.TranslateToClientScript(control, null); // TODO: pass a special DotvvmProperty for dynamic parameters on this place. The function might need the value in the future.
+                expression = binding.GetKnockoutBindingExpression();
             }
             else
             {

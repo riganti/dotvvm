@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw ValueBindingNotSet();
             }
-            return (ValueBindingExpression)binding.Clone();
+            return (ValueBindingExpression)binding;
         }
 
         private Exception ValueBindingNotSet()
@@ -126,7 +126,7 @@ namespace DotVVM.Framework.Controls
             // TODO: verify that sortExpression is a single property name
             if (string.IsNullOrEmpty(SortExpression))
             {
-                var valueBinding = GetValueBinding(ValueBindingProperty);
+                var valueBinding = GetValueBinding(ValueBindingProperty) as ValueBindingExpression;
                 if (valueBinding != null)
                 {
                     return valueBinding.OriginalString;

@@ -22,7 +22,7 @@ namespace DotVVM.Framework
             }
             else
             {
-                info.Add(new KnockoutBindingInfo() { Name = name, Expression = control.GetValueBinding(property).TranslateToClientScript(control, property) });
+                info.Add(new KnockoutBindingInfo() { Name = name, Expression = control.GetValueBinding(property).GetKnockoutBindingExpression() });
             }
         }
 

@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Controls
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, dataSourceBinding.Javascript, index));
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, dataSourceBinding.GetKnockoutBindingExpression(), index));
                     Children.Add(placeholder);
 
                     CreateRow(context, placeholder);
@@ -138,7 +138,7 @@ namespace DotVVM.Framework.Controls
 
             if (cssClassBinding != null)
             {
-                cell.Attributes["class"] = cssClassBinding.Clone();
+                cell.Attributes["class"] = cssClassBinding;
             }
             else if (!string.IsNullOrWhiteSpace(column.CssClass))
             {
@@ -180,7 +180,7 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetDataSourceBinding();
             if (!RenderOnServer)
             {
-                var expression = dataSourceBinding.TranslateToClientScript(this, DataSourceProperty);
+                var expression = dataSourceBinding.GetKnockoutBindingExpression();
                 writer.AddKnockoutForeachDataBind(expression);
             }
             writer.RenderBeginTag("tbody");
@@ -201,7 +201,7 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, 
-                    JavascriptCompilationHelper.AddIndexerToViewModel(dataSourceBinding.Javascript, "$index"));
+                    JavascriptCompilationHelper.AddIndexerToViewModel(dataSourceBinding.GetKnockoutBindingExpression(), "$index"));
                 Children.Add(placeholder);
 
                 CreateRow(context.RequestContext, placeholder);

@@ -7,7 +7,7 @@ using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Framework.Binding
 {
-    public abstract class BindingExpression
+    public abstract class BindingExpression: IBinding
     {
 
         public string OriginalString { get; set; }
@@ -17,21 +17,6 @@ namespace DotVVM.Framework.Binding
         public CompiledBindingExpression.BindingUpdateDelegate UpdateDelegate { get; set; }
         public string BindingId { get; set; }
         public ActionFilterAttribute[] ActionFilters { get; set; }
-
-
-        /// <summary>
-        /// Evaluates the binding.
-        /// </summary>
-        public abstract object Evaluate(DotvvmBindableControl control, DotvvmProperty property);
-
-        /// <summary>
-        /// Translates the binding to client script.
-        /// </summary>
-        /// <param name="control"></param>
-        /// <param name="property"></param>
-        public abstract string TranslateToClientScript(DotvvmBindableControl control, DotvvmProperty property);
-
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BindingExpression"/> class.

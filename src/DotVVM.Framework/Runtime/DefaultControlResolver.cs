@@ -54,7 +54,11 @@ namespace DotVVM.Framework.Runtime
         private void InvokeStaticConstructorsOnAllControls()
         {
             // PERF: too many allocations - type.GetCustomAttribute<T> does ~220k allocs -> 4MB, get all types allocates additional 1.5MB
-            var allTypes = AppDomain.CurrentDomain.GetAssemblies().SelectMany(a => a.GetTypes()).Where(t => t.IsClass).ToList();
+            var dotvvmAssembly = typeof(DotvvmControl).Assembly.FullName;
+            var allTypes = AppDomain.CurrentDomain.GetAssemblies()
+                .Where(a => a.GetReferencedAssemblies().Any(r => r.FullName == dotvvmAssembly))
+                .Concat(new[] { typeof(DotvvmControl).Assembly })
+                .SelectMany(a => a.GetTypes()).Where(t => t.IsClass).ToList();
             foreach (var type in allTypes)
             {
                 if (type.GetCustomAttribute<ContainsDotvvmPropertiesAttribute>(true) != null)

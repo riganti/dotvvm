@@ -15,9 +15,9 @@ namespace DotVVM.Framework
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null, string valueUpdate = null)
         {
             var expression = control.GetBinding(property);
-            if (expression?.Javascript != null)
+            if (expression is IValueBinding)
             {
-                writer.AddAttribute("data-bind", name + ": " + expression.TranslateToClientScript(control, property), true, ", ");
+                writer.AddAttribute("data-bind", name + ": " + (expression as IValueBinding).GetKnockoutBindingExpression(), true, ", ");
                 if (valueUpdate != null)
                 {
                     writer.AddAttribute("data-bind", "valueUpdate: '" + valueUpdate + "'", true, ", ");
@@ -36,7 +36,7 @@ namespace DotVVM.Framework
 
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, ValueBindingExpression>> expressions, DotvvmBindableControl control, DotvvmProperty property)
         {
-            writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.TranslateToClientScript(control, property))) + "}", true, ", ");
+            writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression())) + "}", true, ", ");
         }
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, KnockoutBindingGroup bindingGroup)
         {
@@ -143,7 +143,7 @@ namespace DotVVM.Framework
 
             // reparent the expression to work in current DataContext
             var validationBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
-            string validationExpression = validationBindingExpression.TranslateToClientScript(control, Validate.TargetProperty);
+            string validationExpression = validationBindingExpression.GetKnockoutBindingExpression();
             validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
 
             return validationExpression;

@@ -97,7 +97,11 @@
     <Compile Include="Binding\DataContextChangeAttribute.cs" />
     <Compile Include="Binding\DelegateActionProperty.cs" />
     <Compile Include="Binding\EventValidator.cs" />
-    <Compile Include="Binding\IUpdatableBindingExpression.cs" />
+    <Compile Include="Binding\IBinding.cs" />
+    <Compile Include="Binding\ICommandBinding.cs" />
+    <Compile Include="Binding\IStaticValueBinding.cs" />
+    <Compile Include="Binding\IUpdatableValueBinding.cs" />
+    <Compile Include="Binding\IValueBinding.cs" />
     <Compile Include="Binding\NumberUtils.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
