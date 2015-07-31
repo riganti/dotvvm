@@ -150,6 +150,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Binding\BidningCompilationTests.cs" />
     <Compile Include="Binding\CommandResolverTests.cs" />
     <Compile Include="Parser\Dothtml\DothtmlParserTests.cs" />
     <Compile Include="Parser\Dothtml\DothtmlTokenizerBindingTests.cs" />
