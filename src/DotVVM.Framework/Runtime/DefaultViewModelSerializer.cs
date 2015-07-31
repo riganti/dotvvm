@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Runtime
         public void BuildViewModel(DotvvmRequestContext context, DotvvmView view)
         {
             // serialize the ViewModel
-            var serializer = new JsonSerializer();
+            var serializer = CreateJsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter()
             {
                 EncryptedValues = new JArray(),
@@ -106,6 +106,14 @@ namespace DotVVM.Framework.Runtime
             if (validationRules.Count > 0) result["validationRules"] = validationRules;
 
             context.ViewModelJson = result;
+        }
+
+        protected virtual JsonSerializer CreateJsonSerializer()
+        {
+            return new JsonSerializer()
+            {
+                DateTimeZoneHandling = DateTimeZoneHandling.Utc
+            };
         }
 
         public JObject BuildResourcesJson(DotvvmRequestContext context, Func<string, bool> predicate)
@@ -197,7 +205,7 @@ namespace DotVVM.Framework.Runtime
             context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();
 
             // populate the ViewModel
-            var serializer = new JsonSerializer();
+            var serializer = CreateJsonSerializer();
             serializer.Converters.Add(viewModelConverter);
             viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
         }
