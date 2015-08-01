@@ -663,37 +663,36 @@ class DotvvmSpaNavigatedEventArgs extends DotvvmEventArgs {
 
 class DotvvmSerialization {
 
-    public deserialize(viewModel: any, target: any = {}) {
+    public deserialize(viewModel: any, target?: any) {
         
-        if (typeof (viewModel) === "undefined" || viewModel == null) {
+        if (typeof (viewModel) == "undefined" || viewModel == null) {
             return viewModel;
         }
-
-        if (typeof (viewModel) === "string" || typeof (viewModel) === "number" || typeof (viewModel) === "boolean") {
+        if (typeof (viewModel) == "string" || typeof (viewModel) == "number" || typeof (viewModel) == "boolean") {
             return viewModel;
         }
-
-        if (ko.isObservable(viewModel)) {
-            return viewModel;
-        }
-
-        if (typeof (viewModel) === "function") {
-            return null;
-        }
-
         if (viewModel instanceof Date) {
             return viewModel;
         }
 
+        // handle arrays
         if (viewModel instanceof Array) {
-            var array = ko.observableArray();
+            if (ko.isObservable(target) && target.removeAll) {
+                target.removeAll();
+            } else {
+                target = ko.observableArray([]);  
+            } 
             for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.deserialize(viewModel[i]));
+                target.push(this.deserialize(viewModel[i]));
             }
-            return array;
+            return target;
         }
 
-        var result = target;
+        // handle objects
+        if (typeof (target) === "undefined") {
+            target = {};
+        }
+        var result = ko.unwrap(target);
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop))
             {
@@ -704,17 +703,23 @@ class DotvvmSerialization {
                 if (!ko.isObservable(value) && typeof (value) === "function") {
                     continue;
                 }
-
                 var options = viewModel[prop + "$options"];
                 if (options && options.doNotUpdate) {
                     continue;
                 }
 
-                var deserialized = this.deserialize(value);
-                if (typeof (result[prop]) !== "undefined" && ko.isObservable(result[prop])) {
-                    result[prop](deserialized);
+                // deserialize value
+                var deserialized = this.deserialize(value, result[prop]);
+                
+                // update the property
+                if (ko.isObservable(deserialized)) {
+                    result[prop] = deserialized;
                 } else {
-                    result[prop] = ko.observable(deserialized);
+                    if (ko.isObservable(result[prop])) {
+                        result[prop](deserialized);
+                    } else {
+                        result[prop] = ko.observable(deserialized);    
+                    }
                 }
             }
         }
@@ -729,7 +734,8 @@ class DotvvmSerialization {
                 }
             }
         }
-        return result;
+
+        return target;
     }
 
     public serialize(viewModel: any): any {
