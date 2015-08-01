@@ -677,14 +677,21 @@ class DotvvmSerialization {
 
         // handle arrays
         if (viewModel instanceof Array) {
-            if (ko.isObservable(target) && target.removeAll) {
-                target.removeAll();
-            } else {
-                target = ko.observableArray([]);  
-            } 
+            var array = [];
             for (var i = 0; i < viewModel.length; i++) {
-                target.push(this.deserialize(viewModel[i]));
+                array.push(this.deserialize(viewModel[i]));
             }
+
+            if (ko.isObservable(target)) {
+                if (!target.removeAll) {
+                    // if the previous value was null, the property is not an observable array - make it
+                    ko.utils.extend(target, ko.observableArray['fn']);
+                    target = target.extend({ 'trackArrayChanges': true });
+                }
+                target(array);
+            } else {
+                target = ko.observableArray(array);  
+            } 
             return target;
         }
 
@@ -693,6 +700,9 @@ class DotvvmSerialization {
             target = {};
         }
         var result = ko.unwrap(target);
+        if (result == null) {
+            target = result = {};
+        }
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop))
             {
