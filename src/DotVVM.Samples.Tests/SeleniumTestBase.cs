@@ -32,32 +32,49 @@ namespace DotVVM.Samples.Tests
         /// </summary>
         protected void RunInAllBrowsers(Action<SeleniumBrowserHelper> action)
         {
-            foreach (var browser in BrowserFactories.Select(f => f()))
+            foreach (var browserFactory in BrowserFactories)
             {
-                var helper = new SeleniumBrowserHelper(browser);
-                try
+                var attemptNumber = 0;
+                string browserName;
+                Exception exception;
+                do
                 {
-                    action(helper);
-                }
-                catch (Exception ex)
-                {
-                    // make screenshot
+                    attemptNumber++;
+                    exception = null;
+                    var browser = browserFactory();
+                    browserName = browser.GetType().Name;
+                    var helper = new SeleniumBrowserHelper(browser);
+
                     try
                     {
-                        var filename = Path.Combine(TestContext.TestDeploymentDir, "fail.png");
-                        helper.TakeScreenshot(filename);
-                        TestContext.AddResultFile(filename);
+                        action(helper);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                    }
+                        // make screenshot
+                        try
+                        {
+                            var filename = Path.Combine(TestContext.TestDeploymentDir, "fail" + attemptNumber + ".png");
+                            helper.TakeScreenshot(filename);
+                            TestContext.AddResultFile(filename);
+                        }
+                        catch
+                        {
+                        }
 
-                    // fail the test
-                    throw new Exception(string.Format("Test failed in browser {0}.", browser.GetType().Name), ex);
+                        // fail the test
+                        exception = ex;
+                    }
+                    finally
+                    {
+                        helper.Dispose();
+                    }
                 }
-                finally
+                while (exception != null && attemptNumber == 1);
+
+                if (exception != null)
                 {
-                    helper.Dispose();
+                    throw new Exception(string.Format("Test failed in browser {0}.", browserName), exception);
                 }
             }
         }
