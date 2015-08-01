@@ -31,7 +31,7 @@ var DotVVM = (function () {
         if (thisVm.renderedResources) {
             thisVm.renderedResources.forEach(function (r) { return _this.resourceSigns[r] = true; });
         }
-        var viewModel = thisVm.viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
+        var viewModel = thisVm.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {});
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
         this.isViewModelUpdating = false;
@@ -176,7 +176,7 @@ var DotVVM = (function () {
                     var updatedControls = _this.cleanUpdatedControls(resultObject);
                     // update the viewmodel
                     if (resultObject.viewModel) {
-                        ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
+                        _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
                     }
                     isSuccess = true;
                     // add updated controls
@@ -341,7 +341,7 @@ var DotVVM = (function () {
                             _this.viewModels[viewModelName][p] = resultObject[p];
                         }
                     }
-                    ko.mapper.fromJS(resultObject.viewModel, {}, _this.viewModels[viewModelName].viewModel);
+                    _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
                     isSuccess = true;
                     // add updated controls
                     _this.restoreUpdatedControls(resultObject, updatedControls, false);
@@ -655,6 +655,65 @@ var DotvvmSpaNavigatedEventArgs = (function (_super) {
 var DotvvmSerialization = (function () {
     function DotvvmSerialization() {
     }
+    DotvvmSerialization.prototype.deserialize = function (viewModel, target) {
+        if (target === void 0) { target = {}; }
+        if (typeof (viewModel) === "undefined" || viewModel == null) {
+            return viewModel;
+        }
+        if (typeof (viewModel) === "string" || typeof (viewModel) === "number" || typeof (viewModel) === "boolean") {
+            return viewModel;
+        }
+        if (ko.isObservable(viewModel)) {
+            return viewModel;
+        }
+        if (typeof (viewModel) === "function") {
+            return null;
+        }
+        if (viewModel instanceof Date) {
+            return viewModel;
+        }
+        if (viewModel instanceof Array) {
+            var array = ko.observableArray();
+            for (var i = 0; i < viewModel.length; i++) {
+                array.push(this.deserialize(viewModel[i]));
+            }
+            return array;
+        }
+        var result = target;
+        for (var prop in viewModel) {
+            if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
+                var value = viewModel[prop];
+                if (typeof (value) === "undefined") {
+                    continue;
+                }
+                if (!ko.isObservable(value) && typeof (value) === "function") {
+                    continue;
+                }
+                var options = viewModel[prop + "$options"];
+                if (options && options.doNotUpdate) {
+                    continue;
+                }
+                var deserialized = this.deserialize(value);
+                if (typeof (result[prop]) !== "undefined" && ko.isObservable(result[prop])) {
+                    result[prop](deserialized);
+                }
+                else {
+                    result[prop] = ko.observable(deserialized);
+                }
+            }
+        }
+        // copy the property options metadata
+        for (var prop in viewModel) {
+            if (viewModel.hasOwnProperty(prop) && /\$options$/.test(prop)) {
+                result[prop] = viewModel[prop];
+                var originalName = prop.substring(0, prop.length - "$options".length);
+                if (typeof result[originalName] === "undefined") {
+                    result[originalName] = ko.observable();
+                }
+            }
+        }
+        return result;
+    };
     DotvvmSerialization.prototype.serialize = function (viewModel) {
         if (typeof (viewModel) === "undefined" || viewModel == null) {
             return viewModel;
@@ -682,10 +741,14 @@ var DotvvmSerialization = (function () {
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
                 var value = viewModel[prop];
-                if (typeof (value) === "undefined" || (viewModel[prop + "$options"] && !viewModel[prop + "$options"].doNotPost)) {
+                if (typeof (value) === "undefined") {
                     continue;
                 }
                 if (!ko.isObservable(value) && typeof (value) === "function") {
+                    continue;
+                }
+                var options = viewModel[prop + "$options"];
+                if (options && options.doNotPost) {
                     continue;
                 }
                 result[prop] = this.serialize(value);

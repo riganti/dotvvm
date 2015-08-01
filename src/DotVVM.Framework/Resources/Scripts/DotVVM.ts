@@ -34,7 +34,7 @@ class DotVVM {
         if (thisVm.renderedResources) {
             thisVm.renderedResources.forEach(r => this.resourceSigns[r] = true);
         }
-        var viewModel = thisVm.viewModel = ko.mapper.fromJS(this.viewModels[viewModelName].viewModel);
+        var viewModel = thisVm.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {});
 
         ko.applyBindings(viewModel, document.documentElement);
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
@@ -99,9 +99,8 @@ class DotVVM {
     }
 
     public tryEval(func: () => any): any {
-        try
-        {
-            return func()
+        try {
+            return func();
         }
         catch(error)
         {
@@ -197,7 +196,7 @@ class DotVVM {
 
                     // update the viewmodel
                     if (resultObject.viewModel) {
-                        ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                        this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
                     }
                     isSuccess = true;
 
@@ -375,7 +374,7 @@ class DotVVM {
                         }
                     }
 
-                    ko.mapper.fromJS(resultObject.viewModel, {}, this.viewModels[viewModelName].viewModel);
+                    this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
                     isSuccess = true;
 
                     // add updated controls
@@ -664,6 +663,75 @@ class DotvvmSpaNavigatedEventArgs extends DotvvmEventArgs {
 
 class DotvvmSerialization {
 
+    public deserialize(viewModel: any, target: any = {}) {
+        
+        if (typeof (viewModel) === "undefined" || viewModel == null) {
+            return viewModel;
+        }
+
+        if (typeof (viewModel) === "string" || typeof (viewModel) === "number" || typeof (viewModel) === "boolean") {
+            return viewModel;
+        }
+
+        if (ko.isObservable(viewModel)) {
+            return viewModel;
+        }
+
+        if (typeof (viewModel) === "function") {
+            return null;
+        }
+
+        if (viewModel instanceof Date) {
+            return viewModel;
+        }
+
+        if (viewModel instanceof Array) {
+            var array = ko.observableArray();
+            for (var i = 0; i < viewModel.length; i++) {
+                array.push(this.deserialize(viewModel[i]));
+            }
+            return array;
+        }
+
+        var result = target;
+        for (var prop in viewModel) {
+            if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop))
+            {
+                var value = viewModel[prop];
+                if (typeof (value) === "undefined") {
+                    continue;
+                }
+                if (!ko.isObservable(value) && typeof (value) === "function") {
+                    continue;
+                }
+
+                var options = viewModel[prop + "$options"];
+                if (options && options.doNotUpdate) {
+                    continue;
+                }
+
+                var deserialized = this.deserialize(value);
+                if (typeof (result[prop]) !== "undefined" && ko.isObservable(result[prop])) {
+                    result[prop](deserialized);
+                } else {
+                    result[prop] = ko.observable(deserialized);
+                }
+            }
+        }
+
+        // copy the property options metadata
+        for (var prop in viewModel) {
+            if (viewModel.hasOwnProperty(prop) && /\$options$/.test(prop)) {
+                result[prop] = viewModel[prop];
+                var originalName = prop.substring(0, prop.length - "$options".length);
+                if (typeof result[originalName] === "undefined") {
+                    result[originalName] = ko.observable();
+                }
+            }
+        }
+        return result;
+    }
+
     public serialize(viewModel: any): any {
 
         if (typeof (viewModel) === "undefined" || viewModel == null) {
@@ -699,10 +767,15 @@ class DotvvmSerialization {
             if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
                 var value = viewModel[prop];
 
-                if (typeof (value) === "undefined" || (viewModel[prop + "$options"] && !viewModel[prop + "$options"].doNotPost)) {
+                if (typeof (value) === "undefined") {
                     continue;
                 }
                 if (!ko.isObservable(value) && typeof (value) === "function") {
+                    continue;
+                }
+
+                var options = viewModel[prop + "$options"];
+                if (options && options.doNotPost) {
                     continue;
                 }
 

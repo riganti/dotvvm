@@ -194,47 +194,77 @@ namespace DotVVM.Framework.ViewModel
             block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.FullName)));
 
             // go through all properties that should be serialized
-            foreach (var property in Properties.Where(map => map.TransferToClient))
+            foreach (var property in Properties)
             {
-
-                // writer.WritePropertyName("{property.Name"});
-                var prop = Expression.Convert(Expression.Property(value, property.Name), typeof(object));
-
-                if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
+                if (property.TransferToClient)
                 {
-                    // encryptedValues.Add(JsonConvert.SerializeObject({value}));
-#if DEBUG
-                    block.Add(ExpressionUtils.Replace((JArray ev) =>
-                        System.Diagnostics.Debug.WriteLine("ev[" + ev.Count + "]: " + property.Name + " in " + Type.Name), encryptedValues));
-#endif
-                    block.Add(ExpressionUtils.Replace((JArray ev, object p) => ev.Add(p != null ? JToken.FromObject(p) : JValue.CreateNull()), encryptedValues, prop));
-                }
+                    // writer.WritePropertyName("{property.Name"});
+                    var prop = Expression.Convert(Expression.Property(value, property.Name), typeof (object));
 
-                if (property.ViewModelProtection == ViewModelProtectionSettings.None || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
-                {
-                    var checkEVCount = property.ViewModelProtection == ViewModelProtectionSettings.None && property.TransferToServer && ShouldCheckEncrypedValueCount(property.Type);
-                    if (checkEVCount)
+                    if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData ||
+                        property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                     {
-                        // lastEncrypedValuesCount = encrypedValues.Count
-                        block.Add(Expression.Assign(lastEVcount, Expression.Property(encryptedValues, "Count")));
-                    }
-
-                    block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes, Expression.Constant(property.Name)));
-
-                    // serializer.Serialize(writer, value.{property.Name});
-                    block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
-
-                    if (checkEVCount)
-                    {
-                        // encryptedValues.Add(encryptedValues.Count - lastEVcount)
+                        // encryptedValues.Add(JsonConvert.SerializeObject({value}));
 #if DEBUG
                         block.Add(ExpressionUtils.Replace((JArray ev) =>
-                            System.Diagnostics.Debug.WriteLine("ev[" + ev.Count + "]: checksum of " + property.Name + " in " + Type.Name), encryptedValues));
+                            System.Diagnostics.Debug.WriteLine("ev[" + ev.Count + "]: " + property.Name + " in " +
+                                                               Type.Name), encryptedValues));
 #endif
-                        block.Add(ExpressionUtils.Replace((int lastC, JArray ev) =>
-                            ev.Add(ev.Count - lastC),
-                            lastEVcount, encryptedValues));
+                        block.Add(
+                            ExpressionUtils.Replace(
+                                (JArray ev, object p) => ev.Add(p != null ? JToken.FromObject(p) : JValue.CreateNull()),
+                                encryptedValues, prop));
                     }
+
+                    if (property.ViewModelProtection == ViewModelProtectionSettings.None ||
+                        property.ViewModelProtection == ViewModelProtectionSettings.SignData)
+                    {
+                        var checkEVCount = property.ViewModelProtection == ViewModelProtectionSettings.None &&
+                                           property.TransferToServer && ShouldCheckEncrypedValueCount(property.Type);
+                        if (checkEVCount)
+                        {
+                            // lastEncrypedValuesCount = encrypedValues.Count
+                            block.Add(Expression.Assign(lastEVcount, Expression.Property(encryptedValues, "Count")));
+                        }
+
+                        block.Add(Expression.Call(writer, "WritePropertyName", Type.EmptyTypes,
+                            Expression.Constant(property.Name)));
+
+                        // serializer.Serialize(writer, value.{property.Name});
+                        block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
+
+                        if (checkEVCount)
+                        {
+                            // encryptedValues.Add(encryptedValues.Count - lastEVcount)
+#if DEBUG
+                            block.Add(ExpressionUtils.Replace((JArray ev) =>
+                                System.Diagnostics.Debug.WriteLine("ev[" + ev.Count + "]: checksum of " + property.Name +
+                                                                   " in " + Type.Name), encryptedValues));
+#endif
+                            block.Add(ExpressionUtils.Replace((int lastC, JArray ev) =>
+                                ev.Add(ev.Count - lastC),
+                                lastEVcount, encryptedValues));
+                        }
+                    }
+
+                    if (!property.TransferToServer)
+                    {
+                        // write an instruction into a viewmodel that the property may not be posted back
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(property.Name + "$options"), writer));
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName("doNotPost"), writer));
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(true), writer));
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
+                    }
+                }
+                else if (property.TransferToServer)
+                { 
+                    // render empty property options - we need to create the observable on the client, however we don't transfer the value
+                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(property.Name + "$options"), writer));
+                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
+                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName("doNotUpdate"), writer));
+                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(true), writer));
+                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
                 }
             }
 

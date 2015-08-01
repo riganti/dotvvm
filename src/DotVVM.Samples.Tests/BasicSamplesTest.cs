@@ -713,5 +713,24 @@ namespace DotVVM.Samples.Tests
                 }
             });
         }
+
+        public void Sample24Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample24");
+
+                // fill the values
+                browser.FindAll("input[type=text]")[0].SendKeys("1");
+                browser.FindAll("input[type=text]")[1].SendKeys("2");
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // verify the results
+                Assert.AreEqual("", browser.FindAll("input[type=text]")[0].GetAttribute("value"));
+                Assert.AreEqual("2", browser.FindAll("input[type=text]")[1].GetAttribute("value"));
+                Assert.AreEqual(",2", browser.FindAll("span").Last().GetText());
+            });
+        }
     }
 }
