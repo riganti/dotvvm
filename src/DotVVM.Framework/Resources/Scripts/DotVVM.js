@@ -792,7 +792,7 @@ var DotvvmSerialization = (function () {
         var sign = date.getTimezoneOffset() <= 0 ? "+" : "-";
         var offsetHour = this.pad((Math.abs(date.getTimezoneOffset() / 60) | 0).toString(), 2);
         var offsetMinute = this.pad(Math.abs(date.getTimezoneOffset() % 60).toString(), 2);
-        return y + "-" + m + "-" + d + "T" + h + ":" + m + ":" + s + "." + ms + sign + offsetHour + ":" + offsetMinute;
+        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + sign + offsetHour + ":" + offsetMinute;
     };
     return DotvvmSerialization;
 })();
@@ -834,4 +834,3 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         }
     };
 })();
-//# sourceMappingURL=dotvvm.js.map
