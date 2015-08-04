@@ -144,21 +144,13 @@ namespace DotVVM.Framework.Configuration
                     EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko"
                 });
-            configuration.Resources.Register(Constants.KnockoutMapperResourceName,
-                new ScriptResource()
-                {
-                    Url = "DotVVM.Framework.Resources.Scripts.knockout.mapper.js",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
-                    GlobalObjectName = "ko.mapper",
-                    Dependencies = new[] { Constants.KnockoutJSResourceName }
-                });
             configuration.Resources.Register(Constants.DotvvmResourceName,
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.js",
                     EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "dotvvm",
-                    Dependencies = new[] { Constants.KnockoutJSResourceName, Constants.KnockoutMapperResourceName }
+                    Dependencies = new[] { Constants.KnockoutJSResourceName }
                 });
             configuration.Resources.Register(Constants.DotvvmValidationResourceName,
                 new ScriptResource()

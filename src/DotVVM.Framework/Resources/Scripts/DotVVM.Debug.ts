@@ -55,7 +55,7 @@ function setDebugMapProperty(obj) {
     Object.defineProperty(obj, "$debugMap", {
         enumerable: false,
         configurable: true,
-        get: () => ko.mapper.toJS(obj)
+        get: () => dotvvm.serialization.serialize(obj)
     });
 }
 

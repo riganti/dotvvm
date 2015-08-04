@@ -27,7 +27,7 @@ class DotvvmFileUpload {
             // files were uploaded successfully
             viewModel.Error("");
             for (var i = 0; i < result.length; i++) {
-                viewModel.Files.push(ko.mapper.fromJS(result[i]));
+                viewModel.Files.push(dotvvm.serialization.deserialize(result[i]));
             }
 
             // call the handler

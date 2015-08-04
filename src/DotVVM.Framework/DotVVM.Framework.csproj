@@ -442,7 +442,6 @@
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-3.2.0.js" />
-    <EmbeddedResource Include="Resources\Scripts\knockout.mapper.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Validation.js" />
   </ItemGroup>

@@ -26,7 +26,6 @@ namespace DotVVM.Framework.Parser
 
         public const string JQueryResourceName = "jquery";
         public const string KnockoutJSResourceName = "knockout";
-        public const string KnockoutMapperResourceName = "knockout.mapper";
         public const string DotvvmResourceName = "dotvvm";
         public const string DotvvmValidationResourceName = "dotvvm.validation";
         public const string DotvvmDebugResourceName = "dotvvm.debug";

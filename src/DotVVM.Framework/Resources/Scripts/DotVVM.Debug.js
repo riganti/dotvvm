@@ -50,7 +50,7 @@ function setDebugMapProperty(obj) {
     Object.defineProperty(obj, "$debugMap", {
         enumerable: false,
         configurable: true,
-        get: function () { return ko.mapper.toJS(obj); }
+        get: function () { return dotvvm.serialization.serialize(obj); }
     });
 }
 dotvvm.events.afterPostback.subscribe(function (e) { return setDebugMapProperty(dotvvm.viewModels[e.viewModelName]); });
