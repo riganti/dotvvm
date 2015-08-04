@@ -5,6 +5,7 @@ using Microsoft.VisualStudio.Text;
 using Microsoft.VisualStudio.Text.Classification;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
 {

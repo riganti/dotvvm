@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Win32;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
 {

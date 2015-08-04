@@ -13,4 +13,8 @@
   <TemplateContent>
     <ProjectItem ReplaceParameters="true" TargetFileName="$safeitemname$.dothtml">page.dothtml</ProjectItem>
   </TemplateContent>
+  <WizardExtension>
+    <Assembly>DotVVM.VS2015Extension.DotvvmPageWizard, Version=1.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da</Assembly>
+    <FullClassName>DotVVM.VS2015Extension.DotvvmPageWizard.PageWizard</FullClassName>
+  </WizardExtension>
 </VSTemplate>

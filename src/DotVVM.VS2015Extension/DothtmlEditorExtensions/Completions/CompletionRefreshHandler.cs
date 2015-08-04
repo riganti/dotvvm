@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
 {

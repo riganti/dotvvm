@@ -10,6 +10,9 @@
     </UpgradeBackupLocation>
     <OldToolsVersion>12.0</OldToolsVersion>
     <TargetFrameworkProfile />
+    <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
+    <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
+    <IncludeDebugSymbolsInLocalVSIXDeployment>true</IncludeDebugSymbolsInLocalVSIXDeployment>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -176,7 +179,6 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="CachedValue.cs" />
-    <Compile Include="LogService.cs" />
     <Compile Include="DothtmlEditorExtensions\Classification\ClassificationColorManager.cs" />
     <Compile Include="DothtmlEditorExtensions\Classification\ClassificationStyle.cs" />
     <Compile Include="DothtmlEditorExtensions\Classification\DothtmlBindingBraceDefinition.cs" />
@@ -289,6 +291,12 @@
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
       <Name>DotVVM.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DotVVM.VS2015Extension.DotvvmPageWizard\DotVVM.VS2015Extension.DotvvmPageWizard.csproj">
+      <Project>{bd603cb0-aa93-4431-a5e7-7118474f9d4a}</Project>
+      <Name>DotVVM.VS2015Extension.DotvvmPageWizard</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
     <ProjectReference Include="..\DotVVM.VS2015Extension.ProjectTemplate\DotVVM.VS2015Extension.ProjectTemplate.csproj">
       <Project>{C1FE66D8-208E-4874-B6D3-7D37E0F5CAED}</Project>

@@ -5,6 +5,7 @@ using System.Linq;
 using EnvDTE;
 using Microsoft.CodeAnalysis;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
 using Project = EnvDTE.Project;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
@@ -48,6 +49,11 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Bas
             return symbols;
         }
 
+        public static IEnumerable<ProjectItem> GetCurrentProjectFiles(DothtmlCompletionContext context)
+        {
+            return Enumerable.OfType<ProjectItem>(context.DTE.ActiveDocument.ProjectItem.ContainingProject.ProjectItems).SelectMany(DTEHelper.GetSelfAndChildProjectItems);
+        }
+
         private static IEnumerable<ITypeSymbol> GetAllTypesInModuleSymbol(INamespaceSymbol symbol)
         {
             return Enumerable.Concat(symbol.GetTypeMembers(), symbol.GetNamespaceMembers().SelectMany(GetAllTypesInModuleSymbol));
@@ -74,53 +80,6 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Bas
             }
 
             return compilations;
-        }
-
-        public static IEnumerable<ProjectItem> GetCurrentProjectFiles(DothtmlCompletionContext context)
-        {
-            return context.DTE.ActiveDocument.ProjectItem.ContainingProject.ProjectItems.OfType<ProjectItem>().SelectMany(GetSelfAndChildProjectItems);
-        }
-
-        private static IEnumerable<ProjectItem> GetSelfAndChildProjectItems(ProjectItem projectItem)
-        {
-            yield return projectItem;
-            for (int i = 1; i <= projectItem.ProjectItems.Count; i++)
-            {
-                ProjectItem item = null;
-                try
-                {
-                    item = projectItem.ProjectItems.Item(i);
-                }
-                catch (Exception ex)
-                {
-                    // sometimes we get System.ArgumentException: The parameter is incorrect. (Exception from HRESULT: 0x80070057 (E_INVALIDARG)) 
-                    // when we open some file in the text editor
-                    LogService.LogError(new Exception("Cannot evaluate items in the project!", ex));
-                }
-
-                if (item != null)
-                {
-                    foreach (var childItem in GetSelfAndChildProjectItems(item))
-                    {
-                        yield return childItem;
-                    }
-                }
-            }
-        }
-
-        public static string GetProjectItemRelativePath(ProjectItem item)
-        {
-            var path = item.Properties.Item("FullPath").Value as string;
-            var projectPath = GetProjectPath(item.ContainingProject);
-
-            var result = path.StartsWith(projectPath, StringComparison.CurrentCultureIgnoreCase) ? path.Substring(projectPath.Length).TrimStart('\\', '/') : path;
-            result = result.Replace('\\', '/');
-            return result;
-        }
-
-        public static string GetProjectPath(Project project)
-        {
-            return project.Properties.Item("FullPath").Value as string;
         }
 
         public static IEnumerable<INamedTypeSymbol> GetBaseTypes(INamedTypeSymbol type)

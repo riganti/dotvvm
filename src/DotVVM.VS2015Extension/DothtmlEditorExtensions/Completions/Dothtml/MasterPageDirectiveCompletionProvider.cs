@@ -6,6 +6,7 @@ using System.Linq;
 using EnvDTE;
 using Microsoft.VisualStudio.Language.Intellisense;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
 using Constants = DotVVM.Framework.Parser.Constants;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
@@ -19,7 +20,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
             {
                 var documents = CompletionHelper.GetCurrentProjectFiles(context)
                     .Where(i => i.Name.EndsWith(".dothtml", StringComparison.CurrentCultureIgnoreCase))
-                    .Select(CompletionHelper.GetProjectItemRelativePath)
+                    .Select(DTEHelper.GetProjectItemRelativePath)
                     .ToList();
 
                 var glyph = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphJSharpDocument, StandardGlyphItem.GlyphItemPublic);

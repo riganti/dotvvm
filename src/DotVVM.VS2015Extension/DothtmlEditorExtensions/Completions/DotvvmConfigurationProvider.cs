@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.Shell.Interop;
 using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
 {
@@ -28,7 +29,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
 
         public DotvvmConfiguration GetConfiguration(Project project)
         {
-            var applicationRootDirectory = CompletionHelper.GetProjectPath(project);
+            var applicationRootDirectory = DTEHelper.GetProjectPath(project);
             var configurationFilePath = Path.Combine(applicationRootDirectory, "dotvvm.json");
 
             changeTrackers.GetOrAdd(configurationFilePath, CreateChangeTracker);

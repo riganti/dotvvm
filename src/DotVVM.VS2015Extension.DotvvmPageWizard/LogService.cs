@@ -1,12 +1,7 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
 
-namespace DotVVM.VS2015Extension
+namespace DotVVM.VS2015Extension.DotvvmPageWizard
 {
     public class LogService
     {
@@ -33,7 +28,7 @@ namespace DotVVM.VS2015Extension
             {
                 var message = "Date: " + DateTime.Now.ToString("s") + "\r\n"
                               + "OS Version: " + Environment.OSVersion + "\r\n"
-                              + "VS Version: " + CompletionHelper.DTE.Version + "\r\n"
+                              + "VS Version: " + DTEHelper.DTE.Version + "\r\n"
                               + "Exception: " + ex
                               + "\r\n\r\n\r\n";
                 File.AppendAllText(LogFilePath, message);
