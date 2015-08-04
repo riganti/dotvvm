@@ -55,3 +55,4 @@ function setDebugMapProperty(obj) {
 }
 dotvvm.events.afterPostback.subscribe(function (e) { return setDebugMapProperty(dotvvm.viewModels[e.viewModelName]); });
 dotvvm.events.init.subscribe(function (e) { return setDebugMapProperty(dotvvm.viewModels["root"]); });
+//# sourceMappingURL=DotVVM.Debug.js.map

@@ -196,6 +196,8 @@ namespace DotVVM.Framework.ViewModel
             // go through all properties that should be serialized
             foreach (var property in Properties)
             {
+                var options = new Dictionary<string, object>();
+
                 if (property.TransferToClient)
                 {
                     // writer.WritePropertyName("{property.Name"});
@@ -250,20 +252,29 @@ namespace DotVVM.Framework.ViewModel
                     if (!property.TransferToServer)
                     {
                         // write an instruction into a viewmodel that the property may not be posted back
-                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(property.Name + "$options"), writer));
-                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
-                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName("doNotPost"), writer));
-                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(true), writer));
-                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
+                        options["doNotPost"] = true;
                     }
                 }
                 else if (property.TransferToServer)
-                { 
+                {
                     // render empty property options - we need to create the observable on the client, however we don't transfer the value
+                    options["doNotUpdate"] = true;
+                }
+
+                if (property.Type == typeof (DateTime) || property.Type == typeof (DateTime?))
+                {
+                    options["isDate"] = true;
+                }
+
+                if (options.Any())
+                {
                     block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(property.Name + "$options"), writer));
                     block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
-                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName("doNotUpdate"), writer));
-                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(true), writer));
+                    foreach (var option in options)
+                    {
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(option.Key), writer));
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(option.Value), writer));
+                    }
                     block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
                 }
             }

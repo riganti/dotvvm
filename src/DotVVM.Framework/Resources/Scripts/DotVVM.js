@@ -707,6 +707,10 @@ var DotvvmSerialization = (function () {
                 }
                 // deserialize value
                 var deserialized = this.deserialize(value, result[prop]);
+                // handle date
+                if (options && options.isDate && deserialized) {
+                    deserialized = new Date(deserialized);
+                }
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     result[prop] = deserialized;
@@ -834,3 +838,4 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         }
     };
 })();
+//# sourceMappingURL=dotvvm.js.map
