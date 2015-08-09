@@ -291,6 +291,8 @@
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
       <Name>DotVVM.Framework</Name>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
     <ProjectReference Include="..\DotVVM.VS2015Extension.DotvvmPageWizard\DotVVM.VS2015Extension.DotvvmPageWizard.csproj">
       <Project>{bd603cb0-aa93-4431-a5e7-7118474f9d4a}</Project>
@@ -302,13 +304,6 @@
       <Project>{C1FE66D8-208E-4874-B6D3-7D37E0F5CAED}</Project>
       <Name>DotVVM.VS2015Extension.ProjectTemplate</Name>
       <VSIXSubPath>ProjectTemplates</VSIXSubPath>
-      <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
-      <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
-    </ProjectReference>
-    <ProjectReference Include="..\DotVVM.VS2015Extension.DotvvmContentPageTemplate\DotVVM.VS2015Extension.DotvvmContentPageTemplate.csproj">
-      <Project>{0FBAE5E3-467B-4194-B766-67414E6C9F06}</Project>
-      <Name>DotVVM.VS2015Extension.DotvvmContentPageTemplate</Name>
-      <VSIXSubPath>ItemTemplates</VSIXSubPath>
       <ReferenceOutputAssembly>false</ReferenceOutputAssembly>
       <IncludeOutputGroupsInVSIX>TemplateProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
     </ProjectReference>

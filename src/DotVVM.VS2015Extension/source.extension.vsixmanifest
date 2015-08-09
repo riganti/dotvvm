@@ -17,7 +17,6 @@
     <Asset Type="Microsoft.VisualStudio.ProjectTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.ProjectTemplate" d:TargetPath="|DotVVM.VS2015Extension.ProjectTemplate;TemplateProjectOutputGroup|" Path="ProjectTemplates" d:VsixSubPath="ProjectTemplates\DotVVM" />
     <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmPageTemplate" d:TargetPath="|DotVVM.VS2015Extension.DotvvmPageTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates\DotVVM" />
     <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmMasterPageTemplate" d:TargetPath="|DotVVM.VS2015Extension.DotvvmMasterPageTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates\DotVVM" />
-    <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmContentPageTemplate" d:TargetPath="|DotVVM.VS2015Extension.DotvvmContentPageTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates\DotVVM" />
     <Asset Type="Microsoft.VisualStudio.ItemTemplate" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmViewModelTemplate" d:TargetPath="|DotVVM.VS2015Extension.DotvvmViewModelTemplate;TemplateProjectOutputGroup|" Path="ItemTemplates" d:VsixSubPath="ItemTemplates\DotVVM" />
     <Asset d:Source="File" Type="Newtonsoft.Json.7.0.1.nupkg" Path="Packages\Newtonsoft.Json.7.0.1.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Owin.1.0.0.nupkg" Path="Packages\Owin.1.0.0.nupkg" d:VsixSubPath="Packages" />
@@ -34,5 +33,6 @@
     <Asset d:Source="File" Type="ExpressionEvaluator.2.0.3.0.nupkg" Path="Packages\ExpressionEvaluator.2.0.3.0.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Antlr.3.5.0.2.nupkg" Path="Packages\Antlr.3.5.0.2.nupkg" d:VsixSubPath="Packages" />
     <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmPageWizard" Path="|DotVVM.VS2015Extension.DotvvmPageWizard|" AssemblyName="|DotVVM.VS2015Extension.DotvvmPageWizard;AssemblyName|" />
+    <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="DotVVM.Framework" Path="|DotVVM.Framework|" AssemblyName="|DotVVM.Framework;AssemblyName|" />
   </Assets>
 </PackageManifest>

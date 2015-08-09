@@ -11,6 +11,6 @@
     <DefaultName>Page</DefaultName>
   </TemplateData>
   <TemplateContent>
-    <ProjectItem ReplaceParameters="true" TargetFileName="$safeitemname$ViewModel.cs">ViewModel.cs</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$safeitemname$.cs">ViewModel.cs</ProjectItem>
   </TemplateContent>
 </VSTemplate>

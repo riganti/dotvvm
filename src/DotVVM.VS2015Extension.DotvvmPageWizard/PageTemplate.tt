@@ -1,0 +1,46 @@
+﻿<#@ template language="C#" #>
+<#@ assembly name="System.Core" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Text" #>
+<#@ import namespace="System.Collections.Generic" #>@viewModel <#= ViewModel.ViewModelNamespace #>.<#= ViewModel.ViewModelName #>, <#= ViewModel.ViewModelRootNamespace #>
+<# 
+
+if (!ViewModel.EmbedInMasterPage) { 
+#>
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+</body>
+</html>
+
+<# } else { #>
+@masterPage <#= ViewModel.MasterPageLocation #>
+
+<#	if (ViewModel.ContentPlaceHolderIds == null) { #>
+    <!-- WARNING: The master page file contains syntax errors, so we couldn't extract IDs of dot:ContentPlaceHolder controls. -->
+	<dot:Content ContentPlaceHolderID="(put the ContentPlaceHolderID here)">
+	</dot:Content>
+<#	} else { 
+		foreach (var id in ViewModel.ContentPlaceHolderIds) {
+#>
+<dot:Content ContentPlaceHolderID="<#= id #>">
+
+
+
+</dot:Content>
+<#    
+		}
+	} 
+}
+#>
+
+<#+ 
+public PageWindowViewModel ViewModel { get; set; }
+#>

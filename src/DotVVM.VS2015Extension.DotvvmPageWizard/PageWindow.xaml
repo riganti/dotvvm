@@ -1,8 +1,10 @@
 ﻿<Window x:Class="DotVVM.VS2015Extension.DotvvmPageWizard.PageWindow"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             Title="Create dotVVM Page"
-             SizeToContent="WidthAndHeight">
+             Title="Configure dotVVM Page..."
+             SizeToContent="WidthAndHeight"
+             WindowStyle="ToolWindow" 
+             WindowStartupLocation="CenterScreen">
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <Style x:Key="FormCheckBox" TargetType="CheckBox">
@@ -27,6 +29,7 @@
         <Style x:Key="FormButton" TargetType="Button">
             <Setter Property="Margin" Value="6"/>
             <Setter Property="MinWidth" Value="60" />
+            <Setter Property="Padding" Value="10,5" />
         </Style>
     </Window.Resources>
     
@@ -61,7 +64,9 @@
         </Grid>
 
 
-        <CheckBox Grid.Row="2" IsChecked="{Binding CreateViewModel}" Content="Create ViewModel" Style="{StaticResource FormCheckBox}"/>
+        <CheckBox Grid.Row="2" IsChecked="{Binding CreateViewModel}" Style="{StaticResource FormCheckBox}">
+            <AccessText>Create _ViewModel</AccessText>
+        </CheckBox>
         <Grid Grid.Row="3">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -77,11 +82,14 @@
                      IsEnabled="{Binding CreateView, Converter={StaticResource BooleanToVisibilityConverter}}" />
 
             <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource FormLabel}" Text="Location"/>
-            <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource FormComboBox}" Text="{Binding ViewModelLocation}" 
-                      ItemsSource="{Binding Folders}" IsEnabled="{Binding CreateView, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource FormComboBox}" Text="{Binding ViewModelLocation}" IsTextSearchCaseSensitive="false" IsTextSearchEnabled="true" 
+                      ItemsSource="{Binding Folders}" IsEnabled="{Binding CreateView}" IsEditable="True" />
         </Grid>
 
-        <CheckBox Grid.Row="5" IsChecked="{Binding EmbedInMasterPage}" Content="Embed in Master Page" Style="{StaticResource FormCheckBox}"/>
+        <CheckBox Grid.Row="5" IsChecked="{Binding EmbedInMasterPage}" Style="{StaticResource FormCheckBox}"
+                  IsEnabled="{Binding ProjectContainsMasterPages}">
+            <AccessText>Embed in _Master Page</AccessText>
+        </CheckBox>
         <Grid Grid.Row="6">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -92,9 +100,8 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource FormLabel}" Text="Master Page File"/>
-            <ComboBox Grid.Row="0" Grid.Column="1" Style="{StaticResource FormComboBox}" Text="{Binding MasterPageLocation}" 
-                      ItemsSource="{Binding Folders}" IsTextSearchCaseSensitive="false" IsTextSearchEnabled="true" 
-                      IsEnabled="{Binding CreateView, Converter={StaticResource BooleanToVisibilityConverter}}" />
+            <ComboBox Grid.Row="0" Grid.Column="1" Style="{StaticResource FormComboBox}" SelectedItem="{Binding MasterPageLocation}" 
+                      ItemsSource="{Binding MasterPages}" IsEnabled="{Binding EmbedInMasterPage}" IsEditable="False" />
         </Grid>
 
         <StackPanel Grid.Row="8" HorizontalAlignment="Right" Orientation="Horizontal">

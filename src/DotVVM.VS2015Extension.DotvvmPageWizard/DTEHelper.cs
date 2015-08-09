@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using EnvDTE;
 using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
@@ -18,6 +19,8 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
 
         private static DTE2 dte = null;
         private static object dteLocker = new object();
+        public const string ProjectItemKindPhysicalFolder = "{6BB5F8EF-4483-11D3-8BCF-00C04F8EC28C}";
+
         public static DTE2 DTE
         {
             get
@@ -67,7 +70,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
 
         public static string GetProjectItemRelativePath(ProjectItem item)
         {
-            var path = item.Properties.Item("FullPath").Value as string;
+            var path = GetProjectItemFullPath(item);
             var projectPath = GetProjectPath(item.ContainingProject);
 
             var result = path.StartsWith(projectPath, StringComparison.CurrentCultureIgnoreCase) ? path.Substring(projectPath.Length).TrimStart('\\', '/') : path;
@@ -75,9 +78,62 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
             return result;
         }
 
+        public static string GetProjectItemFullPath(ProjectItem item)
+        {
+            return item.Properties.Item("FullPath").Value as string;
+        }
+
         public static string GetProjectPath(Project project)
         {
             return project.Properties.Item("FullPath").Value as string;
+        }
+
+        public static IEnumerable<ProjectItem> GetAllProjectItems()
+        {
+            return DTE.Solution.Projects.OfType<Project>()
+                    .SelectMany(p => p.ProjectItems.OfType<ProjectItem>())
+                    .SelectMany(GetSelfAndChildProjectItems);
+        }
+
+        public static ProjectItems GetOrCreateFolder(ProjectItems projectItems, string viewModelLocation)
+        {
+            var path = viewModelLocation.Split('/').Where(p => !string.IsNullOrEmpty(p)).ToList();
+
+            for (var i = 0; i < path.Count; i++)
+            {
+                var projectItem = projectItems.OfType<ProjectItem>().FirstOrDefault(p => p.Name == path[i]);
+                if (projectItem == null)
+                {
+                    try
+                    {
+                        projectItem = projectItems.AddFolder(path[i]);
+                    }
+                    catch
+                    {
+                        throw new Exception($"Couldn't add a folder '{path[i]}' in the project!");
+                    }
+                }
+                else if (projectItem.Kind != ProjectItemKindPhysicalFolder)
+                {
+                    throw new Exception($"The location of the viewmodel is not valid! Path '{path[i]}'.");
+                }
+                projectItems = projectItem.ProjectItems;
+            }
+            return projectItems;
+        }
+
+        public static void ExecuteSafe(Action action, string errorMessage)
+        {
+            try
+            {
+                action();
+            }
+            catch (Exception ex)
+            {
+                LogService.LogError(new Exception(errorMessage, ex));
+                MessageBox.Show(errorMessage + "\r\n" + ex.Message);
+            }
+
         }
     }
 }

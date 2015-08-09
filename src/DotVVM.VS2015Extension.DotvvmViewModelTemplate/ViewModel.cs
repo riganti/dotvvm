@@ -6,7 +6,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace $rootnamespace$
 {
-	public class $safeitemname$ViewModel : DotvvmViewModelBase
+	public class $safeitemname$ : DotvvmViewModelBase
 	{
 	}
 }

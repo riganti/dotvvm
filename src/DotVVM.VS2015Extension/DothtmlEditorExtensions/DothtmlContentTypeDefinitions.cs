@@ -21,7 +21,17 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions
         [FileExtension(".dothtml")]
         [ContentType(DothtmlContentType)]
         public FileExtensionToContentTypeDefinition DothtmlFileExtensionDefinition { get; set; }
-         
+
+        [Export(typeof(FileExtensionToContentTypeDefinition))]
+        [FileExtension(".dotmaster")]
+        [ContentType(DothtmlContentType)]
+        public FileExtensionToContentTypeDefinition DotmasterFileExtensionDefinition { get; set; }
+
+        [Export(typeof(FileExtensionToContentTypeDefinition))]
+        [FileExtension(".dotcontrol")]
+        [ContentType(DothtmlContentType)]
+        public FileExtensionToContentTypeDefinition DotcontrolFileExtensionDefinition { get; set; }
+
     }
 
 }

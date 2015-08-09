@@ -11,6 +11,10 @@
     <DefaultName>masterpage</DefaultName>
   </TemplateData>
   <TemplateContent>
-    <ProjectItem ReplaceParameters="true" TargetFileName="$safeitemname$.dothtml">masterpage.dothtml</ProjectItem>
+    <ProjectItem ReplaceParameters="true" TargetFileName="$safeitemname$.dotmaster">masterpage.dotmaster</ProjectItem>
   </TemplateContent>
+  <WizardExtension>
+    <Assembly>DotVVM.VS2015Extension.DotvvmPageWizard, Version=1.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da</Assembly>
+    <FullClassName>DotVVM.VS2015Extension.DotvvmPageWizard.PageWizard</FullClassName>
+  </WizardExtension>
 </VSTemplate>
