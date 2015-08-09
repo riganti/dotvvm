@@ -496,57 +496,70 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl(BaseUrl + "Sample16");
 
-                // make sure that thirs row's first cell is yellow
-                Assert.AreEqual("", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
-                Assert.AreEqual("alternate", browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
+                Action performTest = () =>
+                {
+                    // make sure that thirs row's first cell is yellow
+                    Assert.AreEqual("",
+                        browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
+                    Assert.AreEqual("alternate",
+                        browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
 
-                // go to second page
-                Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-                browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "2").Click();
+                    // go to second page
+                    Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
+                    browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "2").Click();
+                    Thread.Sleep(WaitTime);
+
+                    // go to previous page
+                    Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
+                    browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "««").Click();
+                    Thread.Sleep(WaitTime);
+
+                    // go to next page
+                    Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
+                    browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "»»").Click();
+                    Thread.Sleep(WaitTime);
+
+                    // try the disabled link - nothing should happen
+                    Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
+                    browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "»»").Click();
+                    Thread.Sleep(WaitTime);
+                    Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
+
+
+                    // try sorting in the first grid
+                    browser.FindAll("table")[0].FindAll("tr")[0].FindAll("th")[2].Find("a").Click();
+                    Thread.Sleep(WaitTime);
+                    Assert.AreEqual("4", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
+
+                    // sort descending in the first grid
+                    browser.FindAll("table")[0].FindAll("tr")[0].FindAll("th")[2].Find("a").Click();
+                    Thread.Sleep(WaitTime);
+                    Assert.AreEqual("9", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
+
+                    // sort by different column in the first grid
+                    browser.FindAll("table")[0].FindAll("tr")[0].FindAll("th")[0].Find("a").Click();
+                    Thread.Sleep(WaitTime);
+                    Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
+
+
+                    // try sorting in the first grid
+                    browser.FindAll("table")[1].FindAll("tr")[0].FindAll("th")[2].Find("a").Click();
+                    Thread.Sleep(WaitTime);
+                    Assert.AreEqual("4", browser.FindAll("table")[1].FindAll("tr")[1].FindAll("td")[0].GetText());
+
+                    // sort by different column in the first grid
+                    browser.FindAll("table")[1].FindAll("tr")[0].FindAll("th")[0].Find("a").Click();
+                    Thread.Sleep(WaitTime);
+                    Assert.AreEqual("1", browser.FindAll("table")[1].FindAll("tr")[1].FindAll("td")[0].GetText());
+                };
+
+                performTest();
                 Thread.Sleep(WaitTime);
-
-                // go to previous page
-                Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-                browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "««").Click();
+                browser.NavigateBack();
                 Thread.Sleep(WaitTime);
-
-                // go to next page
-                Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-                browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "»»").Click();
+                browser.NavigateForward();
                 Thread.Sleep(WaitTime);
-
-                // try the disabled link - nothing should happen
-                Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-                browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "»»").Click();
-                Thread.Sleep(WaitTime);
-                Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-
-
-                // try sorting in the first grid
-                browser.FindAll("table")[0].FindAll("tr")[0].FindAll("th")[2].Find("a").Click();
-                Thread.Sleep(WaitTime);
-                Assert.AreEqual("4", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-
-                // sort descending in the first grid
-                browser.FindAll("table")[0].FindAll("tr")[0].FindAll("th")[2].Find("a").Click();
-                Thread.Sleep(WaitTime);
-                Assert.AreEqual("9", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-
-                // sort by different column in the first grid
-                browser.FindAll("table")[0].FindAll("tr")[0].FindAll("th")[0].Find("a").Click();
-                Thread.Sleep(WaitTime);
-                Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
-
-
-                // try sorting in the first grid
-                browser.FindAll("table")[1].FindAll("tr")[0].FindAll("th")[2].Find("a").Click();
-                Thread.Sleep(WaitTime);
-                Assert.AreEqual("4", browser.FindAll("table")[1].FindAll("tr")[1].FindAll("td")[0].GetText());
-
-                // sort by different column in the first grid
-                browser.FindAll("table")[1].FindAll("tr")[0].FindAll("th")[0].Find("a").Click();
-                Thread.Sleep(WaitTime);
-                Assert.AreEqual("1", browser.FindAll("table")[1].FindAll("tr")[1].FindAll("td")[0].GetText());
+                performTest();
             });
         }
 
