@@ -45,69 +45,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
     }
 
-    public class DateTimeConverter1 : CustomDateTimeConverterBase
+    public class DateTimeConverter1 : DateTimeFormatJsonConverterBase
     {
-        public DateTimeConverter1()
-        {
-            DateTimeFormat = "d.M.yyyy";
-        }
+        public override string[] DateTimeFormats => new[] { "d.M.yyyy" };
     }
 
-    public class DateTimeConverter2 : CustomDateTimeConverterBase
+    public class DateTimeConverter2 : DateTimeFormatJsonConverterBase
     {
-        public DateTimeConverter2()
-        {
-            DateTimeFormat = "yyyy-MM-dd HH:mm:ss";
-        }
+        public override string[] DateTimeFormats => new[] { "yyyy-MM-dd HH:mm:ss" };
     }
-
-    public abstract class CustomDateTimeConverterBase : JsonConverter
-    {
-        public string DateTimeFormat { get; set; }
-
-        public DateTimeStyles DateTimeStyles { get; set; } = DateTimeStyles.None;
-
-        public IFormatProvider FormatProvider { get; set; } = CultureInfo.CurrentCulture;
-
-        public override bool CanConvert(Type objectType)
-        {
-            return objectType == typeof (string) || objectType == typeof (DateTime) || objectType == typeof(DateTime?);
-        }
-
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
-        {
-            reader.Read();
-            if (reader.Value == null)
-            {
-                return objectType == typeof(DateTime?) ? (DateTime?)null : DateTime.MinValue;
-            }
-            else if (reader.ValueType == typeof (string))
-            {
-                var stringValue = reader.Value as string;
-                DateTime result;
-                if (DateTime.TryParseExact(stringValue, DateTimeFormat, FormatProvider, DateTimeStyles, out result))
-                {
-                    return result;
-                }
-                return objectType == typeof(DateTime?) ? (DateTime?)null : DateTime.MinValue;
-            }
-            throw new JsonException("Unable to parse DateTime value!");
-        }
-
-        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
-        {
-            if (value is DateTime)
-            {
-                writer.WriteValue(((DateTime)value).ToString(DateTimeFormat, FormatProvider));
-            }
-            else if (value == null)
-            {
-                writer.WriteNull();
-            }
-            else
-            {
-                throw new JsonException("Unable to serialize DateTime value!");
-            }
-        }
-    }
+    
 }
