@@ -558,7 +558,7 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateBack();
                 Thread.Sleep(WaitTime);
                 browser.NavigateForward();
-                Thread.Sleep(WaitTime);
+                Thread.Sleep(WaitTime * 4);
                 performTest();
             });
         }
