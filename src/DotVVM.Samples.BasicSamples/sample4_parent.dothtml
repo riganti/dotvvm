@@ -1,5 +1,5 @@
 @masterPage sample4_root.dothtml
-@viewModel object
+@viewModel System.Object, mscorlib
 		
 <dot:Content ContentPlaceHolderID="Menu">
 	<ul>

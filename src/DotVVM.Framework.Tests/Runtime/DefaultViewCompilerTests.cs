@@ -100,7 +100,7 @@ test <dot:Literal Text='test' />";
 
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(DotvvmCompilationException))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_TextInside()
         {
             var markup = @"@viewModel System.Object, mscorlib
@@ -109,7 +109,7 @@ test <dot:Literal>aaa</dot:Literal>";
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(DotvvmCompilationException))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_BindingAndWhiteSpaceInside()
         {
             var markup = @"@viewModel System.Object, mscorlib
@@ -118,7 +118,7 @@ test <dot:Literal>{{value: FirstName}}  </dot:Literal>";
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception))]
+        [ExpectedException(typeof(DotvvmCompilationException))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_ElementInside()
         {
             var markup = @"@viewModel System.Object, mscorlib

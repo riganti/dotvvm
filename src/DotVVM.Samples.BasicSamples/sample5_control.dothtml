@@ -1,5 +1,5 @@
 @baseType DotVVM.Samples.BasicSamples.Controls.Sample5_TestControl, DotVVM.Samples.BasicSamples
-@viewModel object
+@viewModel System.Object, mscorlib
 
 <h2>{{controlProperty: Name}}</h2>
 <p>
