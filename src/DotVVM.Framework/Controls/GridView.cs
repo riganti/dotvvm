@@ -134,15 +134,29 @@ namespace DotVVM.Framework.Controls
                 cell.Attributes["style"] = "width: " + column.Width;
             }
 
-            var cssClassBinding = column.GetValueBinding(isHeaderCell ? GridViewColumn.CssClassProperty : GridViewColumn.HeaderCssClassProperty);
-
-            if (cssClassBinding != null)
+            if (!isHeaderCell)
             {
-                cell.Attributes["class"] = cssClassBinding;
+                var cssClassBinding = column.GetValueBinding(GridViewColumn.CssClassProperty);
+                if (cssClassBinding != null)
+                {
+                    cell.Attributes["class"] = cssClassBinding;
+                }
+                else if (!string.IsNullOrWhiteSpace(column.CssClass))
+                {
+                    cell.Attributes["class"] = column.CssClass;
+                }
             }
-            else if (!string.IsNullOrWhiteSpace(column.CssClass))
+            else
             {
-                cell.Attributes["class"] = column.CssClass;
+                var cssClassBinding = column.GetValueBinding(GridViewColumn.HeaderCssClassProperty);
+                if (cssClassBinding != null)
+                {
+                    cell.Attributes["class"] = cssClassBinding;
+                }
+                else if (!string.IsNullOrWhiteSpace(column.HeaderCssClass))
+                {
+                    cell.Attributes["class"] = column.HeaderCssClass;
+                }
             }
         }
 

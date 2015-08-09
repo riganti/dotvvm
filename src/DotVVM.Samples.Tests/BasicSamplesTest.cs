@@ -496,6 +496,10 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl(BaseUrl + "Sample16");
 
+                // make sure that thirs row's first cell is yellow
+                Assert.AreEqual("", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
+                Assert.AreEqual("alternate", browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
+
                 // go to second page
                 Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
                 browser.FindAll("ul")[0].FindAll("li a").Single(a => a.GetText() == "2").Click();
