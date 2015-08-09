@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
@@ -283,6 +284,16 @@ test <dot:Literal><a /></dot:Literal>";
             var literal2 = container.Children[0].Children[2];
             Assert.IsInstanceOfType(literal2, typeof(Literal));
             Assert.IsTrue(string.IsNullOrWhiteSpace(((Literal)literal2).Text));
+        }
+
+
+
+        [TestMethod]
+        [ExpectedException(typeof(DotvvmCompilationException))]
+        public void DefaultViewCompiler_CodeGeneration_Page_InvalidViewModelClass()
+        {
+            var markup = "@viewModel nonexistingclass\r\n{{value: Test}}";
+            var page = CompileMarkup(markup);
         }
 
 

@@ -157,6 +157,7 @@
     <Compile Include="Controls\ValidationMessage.cs" />
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
+    <Compile Include="Exceptions\DotvvmCompilationException.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Hosting\FileUploadPageTemplate.cs">
       <AutoGen>True</AutoGen>

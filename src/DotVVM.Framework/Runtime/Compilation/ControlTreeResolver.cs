@@ -13,7 +13,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections;
 using System.Linq.Expressions;
-using System.Threading;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -21,6 +21,8 @@ namespace DotVVM.Framework.Runtime.Compilation
     {
         private IControlResolver controlResolver;
         private IBindingParser bindingParser;
+        
+
         public ControlTreeResolver(DotvvmConfiguration configuration)
         {
             controlResolver = configuration.ServiceLocator.GetService<IControlResolver>();
@@ -29,70 +31,105 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public ResolvedTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
         {
-            var wrapperType = ResolveWrapperType(root);
-            var viewMetadata = controlResolver.ResolveControl(new ControlType(wrapperType, virtualPath: fileName));
-            var view = new ResolvedTreeRoot(viewMetadata, root, null);
-
-            foreach (var directive in root.Directives)
+            try
             {
-                if (directive.Name != Constants.BaseTypeDirective)
-                {
-                    view.Directives.Add(directive.Name, directive.Value);
-                }
-            }
-            if (!view.Directives.ContainsKey(Constants.ViewModelDirectiveName))
-                throw new Exception($"viewModel directive is missing in { fileName }");
+                var wrapperType = ResolveWrapperType(root);
+                var viewMetadata = controlResolver.ResolveControl(new ControlType(wrapperType, virtualPath: fileName));
+                var view = new ResolvedTreeRoot(viewMetadata, root, null);
 
-            view.DataContextTypeStack = new DataContextStack(Type.GetType(view.Directives[Constants.ViewModelDirectiveName]) ?? typeof(object))
+                foreach (var directive in root.Directives)
+                {
+                    if (directive.Name != Constants.BaseTypeDirective)
+                    {
+                        view.Directives.Add(directive.Name, directive.Value);
+                    }
+                }
+
+                ResolveViewModel(fileName, view, wrapperType);
+
+                foreach (var node in root.Content)
+                {
+                    view.Content.Add(ProcessNode(node, viewMetadata, view.DataContextTypeStack));
+                }
+                return view;
+
+            }
+            catch (DotvvmCompilationException ex)
+            {
+                ex.FileName = fileName;
+                throw;
+            }
+        }
+
+        private void ResolveViewModel(string fileName, ResolvedTreeRoot view, Type wrapperType)
+        {
+            if (!view.Directives.ContainsKey(Constants.ViewModelDirectiveName))
+            {
+                throw new DotvvmCompilationException($"The @viewModel directive is missing in the page '{fileName}'!");
+            }
+
+            var viewModelTypeName = view.Directives[Constants.ViewModelDirectiveName];
+            var viewModelType = Type.GetType(viewModelTypeName);
+            if (viewModelType == null)
+            {
+                throw new DotvvmCompilationException($"The type '{viewModelTypeName}' required in the @viewModel directive in '{fileName}' was not found!");
+            }
+            view.DataContextTypeStack = new DataContextStack(viewModelType)
             {
                 RootControlType = wrapperType
             };
-
-            foreach (var node in root.Content)
-            {
-                view.Content.Add(ProcessNode(node, viewMetadata, view.DataContextTypeStack));
-            }
-            return view;
         }
 
         private ResolvedControl ProcessNode(DothtmlNode node, ControlResolverMetadata parentMetadata, DataContextStack dataContext)
         {
-            if (node is DothtmlBindingNode)
+            try
             {
-                EnsureContentAllowed(parentMetadata);
-
-                // binding in text
-                var binding = (DothtmlBindingNode)node;
-                var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
-                literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding, dataContext)));
-                return literal;
-            }
-            else if (node is DothtmlLiteralNode)
-            {
-                // text content
-                var literalValue = ((DothtmlLiteralNode)node).Value;
-                var escape = ((DothtmlLiteralNode)node).Escape;
-                if (node.IsNotEmpty())
+                if (node is DothtmlBindingNode)
                 {
                     EnsureContentAllowed(parentMetadata);
-                }
-                var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
-                literal.SetPropertyValue(Literal.HtmlEncodeProperty, escape);
-                literal.SetPropertyValue(Literal.TextProperty, literalValue);
-                return literal;
-            }
-            else if (node is DothtmlElementNode)
-            {
-                // HTML element
-                var element = (DothtmlElementNode)node;
-                EnsureContentAllowed(parentMetadata);
 
-                // the element is the content
-                return ProcessObjectElement(element, dataContext);
+                    // binding in text
+                    var binding = (DothtmlBindingNode) node;
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof (Literal)), node, dataContext);
+                    literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding, dataContext)));
+                    return literal;
+                }
+                else if (node is DothtmlLiteralNode)
+                {
+                    // text content
+                    var literalValue = ((DothtmlLiteralNode) node).Value;
+                    var escape = ((DothtmlLiteralNode) node).Escape;
+                    if (node.IsNotEmpty())
+                    {
+                        EnsureContentAllowed(parentMetadata);
+                    }
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof (Literal)), node, dataContext);
+                    literal.SetPropertyValue(Literal.HtmlEncodeProperty, escape);
+                    literal.SetPropertyValue(Literal.TextProperty, literalValue);
+                    return literal;
+                }
+                else if (node is DothtmlElementNode)
+                {
+                    // HTML element
+                    var element = (DothtmlElementNode) node;
+                    EnsureContentAllowed(parentMetadata);
+
+                    // the element is the content
+                    return ProcessObjectElement(element, dataContext);
+                }
+                else
+                {
+                    throw new NotSupportedException($"The node of type '{node.GetType()}' is not supported!");
+                }
             }
-            else
+            catch (DotvvmCompilationException ex)
             {
-                throw new NotSupportedException($"{ node.GetType().Name } can't be inside element");      // TODO: exception handling
+                if (ex.ColumnNumber == null)
+                {
+                    ex.ColumnNumber = node.Tokens.First().ColumnNumber;
+                    ex.LineNumber = node.Tokens.First().LineNumber;
+                }
+                throw;
             }
         }
 
@@ -124,7 +161,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             if (controlMetadata.DataContextConstraint != null && !controlMetadata.DataContextConstraint.IsAssignableFrom(dataContext.DataContextType))
             {
-                throw new Exception($"control { controlMetadata.Name } requires data context of type { controlMetadata.DataContextConstraint.FullName }");
+                throw new DotvvmCompilationException($"The control '{controlMetadata.Name}' requires a DataContext of type '{controlMetadata.DataContextConstraint.FullName}'!");
             }
 
             // set properties from attributes
@@ -175,8 +212,9 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             if (!string.IsNullOrEmpty(attribute.AttributePrefix))
             {
-                throw new NotSupportedException("Attributes with XML namespaces are not supported!"); // TODO: exception handling
+                throw new DotvvmCompilationException("Attributes with XML namespaces are not supported!");
             }
+
             // TODO: attribute prefixes (html:{name} will be translated to html attribute)
             // find the property
             var property = FindProperty(control.Metadata, attribute.AttributeName);
@@ -190,12 +228,12 @@ namespace DotVVM.Framework.Runtime.Compilation
                 // set the property
                 if (attribute.Literal == null)
                 {
-                    throw new NotSupportedException("empty attributes are not supported as DotvvmProperties");
+                    throw new DotvvmCompilationException($"The attribute '{property.Name}' int the control '{control.Metadata.Name}' must have a value!");
                 }
                 else if (attribute.Literal is DothtmlBindingNode)
                 {
                     // binding
-                    var bindingNode = (DothtmlBindingNode)attribute.Literal;
+                    var bindingNode = (DothtmlBindingNode) attribute.Literal;
                     var resolvedBinding = ProcessBinding(bindingNode, dataContext);
                     control.SetProperty(new ResolvedPropertyBinding(property, resolvedBinding));
                 }
@@ -210,16 +248,15 @@ namespace DotVVM.Framework.Runtime.Compilation
             else if (control.Metadata.HasHtmlAttributesCollection)
             {
                 // if the property is not found, add it as an HTML attribute
-                object value = (attribute.Literal is DothtmlBindingNode) ?
-                    (object)ProcessBinding((DothtmlBindingNode)attribute.Literal, dataContext) :
-                    attribute.Literal?.Value;
+                object value = (attribute.Literal is DothtmlBindingNode)
+                    ? (object) ProcessBinding((DothtmlBindingNode) attribute.Literal, dataContext)
+                    : attribute.Literal?.Value;
 
                 control.SetHtmlAttribute(attribute.AttributeName, value);
             }
             else
             {
-                // TODO: exception handling
-                throw new NotSupportedException(string.Format("The control {0} does not have a property {1}!", control.Metadata.Type, attribute.AttributeName));
+                throw new DotvvmCompilationException($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}'!");
             }
         }
 
@@ -287,24 +324,24 @@ namespace DotVVM.Framework.Runtime.Compilation
             else if (IsCollectionProperty(property))
             {
                 // collection of elements
-                var collection = FilterNodes<DothtmlElementNode>(elementContent)
+                var collection = FilterNodes<DothtmlElementNode>(elementContent, property)
                     .Select(childObject => ProcessObjectElement(childObject, dataContext));
                 return new ResolvedPropertyControlCollection(property, collection.ToList());
             }
             else if (property.DeclaringType == typeof(string))
             {
                 // string property
-                var strings = FilterNodes<DothtmlLiteralNode>(elementContent);
+                var strings = FilterNodes<DothtmlLiteralNode>(elementContent, property);
                 var value = string.Concat(strings.Select(s => s.Value));
                 return new ResolvedPropertyValue(property, value);
             }
             else if (IsControlProperty(property))
             {
                 // new object
-                var children = FilterNodes<DothtmlElementNode>(elementContent).ToList();
+                var children = FilterNodes<DothtmlElementNode>(elementContent, property).ToList();
                 if (children.Count > 1)
                 {
-                    throw new NotSupportedException(string.Format("The property {0} can have only one child element!", property.MarkupOptions.Name)); // TODO: exception handling
+                    throw new DotvvmCompilationException($"The property '{property.MarkupOptions.Name}' can have only one child element!");
                 }
                 else if (children.Count == 1)
                 {
@@ -315,7 +352,10 @@ namespace DotVVM.Framework.Runtime.Compilation
                     return new ResolvedPropertyControl(property, null);
                 }
             }
-            else throw new NotSupportedException($"property type { property.DeclaringType.FullName } is not supported");
+            else
+            {
+                throw new DotvvmCompilationException($"The property '{property.DeclaringType.FullName}' is not supported!");
+            }
         }
 
         private List<ResolvedControl> ProcessTemplate(IEnumerable<DothtmlNode> elementContent, DataContextStack dataContext)
@@ -328,8 +368,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Gets the inner property elements and makes sure that no other content is present.
         /// </summary>
-        private IEnumerable<TNode> FilterNodes<TNode>(IEnumerable<DothtmlNode> nodes)
-            where TNode : DothtmlNode
+        private IEnumerable<TNode> FilterNodes<TNode>(IEnumerable<DothtmlNode> nodes, DotvvmProperty property) where TNode : DothtmlNode
         {
             foreach (var child in nodes)
             {
@@ -339,7 +378,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 }
                 else if (child.IsNotEmpty())
                 {
-                    throw new NotSupportedException("Content cannot be inside collection inner property!"); // TODO: exception handling
+                    throw new DotvvmCompilationException($"Content is not allowed inside the property '{property.Name}'!");
                 }
             }
         }
@@ -378,7 +417,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             if (!controlMetadata.IsContentAllowed)
             {
-                throw new Exception(string.Format("The content is not allowed inside the <{0}></{0}> control!", controlMetadata.Name));
+                throw new DotvvmCompilationException($"The content is not allowed inside the control '{controlMetadata.Name}'!");
             }
         }
 
