@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -25,7 +26,8 @@ namespace DotVVM.Framework.ViewModel
         public IEnumerable<ViewModelPropertyValidationRule> ClientValidationRules
         {
             get { return ValidationRules.Where(r => !string.IsNullOrEmpty(r.ClientRuleName)); }
-        } 
+        }
 
+        public JsonConverter JsonConverter { get; set; }
     }
 }

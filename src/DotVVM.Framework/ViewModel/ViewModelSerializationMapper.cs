@@ -39,8 +39,9 @@ namespace DotVVM.Framework.ViewModel
                     ViewModelProtection = ViewModelProtectionSettings.None,
                     Type = property.PropertyType,
                     TransferToClient = property.GetMethod != null,
-                    TransferToServer = property.SetMethod != null
-                };
+                    TransferToServer = property.SetMethod != null,
+                    JsonConverter = GetJsonConverter(property)
+            };
 
                 var bindAttribute = property.GetCustomAttribute<BindAttribute>();
                 if (bindAttribute != null)
@@ -62,5 +63,21 @@ namespace DotVVM.Framework.ViewModel
             }
         }
 
+        private JsonConverter GetJsonConverter(PropertyInfo property)
+        {
+            var converterType = property.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
+            if (converterType == null)
+            {
+                return null;
+            }
+            try
+            {
+                return (JsonConverter) Activator.CreateInstance(converterType);
+            }
+            catch (Exception ex)
+            {
+                throw new JsonException(string.Format("Cannot create an instance of {0} converter! Please check that this class have a public parameterless constructor.", converterType), ex);
+            }
+        }
     }
 }

@@ -736,5 +736,45 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual(",2", browser.FindAll("span").Last().GetText());
             });
         }
+
+        public void Sample25Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample25");
+
+                // verify the first date
+                browser.FindAll("input[type=text]")[0].Clear();
+                browser.FindAll("input[type=text]")[0].SendKeys("18.2.1988");
+                browser.FindAll("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(new DateTime(1988, 2, 18), DateTime.Parse(browser.FindAll("span")[0].GetText()));
+                browser.FindAll("input[type=text]")[0].Clear();
+                browser.FindAll("input[type=text]")[0].SendKeys("test");
+                browser.FindAll("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(DateTime.MinValue, DateTime.Parse(browser.FindAll("span")[0].GetText()));
+
+                // verify the second date
+                browser.FindAll("input[type=text]")[1].Clear();
+                browser.FindAll("input[type=text]")[1].SendKeys("2011-03-19 16:48:17");
+                browser.FindAll("input[type=button]")[3].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(new DateTime(2011, 3, 19, 16, 48, 0), DateTime.Parse(browser.FindAll("span")[1].GetText()));
+                browser.FindAll("input[type=text]")[1].Clear();
+                browser.FindAll("input[type=text]")[1].SendKeys("test");
+                browser.FindAll("input[type=button]")[3].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("null", browser.FindAll("span")[1].GetText());
+
+                // try to set dates from server
+                browser.FindAll("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
+                browser.FindAll("input[type=button]")[2].Click();
+                Thread.Sleep(WaitTime);
+                Assert.IsTrue((DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[0].GetAttribute("value"))).TotalHours < 24);       // there is no time in the field
+                Assert.IsTrue((DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[1].GetAttribute("value"))).TotalMinutes < 1);      // the minutes can differ slightly
+            });
+        }
     }
 }

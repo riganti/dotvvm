@@ -95,7 +95,7 @@ namespace DotVVM.Framework.ViewModel
                         System.Diagnostics.Debug.WriteLine("ev read " + ev.First.ToString(Formatting.None) + ": " + property.Name + " in " + Type.Name), lastEVcount, encryptedValues));
 #endif
                     var callDeserialize = ExpressionUtils.Replace(
-                        (JsonSerializer s, JArray ev, JObject j) => s.Deserialize(GetAndRemove(ev, 0).CreateReader(), property.Type),
+                        (JsonSerializer s, JArray ev, JObject j) => Deserialize(s, GetAndRemove(ev, 0).CreateReader(), property, j),
                         serializer, encryptedValues, jobj);
                     // encryptedValues[(int)jobj["{p.Name}"]]
 
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.ViewModel
 
                     var jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
                     var callDeserialize = ExpressionUtils.Replace((JsonSerializer s, JObject j) =>
-                        s.Deserialize(j[property.Name].CreateReader(), property.Type), serializer, jobj);
+                        Deserialize(s, j[property.Name].CreateReader(), property, j), serializer, jobj);
 
                     // if ({jsonProp} != null) value.{p.Name} = deserialize();
                     block.Add(
@@ -150,6 +150,30 @@ namespace DotVVM.Framework.ViewModel
                     typeof(object)).OptimizeConstants(),
                 jobj, serializer, valueParam, encryptedValues);
             return ex.Compile();
+        }
+
+        private static void Serialize(JsonSerializer serializer, JsonWriter writer, ViewModelPropertyMap property, object value)
+        {
+            if (property.JsonConverter != null && property.JsonConverter.CanWrite && property.JsonConverter.CanConvert(property.Type))
+            {
+                property.JsonConverter.WriteJson(writer, value, serializer);
+            }
+            else
+            {
+                serializer.Serialize(writer, value);
+            }
+        }
+
+        private static object Deserialize(JsonSerializer serializer, JsonReader reader, ViewModelPropertyMap property, object existingValue)
+        {
+            if (property.JsonConverter != null && property.JsonConverter.CanRead && property.JsonConverter.CanConvert(property.Type))
+            {
+                return property.JsonConverter.ReadJson(reader, property.Type, existingValue, serializer);
+            }
+            else
+            {
+                return serializer.Deserialize(reader, property.Type);
+            }
         }
 
         private JToken GetAndRemove(JArray array, int index)
@@ -192,7 +216,7 @@ namespace DotVVM.Framework.ViewModel
             // serializer.Serialize(writer, value.GetType().FullName)
             block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$type"), writer));
             block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.FullName)));
-
+            
             // go through all properties that should be serialized
             foreach (var property in Properties)
             {
@@ -233,8 +257,8 @@ namespace DotVVM.Framework.ViewModel
                             Expression.Constant(property.Name)));
 
                         // serializer.Serialize(writer, value.{property.Name});
-                        block.Add(Expression.Call(serializer, "Serialize", Type.EmptyTypes, writer, prop));
-
+                        block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, object v) => Serialize(s, w, property, v), serializer, writer, prop));
+                        
                         if (checkEVCount)
                         {
                             // encryptedValues.Add(encryptedValues.Count - lastEVcount)
@@ -261,7 +285,7 @@ namespace DotVVM.Framework.ViewModel
                     options["doNotUpdate"] = true;
                 }
 
-                if (property.Type == typeof (DateTime) || property.Type == typeof (DateTime?))
+                if ((property.Type == typeof (DateTime) || property.Type == typeof (DateTime?)) && property.JsonConverter == null)      // TODO: allow customization using attributes
                 {
                     options["isDate"] = true;
                 }
