@@ -106,9 +106,7 @@ var DotvvmValidation = (function () {
         var type = ko.unwrap(viewModel.$type);
         if (!type)
             return;
-        var rulesForType = dotvvm.viewModels.root.validationRules[type];
-        if (!rulesForType)
-            return;
+        var rulesForType = dotvvm.viewModels.root.validationRules[type] || {};
         // validate all properties
         for (var property in viewModel) {
             if (!viewModel.hasOwnProperty(property) || property.indexOf("$") >= 0)

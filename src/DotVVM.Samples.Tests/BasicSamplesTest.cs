@@ -803,5 +803,112 @@ namespace DotVVM.Samples.Tests
                 Assert.IsTrue((DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[1].GetAttribute("value"))).TotalMinutes < 1);      // the minutes can differ slightly
             });
         }
+
+        public void Sample26Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                Action<int, bool> checkValidator = (int field, bool visible) =>
+                {
+                    Assert.AreEqual(visible, browser.FindAll("span")[field * 3 + 0].IsDisplayed());
+                    Assert.IsTrue(browser.FindAll("span")[field * 3 + 1].IsDisplayed());
+                    Assert.AreEqual(visible, browser.FindAll("span")[field * 3 + 1].GetAttribute("class").Contains("invalid"));
+                    Assert.AreEqual(visible, browser.FindAll("span")[field * 3 + 2].IsDisplayed());
+                };
+                Action<int, int> checkSummary = (int field, int numberOfErrors) =>
+                {
+                    Assert.AreEqual(numberOfErrors, browser.FindAll(".summary" + (field + 1) + " li").Count);
+                };
+
+                browser.NavigateToUrl(BaseUrl + "Sample26");
+
+                // ensure validators hidden
+                checkValidator(0, false);
+                checkValidator(1, false);
+                checkSummary(0, 0);
+                checkSummary(1, 0);
+
+                // leave both textboxes empty and submit the form
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure validators visible
+                checkValidator(0, true);
+                checkValidator(1, true);
+                checkSummary(0, 0);
+                checkSummary(1, 2);
+
+                // submit once again and test each validation summary still holds one error
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure validators visible
+                checkValidator(0, true);
+                checkValidator(1, true);
+                checkSummary(0, 0);
+                checkSummary(1, 2);
+
+                // fill invalid value in the task title
+                browser.FindAll("input[type=text]")[0].SendKeys("test");
+                Thread.Sleep(WaitTime);
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure validator state
+                checkValidator(0, false);
+                checkValidator(1, true);
+                checkSummary(0, 0);
+                checkSummary(1, 1);
+
+                // clear value in the first field and verify that the second error appears
+                browser.FindAll("input[type=text]")[0].Clear();
+                Thread.Sleep(WaitTime);
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure validator state
+                checkValidator(0, true);
+                checkValidator(1, true);
+                checkSummary(0, 0);
+                checkSummary(1, 2);
+
+                // fill the second field
+                browser.FindAll("input[type=text]")[1].SendKeys("test");
+                Thread.Sleep(WaitTime);
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure validator state
+                checkValidator(0, true);
+                checkValidator(1, false);
+                checkSummary(0, 0);
+                checkSummary(1, 1);
+
+                // fill the first field
+                browser.FindAll("input[type=text]")[0].SendKeys("test");
+                Thread.Sleep(WaitTime);
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure validator state - the first field won't be valid because there is also a server side rule
+                checkValidator(0, false);
+                checkValidator(1, true);
+                checkSummary(0, 0);
+                checkSummary(1, 1);
+
+                // fix the first field
+                browser.FindAll("input[type=text]")[1].Clear();
+                browser.FindAll("input[type=text]")[1].SendKeys("test@mail.com");
+                Thread.Sleep(WaitTime);
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // ensure everything is valid
+                checkValidator(0, false);
+                checkValidator(1, false);
+                checkSummary(0, 0);
+                checkSummary(1, 0);
+            });
+        }
     }
 }

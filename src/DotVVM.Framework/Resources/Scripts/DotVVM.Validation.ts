@@ -99,8 +99,7 @@ class DotvvmValidation
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
         if (!type) return;
-        var rulesForType = dotvvm.viewModels.root.validationRules[type];
-        if (!rulesForType) return;
+        var rulesForType = dotvvm.viewModels.root.validationRules[type] || {};
 
         // validate all properties
         for (var property in viewModel) {

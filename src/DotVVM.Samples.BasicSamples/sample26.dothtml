@@ -1,0 +1,47 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample26ViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+	<style>
+	.invalid {
+		color: red;
+	}
+	</style>
+	<dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+	<div class="container">
+		<h1>Nested validation</h1>
+		
+		<p>Title: <dot:TextBox Text="{value: Child.Text}" /></p>
+		<p>
+			<dot:ValidationMessage DataContext="{value: Child}" ValidatedValue="{value: Text}" Mode="DisplayErrorMessage" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="AddCssClass" InvalidCssClass="invalid" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
+		</p>
+		<p>&nbsp;</p>
+		<p DataContext="{value: Child}">Title 2: <dot:TextBox Text="{value: Text2}" /></p>
+		<p>
+			<dot:ValidationMessage DataContext="{value: Child}" ValidatedValue="{value: Text2}" Mode="DisplayErrorMessage" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text2}" Mode="AddCssClass" InvalidCssClass="invalid" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text2}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
+		</p>
+		<p><dot:Button Text="Create" Click="{command: Test()}" /></p>
+		
+		<p>&nbsp;</p>
+		<p>&nbsp;</p>
+		<div class="summary1">
+			<p>Summary 1</p>
+			<dot:ValidationSummary />
+		</div>
+		<div class="summary2">
+			<p>Summary 2</p>
+			<dot:ValidationSummary Validate.Target="{value: Child}" />
+		</div>
+	</div>
+	
+	<dot:RequiredResource Name="bootstrap" />
+</body>
+</html>
