@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
         public Dictionary<DotvvmProperty, ResolvedPropertySetter> Properties { get; set; } = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
         public Dictionary<string, object> HtmlAttributes { get; set; }
         public object[] ContructorParameters { get; set; }
+
         public ResolvedControl(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
             : base(metadata, node, dataContext)
         {

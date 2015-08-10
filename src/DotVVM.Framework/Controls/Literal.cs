@@ -90,12 +90,21 @@ namespace DotVVM.Framework.Controls
             }
             base.OnPreRender(context);
         }
+         
 
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
+            if ((bool)GetValue(Internal.IsCommentProperty))
+            {
+                writer.WriteUnencodedText("<!--");
+                writer.WriteUnencodedText(Text);
+                writer.WriteUnencodedText("-->");
+                return;
+            }
+
             var textBinding = GetBinding(TextProperty);
             if (textBinding != null && !RenderOnServer && textBinding.Javascript != null)
             {
@@ -150,6 +159,8 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public bool HasWhiteSpaceContentOnly()
         {
+            if ((bool)GetValue(Internal.IsCommentProperty)) return true;
+
             var unencodedValue = HtmlEncode ? Text : WebUtility.HtmlDecode(Text);
             return unencodedValue.All(char.IsWhiteSpace);
         }

@@ -442,13 +442,15 @@ var DotVVM = (function () {
         });
     };
     DotVVM.prototype.formatString = function (format, value) {
+        value = ko.unwrap(value);
+        if (value == null)
+            return "";
         if (format == "g") {
             return dotvvm.formatString("d", value) + " " + dotvvm.formatString("t", value);
         }
         else if (format == "G") {
             return dotvvm.formatString("d", value) + " " + dotvvm.formatString("T", value);
         }
-        value = ko.unwrap(value);
         if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?$")) {
             // JSON date in string
             value = new Date(value);

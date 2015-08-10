@@ -136,7 +136,7 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
             jobj["percent"]["."] = ni.PercentDecimalSeparator;
 
             jobj["currency"][","] = ni.CurrencyGroupSeparator;
-            jobj["currency"]["."] = ni.CurrencyGroupSeparator;
+            jobj["currency"]["."] = ni.CurrencyDecimalSeparator;
             return jobj;
         }
 
@@ -156,8 +156,8 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
                     names = di.MonthNames,
                     namesAbbr = di.AbbreviatedMonthNames
                 },
-                AM = di.AMDesignator,
-                PM = di.PMDesignator,
+                AM = new[] { di.AMDesignator, di.AMDesignator.ToLower(), di.AMDesignator.ToUpper() },
+                PM = new[] { di.PMDesignator, di.PMDesignator.ToLower(), di.PMDesignator.ToUpper() },
                 eras = di.Calendar.Eras.Select(era => new { offset = 0, start = (string)null, name = di.GetEraName(era) }).ToArray(),
                 twoDigitYearMax = di.Calendar.TwoDigitYearMax,
                 patterns = new

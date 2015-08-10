@@ -152,6 +152,7 @@
     <Content Include="sample24.dothtml" />
     <Content Include="sample25.dothtml" />
     <Content Include="sample26.dothtml" />
+    <Content Include="sample27.dothtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -189,6 +190,7 @@
     <Compile Include="ViewModels\Sample17ViewModel.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_A.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
+    <Compile Include="ViewModels\Sample27ViewModel.cs" />
     <Compile Include="ViewModels\Sample26ViewModel.cs" />
     <Compile Include="ViewModels\Sample19ViewModel.cs" />
     <Compile Include="ViewModels\Sample18ViewModel.cs" />

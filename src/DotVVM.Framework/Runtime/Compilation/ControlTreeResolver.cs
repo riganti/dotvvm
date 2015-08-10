@@ -104,6 +104,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                         EnsureContentAllowed(parentMetadata);
                     }
                     var literal = new ResolvedControl(controlResolver.ResolveControl(typeof (Literal)), node, dataContext);
+                    literal.SetPropertyValue(Internal.IsCommentProperty, ((DothtmlLiteralNode) node).IsComment);
                     literal.SetPropertyValue(Literal.HtmlEncodeProperty, escape);
                     literal.SetPropertyValue(Literal.TextProperty, literalValue);
                     return literal;

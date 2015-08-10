@@ -10,7 +10,12 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     {
         public static bool IsNotEmpty(this DothtmlNode node)
         {
-            return !(node is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)node).Value));
+            if (node is DothtmlLiteralNode)
+            {
+                var literalNode = (DothtmlLiteralNode) node;
+                return !literalNode.IsComment && !string.IsNullOrWhiteSpace(literalNode.Value);
+            }
+            return true;
         }
     }
 }

@@ -14,9 +14,9 @@ namespace DotVVM.Samples.Tests
         protected abstract string BaseUrl { get; }
 
         private const int WaitTime = 500;
-        
 
-        
+
+
         public void Sample1Test()
         {
             RunInAllBrowsers(browser =>
@@ -39,7 +39,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample2Test()
         {
             RunInAllBrowsers(browser =>
@@ -89,7 +89,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample3Test()
         {
             RunInAllBrowsers(browser =>
@@ -169,7 +169,7 @@ namespace DotVVM.Samples.Tests
 
         }
 
-        
+
         public void Sample4Test()
         {
             RunInAllBrowsers(browser =>
@@ -192,7 +192,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample5Test()
         {
             RunInAllBrowsers(browser =>
@@ -214,7 +214,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample6Test()
         {
             RunInAllBrowsers(browser =>
@@ -240,8 +240,8 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual(originalValue, browser.Find("strong span").GetText());
             });
         }
-        
-        
+
+
         public void Sample8Test()
         {
             RunInAllBrowsers(browser =>
@@ -273,7 +273,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample9Test()
         {
             RunInAllBrowsers(browser =>
@@ -290,7 +290,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample10Test()
         {
             RunInAllBrowsers(browser =>
@@ -300,7 +300,7 @@ namespace DotVVM.Samples.Tests
 
                 var originalUrl = browser.CurrentUrl;
                 Assert.IsTrue(originalUrl.Contains("?time="));
-                
+
                 // click the button
                 browser.Find("input[type=button]").Click();
                 Thread.Sleep(WaitTime);
@@ -310,13 +310,13 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample11Test()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample11");
-                
+
                 // ensure validators not visible
                 Assert.AreEqual(0, browser.FindAll("li").Count);
                 Assert.IsFalse(browser.FindAll("span")[0].IsDisplayed());
@@ -372,13 +372,13 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample12Test()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample12");
-                
+
                 // enter number of lines and click the button
                 browser.Clear("input[type=text]");
                 browser.SendKeys("input[type=text]", "15");
@@ -396,7 +396,7 @@ namespace DotVVM.Samples.Tests
         }
 
 
-        
+
         public void Sample13Test()
         {
             RunInAllBrowsers(browser =>
@@ -432,7 +432,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample14Test()
         {
             RunInAllBrowsers(browser =>
@@ -456,7 +456,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample15Test()
         {
             RunInAllBrowsers(browser =>
@@ -489,7 +489,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample16Test()
         {
             RunInAllBrowsers(browser =>
@@ -563,7 +563,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample17Test()
         {
             RunInAllBrowsers(browser =>
@@ -638,7 +638,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        
+
         public void Sample18Test()
         {
             RunInAllBrowsers(browser =>
@@ -698,7 +698,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample20");
-                 
+
                 // click the validate button
                 browser.FindAll("input[type=button]").Last().Click();
                 Thread.Sleep(WaitTime);
@@ -787,7 +787,8 @@ namespace DotVVM.Samples.Tests
                 browser.FindAll("input[type=text]")[1].SendKeys("2011-03-19 16:48:17");
                 browser.FindAll("input[type=button]")[3].Click();
                 Thread.Sleep(WaitTime);
-                Assert.AreEqual(new DateTime(2011, 3, 19, 16, 48, 0), DateTime.Parse(browser.FindAll("span")[1].GetText()));
+                Assert.AreEqual(new DateTime(2011, 3, 19, 16, 48, 0),
+                    DateTime.Parse(browser.FindAll("span")[1].GetText()));
                 browser.FindAll("input[type=text]")[1].Clear();
                 browser.FindAll("input[type=text]")[1].SendKeys("test");
                 browser.FindAll("input[type=button]")[3].Click();
@@ -799,8 +800,12 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
                 browser.FindAll("input[type=button]")[2].Click();
                 Thread.Sleep(WaitTime);
-                Assert.IsTrue((DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[0].GetAttribute("value"))).TotalHours < 24);       // there is no time in the field
-                Assert.IsTrue((DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[1].GetAttribute("value"))).TotalMinutes < 1);      // the minutes can differ slightly
+                Assert.IsTrue(
+                    (DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[0].GetAttribute("value")))
+                        .TotalHours < 24); // there is no time in the field
+                Assert.IsTrue(
+                    (DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[1].GetAttribute("value")))
+                        .TotalMinutes < 1); // the minutes can differ slightly
             });
         }
 
@@ -812,7 +817,8 @@ namespace DotVVM.Samples.Tests
                 {
                     Assert.AreEqual(visible, browser.FindAll("span")[field * 3 + 0].IsDisplayed());
                     Assert.IsTrue(browser.FindAll("span")[field * 3 + 1].IsDisplayed());
-                    Assert.AreEqual(visible, browser.FindAll("span")[field * 3 + 1].GetAttribute("class").Contains("invalid"));
+                    Assert.AreEqual(visible,
+                        browser.FindAll("span")[field * 3 + 1].GetAttribute("class").Contains("invalid"));
                     Assert.AreEqual(visible, browser.FindAll("span")[field * 3 + 2].IsDisplayed());
                 };
                 Action<int, int> checkSummary = (int field, int numberOfErrors) =>
@@ -908,6 +914,34 @@ namespace DotVVM.Samples.Tests
                 checkValidator(1, false);
                 checkSummary(0, 0);
                 checkSummary(1, 0);
+            });
+        }
+
+        public void Sample27Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample27");
+
+                var items1 = browser.FindAll(".list1 li");
+                var items2 = browser.FindAll(".list2 li");
+
+                Assert.AreEqual(items1[0].GetText(), items2[0].GetText());
+                Assert.AreEqual(items1[1].GetText(), items2[1].GetText());
+                Assert.AreEqual(items1[2].GetText(), items2[2].GetText());
+
+                Assert.AreEqual(items1[4].GetText(), items2[4].GetText());
+                Assert.AreEqual(items1[5].GetText(), items2[5].GetText());
+                Assert.AreEqual(items1[6].GetText(), items2[6].GetText());
+
+                Assert.AreEqual(items1[7].GetText(), items2[7].GetText());
+                Assert.AreEqual(items1[8].GetText(), items2[8].GetText());
+                Assert.AreEqual(items1[9].GetText(), items2[9].GetText());
+                Assert.AreEqual(items1[10].GetText(), items2[10].GetText());
+
+                Assert.AreEqual(items1[11].GetText(), items2[11].GetText());
+                Assert.AreEqual(items1[12].GetText(), items2[12].GetText());
+                Assert.AreEqual(items1[13].GetText(), items2[13].GetText());
             });
         }
     }

@@ -114,6 +114,10 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 {
                     CurrentElementContent.Add(ReadCData());
                 }
+                else if (Peek().Type == DothtmlTokenType.OpenComment)
+                {
+                    CurrentElementContent.Add(ReadComment());
+                }
                 else
                 {
                     // text
@@ -201,6 +205,27 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             node.Escape = true;
             Read();
             Assert(DothtmlTokenType.CloseCData);
+            node.Tokens.Add(Peek());
+            Read();
+            return node;
+        }
+
+        private DothtmlLiteralNode ReadComment()
+        {
+            Assert(DothtmlTokenType.OpenComment);
+            var node = new DothtmlLiteralNode()
+            {
+                IsComment = true,
+                StartPosition = Peek().StartPosition
+            };
+            node.Tokens.Add(Peek());
+            Read();
+            Assert(DothtmlTokenType.CommentBody);
+            var body = Peek().Text;
+            node.Value = body;
+            node.Tokens.Add(Peek());
+            Read();
+            Assert(DothtmlTokenType.CloseComment);
             node.Tokens.Add(Peek());
             Read();
             return node;
