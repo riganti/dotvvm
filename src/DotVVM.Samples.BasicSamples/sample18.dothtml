@@ -24,7 +24,14 @@
 			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
 		</p>
 		<p>&nbsp;</p>
-		<dot:ValidationSummary />
+		<div class="summary1">
+			<p>Summary 1</p>
+			<dot:ValidationSummary />
+		</div>
+		<div class="summary2">
+			<p>Summary 2</p>
+			<dot:ValidationSummary Validate.Target="{value: Child}" />
+		</div>
 	</div>
 	
 	<dot:RequiredResource Name="bootstrap" />

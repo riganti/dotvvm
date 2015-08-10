@@ -650,6 +650,8 @@ namespace DotVVM.Samples.Tests
                 Assert.IsTrue(browser.FindAll("span")[1].IsDisplayed());
                 Assert.IsFalse(browser.FindAll("span")[1].GetAttribute("class").Contains("validator"));
                 Assert.IsFalse(browser.FindAll("span")[2].IsDisplayed());
+                Assert.AreEqual(0, browser.FindAll(".summary1 li").Count);
+                Assert.AreEqual(0, browser.FindAll(".summary2 li").Count);
 
                 // leave textbox empty and submit the form
                 browser.Click("input[type=button]");
@@ -660,10 +662,20 @@ namespace DotVVM.Samples.Tests
                 Assert.IsTrue(browser.FindAll("span")[1].IsDisplayed());
                 Assert.IsTrue(browser.FindAll("span")[1].GetAttribute("class").Contains("invalid"));
                 Assert.IsTrue(browser.FindAll("span")[2].IsDisplayed());
+                Assert.AreEqual(0, browser.FindAll(".summary1 li").Count);
+                Assert.AreEqual(1, browser.FindAll(".summary2 li").Count);
 
                 // submit once again and test the validation summary still holds one error
                 browser.Click("input[type=button]");
                 Thread.Sleep(WaitTime);
+
+                // ensure validators visible
+                Assert.IsTrue(browser.FindAll("span")[0].IsDisplayed());
+                Assert.IsTrue(browser.FindAll("span")[1].IsDisplayed());
+                Assert.IsTrue(browser.FindAll("span")[1].GetAttribute("class").Contains("invalid"));
+                Assert.IsTrue(browser.FindAll("span")[2].IsDisplayed());
+                Assert.AreEqual(0, browser.FindAll(".summary1 li").Count);
+                Assert.AreEqual(1, browser.FindAll(".summary2 li").Count);
 
                 // fill invalid value in the task title
                 browser.SendKeys("input[type=text]", "test");
@@ -676,6 +688,8 @@ namespace DotVVM.Samples.Tests
                 Assert.IsTrue(browser.FindAll("span")[1].IsDisplayed());
                 Assert.IsFalse(browser.FindAll("span")[1].GetAttribute("class").Contains("validator"));
                 Assert.IsFalse(browser.FindAll("span")[2].IsDisplayed());
+                Assert.AreEqual(0, browser.FindAll(".summary1 li").Count);
+                Assert.AreEqual(0, browser.FindAll(".summary2 li").Count);
             });
         }
 
