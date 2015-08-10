@@ -554,11 +554,11 @@ namespace DotVVM.Samples.Tests
                 };
 
                 performTest();
-                Thread.Sleep(WaitTime);
+                Thread.Sleep(WaitTime * 6);
                 browser.NavigateBack();
-                Thread.Sleep(WaitTime);
+                Thread.Sleep(WaitTime * 6);
                 browser.NavigateForward();
-                Thread.Sleep(WaitTime * 4);
+                Thread.Sleep(WaitTime * 6);
                 performTest();
             });
         }
