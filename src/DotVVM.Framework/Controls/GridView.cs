@@ -73,13 +73,12 @@ namespace DotVVM.Framework.Controls
             Children.Clear();
 
             var dataSourceBinding = GetDataSourceBinding();
-            // var dataSourcePath = dataSourceBinding.GetViewModelPathExpression(this, DataSourceProperty);
             var dataSource = DataSource;
 
             Action<string> sortCommand = null;
             if (dataSource is IGridViewDataSet)
             {
-                sortCommand = ((IGridViewDataSet)dataSource).SetSortExpression; // dataSourcePath + ".SetSortExpression";
+                sortCommand = ((IGridViewDataSet)dataSource).SetSortExpression;
             }
             else
             {
@@ -96,11 +95,13 @@ namespace DotVVM.Framework.Controls
                 // create header row
                 CreateHeaderRow(context, sortCommand);
                 var items = GetIEnumerableFromDataSource(dataSource);
+                var javascriptDataSourceExpression = dataSourceBinding.GetKnockoutBindingExpression();
+
                 foreach (var item in items)
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, dataSourceBinding.GetKnockoutBindingExpression(), index));
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     Children.Add(placeholder);
 
                     CreateRow(context, placeholder);
@@ -191,11 +192,9 @@ namespace DotVVM.Framework.Controls
             Children[0].Render(writer, context);
 
             // render body
-            var dataSourceBinding = GetDataSourceBinding();
             if (!RenderOnServer)
             {
-                var expression = dataSourceBinding.GetKnockoutBindingExpression();
-                writer.AddKnockoutForeachDataBind(expression);
+                writer.AddKnockoutForeachDataBind(GetForeachDataBindJavascriptExpression());
             }
             writer.RenderBeginTag("tbody");
 
@@ -206,7 +205,7 @@ namespace DotVVM.Framework.Controls
                 var index = 0;
                 foreach (var child in Children.Skip(1))
                 {
-                    Children[index].Render(writer, context);
+                    child.Render(writer, context);
                     index++;
                 }
             }
@@ -214,8 +213,7 @@ namespace DotVVM.Framework.Controls
             {
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
-                placeholder.SetValue(Internal.PathFragmentProperty, 
-                    JavascriptCompilationHelper.AddIndexerToViewModel(dataSourceBinding.GetKnockoutBindingExpression(), "$index"));
+                placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                 Children.Add(placeholder);
 
                 CreateRow(context.RequestContext, placeholder);

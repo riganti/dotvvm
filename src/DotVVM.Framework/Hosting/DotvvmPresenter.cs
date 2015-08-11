@@ -105,9 +105,6 @@ namespace DotVVM.Framework.Hosting
             // run the preinit phase in the page
             InvokePageLifeCycleEventRecursive(page, c => c.OnPreInit(context));
 
-            // run the init phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnInit(context));
-
             // locate and create the view model
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
             page.DataContext = context.ViewModel;
@@ -128,6 +125,9 @@ namespace DotVVM.Framework.Hosting
                 ((IDotvvmViewModel)context.ViewModel).Context = context;
                 await ((IDotvvmViewModel)context.ViewModel).Init();
             }
+
+            // run the init phase in the page
+            InvokePageLifeCycleEventRecursive(page, c => c.OnInit(context));
 
             if (!isPostBack)
             {

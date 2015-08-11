@@ -87,12 +87,14 @@ namespace DotVVM.Framework.Controls
                     if (lastBoundArray.SequenceEqual(items)) return;
                 }
                 Children.Clear();
+
+                var javascriptDataSourceExpression = dataSourceBinding.GetKnockoutBindingExpression();
                 foreach (var item in items)
                 {
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     ItemTemplate.BuildContent(context, placeholder);
                     Children.Add(placeholder);
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, dataSourceBinding.GetKnockoutBindingExpression(), index));
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     Debug.Assert(placeholder.properties[DataContextProperty] != null);
                     index++;
                 }
@@ -109,7 +111,8 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderOnServer)
             {
-                writer.AddKnockoutForeachDataBind(GetDataSourceBinding().GetKnockoutBindingExpression());
+                var javascriptDataSourceExpression = GetForeachDataBindJavascriptExpression();
+                writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
             }
 
             base.AddAttributesToRender(writer, context);
@@ -120,8 +123,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-            var dataSourceBinding = GetDataSourceBinding();
-
+            
             if (RenderOnServer)
             {
                 // render on server
@@ -136,7 +138,7 @@ namespace DotVVM.Framework.Controls
             {
                 // render on client
                 var placeholder = new DataItemContainer() { DataContext = null };
-                placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(dataSourceBinding.GetKnockoutBindingExpression(), "$index"));
+                placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                 Children.Add(placeholder);
                 ItemTemplate.BuildContent(context.RequestContext, placeholder);
 

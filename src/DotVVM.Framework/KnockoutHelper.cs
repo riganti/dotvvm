@@ -68,8 +68,7 @@ namespace DotVVM.Framework
 
         public static void AddKnockoutForeachDataBind(this IHtmlWriter writer, string expression)
         {
-            writer.AddKnockoutDataBind("foreach", "dotvvm.getDataSourceItems(" + expression + ")");
-            //writer.SetPathFragment(JavascriptCompilationHelper.AddIndexerToViewModel(expression, "$index"));
+            writer.AddKnockoutDataBind("foreach", expression);
         }
 
         public static string GenerateClientPostBackScript(BindingExpression expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)

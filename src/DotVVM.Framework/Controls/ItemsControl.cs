@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Controls
             return new ValueBindingExpression(new CompiledBindingExpression()
             {
                 Delegate = (h, c) => items[index],
-                Javascript = JavascriptCompilationHelper.AddIndexerToViewModel(dataSourceJs, index)
+                Javascript = JavascriptCompilationHelper.AddIndexerToViewModel(WrapJavascriptDataSourceAccess(dataSourceJs), index, true)
             });
         }
 
@@ -79,6 +79,21 @@ namespace DotVVM.Framework.Controls
                 return ((IGridViewDataSet)dataSource).Items;
             }
             throw new NotSupportedException(string.Format("The object of type {0} is not supported in the DataSource property!", dataSource.GetType()));
+        }
+
+        protected string WrapJavascriptDataSourceAccess(string expression)
+        {
+            return "dotvvm.getDataSourceItems(" + expression + ")";
+        }
+
+        protected string GetForeachDataBindJavascriptExpression()
+        {
+            return WrapJavascriptDataSourceAccess(GetDataSourceBinding().GetKnockoutBindingExpression());
+        }
+
+        protected string GetPathFragmentExpression()
+        {
+            return GetDataSourceBinding().GetKnockoutBindingExpression();
         }
     }
 }

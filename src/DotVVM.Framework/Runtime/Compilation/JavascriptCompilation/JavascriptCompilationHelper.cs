@@ -9,14 +9,26 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 {
     public static class JavascriptCompilationHelper
     {
-        public static string CompileConstant(object obj)
-            => JsonConvert.SerializeObject(obj);
+        public static string CompileConstant(object obj) => JsonConvert.SerializeObject(obj);
 
-        public static string AddIndexerToViewModel(string script, object index)
+        public static string AddIndexerToViewModel(string script, object index, bool unwrap = false)
         {
             if (!script.EndsWith("()"))
-                script += "()";
-            else script = "(" + script + ")";
+            {
+                if (unwrap)
+                {
+                    script = "ko.unwrap(" + script + ")";
+                }
+                else
+                {
+                    script += "()";
+                }
+            }
+            else
+            {
+                script = "(" + script + ")";
+            }
+
             return script + "[" + index + "]";
         }
     }
