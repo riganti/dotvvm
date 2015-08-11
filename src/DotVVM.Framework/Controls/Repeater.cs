@@ -95,6 +95,7 @@ namespace DotVVM.Framework.Controls
                     ItemTemplate.BuildContent(context, placeholder);
                     Children.Add(placeholder);
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
+                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     Debug.Assert(placeholder.properties[DataContextProperty] != null);
                     index++;
                 }

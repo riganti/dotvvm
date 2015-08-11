@@ -17,11 +17,11 @@ namespace DotVVM.Samples.Tests
 
 
 
-        public void Sample1Test()
+        public void Sample1Test(string sampleUrl = "Sample1")
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(BaseUrl + "Sample1");
+                browser.NavigateToUrl(BaseUrl + sampleUrl);
 
                 Assert.AreEqual(3, browser.FindAll(".table tr").Count);
 
@@ -490,11 +490,11 @@ namespace DotVVM.Samples.Tests
         }
 
 
-        public void Sample16Test()
+        public void Sample16Test(string sampleUrl = "Sample16")
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(BaseUrl + "Sample16");
+                browser.NavigateToUrl(BaseUrl + sampleUrl);
 
                 Action performTest = () =>
                 {
@@ -943,6 +943,16 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual(items1[12].GetText(), items2[12].GetText());
                 Assert.AreEqual(items1[13].GetText(), items2[13].GetText());
             });
+        }
+
+        public void Sample28Test()
+        {
+            Sample16Test("Sample28");
+        }
+
+        public void Sample29Test()
+        {
+            Sample1Test("Sample29");
         }
     }
 }

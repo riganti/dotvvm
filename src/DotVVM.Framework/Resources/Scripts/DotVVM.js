@@ -533,10 +533,15 @@ var DotVVM = (function () {
                     updatedControl.parent.appendChild(updatedControl.control);
                 }
                 updatedControl.control.outerHTML = resultObject.updatedControls[id];
-                if (applyBindingsOnEachControl) {
-                    ko.applyBindings(ko.dataFor(updatedControl.parent), updatedControl.control);
-                }
             }
+        }
+        if (applyBindingsOnEachControl) {
+            window.setTimeout(function () {
+                for (var id in resultObject.updatedControls) {
+                    var updatedControl = document.getElementById(id);
+                    ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                }
+            }, 0);
         }
     };
     DotVVM.prototype.attachEvent = function (target, name, callback, useCapture) {

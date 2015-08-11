@@ -25,7 +25,7 @@ namespace DotVVM.Framework
             }
             else
             {
-                if(nullBindingAction != null) nullBindingAction();
+                if (nullBindingAction != null) nullBindingAction();
             }
         }
 
@@ -105,15 +105,18 @@ namespace DotVVM.Framework
             {
                 if (control is DotvvmBindableControl)
                 {
-                    var dataContextBinding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as IValueBinding;
                     var pathFragment = ((DotvvmBindableControl)control).GetValue(Internal.PathFragmentProperty, false) as string;
                     if (pathFragment != null)
                     {
                         yield return pathFragment;
                     }
-                    if (dataContextBinding != null)
+                    else
                     {
-                        yield return dataContextBinding.GetKnockoutBindingExpression();
+                        var dataContextBinding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as IValueBinding;
+                        if (dataContextBinding != null)
+                        {
+                            yield return dataContextBinding.GetKnockoutBindingExpression();
+                        }
                     }
                 }
                 control = control.Parent;
