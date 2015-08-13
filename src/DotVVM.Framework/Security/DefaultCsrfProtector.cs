@@ -72,7 +72,8 @@ namespace DotVVM.Framework.Security
         private byte[] GetOrCreateSessionId(DotvvmRequestContext context)
         {
             if (context == null) throw new ArgumentNullException("context");
-            if (string.IsNullOrWhiteSpace(context.Configuration.Security.SessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
+            var sessionIdCookieName = GetSessionIdCookieName(context);
+            if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
 
             // Get cookie manager
             var mgr = new ChunkingCookieManager(); // TODO: Make this configurable
@@ -81,7 +82,7 @@ namespace DotVVM.Framework.Security
             var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);
 
             // Get cookie value
-            var sidCookieValue = mgr.GetRequestCookie(context.OwinContext, context.Configuration.Security.SessionIdCookieName);
+            var sidCookieValue = mgr.GetRequestCookie(context.OwinContext, sessionIdCookieName);
 
             if (string.IsNullOrWhiteSpace(sidCookieValue))
             {
@@ -95,7 +96,7 @@ namespace DotVVM.Framework.Security
                 sidCookieValue = Convert.ToBase64String(protectedSid);
                 mgr.AppendResponseCookie(
                     context.OwinContext,
-                    context.Configuration.Security.SessionIdCookieName, // Configured cookie name
+                    sessionIdCookieName, // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value
                     new Microsoft.Owin.CookieOptions
                     {
@@ -123,5 +124,14 @@ namespace DotVVM.Framework.Security
             }
         }
 
+        private string GetSessionIdCookieName(DotvvmRequestContext context)
+        {
+            var domain = context.OwinContext.Request.Uri.Host;
+            if (!context.OwinContext.Request.Uri.IsDefaultPort)
+            {
+                domain += "-" + context.OwinContext.Request.Uri.Port;
+            }
+            return string.Format(context.Configuration.Security.SessionIdCookieName, domain);
+        }
     }
 }

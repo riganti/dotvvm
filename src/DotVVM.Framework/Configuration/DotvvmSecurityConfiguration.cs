@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         public DotvvmSecurityConfiguration()
         {
-            SessionIdCookieName = "_RW_SID";
+            SessionIdCookieName = "dotvvm_sid_{0}";
         }
     }
 }
