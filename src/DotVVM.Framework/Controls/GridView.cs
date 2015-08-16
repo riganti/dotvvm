@@ -55,20 +55,20 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
 
-        protected internal override void OnLoad(DotvvmRequestContext context)
+        protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnLoad(context);
         }
 
-        protected internal override void OnPreRender(DotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             DataBind(context);     // TODO: support for observable collection
             base.OnPreRender(context);
         }
 
 
-        private void DataBind(DotvvmRequestContext context)
+        private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
 
@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(DotvvmRequestContext context, Action<string> sortCommand)
+        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             var head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -162,7 +162,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateRow(DotvvmRequestContext context, DataItemContainer placeholder)
+        private void CreateRow(IDotvvmRequestContext context, DataItemContainer placeholder)
         {
             var row = new HtmlGenericControl("tr");
 

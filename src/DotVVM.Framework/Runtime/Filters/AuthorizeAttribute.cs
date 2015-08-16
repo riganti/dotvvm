@@ -36,19 +36,19 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called before the command is invoked.
         /// </summary>
-        protected internal override void OnCommandExecuting(DotvvmRequestContext context, ActionInfo actionInfo)
+        protected internal override void OnCommandExecuting(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
             Authorize(context);
             base.OnCommandExecuting(context, actionInfo);
         }
 
-        protected internal override void OnViewModelCreated(DotvvmRequestContext context)
+        protected internal override void OnViewModelCreated(IDotvvmRequestContext context)
         {
             Authorize(context);
             base.OnViewModelCreated(context);
         }
 
-        public void Authorize(DotvvmRequestContext context)
+        public void Authorize(IDotvvmRequestContext context)
         {
             // the user must not be anonymous
             if (context.OwinContext.Request.User == null || !context.OwinContext.Request.User.Identity.IsAuthenticated)
@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Runtime.Filters
             }
         }
 
-        protected virtual void SetUnauthorizedResponse(DotvvmRequestContext context)
+        protected virtual void SetUnauthorizedResponse(IDotvvmRequestContext context)
         {
             throw new UnauthorizedAccessException();
         }

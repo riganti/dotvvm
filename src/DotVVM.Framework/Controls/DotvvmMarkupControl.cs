@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
             SetValue(Internal.IsControlBindingTargetProperty, true);
         }
 
-        protected internal override void OnLoad(DotvvmRequestContext context)
+        protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             EnsureControlHasId();
             base.OnLoad(context);

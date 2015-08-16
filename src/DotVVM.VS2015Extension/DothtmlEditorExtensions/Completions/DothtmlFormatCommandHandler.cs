@@ -51,7 +51,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
                 tokenizer.Tokenize(new StringReader(text));
                 var parser = new DothtmlParser();
                 var node = parser.Parse(tokenizer.Tokens);
-
+                
                 // prepare the metadata control resolver
                 var completionSource = TextView.TextBuffer.Properties.GetProperty<DothtmlCompletionSource>(typeof(DothtmlCompletionSource));
                 var metadataControlResolver = completionSource.MetadataControlResolver;

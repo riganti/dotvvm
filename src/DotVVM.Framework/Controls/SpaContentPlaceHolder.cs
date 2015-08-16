@@ -27,14 +27,14 @@ namespace DotVVM.Framework.Controls
             return GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
         }
 
-        protected internal override void OnInit(DotvvmRequestContext context)
+        protected internal override void OnInit(IDotvvmRequestContext context)
         {
             GetRoot().SetValue(Internal.IsSpaPageProperty, true);
 
             base.OnInit(context);
         }
 
-        protected internal override void OnPreRender(DotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             if (context.IsSpaRequest)
             {

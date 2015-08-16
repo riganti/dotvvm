@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs after the viewmodel is applied to the page and before the commands are executed.
         /// </summary>
-        protected internal override void OnLoad(DotvvmRequestContext context)
+        protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnLoad(context);
@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs after the page commands are executed.
         /// </summary>
-        protected internal override void OnPreRender(DotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             DataBind(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
             base.OnPreRender(context);
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
         /// </summary>
-        private void DataBind(DotvvmRequestContext context)
+        private void DataBind(IDotvvmRequestContext context)
         {
             var dataSourceBinding = GetDataSourceBinding();
 

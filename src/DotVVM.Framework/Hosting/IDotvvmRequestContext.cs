@@ -1,0 +1,129 @@
+using System.Collections.Generic;
+using System.IO;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Routing;
+using Microsoft.Owin;
+
+namespace DotVVM.Framework.Hosting
+{
+    public interface IDotvvmRequestContext
+    {
+        /// <summary>
+        /// Gets the underlying <see cref="IOwinContext"/> object for this HTTP request.
+        /// </summary>
+        IOwinContext OwinContext { get; }
+
+        /// <summary>
+        /// Gets the global configuration of DotVVM.
+        /// </summary>
+        DotvvmConfiguration Configuration { get; }
+
+        /// <summary>
+        /// Gets the route that was used for this request.
+        /// </summary>
+        RouteBase Route { get; }
+
+        /// <summary>
+        /// Determines whether this HTTP request is a postback or a classic GET request.
+        /// </summary>
+        bool IsPostBack { get; }
+
+        /// <summary>
+        /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
+        /// </summary>
+        IDictionary<string, object> Parameters { get; }
+
+        /// <summary>
+        /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
+        /// </summary>
+        ResourceManager ResourceManager { get; }
+
+        /// <summary>
+        /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel.
+        /// </summary>
+        ModelState ModelState { get; }
+
+        /// <summary>
+        /// Gets the query string parameters specified in the URL of the current HTTP request.
+        /// </summary>
+        IDictionary<string, object> Query { get; }
+
+        /// <summary>
+        /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
+        /// This property is typically set from the exception filter.
+        /// </summary>
+        bool IsCommandExceptionHandled { get; set; }
+
+        /// <summary>
+        /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
+        /// </summary>
+        bool IsSpaRequest { get; }
+
+        /// <summary>
+        /// Gets a value indicating whether this HTTP request is made from single page application and only the SpaContentPlaceHolder content will be rendered.
+        /// </summary>
+        bool IsInPartialRenderingMode { get; }
+
+        /// <summary>
+        /// Changes the current culture of this HTTP request.
+        /// </summary>
+        void ChangeCurrentCulture(string cultureName);
+
+        /// <summary>
+        /// Interrupts the execution of the current request.
+        /// </summary>
+        void InterruptRequest();
+
+        /// <summary>
+        /// Returns the redirect response and interrupts the execution of current request.
+        /// </summary>
+        void Redirect(string url);
+
+        /// <summary>
+        /// Returns the redirect response and interrupts the execution of current request.
+        /// </summary>
+        void Redirect(string routeName, object newRouteValues);
+
+        /// <summary>
+        /// Returns the permanent redirect response and interrupts the execution of current request.
+        /// </summary>
+        void RedirectPermanent(string url);
+
+        /// <summary>
+        /// Returns the permanent redirect response and interrupts the execution of current request.
+        /// </summary>
+        void RedirectPermanent(string routeName, object newRouteValues);
+
+        /// <summary>
+        /// Ends the request execution when the <see cref="DotvvmRequestContext.ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
+        /// If it is, it does nothing.
+        /// </summary>
+        void FailOnInvalidModelState();
+
+        /// <summary>
+        /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
+        /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.dothtml' will be translated to '/virtDir/myPage.dothtml'.
+        /// </summary>
+        string TranslateVirtualPath(string virtualUrl);
+
+        /// <summary>
+        /// Sends data stream to client.
+        /// </summary>
+        /// <param name="bytes">Data to be sent.</param>
+        /// <param name="fileName">Name of file.</param>
+        /// <param name="mimeType">MIME type.</param>
+        /// <param name="additionalHeaders">Additional headers.</param>
+        void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders);
+
+        /// <summary>
+        /// Sends data stream to client.
+        /// </summary>
+        /// <param name="stream">Data to be sent.</param>
+        /// <param name="fileName">Name of file.</param>
+        /// <param name="mimeType">MIME type.</param>
+        /// <param name="additionalHeaders">Additional headers.</param>
+        void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders);
+    }
+}

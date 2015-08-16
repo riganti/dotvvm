@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called before the command is executed.
         /// </summary>
-        protected internal override void OnCommandExecuting(DotvvmRequestContext context, ActionInfo actionInfo)
+        protected internal override void OnCommandExecuting(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
             if (!string.IsNullOrEmpty(context.ModelState.ValidationTargetPath))
             {

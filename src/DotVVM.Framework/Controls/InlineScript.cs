@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Controls
     public class InlineScript : DotvvmControl
     {
         
-        internal override void OnPreRenderComplete(DotvvmRequestContext context)
+        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
         {
             EnsureControlHasId();
 

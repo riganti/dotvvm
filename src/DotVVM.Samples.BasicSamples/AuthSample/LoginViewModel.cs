@@ -50,7 +50,7 @@ namespace DotVVM.Samples.BasicSamples.AuthSample
 
             if(Context.Query["ReturnUrl"] != null)
             {
-                Context.Redirect(Context.Query["ReturnUrl"]);
+                Context.Redirect((string)Context.Query["ReturnUrl"]);
             }
         }
     }

@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called after the command is invoked.
         /// </summary>
-        protected internal override void OnCommandExecuted(DotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
+        protected internal override void OnCommandExecuted(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
         {
             if (exception != null)
             {
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called when the exception occurs during the command invocation.
         /// </summary>
-        protected virtual void OnException(DotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
+        protected virtual void OnException(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
         {
         }
 

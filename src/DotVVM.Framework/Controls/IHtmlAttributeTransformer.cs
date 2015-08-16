@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the attribute name and value into a specified writer.
         /// </summary>
-        void RenderHtmlAttribute(IHtmlWriter writer, DotvvmRequestContext requestContext, string attributeName, string attributeValue);
+        void RenderHtmlAttribute(IHtmlWriter writer, IDotvvmRequestContext requestContext, string attributeName, string attributeValue);
 
     }
 }

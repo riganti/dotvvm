@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the markup file virtual path from the current request URL.
         /// </summary>
-        public string GetMarkupFileVirtualPath(DotvvmRequestContext context)
+        public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
         {
             // get file name
             var fileName = context.Route != null ? context.Route.VirtualPath : context.OwinContext.Request.Uri.LocalPath;

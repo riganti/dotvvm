@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        protected internal override void OnPreRender(DotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             if (!string.IsNullOrEmpty(FormatString))
             {

@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Controls
     public class HtmlWriter : IHtmlWriter
     {
         private readonly TextWriter writer;
-        private readonly DotvvmRequestContext requestContext;
+        private readonly IDotvvmRequestContext requestContext;
 
         private OrderedDictionary attributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlWriter"/> class.
         /// </summary>
-        public HtmlWriter(TextWriter writer, DotvvmRequestContext requestContext)
+        public HtmlWriter(TextWriter writer, IDotvvmRequestContext requestContext)
         {
             this.writer = writer;
             this.requestContext = requestContext;

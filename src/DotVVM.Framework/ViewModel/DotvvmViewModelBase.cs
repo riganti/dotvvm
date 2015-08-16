@@ -10,7 +10,7 @@ namespace DotVVM.Framework.ViewModel
     public class DotvvmViewModelBase : IDotvvmViewModel
     {
         [JsonIgnore]
-        public DotvvmRequestContext Context { get; set; }
+        public IDotvvmRequestContext Context { get; set; }
 
 
         public virtual Task Init()

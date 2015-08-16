@@ -335,7 +335,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs after the viewmodel tree is complete.
         /// </summary>
-        internal virtual void OnPreInit(DotvvmRequestContext context)
+        internal virtual void OnPreInit(IDotvvmRequestContext context)
         {
             foreach (var property in GetDeclaredProperties())
             {
@@ -346,7 +346,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Called right before the rendering shall occur.
         /// </summary>
-        internal virtual void OnPreRenderComplete(DotvvmRequestContext context)
+        internal virtual void OnPreRenderComplete(IDotvvmRequestContext context)
         {
             // add resource dependencies to manager
             foreach (var resource in ResourceDependencies)
@@ -370,21 +370,21 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs before the viewmodel is applied to the page.
         /// </summary>
-        protected internal virtual void OnInit(DotvvmRequestContext context)
+        protected internal virtual void OnInit(IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Occurs after the viewmodel is applied to the page and before the commands are executed.
         /// </summary>
-        protected internal virtual void OnLoad(DotvvmRequestContext context)
+        protected internal virtual void OnLoad(IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Occurs after the page commands are executed.
         /// </summary>
-        protected internal virtual void OnPreRender(DotvvmRequestContext context)
+        protected internal virtual void OnPreRender(IDotvvmRequestContext context)
         {
         }
     }

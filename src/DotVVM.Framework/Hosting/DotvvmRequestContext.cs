@@ -19,7 +19,7 @@ using DotVVM.Framework.Storage;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class DotvvmRequestContext
+    public class DotvvmRequestContext : IDotvvmRequestContext
     {
         internal string CsrfToken { get; set; }
 
@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
         /// </summary>
-        public IDictionary<string, object> Parameters { get; set; }
+        public IDictionary<string, object> Parameters { get; internal set; }
 
         /// <summary>
         /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
@@ -79,13 +79,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the query string parameters specified in the URL of the current HTTP request.
         /// </summary>
-        public IReadableStringCollection Query
-        {
-            get
-            {
-                return OwinContext.Request.Query;
-            }
-        }
+        public IDictionary<string, object> Query { get; internal set; }
 
         /// <summary>
         /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 

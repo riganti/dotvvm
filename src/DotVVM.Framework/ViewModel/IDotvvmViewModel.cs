@@ -9,7 +9,7 @@ namespace DotVVM.Framework.ViewModel
     public interface IDotvvmViewModel
     {
 
-        DotvvmRequestContext Context { get; set; }
+        IDotvvmRequestContext Context { get; set; }
 
         Task Init();
 

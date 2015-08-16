@@ -1,4 +1,4 @@
-using DotVVM.Framework.Binding;
+﻿using DotVVM.Framework.Binding;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -92,19 +92,19 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        protected internal override void OnLoad(DotvvmRequestContext context)
+        protected internal override void OnLoad(IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnLoad(context);
         }
 
-        protected internal override void OnPreRender(DotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnPreRender(context);
         }
 
-        private void DataBind(DotvvmRequestContext context)
+        private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
 
@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetButtonContent(DotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
+        private void SetButtonContent(IDotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
         {
             if (contentTemplate != null)
             {

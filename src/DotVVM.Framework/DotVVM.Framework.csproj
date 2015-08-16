@@ -164,6 +164,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
     </Compile>
+    <Compile Include="Hosting\IDotvvmRequestContext.cs" />
+    <Compile Include="Hosting\InterruptReason.cs" />
     <Compile Include="Hosting\JQueryGlobalizeCultureMiddleware.cs" />
     <Compile Include="Hosting\ModelState.cs" />
     <Compile Include="Hosting\DotvvmEmbeddedResourceMiddleware.cs" />
@@ -171,6 +173,7 @@
     <Compile Include="Hosting\DotvvmFileUploadMiddleware.cs" />
     <Compile Include="Hosting\DotvvmInterruptRequestExecutionException.cs" />
     <Compile Include="Hosting\DotvvmRestrictedStaticFilesMiddleware.cs" />
+    <Compile Include="Hosting\TestDotvvmRequestContext.cs" />
     <Compile Include="KnockoutBindingGroup.cs" />
     <Compile Include="Hosting\DotvvmReturnedFileMiddleware.cs" />
     <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />

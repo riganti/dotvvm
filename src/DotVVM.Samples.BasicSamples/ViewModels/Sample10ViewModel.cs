@@ -10,7 +10,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
     {
         public override Task Init()
         {
-            if (string.IsNullOrEmpty(Context.Query["time"]))
+            if (!Context.Query.ContainsKey("time"))
             {
                 Context.Redirect("~/Sample10?time=" + DateTime.Now.Ticks);
             }

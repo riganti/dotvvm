@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Runtime
     public interface IViewModelLoader
     {
 
-        object InitializeViewModel(DotvvmRequestContext context, DotvvmView view);
+        object InitializeViewModel(IDotvvmRequestContext context, DotvvmView view);
 
         void DisposeViewModel(object instance);
 

@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Initializes the view model for the specified view.
         /// </summary>
-        public object InitializeViewModel(DotvvmRequestContext context, DotvvmView view)
+        public object InitializeViewModel(IDotvvmRequestContext context, DotvvmView view)
         {
             string viewModel;
             if (!view.Directives.TryGetValue(Constants.ViewModelDirectiveName, out viewModel))

@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Called right before the rendering shall occur.
         /// </summary>
-        internal override void OnPreRenderComplete(DotvvmRequestContext context)
+        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
         {
             context.ResourceManager.AddRequiredResource(Name);
             base.OnPreRenderComplete(context);

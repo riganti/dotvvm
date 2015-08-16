@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Security
         private const string KDF_LABEL_SID = "DotVVM.Framework.Security.DefaultCsrfProtector.SID"; // Key derivation label for protecting SID
         private const string KDF_LABEL_TOKEN = "DotVVM.Framework.Security.DefaultCsrfProtector.Token"; // Key derivation label for protecting token
 
-        public string GenerateToken(DotvvmRequestContext context)
+        public string GenerateToken(IDotvvmRequestContext context)
         {
             if (context == null) throw new ArgumentNullException("context");
 
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Security
             return Convert.ToBase64String(tokenData);
         }
 
-        public void VerifyToken(DotvvmRequestContext context, string token)
+        public void VerifyToken(IDotvvmRequestContext context, string token)
         {
             if (context == null) throw new ArgumentNullException("context");
             if (string.IsNullOrWhiteSpace(token)) throw new SecurityException("CSRF protection token is missing.");
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Security
             if (!cookieSid.SequenceEqual(tokenSid)) throw new SecurityException("CSRF protection token is invalid.");
         }
 
-        private byte[] GetOrCreateSessionId(DotvvmRequestContext context)
+        private byte[] GetOrCreateSessionId(IDotvvmRequestContext context)
         {
             if (context == null) throw new ArgumentNullException("context");
             var sessionIdCookieName = GetSessionIdCookieName(context);
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Security
             }
         }
 
-        private string GetSessionIdCookieName(DotvvmRequestContext context)
+        private string GetSessionIdCookieName(IDotvvmRequestContext context)
         {
             var domain = context.OwinContext.Request.Uri.Host;
             if (!context.OwinContext.Request.Uri.IsDefaultPort)

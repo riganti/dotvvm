@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
 
 
 
-        public override void CreateControls(DotvvmRequestContext context, DotvvmControl container)
+        public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             ContentTemplate.BuildContent(context, container);
         }

@@ -55,6 +55,9 @@ namespace DotVVM.Framework.Hosting
                 // handle the request
                 dotvvmContext.Route = route;
                 dotvvmContext.Parameters = parameters;
+                dotvvmContext.Query = context.Request.Query
+                    .ToDictionary(d => d.Key, d => d.Value.Length == 1 ? (object) d.Value[0] : d.Value);
+
                 return route.ProcessRequest(dotvvmContext);
             }
             else

@@ -10,10 +10,20 @@ namespace DotVVM.Framework.Hosting
     public class DotvvmInterruptRequestExecutionException : ApplicationException
     {
 
+        public InterruptReason InterruptReason { get; set; }
+
+        public string CustomData { get; set; }
+
         public DotvvmInterruptRequestExecutionException()
         {
         }
 
+        public DotvvmInterruptRequestExecutionException(InterruptReason interruptReason, string customData = null)
+        {
+            InterruptReason = interruptReason;
+            CustomData = customData;
+        }
+        
         public DotvvmInterruptRequestExecutionException(string message) : base(message)
         {
         }

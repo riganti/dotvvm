@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Runtime
             };
         }
 
-        public JObject BuildResourcesJson(DotvvmRequestContext context, Func<string, bool> predicate)
+        public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
         {
             var manager = context.ResourceManager;
             var resourceObj = new JObject();
@@ -168,7 +168,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Serializes the validation errors in case the viewmodel was not valid.
         /// </summary>
-        public string SerializeModelState(DotvvmRequestContext context)
+        public string SerializeModelState(IDotvvmRequestContext context)
         {
             // create result object
             var result = new JObject();

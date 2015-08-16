@@ -351,7 +351,7 @@ test <dot:Literal><a /></dot:Literal>";
             return new MarkupFile(virtualPath, virtualPath, markupFiles[virtualPath]);
         }
 
-        public string GetMarkupFileVirtualPath(DotvvmRequestContext context)
+        public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
         {
             throw new NotImplementedException();
         }

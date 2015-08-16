@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
         public Func<IControlBuilderFactory, DotvvmControl> BuildContentBody { get; set; }
 
 
-        public void BuildContent(DotvvmRequestContext context, DotvvmControl container)
+        public void BuildContent(IDotvvmRequestContext context, DotvvmControl container)
         {
             var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
             var control = BuildContentBody(controlBuilderFactory);

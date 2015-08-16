@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Controls
 
 
 
-        public abstract void CreateControls(DotvvmRequestContext context, DotvvmControl container);
+        public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);
 
 
         private Exception ValueBindingNotSet()
@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        public virtual void CreateHeaderControls(DotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell)
+        public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell)
         {
             if (AllowSorting)
             {

@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called after the viewmodel object is created.
         /// </summary>
-        protected internal virtual void OnViewModelCreated(DotvvmRequestContext context)
+        protected internal virtual void OnViewModelCreated(IDotvvmRequestContext context)
         {
         }
 
@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called before the command is executed.
         /// </summary>
-        protected internal virtual void OnCommandExecuting(DotvvmRequestContext context, ActionInfo actionInfo)
+        protected internal virtual void OnCommandExecuting(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
         }
 
@@ -32,14 +32,14 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <summary>
         /// Called after the command is executed.
         /// </summary>
-        protected internal virtual void OnCommandExecuted(DotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
+        protected internal virtual void OnCommandExecuted(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
         {
         }
 
         /// <summary>
         /// Called before the response is rendered.
         /// </summary>
-        protected internal virtual void OnResponseRendering(DotvvmRequestContext context)
+        protected internal virtual void OnResponseRendering(IDotvvmRequestContext context)
         {
         }
     }

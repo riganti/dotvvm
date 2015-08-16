@@ -8,9 +8,9 @@ using DotVVM.Framework.Hosting;
 namespace DotVVM.Framework.Security {
     public interface IViewModelProtector {
 
-        string Protect(string serializedData, DotvvmRequestContext context);
+        string Protect(string serializedData, IDotvvmRequestContext context);
 
-        string Unprotect(string protectedData, DotvvmRequestContext context);
+        string Unprotect(string protectedData, IDotvvmRequestContext context);
 
     }
 }

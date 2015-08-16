@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Builds the content of the template into the specified container.
         /// </summary>
-        void BuildContent(DotvvmRequestContext context, DotvvmControl container);
+        void BuildContent(IDotvvmRequestContext context, DotvvmControl container);
 
     }
 }

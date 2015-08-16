@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Security
     {
         private const string KDF_LABEL = "DotVVM.Framework.Security.DefaultViewModelProtector";
 
-        public string Protect(string serializedData, DotvvmRequestContext context)
+        public string Protect(string serializedData, IDotvvmRequestContext context)
         {
             if (serializedData == null) throw new ArgumentNullException("serializedData");
             if (string.IsNullOrWhiteSpace(serializedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "serializedData");
@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Security
             return keyHelper.ProtectString(serializedData, KDF_LABEL, userIdentity, requestIdentity);
         }
 
-        public string Unprotect(string protectedData, DotvvmRequestContext context)
+        public string Unprotect(string protectedData, IDotvvmRequestContext context)
         {
             if (protectedData == null) throw new ArgumentNullException("protectedData");
             if (string.IsNullOrWhiteSpace(protectedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "protectedData");

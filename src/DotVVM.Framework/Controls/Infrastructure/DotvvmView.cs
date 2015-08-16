@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             ResourceDependencies.Add(Constants.DotvvmValidationResourceName);
         }
 
-        protected internal override void OnPreRender(DotvvmRequestContext context)
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             if (context.Configuration.Debug)
                 ResourceDependencies.Add(Constants.DotvvmDebugResourceName);
