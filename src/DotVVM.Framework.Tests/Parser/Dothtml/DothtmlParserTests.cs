@@ -220,6 +220,81 @@ test";
         }
 
 
+
+        [TestMethod]
+        public void DothtmlParser_Invalid_SpaceInTagName()
+        {
+            var markup = @"<dot:ContentPlace Holder DataContext=""sdads"">
+</ dot:ContentPlaceHolder > ";
+            var nodes = ParseMarkup(markup).Content;
+
+            Assert.AreEqual(3, nodes.Count);
+
+            Assert.AreEqual("Holder", ((DothtmlElementNode)nodes[0]).Attributes[0].AttributeName);
+            Assert.AreEqual(null, ((DothtmlElementNode)nodes[0]).Attributes[0].Literal);
+
+            Assert.AreEqual("DataContext", ((DothtmlElementNode)nodes[0]).Attributes[1].AttributeName);
+            Assert.AreEqual("sdads", ((DothtmlLiteralNode)((DothtmlElementNode)nodes[0]).Attributes[1].Literal).Value);
+
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
+            Assert.AreEqual("", ((DothtmlElementNode)nodes[1]).FullTagName);
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).HasNodeErrors);
+
+            Assert.AreEqual(" dot:ContentPlaceHolder > ", ((DothtmlLiteralNode)nodes[2]).Value);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_Invalid_ClosingTagOnly()
+        {
+            var markup = @"</a>";
+            var nodes = ParseMarkup(markup).Content;
+
+            Assert.AreEqual(1, nodes.Count);
+
+            Assert.IsTrue(((DothtmlElementNode)nodes[0]).IsClosingTag);
+            Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
+            Assert.IsTrue(((DothtmlElementNode)nodes[0]).HasNodeErrors);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_Invalid_ClosingTags()
+        {
+            var markup = @"</a></b>";
+            var nodes = ParseMarkup(markup).Content;
+
+            Assert.AreEqual(2, nodes.Count);
+
+            Assert.IsTrue(((DothtmlElementNode)nodes[0]).IsClosingTag);
+            Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
+            Assert.IsTrue(((DothtmlElementNode)nodes[0]).HasNodeErrors);
+
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
+            Assert.AreEqual("b", ((DothtmlElementNode)nodes[1]).FullTagName);
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).HasNodeErrors);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_Invalid_ClosingTagInsideElement()
+        {
+            var markup = @"<a></b></a>";
+            var nodes = ParseMarkup(markup).Content;
+
+            Assert.AreEqual(3, nodes.Count);
+
+            Assert.IsFalse(((DothtmlElementNode)nodes[0]).IsClosingTag);
+            Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
+            Assert.IsFalse(((DothtmlElementNode)nodes[0]).HasNodeErrors);
+
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
+            Assert.AreEqual("b", ((DothtmlElementNode)nodes[1]).FullTagName);
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).HasNodeErrors);
+
+            Assert.IsTrue(((DothtmlElementNode)nodes[2]).IsClosingTag);
+            Assert.AreEqual("a", ((DothtmlElementNode)nodes[2]).FullTagName);
+            Assert.IsTrue(((DothtmlElementNode)nodes[2]).HasNodeErrors);
+        }
+
+
         public static DothtmlRootNode ParseMarkup(string markup)
         {
             var tokenizer = new DothtmlTokenizer();

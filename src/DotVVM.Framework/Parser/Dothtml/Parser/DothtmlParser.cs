@@ -79,6 +79,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                             if (ElementHierarchy.Count <= 1)
                             {
                                 element.NodeErrors.Add(string.Format(DothtmlParserErrors.ClosingTagHasNoMatchingOpenTag, element.FullTagName));
+                                CurrentElementContent.Add(element);
                             }
                             else
                             {
@@ -88,14 +89,22 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                                 {
                                     element.NodeErrors.Add(string.Format(DothtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
                                     ResolveWrongClosingTag(element);
-                                    beginTag = (DothtmlElementNode)ElementHierarchy.Peek();
+                                    beginTag = ElementHierarchy.Peek() as DothtmlElementNode;
+
+                                    if (beginTag != null && beginTagName != beginTag.FullTagName)
+                                    {
+                                        beginTag.CorrespondingEndTag = element;
+                                    }
+                                    else
+                                    {
+                                        CurrentElementContent.Add(element);
+                                    }
                                 }
                                 else
                                 {
                                     ElementHierarchy.Pop();
+                                    beginTag.CorrespondingEndTag = element;
                                 }
-
-                                beginTag.CorrespondingEndTag = element;
                             }
                         }
                     }
@@ -164,7 +173,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Debug.Assert(startElement != null);
             Debug.Assert(startElement.FullTagName != element.FullTagName);
 
-            while (startElement.FullTagName != element.FullTagName)
+            while (startElement != null && startElement.FullTagName != element.FullTagName)
             {
                 ElementHierarchy.Pop();
                 if (HtmlWriter.SelfClosingTags.Contains(startElement.FullTagName))
@@ -184,8 +193,9 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                         startElement.Content.RemoveRange(sameElementIndex, count);
                     }
                 }
+
                 // otherwise just pop the element
-                startElement = (DothtmlElementNode)ElementHierarchy.Peek();
+                startElement = ElementHierarchy.Peek() as DothtmlElementNode;
             }
         }
 
