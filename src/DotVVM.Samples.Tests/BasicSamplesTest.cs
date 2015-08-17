@@ -1,5 +1,6 @@
 using System;
 using System.Drawing.Imaging;
+using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -766,6 +767,8 @@ namespace DotVVM.Samples.Tests
 
         public void Sample25Test()
         {
+            var culture = new CultureInfo("cs-CZ");
+
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample25");
@@ -800,12 +803,8 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
                 browser.FindAll("input[type=button]")[2].Click();
                 Thread.Sleep(WaitTime);
-                Assert.IsTrue(
-                    (DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[0].GetAttribute("value")))
-                        .TotalHours < 24); // there is no time in the field
-                Assert.IsTrue(
-                    (DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[1].GetAttribute("value")))
-                        .TotalMinutes < 1); // the minutes can differ slightly
+                Assert.IsTrue((DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[0].GetAttribute("value"), culture)).TotalHours < 24); // there is no time in the field
+                Assert.IsTrue((DateTime.Now - DateTime.Parse(browser.FindAll("input[type=text]")[1].GetAttribute("value"), culture)).TotalMinutes < 1); // the minutes can differ slightly
             });
         }
 
