@@ -10,8 +10,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
     {
         public override Task Init()
         {
-            var lang = Context.Query["lang"] as string;
-            if (lang == "cs-CZ")
+            if (Context.Query.ContainsKey("lang") && Context.Query["lang"] as string == "cs-CZ")
             {
                 Context.ChangeCurrentCulture("cs-CZ");
             }
