@@ -210,6 +210,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var type = value.GetType();
             if (type.IsEnum)
             {
+                UsedAssemblies.Add(type.Assembly);
                 return
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
