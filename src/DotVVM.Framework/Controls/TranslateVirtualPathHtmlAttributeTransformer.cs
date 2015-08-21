@@ -10,10 +10,10 @@ namespace DotVVM.Framework.Controls
 {
     public class TranslateVirtualPathHtmlAttributeTransformer : IHtmlAttributeTransformer
     {
-        public void RenderHtmlAttribute(IHtmlWriter writer, IDotvvmRequestContext requestContext, string attributeName, string attributeValue)
+        public void RenderHtmlAttribute(IHtmlWriter writer, IDotvvmRequestContext requestContext, string attributeName, object attributeValue)
         {
-            attributeValue = requestContext.TranslateVirtualPath(attributeValue);
-            writer.WriteHtmlAttribute(attributeName, attributeValue);
+            attributeValue = requestContext.TranslateVirtualPath((string)attributeValue);
+            writer.WriteHtmlAttribute(attributeName, (string)attributeValue);
         }
     }
 }

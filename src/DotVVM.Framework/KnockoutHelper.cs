@@ -29,21 +29,9 @@ namespace DotVVM.Framework
             }
         }
 
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, string expression)
-        {
-            writer.AddAttribute("data-bind", name + ": " + expression, true, ", ");
-        }
-
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableControl control, DotvvmProperty property)
         {
             writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression())) + "}", true, ", ");
-        }
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, KnockoutBindingGroup bindingGroup)
-        {
-            if (!bindingGroup.IsEmpty)
-            {
-                writer.AddKnockoutDataBind(name, bindingGroup.ToString());
-            }
         }
 
         public static void WriteKnockoutForeachComment(this IHtmlWriter writer, string binding)

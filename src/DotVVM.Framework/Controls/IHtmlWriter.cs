@@ -26,6 +26,20 @@ namespace DotVVM.Framework.Controls
         void AddStyleAttribute(string name, string value);
 
         /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered.
+        /// </summary>
+        /// <param name="name">The name of the binding handler.</param>
+        /// <param name="expression">The binding expression.</param>
+        void AddKnockoutDataBind(string name, string expression);
+
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered.
+        /// </summary>
+        /// <param name="name">The name of the binding handler.</param>
+        /// <param name="bindingGroup">A group of name-value pairs.</param>
+        void AddKnockoutDataBind(string name, KnockoutBindingGroup bindingGroup);
+
+        /// <summary>
         /// Renders the begin tag with attributes that were added in <see cref="HtmlWriter.AddAttribute"/> method.
         /// </summary>
         void RenderBeginTag(string name);
