@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Compiles the view and returns a function that can be invoked repeatedly. The function builds full control tree and activates the page.
         /// </summary>
-        public IControlBuilder CompileView(IReader reader, string fileName, string assemblyName, string namespaceName, string className)
+        public virtual CSharpCompilation CompileView(IReader reader, string fileName, CSharpCompilation compilation, string namespaceName, string className)
         {
             // parse the document
             var tokenizer = new DothtmlTokenizer();
@@ -52,47 +52,47 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             var emitter = new DefaultViewCompilerCodeEmitter();
             var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
-            
+
             resolvedView.Accept(compilingVisitor);
 
-            // create the assembly
-            var assembly = BuildAssembly(emitter, assemblyName, namespaceName, className);
-            var controlBuilder = (IControlBuilder)assembly.CreateInstance(namespaceName + "." + className);
-            resolvedView.Metadata.ControlBuilderType = controlBuilder.GetType();
-            return controlBuilder;
+            return AddToCompilation(compilation, emitter, namespaceName, className);
         }
 
-
-        /// <summary>
-        /// Builds the assembly.
-        /// </summary>
-        private Assembly BuildAssembly(DefaultViewCompilerCodeEmitter emitter, string assemblyName, string namespaceName, string className)
+        protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string namespaceName, string className)
         {
-            using (var ms = new MemoryStream())
-            {
-                // static references
-                var staticReferences = new[]
+            // add dynamic references
+            var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
+                .Select(a => assemblyCache.GetAssemblyMetadata(a));
+            return compilation
+                .AddReferences(dynamicReferences)
+                .AddSyntaxTrees(emitter.BuildTree(namespaceName, className));
+        }
+
+        protected virtual CSharpCompilation CreateCompilation(string assemblyName)
+        {
+            return CSharpCompilation.Create(assemblyName).AddReferences(new[]
                 {
                     typeof(object).Assembly,
                     typeof(RuntimeBinderException).Assembly,
                     typeof(System.Runtime.CompilerServices.DynamicAttribute).Assembly,
                     Assembly.GetExecutingAssembly()
-                }
-                .Concat(configuration.Markup.Assemblies.Select(Assembly.Load)).Distinct()
-                .Select(a => assemblyCache.GetAssemblyMetadata(a));
+                }.Concat(configuration.Markup.Assemblies.Select(Assembly.Load)).Distinct()
+                .Select(a => assemblyCache.GetAssemblyMetadata(a)))
+                .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
+        }
 
-                // add dynamic references
-                var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
-                    .Select(a => assemblyCache.GetAssemblyMetadata(a));
+        protected virtual IControlBuilder GetControlBuilder(Assembly assembly, string namespaceName, string className)
+        {
+            return (IControlBuilder)assembly.CreateInstance(namespaceName + "." + className);
+        }
 
-                // compile
-                var options = new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary);
-                var compilation = CSharpCompilation.Create(
-                    assemblyName,
-                    emitter.BuildTree(namespaceName, className),
-                    Enumerable.Concat(staticReferences, dynamicReferences),
-                    options);
-
+        /// <summary>
+        /// Builds the assembly.
+        /// </summary>
+        protected virtual Assembly BuildAssembly(CSharpCompilation compilation)
+        {
+            using (var ms = new MemoryStream())
+            {
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {
@@ -107,6 +107,14 @@ namespace DotVVM.Framework.Runtime.Compilation
                         + "\r\n\r\n" + compilation.SyntaxTrees[0] + "\r\n\r\n");
                 }
             }
+        }
+
+        public virtual IControlBuilder CompileView(IReader reader, string fileName, string assemblyName, string namespaceName, string className)
+        {
+            var compilation = CreateCompilation(assemblyName);
+            compilation = CompileView(reader, fileName, compilation, namespaceName, className);
+            var assembly = BuildAssembly(compilation);
+            return GetControlBuilder(assembly, namespaceName, className);
         }
     }
 }

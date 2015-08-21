@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         private static int globalBindingIndex = 0;
         private static ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute> requirementCache = new ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute>();
 
-        private static BindingCompilationRequirementsAttribute GetRequirements(Type bindingType)
+        public static BindingCompilationRequirementsAttribute GetRequirements(Type bindingType)
         {
             return requirementCache.GetOrAdd(bindingType, _ =>
             {
@@ -80,23 +80,23 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        public static CompiledBindingExpression.BindingDelegate CompileToDelegate(Expression binding, DataContextStack dataContext)
+        public static Expression<CompiledBindingExpression.BindingDelegate> CompileToDelegate(Expression binding, DataContextStack dataContext)
         {
             var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
             var controlRootParameter = Expression.Parameter(typeof(DotvvmControl), "controlRoot");
             var expr = ExpressionUtils.Replace(binding, GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
             expr = ExpressionUtils.ConvertToObject(expr);
-            return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, viewModelsParameter, controlRootParameter).Compile();
+            return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, viewModelsParameter, controlRootParameter);
         }
 
-        public static CompiledBindingExpression.BindingUpdateDelegate CompileToUpdateDelegate(Expression binding, DataContextStack dataContext)
+        public static Expression<CompiledBindingExpression.BindingUpdateDelegate> CompileToUpdateDelegate(Expression binding, DataContextStack dataContext)
         {
             var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
             var controlRootParameter = Expression.Parameter(typeof(DotvvmControl), "controlRoot");
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var expr = ExpressionUtils.Replace(binding, GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
-            return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter).Compile();
+            return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter);
         }
         public List<ActionFilterAttribute> GetActionFilters(Expression expression)
         {
@@ -108,12 +108,12 @@ namespace DotVVM.Framework.Runtime.Compilation
             return list;
         }
 
-        public ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id)
+        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id)
         {
             var requirements = GetRequirements(binding.BindingType);
             var compiled = new CompiledBindingExpression();
-            compiled.Delegate = TryExecute(requirements.Delegate, () => CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack));
-            compiled.UpdateDelegate = TryExecute(requirements.UpdateDelegate, () => CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack));
+            compiled.Delegate = TryExecute(requirements.Delegate, () => CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
+            compiled.UpdateDelegate = TryExecute(requirements.UpdateDelegate, () => CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
             compiled.OriginalString = TryExecute(requirements.OriginalString, () => binding.Value);
             compiled.Expression = TryExecute(requirements.Expression, () => binding.GetExpression());
             compiled.Id = id;
@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             return EmitGetCompiledBinding(index);
         }
 
-        private ExpressionSyntax EmitGetCompiledBinding(int index)
+        protected virtual ExpressionSyntax EmitGetCompiledBinding(int index)
         {
             return SyntaxFactory.ElementAccessExpression(
                 SyntaxFactory.MemberAccessExpression(

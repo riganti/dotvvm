@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Parser;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -16,5 +17,9 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         IControlBuilder CompileView(IReader reader, string fileName, string assemblyName, string namespaceName, string className);
 
+        /// <summary>
+        /// Compiles the view to a syntax tree and adds it to the compilation
+        /// </summary>
+        CSharpCompilation CompileView(IReader reader, string fileName, CSharpCompilation compilation, string namespaceName, string className);
     }
 }
