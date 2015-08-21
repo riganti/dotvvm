@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
-        [CollectionElementDataContextChange]
+        [CollectionElementDataContextChange(1)]
         public List<GridViewColumn> Columns
         {
             get { return (List<GridViewColumn>)GetValue(ColumnsProperty); }
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
-        [CollectionElementDataContextChange]
+        [CollectionElementDataContextChange(1)]
         public List<Decorator> RowDecorators
         {
             get { return (List<Decorator>)GetValue(RowDecoratorsProperty); }

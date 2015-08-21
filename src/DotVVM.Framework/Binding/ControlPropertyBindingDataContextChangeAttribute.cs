@@ -14,11 +14,12 @@ namespace DotVVM.Framework.Binding
     {
         public string PropertyName { get; set; }
 
-        public override int ParameterCount => 0;
+        public override int Order { get; }
 
-        public ControlPropertyBindingDataContextChangeAttribute(string propertyName)
+        public ControlPropertyBindingDataContextChangeAttribute(string propertyName, int order = 0)
         {
-            this.PropertyName = propertyName;
+            PropertyName = propertyName;
+            Order = order;
         }
 
         public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control, DotvvmProperty dproperty = null)

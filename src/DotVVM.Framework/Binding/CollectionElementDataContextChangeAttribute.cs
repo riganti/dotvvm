@@ -13,12 +13,13 @@ namespace DotVVM.Framework.Binding
 {
     public class CollectionElementDataContextChangeAttribute : DataContextChangeAttribute
     {
-        public override int ParameterCount => 1;
+        public override int Order { get; }
 
-        //public override Expression GetChildDataContextType(Expression dataContext, DataContextStack controlContextStack, ResolvedControl control, DotvvmProperty property = null)
-        //{
-        //    return ExpressionUtils.Indexer(dataContext, controlContextStack.GetNextParameter(typeof(int)));
-        //}
+        public CollectionElementDataContextChangeAttribute(int order)
+        {
+            Order = order;
+        }
+
         public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control, DotvvmProperty property = null)
         {
             return ReflectionUtils.GetEnumerableType(dataContext);

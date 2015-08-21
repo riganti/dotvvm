@@ -10,12 +10,13 @@ namespace DotVVM.Framework.Binding
 {
     public class ConstantDataContextChangeAttribute : DataContextChangeAttribute
     {
-        public override int ParameterCount => 0;
+        public override int Order { get; }
         protected Type type;
 
-        public ConstantDataContextChangeAttribute(Type type)
+        public ConstantDataContextChangeAttribute(Type type, int order = 0)
         {
             this.type = type;
+            Order = order;
         }
 
         public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control, DotvvmProperty property = null)
