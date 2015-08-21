@@ -769,7 +769,7 @@ class DotvvmSerialization {
         }
 
         if (ko.isObservable(viewModel)) {
-            return this.serialize(ko.unwrap(viewModel), serializeAll);
+            return this.serialize(ko.unwrap(viewModel), serializeAll, oneLevel, ignoreSpecialProperties);
         }
 
         if (typeof (viewModel) === "function") {
@@ -779,7 +779,7 @@ class DotvvmSerialization {
         if (viewModel instanceof Array) {
             var array = [];
             for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.serialize(viewModel[i], serializeAll));
+                array.push(this.serialize(viewModel[i], serializeAll, oneLevel, ignoreSpecialProperties));
             }
             return array;
         }
@@ -812,7 +812,7 @@ class DotvvmSerialization {
                 if (oneLevel)
                     result[prop] = ko.unwrap(value);
                 else
-                    result[prop] = this.serialize(value, serializeAll);
+                    result[prop] = this.serialize(value, serializeAll, oneLevel, ignoreSpecialProperties);
             }
         }
         return result;
