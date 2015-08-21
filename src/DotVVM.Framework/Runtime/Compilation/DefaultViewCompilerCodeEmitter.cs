@@ -173,7 +173,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
                         SyntaxFactory.VariableDeclarator(name).WithInitializer(
                             SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(controlType.FullName),
+                                SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(controlType.BaseType.FullName),
                                     SyntaxFactory.IdentifierName(untypedName)
                                 )
                             )
