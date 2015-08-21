@@ -53,4 +53,3 @@ var DotvvmFileUploadData = (function () {
     return DotvvmFileUploadData;
 })();
 dotvvm.fileUpload = dotvvm.fileUpload || new DotvvmFileUpload();
-//# sourceMappingURL=DotVVM.FileUpload.js.map

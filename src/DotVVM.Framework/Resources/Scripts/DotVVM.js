@@ -745,8 +745,10 @@ var DotvvmSerialization = (function () {
         }
         return target;
     };
-    DotvvmSerialization.prototype.serialize = function (viewModel, serializeAll) {
+    DotvvmSerialization.prototype.serialize = function (viewModel, serializeAll, oneLevel, ignoreSpecialProperties) {
         if (serializeAll === void 0) { serializeAll = false; }
+        if (oneLevel === void 0) { oneLevel = false; }
+        if (ignoreSpecialProperties === void 0) { ignoreSpecialProperties = false; }
         if (typeof (viewModel) === "undefined" || viewModel == null) {
             return viewModel;
         }
@@ -773,6 +775,8 @@ var DotvvmSerialization = (function () {
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop)) {
                 var value = viewModel[prop];
+                if (ignoreSpecialProperties && prop[0] == "$")
+                    continue;
                 if (!serializeAll && /\$options$/.test(prop)) {
                     continue;
                 }
@@ -786,10 +790,16 @@ var DotvvmSerialization = (function () {
                 if (!serializeAll && options && options.doNotPost) {
                     continue;
                 }
-                result[prop] = this.serialize(value, serializeAll);
+                if (oneLevel)
+                    result[prop] = ko.unwrap(value);
+                else
+                    result[prop] = this.serialize(value, serializeAll);
             }
         }
         return result;
+    };
+    DotvvmSerialization.prototype.flatSerialize = function (viewModel) {
+        return this.serialize(viewModel, true, true, true);
     };
     DotvvmSerialization.prototype.pad = function (value, digits) {
         while (value.length < digits) {
@@ -850,4 +860,3 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         }
     };
 })();
-//# sourceMappingURL=dotvvm.js.map

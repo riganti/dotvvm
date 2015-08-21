@@ -43,7 +43,7 @@ class DotVVM {
         // handle SPA
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.attachEvent(window, "hashchange",() => this.handleHashChange(viewModelName, spaPlaceHolder));
+            this.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
             this.handleHashChange(viewModelName, spaPlaceHolder);
         }
 
@@ -102,8 +102,7 @@ class DotVVM {
         try {
             return func();
         }
-        catch(error)
-        {
+        catch (error) {
             return null;
         }
     }
@@ -186,7 +185,7 @@ class DotVVM {
                 resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
             }
 
-            this.loadResourceList(resultObject.resources,() => {
+            this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand") {
                     this.isViewModelUpdating = true;
@@ -218,16 +217,16 @@ class DotVVM {
                 }
             });
         }, xhr => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-                // execute error handlers
-                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-                this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert(xhr.responseText);
-                }
-            });
+            // execute error handlers
+            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+            this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
+                alert(xhr.responseText);
+            }
+        });
     }
 
     private loadResourceList(resources: RenderedResourceList, callback: () => void) {
@@ -357,7 +356,7 @@ class DotVVM {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
             var resultObject = JSON.parse(result.responseText);
-            this.loadResourceList(resultObject.resources,() => {
+            this.loadResourceList(resultObject.resources, () => {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
                     this.isViewModelUpdating = true;
@@ -395,16 +394,16 @@ class DotVVM {
                 }
             });
         }, xhr => {
-                // if another postback has already been passed, don't do anything
-                if (!this.isPostBackStillActive(currentPostBackCounter)) return;
+            // if another postback has already been passed, don't do anything
+            if (!this.isPostBackStillActive(currentPostBackCounter)) return;
 
-                // execute error handlers
-                var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
-                this.events.error.trigger(errArgs);
-                if (!errArgs.handled) {
-                    alert(xhr.responseText);
-                }
-            });
+            // execute error handlers
+            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr, true);
+            this.events.error.trigger(errArgs);
+            if (!errArgs.handled) {
+                alert(xhr.responseText);
+            }
+        });
     }
 
     private handleRedirect(resultObject: any, viewModelName: string) {
@@ -461,7 +460,7 @@ class DotVVM {
     }
 
     public format(format: string, ...values: string[]) {
-        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g,(match, group0, group1) => {
+        return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, (match, group0, group1) => {
             var value = values[parseInt(group0)];
             if (group1) {
                 return dotvvm.formatString(group1, value);
@@ -475,9 +474,9 @@ class DotVVM {
         value = ko.unwrap(value);
         if (value == null) return "";
 
-        if (format == "g") {            
+        if (format == "g") {
             return dotvvm.formatString("d", value) + " " + dotvvm.formatString("t", value);
-        } else if (format == "G") {            
+        } else if (format == "G") {
             return dotvvm.formatString("d", value) + " " + dotvvm.formatString("T", value);
         }
 
@@ -671,7 +670,7 @@ class DotvvmSpaNavigatedEventArgs extends DotvvmEventArgs {
 class DotvvmSerialization {
 
     public deserialize(viewModel: any, target?: any, deserializeAll: boolean = false) {
-        
+
         if (typeof (viewModel) == "undefined" || viewModel == null) {
             return viewModel;
         }
@@ -697,8 +696,8 @@ class DotvvmSerialization {
                 }
                 target(array);
             } else {
-                target = ko.observableArray(array);  
-            } 
+                target = ko.observableArray(array);
+            }
             return target;
         }
 
@@ -711,8 +710,7 @@ class DotvvmSerialization {
             target = result = {};
         }
         for (var prop in viewModel) {
-            if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop))
-            {
+            if (viewModel.hasOwnProperty(prop) && !/\$options$/.test(prop)) {
                 var value = viewModel[prop];
                 if (typeof (value) === "undefined") {
                     continue;
@@ -740,7 +738,7 @@ class DotvvmSerialization {
                     if (ko.isObservable(result[prop])) {
                         result[prop](deserialized);
                     } else {
-                        result[prop] = ko.observable(deserialized);    
+                        result[prop] = ko.observable(deserialized);
                     }
                 }
             }
@@ -760,7 +758,7 @@ class DotvvmSerialization {
         return target;
     }
 
-    public serialize(viewModel: any, serializeAll: boolean = false): any {
+    public serialize(viewModel: any, serializeAll: boolean = false, oneLevel = false, ignoreSpecialProperties = false): any {
 
         if (typeof (viewModel) === "undefined" || viewModel == null) {
             return viewModel;
@@ -795,6 +793,7 @@ class DotvvmSerialization {
             if (viewModel.hasOwnProperty(prop)) {
                 var value = viewModel[prop];
 
+                if (ignoreSpecialProperties && prop[0] == "$") continue;
                 if (!serializeAll && /\$options$/.test(prop)) {
                     continue;
                 }
@@ -810,10 +809,17 @@ class DotvvmSerialization {
                     continue;
                 }
 
-                result[prop] = this.serialize(value, serializeAll);
+                if (oneLevel)
+                    result[prop] = ko.unwrap(value);
+                else
+                    result[prop] = this.serialize(value, serializeAll);
             }
         }
         return result;
+    }
+
+    public flatSerialize(viewModel: any) {
+        return this.serialize(viewModel, true, true, true);
     }
 
     private pad(value: string, digits: number) {
