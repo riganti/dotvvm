@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
-        [CollectionElementDataContextChange]
+        [CollectionElementDataContextChange(1)]
         public ITemplate ItemTemplate
         {
             get { return (ITemplate)GetValue(ItemTemplateProperty); }
