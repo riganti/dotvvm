@@ -25,6 +25,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IsSubmitButtonProperty
             = DotvvmProperty.Register<bool, Button>(c => c.IsSubmitButton, false);
 
+        /// <summary>
+        /// Controls which tag would be used to render button.
+        /// (input or button)
+        /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public ButtonTagName ButtonTagName
         {
