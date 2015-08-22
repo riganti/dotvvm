@@ -21,6 +21,7 @@ namespace DotVVM.Framework.Controls
         private readonly IDotvvmRequestContext requestContext;
 
         private OrderedDictionary attributes = new OrderedDictionary();
+        private OrderedDictionary dataBindAttributes = new OrderedDictionary();
         private Stack<string> openTags = new Stack<string>();
         private bool tagFullyOpen = true;
 
@@ -98,6 +99,49 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered.
+        /// </summary>
+        /// <param name="name">The name of the binding handler.</param>
+        /// <param name="expression">The binding expression.</param>
+        public void AddKnockoutDataBind(string name, string expression)
+        {
+            if (dataBindAttributes.Contains(name) && dataBindAttributes[name] is KnockoutBindingGroup)
+            {
+                throw new InvalidOperationException($"The binding handler {name} already contains a KnockoutBindingGroup. The expression could not be added. Please call AddKnockoutDataBind(string, KnockoutBindingGroup) overload!");
+            }
+
+            dataBindAttributes.Add(name, expression);
+        }
+
+        /// <summary>
+        /// Adds the data-bind attribute to the next HTML element that is being rendered.
+        /// </summary>
+        /// <param name="name">The name of the binding handler.</param>
+        /// <param name="bindingGroup">A group of name-value pairs.</param>
+        public void AddKnockoutDataBind(string name, KnockoutBindingGroup bindingGroup)
+        {
+            if (dataBindAttributes.Contains(name) && !(dataBindAttributes[name] is KnockoutBindingGroup))
+            {
+                throw new InvalidOperationException($"The value of binding handler {name} cannot be combined with a KnockoutBindingGroup!");
+            }
+
+            if (bindingGroup.IsEmpty)
+            {
+                return;
+            }
+
+            if (dataBindAttributes.Contains(name))
+            {
+                var currentGroup = (KnockoutBindingGroup)dataBindAttributes[name];
+                currentGroup.AddFrom(bindingGroup);
+            }
+            else
+            {
+                dataBindAttributes[name] = bindingGroup;
+            }
+        }
+
+        /// <summary>
         /// Renders the begin tag with attributes that were added in <see cref="AddAttribute"/> method.
         /// </summary>
         public void RenderBeginTag(string name)
@@ -159,12 +203,18 @@ namespace DotVVM.Framework.Controls
             //    }
             //}
 
+            foreach (DictionaryEntry attr in dataBindAttributes)
+            {
+                AddAttribute("data-bind", attr.Key + ": " + ConvertHtmlAttributeValue(attr.Value), true, ", ");
+            }
+            dataBindAttributes.Clear();
+
             if (attributes.Count > 0)
             {
                 foreach (DictionaryEntry attr in attributes)
                 {
                     var attributeName = (string)attr.Key;
-                    var attributeValue = (string)attr.Value;
+                    var attributeValue = ConvertHtmlAttributeValue(attr.Value);
 
                     // allow to use the attribute transformer
                     var pair = new HtmlTagAttributePair() { TagName = name, AttributeName = attributeName };
@@ -183,6 +233,16 @@ namespace DotVVM.Framework.Controls
             }
 
             attributes.Clear();
+        }
+
+        private string ConvertHtmlAttributeValue(object value)
+        {
+            if (value is KnockoutBindingGroup)
+            {
+                return value.ToString();
+            }
+
+            return (string) value;
         }
 
         public void WriteHtmlAttribute(string attributeName, string attributeValue)

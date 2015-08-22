@@ -102,6 +102,9 @@ namespace DotVVM.Framework.Runtime
             return cachedMetadata.GetOrAdd(controlType.Type, _ => BuildControlMetadata(controlType));
         }
 
+        /// <summary>
+        /// Resolves the control metadata for specified type.
+        /// </summary>
         public ControlResolverMetadata ResolveControl(Type controlType)
         {
             return ResolveControl(new ControlType(controlType));
@@ -206,7 +209,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Gets the control metadata.
         /// </summary>
-        private ControlResolverMetadata BuildControlMetadata(ControlType type)
+        public ControlResolverMetadata BuildControlMetadata(ControlType type)
         {
             var attribute = type.Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
 

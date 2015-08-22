@@ -34,7 +34,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             try
             {
                 var wrapperType = ResolveWrapperType(root);
-                var viewMetadata = controlResolver.ResolveControl(new ControlType(wrapperType, virtualPath: fileName));
+
+                // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the 
+                // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
+                // actually resolved when the control builder is ready and the metadata are complete.
+                var viewMetadata = controlResolver.BuildControlMetadata(new ControlType(wrapperType, virtualPath: fileName));
                 var view = new ResolvedTreeRoot(viewMetadata, root, null);
 
                 foreach (var directive in root.Directives)

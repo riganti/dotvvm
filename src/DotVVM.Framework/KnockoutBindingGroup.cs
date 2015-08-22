@@ -9,9 +9,9 @@ namespace DotVVM.Framework
     public class KnockoutBindingGroup
     {
 
-        private List<KnockoutBindingInfo> info = new List<KnockoutBindingInfo>();
+        private List<KnockoutBindingInfo> entries = new List<KnockoutBindingInfo>();
         
-        public bool IsEmpty => info.Count == 0;
+        public bool IsEmpty => entries.Count == 0;
 
         public void Add(string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction)
         {
@@ -22,7 +22,7 @@ namespace DotVVM.Framework
             }
             else
             {
-                info.Add(new KnockoutBindingInfo() { Name = name, Expression = control.GetValueBinding(property).GetKnockoutBindingExpression() });
+                entries.Add(new KnockoutBindingInfo() { Name = name, Expression = control.GetValueBinding(property).GetKnockoutBindingExpression() });
             }
         }
 
@@ -33,15 +33,19 @@ namespace DotVVM.Framework
                 expression = JsonConvert.SerializeObject(expression);
             }
 
-            info.Add(new KnockoutBindingInfo() { Name = name, Expression = expression });
+            entries.Add(new KnockoutBindingInfo() { Name = name, Expression = expression });
         }
-        
 
+        public void AddFrom(KnockoutBindingGroup other)
+        {
+            entries.AddRange(other.entries);
+        }
 
         public override string ToString()
         {
-            return "{ " + string.Join(", ", info) + " }";
+            return "{ " + string.Join(", ", entries) + " }";
         }
+
 
 
         class KnockoutBindingInfo
@@ -54,6 +58,5 @@ namespace DotVVM.Framework
                 return "\"" + Name + "\": " + Expression;
             }
         }
-
     }
 }

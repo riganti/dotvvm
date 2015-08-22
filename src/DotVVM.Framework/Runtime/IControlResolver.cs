@@ -19,14 +19,19 @@ namespace DotVVM.Framework.Runtime
         ControlResolverMetadata ResolveControl(ControlType type);
 
         /// <summary>
+        /// Builds the control metadata.
+        /// </summary>
+        ControlResolverMetadata BuildControlMetadata(ControlType type);
+
+        /// <summary>
         /// Resolves the control metadata for specified type.
         /// </summary>
         ControlResolverMetadata ResolveControl(Type controlType);
-
 
         /// <summary>
         /// Resolves the binding type.
         /// </summary>
         Type ResolveBinding(string bindingType, ref string bindingValue);
+
     }
 }
