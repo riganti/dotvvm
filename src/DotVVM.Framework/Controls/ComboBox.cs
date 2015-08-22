@@ -14,6 +14,9 @@ namespace DotVVM.Framework.Controls
     public class ComboBox : SelectHtmlControlBase
     {
 
+        /// <summary>
+        /// Defaultly selected value which is NOT part of the DataSource.
+        /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public string EmptyItemText
         {
