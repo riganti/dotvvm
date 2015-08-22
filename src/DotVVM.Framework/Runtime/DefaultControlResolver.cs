@@ -200,8 +200,7 @@ namespace DotVVM.Framework.Runtime
         private ControlType FindMarkupControl(string file)
         {
             var controlBuilder = controlBuilderFactory.GetControlBuilder(file);
-            // TODO: do not build the control when i only need the type (?)
-            return new ControlType(controlBuilder.BuildControl(controlBuilderFactory).GetType(), controlBuilder.GetType(), file);
+            return new ControlType(controlBuilder.ControlType, controlBuilder.GetType(), file);
         }
 
         /// <summary>

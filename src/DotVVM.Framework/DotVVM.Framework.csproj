@@ -124,6 +124,7 @@
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
     <Compile Include="Configuration\HtmlTagAttributePair.cs" />
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
+    <Compile Include="Configuration\IDotvvmStartup.cs" />
     <Compile Include="Controls\ButtonTagName.cs" />
     <Compile Include="Controls\ContainsDotvvmPropertiesAttribute.cs" />
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />

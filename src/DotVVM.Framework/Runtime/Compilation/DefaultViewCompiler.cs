@@ -60,15 +60,13 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string namespaceName, string className)
         {
-            // add dynamic references
-            var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
-                .Select(a => assemblyCache.GetAssemblyMetadata(a));
             return compilation
-                .AddReferences(dynamicReferences)
-                .AddSyntaxTrees(emitter.BuildTree(namespaceName, className));
+                .AddSyntaxTrees(emitter.BuildTree(namespaceName, className))
+                .AddReferences(emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
+                .Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
-        protected virtual CSharpCompilation CreateCompilation(string assemblyName)
+        public virtual CSharpCompilation CreateCompilation(string assemblyName)
         {
             return CSharpCompilation.Create(assemblyName).AddReferences(new[]
                 {

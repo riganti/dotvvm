@@ -21,5 +21,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// Compiles the view to a syntax tree and adds it to the compilation
         /// </summary>
         CSharpCompilation CompileView(IReader reader, string fileName, CSharpCompilation compilation, string namespaceName, string className);
+
+        CSharpCompilation CreateCompilation(string assemblyName);
     }
 }

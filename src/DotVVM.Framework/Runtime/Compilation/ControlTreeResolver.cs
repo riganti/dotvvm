@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Runtime.Compilation
     {
         private IControlResolver controlResolver;
         private IBindingParser bindingParser;
-        
+
 
         public ControlTreeResolver(DotvvmConfiguration configuration)
         {
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
 
             var viewModelTypeName = view.Directives[Constants.ViewModelDirectiveName];
-            var viewModelType = Type.GetType(viewModelTypeName);
+            var viewModelType = FindType(viewModelTypeName);
             if (viewModelType == null)
             {
                 throw new DotvvmCompilationException($"The type '{viewModelTypeName}' required in the @viewModel directive in '{fileName}' was not found!");
@@ -78,6 +78,21 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 RootControlType = wrapperType
             };
+        }
+
+        public static Type FindType(string name)
+        {
+            // Type.GetType sometimes might work well, I don't know about these cases but as fallback...
+            var type = Type.GetType(name);
+            if (type != null) return type;
+
+            // ignore assembly info
+            name = name.Split(',').First();
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            type = assemblies.Where(a => name.StartsWith(a.GetName().Name)).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
+            if (type != null) return type;
+            return assemblies.Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
         }
 
         private ResolvedControl ProcessNode(DothtmlNode node, ControlResolverMetadata parentMetadata, DataContextStack dataContext)
@@ -89,22 +104,22 @@ namespace DotVVM.Framework.Runtime.Compilation
                     EnsureContentAllowed(parentMetadata);
 
                     // binding in text
-                    var binding = (DothtmlBindingNode) node;
-                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof (Literal)), node, dataContext);
+                    var binding = (DothtmlBindingNode)node;
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
                     literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding, dataContext)));
                     return literal;
                 }
                 else if (node is DothtmlLiteralNode)
                 {
                     // text content
-                    var literalValue = ((DothtmlLiteralNode) node).Value;
-                    var escape = ((DothtmlLiteralNode) node).Escape;
+                    var literalValue = ((DothtmlLiteralNode)node).Value;
+                    var escape = ((DothtmlLiteralNode)node).Escape;
                     if (node.IsNotEmpty())
                     {
                         EnsureContentAllowed(parentMetadata);
                     }
-                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof (Literal)), node, dataContext);
-                    literal.SetPropertyValue(Internal.IsCommentProperty, ((DothtmlLiteralNode) node).IsComment);
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
+                    literal.SetPropertyValue(Internal.IsCommentProperty, ((DothtmlLiteralNode)node).IsComment);
                     literal.SetPropertyValue(Literal.HtmlEncodeProperty, escape);
                     literal.SetPropertyValue(Literal.TextProperty, literalValue);
                     return literal;
@@ -112,7 +127,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 else if (node is DothtmlElementNode)
                 {
                     // HTML element
-                    var element = (DothtmlElementNode) node;
+                    var element = (DothtmlElementNode)node;
                     EnsureContentAllowed(parentMetadata);
 
                     // the element is the content
@@ -234,7 +249,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 else if (attribute.Literal is DothtmlBindingNode)
                 {
                     // binding
-                    var bindingNode = (DothtmlBindingNode) attribute.Literal;
+                    var bindingNode = (DothtmlBindingNode)attribute.Literal;
                     var resolvedBinding = ProcessBinding(bindingNode, dataContext);
                     control.SetProperty(new ResolvedPropertyBinding(property, resolvedBinding));
                 }
@@ -250,7 +265,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 // if the property is not found, add it as an HTML attribute
                 object value = (attribute.Literal is DothtmlBindingNode)
-                    ? (object) ProcessBinding((DothtmlBindingNode) attribute.Literal, dataContext)
+                    ? (object)ProcessBinding((DothtmlBindingNode)attribute.Literal, dataContext)
                     : attribute.Literal?.Value;
 
                 control.SetHtmlAttribute(attribute.AttributeName, value);
@@ -279,7 +294,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     else
                     {
                         content.Add(node);
-                        if(node.IsNotEmpty())
+                        if (node.IsNotEmpty())
                         {
                             properties = false;
                         }
@@ -395,7 +410,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
             if (baseControlDirective != null)
             {
-                wrapperType = Type.GetType(baseControlDirective.Value);
+                wrapperType = FindType(baseControlDirective.Value);
                 if (wrapperType == null)
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_TypeSpecifiedInBaseTypeDirectiveNotFound, baseControlDirective.Value));

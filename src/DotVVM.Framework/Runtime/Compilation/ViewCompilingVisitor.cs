@@ -34,7 +34,9 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             lastMetadata = view.Metadata;
             var wrapperClassName = CreateControlClass(className, view.Metadata.Type);
+            emitter.UsedAssemblies.Add(view.Metadata.Type.Assembly);
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
+            emitter.ResultControlType = wrapperClassName;
             // build the statements
             emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName);
             var pageName = emitter.EmitCreateObject(wrapperClassName);

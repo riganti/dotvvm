@@ -118,7 +118,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             compiled.Expression = TryExecute(requirements.Expression, () => binding.GetExpression());
             compiled.Id = id;
             compiled.ActionFilters = TryExecute(requirements.ActionFilters, () => GetActionFilters(binding.GetExpression()).ToArray());
-            //compiled.Javascript = TryExecute(requirements.Javascript, () => JavascriptCompilation.JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack));
+
             var jsCompiler = GetJsCompiler(binding.BindingType);
             compiled.Javascript = TryExecute(requirements.Javascript, () => jsCompiler.CompileToJs(binding, compiled));
 

@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Gets the name of the class from the file name.
         /// </summary>
-        internal static string GetClassFromFileName(string fileName)
+        public static string GetClassFromFileName(string fileName)
         {
             return Path.GetFileNameWithoutExtension(fileName);
         }
@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Gets the name of the namespace from the file name.
         /// </summary>
-        internal static string GetNamespaceFromFileName(string fileName, DateTime lastWriteDateTimeUtc)
+        public static string GetNamespaceFromFileName(string fileName, DateTime lastWriteDateTimeUtc)
         {
             // remove extension
             fileName = fileName.Substring(0, fileName.Length - MarkupFile.ViewFileExtension.Length);

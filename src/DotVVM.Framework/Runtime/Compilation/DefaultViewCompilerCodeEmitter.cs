@@ -36,6 +36,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
         public SyntaxTree SyntaxTree { get; private set; }
         public Type BuilderDataContextType { get; set; }
+        public string ResultControlType { get; set; }
 
 
         private List<Type> usedControlBuilderTypes = new List<Type>();
@@ -108,6 +109,28 @@ namespace DotVVM.Framework.Runtime.Compilation
             return CreateObject(type.FullName, arguments);
         }
 
+        public ExpressionSyntax EmitAttributeInitializer(CustomAttributeData attr)
+        {
+            UsedAssemblies.Add(attr.AttributeType.Assembly);
+            return SyntaxFactory.ObjectCreationExpression(
+                SyntaxFactory.ParseTypeName(attr.AttributeType.FullName),
+                SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SeparatedList(
+                        attr.ConstructorArguments.Select(a => SyntaxFactory.Argument(EmitValue(a.Value)))
+                    )
+                ),
+                SyntaxFactory.InitializerExpression(SyntaxKind.ObjectInitializerExpression,
+                    SyntaxFactory.SeparatedList(
+                        attr.NamedArguments.Select(np =>
+                             (ExpressionSyntax)SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+                                SyntaxFactory.IdentifierName(np.MemberName),
+                                EmitValue(np.TypedValue.Value)
+                            )
+                        )
+                    )
+                )
+            );
+        }
 
         /// <summary>
         /// Emits the create object expression.
@@ -520,11 +543,17 @@ namespace DotVVM.Framework.Runtime.Compilation
                                                 .WithType(SyntaxFactory.ParseTypeName(typeof(IControlBuilderFactory).FullName))
                                             })))
                                             .WithBody(SyntaxFactory.Block(m.Statements))
-                                        ).Concat(new [] { SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("System.Type"), nameof(IControlBuilder.DataContextType))
-                                            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                            .WithExpressionBody(
-                                                SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(BuilderDataContextType.FullName))))
-                                            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                                        ).Concat(new [] {
+                                            SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("System.Type"), nameof(IControlBuilder.DataContextType))
+                                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                                .WithExpressionBody(
+                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(BuilderDataContextType.FullName))))
+                                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                                            SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("System.Type"), nameof(IControlBuilder.ControlType))
+                                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                                .WithExpressionBody(
+                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(ResultControlType))))
+                                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
                                         })
                                     )
                                 )
