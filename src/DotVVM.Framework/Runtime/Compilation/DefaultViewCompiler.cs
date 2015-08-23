@@ -55,13 +55,13 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             resolvedView.Accept(compilingVisitor);
 
-            return AddToCompilation(compilation, emitter, namespaceName, className);
+            return AddToCompilation(compilation, emitter, fileName, namespaceName, className);
         }
 
-        protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string namespaceName, string className)
+        protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string fileName, string namespaceName, string className)
         {
             return compilation
-                .AddSyntaxTrees(emitter.BuildTree(namespaceName, className))
+                .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName))
                 .AddReferences(emitter.UsedAssemblies
                     .Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }

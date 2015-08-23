@@ -504,8 +504,9 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Gets the result syntax tree.
         /// </summary>
-        public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className)
+        public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
+            
             UsedAssemblies.Add(BuilderDataContextType.Assembly);
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName(namespaceName)).WithMembers(
@@ -522,6 +523,14 @@ namespace DotVVM.Framework.Runtime.Compilation
                                         )
                                     })
                                 ))
+                                .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
+                                        SyntaxFactory.Attribute(
+                                            SyntaxFactory.ParseName("DotVVM.Framework.Runtime.LoadControlBuilder"),
+                                            SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
+                                                SyntaxFactory.AttributeArgument(EmitStringLiteral(fileName))
+                                            }))
+                                        )
+                                    })))
                                 .WithMembers(
                                 SyntaxFactory.List<MemberDeclarationSyntax>(
                                     outputMethods.Select<EmitterMethodInfo, MemberDeclarationSyntax>(m =>
