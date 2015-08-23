@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
 
             var viewModelTypeName = view.Directives[Constants.ViewModelDirectiveName];
-            var viewModelType = FindType(viewModelTypeName);
+            var viewModelType = ReflectionUtils.FindType(viewModelTypeName);
             if (viewModelType == null)
             {
                 throw new DotvvmCompilationException($"The type '{viewModelTypeName}' required in the @viewModel directive in '{fileName}' was not found!");
@@ -82,21 +82,6 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 RootControlType = wrapperType
             };
-        }
-
-        public static Type FindType(string name)
-        {
-            // Type.GetType sometimes might work well, I don't know about these cases but as fallback...
-            var type = Type.GetType(name);
-            if (type != null) return type;
-
-            // ignore assembly info
-            name = name.Split(',').First();
-
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            type = assemblies.Where(a => name.StartsWith(a.GetName().Name)).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
-            if (type != null) return type;
-            return assemblies.Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
         }
 
         private ResolvedControl ProcessNode(DothtmlNode node, ControlResolverMetadata parentMetadata, DataContextStack dataContext)
@@ -414,7 +399,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
             if (baseControlDirective != null)
             {
-                wrapperType = FindType(baseControlDirective.Value);
+                wrapperType = ReflectionUtils.FindType(baseControlDirective.Value);
                 if (wrapperType == null)
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_TypeSpecifiedInBaseTypeDirectiveNotFound, baseControlDirective.Value));

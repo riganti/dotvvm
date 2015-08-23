@@ -38,13 +38,6 @@ namespace DotVVM.Framework.Runtime.Compilation
         public Type BuilderDataContextType { get; set; }
         public string ResultControlType { get; set; }
 
-
-        private List<Type> usedControlBuilderTypes = new List<Type>();
-        public List<Type> UsedControlBuilderTypes
-        {
-            get { return usedControlBuilderTypes; }
-        }
-
         private HashSet<Assembly> usedAssemblies = new HashSet<Assembly>();
         public HashSet<Assembly> UsedAssemblies
         {
@@ -146,7 +139,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            usedControlBuilderTypes.Add(controlType);
+            UsedAssemblies.Add(controlType.Assembly);
 
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
@@ -196,7 +189,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
                         SyntaxFactory.VariableDeclarator(name).WithInitializer(
                             SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(controlType.BaseType.FullName),
+                                SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(controlType.FullName),
                                     SyntaxFactory.IdentifierName(untypedName)
                                 )
                             )

@@ -62,8 +62,8 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             return compilation
                 .AddSyntaxTrees(emitter.BuildTree(namespaceName, className))
-                .AddReferences(emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
-                .Select(a => assemblyCache.GetAssemblyMetadata(a)));
+                .AddReferences(emitter.UsedAssemblies
+                    .Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
         public virtual CSharpCompilation CreateCompilation(string assemblyName)
