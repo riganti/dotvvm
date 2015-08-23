@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             catch (Exception exception)
             {
-                throw new BidningParserExpception(contextType, bindingExpressionText, parentContexts, controlType, exception);
+                throw new BidningParserException(contextType, bindingExpressionText, parentContexts, controlType, exception);
             }
         }
 
