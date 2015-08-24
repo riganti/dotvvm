@@ -183,13 +183,15 @@
     <Compile Include="Parser\Binding\Parser\BinaryOperatorBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\BindingParser.cs" />
     <Compile Include="Parser\Binding\Parser\BindingParserNode.cs" />
+    <Compile Include="Parser\Binding\Parser\BindingParserNodeVisitor.cs" />
     <Compile Include="Parser\Binding\Parser\BindingSpecialProperty.cs" />
-    <Compile Include="Parser\Binding\Parser\ConditionalBindingParserNode.cs" />
+    <Compile Include="Parser\Binding\Parser\ConditionalExpressionBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\FunctionCallBindingParserNode.cs" />
+    <Compile Include="Parser\Binding\Parser\IBindingParserNodeContext.cs" />
     <Compile Include="Parser\Binding\Parser\IdentifierNameBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\LiteralBindingParserNode.cs" />
+    <Compile Include="Parser\Binding\Parser\LiteralExpressionBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\MemberAccessBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\ParenthesizedBindingParserNode.cs" />
+    <Compile Include="Parser\Binding\Parser\ParenthesizedExpressionBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\SpecialPropertyBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\UnaryOperatorBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Tokenizer\BindingToken.cs" />
@@ -275,6 +277,10 @@
     </Compile>
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />
+    <Compile Include="Runtime\Compilation\Binding\CompileTimeBindingParser.cs" />
+    <Compile Include="Runtime\Compilation\Binding\CompileTimeParserNodeContext.cs" />
+    <Compile Include="Runtime\Compilation\Binding\CompileTimeTypeConstraint.cs" />
+    <Compile Include="Runtime\Compilation\Binding\DataContextResolverBindingParserNodeVisitor.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
     <Compile Include="Runtime\Compilation\ControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\DataContextStack.cs" />

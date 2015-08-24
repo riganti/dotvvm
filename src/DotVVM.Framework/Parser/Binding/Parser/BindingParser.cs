@@ -10,25 +10,11 @@ using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Parser.Binding.Parser
 {
-    public class BindingParser : ParserBase<BindingToken, BindingTokenType>, IBindingParser
+    public class BindingParser : ParserBase<BindingToken, BindingTokenType>
     {
         protected override BindingTokenType WhiteSpaceToken => BindingTokenType.WhiteSpace;
 
-
-        public Expression Parse(string expression, DataContextStack dataContexts)
-        {
-            var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(new StringReader(expression));
-            
-            var node = ReadExpression();
-            if (Peek() != null)
-            {
-                throw new Exception("End of expression expected!");
-            }
-
-            throw new NotSupportedException();
-        }
-
+        
         internal BindingParserNode ReadExpression()
         {
             var startIndex = CurrentIndex;
@@ -50,7 +36,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 Read();
                 var third = ReadConditionalExpression();
 
-                return CreateNode(new ConditionalBindingParserNode(first, second, third), startIndex, error ? "The ':' was expected." : null);
+                return CreateNode(new ConditionalExpressionBindingParserNode(first, second, third), startIndex, error ? "The ':' was expected." : null);
             }
             else
             {
@@ -227,7 +213,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
                 Read();
                 SkipWhitespace();
-                return CreateNode(new ParenthesizedBindingParserNode(innerExpression), startIndex, error ? "The ')' was expected." : null);
+                return CreateNode(new ParenthesizedExpressionBindingParserNode(innerExpression), startIndex, error ? "The ')' was expected." : null);
             }
             else if (token != null && token.Type == BindingTokenType.StringLiteralToken)
             {
@@ -236,7 +222,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 SkipWhitespace();
 
                 string error;
-                var node = CreateNode(new LiteralBindingParserNode(ParseStringLiteral(literal.Text, out error)), startIndex);
+                var node = CreateNode(new LiteralExpressionBindingParserNode(ParseStringLiteral(literal.Text, out error)), startIndex);
                 if (error != null)
                 {
                     node.NodeErrors.Add(error);
@@ -262,13 +248,13 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 {
                     Read();
                     SkipWhitespace();
-                    return CreateNode(new LiteralBindingParserNode(identifier.Text == "true"), startIndex);
+                    return CreateNode(new LiteralExpressionBindingParserNode(identifier.Text == "true"), startIndex);
                 }
                 else if (identifier.Text == "null")
                 {
                     Read();
                     SkipWhitespace();
-                    return CreateNode(new LiteralBindingParserNode(null), startIndex);
+                    return CreateNode(new LiteralExpressionBindingParserNode(null), startIndex);
                 }
                 else if (identifier.Text == "_this")
                 {
@@ -302,7 +288,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     Read();
                     SkipWhitespace();
 
-                    var node = CreateNode(new LiteralBindingParserNode(number), startIndex);
+                    var node = CreateNode(new LiteralExpressionBindingParserNode(number), startIndex);
                     if (error != null)
                     {
                         node.NodeErrors.Add(error);

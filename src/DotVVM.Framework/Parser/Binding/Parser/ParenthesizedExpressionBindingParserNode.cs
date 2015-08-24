@@ -3,11 +3,11 @@ using System.Linq;
 
 namespace DotVVM.Framework.Parser.Binding.Parser
 {
-    public class ParenthesizedBindingParserNode : BindingParserNode
+    public class ParenthesizedExpressionBindingParserNode : BindingParserNode
     {
         public BindingParserNode InnerExpression { get; private set; }
 
-        public ParenthesizedBindingParserNode(BindingParserNode innerExpression)
+        public ParenthesizedExpressionBindingParserNode(BindingParserNode innerExpression)
         {
             InnerExpression = innerExpression;
         }

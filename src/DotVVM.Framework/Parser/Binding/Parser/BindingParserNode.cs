@@ -22,6 +22,9 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             get { return NodeErrors.Any(); }
         }
 
+        public IBindingParserNodeContext Context { get; set; }
+
+
         public BindingParserNode()
         {
             Tokens = new List<BindingToken>();

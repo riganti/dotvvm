@@ -1,10 +1,10 @@
 namespace DotVVM.Framework.Parser.Binding.Parser
 {
-    public class LiteralBindingParserNode : BindingParserNode
+    public class LiteralExpressionBindingParserNode : BindingParserNode
     {
         public object Value { get; set; }
 
-        public LiteralBindingParserNode(object value)
+        public LiteralExpressionBindingParserNode(object value)
         {
             Value = value;
         }

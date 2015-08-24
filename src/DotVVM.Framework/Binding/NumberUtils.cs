@@ -2,6 +2,7 @@
 
 
 using System;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Binding 
 {
@@ -9,6 +10,33 @@ namespace DotVVM.Framework.Binding
     public class NumberUtils
 	{
 			
+		private static HashSet<Type> typeMap = new HashSet<Type>(new[] {
+			typeof(System.Byte),
+			typeof(System.SByte),
+			typeof(System.Int16),
+			typeof(System.UInt16),
+			typeof(System.Int32),
+			typeof(System.UInt32),
+			typeof(System.Int64),
+			typeof(System.UInt64),
+			typeof(System.Single),
+			typeof(System.Double),
+			typeof(System.Decimal),
+		
+		});
+
+
+		// helpers
+		public static bool IsNumericType(Type type) 
+		{
+			return typeMap.Contains(type);
+		}
+
+		public static bool IsNullableNumericType(Type type) 
+		{
+			return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>) && IsNumericType(type.GetGenericArguments()[0]);
+		}
+
 		// operator methods
 
 		public static Byte Add(Byte a, Byte b) 
