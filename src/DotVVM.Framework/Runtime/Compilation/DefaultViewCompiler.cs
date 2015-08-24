@@ -60,8 +60,9 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string fileName, string namespaceName, string className)
         {
+            var tree = emitter.BuildTree(namespaceName, className, fileName);
             return compilation
-                .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName))
+                .AddSyntaxTrees(tree)
                 .AddReferences(emitter.UsedAssemblies
                     .Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
@@ -102,7 +103,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 {
                     throw new Exception("The compilation failed! This is most probably bug in the DotVVM framework.\r\n\r\n"
                         + string.Join("\r\n", result.Diagnostics)
-                        + "\r\n\r\n" + compilation.SyntaxTrees[0] + "\r\n\r\n");
+                        + "\r\n\r\n" + compilation.SyntaxTrees[0].GetRoot().NormalizeWhitespace() + "\r\n\r\n");
                 }
             }
         }

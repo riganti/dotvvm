@@ -159,14 +159,13 @@ namespace DotVVM.Framework.Runtime.Compilation
             if (control.Properties.ContainsKey(DotvvmBindableControl.DataContextProperty) && control.Properties[DotvvmBindableControl.DataContextProperty] is ResolvedPropertyBinding)
             {
                 dataContext = new DataContextStack(
-                    ((ResolvedPropertyBinding)control.Properties[DotvvmBindableControl.DataContextProperty]).Binding.Expression.Type,
+                    ((ResolvedPropertyBinding)control.Properties[DotvvmBindableControl.DataContextProperty]).Binding.GetExpression().Type,
                     dataContext);
                 control.DataContextTypeStack = dataContext;
             }
-
             if (controlMetadata.DataContextConstraint != null && !controlMetadata.DataContextConstraint.IsAssignableFrom(dataContext.DataContextType))
             {
-                throw new DotvvmCompilationException($"The control '{controlMetadata.Name}' requires a DataContext of type '{controlMetadata.DataContextConstraint.FullName}'!");
+                throw new DotvvmCompilationException($"The control '{controlMetadata.Name}' requires a DataContext of type '{controlMetadata.DataContextConstraint.FullName}'!", element.Tokens);
             }
 
             // set properties from attributes
@@ -205,7 +204,8 @@ namespace DotVVM.Framework.Runtime.Compilation
                 Value = node.Value,
                 Expression = expression,
                 DataContextTypeStack = context,
-                ParsingError = parsingError
+                ParsingError = parsingError,
+                BindingNode = node
             };
         }
 
@@ -415,7 +415,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         private DotvvmProperty FindProperty(ControlResolverMetadata parentMetadata, string name)
         {
-            return parentMetadata.FindProperty(name) ?? DotvvmProperty.ResolveProperty(name);
+            return parentMetadata.FindProperty(name) ?? (name.Contains(".") ? DotvvmProperty.ResolveProperty(name) : null);
         }
 
         private static void EnsureContentAllowed(ControlResolverMetadata controlMetadata)

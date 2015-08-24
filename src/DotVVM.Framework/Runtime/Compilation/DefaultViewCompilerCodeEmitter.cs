@@ -567,6 +567,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
             // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
             SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
+            //SyntaxTree = root.SyntaxTree;
             return new[] { SyntaxTree };
         }
 
