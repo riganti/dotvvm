@@ -4,6 +4,7 @@ using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Resources;
 using System.Diagnostics;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
@@ -425,5 +426,17 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         }
 
         protected override DothtmlTokenType WhiteSpaceToken => DothtmlTokenType.WhiteSpace;
+
+        /// <summary>
+        /// Asserts that the current token is of a specified type.
+        /// </summary>
+        protected bool Assert(DothtmlTokenType desiredType)
+        {
+            if (Peek() == null || !Peek().Type.Equals(desiredType))
+            {
+                throw new DotvvmCompilationException($"DotVVM parser internal error! The token {desiredType} was expected!");
+            }
+            return true;
+        }
     }
 }

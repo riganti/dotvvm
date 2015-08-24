@@ -21,17 +21,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         internal IList<TToken> Tokens { get; set; }
         protected int CurrentIndex { get; set; }
 
-        /// <summary>
-        /// Asserts that the current token is of a specified type.
-        /// </summary>
-        protected void Assert(TTokenType desiredType)
-        {
-            if (Peek() == null || !Peek().Type.Equals(desiredType))
-            {
-                throw new Exception("Assertion failed! This is internal error of the parser.");
-            }
-        }
-
+        
         /// <summary>
         /// Skips the whitespace.
         /// </summary>
@@ -61,7 +51,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             {
                 return Tokens[CurrentIndex++];
             }
-            throw new ParserException(Parser_Dothtml.UnexpectedEndOfInput);
+            return null;
         }
 
         /// <summary>

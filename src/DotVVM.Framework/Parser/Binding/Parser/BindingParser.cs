@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(new StringReader(expression));
             
-            var node = ReadExpression(dataContexts);
+            var node = ReadExpression();
             if (Peek() != null)
             {
                 throw new Exception("End of expression expected!");
@@ -29,26 +29,28 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             throw new NotSupportedException();
         }
 
-        internal BindingParserNode ReadExpression(DataContextStack dataContexts)
+        internal BindingParserNode ReadExpression()
         {
+            var startIndex = CurrentIndex;
             SkipWhitespace();
-            return ReadConditionalExpression(dataContexts);
+            return CreateNode(ReadConditionalExpression(), startIndex);
         }
 
 
 
-        private BindingParserNode ReadConditionalExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadConditionalExpression()
         {
-            var first = ReadNullCoalescingExpression(dataContextStack);
+            var first = ReadNullCoalescingExpression();
             if (Peek() != null && Peek().Type == BindingTokenType.QuestionMarkOperator)
             {
+                var startIndex = CurrentIndex;
                 Read();
-                var second = ReadConditionalExpression(dataContextStack);
-                Assert(BindingTokenType.ColonOperator);
+                var second = ReadConditionalExpression();
+                var error = IsCurrentTokenIncorrect(BindingTokenType.ColonOperator);
                 Read();
-                var third = ReadConditionalExpression(dataContextStack);
+                var third = ReadConditionalExpression();
 
-                return new ConditionalBindingParserNode(first, second, third);
+                return CreateNode(new ConditionalBindingParserNode(first, second, third), startIndex, error ? "The ':' was expected." : null);
             }
             else
             {
@@ -56,14 +58,15 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             }
         }
 
-        private BindingParserNode ReadNullCoalescingExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadNullCoalescingExpression()
         {
-            var first = ReadOrElseExpression(dataContextStack);
+            var first = ReadOrElseExpression();
             if (Peek() != null && Peek().Type == BindingTokenType.NullCoalescingOperator)
             {
+                var startIndex = CurrentIndex;
                 Read();
-                var second = ReadNullCoalescingExpression(dataContextStack);
-                return new BinaryOperatorBindingParserNode(first, second, BindingTokenType.NullCoalescingOperator);
+                var second = ReadNullCoalescingExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.NullCoalescingOperator), startIndex);
             }
             else
             {
@@ -71,121 +74,130 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             }
         }
 
-        private BindingParserNode ReadOrElseExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadOrElseExpression()
         {
-            var first = ReadAndAlsoExpression(dataContextStack);
+            var first = ReadAndAlsoExpression();
             if (Peek() != null && Peek().Type == BindingTokenType.OrElseOperator)
             {
+                var startIndex = CurrentIndex;
                 Read();
-                var second = ReadOrElseExpression(dataContextStack);
-                return new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrElseOperator);
+                var second = ReadOrElseExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrElseOperator), startIndex);
             }
             return first;
         }
 
-        private BindingParserNode ReadAndAlsoExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadAndAlsoExpression()
         {
-            var first = ReadOrExpression(dataContextStack);
+            var first = ReadOrExpression();
             if (Peek() != null && Peek().Type == BindingTokenType.AndAlsoOperator)
             {
+                var startIndex = CurrentIndex;
                 Read();
-                var second = ReadAndAlsoExpression(dataContextStack);
-                return new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndAlsoOperator);
+                var second = ReadAndAlsoExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndAlsoOperator), startIndex);
             }
             return first;
         }
 
-        private BindingParserNode ReadOrExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadOrExpression()
         {
-            var first = ReadAndExpression(dataContextStack);
+            var first = ReadAndExpression();
             if (Peek() != null && Peek().Type == BindingTokenType.OrOperator)
             {
+                var startIndex = CurrentIndex;
                 Read();
-                var second = ReadOrExpression(dataContextStack);
-                return new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrOperator);
+                var second = ReadOrExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrOperator), startIndex);
             }
             return first;
         }
 
-        private BindingParserNode ReadAndExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadAndExpression()
         {
-            var first = ReadEqualityExpression(dataContextStack);
+            var first = ReadEqualityExpression();
             if (Peek() != null && Peek().Type == BindingTokenType.AndOperator)
             {
+                var startIndex = CurrentIndex;
                 Read();
-                var second = ReadAndExpression(dataContextStack);
-                return new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndOperator);
+                var second = ReadAndExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndOperator), startIndex);
             }
             return first;
         }
 
-        private BindingParserNode ReadEqualityExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadEqualityExpression()
         {
-            var first = ReadComparisonExpression(dataContextStack);
+            var first = ReadComparisonExpression();
             if (Peek() != null)
             {
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.EqualsEqualsOperator || @operator == BindingTokenType.NotEqualsOperator)
                 {
+                    var startIndex = CurrentIndex;
                     Read();
-                    var second = ReadEqualityExpression(dataContextStack);
-                    return new BinaryOperatorBindingParserNode(first, second, @operator);
+                    var second = ReadEqualityExpression();
+                    return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                 }
             }
             return first;
         }
 
-        private BindingParserNode ReadComparisonExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadComparisonExpression()
         {
-            var first = ReadAdditiveExpression(dataContextStack);
+            var first = ReadAdditiveExpression();
             if (Peek() != null)
             {
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.LessThanEqualsOperator || @operator == BindingTokenType.LessThanOperator
                     || @operator == BindingTokenType.GreaterThanEqualsOperator || @operator == BindingTokenType.GreaterThanOperator)
                 {
+                    var startIndex = CurrentIndex;
                     Read();
-                    var second = ReadComparisonExpression(dataContextStack);
-                    return new BinaryOperatorBindingParserNode(first, second, @operator);
+                    var second = ReadComparisonExpression();
+                    return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                 }
             }
             return first;
         }
 
-        private BindingParserNode ReadAdditiveExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadAdditiveExpression()
         {
-            var first = ReadMultiplicativeExpression(dataContextStack);
+            var first = ReadMultiplicativeExpression();
             if (Peek() != null)
             {
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.AddOperator || @operator == BindingTokenType.SubtractOperator)
                 {
+                    var startIndex = CurrentIndex;
                     Read();
-                    var second = ReadAdditiveExpression(dataContextStack);
-                    return new BinaryOperatorBindingParserNode(first, second, @operator);
+                    var second = ReadAdditiveExpression();
+                    return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                 }
             }
             return first;
         }
 
-        private BindingParserNode ReadMultiplicativeExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadMultiplicativeExpression()
         {
-            var first = ReadUnaryExpression(dataContextStack);
+            var first = ReadUnaryExpression();
             if (Peek() != null)
             {
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.MultiplyOperator || @operator == BindingTokenType.DivideOperator || @operator == BindingTokenType.ModulusOperator)
                 {
+                    var startIndex = CurrentIndex;
                     Read();
-                    var second = ReadMultiplicativeExpression(dataContextStack);
-                    return new BinaryOperatorBindingParserNode(first, second, @operator);
+                    var second = ReadMultiplicativeExpression();
+                    return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                 }
             }
             return first;
         }
 
-        private BindingParserNode ReadUnaryExpression(DataContextStack dataContextStack)
+        private BindingParserNode ReadUnaryExpression()
         {
+            var startIndex = CurrentIndex;
             SkipWhitespace();
 
             if (Peek() != null)
@@ -194,44 +206,53 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator)
                 {
                     Read();
-                    var target = ReadUnaryExpression(dataContextStack);
-                    return new UnaryOperatorBindingParserNode(target, @operator);
+                    var target = ReadUnaryExpression();
+                    return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex);
                 }
             }
-            return ReadAtomicExpression(dataContextStack);
+            return CreateNode(ReadAtomicExpression(), startIndex);
         }
 
-        private BindingParserNode ReadAtomicExpression(DataContextStack dataContexts)
+        private BindingParserNode ReadAtomicExpression()
         {
+            var startIndex = CurrentIndex;
             SkipWhitespace();
 
             var token = Peek();
-            if (token.Type == BindingTokenType.OpenParenthesis)
+            if (token != null && token.Type == BindingTokenType.OpenParenthesis)
             {
                 // parenthesised expression
                 Read();
-                var innerExpression = ReadExpression(dataContexts);
-                Assert(BindingTokenType.CloseParenthesis);
+                var innerExpression = ReadExpression();
+                var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
                 Read();
                 SkipWhitespace();
-                return new ParenthesizedBindingParserNode(innerExpression);
+                return CreateNode(new ParenthesizedBindingParserNode(innerExpression), startIndex, error ? "The ')' was expected." : null);
             }
-            else if (token.Type == BindingTokenType.StringLiteralToken)
+            else if (token != null && token.Type == BindingTokenType.StringLiteralToken)
             {
                 // string literal
                 var literal = Read();
                 SkipWhitespace();
-                return new LiteralBindingParserNode(ParseStringLiteral(dataContexts, literal.Text));
+
+                string error;
+                var node = CreateNode(new LiteralBindingParserNode(ParseStringLiteral(literal.Text, out error)), startIndex);
+                if (error != null)
+                {
+                    node.NodeErrors.Add(error);
+                }
+                return node;
             }
             else 
             {
                 // identifier
-                return ReadConstantExpression(dataContexts);
+                return CreateNode(ReadConstantExpression(), startIndex);
             }
         }
 
-        private BindingParserNode ReadConstantExpression(DataContextStack dataContexts)
+        private BindingParserNode ReadConstantExpression()
         {
+            var startIndex = CurrentIndex;
             SkipWhitespace();
 
             if (Peek() != null && Peek().Type == BindingTokenType.Identifier)
@@ -241,63 +262,72 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 {
                     Read();
                     SkipWhitespace();
-                    return new LiteralBindingParserNode(identifier.Text == "true");
+                    return CreateNode(new LiteralBindingParserNode(identifier.Text == "true"), startIndex);
                 }
                 else if (identifier.Text == "null")
                 {
                     Read();
                     SkipWhitespace();
-                    return new LiteralBindingParserNode(null);
+                    return CreateNode(new LiteralBindingParserNode(null), startIndex);
                 }
                 else if (identifier.Text == "_this")
                 {
                     Read();
                     SkipWhitespace();
-                    return new SpecialPropertyBindingParserNode(BindingSpecialProperty.This);
+                    return CreateNode(new SpecialPropertyBindingParserNode(BindingSpecialProperty.This), startIndex);
                 }
                 else if (identifier.Text == "_parent")
                 {
                     Read();
                     SkipWhitespace();
-                    return new SpecialPropertyBindingParserNode(BindingSpecialProperty.Parent);
+                    return CreateNode(new SpecialPropertyBindingParserNode(BindingSpecialProperty.Parent), startIndex);
                 }
                 else if (identifier.Text == "_root")
                 {
                     Read();
                     SkipWhitespace();
-                    return new SpecialPropertyBindingParserNode(BindingSpecialProperty.Root);
+                    return CreateNode(new SpecialPropertyBindingParserNode(BindingSpecialProperty.Root), startIndex);
                 }
                 else if (Char.IsDigit(identifier.Text[0]))
                 {
                     // number value
                     double number;
+                    string error = null;
                     if (!double.TryParse(identifier.Text, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out number))
                     {
-                        ThrowParserException(dataContexts, $"The value '{identifier.Text}' is not a valid number.");
+                        error = $"The value '{identifier.Text}' is not a valid number.";
+                        number = 0;
                     }
 
                     Read();
                     SkipWhitespace();
-                    return new LiteralBindingParserNode(number);
+
+                    var node = CreateNode(new LiteralBindingParserNode(number), startIndex);
+                    if (error != null)
+                    {
+                        node.NodeErrors.Add(error);
+                    }
+                    return node;
                 }
             }
 
-            return ReadIdentifierExpression(dataContexts);
+            return CreateNode(ReadIdentifierExpression(), startIndex);
         }
 
-        private BindingParserNode ReadIdentifierExpression(DataContextStack dataContexts)
+        private BindingParserNode ReadIdentifierExpression()
         {
-            BindingParserNode expression = ReadIdentifierNameExpression(dataContexts);
+            BindingParserNode expression = ReadIdentifierNameExpression();
 
             var next = Peek();
             while (next != null)
             {
+                var startIndex = CurrentIndex;
                 if (next.Type == BindingTokenType.Dot)
                 {
                     // member access
                     Read();
-                    var member = ReadIdentifierNameExpression(dataContexts);                                        // TODO - change dataContexts
-                    expression = new MemberAccessBindingParserNode(expression, member);
+                    var member = ReadIdentifierNameExpression();
+                    expression = CreateNode(new MemberAccessBindingParserNode(expression, member), startIndex);
                 }
                 else if (next.Type == BindingTokenType.OpenParenthesis)
                 {
@@ -306,22 +336,22 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     var arguments = new List<BindingParserNode>();
                     while (Peek() != null && Peek().Type != BindingTokenType.CloseParenthesis)
                     {
-                        arguments.Add(ReadExpression(dataContexts));                                                // TODO - change dataContexts
+                        arguments.Add(ReadExpression());          
                     }
-                    Assert(BindingTokenType.CloseParenthesis);
+                    var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
                     Read();
                     SkipWhitespace();
-                    expression = new FunctionCallBindingParserNode(expression, arguments);
+                    expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
                 }
                 else if (next.Type == BindingTokenType.OpenArrayBrace)
                 {
                     // array access
                     Read();
-                    var innerExpression = ReadExpression(dataContexts);                                             // TODO - change dataContexts
-                    Assert(BindingTokenType.CloseArrayBrace);
+                    var innerExpression = ReadExpression();
+                    var error = IsCurrentTokenIncorrect(BindingTokenType.CloseArrayBrace);
                     Read();
                     SkipWhitespace();
-                    expression = new ArrayAccessBindingParserNode(expression, innerExpression);
+                    expression = CreateNode(new ArrayAccessBindingParserNode(expression, innerExpression), startIndex, error ? "The ']' was expected." : null);
                 }
                 else
                 {
@@ -333,22 +363,25 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             return expression;
         }
 
-        private IdentifierNameBindingParserNode ReadIdentifierNameExpression(DataContextStack dataContexts)
+        private IdentifierNameBindingParserNode ReadIdentifierNameExpression()
         {
+            var startIndex = CurrentIndex;
             SkipWhitespace();
+
             if (Peek() != null && Peek().Type == BindingTokenType.Identifier)
             {
                 var identifier = Read();
                 SkipWhitespace();
-                return new IdentifierNameBindingParserNode(identifier.Text);
+                return CreateNode(new IdentifierNameBindingParserNode(identifier.Text), startIndex);
             }
 
-            ThrowParserException(dataContexts, "Identifier was expected!");
-            return null;
+            // create virtual empty identifier expression
+            return CreateNode(new IdentifierNameBindingParserNode("") { NodeErrors = { "Identifier name was expected!" }}, startIndex);
         }
 
-        private string ParseStringLiteral(DataContextStack dataContexts, string text)
+        private string ParseStringLiteral(string text, out string error)
         {
+            error = null;
             var sb = new StringBuilder();
             for (var i = 1; i < text.Length - 1; i++)
             {
@@ -358,7 +391,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     i++;
                     if (i == text.Length - 1)
                     {
-                        ThrowParserException(dataContexts, "The escape character cannot be at the end of the string literal!");
+                        error = "The escape character cannot be at the end of the string literal!";
                     }
                     else if (text[i] == '\'' || text[i] == '"' || text[i] == '\\')
                     {
@@ -378,7 +411,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     }
                     else
                     {
-                        ThrowParserException(dataContexts, "The escape sequence is either not valid or not supported in dotVVM bindings!");
+                        error = "The escape sequence is either not valid or not supported in dotVVM bindings!";
                     }
                 }
                 else
@@ -389,136 +422,35 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             return sb.ToString();
         }
 
-        private void ThrowParserException(DataContextStack dataContexts, string message)
+        private T CreateNode<T>(T node, int startIndex, string error = null) where T : BindingParserNode
         {
-            throw new NotImplementedException();
+            node.Tokens.Clear();
+            node.Tokens.AddRange(GetTokensFrom(startIndex));
+
+            if (startIndex < Tokens.Count)
+            {
+                node.StartPosition = Tokens[startIndex].StartPosition;
+            }
+            node.Length = node.Tokens.Sum(t => (int?)t.Length) ?? 0;
+
+            if (error != null)
+            {
+                node.NodeErrors.Add(error);
+            }
+
+            return node;
         }
-    }
 
-    public class MemberAccessBindingParserNode : BindingParserNode
-    {
-        public BindingParserNode TargetExpression { get; set; }
-        public IdentifierNameBindingParserNode MemberNameExpression { get; set; }
-
-        public MemberAccessBindingParserNode(BindingParserNode targetExpression, IdentifierNameBindingParserNode memberNameExpression)
+        /// <summary>
+        /// Asserts that the current token is of a specified type.
+        /// </summary>
+        protected bool IsCurrentTokenIncorrect(BindingTokenType desiredType)
         {
-            TargetExpression = targetExpression;
-            MemberNameExpression = memberNameExpression;
+            if (Peek() == null || !Peek().Type.Equals(desiredType))
+            {
+                return true;
+            }
+            return false;
         }
-    }
-
-    public class ConditionalBindingParserNode : BindingParserNode
-    {
-        public BindingParserNode ConditionExpression { get; private set; }
-        public BindingParserNode TrueExpression { get; private set; }
-        public BindingParserNode FalseExpression { get; private set; }
-
-        public ConditionalBindingParserNode(BindingParserNode conditionExpression, BindingParserNode trueExpression, BindingParserNode falseExpression)
-        {
-            ConditionExpression = conditionExpression;
-            TrueExpression = trueExpression;
-            FalseExpression = falseExpression;
-        }
-    }
-
-    public class BinaryOperatorBindingParserNode : BindingParserNode
-    {
-        public BindingParserNode FirstExpression { get; private set; }
-        public BindingParserNode SecondExpression { get; private set; }
-        public BindingTokenType Operator { get; private set; }
-
-        public BinaryOperatorBindingParserNode(BindingParserNode firstExpression, BindingParserNode secondExpression, BindingTokenType @operator)
-        {
-            FirstExpression = firstExpression;
-            SecondExpression = secondExpression;
-            Operator = @operator;
-        }
-    }
-
-    public class FunctionCallBindingParserNode : BindingParserNode
-    {
-        public BindingParserNode TargetExpression { get; private set; }
-        public List<BindingParserNode> ArgumentExpressions { get; private set; }
-
-        public FunctionCallBindingParserNode(BindingParserNode targetExpression, List<BindingParserNode> argumentExpressions)
-        {
-            TargetExpression = targetExpression;
-            ArgumentExpressions = argumentExpressions;
-        }
-    }
-
-    public class ArrayAccessBindingParserNode : BindingParserNode
-    {
-        public BindingParserNode TargetExpression { get; private set; }
-        public BindingParserNode ArrayIndexExpression { get; private set; }
-
-        public ArrayAccessBindingParserNode(BindingParserNode targetExpression, BindingParserNode arrayIndexExpression)
-        {
-            TargetExpression = targetExpression;
-            ArrayIndexExpression = arrayIndexExpression;
-        }
-    }
-
-    public class IdentifierNameBindingParserNode : BindingParserNode
-    {
-        public string Name { get; private set; }
-
-        public IdentifierNameBindingParserNode(string name)
-        {
-            Name = name;
-        }
-    }
-
-    public class SpecialPropertyBindingParserNode : BindingParserNode
-    {
-        public BindingSpecialProperty SpecialProperty { get; private set; }
-
-        public SpecialPropertyBindingParserNode(BindingSpecialProperty specialProperty)
-        {
-            SpecialProperty = specialProperty;
-        }
-    }
-
-    public enum BindingSpecialProperty
-    {
-        This,
-        Parent,
-        Root
-    }
-
-    public class LiteralBindingParserNode : BindingParserNode
-    {
-        public object Value { get; set; }
-
-        public LiteralBindingParserNode(object value)
-        {
-            Value = value;
-        }
-    }
-
-    public class UnaryOperatorBindingParserNode : BindingParserNode
-    {
-        public BindingParserNode InnerExpression { get; private set; }
-        public BindingTokenType Operator { get; private set; }
-
-        public UnaryOperatorBindingParserNode(BindingParserNode innerExpression, BindingTokenType @operator)
-        {
-            InnerExpression = innerExpression;
-            Operator = @operator;
-        }
-    }
-
-    public class ParenthesizedBindingParserNode : BindingParserNode
-    {
-        public BindingParserNode InnerExpression { get; private set; }
-
-        public ParenthesizedBindingParserNode(BindingParserNode innerExpression)
-        {
-            InnerExpression = innerExpression;
-        }
-    }
-
-    public abstract class BindingParserNode
-    {
     }
 }
