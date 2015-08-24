@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty FirstPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.FirstPageTemplate, null);
-
+        
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate LastPageTemplate
         {
@@ -193,7 +193,8 @@ namespace DotVVM.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { });
-            writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").TotalItemsCount() > 0");
+            // this line caused some problems by overwriting visible property, I think it can be more confusing than useful
+            //writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").TotalItemsCount() > 0");
             writer.RenderBeginTag("ul");
         }
 
