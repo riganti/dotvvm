@@ -9,81 +9,87 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Displays the asterisk or validation message for a specified field.
     /// </summary>
-    public class ValidationMessage : HtmlGenericControl 
+    public class ValidationMessage : HtmlGenericControl
     {
 
         /// <summary>
-        /// Gets or sets whether the control should be hidden for valid values.
+        /// Gets or sets whether the control should be hidden even for valid values.
         /// </summary>
-        public bool HideWhenValid
-        {
-            get { return (bool)GetValue(HideWhenValidProperty); }
-            set { SetValue(HideWhenValidProperty, value); }
-        }
-        public static readonly DotvvmProperty HideWhenValidProperty =
-            DotvvmProperty.Register<bool, ValidationMessage>(c => c.HideWhenValid, true);
+        public static readonly ActiveDotvvmProperty HideWhenValidProperty =
+            DelegateActionProperty<bool>.Register<ValidationMessage>("HideWhenValid", AddHideWhenValid);
 
-        /// <summary>
-        /// Gets or sets a static text that will be displayed when the error occurs.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public string StaticText
+        private static void AddHideWhenValid(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
         {
-            get { return (string)GetValue(StaticTextProperty); }
-            set { SetValue(StaticTextProperty, value); }
+            if (value)
+            {
+                var bindingGroup = new KnockoutBindingGroup();
+                bindingGroup.Add("hideWhenValid", "true");
+                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+            }
         }
-        public static readonly DotvvmProperty StaticTextProperty =
-            DotvvmProperty.Register<string, ValidationMessage>(c => c.StaticText, "");
 
         /// <summary>
         /// Gets or sets the name of CSS class which is applied to the control when it is not valid.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string InvalidCssClass
+        public static readonly ActiveDotvvmProperty InvalidCssClassProperty =
+            DelegateActionProperty<string>.Register<ValidationMessage>("InvalidCssClass", AddInvalidCssClass);
+
+        private static void AddInvalidCssClass(IHtmlWriter writer, RenderContext context, string value, DotvvmControl control)
         {
-            get { return (string)GetValue(InvalidCssClassProperty); }
-            set { SetValue(InvalidCssClassProperty, value); }
+            var bindingGroup = new KnockoutBindingGroup();
+            bindingGroup.Add("invalidCssClass", KnockoutHelper.MakeStringLiteral(value));
+            writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
         }
-        public static readonly DotvvmProperty InvalidCssClassProperty =
-            DotvvmProperty.Register<string, ValidationMessage>(c => c.InvalidCssClass, "field-validation-error");
-        
+
+
         /// <summary>
         /// Gets or sets whether the title attribute should be set to the error message.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public bool SetToolTipText
+        public static readonly ActiveDotvvmProperty SetToolTipTextProperty =
+            DelegateActionProperty<bool>.Register<ValidationMessage>("SetToolTipText", AddSetToolTipText);
+
+        private static void AddSetToolTipText(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
         {
-            get { return (bool) GetValue(SetToolTipTextProperty); }
-            set { SetValue(SetToolTipTextProperty, value);}
+            if (value)
+            {
+                var bindingGroup = new KnockoutBindingGroup();
+                bindingGroup.Add("setToolTipText", "true");
+                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+            }
         }
-        public static readonly DotvvmProperty SetToolTipTextProperty =
-            DotvvmProperty.Register<bool, ValidationMessage>(c => c.SetToolTipText, true);
+
 
         /// <summary>
         /// Gets or sets whether the error message text should be displayed.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public bool ShowErrorMessageText
-        {
-            get { return (bool)GetValue(ShowErrorMessageTextProperty); }
-            set { SetValue(ShowErrorMessageTextProperty, value); }
-        }
-        public static readonly DotvvmProperty ShowErrorMessageTextProperty =
-            DotvvmProperty.Register<bool, ValidationMessage>(c => c.ShowErrorMessageText, false);
+        public static readonly ActiveDotvvmProperty ShowErrorMessageTextProperty =
+            DelegateActionProperty<bool>.Register<ValidationMessage>("ShowErrorMessageText", AddShowErrorMessageText);
 
+        private static void AddShowErrorMessageText(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
+        {
+            if (value)
+            {
+                var bindingGroup = new KnockoutBindingGroup();
+                bindingGroup.Add("showErrorMessageText", "true");
+                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+            }
+        }
 
         /// <summary>
         /// Gets or sets a binding that points to the validated value.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public object ValidatedValue
-        {
-            get { return (object)GetValue(ValidatedValueProperty); }
-            set { SetValue(ValidatedValueProperty, value); }
-        }
-        public static readonly DotvvmProperty ValidatedValueProperty =
-            DotvvmProperty.Register<object, ValidationMessage>(c => c.ValidatedValue, null);
+        [AttachedProperty(typeof(object))]
+        public static readonly ActiveDotvvmProperty ValidatedValueProperty =
+            DelegateActionProperty<object>.Register<ValidationMessage>("ValidatedValue", AddValidatedValue);
 
+        private static void AddValidatedValue(IHtmlWriter writer, RenderContext context, object value, DotvvmControl control)
+        {
+            writer.AddKnockoutDataBind("dotvvmValidation", (DotvvmBindableControl)control, ValidatedValueProperty);
+        }
 
 
         /// <summary>
@@ -92,69 +98,8 @@ namespace DotVVM.Framework.Controls
         public ValidationMessage()
         {
             TagName = "span";
+            SetValue(HideWhenValidProperty, true);
         }
 
-
-        /// <summary>
-        /// Adds all attributes that should be added to the control begin tag.
-        /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
-        {
-            var validatedValueBinding = GetValueBinding(ValidatedValueProperty);
-            if (validatedValueBinding != null)
-            {
-                writer.AddKnockoutDataBind("dotvvmValidation", this, ValidatedValueProperty);
-
-                var group = GetValidationOptionsBindingGroup(writer, context);
-                writer.AddKnockoutDataBind("dotvvmValidationOptions", group);
-            }
-
-            base.AddAttributesToRender(writer, context);
-        }
-
-        protected virtual KnockoutBindingGroup GetValidationOptionsBindingGroup(IHtmlWriter writer, RenderContext context)
-        {
-            var bindingGroup = new KnockoutBindingGroup();
-
-            if (HideWhenValid)
-            {
-                bindingGroup.Add("hideWhenValid", "true");
-            }
-
-            if (!string.IsNullOrEmpty(InvalidCssClass))
-            {
-                bindingGroup.Add("invalidCssClass", KnockoutHelper.MakeStringLiteral(InvalidCssClass));
-            }
-
-            if (SetToolTipText)
-            {
-                bindingGroup.Add("setToolTipText", "true");
-            }
-
-            if (ShowErrorMessageText)
-            {
-                bindingGroup.Add("showErrorMessageText", "true");
-            }
-
-            return bindingGroup;
-        }
-
-
-        /// <summary>
-        /// Renders the contents inside the control begin and end tags.
-        /// </summary>
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
-        {
-            if (!string.IsNullOrEmpty(StaticText))
-            {
-                // render static value of the text property
-                writer.WriteText(StaticText);
-            }
-            else
-            {
-                // render control contents
-                RenderChildren(writer, context);
-            }
-        }
     }
 }

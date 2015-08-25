@@ -808,24 +808,25 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        public void Sample26Test()
+        public void Sample26Test(string sampleUrl = "Sample26")
         {
             RunInAllBrowsers(browser =>
             {
                 Action<int, bool> checkValidator = (int field, bool visible) =>
                 {
-                    Assert.AreEqual(visible, browser.FindAll("span")[field * 3 + 0].IsDisplayed());
-                    Assert.IsTrue(browser.FindAll("span")[field * 3 + 1].IsDisplayed());
+                    Assert.AreEqual(visible, browser.FindAll("span")[field * 4 + 0].IsDisplayed());
+                    Assert.IsTrue(browser.FindAll("span")[field * 4 + 1].IsDisplayed());
                     Assert.AreEqual(visible,
-                        browser.FindAll("span")[field * 3 + 1].GetAttribute("class").Contains("invalid"));
-                    Assert.AreEqual(visible, browser.FindAll("span")[field * 3 + 2].IsDisplayed());
+                        browser.FindAll("span")[field * 4 + 1].GetAttribute("class").Contains("invalid"));
+                    Assert.AreEqual(visible, browser.FindAll("span")[field * 4 + 2].IsDisplayed());
+                    Assert.AreEqual(visible, !string.IsNullOrEmpty(browser.FindAll("span")[field * 4 + 3].GetAttribute("title")));
                 };
                 Action<int, int> checkSummary = (int field, int numberOfErrors) =>
                 {
                     Assert.AreEqual(numberOfErrors, browser.FindAll(".summary" + (field + 1) + " li").Count);
                 };
 
-                browser.NavigateToUrl(BaseUrl + "Sample26");
+                browser.NavigateToUrl(BaseUrl + sampleUrl);
 
                 // ensure validators hidden
                 checkValidator(0, false);
@@ -952,6 +953,11 @@ namespace DotVVM.Samples.Tests
         public void Sample29Test()
         {
             Sample1Test("Sample29");
+        }
+
+        public void Sample30Test()
+        {
+            Sample26Test("Sample30");
         }
     }
 }

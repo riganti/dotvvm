@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Declares instructions for control builder.
     /// </summary>
-    [AttributeUsage(AttributeTargets.Property, AllowMultiple = false)]
+    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field, AllowMultiple = false)]
     public class MarkupOptionsAttribute : Attribute
     {
 

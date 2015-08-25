@@ -24,9 +24,9 @@
 				Title: <dot:TextBox Text="{value: NewTaskTitle}" />
 			</p>
 			<p>
-				<dot:ValidationMessage Id="hideWhenValid" ValidatedValue="{value: NewTaskTitle}" Mode="HideWhenValid" AsteriskText="Validation 1 - HideWhenValid" />
-				<dot:ValidationMessage Id="addCssClass" ValidatedValue="{value: NewTaskTitle}" Mode="AddCssClass" AsteriskText="Validation 2 - AddCssClass" InvalidCssClass="validator" />
-				<dot:ValidationMessage Id="displayErrorMessage" ValidatedValue="{value: NewTaskTitle}" Mode="DisplayErrorMessage" AsteriskText="Validation 3 - DisplayErrorMessage" />
+				<dot:ValidationMessage Id="hideWhenValid" ValidatedValue="{value: NewTaskTitle}">Validation 1 - HideWhenValid</dot:ValidationMessage>
+				<dot:ValidationMessage Id="addCssClass" ValidatedValue="{value: NewTaskTitle}" HideWhenValid="false" InvalidCssClass="validator">Validation 2 - AddCssClass</dot:ValidationMessage>
+				<dot:ValidationMessage Id="displayErrorMessage" ValidatedValue="{value: NewTaskTitle}" ShowErrorMessageText="true">Validation 3 - DisplayErrorMessage</dot:ValidationMessage>
 			</p>
 			<p><dot:Button Text="Create" Click="{command: AddTask()}" /></p> 
 

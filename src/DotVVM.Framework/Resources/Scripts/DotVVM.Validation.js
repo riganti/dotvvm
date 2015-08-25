@@ -71,7 +71,7 @@ var DotvvmValidation = (function () {
         };
         this.errors = ko.observableArray([]);
         this.elementUpdateFunctions = {
-            // shows the element when it is not valid
+            // shows the element when it is valid
             hideWhenValid: function (element, errorMessage, param) {
                 if (errorMessage) {
                     element.style.display = "";
@@ -282,3 +282,4 @@ ko.bindingHandlers["dotvvmValidation"] = {
         }
     }
 };
+//# sourceMappingURL=DotVVM.Validation.js.map

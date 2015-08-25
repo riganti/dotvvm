@@ -17,16 +17,18 @@
 		
 		<p>Title: <dot:TextBox Text="{value: Child.Text}" /></p>
 		<p>
-			<dot:ValidationMessage DataContext="{value: Child}" ValidatedValue="{value: Text}" Mode="DisplayErrorMessage" />
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="AddCssClass" InvalidCssClass="invalid" />
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
+			<dot:ValidationMessage DataContext="{value: Child}" ValidatedValue="{value: Text}" ShowErrorMessageText="true" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" ShowWhenValid="true" InvalidCssClass="invalid">AddCssClass</dot:ValidationMessage>
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}">HideWhenValid</dot:ValidationMessage>
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" SetToolTipText="true">ToolTip</dot:ValidationMessage>
 		</p>
 		<p>&nbsp;</p>
 		<p DataContext="{value: Child}">Title 2: <dot:TextBox Text="{value: Text2}" /></p>
 		<p>
-			<dot:ValidationMessage DataContext="{value: Child}" ValidatedValue="{value: Text2}" Mode="DisplayErrorMessage" />
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text2}" Mode="AddCssClass" InvalidCssClass="invalid" />
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text2}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
+			<dot:ValidationMessage DataContext="{value: Child}" ValidatedValue="{value: Text2}" ShowErrorMessageText="true" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text2}" ShowWhenValid="true" InvalidCssClass="invalid">AddCssClass</dot:ValidationMessage>
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text2}">HideWhenValid</dot:ValidationMessage>
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text2}" SetToolTipText="true">ToolTip</dot:ValidationMessage>
 		</p>
 		<p><dot:Button Text="Create" Click="{command: Test()}" /></p>
 		

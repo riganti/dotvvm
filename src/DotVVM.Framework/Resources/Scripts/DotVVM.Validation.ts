@@ -65,7 +65,7 @@ class DotvvmValidation
 
     public elementUpdateFunctions: IDotvvmValidationElementUpdateFunctions = {
         
-        // shows the element when it is not valid
+        // shows the element when it is valid
         hideWhenValid(element: any, errorMessage: string, param: any) {
             if (errorMessage) {
                 element.style.display = "";
@@ -73,7 +73,7 @@ class DotvvmValidation
                 element.style.display = "none";
             }
         },
-
+        
         // adds a CSS class when the element is not valid
         invalidCssClass(element: HTMLElement, errorMessage: string, param: any) {
             if (errorMessage) {
