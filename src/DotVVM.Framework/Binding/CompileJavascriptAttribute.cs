@@ -11,11 +11,15 @@ using System.Threading.Tasks;
 namespace DotVVM.Framework.Binding
 {
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class CompileJavascriptAttribute: Attribute
+    public class CompileJavascriptAttribute : Attribute
     {
         public virtual string CompileToJs(ResolvedBinding binding, CompiledBindingExpression expression)
         {
-            return "dotvvm.tryEval(function(){return " + JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack) + "})";
+            var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack);
+            // do not produce try/eval on single properties
+            if (javascript.Contains(".") || javascript.Contains("("))
+                return "dotvvm.tryEval(function(){return " + javascript + "})";
+            else return javascript;
         }
     }
 }
