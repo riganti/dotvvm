@@ -20,8 +20,35 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             parser.Tokens = tokenizer.Tokens;
             var node = parser.ReadExpression();
 
-            var visitor = new DataContextResolverBindingParserNodeVisitor();
+            var visitor = new ExpressionBuldingVisitor(InitSymbols(dataContexts));
+            return visitor.Visit(node);
         }
 
+        public static TypeRegistry InitSymbols(DataContextStack dataContext)
+        {
+            var type = dataContext.DataContextType;
+            return TypeRegistry.Default.AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d)))
+                .AddSymbols(new Func<string, Expression>[] {
+                    name => ExpressionHelper.GetMember(Expression.Parameter(type, "_this"), name, null, false)
+                });
+        }
+
+        public static IEnumerable<ParameterExpression> GetParameters(DataContextStack dataContext)
+        {
+            if (dataContext.RootControlType != null)
+            {
+                yield return Expression.Parameter(dataContext.RootControlType, "_control");
+            }
+            yield return Expression.Parameter(dataContext.DataContextType, "_this");
+            var index = 0;
+            while (dataContext.Parent != null)
+            {
+                dataContext = dataContext.Parent;
+                if (index == 0) yield return Expression.Parameter(dataContext.DataContextType, "_parent");
+                yield return Expression.Parameter(dataContext.DataContextType, "_parent" + index);
+                index++;
+            }
+            yield return Expression.Parameter(dataContext.DataContextType, "_root");
+        }
     }
 }

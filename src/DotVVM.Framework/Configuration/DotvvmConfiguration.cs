@@ -14,6 +14,7 @@ using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using DotVVM.Framework.Styles;
+using DotVVM.Framework.Runtime.Compilation.Binding;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -119,7 +120,7 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IControlTreeResolver>(() => new ControlTreeResolver(configuration));
             configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
             configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler());
-            configuration.ServiceLocator.RegisterSingleton<IBindingParser>(() => new BindingParser());
+            configuration.ServiceLocator.RegisterSingleton<IBindingParser>(() => new CompileTimeBindingParser());
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
             

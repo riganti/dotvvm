@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        private IEnumerable<ParameterExpression> GetParameters(Type contextType, Type[] parents, Type controlType = null)
+        public static IEnumerable<ParameterExpression> GetParameters(Type contextType, Type[] parents, Type controlType = null)
         {
             if (controlType != null)
             {

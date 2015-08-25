@@ -256,24 +256,6 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     SkipWhitespace();
                     return CreateNode(new LiteralExpressionBindingParserNode(null), startIndex);
                 }
-                else if (identifier.Text == "_this")
-                {
-                    Read();
-                    SkipWhitespace();
-                    return CreateNode(new SpecialPropertyBindingParserNode(BindingSpecialProperty.This), startIndex);
-                }
-                else if (identifier.Text == "_parent")
-                {
-                    Read();
-                    SkipWhitespace();
-                    return CreateNode(new SpecialPropertyBindingParserNode(BindingSpecialProperty.Parent), startIndex);
-                }
-                else if (identifier.Text == "_root")
-                {
-                    Read();
-                    SkipWhitespace();
-                    return CreateNode(new SpecialPropertyBindingParserNode(BindingSpecialProperty.Root), startIndex);
-                }
                 else if (Char.IsDigit(identifier.Text[0]))
                 {
                     // number value

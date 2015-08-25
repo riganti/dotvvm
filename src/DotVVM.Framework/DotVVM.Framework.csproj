@@ -24,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\DotVVM.Framework.XML</DocumentationFile>
+    <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -277,10 +278,16 @@
     </Compile>
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />
+    <Compile Include="Runtime\Compilation\Binding\BindingCompilationException.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeBindingParser.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeParserNodeContext.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeTypeConstraint.cs" />
     <Compile Include="Runtime\Compilation\Binding\DataContextResolverBindingParserNodeVisitor.cs" />
+    <Compile Include="Runtime\Compilation\Binding\ExpressionBuldingVisitor.cs" />
+    <Compile Include="Runtime\Compilation\Binding\ExpressionHelper.cs" />
+    <Compile Include="Runtime\Compilation\Binding\MethodGroupExpression.cs" />
+    <Compile Include="Runtime\Compilation\Binding\TypeConversions.cs" />
+    <Compile Include="Runtime\Compilation\Binding\TypeRegistry.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
     <Compile Include="Runtime\Compilation\ControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\DataContextStack.cs" />
