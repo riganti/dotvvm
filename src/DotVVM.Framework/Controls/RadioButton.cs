@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
     public class RadioButton : CheckableControlBase
     {
         /// <summary>
-        /// Gets or sets the <see cref="CheckedValue"/> of the first <see cref="RadioButton" /> that is checked and bound to this collection.
+        /// Gets or sets the <see cref="CheckableControlBase.CheckedValue"/> of the first <see cref="RadioButton" /> that is checked and bound to this collection.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
         public object CheckedItem
@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty CheckedItemProperty =
             DotvvmProperty.Register<IEnumerable, RadioButton>(t => t.CheckedItem, null);
-         
+
         /// <summary>
         /// Gets or sets an unique name of the radio button group.
         /// </summary>
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty GroupNameProperty =
             DotvvmProperty.Register<string, RadioButton>(t => t.GroupName, "");
 
-         
+
 
         protected override void RenderInputTag(IHtmlWriter writer)
         {
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Controls
                     if (!string.IsNullOrEmpty(checkedValue))
                     {
                         writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
-                    }    
+                    }
                 });
             }
             else

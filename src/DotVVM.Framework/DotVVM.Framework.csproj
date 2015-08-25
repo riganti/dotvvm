@@ -24,6 +24,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\DotVVM.Framework.XML</DocumentationFile>
+    <NoWarn>CS1591</NoWarn>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -124,6 +125,7 @@
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
     <Compile Include="Configuration\HtmlTagAttributePair.cs" />
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
+    <Compile Include="Configuration\IDotvvmStartup.cs" />
     <Compile Include="Controls\ButtonTagName.cs" />
     <Compile Include="Controls\ContainsDotvvmPropertiesAttribute.cs" />
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
@@ -302,6 +304,7 @@
     <Compile Include="Runtime\IDotvvmViewBuilder.cs" />
     <Compile Include="Runtime\IViewModelLoader.cs" />
     <Compile Include="Runtime\IViewModelSerializer.cs" />
+    <Compile Include="Runtime\LoadControlBuilderAttribute.cs" />
     <Compile Include="Runtime\RenderContext.cs" />
     <Compile Include="Runtime\DefaultViewModelSerializer.cs" />
     <Compile Include="Security\ApplicationKeyHelper.cs" />

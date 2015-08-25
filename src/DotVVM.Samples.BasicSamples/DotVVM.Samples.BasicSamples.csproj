@@ -172,6 +172,7 @@
     <Compile Include="AuthSample\SecuredPageViewModel.cs" />
     <Compile Include="Controls\Sample5_TestControl.cs" />
     <Compile Include="Controls\ServerRenderedLabel.cs" />
+    <Compile Include="DotvvmStartup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReturnFileSample\SampleViewModel.cs" />
     <Compile Include="Sample9_Resources.cs-CZ.Designer.cs">

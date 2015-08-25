@@ -9,8 +9,7 @@ namespace DotVVM.Framework
 {
     public static class OwinExtensions
     {
-
-        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootDirectory, bool errorPages = true)
+        public static DotvvmConfiguration CreateConfiguration(string applicationRootDirectory)
         {
             var configurationFilePath = Path.Combine(applicationRootDirectory, "dotvvm.json");
 
@@ -23,7 +22,12 @@ namespace DotVVM.Framework
             }
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
             configuration.Markup.AddAssembly(Assembly.GetCallingAssembly().FullName);
+            return configuration;
+        }
 
+        public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootDirectory, bool errorPages = true)
+        {
+            var configuration = CreateConfiguration(applicationRootDirectory);
             // add middlewares
             if (errorPages)
                 app.Use<DotvvmErrorPageMiddleware>();
@@ -40,5 +44,12 @@ namespace DotVVM.Framework
             return configuration;
         }
 
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootDirectory, bool errorPages = true)
+            where TStartup: IDotvvmStartup, new()
+        {
+            var config = app.UseDotVVM(applicationRootDirectory, errorPages);
+            new TStartup().Configure(config, applicationRootDirectory);
+            return config;
+        }
     }
 }

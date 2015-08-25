@@ -36,13 +36,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
         public SyntaxTree SyntaxTree { get; private set; }
         public Type BuilderDataContextType { get; set; }
-
-
-        private List<Type> usedControlBuilderTypes = new List<Type>();
-        public List<Type> UsedControlBuilderTypes
-        {
-            get { return usedControlBuilderTypes; }
-        }
+        public string ResultControlType { get; set; }
 
         private HashSet<Assembly> usedAssemblies = new HashSet<Assembly>();
         public HashSet<Assembly> UsedAssemblies
@@ -108,6 +102,28 @@ namespace DotVVM.Framework.Runtime.Compilation
             return CreateObject(type.FullName, arguments);
         }
 
+        public ExpressionSyntax EmitAttributeInitializer(CustomAttributeData attr)
+        {
+            UsedAssemblies.Add(attr.AttributeType.Assembly);
+            return SyntaxFactory.ObjectCreationExpression(
+                SyntaxFactory.ParseTypeName(attr.AttributeType.FullName),
+                SyntaxFactory.ArgumentList(
+                    SyntaxFactory.SeparatedList(
+                        attr.ConstructorArguments.Select(a => SyntaxFactory.Argument(EmitValue(a.Value)))
+                    )
+                ),
+                SyntaxFactory.InitializerExpression(SyntaxKind.ObjectInitializerExpression,
+                    SyntaxFactory.SeparatedList(
+                        attr.NamedArguments.Select(np =>
+                             (ExpressionSyntax)SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+                                SyntaxFactory.IdentifierName(np.MemberName),
+                                EmitValue(np.TypedValue.Value)
+                            )
+                        )
+                    )
+                )
+            );
+        }
 
         /// <summary>
         /// Emits the create object expression.
@@ -123,7 +139,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            usedControlBuilderTypes.Add(controlType);
+            UsedAssemblies.Add(controlType.Assembly);
 
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
@@ -173,7 +189,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     SyntaxFactory.VariableDeclaration(SyntaxFactory.IdentifierName("var")).WithVariables(
                         SyntaxFactory.VariableDeclarator(name).WithInitializer(
                             SyntaxFactory.EqualsValueClause(
-                                SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(controlType.BaseType.FullName),
+                                SyntaxFactory.CastExpression(SyntaxFactory.ParseTypeName(controlType.FullName),
                                     SyntaxFactory.IdentifierName(untypedName)
                                 )
                             )
@@ -488,8 +504,9 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Gets the result syntax tree.
         /// </summary>
-        public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className)
+        public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
+            
             UsedAssemblies.Add(BuilderDataContextType.Assembly);
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName(namespaceName)).WithMembers(
@@ -506,6 +523,14 @@ namespace DotVVM.Framework.Runtime.Compilation
                                         )
                                     })
                                 ))
+                                .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
+                                        SyntaxFactory.Attribute(
+                                            SyntaxFactory.ParseName("DotVVM.Framework.Runtime.LoadControlBuilder"),
+                                            SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
+                                                SyntaxFactory.AttributeArgument(EmitStringLiteral(fileName))
+                                            }))
+                                        )
+                                    })))
                                 .WithMembers(
                                 SyntaxFactory.List<MemberDeclarationSyntax>(
                                     outputMethods.Select<EmitterMethodInfo, MemberDeclarationSyntax>(m =>
@@ -520,11 +545,17 @@ namespace DotVVM.Framework.Runtime.Compilation
                                                 .WithType(SyntaxFactory.ParseTypeName(typeof(IControlBuilderFactory).FullName))
                                             })))
                                             .WithBody(SyntaxFactory.Block(m.Statements))
-                                        ).Concat(new [] { SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("System.Type"), nameof(IControlBuilder.DataContextType))
-                                            .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                            .WithExpressionBody(
-                                                SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(BuilderDataContextType.FullName))))
-                                            .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                                        ).Concat(new [] {
+                                            SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("System.Type"), nameof(IControlBuilder.DataContextType))
+                                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                                .WithExpressionBody(
+                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(BuilderDataContextType.FullName))))
+                                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
+                                            SyntaxFactory.PropertyDeclaration(SyntaxFactory.ParseTypeName("System.Type"), nameof(IControlBuilder.ControlType))
+                                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                                                .WithExpressionBody(
+                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(ResultControlType))))
+                                                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
                                         })
                                     )
                                 )
@@ -536,6 +567,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
             // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
             SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
+            //SyntaxTree = root.SyntaxTree;
             return new[] { SyntaxTree };
         }
 

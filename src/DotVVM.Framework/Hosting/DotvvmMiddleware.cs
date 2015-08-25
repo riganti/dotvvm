@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
+using System.Collections.Concurrent;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -13,16 +14,17 @@ namespace DotVVM.Framework.Hosting
     /// </summary>
     public class DotvvmMiddleware : OwinMiddleware
     {
-        private readonly DotvvmConfiguration configuration;
+        public readonly DotvvmConfiguration Configuration;
 
         private const string GooglebotHashbangEscapedFragment = "_escaped_fragment_=";
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware"/> class.
         /// </summary>
         public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration) : base(next)
         {
-            this.configuration = configuration;
+            Configuration = configuration;
         }
 
         /// <summary>
@@ -34,8 +36,8 @@ namespace DotVVM.Framework.Hosting
             var dotvvmContext = new DotvvmRequestContext()
             {
                 OwinContext = context,
-                Configuration = configuration,
-                ResourceManager = new ResourceManager(configuration)
+                Configuration = Configuration,
+                ResourceManager = new ResourceManager(Configuration)
             };
 
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
@@ -48,7 +50,7 @@ namespace DotVVM.Framework.Hosting
 
             // find the route
             IDictionary<string, object> parameters = null;
-            var route = configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
+            var route = Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
 
             if (route != null)
             {

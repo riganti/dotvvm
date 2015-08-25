@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Parser
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="TokenizerBase"/> class.
+        /// Initializes a new instance of the <see cref="TokenizerBase{TToken, TTokenType}"/> class.
         /// </summary>
         public TokenizerBase()
         {

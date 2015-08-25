@@ -55,20 +55,19 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             resolvedView.Accept(compilingVisitor);
 
-            return AddToCompilation(compilation, emitter, namespaceName, className);
+            return AddToCompilation(compilation, emitter, fileName, namespaceName, className);
         }
 
-        protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string namespaceName, string className)
+        protected virtual CSharpCompilation AddToCompilation(CSharpCompilation compilation, DefaultViewCompilerCodeEmitter emitter, string fileName, string namespaceName, string className)
         {
-            // add dynamic references
-            var dynamicReferences = emitter.UsedControlBuilderTypes.Select(t => t.Assembly).Concat(emitter.UsedAssemblies).Distinct()
-                .Select(a => assemblyCache.GetAssemblyMetadata(a));
+            var tree = emitter.BuildTree(namespaceName, className, fileName);
             return compilation
-                .AddReferences(dynamicReferences)
-                .AddSyntaxTrees(emitter.BuildTree(namespaceName, className));
+                .AddSyntaxTrees(tree)
+                .AddReferences(emitter.UsedAssemblies
+                    .Select(a => assemblyCache.GetAssemblyMetadata(a)));
         }
 
-        protected virtual CSharpCompilation CreateCompilation(string assemblyName)
+        public virtual CSharpCompilation CreateCompilation(string assemblyName)
         {
             return CSharpCompilation.Create(assemblyName).AddReferences(new[]
                 {
@@ -104,7 +103,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 {
                     throw new Exception("The compilation failed! This is most probably bug in the DotVVM framework.\r\n\r\n"
                         + string.Join("\r\n", result.Diagnostics)
-                        + "\r\n\r\n" + compilation.SyntaxTrees[0] + "\r\n\r\n");
+                        + "\r\n\r\n" + compilation.SyntaxTrees[0].GetRoot().NormalizeWhitespace() + "\r\n\r\n");
                 }
             }
         }

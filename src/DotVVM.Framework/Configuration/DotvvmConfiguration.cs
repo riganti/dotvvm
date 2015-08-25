@@ -80,6 +80,9 @@ namespace DotVVM.Framework.Configuration
         [JsonIgnore]
         public StyleRepository Styles { get; set; }
 
+        [JsonProperty("compiledViewsAssemblies")]
+        public List<string> CompiledViewsAssemblies { get; set; } = new List<string>() { "CompiledViews.dll" };
+
 
 
 

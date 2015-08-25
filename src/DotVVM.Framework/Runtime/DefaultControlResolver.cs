@@ -9,6 +9,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -51,7 +52,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Invokes the static constructors on all controls to register all <see cref="DotvvmProperty"/>.
         /// </summary>
-        private void InvokeStaticConstructorsOnAllControls()
+        private static void InvokeStaticConstructorsOnAllControls()
         {
             // PERF: too many allocations - type.GetCustomAttribute<T> does ~220k allocs -> 4MB, get all types allocates additional 1.5MB
             var dotvvmAssembly = typeof(DotvvmControl).Assembly.GetName().Name;
@@ -72,13 +73,13 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Resolves the metadata for specified element.
         /// </summary>
-        public ControlResolverMetadata ResolveControl(string tagPrefix, string tagName, out object[] activationParameters)
+        public virtual ControlResolverMetadata ResolveControl(string tagPrefix, string tagName, out object[] activationParameters)
         {
             // html element has no prefix
             if (string.IsNullOrEmpty(tagPrefix))
             {
                 activationParameters = new object[] { tagName };
-                return ResolveControl(typeof (HtmlGenericControl));
+                return ResolveControl(typeof(HtmlGenericControl));
             }
 
             // find cached value
@@ -113,15 +114,15 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Resolves the binding type.
         /// </summary>
-        public Type ResolveBinding(string bindingType, ref string bindingValue)
+        public virtual Type ResolveBinding(string bindingType, ref string bindingValue)
         {
             if (bindingType == Constants.ValueBinding)
             {
-                return typeof (ValueBindingExpression);
+                return typeof(ValueBindingExpression);
             }
             else if (bindingType == Constants.CommandBinding)
             {
-                return typeof (CommandBindingExpression);
+                return typeof(CommandBindingExpression);
             }
             //else if (bindingType == Constants.ControlStateBinding)
             //{
@@ -130,7 +131,7 @@ namespace DotVVM.Framework.Runtime
             else if (bindingType == Constants.ControlPropertyBinding)
             {
                 bindingValue = "_control." + bindingValue;
-                return typeof (ControlPropertyBindingExpression);
+                return typeof(ControlPropertyBindingExpression);
             }
             else if (bindingType == Constants.ControlCommandBinding)
             {
@@ -139,9 +140,9 @@ namespace DotVVM.Framework.Runtime
             }
             else if (bindingType == Constants.ResourceBinding)
             {
-                return typeof (ResourceBindingExpression);
+                return typeof(ResourceBindingExpression);
             }
-            else if(bindingType == Constants.StaticCommandBinding)
+            else if (bindingType == Constants.StaticCommandBinding)
             {
                 return typeof(StaticCommandBindingExpression);
             }
@@ -154,7 +155,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Finds the control metadata.
         /// </summary>
-        private ControlType FindControlType(string tagPrefix, string tagName)
+        protected virtual ControlType FindControlType(string tagPrefix, string tagName)
         {
             // try to match the tag prefix and tag name
             var rules = configuration.Markup.Controls.Where(r => r.IsMatch(tagPrefix, tagName));
@@ -185,9 +186,9 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Finds the compiled control.
         /// </summary>
-        private ControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName)
+        protected virtual ControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName)
         {
-            var type = Type.GetType(namespaceName + "." + tagName + ", " + assemblyName, false);
+            var type = ReflectionUtils.FindType(namespaceName + "." + tagName + ", " + assemblyName);
             if (type == null)
             {
                 // the control was not found
@@ -200,17 +201,16 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Finds the markup control.
         /// </summary>
-        private ControlType FindMarkupControl(string file)
+        protected virtual ControlType FindMarkupControl(string file)
         {
             var controlBuilder = controlBuilderFactory.GetControlBuilder(file);
-            // TODO: do not build the control when i only need the type (?)
-            return new ControlType(controlBuilder.BuildControl(controlBuilderFactory).GetType(), controlBuilder.GetType(), file);
+            return new ControlType(controlBuilder.ControlType, controlBuilder.GetType(), file);
         }
 
         /// <summary>
         /// Gets the control metadata.
         /// </summary>
-        public ControlResolverMetadata BuildControlMetadata(ControlType type)
+        public virtual ControlResolverMetadata BuildControlMetadata(ControlType type)
         {
             var attribute = type.Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
 
@@ -234,7 +234,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Gets the control properties.
         /// </summary>
-        private Dictionary<string, DotvvmProperty> GetControlProperties(Type controlType)
+        protected virtual Dictionary<string, DotvvmProperty> GetControlProperties(Type controlType)
         {
             return DotvvmProperty.ResolveProperties(controlType).ToDictionary(p => p.Name, p => p);
         }

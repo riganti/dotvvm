@@ -16,7 +16,7 @@ namespace DotVVM.Framework.ViewModel
         public string[] CurrentPathArray { get; private set; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="ViewModelJTokenControlTreeWalker"/> class.
+        /// Initializes a new instance of the <see cref="ControlTreeWalker"/> class.
         /// </summary>
         public ControlTreeWalker(DotvvmControl root)
         {

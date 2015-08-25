@@ -110,6 +110,28 @@ namespace DotVVM.Framework.Utils
             return Convert.ChangeType(value, type);
         }
 
+        public static Type FindType(string name)
+        {
+            // Type.GetType sometimes might work well, I don't know about these cases but as fallback...
+            var type = Type.GetType(name, false);
+            if (type != null) return type;
+
+            var split = name.Split(',');
+            name = split[0];
+
+            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            if(split.Length>1)
+            {
+                var assembly = split[1];
+                type = assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
+                if (type != null) return type;
+            }
+
+            type = assemblies.Where(a => name.StartsWith(a.GetName().Name)).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
+            if (type != null) return type;
+            return assemblies.Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
+        }
+
         public static Type GetEnumerableType(Type collectionType)
         {
             // handle array

@@ -25,8 +25,6 @@ namespace Microsoft.AspNet.WebUtilities
         /// <summary>
         /// Creates a stream that reads until it reaches the given boundary pattern.
         /// </summary>
-        /// <param name="stream"></param>
-        /// <param name="boundary"></param>
         public MultipartReaderStream(BufferedReadStream stream, string boundary, bool expectLeadingCrlf = true)
         {
             _innerStream = stream;

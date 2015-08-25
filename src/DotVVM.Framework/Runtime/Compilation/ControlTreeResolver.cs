@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Runtime.Compilation
     {
         private IControlResolver controlResolver;
         private IBindingParser bindingParser;
-        
+
 
         public ControlTreeResolver(DotvvmConfiguration configuration)
         {
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
 
             var viewModelTypeName = view.Directives[Constants.ViewModelDirectiveName];
-            var viewModelType = Type.GetType(viewModelTypeName);
+            var viewModelType = ReflectionUtils.FindType(viewModelTypeName);
             if (viewModelType == null)
             {
                 throw new DotvvmCompilationException($"The type '{viewModelTypeName}' required in the @viewModel directive in '{fileName}' was not found!");
@@ -93,22 +93,22 @@ namespace DotVVM.Framework.Runtime.Compilation
                     EnsureContentAllowed(parentMetadata);
 
                     // binding in text
-                    var binding = (DothtmlBindingNode) node;
-                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof (Literal)), node, dataContext);
+                    var binding = (DothtmlBindingNode)node;
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
                     literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding, dataContext)));
                     return literal;
                 }
                 else if (node is DothtmlLiteralNode)
                 {
                     // text content
-                    var literalValue = ((DothtmlLiteralNode) node).Value;
-                    var escape = ((DothtmlLiteralNode) node).Escape;
+                    var literalValue = ((DothtmlLiteralNode)node).Value;
+                    var escape = ((DothtmlLiteralNode)node).Escape;
                     if (node.IsNotEmpty())
                     {
                         EnsureContentAllowed(parentMetadata);
                     }
-                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof (Literal)), node, dataContext);
-                    literal.SetPropertyValue(Internal.IsCommentProperty, ((DothtmlLiteralNode) node).IsComment);
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
+                    literal.SetPropertyValue(Internal.IsCommentProperty, ((DothtmlLiteralNode)node).IsComment);
                     literal.SetPropertyValue(Literal.HtmlEncodeProperty, escape);
                     literal.SetPropertyValue(Literal.TextProperty, literalValue);
                     return literal;
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 else if (node is DothtmlElementNode)
                 {
                     // HTML element
-                    var element = (DothtmlElementNode) node;
+                    var element = (DothtmlElementNode)node;
                     EnsureContentAllowed(parentMetadata);
 
                     // the element is the content
@@ -159,14 +159,13 @@ namespace DotVVM.Framework.Runtime.Compilation
             if (control.Properties.ContainsKey(DotvvmBindableControl.DataContextProperty) && control.Properties[DotvvmBindableControl.DataContextProperty] is ResolvedPropertyBinding)
             {
                 dataContext = new DataContextStack(
-                    ((ResolvedPropertyBinding)control.Properties[DotvvmBindableControl.DataContextProperty]).Binding.Expression.Type,
+                    ((ResolvedPropertyBinding)control.Properties[DotvvmBindableControl.DataContextProperty]).Binding.GetExpression().Type,
                     dataContext);
                 control.DataContextTypeStack = dataContext;
             }
-
             if (controlMetadata.DataContextConstraint != null && !controlMetadata.DataContextConstraint.IsAssignableFrom(dataContext.DataContextType))
             {
-                throw new DotvvmCompilationException($"The control '{controlMetadata.Name}' requires a DataContext of type '{controlMetadata.DataContextConstraint.FullName}'!");
+                throw new DotvvmCompilationException($"The control '{controlMetadata.Name}' requires a DataContext of type '{controlMetadata.DataContextConstraint.FullName}'!", element.Tokens);
             }
 
             // set properties from attributes
@@ -205,7 +204,8 @@ namespace DotVVM.Framework.Runtime.Compilation
                 Value = node.Value,
                 Expression = expression,
                 DataContextTypeStack = context,
-                ParsingError = parsingError
+                ParsingError = parsingError,
+                BindingNode = node
             };
         }
 
@@ -238,7 +238,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 else if (attribute.Literal is DothtmlBindingNode)
                 {
                     // binding
-                    var bindingNode = (DothtmlBindingNode) attribute.Literal;
+                    var bindingNode = (DothtmlBindingNode)attribute.Literal;
                     var resolvedBinding = ProcessBinding(bindingNode, dataContext);
                     control.SetProperty(new ResolvedPropertyBinding(property, resolvedBinding));
                 }
@@ -254,7 +254,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 // if the property is not found, add it as an HTML attribute
                 object value = (attribute.Literal is DothtmlBindingNode)
-                    ? (object) ProcessBinding((DothtmlBindingNode) attribute.Literal, dataContext)
+                    ? (object)ProcessBinding((DothtmlBindingNode)attribute.Literal, dataContext)
                     : attribute.Literal?.Value;
 
                 control.SetHtmlAttribute(attribute.AttributeName, value);
@@ -283,7 +283,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     else
                     {
                         content.Add(node);
-                        if(node.IsNotEmpty())
+                        if (node.IsNotEmpty())
                         {
                             properties = false;
                         }
@@ -399,7 +399,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
             if (baseControlDirective != null)
             {
-                wrapperType = Type.GetType(baseControlDirective.Value);
+                wrapperType = ReflectionUtils.FindType(baseControlDirective.Value);
                 if (wrapperType == null)
                 {
                     throw new Exception(string.Format(Resources.Controls.ViewCompiler_TypeSpecifiedInBaseTypeDirectiveNotFound, baseControlDirective.Value));
@@ -415,7 +415,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         private DotvvmProperty FindProperty(ControlResolverMetadata parentMetadata, string name)
         {
-            return parentMetadata.FindProperty(name) ?? DotvvmProperty.ResolveProperty(name);
+            return parentMetadata.FindProperty(name) ?? (name.Contains(".") ? DotvvmProperty.ResolveProperty(name) : null);
         }
 
         private static void EnsureContentAllowed(ControlResolverMetadata controlMetadata)
