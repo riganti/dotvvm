@@ -48,7 +48,7 @@ interface IDotvvmValidationRules {
     [name: string]: DotvvmValidatorBase;
 }
 interface IDotvvmValidationElementUpdateFunctions {
-    [name: string]: (element: any, errorMessage: string, options: any) => void;
+    [name: string]: (element: any, errorMessage: string, param: any) => void;
 }
 
 class DotvvmValidation
@@ -66,30 +66,36 @@ class DotvvmValidation
     public elementUpdateFunctions: IDotvvmValidationElementUpdateFunctions = {
         
         // shows the element when it is not valid
-        hideWhenValid(element: any, errorMessage: string, options: any) {
+        hideWhenValid(element: any, errorMessage: string, param: any) {
             if (errorMessage) {
                 element.style.display = "";
-                element.title = "";
             } else {
                 element.style.display = "none";
-                element.title = errorMessage;
             }
         },
 
         // adds a CSS class when the element is not valid
-        addCssClass(element: HTMLElement, errorMessage: string, options: any) {
-            var cssClass = (options && options.cssClass) ? options.cssClass : "field-validation-error";
+        invalidCssClass(element: HTMLElement, errorMessage: string, param: any) {
             if (errorMessage) {
-                element.className += " " + cssClass;
+                element.className += " " + param;
             } else {
-                element.className = element.className.split(' ').filter(c => c != cssClass).join(' ');
+                element.className = element.className.split(' ').filter(c => c != param).join(' ');
+            }
+        },
+
+        // sets the error message as the title attribute
+        setToolTipText(element: any, errorMessage: string, param: any) {
+            if (errorMessage) {
+                element.title = errorMessage;
+            } else {
+                element.title = "";
             }
         },
 
         // displays the error message
-        displayErrorMessage(element: any, errorMessage: string, options: any) {
+        showErrorMessageText(element: any, errorMessage: string, param: any) {
             element[element.innerText ? "innerText" : "textContent"] = errorMessage;
-        }
+        },
     }
 
     /// Validates the specified view model
@@ -271,13 +277,18 @@ ko.bindingHandlers["dotvvmValidation"] = {
         if (ko.isObservable(observableProperty)) {
             // try to get the options
             var options = allBindingsAccessor.get("dotvvmValidationOptions");
-            var mode = (options && options.mode) ? options.mode : "addCssClass";
-            var updateFunction = dotvvm.extensions.validation.elementUpdateFunctions[mode];
-
+            var updateFunction = function (element, errorMessage) {
+                for (var option in options) {
+                    if (options.hasOwnProperty(option)) {
+                        dotvvm.extensions.validation.elementUpdateFunctions[option](element, errorMessage, options[option]);
+                    }
+                }
+            }
+            
             // subscribe to the observable property changes
             var validationError = ValidationError.getOrCreate(observableProperty);
-            validationError.errorMessage.subscribe(newValue => updateFunction(element, newValue, options));
-            updateFunction(element, validationError.errorMessage(), options);
+            validationError.errorMessage.subscribe(newValue => updateFunction(element, newValue));
+            updateFunction(element, validationError.errorMessage());
         }
     }
 };

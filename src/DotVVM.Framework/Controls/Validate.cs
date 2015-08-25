@@ -16,4 +16,5 @@ namespace DotVVM.Framework.Controls
         public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validate>("Target", null, true);
 
     }
+     
 }
