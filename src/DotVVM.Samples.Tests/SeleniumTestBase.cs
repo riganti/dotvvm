@@ -20,9 +20,9 @@ namespace DotVVM.Samples.Tests
             get
             {
                 return new Func<IWebDriver>[] {
-                    () => new InternetExplorerDriver(),
-                    //() => new FirefoxDriver(new FirefoxBinary(@"C:\Program Files (x86)\Mozilla Firefox\Firefox.exe"), new FirefoxProfile(), TimeSpan.FromSeconds(30)),
-                    () => new ChromeDriver()
+                    //() => new InternetExplorerDriver(),
+                    () => new FirefoxDriver(),
+                    //() => new ChromeDriver()
                 };
             }
         }

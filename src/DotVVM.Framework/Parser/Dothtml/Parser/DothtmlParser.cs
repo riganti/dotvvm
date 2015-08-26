@@ -1,26 +1,25 @@
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Resources;
 using System.Diagnostics;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
     /// <summary>
     /// Parses the results of the DothtmlTokenizer into a tree structure.
     /// </summary>
-    public class DothtmlParser
+    public class DothtmlParser : ParserBase<DothtmlToken, DothtmlTokenType>
     {
         public static readonly HashSet<string> AutomaticClosingTags = new HashSet<string>
         {
             "html", "head", "body", "p", "dt", "dd", "li", "option", "thead", "th", "tbody", "tr", "td", "tfoot", "colgroup"
         };
 
-        private IList<DothtmlToken> Tokens { get; set; }
         private Stack<DothtmlNodeWithContent> ElementHierarchy { get; set; }
-        private int CurrentIndex { get; set; }
+
         private List<DothtmlNode> CurrentElementContent
         {
             get { return ElementHierarchy.Peek().Content; }
@@ -426,71 +425,18 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             return node;
         }
 
-        /// <summary>
-        /// Gets the tokens from.
-        /// </summary>
-        private IEnumerable<DothtmlToken> GetTokensFrom(int startIndex)
-        {
-            return Tokens.Skip(startIndex).Take(CurrentIndex - startIndex);
-        }
+        protected override DothtmlTokenType WhiteSpaceToken => DothtmlTokenType.WhiteSpace;
 
         /// <summary>
         /// Asserts that the current token is of a specified type.
         /// </summary>
-        private void Assert(DothtmlTokenType desiredType)
+        protected bool Assert(DothtmlTokenType desiredType)
         {
-            if (Peek() == null || Peek().Type != desiredType)
+            if (Peek() == null || !Peek().Type.Equals(desiredType))
             {
-                throw new Exception("Assertion failed! This is internal error of the Dothtml parser.");
+                throw new DotvvmCompilationException($"DotVVM parser internal error! The token {desiredType} was expected!");
             }
+            return true;
         }
-
-        /// <summary>
-        /// Skips the whitespace.
-        /// </summary>
-        private List<DothtmlToken> SkipWhitespace()
-        {
-            return ReadMultiple(t => t.Type == DothtmlTokenType.WhiteSpace).ToList();
-        }
-
-
-        /// <summary>
-        /// Peeks the current token.
-        /// </summary>
-        public DothtmlToken Peek()
-        {
-            if (CurrentIndex < Tokens.Count)
-            {
-                return Tokens[CurrentIndex];
-            }
-            return null;
-        }
-
-        /// <summary>
-        /// Reads the current token and advances to the next one.
-        /// </summary>
-        public DothtmlToken Read()
-        {
-            if (CurrentIndex < Tokens.Count)
-            {
-                return Tokens[CurrentIndex++];
-            }
-            throw new ParserException(Parser_Dothtml.UnexpectedEndOfInput);
-        }
-
-        /// <summary>
-        /// Reads the current token and advances to the next one.
-        /// </summary>
-        public IEnumerable<DothtmlToken> ReadMultiple(Func<DothtmlToken, bool> filter)
-        {
-            var current = Peek();
-            while (current != null && filter(current))
-            {
-                yield return current;
-                Read();
-                current = Peek();
-            }
-        }
-
     }
 }
