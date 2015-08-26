@@ -30,11 +30,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             catch (Exception exception)
             {
-                throw new BidningParserExpception(contextType, bindingExpressionText, parentContexts, controlType, exception);
+                throw new BidningParserException(contextType, bindingExpressionText, parentContexts, controlType, exception);
             }
         }
 
-        private IEnumerable<ParameterExpression> GetParameters(Type contextType, Type[] parents, Type controlType = null)
+        public static IEnumerable<ParameterExpression> GetParameters(Type contextType, Type[] parents, Type controlType = null)
         {
             if (controlType != null)
             {

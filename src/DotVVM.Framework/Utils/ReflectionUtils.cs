@@ -3,12 +3,13 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Utils
 {
-    public class ReflectionUtils
+    public static class ReflectionUtils
     {
 
         /// <summary>
@@ -120,7 +121,7 @@ namespace DotVVM.Framework.Utils
             name = split[0];
 
             var assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            if(split.Length>1)
+            if (split.Length > 1)
             {
                 var assembly = split[1];
                 type = assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
@@ -142,14 +143,14 @@ namespace DotVVM.Framework.Utils
 
             // handle iEnumerables
             Type iEnumerable;
-            if (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof (IEnumerable<>))
+            if (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 iEnumerable = collectionType;
             }
             else
             {
                 iEnumerable = collectionType.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof (IEnumerable<>));
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
             }
             if (iEnumerable != null)
             {
@@ -164,12 +165,77 @@ namespace DotVVM.Framework.Utils
             }
 
             // handle object collections
-            if (typeof (IEnumerable).IsAssignableFrom(collectionType))
+            if (typeof(IEnumerable).IsAssignableFrom(collectionType))
             {
                 return typeof(object);
             }
 
             throw new NotSupportedException();      // TODO
+        }
+
+        private static readonly List<Type> NumericTypes = new List<Type>()
+        {
+            typeof (sbyte),
+            typeof (byte),
+            typeof (short),
+            typeof (ushort),
+            typeof (int),
+            typeof (uint),
+            typeof (long),
+            typeof (ulong),
+            typeof (char),
+            typeof (float),
+            typeof (double),
+            typeof (decimal)
+        };
+
+        public static bool IsNumericType(this Type type)
+        {
+            return NumericTypes.Contains(type);
+        }
+
+        public static bool IsDynamicOrObject(this Type type)
+        {
+            return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider)) ||
+                   type == typeof(object);
+        }
+
+        public static bool IsDelegate(this Type type)
+        {
+            return typeof(Delegate).IsAssignableFrom(type.BaseType);
+        }
+
+        public static bool IsReferenceType(this Type type)
+        {
+            return type.IsArray || type.IsClass || type.IsInterface || type.IsDelegate();
+        }
+
+        public static bool IsDerivedFrom(this Type T, Type superClass)
+        {
+            return superClass.IsAssignableFrom(T);
+        }
+
+        public static bool Implements(this Type T, Type interfaceType)
+        {
+            return T.GetInterfaces().Any(x =>
+            {
+                return x.Name == interfaceType.Name;
+            });
+        }
+
+        public static bool IsDynamic(this Type type)
+        {
+            return type.GetInterfaces().Contains(typeof(IDynamicMetaObjectProvider));
+        }
+
+        public static bool IsObject(this Type type)
+        {
+            return type == typeof(Object);
+        }
+
+        public static bool IsNullable(this Type type)
+        {
+            return Nullable.GetUnderlyingType(type) != null;
         }
     }
 }
