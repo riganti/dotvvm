@@ -45,19 +45,42 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         public static Expression CreateStatic(Type type)
         {
-            return type == null ? null : Expression.Constant(null, type);
+            return type == null ? null : new StaticClassIdentifierExpression(type);
         }
 
         public static readonly TypeRegistry Default = new TypeRegistry(
-            new[] {
-            new KeyValuePair<string, Type>("object", typeof(Object)),
-            new KeyValuePair<string, Type>("string", typeof(String)),
-            new KeyValuePair<string, Type>("Object", typeof(Object)),
-            new KeyValuePair<string, Type>("String", typeof(String))
-                }.Select(k => new KeyValuePair<string, Expression>(k.Key, CreateStatic(k.Value))).ToImmutableDictionary(),
-            new Func<string, Expression>[] {
-                type => CreateStatic(ReflectionUtils.FindType(type)),
-                type => CreateStatic(ReflectionUtils.FindType("System." + type))
-                }.ToImmutableList());
+            ImmutableDictionary<string, Expression>.Empty
+                .Add("object", CreateStatic(typeof(Object)))
+                .Add("bool", CreateStatic(typeof(Boolean)))
+                .Add("byte", CreateStatic(typeof(Byte)))
+                .Add("char", CreateStatic(typeof(Char)))
+                .Add("short", CreateStatic(typeof(Int16)))
+                .Add("int", CreateStatic(typeof(Int32)))
+                .Add("long", CreateStatic(typeof(Int64)))
+                .Add("ushort", CreateStatic(typeof(UInt16)))
+                .Add("uint", CreateStatic(typeof(UInt32)))
+                .Add("ulong", CreateStatic(typeof(UInt64)))
+                .Add("decimal", CreateStatic(typeof(Decimal)))
+                .Add("double", CreateStatic(typeof(Double)))
+                .Add("float", CreateStatic(typeof(Single)))
+                .Add("string", CreateStatic(typeof(String)))
+                .Add("Object", CreateStatic(typeof(Object)))
+                .Add("Boolean", CreateStatic(typeof(Boolean)))
+                .Add("Byte", CreateStatic(typeof(Byte)))
+                .Add("Char", CreateStatic(typeof(Char)))
+                .Add("Int16", CreateStatic(typeof(Int16)))
+                .Add("Int32", CreateStatic(typeof(Int32)))
+                .Add("Int64", CreateStatic(typeof(Int64)))
+                .Add("UInt16", CreateStatic(typeof(UInt16)))
+                .Add("UInt32", CreateStatic(typeof(UInt32)))
+                .Add("UInt64", CreateStatic(typeof(UInt64)))
+                .Add("Decimal", CreateStatic(typeof(Decimal)))
+                .Add("Double", CreateStatic(typeof(Double)))
+                .Add("Single", CreateStatic(typeof(Single)))
+                .Add("String", CreateStatic(typeof(String))),
+            ImmutableList<Func<string, Expression>>.Empty
+                .Add(type => CreateStatic(ReflectionUtils.FindType(type)))
+                .Add(type => CreateStatic(ReflectionUtils.FindType("System." + type)))
+            );
     }
 }

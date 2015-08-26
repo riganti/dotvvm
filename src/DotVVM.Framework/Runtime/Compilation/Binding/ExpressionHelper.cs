@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 throw new Exception("can't access member on method group");
 
             var type = target.Type;
-            var isStatic = (target is ConstantExpression) && ((ConstantExpression)target).Value == null;
+            var isStatic = target is StaticClassIdentifierExpression;
             var members = type.GetMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
                 .Where(m => m.Name == name)
                 .ToArray();
@@ -73,9 +73,9 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         public static Expression GetIndexer(Expression expr, Expression index)
         {
-            var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.SetIndex(
-                CSharpBinderFlags.None, typeof(object), GetBinderArguments(1));
-            return ApplyBinder(binder, expr);
+            var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.GetIndex(
+                CSharpBinderFlags.None, typeof(object), GetBinderArguments(2));
+            return ApplyBinder(binder, expr, index);
         }
 
         private static IEnumerable<CSharpArgumentInfo> GetBinderArguments(int count)
@@ -90,10 +90,17 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         private static Expression ApplyBinder(DynamicMetaObjectBinder binder, params Expression[] expressions)
         {
-            return binder.Bind(new DynamicMetaObject(expressions[0], BindingRestrictions.Empty, null),
+            var result = binder.Bind(DynamicMetaObject.Create(null, expressions[0]),
                 expressions.Skip(1).Select(e =>
-                new DynamicMetaObject(e, BindingRestrictions.Empty, null)).ToArray()
-            ).Expression;
+                    DynamicMetaObject.Create(null, e)).ToArray()
+            );
+
+            if (result.Expression.NodeType == ExpressionType.Convert)
+            {
+                var convert = (UnaryExpression)result.Expression;
+                return convert.Operand;
+            }
+            return result.Expression;
         }
     }
 }

@@ -12,6 +12,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
     public class ExpressionBuldingVisitor : BindingParserNodeVisitor<Expression>
     {
         public TypeRegistry Registry { get; set; }
+        public Expression Scope { get; set; }
         private List<Exception> currentErrors;
 
         public ExpressionBuldingVisitor(TypeRegistry registry)
@@ -212,7 +213,10 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         protected override Expression VisitIdentifierName(IdentifierNameBindingParserNode node)
         {
-            return Registry.Resolve(node.Name);
+            var expr = Registry.Resolve(node.Name, false)
+                ?? ExpressionHelper.GetMember(Scope, node.Name, throwExceptions: false);
+            if (expr == null) throw new BindingCompilationException($"could not resolve identifier { node.Name }", node);
+            return expr;
         }
 
         protected override Expression VisitConditionalExpression(ConditionalExpressionBindingParserNode node)

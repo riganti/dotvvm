@@ -192,6 +192,7 @@
     <Compile Include="Parser\Binding\Parser\IdentifierNameBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\LiteralExpressionBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\MemberAccessBindingParserNode.cs" />
+    <Compile Include="Parser\Binding\Parser\NumberLiteralSuffix.cs" />
     <Compile Include="Parser\Binding\Parser\ParenthesizedExpressionBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\SpecialPropertyBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\UnaryOperatorBindingParserNode.cs" />
@@ -286,6 +287,7 @@
     <Compile Include="Runtime\Compilation\Binding\ExpressionBuldingVisitor.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionHelper.cs" />
     <Compile Include="Runtime\Compilation\Binding\MethodGroupExpression.cs" />
+    <Compile Include="Runtime\Compilation\Binding\StaticClassIdentifier.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeConversions.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeRegistry.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />

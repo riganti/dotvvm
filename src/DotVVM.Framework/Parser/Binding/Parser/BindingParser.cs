@@ -14,7 +14,6 @@ namespace DotVVM.Framework.Parser.Binding.Parser
     {
         protected override BindingTokenType WhiteSpaceToken => BindingTokenType.WhiteSpace;
 
-        
         internal BindingParserNode ReadExpression()
         {
             var startIndex = CurrentIndex;
@@ -229,7 +228,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 }
                 return node;
             }
-            else 
+            else
             {
                 // identifier
                 return CreateNode(ReadConstantExpression(), startIndex);
@@ -259,13 +258,8 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 else if (Char.IsDigit(identifier.Text[0]))
                 {
                     // number value
-                    double number;
-                    string error = null;
-                    if (!double.TryParse(identifier.Text, NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint, CultureInfo.InvariantCulture, out number))
-                    {
-                        error = $"The value '{identifier.Text}' is not a valid number.";
-                        number = 0;
-                    }
+                    string error;
+                    var number = ParseNumberLiteral(identifier.Text, out error);
 
                     Read();
                     SkipWhitespace();
@@ -304,7 +298,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     var arguments = new List<BindingParserNode>();
                     while (Peek() != null && Peek().Type != BindingTokenType.CloseParenthesis)
                     {
-                        arguments.Add(ReadExpression());          
+                        arguments.Add(ReadExpression());
                     }
                     var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
                     Read();
@@ -344,10 +338,87 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             }
 
             // create virtual empty identifier expression
-            return CreateNode(new IdentifierNameBindingParserNode("") { NodeErrors = { "Identifier name was expected!" }}, startIndex);
+            return CreateNode(new IdentifierNameBindingParserNode("") { NodeErrors = { "Identifier name was expected!" } }, startIndex);
         }
 
-        private string ParseStringLiteral(string text, out string error)
+        private static object ParseNumberLiteral(string text, out string error)
+        {
+            text = text.ToLower();
+            error = null;
+            NumberLiteralSuffix type = NumberLiteralSuffix.None;
+            var lastDigit = text[text.Length - 1];
+            if (char.IsLetter(lastDigit))
+            {
+                // number type suffix
+                if (lastDigit == 'm') type = NumberLiteralSuffix.Decimal;
+                else if (lastDigit == 'f') type = NumberLiteralSuffix.Float;
+                else if (lastDigit == 'd') type = NumberLiteralSuffix.Double;
+                else if (text.EndsWith("ul") || text.EndsWith("lu")) type = NumberLiteralSuffix.UnsignedLong;
+                else if (lastDigit == 'u') type = NumberLiteralSuffix.Unsigned;
+                else if (lastDigit == 'l') type = NumberLiteralSuffix.Long;
+                else
+                {
+                    error = "number literal type suffix not known";
+                    return null;
+                }
+
+                if (type == NumberLiteralSuffix.UnsignedLong) text = text.Remove(text.Length - 3); // remove 2 last chars
+                else text = text.Remove(text.Length - 2); // remove last char
+            }
+            if(text.Contains(".") || text.Contains("e"))
+            {
+                const NumberStyles decimalStyle = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
+                // real number
+                switch (type)
+                {
+                    case NumberLiteralSuffix.None: // double is defualt
+                    case NumberLiteralSuffix.Double:
+                        return TryParse<double>(double.TryParse, text, out error, decimalStyle);
+                    case NumberLiteralSuffix.Float:
+                        return TryParse<float>(float.TryParse, text, out error, decimalStyle);
+                    case NumberLiteralSuffix.Decimal:
+                        return TryParse<decimal>(decimal.TryParse, text, out error, decimalStyle);
+                    default:
+                        error = $"could not parse real number of type { type }";
+                        return null;
+                }
+            }
+            const NumberStyles integerStyle = NumberStyles.AllowLeadingSign;
+            // try parse integral constant
+            var result =
+                TryParse<int>(int.TryParse, text, integerStyle) ??
+                TryParse<uint>(uint.TryParse, text, integerStyle) ??
+                TryParse<long>(long.TryParse, text, integerStyle) ??
+                TryParse<ulong>(ulong.TryParse, text, integerStyle);
+            if (result != null) return result;
+            // handle errors
+
+            // if all are digits, or '0x' + hex digits => too large number
+            if (text.All(char.IsDigit) ||
+                (text.StartsWith("0x") && text.Skip(2).All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f'))))
+                error = $"number number {text} is too large for integral literal, try to append 'd' to real number literal";
+            else error = $"could not parse {text} as numeric literal";
+            return null;
+        }
+
+        delegate bool TryParseDelegate<T>(string text, NumberStyles styles, IFormatProvider format, out T result);
+        private static object TryParse<T>(TryParseDelegate<T> method, string text, out string error, NumberStyles styles)
+        {
+            error = null;
+            T result;
+            if (method(text, styles, CultureInfo.InvariantCulture, out result)) return result;
+            error = $"could not parse { text } using { method.Method.DeclaringType.FullName + "." + method.Method.Name }";
+            return null;
+        }
+
+        private static object TryParse<T>(TryParseDelegate<T> method, string text, NumberStyles styles)
+        {
+            T result;
+            if (method(text, styles, CultureInfo.InvariantCulture, out result)) return result;
+            return null;
+        }
+
+        private static string ParseStringLiteral(string text, out string error)
         {
             error = null;
             var sb = new StringBuilder();

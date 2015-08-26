@@ -21,16 +21,14 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             var node = parser.ReadExpression();
 
             var visitor = new ExpressionBuldingVisitor(InitSymbols(dataContexts));
+            visitor.Scope = Expression.Parameter(dataContexts.DataContextType, "_this");
             return visitor.Visit(node);
         }
 
         public static TypeRegistry InitSymbols(DataContextStack dataContext)
         {
             var type = dataContext.DataContextType;
-            return TypeRegistry.Default.AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d)))
-                .AddSymbols(new Func<string, Expression>[] {
-                    name => ExpressionHelper.GetMember(Expression.Parameter(type, "_this"), name, null, false)
-                });
+            return TypeRegistry.Default.AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d)));
         }
 
         public static IEnumerable<ParameterExpression> GetParameters(DataContextStack dataContext)

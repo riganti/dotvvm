@@ -100,8 +100,6 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string Translate(Expression expression)
         {
-            if (expression is BinaryExpression) return TranslateBinary((BinaryExpression)expression);
-            else if (expression is UnaryExpression) return TranslateUnary((UnaryExpression)expression);
 
             switch (expression.NodeType)
             {
@@ -115,9 +113,13 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                     return TranslateParameter((ParameterExpression)expression);
                 case ExpressionType.Conditional:
                     return TranslateConditional((ConditionalExpression)expression);
-                default:
-                    throw new NotSupportedException($"expression type { expression.NodeType } can't be transaled to Javascript");
+                case ExpressionType.Index:
+                    return TranslateIndex((IndexExpression)expression);
             }
+            if (expression is BinaryExpression) return TranslateBinary((BinaryExpression)expression);
+            else if (expression is UnaryExpression) return TranslateUnary((UnaryExpression)expression);
+
+            throw new NotSupportedException($"expression type { expression.NodeType } can't be transaled to Javascript");
         }
 
         /// <summary>
@@ -151,6 +153,17 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
         public string TranslateConditional(ConditionalExpression expression)
         {
             return $"{ ParenthesizedTranslate(expression, expression.Test) } ? { ParenthesizedTranslate(expression, expression.IfTrue) } : { ParenthesizedTranslate(expression, expression.IfFalse) }";
+        }
+
+        public string TranslateIndex(IndexExpression expression, bool setter = false)
+        {
+            var target = Translate(expression.Object);
+            var args = expression.Arguments.Select(Translate).ToArray();
+            var method = setter ? expression.Indexer.SetMethod : expression.Indexer.GetMethod;
+
+            var result = TryTranslateMethodCall(target, args, method);
+            if (result != null) return result;
+            return target + "[" + args.Single() + "]";
         }
 
         public string TranslateParameter(ParameterExpression expression)
@@ -207,7 +220,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 {
                     var map = method.DeclaringType.GetInterfaceMap(iface);
                     var imIndex = Array.IndexOf(map.TargetMethods, method);
-                    if (MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]))
+                    if (imIndex >= 0 && MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]))
                         return MethodTranslators[map.InterfaceMethods[imIndex]].TranslateCall(context, args, method);
                 }
             }
@@ -272,6 +285,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 case ExpressionType.ExclusiveOr: op = "^"; break;
                 case ExpressionType.ExclusiveOrAssign: op = "^="; break;
                 case ExpressionType.Coalesce: op = "||"; break;
+                case ExpressionType.ArrayIndex: op = "{0}[{1}]"; break;
 
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
