@@ -224,6 +224,45 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(0, inner.SecondExpression.Length);
         }
 
+        [TestMethod]
+        public void BindingParser_IntLiteral_Valid()
+        {
+            var result = (LiteralExpressionBindingParserNode)Parse("12");
+            Assert.IsInstanceOfType(result.Value, typeof(int));
+            Assert.AreEqual(result.Value, 12);
+        }
+
+        [TestMethod]
+        public void BindingParser_DoubleLiteral_Valid()
+        {
+            var result = (LiteralExpressionBindingParserNode)Parse("12.45");
+            Assert.IsInstanceOfType(result.Value, typeof(double));
+            Assert.AreEqual(result.Value, 12.45);
+        }
+
+        [TestMethod]
+        public void BindingParser_FloatLiteral_Valid()
+        {
+            var result = (LiteralExpressionBindingParserNode)Parse("42f");
+            Assert.IsInstanceOfType(result.Value, typeof(float));
+            Assert.AreEqual(result.Value, 42f);
+        }
+
+        [TestMethod]
+        public void BindingParser_LongLiteral_Valid()
+        {
+            var result = (LiteralExpressionBindingParserNode)Parse(long.MaxValue.ToString());
+            Assert.IsInstanceOfType(result.Value, typeof(long));
+            Assert.AreEqual(result.Value, long.MaxValue);
+        }
+
+        [TestMethod]
+        public void BindingParser_LongForcedLiteral_Valid()
+        {
+            var result = (LiteralExpressionBindingParserNode)Parse("42L");
+            Assert.IsInstanceOfType(result.Value, typeof(long));
+            Assert.AreEqual(result.Value, 42L);
+        }
 
         private static BindingParserNode Parse(string expression)
         {

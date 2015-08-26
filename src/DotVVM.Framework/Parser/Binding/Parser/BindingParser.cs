@@ -362,10 +362,10 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     return null;
                 }
 
-                if (type == NumberLiteralSuffix.UnsignedLong) text = text.Remove(text.Length - 3); // remove 2 last chars
-                else text = text.Remove(text.Length - 2); // remove last char
+                if (type == NumberLiteralSuffix.UnsignedLong) text = text.Remove(text.Length - 2); // remove 2 last chars
+                else text = text.Remove(text.Length - 1); // remove last char
             }
-            if(text.Contains(".") || text.Contains("e"))
+            if (text.Contains(".") || text.Contains("e"))
             {
                 const NumberStyles decimalStyle = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
                 // real number
@@ -385,11 +385,28 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             }
             const NumberStyles integerStyle = NumberStyles.AllowLeadingSign;
             // try parse integral constant
-            var result =
-                TryParse<int>(int.TryParse, text, integerStyle) ??
-                TryParse<uint>(uint.TryParse, text, integerStyle) ??
-                TryParse<long>(long.TryParse, text, integerStyle) ??
-                TryParse<ulong>(ulong.TryParse, text, integerStyle);
+            object result = null;
+            if (type == NumberLiteralSuffix.None)
+            {
+                result = TryParse<int>(int.TryParse, text, integerStyle) ??
+                    TryParse<uint>(uint.TryParse, text, integerStyle) ??
+                    TryParse<long>(long.TryParse, text, integerStyle) ??
+                    TryParse<ulong>(ulong.TryParse, text, integerStyle);
+            }
+            else if(type == NumberLiteralSuffix.Unsigned)
+            {
+                result = TryParse<uint>(uint.TryParse, text, integerStyle) ??
+                    TryParse<ulong>(ulong.TryParse, text, integerStyle);
+            }
+            else if(type == NumberLiteralSuffix.Long)
+            {
+                result = TryParse<long>(long.TryParse, text, integerStyle) ??
+                    TryParse<ulong>(ulong.TryParse, text, integerStyle);
+            }
+            else if(type == NumberLiteralSuffix.UnsignedLong)
+            {
+                result = TryParse<ulong>(ulong.TryParse, text, integerStyle);
+            }
             if (result != null) return result;
             // handle errors
 
