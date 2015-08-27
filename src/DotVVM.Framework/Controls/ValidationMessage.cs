@@ -9,60 +9,87 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Displays the asterisk or validation message for a specified field.
     /// </summary>
-    public class ValidationMessage : HtmlGenericControl 
+    public class ValidationMessage : HtmlGenericControl
     {
 
         /// <summary>
-        /// Gets or sets the text that will be displayed when the error occurs. By default the control shows the asterisk character.
+        /// Gets or sets whether the control should be hidden even for valid values.
         /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public string AsteriskText
+        public static readonly ActiveDotvvmProperty HideWhenValidProperty =
+            DelegateActionProperty<bool>.Register<ValidationMessage>("HideWhenValid", AddHideWhenValid);
+
+        private static void AddHideWhenValid(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
         {
-            get { return (string)GetValue(AsteriskTextProperty); }
-            set { SetValue(AsteriskTextProperty, value); }
+            if (value)
+            {
+                var bindingGroup = new KnockoutBindingGroup();
+                bindingGroup.Add("hideWhenValid", "true");
+                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+            }
         }
-        public static readonly DotvvmProperty AsteriskTextProperty =
-            DotvvmProperty.Register<string, ValidationMessage>(c => c.AsteriskText, "*");
-
-
-        /// <summary>
-        /// Gets or sets the mode how the validator appears.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public ValidationMessageMode Mode
-        {
-            get { return (ValidationMessageMode)GetValue(ModeProperty); }
-            set { SetValue(ModeProperty, value); }
-        }
-        public static readonly DotvvmProperty ModeProperty =
-            DotvvmProperty.Register<ValidationMessageMode, ValidationMessage>(c => c.Mode, ValidationMessageMode.HideWhenValid);
-
-
-        /// <summary>
-        /// Gets or sets a binding that points to the validated value.
-        /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
-        public object ValidatedValue
-        {
-            get { return (object)GetValue(ValidatedValueProperty); }
-            set { SetValue(ValidatedValueProperty, value); }
-        }
-        public static readonly DotvvmProperty ValidatedValueProperty =
-            DotvvmProperty.Register<object, ValidationMessage>(c => c.ValidatedValue, null);
-
 
         /// <summary>
         /// Gets or sets the name of CSS class which is applied to the control when it is not valid.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string InvalidCssClass
-        {
-            get { return (string)GetValue(InvalidCssClassProperty); }
-            set { SetValue(InvalidCssClassProperty, value); }
-        }
-        public static readonly DotvvmProperty InvalidCssClassProperty =
-            DotvvmProperty.Register<string, ValidationMessage>(c => c.InvalidCssClass, "field-validation-error");
+        public static readonly ActiveDotvvmProperty InvalidCssClassProperty =
+            DelegateActionProperty<string>.Register<ValidationMessage>("InvalidCssClass", AddInvalidCssClass);
 
+        private static void AddInvalidCssClass(IHtmlWriter writer, RenderContext context, string value, DotvvmControl control)
+        {
+            var bindingGroup = new KnockoutBindingGroup();
+            bindingGroup.Add("invalidCssClass", KnockoutHelper.MakeStringLiteral(value));
+            writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+        }
+
+
+        /// <summary>
+        /// Gets or sets whether the title attribute should be set to the error message.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public static readonly ActiveDotvvmProperty SetToolTipTextProperty =
+            DelegateActionProperty<bool>.Register<ValidationMessage>("SetToolTipText", AddSetToolTipText);
+
+        private static void AddSetToolTipText(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
+        {
+            if (value)
+            {
+                var bindingGroup = new KnockoutBindingGroup();
+                bindingGroup.Add("setToolTipText", "true");
+                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+            }
+        }
+
+
+        /// <summary>
+        /// Gets or sets whether the error message text should be displayed.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public static readonly ActiveDotvvmProperty ShowErrorMessageTextProperty =
+            DelegateActionProperty<bool>.Register<ValidationMessage>("ShowErrorMessageText", AddShowErrorMessageText);
+
+        private static void AddShowErrorMessageText(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
+        {
+            if (value)
+            {
+                var bindingGroup = new KnockoutBindingGroup();
+                bindingGroup.Add("showErrorMessageText", "true");
+                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets a binding that points to the validated value.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
+        [AttachedProperty(typeof(object))]
+        public static readonly ActiveDotvvmProperty ValidatedValueProperty =
+            DelegateActionProperty<object>.Register<ValidationMessage>("ValidatedValue", AddValidatedValue);
+
+        private static void AddValidatedValue(IHtmlWriter writer, RenderContext context, object value, DotvvmControl control)
+        {
+            writer.AddKnockoutDataBind("dotvvmValidation", (DotvvmBindableControl)control, ValidatedValueProperty);
+        }
 
 
         /// <summary>
@@ -71,43 +98,8 @@ namespace DotVVM.Framework.Controls
         public ValidationMessage()
         {
             TagName = "span";
+            SetValue(HideWhenValidProperty, true);
         }
 
-
-        /// <summary>
-        /// Adds all attributes that should be added to the control begin tag.
-        /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
-        {
-            var validatedValueBinding = GetValueBinding(ValidatedValueProperty);
-            if (validatedValueBinding != null)
-            {
-                writer.AddKnockoutDataBind("dotvvmValidation", this, ValidatedValueProperty, () => { });
-                
-                var options = string.Format("{{'mode':'{0}', 'cssClass':{1}}}", KnockoutHelper.ConvertToCamelCase(Mode.ToString()), KnockoutHelper.MakeStringLiteral(InvalidCssClass));
-                writer.AddKnockoutDataBind("dotvvmValidationOptions", options);
-            }
-
-            base.AddAttributesToRender(writer, context);
-        }
-
-
-        /// <summary>
-        /// Renders the contents inside the control begin and end tags.
-        /// </summary>
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
-        {
-            var textBinding = GetBinding(AsteriskTextProperty);
-            if (textBinding == null && !string.IsNullOrEmpty(AsteriskText))
-            {
-                // render static value of the text property
-                writer.WriteText(AsteriskText);
-            }
-            else
-            {
-                // render control contents
-                RenderChildren(writer, context);
-            }
-        }
     }
 }

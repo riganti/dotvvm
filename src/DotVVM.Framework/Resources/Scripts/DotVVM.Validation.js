@@ -71,31 +71,37 @@ var DotvvmValidation = (function () {
         };
         this.errors = ko.observableArray([]);
         this.elementUpdateFunctions = {
-            // shows the element when it is not valid
-            hideWhenValid: function (element, errorMessage, options) {
+            // shows the element when it is valid
+            hideWhenValid: function (element, errorMessage, param) {
                 if (errorMessage) {
                     element.style.display = "";
-                    element.title = "";
                 }
                 else {
                     element.style.display = "none";
-                    element.title = errorMessage;
                 }
             },
             // adds a CSS class when the element is not valid
-            addCssClass: function (element, errorMessage, options) {
-                var cssClass = (options && options.cssClass) ? options.cssClass : "field-validation-error";
+            invalidCssClass: function (element, errorMessage, param) {
                 if (errorMessage) {
-                    element.className += " " + cssClass;
+                    element.className += " " + param;
                 }
                 else {
-                    element.className = element.className.split(' ').filter(function (c) { return c != cssClass; }).join(' ');
+                    element.className = element.className.split(' ').filter(function (c) { return c != param; }).join(' ');
+                }
+            },
+            // sets the error message as the title attribute
+            setToolTipText: function (element, errorMessage, param) {
+                if (errorMessage) {
+                    element.title = errorMessage;
+                }
+                else {
+                    element.title = "";
                 }
             },
             // displays the error message
-            displayErrorMessage: function (element, errorMessage, options) {
+            showErrorMessageText: function (element, errorMessage, param) {
                 element[element.innerText ? "innerText" : "textContent"] = errorMessage;
-            }
+            },
         };
     }
     /// Validates the specified view model
@@ -262,12 +268,17 @@ ko.bindingHandlers["dotvvmValidation"] = {
         if (ko.isObservable(observableProperty)) {
             // try to get the options
             var options = allBindingsAccessor.get("dotvvmValidationOptions");
-            var mode = (options && options.mode) ? options.mode : "addCssClass";
-            var updateFunction = dotvvm.extensions.validation.elementUpdateFunctions[mode];
+            var updateFunction = function (element, errorMessage) {
+                for (var option in options) {
+                    if (options.hasOwnProperty(option)) {
+                        dotvvm.extensions.validation.elementUpdateFunctions[option](element, errorMessage, options[option]);
+                    }
+                }
+            };
             // subscribe to the observable property changes
             var validationError = ValidationError.getOrCreate(observableProperty);
-            validationError.errorMessage.subscribe(function (newValue) { return updateFunction(element, newValue, options); });
-            updateFunction(element, validationError.errorMessage(), options);
+            validationError.errorMessage.subscribe(function (newValue) { return updateFunction(element, newValue); });
+            updateFunction(element, validationError.errorMessage());
         }
     }
 };

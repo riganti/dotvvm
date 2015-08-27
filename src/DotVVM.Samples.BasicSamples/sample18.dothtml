@@ -19,9 +19,9 @@
 		<p><dot:Button Text="Create" Click="{command: Test()}" /></p>
 		
 		<p>
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="DisplayErrorMessage" />
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="AddCssClass" InvalidCssClass="invalid" />
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" Mode="HideWhenValid" AsteriskText="HideWhenValid" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" ShowErrorMessageText="true" />
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" HideWhenValid="false" InvalidCssClass="invalid">AddCssClass</dot:ValidationMessage>
+			<dot:ValidationMessage ValidatedValue="{value: Child.Text}">HideWhenValid</dot:ValidationMessage>
 		</p>
 		<p>&nbsp;</p>
 		<div class="summary1">

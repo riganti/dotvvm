@@ -157,6 +157,7 @@
     <Content Include="sample27.dothtml" />
     <Content Include="sample28.dothtml" />
     <Content Include="sample29.dothtml" />
+    <Content Include="sample30.dothtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />

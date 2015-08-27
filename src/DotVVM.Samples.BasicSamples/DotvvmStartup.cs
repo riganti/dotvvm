@@ -44,6 +44,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("Sample27", "Sample27", "sample27.dothtml", null);
             config.RouteTable.Add("Sample28", "Sample28", "sample28.dothtml", null);
             config.RouteTable.Add("Sample29", "Sample29", "sample29.dothtml", null);
+            config.RouteTable.Add("Sample30", "Sample30", "sample30.dothtml", null);
             config.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.dothtml", null);
             config.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.dothtml", null);
             config.RouteTable.Add("ReturnFileSample", "ReturnFileSample", "ReturnFileSample/sample.dothtml", null);

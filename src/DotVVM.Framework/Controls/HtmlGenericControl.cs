@@ -96,13 +96,7 @@ namespace DotVVM.Framework.Controls
             }
 
             // handle Visible property
-            writer.AddKnockoutDataBind("visible", this, VisibleProperty, () =>
-            {
-                if (!Visible)
-                {
-                    writer.AddStyleAttribute("display", "none");
-                }
-            });
+            AddVisibleAttributeOrBinding(writer);
 
             // handle Text property
             writer.AddKnockoutDataBind("text", this, InnerTextProperty, () =>
@@ -112,12 +106,35 @@ namespace DotVVM.Framework.Controls
             });
 
             // hadle Id property
-            AddControlIdAttribute(writer);
+            AddIdAttribute(writer);
 
             base.AddAttributesToRender(writer, context);
         }
 
-        protected void AddControlIdAttribute(IHtmlWriter writer)
+        /// <summary>
+        /// Adds the corresponding attribute or binding for the Visible property.
+        /// </summary>
+        protected virtual void AddVisibleAttributeOrBinding(IHtmlWriter writer)
+        {
+            var visibleBinding = GetValueBinding(VisibleProperty);
+            if (visibleBinding != null)
+            {
+                writer.AddKnockoutDataBind("visible", this, VisibleProperty);
+                writer.AddStyleAttribute("display", "none");
+            }
+            else
+            {
+                if (!Visible)
+                {
+                    writer.AddStyleAttribute("display", "none");
+                }
+            }
+        }
+
+        /// <summary>
+        /// Adds the corresponding attribute for the Id property.
+        /// </summary>
+        protected virtual void AddIdAttribute(IHtmlWriter writer)
         {
             if (!string.IsNullOrEmpty(ID))
             {
