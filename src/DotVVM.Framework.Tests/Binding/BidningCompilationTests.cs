@@ -60,6 +60,14 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_MethodCall()
+        {
+            var viewModel = new TestViewModel { StringProp = "abc" };
+            Assert.AreEqual(ExecuteBinding("SetStringProp('hulabula', 13)", viewModel), "abc");
+            Assert.AreEqual(viewModel.StringProp, "hulabula13");
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_EnumStringComparison()
         {
             var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
@@ -81,6 +89,13 @@ namespace DotVVM.Framework.Tests.Binding
 
             public TestViewModel2 TestViewModel2 { get; set; }
             public TestEnum EnumProperty { get; set; }
+
+            public string SetStringProp(string a, int b)
+            {
+                var p = StringProp;
+                StringProp = a + b;
+                return p;
+            }
         }
         enum TestEnum
         {

@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
@@ -110,10 +111,12 @@ namespace DotVVM.Framework.Runtime
 
         protected virtual JsonSerializer CreateJsonSerializer()
         {
-            return new JsonSerializer()
+            var s = new JsonSerializer()
             {
                 DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind
             };
+            //s.Converters.Add(new StringEnumConverter());
+            return s;
         }
 
         public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)

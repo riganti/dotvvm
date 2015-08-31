@@ -152,6 +152,12 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         public static Expression GetBinaryOperator(Expression left, Expression right, ExpressionType operation)
         {
+            if (operation == ExpressionType.Coalesce) return Expression.Coalesce(left, right);
+
+            // TODO: support lazy evaluation
+            if (operation == ExpressionType.AndAlso) operation = ExpressionType.And;
+            else if (operation == ExpressionType.OrElse) operation = ExpressionType.Or;
+
             var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.BinaryOperation(
                 CSharpBinderFlags.None, operation, typeof(object), GetBinderArguments(2));
             return ApplyBinder(binder, left, right) ??
