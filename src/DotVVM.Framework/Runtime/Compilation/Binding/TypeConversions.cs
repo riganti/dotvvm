@@ -148,7 +148,6 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             var srcValue = ((ConstantExpression)src).Value;
 
             //An implicit constant expression conversion permits the following conversions:
-            var constantValue = ((ConstantExpression)src).Value;
             //	A constant-expression (§7.19) of type int can be converted to type sbyte, byte, short, ushort, uint, or ulong, provided the value of the constant-expression is within the range of the destination type.
             if (src.Type == typeof(int))
             {
@@ -212,16 +211,22 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             // nonstandart implicit string conversions
             if (src.Type == typeof(string))
             {
+                var value = (string)srcValue;
                 // to enum
                 if (destType.IsEnum)
                 {
                     // Enum.TryParse is generic and wants TEnum
                     try
                     {
-                        var value = Enum.Parse(destType, (string)constantValue);
-                        return Expression.Constant(value);
+                        var enumValue = Enum.Parse(destType, value);
+                        return Expression.Constant(enumValue, destType);
                     }
                     catch { }
+                }
+                // to char
+                if(destType == typeof(char) && value.Length == 1)
+                {
+                    return Expression.Constant(value[0]);
                 }
             }
             return null;

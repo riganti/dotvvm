@@ -57,11 +57,107 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             return Expression.Invoke(target, arguments);
         }
 
+        public static Expression CallMethod(Expression target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments)
+        {
+            // the following piece of code is nicer and more readble than method recognition done in roslyn, c# dynamic and expression evaluator ;)
+            var methods = from m in target.Type.GetMethods(flags)
+                          where m.Name == name
+                          where m.ContainsGenericParameters == (typeArguments != null && typeArguments.Length > 0)
+                          let typedM = m.ContainsGenericParameters ? m.MakeGenericMethod(typeArguments) : m
+                          let parameters = typedM.GetParameters()
+                          where parameters.Length == arguments.Length
+                          let castedArgs = arguments.Zip(parameters, (a, p) => TypeConversion.ImplicitConversion(a, p.ParameterType)).ToArray()
+                          where castedArgs.All(a => a != null)
+                          let castCount = castedArgs.Zip(arguments, (a, b) => a != b).Count(p => p)
+                          orderby castCount descending
+                          select new { method = typedM, args = castedArgs };
+            var method = methods.First();
+            return Expression.Call(target, method.method, method.args);
+        }
+
+
+        public static Expression EqualsMethod(Expression left, Expression right)
+        {
+            Expression equatable = null;
+            Expression theOther = null;
+            if (typeof(IEquatable<>).IsAssignableFrom(left.Type))
+            {
+                equatable = left;
+                theOther = right;
+            }
+            else if (typeof(IEquatable<>).IsAssignableFrom(right.Type))
+            {
+                equatable = right;
+                theOther = left;
+            }
+
+            if (equatable != null)
+            {
+                var m = CallMethod(equatable, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Equals", null, new[] { theOther });
+                if (m != null) return m;
+            }
+
+            if(left.Type.IsValueType)
+            {
+                equatable = left;
+                theOther = right;
+            }
+            else if (left.Type.IsValueType)
+            {
+                equatable = right;
+                theOther = left;
+            }
+
+            if(equatable != null)
+            {
+                theOther = TypeConversion.ImplicitConversion(theOther, equatable.Type);
+                if (theOther != null) return Expression.Equal(equatable, theOther);
+            }
+
+            return CallMethod(left, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Equals", null, new[] { right });
+        }
+
+        public static Expression CompareMethod(Expression left, Expression right)
+        {
+            Type compareType = typeof(object);
+            Expression equatable = null;
+            Expression theOther = null;
+            if (typeof(IComparable<>).IsAssignableFrom(left.Type))
+            {
+                equatable = left;
+                theOther = right;
+            }
+            else if (typeof(IComparable<>).IsAssignableFrom(right.Type))
+            {
+                equatable = right;
+                theOther = left;
+            }
+            else if (typeof(IComparable).IsAssignableFrom(left.Type))
+            {
+                equatable = left;
+                theOther = right;
+            }
+            else if (typeof(IComparable).IsAssignableFrom(right.Type))
+            {
+                equatable = right;
+                theOther = left;
+            }
+
+            if (equatable != null)
+            {
+                return CallMethod(equatable, BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy, "Compare", null, new[] { theOther });
+            }
+            throw new NotSupportedException("IComparable is not implemented on any of specified types");
+        }
+
         public static Expression GetBinaryOperator(Expression left, Expression right, ExpressionType operation)
         {
             var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.BinaryOperation(
                 CSharpBinderFlags.None, operation, typeof(object), GetBinderArguments(2));
-            return ApplyBinder(binder, left, right);
+            return ApplyBinder(binder, left, right) ??
+                (operation == ExpressionType.Equal ? EqualsMethod(left, right) : null) ??
+                (operation == ExpressionType.NotEqual ? Expression.Not(EqualsMethod(left, right)) : null);
+            // TODO: comparison operators
         }
 
         public static Expression GetUnaryOperator(Expression expr, ExpressionType operation)
@@ -100,6 +196,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 var convert = (UnaryExpression)result.Expression;
                 return convert.Operand;
             }
+            if (result.Expression.NodeType == ExpressionType.Throw) return null;
             return result.Expression;
         }
     }
