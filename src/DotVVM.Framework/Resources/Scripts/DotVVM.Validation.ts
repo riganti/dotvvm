@@ -194,8 +194,8 @@ class DotvvmValidation
     // shows the validation errors from server
     public showValidationErrorsFromServer(args: DotvvmAfterPostBackEventArgs) {
         // resolve validation target
-        var viewModel = ko.dataFor(args.sender);
-        var validationTarget = dotvvm.evaluateOnViewModel(viewModel, args.validationTargetPath);
+        var context = ko.contextFor(args.sender);
+        var validationTarget = dotvvm.evaluateOnViewModel(context, args.validationTargetPath);
         validationTarget = ko.unwrap(validationTarget);
 
         // add validation errors
@@ -243,8 +243,8 @@ dotvvm.extensions.validation = dotvvm.extensions.validation || new DotvvmValidat
 dotvvm.events.beforePostback.subscribe(args => {
     if (args.validationTargetPath) {
         // resolve target
-        var data = ko.dataFor(args.sender);
-        var validationTarget = dotvvm.evaluateOnViewModel(data, args.validationTargetPath);
+        var context = ko.contextFor(args.sender);
+        var validationTarget = dotvvm.evaluateOnViewModel(context, args.validationTargetPath);
         
         // validate the object
         dotvvm.extensions.validation.clearValidationErrors();
