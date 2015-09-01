@@ -128,11 +128,9 @@ namespace DotVVM.Framework.Controls
             if (RenderOnServer)
             {
                 // render on server
-                var index = 0;
                 foreach (var child in Children)
                 {
-                    Children[index].Render(writer, context);
-                    index++;
+                    child.Render(writer, context);
                 }
             }
             else

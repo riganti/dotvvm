@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Controls
             });
         }
 
-        public IEnumerable GetIEnumerableFromDataSource(object dataSource)
+        public static IEnumerable GetIEnumerableFromDataSource(object dataSource)
         {
             if (dataSource == null)
             {

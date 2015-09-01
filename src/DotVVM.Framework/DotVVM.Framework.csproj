@@ -131,6 +131,7 @@
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DataPager.cs" />
     <Compile Include="Controls\Decorator.cs" />
+    <Compile Include="Controls\EmptyData.cs" />
     <Compile Include="Controls\Events.cs" />
     <Compile Include="Controls\FileUpload.cs" />
     <Compile Include="Controls\GridView.cs" />
