@@ -54,8 +54,12 @@ namespace DotVVM.Framework.Routing
             if (Url.StartsWith("/", StringComparison.Ordinal))
                 throw new ArgumentException("The route URL must not start with '/'!");
 
+            if (Url.EndsWith("/", StringComparison.Ordinal))
+                throw new ArgumentException("The route URL must not end with '/'!");
+
             urlBuilders = new List<Func<Dictionary<string, object>, string>>();
             parameters = new List<KeyValuePair<string, IRouteParameterType>>();
+            urlBuilders.Add(_ => "~/");
             var regex = new StringBuilder("^");
             var startIndex = 0;
             for (int i = 0; i < Url.Length; i++)
@@ -64,6 +68,7 @@ namespace DotVVM.Framework.Routing
                 {
                     var str = Url.Substring(startIndex, i - startIndex);
                     regex.Append(Regex.Escape(str));
+                    urlBuilders.Add(_ => str);
                     startIndex = i;
                 }
                 else if (Url[i] == '{')
@@ -85,7 +90,13 @@ namespace DotVVM.Framework.Routing
             var startIndex = index;
             while (index < Url.Length && Url[index] != '}' && Url[index] != ':') index++;
             var name = Url.Substring(startIndex, index - startIndex).Trim();
-            var nullable = name.Last() == '?';
+            bool nullable;
+            if (nullable = name.Last() == '?')
+            {
+                name = name.Remove(name.Length - 1);
+            }
+            else nullable = DefaultValues.Any(k => k.Key == name);
+
             IRouteParameterType type = null;
 
             if (Url[index] == ':')
@@ -99,12 +110,11 @@ namespace DotVVM.Framework.Routing
 
             if (nullable)
             {
-                name = name.Remove(name.Length - 1);
                 urlBuilders.Add(v => { object r; if (v.TryGetValue(name, out r)) return prefix + r.ToString(); else return ""; });
             }
             else
             {
-                urlBuilders.Add(v => v[name].ToString());
+                urlBuilders.Add(v => prefix + v[name].ToString());
             }
             var pattern = type?.GetPartRegex() ?? ".*?";
             parameters.Add(new KeyValuePair<string, IRouteParameterType>(name, type));
