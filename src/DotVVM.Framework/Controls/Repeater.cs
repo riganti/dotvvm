@@ -103,20 +103,41 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        /// <summary>
-        /// Adds all attributes that should be added to the control begin tag.
-        /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             TagName = WrapperTagName;
 
             if (!RenderOnServer)
             {
                 var javascriptDataSourceExpression = GetForeachDataBindJavascriptExpression();
-                writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
+
+                if (!string.IsNullOrEmpty(TagName))
+                {
+                    writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
+                }
+                else
+                {
+                    writer.WriteKnockoutForeachComment(javascriptDataSourceExpression);
+                }
             }
 
-            base.AddAttributesToRender(writer, context);
+            if (!string.IsNullOrEmpty(TagName))
+            {
+                base.RenderBeginTag(writer, context);
+            }
+        }
+
+        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        {
+            if (!string.IsNullOrEmpty(TagName))
+            {
+                base.RenderEndTag(writer, context);
+            }
+
+            if (!RenderOnServer)
+            {
+                writer.WriteKnockoutDataBindEndComment();
+            }
         }
 
         /// <summary>

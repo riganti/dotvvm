@@ -190,6 +190,16 @@ namespace DotVVM.Framework.Controls
                         "NearPageIndexes[" + i + "]");
         }
 
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        {
+            if (RenderOnServer)
+            {
+                throw new InvalidOperationException("The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
+            }
+
+            base.AddAttributesToRender(writer, context);
+        }
+
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { });
@@ -205,7 +215,7 @@ namespace DotVVM.Framework.Controls
 
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsFirstPage() }");
             previousLi.Render(writer, context);
-
+            
             // render template
             writer.WriteKnockoutForeachComment("NearPageIndexes");
 
@@ -217,7 +227,8 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
-                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => (int)vm[0] + 1, "$data + 1"));
+                literal.SetBinding(Literal.TextProperty,
+                    new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
                 li.Children.Add(literal);
                 numbersPlaceholder.Children.Add(li);
                 li.Render(writer, context);
@@ -229,13 +240,14 @@ namespace DotVVM.Framework.Controls
             li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
-            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => (int)vm[0] + 1, "$data + 1"));
+            link.SetBinding(ButtonBase.TextProperty,
+                new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
             numbersPlaceholder.Children.Add(li);
             li.Render(writer, context);
 
             writer.WriteKnockoutDataBindEndComment();
-
+            
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsLastPage() }");
             nextLi.Render(writer, context);
 
