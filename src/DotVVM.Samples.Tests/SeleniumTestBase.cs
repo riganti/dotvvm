@@ -21,8 +21,8 @@ namespace DotVVM.Samples.Tests
             {
                 return new Func<IWebDriver>[] {
                     //() => new InternetExplorerDriver(),
-                    () => new FirefoxDriver(),
-                    //() => new ChromeDriver()
+                    //() => new FirefoxDriver(),
+                    () => new ChromeDriver()
                 };
             }
         }

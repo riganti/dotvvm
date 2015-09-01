@@ -635,7 +635,7 @@ namespace DotVVM.Samples.Tests
                 // test the redirect outside SPA
                 browser.FindAll("a").Single(l => l.GetText().Contains("Exit SPA")).Click();
                 Thread.Sleep(WaitTime);
-                Assert.AreEqual(BaseUrl + "Sample1", browser.CurrentUrl);
+                Assert.AreEqual(BaseUrl + "Sample1", browser.CurrentUrl.TrimEnd('/'));
             });
         }
 
