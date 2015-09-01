@@ -1,5 +1,6 @@
 ﻿using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Compilation;
+using DotVVM.Framework.Runtime.Compilation.Binding;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -20,7 +21,7 @@ namespace DotVVM.Framework.Tests.Binding
             {
                 context = new DataContextStack(contexts[i].GetType(), context);
             }
-            var parser = new BindingParser();
+            var parser = new CompileTimeBindingParser();
             var expressionTree = parser.Parse(expression, context);
             return BindingCompiler.CompileToDelegate(expressionTree, context).Compile()(contexts, control);
         }
@@ -58,11 +59,50 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(ExecuteBinding("TestViewModel2.MyProperty", viewModel), 42);
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_MethodCall()
+        {
+            var viewModel = new TestViewModel { StringProp = "abc" };
+            Assert.AreEqual(ExecuteBinding("SetStringProp('hulabula', 13)", viewModel), "abc");
+            Assert.AreEqual(viewModel.StringProp, "hulabula13");
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_EnumStringComparison()
+        {
+            var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
+            Assert.AreEqual(ExecuteBinding("EnumProperty == 'A'", viewModel), true);
+            Assert.AreEqual(ExecuteBinding("EnumProperty == 'B'", viewModel), false);
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
+        public void BindingCompiler_Invalid_EnumStringComparison()
+        {
+            var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
+            ExecuteBinding("Enum == 'ghfjdskdjhbvdksdj'", viewModel);
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
 
             public TestViewModel2 TestViewModel2 { get; set; }
+            public TestEnum EnumProperty { get; set; }
+
+            public string SetStringProp(string a, int b)
+            {
+                var p = StringProp;
+                StringProp = a + b;
+                return p;
+            }
+        }
+        enum TestEnum
+        {
+            A,
+            B,
+            C,
+            D
         }
 
         class TestViewModel2

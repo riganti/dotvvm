@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls
 			var selectionChangedBinding = GetCommandBinding(SelectionChangedProperty);
 			if (selectionChangedBinding != null)
 			{
-				writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(selectionChangedBinding, context, this, isOnChange: true));
+				writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(selectionChangedBinding, context, this, isOnChange: true,useWindowSetTimeout:true));
 			}
 
 			// selected value
@@ -60,6 +60,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
+            base.RenderContents(writer, context);
             if (RenderOnServer)
             {
                 // render items

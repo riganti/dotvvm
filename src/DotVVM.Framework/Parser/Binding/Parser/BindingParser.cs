@@ -298,6 +298,13 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     var arguments = new List<BindingParserNode>();
                     while (Peek() != null && Peek().Type != BindingTokenType.CloseParenthesis)
                     {
+                        if (arguments.Count > 0)
+                        {
+                            SkipWhitespace();
+                            if (IsCurrentTokenIncorrect(BindingTokenType.Comma))
+                                arguments.Add(CreateNode(new LiteralExpressionBindingParserNode(null), CurrentIndex, "The ',' was expected"));
+                            else Read();
+                        }
                         arguments.Add(ReadExpression());
                     }
                     var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
@@ -393,17 +400,17 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     TryParse<long>(long.TryParse, text, integerStyle) ??
                     TryParse<ulong>(ulong.TryParse, text, integerStyle);
             }
-            else if(type == NumberLiteralSuffix.Unsigned)
+            else if (type == NumberLiteralSuffix.Unsigned)
             {
                 result = TryParse<uint>(uint.TryParse, text, integerStyle) ??
                     TryParse<ulong>(ulong.TryParse, text, integerStyle);
             }
-            else if(type == NumberLiteralSuffix.Long)
+            else if (type == NumberLiteralSuffix.Long)
             {
                 result = TryParse<long>(long.TryParse, text, integerStyle) ??
                     TryParse<ulong>(ulong.TryParse, text, integerStyle);
             }
-            else if(type == NumberLiteralSuffix.UnsignedLong)
+            else if (type == NumberLiteralSuffix.UnsignedLong)
             {
                 result = TryParse<ulong>(ulong.TryParse, text, integerStyle);
             }

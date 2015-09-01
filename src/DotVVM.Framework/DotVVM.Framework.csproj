@@ -131,6 +131,7 @@
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DataPager.cs" />
     <Compile Include="Controls\Decorator.cs" />
+    <Compile Include="Controls\EmptyData.cs" />
     <Compile Include="Controls\Events.cs" />
     <Compile Include="Controls\FileUpload.cs" />
     <Compile Include="Controls\GridView.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="Controls\RenderSettings.cs" />
     <Compile Include="Controls\RouteLink.cs" />
     <Compile Include="Controls\RouteLinkHelpers.cs" />
+    <Compile Include="Controls\SelectorItem.cs" />
     <Compile Include="Controls\SpaContentPlaceHolder.cs" />
     <Compile Include="Controls\TextBoxType.cs" />
     <Compile Include="Controls\TranslateVirtualPathHtmlAttributeTransformer.cs" />
@@ -277,6 +279,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
+    <Compile Include="Routing\GenericRouteParameterType.cs" />
+    <Compile Include="Routing\IRouteParameterType.cs" />
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />
     <Compile Include="Runtime\Compilation\Binding\BindingCompilationException.cs" />

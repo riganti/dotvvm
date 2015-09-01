@@ -48,6 +48,15 @@
 				<dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
 			</Columns>
 		</dot:GridView>
+
+		<h1>EmptyData with data source</h1>
+		<dot:EmptyData DataSource="{value: CustomersDataSet}">
+			This is not displayed because data is not empty
+		</dot:EmptyData>
+		<h1>EmptyData with no data source</h1>
+		<dot:EmptyData DataSource="{value: Null}">
+			This is displayed because data is empty
+		</dot:EmptyData>
 	</div>
 	<dot:RequiredResource Name="bootstrap" />
 </body>

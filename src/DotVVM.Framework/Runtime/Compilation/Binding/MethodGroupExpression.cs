@@ -58,7 +58,8 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         }
         public Expression CreateMethodCall(IEnumerable<Expression> args)
         {
-            return Expression.Call(Target, MethodName, TypeArgs, args.ToArray());
+            var argsArray = args.ToArray();
+            return ExpressionHelper.CallMethod(Target, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
         }
     }
 }

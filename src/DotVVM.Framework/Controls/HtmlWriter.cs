@@ -185,24 +185,6 @@ namespace DotVVM.Framework.Controls
             writer.Write("<");
             writer.Write(name);
 
-            //if(openTags.Peek().AutomaticAttributes != null)
-            //{
-            //    foreach (DictionaryEntry attr in openTags.Peek().AutomaticAttributes)
-            //    {
-            //        if(attr.Value is IEnumerable)
-            //        {
-            //            foreach (var val in (IEnumerable)attr.Value)
-            //            {
-            //                AddAttribute((string)attr.Key, val.ToString(), true);
-            //            }
-            //        }
-            //        else
-            //        {
-            //            AddAttribute((string)attr.Key, attr.Value.ToString(), true);
-            //        }
-            //    }
-            //}
-
             foreach (DictionaryEntry attr in dataBindAttributes)
             {
                 AddAttribute("data-bind", attr.Key + ": " + ConvertHtmlAttributeValue(attr.Value), true, ", ");

@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Routing
         public RouteBase(string url, string virtualPath, IDictionary<string, object> defaultValues = null)
         {
             if (url == null)
-                throw new ArgumentNullException("url");
+                throw new ArgumentNullException(nameof(url));
 
             Url = url;
             VirtualPath = virtualPath;
@@ -65,9 +65,9 @@ namespace DotVVM.Framework.Routing
         public string BuildUrl(IDictionary<string, object> currentRouteValues, IDictionary<string, object> newRouteValues)
         {
             if (currentRouteValues == null)
-                throw new ArgumentNullException("currentRouteValues");
+                throw new ArgumentNullException(nameof(currentRouteValues));
             if (newRouteValues == null)
-                throw new ArgumentNullException("newRouteValues");
+                throw new ArgumentNullException(nameof(newRouteValues));
 
             var values = new Dictionary<string, object>(DefaultValues);
             AddOrUpdateParameterCollection(values, currentRouteValues);
@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Routing
         public string BuildUrl(IDictionary<string, object> currentRouteValues, object newRouteValues)
         {
             if (currentRouteValues == null)
-                throw new ArgumentNullException("currentRouteValues");
+                throw new ArgumentNullException(nameof(currentRouteValues));
 
             var values = new Dictionary<string, object>(DefaultValues);
             AddOrUpdateParameterCollection(values, currentRouteValues);
@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Routing
         public string BuildUrl(IDictionary<string, object> routeValues)
         {
             if (routeValues == null)
-                throw new ArgumentNullException("routeValues");
+                throw new ArgumentNullException(nameof(routeValues));
 
             var values = new Dictionary<string, object>(DefaultValues);
             AddOrUpdateParameterCollection(values, routeValues);

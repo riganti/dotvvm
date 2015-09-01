@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample31ViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>Hardcoded items in ComboBox</h1>
+
+		<dot:ComboBox SelectedValue="{value: SelectedValue}">
+			<dot:SelectorItem Text="A" Value="1"/>
+			<dot:SelectorItem Text="AA" Value="2"/>
+			<dot:SelectorItem Text="AAA" Value="3"/>
+			<dot:SelectorItem Text="AAAA" Value="4"/>
+		</dot:ComboBox>
+		{{value: SelectedValue}}
+    </div>
+    <dot:RequiredResource Name="bootstrap" />
+</body>
+</html>
