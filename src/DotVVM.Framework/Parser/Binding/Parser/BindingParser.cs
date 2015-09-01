@@ -372,7 +372,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 if (type == NumberLiteralSuffix.UnsignedLong) text = text.Remove(text.Length - 2); // remove 2 last chars
                 else text = text.Remove(text.Length - 1); // remove last char
             }
-            if (text.Contains(".") || text.Contains("e"))
+            if (text.Contains(".") || text.Contains("e") || type == NumberLiteralSuffix.Float || type == NumberLiteralSuffix.Double)
             {
                 const NumberStyles decimalStyle = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
                 // real number

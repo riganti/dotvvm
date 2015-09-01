@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var addition2 = (BinaryOperatorBindingParserNode) parenthesis.InnerExpression;
             Assert.AreEqual(BindingTokenType.AddOperator, addition2.Operator);
             Assert.AreEqual("e", ((IdentifierNameBindingParserNode)addition2.FirstExpression).Name);
-            Assert.AreEqual(2.0, ((LiteralExpressionBindingParserNode)addition2.SecondExpression).Value);
+            Assert.AreEqual(2, ((LiteralExpressionBindingParserNode)addition2.SecondExpression).Value);
         }
 
         [TestMethod]
@@ -160,7 +160,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var add = (BinaryOperatorBindingParserNode) firstArray.ArrayIndexExpression;
             Assert.AreEqual(BindingTokenType.AddOperator, add.Operator);
             Assert.AreEqual("b", ((IdentifierNameBindingParserNode)add.FirstExpression).Name);
-            Assert.AreEqual(1.0, ((LiteralExpressionBindingParserNode)((UnaryOperatorBindingParserNode)add.SecondExpression).InnerExpression).Value);
+            Assert.AreEqual(1, ((LiteralExpressionBindingParserNode)((UnaryOperatorBindingParserNode)add.SecondExpression).InnerExpression).Value);
             Assert.AreEqual(BindingTokenType.SubtractOperator, ((UnaryOperatorBindingParserNode)add.SecondExpression).Operator);
 
             Assert.AreEqual("a", ((IdentifierNameBindingParserNode)firstArray.TargetExpression).Name);
