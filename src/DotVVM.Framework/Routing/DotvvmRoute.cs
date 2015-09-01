@@ -4,14 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using System.Text.RegularExpressions;
 
 namespace DotVVM.Framework.Routing
 {
     public class DotvvmRoute : RouteBase
     {
-
-        private List<DotvvmRouteComponent> components;
-        private Func<IDotvvmPresenter> presenterFactory; 
+        private Regex routeRegex;
+        private List<Func<Dictionary<string, object>, string>> urlBuilders;
+        private Func<IDotvvmPresenter> presenterFactory;
 
 
         /// <summary>
@@ -42,72 +43,82 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         private void ParseRouteUrl()
         {
-            if (Url.StartsWith("/"))
+            if (Url.StartsWith("/", StringComparison.Ordinal))
                 throw new ArgumentException("The route URL must not start with '/'!");
-            
-            var parts = Url.Split('/');
-            if (parts.Length > 1 && parts.Any(string.IsNullOrEmpty))
-            {
-                throw new ArgumentException("The route URL must not end with '/' char or contain the sequence of '//'!");
-            }
 
-            components = parts.Select(p => new DotvvmRouteComponent(p)).ToList();
+            urlBuilders = new List<Func<Dictionary<string, object>, string>>();
+            var regex = new StringBuilder("^");
+            var startIndex = 0;
+            for (int i = 0; i < Url.Length; i++)
+            {
+                if(Url[i] == '/')
+                { 
+                    var str = Url.Substring(startIndex, i - startIndex);
+                    regex.Append(Regex.Escape(str));
+                    startIndex = i;
+                }
+                else if (Url[i] == '{')
+                {
+                    var str = Url.Substring(startIndex, i - startIndex);
+                    regex.Append(ParseParameter(str, ref i));
+                    startIndex = i + 1;
+                }
+            }
+            regex.Append(Regex.Escape(Url.Substring(startIndex)));
+
+            regex.Append("/?$");
+            routeRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            parameterNames = routeRegex.GetGroupNames().Where(g => g.StartsWith("param", StringComparison.Ordinal)).Select(s => s.Substring("param".Length)).ToArray();
         }
 
+        string ParseParameter(string prefix, ref int index)
+        {
+            index++;
+            var startIndex = index;
+            while (index < Url.Length && Url[index] != '}') index++;
+            var name = Url.Substring(startIndex, index - startIndex).Trim();
+            var nullable = name.Last() == '?';
+            if (nullable)
+            {
+                name = name.Remove(name.Length - 1);
+                urlBuilders.Add(v => { object r; if (v.TryGetValue(name, out r)) return prefix + r.ToString(); else return ""; });
+            }
+            else
+            {
+                urlBuilders.Add(v => v[name].ToString());
+            }
+            var result = $"{ Regex.Escape(prefix) }(?<param{Regex.Escape(name)}>.*?)"; // group name + non-greedy match
+            if (nullable) return "(" + result + ")?";
+            else return result;
+        }
+        private string[] parameterNames;
         /// <summary>
         /// Gets the names of the route parameters in the order in which they appear in the URL.
         /// </summary>
-        public override IEnumerable<string> ParameterNames
-        {
-            get { return components.Where(c => c.HasParameter).Select(c => c.ParameterName); }
-        }
+        public override IEnumerable<string> ParameterNames => parameterNames;
 
         /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
         /// </summary>
         public override bool IsMatch(string url, out IDictionary<string, object> values)
         {
-            values = new Dictionary<string, object>(DefaultValues);
-
-            var parts = url.Split('/');
-            if (parts.Length > components.Count)
+            var match = routeRegex.Match(url);
+            if (!match.Success)
             {
-                // the URL has more components than the route, it does not match for sure
+                values = null;
                 return false;
             }
 
-            for (int i = 0; i < components.Count; i++)
+            values = new Dictionary<string, object>(DefaultValues);
+
+            foreach (var paramName in parameterNames)
             {
-                if (i < parts.Length)
+                var g = match.Groups["param" + paramName];
+                if (g.Success)
                 {
-                    // compare the URL part and the route component
-                    string value;
-                    if (components[i].IsMatch(parts[i], out value))
-                    {
-                        if (components[i].HasParameter)
-                        {
-                            values[components[i].ParameterName] = value;
-                        }
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                else
-                {
-                    // the URL finished and the route continues however if the route contains only optional parameters, we can match if
-                    if (components[i].HasPrefix || components[i].HasSuffix)
-                    {
-                        return false;
-                    }
-                    if (!components[i].HasParameter || !DefaultValues.ContainsKey(components[i].ParameterName))
-                    {
-                        return false;
-                    }
+                    values[paramName] = g.Value;
                 }
             }
-
             return true;
         }
 
@@ -116,21 +127,7 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         protected override string BuildUrlCore(Dictionary<string, object> values)
         {
-            var stringBuilder = new StringBuilder("~/");
-
-            var isFirst = true;
-            foreach (var component in components)
-            {
-                if (!isFirst)
-                {
-                    stringBuilder.Append('/');
-                }
-                isFirst = false;
-
-                component.BuildUrl(stringBuilder, values);
-            }
-
-            return stringBuilder.ToString();
+            return string.Concat(urlBuilders.Select(b => b(values)));
         }
 
         /// <summary>

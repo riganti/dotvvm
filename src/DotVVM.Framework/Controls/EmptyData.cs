@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
-            if (!RenderOnServer || GetIEnumerableFromDataSource(DataSource)?.GetEnumerator()?.MoveNext() == true)
+            if (!RenderOnServer || GetIEnumerableFromDataSource(DataSource)?.GetEnumerator()?.MoveNext() != true)
             {
                 base.RenderControl(writer, context);
             }

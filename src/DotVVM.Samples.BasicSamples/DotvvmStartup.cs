@@ -14,7 +14,7 @@ namespace DotVVM.Samples.BasicSamples
     {
         public void Configure(DotvvmConfiguration config, string applicationPath)
         {
-            config.RouteTable.Add("Sample1", "Sample1", "sample1.dothtml", null);
+            config.RouteTable.Add("Sample1", "Sample1/{id?}", "sample1.dothtml", null);
             config.RouteTable.Add("Sample2", "Sample2", "sample2.dothtml", null);
             config.RouteTable.Add("Sample3", "Sample3", "sample3.dothtml", null);
             config.RouteTable.Add("Sample4", "Sample4", "sample4.dothtml", null);

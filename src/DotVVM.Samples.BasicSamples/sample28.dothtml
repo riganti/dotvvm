@@ -51,6 +51,16 @@
 			</Columns>
 		</dot:GridView>
 		
+		
+		<h1>EmptyData with data source</h1>
+		<dot:EmptyData DataSource="{value: CustomersDataSet}" RenderSettings.Mode="Server">
+			This is not displayed because data is not empty
+		</dot:EmptyData>
+		<h1>EmptyData with no data source</h1>
+		<dot:EmptyData DataSource="{value: Null}" RenderSettings.Mode="Server">
+			This is displayed because data is empty
+		</dot:EmptyData>
+
 	</div>
 	<dot:RequiredResource Name="bootstrap" />
 </body>
