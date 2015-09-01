@@ -14,14 +14,12 @@ namespace DotVVM.Framework.Controls
 	{
 		protected Selector(string tagName)
 			: base(tagName)
-		{
+		{ }
 
-		}
-
-		/// <summary>
-		/// Gets or sets the name of property in the <see cref="ItemsControl.DataSource"/> collection that will be displayed in the <see cref="Selector"/>.
-		/// </summary>
-		public string DisplayMember
+        /// <summary>
+        /// Gets or sets the name of property in the <see cref="ItemsControl.DataSource"/> collection that will be displayed in the <see cref="Selector"/>.
+        /// </summary>
+        public string DisplayMember
 		{
 			get { return (string)GetValue(DisplayMemberProperty); }
 			set { SetValue(DisplayMemberProperty, value); }

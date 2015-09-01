@@ -60,6 +60,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
+            base.RenderContents(writer, context);
             if (RenderOnServer)
             {
                 // render items

@@ -359,7 +359,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             else
             {
-                throw new DotvvmCompilationException($"The property '{property.DeclaringType.FullName}' is not supported!");
+                throw new DotvvmCompilationException($"The property '{property.FullName}' is not supported!");
             }
         }
 
