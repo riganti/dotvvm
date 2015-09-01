@@ -278,6 +278,8 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
+    <Compile Include="Routing\GenericRouteParameterType.cs" />
+    <Compile Include="Routing\IRouteParameterType.cs" />
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />
     <Compile Include="Runtime\Compilation\Binding\BindingCompilationException.cs" />

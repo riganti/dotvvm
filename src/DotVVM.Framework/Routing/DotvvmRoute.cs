@@ -10,6 +10,14 @@ namespace DotVVM.Framework.Routing
 {
     public class DotvvmRoute : RouteBase
     {
+        public static readonly Dictionary<string, IRouteParameterType> ParameterTypes = new Dictionary<string, IRouteParameterType>
+        {
+            { "int", new GenericRouteParameterType("-?[0-9]*?", s => int.Parse(s)) },
+            { "posint", new GenericRouteParameterType("[0-9]*?", s => int.Parse(s)) },
+            { "float", new GenericRouteParameterType("-?[0-9.e]*?", s => float.Parse(s)) },
+            { "guid", new GenericRouteParameterType("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", s => Guid.Parse(s)) }
+        };
+
         private Regex routeRegex;
         private List<Func<Dictionary<string, object>, string>> urlBuilders;
         private Func<IDotvvmPresenter> presenterFactory;
@@ -47,12 +55,13 @@ namespace DotVVM.Framework.Routing
                 throw new ArgumentException("The route URL must not start with '/'!");
 
             urlBuilders = new List<Func<Dictionary<string, object>, string>>();
+            parameters = new List<KeyValuePair<string, IRouteParameterType>>();
             var regex = new StringBuilder("^");
             var startIndex = 0;
             for (int i = 0; i < Url.Length; i++)
             {
-                if(Url[i] == '/')
-                { 
+                if (Url[i] == '/')
+                {
                     var str = Url.Substring(startIndex, i - startIndex);
                     regex.Append(Regex.Escape(str));
                     startIndex = i;
@@ -68,16 +77,26 @@ namespace DotVVM.Framework.Routing
 
             regex.Append("/?$");
             routeRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase);
-            parameterNames = routeRegex.GetGroupNames().Where(g => g.StartsWith("param", StringComparison.Ordinal)).Select(s => s.Substring("param".Length)).ToArray();
         }
 
         string ParseParameter(string prefix, ref int index)
         {
             index++;
             var startIndex = index;
-            while (index < Url.Length && Url[index] != '}') index++;
+            while (index < Url.Length && Url[index] != '}' && Url[index] != ':') index++;
             var name = Url.Substring(startIndex, index - startIndex).Trim();
             var nullable = name.Last() == '?';
+            IRouteParameterType type = null;
+
+            if (Url[index] == ':')
+            {
+                index++;
+                startIndex = index;
+                while (index < Url.Length && Url[index] != '}') index++;
+                var typeName = Url.Substring(startIndex, index - startIndex);
+                type = ParameterTypes[typeName];
+            }
+
             if (nullable)
             {
                 name = name.Remove(name.Length - 1);
@@ -87,15 +106,17 @@ namespace DotVVM.Framework.Routing
             {
                 urlBuilders.Add(v => v[name].ToString());
             }
-            var result = $"{ Regex.Escape(prefix) }(?<param{Regex.Escape(name)}>.*?)"; // group name + non-greedy match
+            var pattern = type?.GetPartRegex() ?? ".*?";
+            parameters.Add(new KeyValuePair<string, IRouteParameterType>(name, type));
+            var result = $"{ Regex.Escape(prefix) }(?<param{Regex.Escape(name)}>{pattern})";
             if (nullable) return "(" + result + ")?";
             else return result;
         }
-        private string[] parameterNames;
+        private List<KeyValuePair<string, IRouteParameterType>> parameters;
         /// <summary>
         /// Gets the names of the route parameters in the order in which they appear in the URL.
         /// </summary>
-        public override IEnumerable<string> ParameterNames => parameterNames;
+        public override IEnumerable<string> ParameterNames => parameters.Select(p => p.Key);
 
         /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
@@ -111,12 +132,15 @@ namespace DotVVM.Framework.Routing
 
             values = new Dictionary<string, object>(DefaultValues);
 
-            foreach (var paramName in parameterNames)
+            foreach (var parameter in parameters)
             {
-                var g = match.Groups["param" + paramName];
+                var g = match.Groups["param" + parameter.Key];
                 if (g.Success)
                 {
-                    values[paramName] = g.Value;
+                    if (parameter.Value != null)
+                        values[parameter.Key] = parameter.Value.ParseString(g.Value);
+                    else
+                        values[parameter.Key] = g.Value;
                 }
             }
             return true;
