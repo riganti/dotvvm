@@ -134,7 +134,7 @@ namespace DotVVM.Framework.Controls
                 base.RenderEndTag(writer, context);
             }
 
-            if (!RenderOnServer)
+            if (!RenderOnServer && string.IsNullOrEmpty(TagName))
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
@@ -145,7 +145,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-            
+
             if (RenderOnServer)
             {
                 // render on server

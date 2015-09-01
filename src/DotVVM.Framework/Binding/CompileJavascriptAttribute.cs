@@ -16,6 +16,8 @@ namespace DotVVM.Framework.Binding
         public virtual string CompileToJs(ResolvedBinding binding, CompiledBindingExpression expression)
         {
             var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack);
+
+            if (javascript.StartsWith("$data.", StringComparison.Ordinal)) javascript = javascript.Substring("$data.".Length);
             // do not produce try/eval on single properties
             if (javascript.Contains(".") || javascript.Contains("("))
                 return "dotvvm.tryEval(function(){return " + javascript + "})";

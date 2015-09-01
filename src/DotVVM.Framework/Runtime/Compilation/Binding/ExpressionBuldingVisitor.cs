@@ -213,8 +213,8 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         protected override Expression VisitIdentifierName(IdentifierNameBindingParserNode node)
         {
-            var expr = Registry.Resolve(node.Name, false)
-                ?? ExpressionHelper.GetMember(Scope, node.Name, throwExceptions: false);
+            var expr = ExpressionHelper.GetMember(Scope, node.Name, throwExceptions: false) ??
+                Registry.Resolve(node.Name, false);
             if (expr == null) throw new BindingCompilationException($"could not resolve identifier { node.Name }", node);
             return expr;
         }
