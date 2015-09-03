@@ -299,7 +299,12 @@ class DotVVM {
     }
 
     public evaluateOnViewModel(context, expression) {
-        var result = eval("(function (c) { with(c) { return " + expression + "; } })")(context);
+        var result;
+        if (context && context.$data) {
+            result = eval("(function (c) { with(c) { with ($data) { return " + expression + "; } } })")(context);
+        } else {
+            result = eval("(function (c) { with(c) { return " + expression + "; } })")(context);
+        }
         if (result && result.$data) {
             result = result.$data;
         }
