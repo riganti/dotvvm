@@ -43,9 +43,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         {
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
-
-        [Bind(Direction.IfInPostbackPath)]
-        public TaskViewModel StupidTask { get; set; }
     }
 
     public class TaskViewModel
