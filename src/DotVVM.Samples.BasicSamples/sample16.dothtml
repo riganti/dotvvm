@@ -18,9 +18,9 @@
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
                 <dot:GridViewTextColumn ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True">
-                    <Header>
+                    <HeaderTemplate>
 						<span class="class123">Birth date</span>
-					</Header>
+					</HeaderTemplate>
                 </dot:GridViewTextColumn>
             </Columns>
             <!-- comment inside control -->

@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(RenderLinkForCurrentPageProperty, value); }
         }
         public static readonly DotvvmProperty RenderLinkForCurrentPageProperty =
-            DotvvmProperty.Register<bool, DataPager>(c => c.RenderLinkForCurrentPage, null);
+            DotvvmProperty.Register<bool, DataPager>(c => c.RenderLinkForCurrentPage);
 
 
 
