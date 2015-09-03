@@ -17,14 +17,13 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderText);
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public DotvvmControl Header
+        public ITemplate HeaderTemplate
         {
-            get { return (DotvvmControl)GetValue(HeaderProperty); }
-            set { SetValue(HeaderProperty, value); }
+            get { return (ITemplate)GetValue(HeaderTemplateProperty); }
+            set { SetValue(HeaderTemplateProperty, value); }
         }
-
-        public static readonly DotvvmProperty HeaderProperty =
-            DotvvmProperty.Register<DotvvmControl, GridViewColumn>(t => t.Header, null);
+        public static readonly DotvvmProperty HeaderTemplateProperty =
+            DotvvmProperty.Register<ITemplate, GridViewColumn>(t => t.HeaderTemplate);
 
 
         [MarkupOptions(AllowHardCodedValue = false)]
@@ -95,7 +94,6 @@ namespace DotVVM.Framework.Controls
 
         public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell)
         {
-            if(Header != null) Header.Parent = null;
             if (AllowSorting)
             {
                 if (sortCommand == null)
@@ -106,7 +104,7 @@ namespace DotVVM.Framework.Controls
                 var sortExpression = GetSortExpression();
 
                 var linkButton = new LinkButton();
-                if (Header != null) linkButton.Children.Add(Header);
+                if (HeaderTemplate != null) HeaderTemplate.BuildContent(context, linkButton);
                 else linkButton.Text = HeaderText;
                 cell.Children.Add(linkButton);
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
@@ -115,12 +113,12 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                if (Header == null)
+                if (HeaderTemplate == null)
                 {
                     var literal = new Literal(HeaderText);
                     cell.Children.Add(literal);
                 }
-                else cell.Children.Add(Header);
+                else HeaderTemplate.BuildContent(context, cell);
             }
         }
 

@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Registers the specified DotVVM property.
         /// </summary>
-        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName, object defaultValue = null, bool isValueInherited = false)
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false)
         {
             return Register<TPropertyType, TDeclaringType>(ReflectionUtils.GetPropertyNameFromExpression(propertyName), defaultValue, isValueInherited);
         }
@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Registers the specified DotVVM property.
         /// </summary>
-        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, object defaultValue = null, bool isValueInherited = false, DotvvmProperty property = null)
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false, DotvvmProperty property = null)
         {
             var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
 
@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Binding
 
                 if (property == null) property = new DotvvmProperty();
                 property.Name = propertyName;
-                property.DefaultValue = defaultValue ?? default(TPropertyType);
+                property.DefaultValue = defaultValue;
                 property.DeclaringType = typeof(TDeclaringType);
                 property.PropertyType = typeof(TPropertyType);
                 property.IsValueInherited = isValueInherited;
