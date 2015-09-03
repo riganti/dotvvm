@@ -16,6 +16,17 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty HeaderTextProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderText);
 
+        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        public DotvvmControl Header
+        {
+            get { return (DotvvmControl)GetValue(HeaderProperty); }
+            set { SetValue(HeaderProperty, value); }
+        }
+
+        public static readonly DotvvmProperty HeaderProperty =
+            DotvvmProperty.Register<DotvvmControl, GridViewColumn>(t => t.Header, null);
+
+
         [MarkupOptions(AllowHardCodedValue = false)]
         public object ValueBinding
         {
@@ -73,10 +84,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, GridViewColumn>(c => c.Width);
 
 
-
-
-
-
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);
 
 
@@ -88,6 +95,7 @@ namespace DotVVM.Framework.Controls
 
         public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell)
         {
+            if(Header != null) Header.Parent = null;
             if (AllowSorting)
             {
                 if (sortCommand == null)
@@ -97,7 +105,9 @@ namespace DotVVM.Framework.Controls
 
                 var sortExpression = GetSortExpression();
 
-                var linkButton = new LinkButton() { Text = HeaderText };
+                var linkButton = new LinkButton();
+                if (Header != null) linkButton.Children.Add(Header);
+                else linkButton.Text = HeaderText;
                 cell.Children.Add(linkButton);
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
                 var binding = new CommandBindingExpression((o, i) => { sortCommand(sortExpression); return null; }, bindingId);
@@ -105,8 +115,12 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var literal = new Literal(HeaderText);
-                cell.Children.Add(literal);
+                if (Header == null)
+                {
+                    var literal = new Literal(HeaderText);
+                    cell.Children.Add(literal);
+                }
+                else cell.Children.Add(Header);
             }
         }
 

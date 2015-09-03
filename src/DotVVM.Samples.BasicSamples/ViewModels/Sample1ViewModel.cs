@@ -24,7 +24,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
                 Tasks.Add(new TaskViewModel() { IsCompleted = false, TaskId = Guid.NewGuid(), Title = "Do the laundry" });
                 Tasks.Add(new TaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Wash the car" });
                 Tasks.Add(new TaskViewModel() { IsCompleted = true, TaskId = Guid.NewGuid(), Title = "Go shopping" });
-                StupidTask = new TaskViewModel() { Title = "stupid" };
             }
             return base.Init();
         }
