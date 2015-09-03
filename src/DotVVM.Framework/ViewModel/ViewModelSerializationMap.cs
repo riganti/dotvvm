@@ -278,6 +278,10 @@ namespace DotVVM.Framework.ViewModel
                         // write an instruction into a viewmodel that the property may not be posted back
                         options["doNotPost"] = true;
                     }
+                    else if(property.TransferToServerOnlyInPath)
+                    {
+                        options["pathOnly"] = true;
+                    }
                 }
                 else if (property.TransferToServer)
                 {

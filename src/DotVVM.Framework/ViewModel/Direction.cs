@@ -4,12 +4,20 @@ using System.Linq;
 
 namespace DotVVM.Framework.ViewModel
 {
+    ///<summary>
+    /// ServerToClient, ServerToClient on postback, ClientToServer, C2S iff in command path
+    ///</summary>
     [Flags]
     public enum Direction
     {
         None = 0,
-        ServerToClient = 1,
-        ClientToServer = 2,
-        Both = 3
+        ServerToClientFirstRequest = 1,
+        ServerToClientPostback = 2,
+        ServerToClient = ServerToClientFirstRequest | ServerToClientPostback,
+        ClientToServerNotInPostbackPath = 4,
+        ClientToServerInPostbackPath = 8,
+        ClientToServer = ClientToServerInPostbackPath | ClientToServerNotInPostbackPath,
+        IfInPostbackPath = ServerToClient | ClientToServerInPostbackPath,
+        Both = 15,
     }
 }

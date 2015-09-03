@@ -41,6 +41,10 @@
                 </tr>
             </dot:Repeater>
         </table>
+
+		<div DataContext="{value: StupidTask}">
+			<dot:Button Click="{command: _root.CompleteTask(TaskId)}" Text="{value: Title}" />
+		</div>
     </div>
 
     <dot:RequiredResource Name="bootstrap" />

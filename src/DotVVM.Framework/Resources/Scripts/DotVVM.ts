@@ -161,8 +161,9 @@ class DotVVM {
 
         // perform the postback
         this.updateDynamicPathFragments(sender, path);
+        var context = ko.contextFor(sender);
         var data = {
-            viewModel: this.serialization.serialize(viewModel),
+            viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return val == context.$data } }),
             currentPath: path,
             command: command,
             controlUniqueId: controlUniqueId,
@@ -671,6 +672,14 @@ class DotvvmSpaNavigatedEventArgs extends DotvvmEventArgs {
     }
 }
 
+interface SerializationOptions {
+    serializeAll?: boolean;
+    oneLevel?: boolean;
+    ignoreSpecialProperties?: boolean;
+    pathMatcher?: (vm: any) => boolean;
+    path?: string[];
+    pathOnly?: boolean
+}
 
 class DotvvmSerialization {
 
@@ -763,7 +772,11 @@ class DotvvmSerialization {
         return target;
     }
 
-    public serialize(viewModel: any, serializeAll: boolean = false, oneLevel = false, ignoreSpecialProperties = false): any {
+
+    public serialize(viewModel: any, opt: SerializationOptions = {}): any {
+        opt = ko.utils.extend({}, opt);
+
+        if (opt.pathOnly && opt.path && opt.path.length === 0) opt.pathOnly = false;
 
         if (typeof (viewModel) === "undefined" || viewModel == null) {
             return viewModel;
@@ -774,7 +787,7 @@ class DotvvmSerialization {
         }
 
         if (ko.isObservable(viewModel)) {
-            return this.serialize(ko.unwrap(viewModel), serializeAll, oneLevel, ignoreSpecialProperties);
+            return this.serialize(ko.unwrap(viewModel), opt);
         }
 
         if (typeof (viewModel) === "function") {
@@ -784,7 +797,7 @@ class DotvvmSerialization {
         if (viewModel instanceof Array) {
             var array = [];
             for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.serialize(viewModel[i], serializeAll, oneLevel, ignoreSpecialProperties));
+                array.push(this.serialize(viewModel[i], opt));
             }
             return array;
         }
@@ -793,13 +806,19 @@ class DotvvmSerialization {
             return this.serializeDate(viewModel);
         }
 
+        var pathProp = opt.path && opt.path.pop();
+
         var result = {};
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop)) {
+                if (opt.pathOnly && prop != pathProp) {
+                    continue;
+                }
+
                 var value = viewModel[prop];
 
-                if (ignoreSpecialProperties && prop[0] == "$") continue;
-                if (!serializeAll && /\$options$/.test(prop)) {
+                if (opt.ignoreSpecialProperties && prop[0] == "$") continue;
+                if (!opt.serializeAll && /\$options$/.test(prop)) {
                     continue;
                 }
                 if (typeof (value) === "undefined") {
@@ -810,21 +829,48 @@ class DotvvmSerialization {
                 }
 
                 var options = viewModel[prop + "$options"];
-                if (!serializeAll && options && options.doNotPost) {
-                    continue;
+                if (!opt.serializeAll && options && options.doNotPost) {
+                    // continue
                 }
-
-                if (oneLevel)
+                else if (opt.oneLevel)
                     result[prop] = ko.unwrap(value);
+                else if (!opt.serializeAll && options && options.pathOnly) {
+                    var path = options.pathOnly;
+                    if (!(path instanceof Array)) path = opt.path || this.findObject(value, opt.pathMatcher);
+                    if (path) {
+                        if (path.length === 0)
+                            result[prop] = this.serialize(value, opt);
+                        else
+                            result[prop] = this.serialize(value, { ignoreSpecialProperties: opt.ignoreSpecialProperties, serializeAll: opt.serializeAll, path: path, pathOnly: true })
+                    }
+                }
                 else
-                    result[prop] = this.serialize(value, serializeAll, oneLevel, ignoreSpecialProperties);
+                    result[prop] = this.serialize(value, opt);
             }
         }
+        if(pathProp) opt.path.push(pathProp);
         return result;
     }
 
+    private findObject(obj: any, matcher: (o) => boolean): string[] {
+        if (matcher(obj)) return [];
+        obj = ko.unwrap(obj);
+        if (matcher(obj)) return [];
+        if (typeof obj != "object") return null;
+        for (var p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                var match = this.findObject(obj[p], matcher);
+                if (match) {
+                    match.push(p);
+                    return match
+                }
+            }
+        }
+        return null;
+    }
+
     public flatSerialize(viewModel: any) {
-        return this.serialize(viewModel, true, true, true);
+        return this.serialize(viewModel, { ignoreSpecialProperties: true, oneLevel: true, serializeAll: true });
     }
 
     private pad(value: string, digits: number) {

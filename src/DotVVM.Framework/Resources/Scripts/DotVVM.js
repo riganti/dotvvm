@@ -146,8 +146,9 @@ var DotVVM = (function () {
         }
         // perform the postback
         this.updateDynamicPathFragments(sender, path);
+        var context = ko.contextFor(sender);
         var data = {
-            viewModel: this.serialization.serialize(viewModel),
+            viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return val == context.$data; } }),
             currentPath: path,
             command: command,
             controlUniqueId: controlUniqueId,
@@ -751,10 +752,11 @@ var DotvvmSerialization = (function () {
         }
         return target;
     };
-    DotvvmSerialization.prototype.serialize = function (viewModel, serializeAll, oneLevel, ignoreSpecialProperties) {
-        if (serializeAll === void 0) { serializeAll = false; }
-        if (oneLevel === void 0) { oneLevel = false; }
-        if (ignoreSpecialProperties === void 0) { ignoreSpecialProperties = false; }
+    DotvvmSerialization.prototype.serialize = function (viewModel, opt) {
+        if (opt === void 0) { opt = {}; }
+        opt = ko.utils.extend({}, opt);
+        if (opt.pathOnly && opt.path && opt.path.length === 0)
+            opt.pathOnly = false;
         if (typeof (viewModel) === "undefined" || viewModel == null) {
             return viewModel;
         }
@@ -762,7 +764,7 @@ var DotvvmSerialization = (function () {
             return viewModel;
         }
         if (ko.isObservable(viewModel)) {
-            return this.serialize(ko.unwrap(viewModel), serializeAll, oneLevel, ignoreSpecialProperties);
+            return this.serialize(ko.unwrap(viewModel), opt);
         }
         if (typeof (viewModel) === "function") {
             return null;
@@ -770,20 +772,24 @@ var DotvvmSerialization = (function () {
         if (viewModel instanceof Array) {
             var array = [];
             for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.serialize(viewModel[i], serializeAll, oneLevel, ignoreSpecialProperties));
+                array.push(this.serialize(viewModel[i], opt));
             }
             return array;
         }
         if (viewModel instanceof Date) {
             return this.serializeDate(viewModel);
         }
+        var pathProp = opt.path && opt.path.pop();
         var result = {};
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop)) {
-                var value = viewModel[prop];
-                if (ignoreSpecialProperties && prop[0] == "$")
+                if (opt.pathOnly && prop != pathProp) {
                     continue;
-                if (!serializeAll && /\$options$/.test(prop)) {
+                }
+                var value = viewModel[prop];
+                if (opt.ignoreSpecialProperties && prop[0] == "$")
+                    continue;
+                if (!opt.serializeAll && /\$options$/.test(prop)) {
                     continue;
                 }
                 if (typeof (value) === "undefined") {
@@ -793,19 +799,50 @@ var DotvvmSerialization = (function () {
                     continue;
                 }
                 var options = viewModel[prop + "$options"];
-                if (!serializeAll && options && options.doNotPost) {
-                    continue;
+                if (!opt.serializeAll && options && options.doNotPost) {
                 }
-                if (oneLevel)
+                else if (opt.oneLevel)
                     result[prop] = ko.unwrap(value);
+                else if (!opt.serializeAll && options && options.pathOnly) {
+                    var path = options.pathOnly;
+                    if (!(path instanceof Array))
+                        path = opt.path || this.findObject(value, opt.pathMatcher);
+                    if (path) {
+                        if (path.length === 0)
+                            result[prop] = this.serialize(value, opt);
+                        else
+                            result[prop] = this.serialize(value, { ignoreSpecialProperties: opt.ignoreSpecialProperties, serializeAll: opt.serializeAll, path: path, pathOnly: true });
+                    }
+                }
                 else
-                    result[prop] = this.serialize(value, serializeAll, oneLevel, ignoreSpecialProperties);
+                    result[prop] = this.serialize(value, opt);
             }
         }
+        if (pathProp)
+            opt.path.push(pathProp);
         return result;
     };
+    DotvvmSerialization.prototype.findObject = function (obj, matcher) {
+        if (matcher(obj))
+            return [];
+        obj = ko.unwrap(obj);
+        if (matcher(obj))
+            return [];
+        if (typeof obj != "object")
+            return null;
+        for (var p in obj) {
+            if (obj.hasOwnProperty(p)) {
+                var match = this.findObject(obj[p], matcher);
+                if (match) {
+                    match.push(p);
+                    return match;
+                }
+            }
+        }
+        return null;
+    };
     DotvvmSerialization.prototype.flatSerialize = function (viewModel) {
-        return this.serialize(viewModel, true, true, true);
+        return this.serialize(viewModel, { ignoreSpecialProperties: true, oneLevel: true, serializeAll: true });
     };
     DotvvmSerialization.prototype.pad = function (value, digits) {
         while (value.length < digits) {

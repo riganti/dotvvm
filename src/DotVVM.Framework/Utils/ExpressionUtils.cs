@@ -229,7 +229,7 @@ namespace DotVVM.Framework.Utils
                 {
                     if (node.Method != null)
                         return Expression.Constant(node.Method.Invoke(null, new object[] { lc.Value, rc.Value }));
-                    else throw new NotImplementedException("special cases without method not supported now");
+                    else return node;
                 }
                 else return base.VisitBinary(node);
             }

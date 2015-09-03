@@ -47,7 +47,8 @@ namespace DotVVM.Framework.ViewModel
                 if (bindAttribute != null)
                 {
                     propertyMap.TransferToClient = bindAttribute.Direction.HasFlag(Direction.ServerToClient);
-                    propertyMap.TransferToServer = bindAttribute.Direction.HasFlag(Direction.ClientToServer);
+                    propertyMap.TransferToServer = bindAttribute.Direction.HasFlag(Direction.ClientToServerNotInPostbackPath) || bindAttribute.Direction.HasFlag(Direction.ClientToServerInPostbackPath);
+                    propertyMap.TransferToServerOnlyInPath = !bindAttribute.Direction.HasFlag(Direction.ClientToServerNotInPostbackPath) && propertyMap.TransferToServer;
                 }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ViewModelProtectionAttribute>();
