@@ -5,6 +5,7 @@ using DotVVM.Framework.Resources;
 using System.Diagnostics;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Exceptions;
+using System.Net;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
@@ -344,7 +345,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                     else
                     {
                         Assert(DothtmlTokenType.Text);
-                        attribute.Literal = new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition };
+                        attribute.Literal = new DothtmlLiteralNode() { Value = WebUtility.HtmlDecode(Peek().Text), Tokens = { Peek() }, StartPosition = Peek().StartPosition };
                         Read();
                     }
 
