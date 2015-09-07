@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Parser.Binding.Tokenizer
             while (Peek() != NullChar)
             {
                 var ch = Peek();
-                
+
                 switch (ch)
                 {
                     case '.':
@@ -22,6 +22,11 @@ namespace DotVVM.Framework.Parser.Binding.Tokenizer
                         {
                             // treat dot in a number as part of the number
                             Read();
+                            if (!char.IsDigit(Peek()))
+                            {
+                                CreateToken(BindingTokenType.Identifier, 1);
+                                CreateToken(BindingTokenType.Dot);
+                            }
                         }
                         else
                         {

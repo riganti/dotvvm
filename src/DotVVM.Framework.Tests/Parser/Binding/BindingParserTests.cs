@@ -264,6 +264,16 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(result.Value, 42L);
         }
 
+        [TestMethod]
+        public void BindingParser_MethodInvokeOnValue_Valid()
+        {
+            var result = (FunctionCallBindingParserNode)Parse("42.ToString()");
+            var memberAccess = (MemberAccessBindingParserNode)result.TargetExpression;
+            Assert.AreEqual(memberAccess.MemberNameExpression.Name, "ToString");
+            Assert.AreEqual(((LiteralExpressionBindingParserNode)memberAccess.TargetExpression).Value, 42);
+            Assert.AreEqual(result.ArgumentExpressions.Count, 0);
+        }
+
         private static BindingParserNode Parse(string expression)
         {
             var tokenizer = new BindingTokenizer();

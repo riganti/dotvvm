@@ -20,6 +20,10 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             parser.Tokens = tokenizer.Tokens;
             var node = parser.ReadExpression();
 
+            if (node.EnumerateNodes().Any(n => n.HasNodeErrors)) throw new BindingCompilationException($"parsing of expression { expression } failed", node);
+            if (!parser.OnEnd()) throw new BindingCompilationException(
+                $"unexpected token '{ expression.Substring(0, parser.Peek().StartPosition)} ---->{ parser.Peek().Text }<---- { expression.Substring(parser.Peek().StartPosition + parser.Peek().Length) }'", node);
+
             var visitor = new ExpressionBuldingVisitor(InitSymbols(dataContexts));
             visitor.Scope = Expression.Parameter(dataContexts.DataContextType, "_this");
             return visitor.Visit(node);

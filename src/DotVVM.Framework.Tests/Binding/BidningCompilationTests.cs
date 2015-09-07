@@ -68,6 +68,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_MethodCallOnValue()
+        {
+            var viewModel = new TestViewModel2 { MyProperty = 42 };
+            Assert.AreEqual(ExecuteBinding("13.ToString()", viewModel), "13");
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_EnumStringComparison()
         {
             var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
