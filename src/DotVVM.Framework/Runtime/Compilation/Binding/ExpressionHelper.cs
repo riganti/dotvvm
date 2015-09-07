@@ -63,7 +63,8 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             var methods = from m in target.Type.GetMethods(flags)
                           where m.Name == name
                           let r = TryCallMethod(target, m, typeArguments, arguments, namedArgs)
-                          orderby r.CastCount descending
+                          where r != null
+                          orderby r.CastCount descending, r.AutomaticTypeArgCount
                           select r;
             var method = methods.First();
             return Expression.Call(target, method.Method, method.Arguments);
@@ -71,6 +72,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         class MethodRecognitionResult
         {
+            public int AutomaticTypeArgCount { get; set; }
             public int CastCount { get; set; }
             public Expression[] Arguments { get; set; }
             public MethodInfo Method { get; set; }
@@ -82,7 +84,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             // method must have all named arguments
             if (namedArguments != null && !namedArguments.All(n => parameters.Any(p => p.Name == n.Key))) return null;
 
-            int weight = 0;
+            int castCount = 0;
             var args = new Expression[parameters.Length];
             for (int i = 0; i < args.Length; i++)
             {
@@ -96,23 +98,29 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 }
                 else if (parameters[i].HasDefaultValue)
                 {
-                    weight++;
+                    castCount++;
                     args[i] = Expression.Constant(parameters[i].DefaultValue, parameters[i].ParameterType);
                 }
                 else return null;
             }
 
+            int automaticTypeArgs = 0;
             // resolve generic parameters
             if (method.ContainsGenericParameters)
             {
                 var typeArgs = new Type[method.GetGenericArguments().Length];
-                if (typeArguments != null) Array.Copy(typeArguments, typeArgs, typeArgs.Length);
+                if (typeArguments != null)
+                {
+                    if (typeArguments.Length > typeArgs.Length) return null;
+                    Array.Copy(typeArguments, typeArgs, typeArgs.Length);
+                }
                 for (int i = 0; i < typeArgs.Length; i++)
                 {
                     if (typeArgs[i] == null)
                     {
                         // try to resolve from arguments
                         var arg = Array.FindIndex(parameters, p => p.ParameterType.IsGenericParameter && p.ParameterType.GenericParameterPosition == i);
+                        automaticTypeArgs++;
                         if (arg >= 0) typeArgs[i] = args[arg].Type;
                         else return null;
                     }
@@ -120,6 +128,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 method = method.MakeGenericMethod(typeArgs);
                 parameters = method.GetParameters();
             }
+            else if (typeArguments != null) return null;
 
             // cast arguments
             for (int i = 0; i < args.Length; i++)
@@ -128,14 +137,15 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 if (casted == null) return null;
                 if(casted != args[i])
                 {
-                    weight++;
+                    castCount++;
                     args[i] = casted;
                 }
             }
 
             return new MethodRecognitionResult
             {
-                CastCount = weight,
+                CastCount = castCount,
+                AutomaticTypeArgCount = automaticTypeArgs,
                 Method = method,
                 Arguments = args
             };
