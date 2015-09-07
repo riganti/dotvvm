@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Controls;
+﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 using DotVVM.Framework.Utils;
@@ -71,13 +72,24 @@ namespace DotVVM.Framework.Runtime.Compilation
             controlName = parentName;
         }
 
+        private void SetProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
+        {
+            if(property.IsVirtual)
+            {
+                emitter.EmitSetProperty(controlName, property.PropertyInfo.Name, value);
+            }
+            else
+            {
+                emitter.EmitSetValue(controlName, property.DescriptorFullName, value);
+            }
+        }
+
+        private void SetPropertyValue(string controlName, DotvvmProperty property, object value)
+            => SetProperty(controlName, property, emitter.EmitValue(value));
+
         public override void VisitPropertyValue(ResolvedPropertyValue propertyValue)
         {
-            if (!propertyValue.Property.IsVirtual)
-                emitter.EmitSetValue(controlName, propertyValue.Property.DescriptorFullName, emitter.EmitValue(propertyValue.Value));
-
-            else emitter.EmitSetProperty(controlName, propertyValue.Property.Name, emitter.EmitValue(propertyValue.Value));
-
+            SetPropertyValue(controlName, propertyValue.Property, propertyValue.Value);
             base.VisitPropertyValue(propertyValue);
         }
 
@@ -95,7 +107,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             // compile control content
             base.VisitControl(control);
             // set the property
-            emitter.EmitSetValue(parentName, propertyControl.Property.DescriptorFullName, controlName);
+            SetProperty(parentName, propertyControl.Property, SyntaxFactory.IdentifierName(controlName));
             controlName = parentName;
         }
 
@@ -129,7 +141,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             controlName = parentName;
 
             var templateName = CreateTemplate(methodName);
-            emitter.EmitSetValue(controlName, propertyTemplate.Property.DescriptorFullName, templateName);
+            SetProperty(controlName, propertyTemplate.Property, SyntaxFactory.IdentifierName(templateName));
         }
 
         protected void ProcessHtmlAttributes(string controlName, IDictionary<string, object> attributes, DataContextStack dataContext)
