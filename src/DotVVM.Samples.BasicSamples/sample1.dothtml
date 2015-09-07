@@ -41,8 +41,6 @@
                 </tr>
             </dot:Repeater>
         </table>
-
-		<dot:CheckBox id="{value: 'ahoj'}" Checked="{value: true}" Text="Ahoj" />
     </div>
 
     <dot:RequiredResource Name="bootstrap" />

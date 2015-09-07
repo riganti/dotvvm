@@ -97,6 +97,20 @@ namespace DotVVM.Framework.Tests.Binding
             ExecuteBinding("Enum == 'ghfjdskdjhbvdksdj'", viewModel);
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_GenericMethodCall()
+        {
+            var viewModel = new TestViewModel();
+            Assert.AreEqual(ExecuteBinding("GetType(Identity(42))", viewModel), typeof(int));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_DefaultParameterMethod()
+        {
+            var viewModel = new TestViewModel() { StringProp = "A" };
+            Assert.AreEqual(ExecuteBinding("Cat(42)", viewModel), "42A");
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
@@ -109,6 +123,19 @@ namespace DotVVM.Framework.Tests.Binding
                 var p = StringProp;
                 StringProp = a + b;
                 return p;
+            }
+
+            public T Identity<T>(T param)
+                => param;
+
+            public Type GetType<T>(T param)
+            {
+                return typeof(T);
+            }
+
+            public string Cat<T>(T obj, string str = null)
+            {
+                return obj.ToString() + (str ?? StringProp);
             }
         }
         enum TestEnum

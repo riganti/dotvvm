@@ -57,22 +57,88 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             return Expression.Invoke(target, arguments);
         }
 
-        public static Expression CallMethod(Expression target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments)
+        public static Expression CallMethod(Expression target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
         {
-            // the following piece of code is nicer and more readble than method recognition done in roslyn, c# dynamic and expression evaluator ;)
+            // the following piece of code is nicer and more readable than method recognition done in roslyn, c# dynamic and also expression evaluator :)
             var methods = from m in target.Type.GetMethods(flags)
                           where m.Name == name
-                          where m.ContainsGenericParameters == (typeArguments != null && typeArguments.Length > 0)
-                          let typedM = m.ContainsGenericParameters ? m.MakeGenericMethod(typeArguments) : m
-                          let parameters = typedM.GetParameters()
-                          where parameters.Length == arguments.Length
-                          let castedArgs = arguments.Zip(parameters, (a, p) => TypeConversion.ImplicitConversion(a, p.ParameterType)).ToArray()
-                          where castedArgs.All(a => a != null)
-                          let castCount = castedArgs.Zip(arguments, (a, b) => a != b).Count(p => p)
-                          orderby castCount descending
-                          select new { method = typedM, args = castedArgs };
+                          let r = TryCallMethod(target, m, typeArguments, arguments, namedArgs)
+                          orderby r.CastCount descending
+                          select r;
             var method = methods.First();
-            return Expression.Call(target, method.method, method.args);
+            return Expression.Call(target, method.Method, method.Arguments);
+        }
+
+        class MethodRecognitionResult
+        {
+            public int CastCount { get; set; }
+            public Expression[] Arguments { get; set; }
+            public MethodInfo Method { get; set; }
+        }
+
+        private static MethodRecognitionResult TryCallMethod(Expression target, MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
+        {
+            var parameters = method.GetParameters();
+            // method must have all named arguments
+            if (namedArguments != null && !namedArguments.All(n => parameters.Any(p => p.Name == n.Key))) return null;
+
+            int weight = 0;
+            var args = new Expression[parameters.Length];
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (namedArguments?.ContainsKey(parameters[i].Name) == true)
+                {
+                    args[i] = namedArguments[parameters[i].Name];
+                }
+                else if (i < positionalArguments.Length)
+                {
+                    args[i] = positionalArguments[i];
+                }
+                else if (parameters[i].HasDefaultValue)
+                {
+                    weight++;
+                    args[i] = Expression.Constant(parameters[i].DefaultValue, parameters[i].ParameterType);
+                }
+                else return null;
+            }
+
+            // resolve generic parameters
+            if (method.ContainsGenericParameters)
+            {
+                var typeArgs = new Type[method.GetGenericArguments().Length];
+                if (typeArguments != null) Array.Copy(typeArguments, typeArgs, typeArgs.Length);
+                for (int i = 0; i < typeArgs.Length; i++)
+                {
+                    if (typeArgs[i] == null)
+                    {
+                        // try to resolve from arguments
+                        var arg = Array.FindIndex(parameters, p => p.ParameterType.IsGenericParameter && p.ParameterType.GenericParameterPosition == i);
+                        if (arg >= 0) typeArgs[i] = args[arg].Type;
+                        else return null;
+                    }
+                }
+                method = method.MakeGenericMethod(typeArgs);
+                parameters = method.GetParameters();
+            }
+
+            // cast arguments
+            for (int i = 0; i < args.Length; i++)
+            {
+                var casted = TypeConversion.ImplicitConversion(args[i], parameters[i].ParameterType);
+                if (casted == null) return null;
+                if(casted != args[i])
+                {
+                    weight++;
+                    args[i] = casted;
+                }
+            }
+
+            return new MethodRecognitionResult
+            {
+                CastCount = weight,
+                Method = method,
+                Arguments = args
+            };
         }
 
 
@@ -97,7 +163,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 if (m != null) return m;
             }
 
-            if(left.Type.IsValueType)
+            if (left.Type.IsValueType)
             {
                 equatable = left;
                 theOther = right;
@@ -108,7 +174,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 theOther = left;
             }
 
-            if(equatable != null)
+            if (equatable != null)
             {
                 theOther = TypeConversion.ImplicitConversion(theOther, equatable.Type);
                 if (theOther != null) return Expression.Equal(equatable, theOther);
