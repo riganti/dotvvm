@@ -41,6 +41,8 @@
                 </tr>
             </dot:Repeater>
         </table>
+
+		<dot:Literal FormatString="d" Text="12" />
     </div>
 
     <dot:RequiredResource Name="bootstrap" />

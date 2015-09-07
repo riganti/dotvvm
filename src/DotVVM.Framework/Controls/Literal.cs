@@ -41,14 +41,7 @@ namespace DotVVM.Framework.Controls
 
 
         [MarkupOptions(AllowBinding = false)]
-        public string FormatString
-        {
-            get { return (string)GetValue(FormatStringProperty); }
-            set { SetValue(FormatStringProperty, value); }
-        }
-        public static readonly DotvvmProperty FormatStringProperty =
-            DotvvmProperty.Register<string, Literal>(c => c.FormatString);
-
+        public string FormatString { get; set; }
 
         protected virtual bool AlwaysRenderSpan
         {
@@ -71,7 +64,7 @@ namespace DotVVM.Framework.Controls
             Text = text;
             HtmlEncode = false;
         }
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
@@ -90,7 +83,7 @@ namespace DotVVM.Framework.Controls
             }
             base.OnPreRender(context);
         }
-         
+
 
         /// <summary>
         /// Renders the control into the specified writer.

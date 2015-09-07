@@ -236,7 +236,8 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         protected virtual Dictionary<string, DotvvmProperty> GetControlProperties(Type controlType)
         {
-            return DotvvmProperty.ResolveProperties(controlType).ToDictionary(p => p.Name, p => p);
+            return DotvvmProperty.ResolveProperties(controlType).Concat(DotvvmProperty.GetVirtualProperties(controlType)).ToDictionary(p => p.Name, p => p);
         }
+
     }
 }

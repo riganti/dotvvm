@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
-    public class ViewCompilingVisitor: ResolvedControlTreeVisitor
+    public class ViewCompilingVisitor : ResolvedControlTreeVisitor
     {
         protected readonly DefaultViewCompilerCodeEmitter emitter;
         protected readonly IBindingCompiler bindingCompiler;
@@ -73,7 +73,11 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public override void VisitPropertyValue(ResolvedPropertyValue propertyValue)
         {
-            emitter.EmitSetValue(controlName, propertyValue.Property.DescriptorFullName, emitter.EmitValue(propertyValue.Value));
+            if (!propertyValue.Property.IsVirtual)
+                emitter.EmitSetValue(controlName, propertyValue.Property.DescriptorFullName, emitter.EmitValue(propertyValue.Value));
+
+            else emitter.EmitSetProperty(controlName, propertyValue.Property.Name, emitter.EmitValue(propertyValue.Value));
+
             base.VisitPropertyValue(propertyValue);
         }
 
@@ -117,7 +121,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             emitter.PushNewMethod(methodName);
             // build the statements
             controlName = emitter.EmitCreateObject(typeof(Placeholder));
-            
+
             base.VisitPropertyTemplate(propertyTemplate);
 
             emitter.EmitReturnClause(controlName);
@@ -167,7 +171,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         protected string CreateControl(ResolvedControl control)
         {
             string name;
-            
+
             if (control.Metadata.ControlBuilderType == null)
             {
                 // compiled control
@@ -179,7 +183,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
             emitter.EmitSetAttachedProperty(name, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, name);
-            if(control.HtmlAttributes != null && control.Metadata.HasHtmlAttributesCollection)
+            if (control.HtmlAttributes != null && control.Metadata.HasHtmlAttributesCollection)
             {
                 ProcessHtmlAttributes(name, control.HtmlAttributes, control.DataContextTypeStack);
             }

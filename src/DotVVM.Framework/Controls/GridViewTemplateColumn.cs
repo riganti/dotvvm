@@ -12,15 +12,7 @@ namespace DotVVM.Framework.Controls
     {
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
-        public ITemplate ContentTemplate
-        {
-            get { return (ITemplate)GetValue(ContentTemplateProperty); }
-            set { SetValue(HeaderTextProperty, value); }
-        }
-        public static readonly DotvvmProperty ContentTemplateProperty =
-            DotvvmProperty.Register<ITemplate, GridViewTemplateColumn>(c => c.ContentTemplate);
-
-
+        public ITemplate ContentTemplate { get; set; }
 
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {

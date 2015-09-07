@@ -8,22 +8,10 @@ namespace DotVVM.Framework.Controls
     {
 
         [MarkupOptions(AllowBinding = false)]
-        public string HeaderText
-        {
-            get { return (string)GetValue(HeaderTextProperty); }
-            set { SetValue(HeaderTextProperty, value); }
-        }
-        public static readonly DotvvmProperty HeaderTextProperty =
-            DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderText);
+        public string HeaderText { get; set; }
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate HeaderTemplate
-        {
-            get { return (ITemplate)GetValue(HeaderTemplateProperty); }
-            set { SetValue(HeaderTemplateProperty, value); }
-        }
-        public static readonly DotvvmProperty HeaderTemplateProperty =
-            DotvvmProperty.Register<ITemplate, GridViewColumn>(t => t.HeaderTemplate);
+        public ITemplate HeaderTemplate { get; set; }
 
 
         [MarkupOptions(AllowHardCodedValue = false)]
@@ -47,14 +35,7 @@ namespace DotVVM.Framework.Controls
 
 
         [MarkupOptions(AllowBinding = false)]
-        public bool AllowSorting
-        {
-            get { return (bool)GetValue(AllowSortingProperty); }
-            set { SetValue(AllowSortingProperty, value); }
-        }
-        public static readonly DotvvmProperty AllowSortingProperty =
-            DotvvmProperty.Register<bool, GridViewColumn>(c => c.AllowSorting, false);
-
+        public bool AllowSorting { get; set; }
 
         public string CssClass
         {
@@ -74,13 +55,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderCssClass);
 
         [MarkupOptions(AllowBinding = false)]
-        public string Width
-        {
-            get { return (string)GetValue(WidthProperty); }
-            set { SetValue(WidthProperty, value); }
-        }
-        public static readonly DotvvmProperty WidthProperty =
-            DotvvmProperty.Register<string, GridViewColumn>(c => c.Width);
+        public string Width { get; set; }
 
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);

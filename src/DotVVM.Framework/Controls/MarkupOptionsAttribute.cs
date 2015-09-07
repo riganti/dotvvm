@@ -14,12 +14,12 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets whether the data-binding can be used on this property.
         /// </summary>
-        public bool AllowBinding { get; set; }
+        public bool AllowBinding { get; set; } = true;
 
         /// <summary>
         /// Gets or sets whether the hard-coded value in markup can be used on this property.
         /// </summary>
-        public bool AllowHardCodedValue { get; set; }
+        public bool AllowHardCodedValue { get; set; } = true;
 
         /// <summary>
         /// Gets or sets the name in markup.
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the mapping mode.
         /// </summary>
-        public MappingMode MappingMode { get; set; }
+        public MappingMode MappingMode { get; set; } = MappingMode.Attribute;
 
         public bool Required { get; set; }
     }

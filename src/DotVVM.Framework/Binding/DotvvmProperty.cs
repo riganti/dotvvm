@@ -52,6 +52,8 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public MarkupOptionsAttribute MarkupOptions { get; set; }
 
+        public bool IsVirtual { get; set; }
+
         /// <summary>
         /// Gets the full name of the descriptor.
         /// </summary>
@@ -143,6 +145,30 @@ namespace DotVVM.Framework.Binding
                 property.MarkupOptions = markupOptions;
                 return property;
             });
+        }
+
+
+        public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
+            => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance )
+               where !registeredProperties.ContainsKey(p.DeclaringType.FullName + "." + p.Name)
+               let markupOptions = GetVirtualPropertyMarkupOptions(p)
+               where markupOptions != null
+               where markupOptions.MappingMode != MappingMode.Exclude
+               select new DotvvmProperty
+               {
+                   DeclaringType = controlType,
+                   IsValueInherited = false,
+                   MarkupOptions = markupOptions,
+                   Name = p.Name,
+                   PropertyInfo = p,
+                   PropertyType = p.PropertyType,
+                   IsVirtual = true
+               };
+        private static MarkupOptionsAttribute GetVirtualPropertyMarkupOptions(PropertyInfo p)
+        {
+            var mo = p.GetCustomAttribute<MarkupOptionsAttribute>();
+            mo.AllowBinding = false;
+            return mo;
         }
 
         private static ConcurrentDictionary<string, DotvvmProperty> registeredProperties = new ConcurrentDictionary<string, DotvvmProperty>();

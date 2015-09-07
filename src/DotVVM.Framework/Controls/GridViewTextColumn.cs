@@ -13,13 +13,7 @@ namespace DotVVM.Framework.Controls
 
 
         [MarkupOptions(AllowBinding = false)]
-        public string FormatString
-        {
-            get { return (string)GetValue(FormatStringProperty); }
-            set { SetValue(FormatStringProperty, value); }
-        }
-        public static readonly DotvvmProperty FormatStringProperty =
-            DotvvmProperty.Register<string, GridViewTextColumn>(c => c.FormatString);
+        public string FormatString { get; set; }
 
 
 
