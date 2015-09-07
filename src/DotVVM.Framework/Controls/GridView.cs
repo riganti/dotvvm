@@ -118,6 +118,9 @@ namespace DotVVM.Framework.Controls
             Children.Add(head);
 
             var headerRow = new HtmlGenericControl("tr");
+            // workaroud: header template must have to be one level nested, because it is in the Columns property which nests the dataContext to the item type
+            // on server we need null, to be Convertible to Item type and on client the best is empty object, because with will hide the inner content when it is null
+            headerRow.SetBinding(DataContextProperty, new ValueBindingExpression(h => null, "{}"));
             head.Children.Add(headerRow);
             foreach (var column in Columns)
             {

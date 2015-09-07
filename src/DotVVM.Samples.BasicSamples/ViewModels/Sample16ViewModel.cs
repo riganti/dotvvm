@@ -71,6 +71,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
             return base.PreRender();
         }
 
+        public void TestCommand()
+        {
+        }
+
         public void SortCustomers(string column)
         {
             SelectedSortColumn = column;
