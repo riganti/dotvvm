@@ -271,7 +271,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
                 metadata.AllowBinding = attribute.NamedArguments.Where(a => a.Key == "AllowBinding").Select(a => a.Value.Value as bool?).FirstOrDefault() ?? true;
                 metadata.AllowHardCodedValue = attribute.NamedArguments.Where(a => a.Key == "AllowHardCodedValue").Select(a => a.Value.Value as bool?).FirstOrDefault() ?? true;
 
-                var mappingMode = (MappingMode)(attribute.NamedArguments.Where(a => a.Key == "MappingMode").Select(a => a.Value.Value as int?).FirstOrDefault() ?? 0);
+                var mappingMode = (MappingMode)(attribute.NamedArguments.Where(a => a.Key == "MappingMode").Select(a => a.Value.Value as int?).FirstOrDefault() ?? (int)MappingMode.Attribute);
                 if (mappingMode == MappingMode.InnerElement)
                 {
                     metadata.IsElement = true;
