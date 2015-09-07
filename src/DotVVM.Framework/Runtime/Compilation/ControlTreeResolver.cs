@@ -215,6 +215,13 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         private void ProcessAttribute(DothtmlAttributeNode attribute, ResolvedControl control, DataContextStack dataContext)
         {
+            if(attribute.AttributePrefix == "html")
+            {
+                if (!control.Metadata.HasHtmlAttributesCollection) throw new DotvvmCompilationException($"control { control.Metadata.Name } does not have html attribute collection", attribute.Tokens);
+                control.SetHtmlAttribute(attribute.AttributeName, ProcessLiteral(attribute.Literal, dataContext));
+                return;
+            }
+
             if (!string.IsNullOrEmpty(attribute.AttributePrefix))
             {
                 throw new DotvvmCompilationException("Attributes with XML namespaces are not supported!");
@@ -233,7 +240,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 // set the property
                 if (attribute.Literal == null)
                 {
-                    throw new DotvvmCompilationException($"The attribute '{property.Name}' int the control '{control.Metadata.Name}' must have a value!");
+                    throw new DotvvmCompilationException($"The attribute '{property.Name}' on the control '{control.Metadata.Name}' must have a value!");
                 }
                 else if (attribute.Literal is DothtmlBindingNode)
                 {
@@ -253,17 +260,21 @@ namespace DotVVM.Framework.Runtime.Compilation
             else if (control.Metadata.HasHtmlAttributesCollection)
             {
                 // if the property is not found, add it as an HTML attribute
-                object value = (attribute.Literal is DothtmlBindingNode)
-                    ? (object)ProcessBinding((DothtmlBindingNode)attribute.Literal, dataContext)
-                    : attribute.Literal?.Value;
-
-                control.SetHtmlAttribute(attribute.AttributeName, value);
+                control.SetHtmlAttribute(attribute.AttributeName, ProcessLiteral(attribute.Literal, dataContext));
             }
             else
             {
                 throw new DotvvmCompilationException($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}'!");
             }
         }
+
+        private object ProcessLiteral(DothtmlLiteralNode literal, DataContextStack dataContext)
+        {
+            return (literal is DothtmlBindingNode)
+                    ? (object)ProcessBinding((DothtmlBindingNode)literal, dataContext)
+                    : literal?.Value;
+        }
+
 
         private void ProcessControlContent(IEnumerable<DothtmlNode> nodes, ResolvedControl control)
         {
