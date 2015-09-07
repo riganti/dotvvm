@@ -164,9 +164,11 @@ namespace DotVVM.Framework.Binding
                    PropertyType = p.PropertyType,
                    IsVirtual = true
                };
+
         private static MarkupOptionsAttribute GetVirtualPropertyMarkupOptions(PropertyInfo p)
         {
             var mo = p.GetCustomAttribute<MarkupOptionsAttribute>();
+            if (mo == null) return null;
             mo.AllowBinding = false;
             return mo;
         }
