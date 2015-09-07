@@ -81,20 +81,18 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         private static MethodRecognitionResult TryCallMethod(Expression target, MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
         {
             var parameters = method.GetParameters();
-            // method must have all named arguments
-            if (namedArguments != null && !namedArguments.All(n => parameters.Any(p => p.Name == n.Key))) return null;
 
             int castCount = 0;
+            if (parameters.Length < positionalArguments.Length) return null;
             var args = new Expression[parameters.Length];
-            for (int i = 0; i < args.Length; i++)
+            Array.Copy(positionalArguments, args, positionalArguments.Length);
+            int namedArgCount = 0;
+            for (int i = positionalArguments.Length; i < args.Length; i++)
             {
                 if (namedArguments?.ContainsKey(parameters[i].Name) == true)
                 {
                     args[i] = namedArguments[parameters[i].Name];
-                }
-                else if (i < positionalArguments.Length)
-                {
-                    args[i] = positionalArguments[i];
+                    namedArgCount++;
                 }
                 else if (parameters[i].HasDefaultValue)
                 {
@@ -103,6 +101,9 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 }
                 else return null;
             }
+
+            // some named arguments were not used
+            if (namedArguments != null && namedArgCount != namedArguments.Count) return null;
 
             int automaticTypeArgs = 0;
             // resolve generic parameters
