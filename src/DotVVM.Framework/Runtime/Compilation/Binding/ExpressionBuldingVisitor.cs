@@ -55,15 +55,16 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         {
             if (currentErrors != null && currentErrors.Count > 0)
             {
+                var currentErrors = this.currentErrors;
+                this.currentErrors = null;
                 if (currentErrors.Count == 1)
                 {
                     if (currentErrors[0].StackTrace == null
                         || (currentErrors[0] is BindingCompilationException && (currentErrors[0] as BindingCompilationException).Node == null)
                         || (currentErrors[0] is AggregateException && (currentErrors[0] as AggregateException).Message == null))
                         throw currentErrors[0];
-                    else throw new AggregateException(currentErrors);
                 }
-                currentErrors.Clear();
+                throw new AggregateException(currentErrors);
             }
         }
 

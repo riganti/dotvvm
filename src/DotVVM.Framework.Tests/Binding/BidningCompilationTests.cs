@@ -75,6 +75,13 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_Valid_IntStringConcat()
+        {
+            var viewModel = new TestViewModel { StringProp = "string", TestViewModel2 = new TestViewModel2 { MyProperty = 0 } };
+            Assert.AreEqual(ExecuteBinding("StringProp + TestViewModel2.MyProperty", viewModel), "string0");
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_EnumStringComparison()
         {
             var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
