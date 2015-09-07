@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             var translator = new JavascriptTranslator();
             translator.DataContexts = dataContext;
             var script = translator.Translate(binding).Trim();
-            if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()")) script = script.Remove(script.Length - 2);
+            if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()", StringComparison.Ordinal)) script = script.Remove(script.Length - 2);
             return script;
         }
 
@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
-            AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
+            AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({0})"), 0);
             AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
         }
@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             if (expression.Name == "_this") return "$data";
             if (expression.Name == "_parent") return "$parent";
             if (expression.Name == "_root") return "$root";
-            if (expression.Name.StartsWith("_parent")) return $"$parents[{ int.Parse(expression.Name.Substring("_parent".Length)) }]";
+            if (expression.Name.StartsWith("_parent", StringComparison.Ordinal)) return $"$parents[{ int.Parse(expression.Name.Substring("_parent".Length)) }]";
             if (expression.Name == "_control")
             {
                 var c = DataContexts.Parents().Count();
@@ -234,7 +234,9 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                     if (r2 != null) return r2;
                 }
             }
-            return null;
+            var baseMethod = method.GetBaseDefinition();
+            if (baseMethod != null && baseMethod != method) return TryTranslateMethodCall(context, args, baseMethod);
+            else return null;
         }
 
         public string TranslateBinary(BinaryExpression expression)
