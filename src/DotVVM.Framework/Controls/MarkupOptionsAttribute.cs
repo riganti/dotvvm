@@ -31,5 +31,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public MappingMode MappingMode { get; set; }
 
+        public bool Required { get; set; }
     }
 }

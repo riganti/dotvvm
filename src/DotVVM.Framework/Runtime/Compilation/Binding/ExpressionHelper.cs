@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             {
                 var casted = TypeConversion.ImplicitConversion(args[i], parameters[i].ParameterType);
                 if (casted == null) return null;
-                if(casted != args[i])
+                if (casted != args[i])
                 {
                     castCount++;
                     args[i] = casted;

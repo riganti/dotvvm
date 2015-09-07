@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Controls
     public class GridViewTemplateColumn : GridViewColumn
     {
 
-        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
         public ITemplate ContentTemplate
         {
             get { return (ITemplate)GetValue(ContentTemplateProperty); }

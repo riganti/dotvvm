@@ -181,6 +181,13 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
 
             ProcessControlContent(element.Content, control);
+
+            // check required properties
+            var missingProperties = control.Metadata.Properties.Values.Where(p => p.MarkupOptions.Required && !control.Properties.ContainsKey(p));
+            if (missingProperties.Any())
+            {
+                throw new DotvvmCompilationException($"control { control.Metadata.Name } is missing required properties: { string.Join(", ", missingProperties) }", control.DothtmlNode.Tokens);
+            }
             return control;
         }
 
@@ -215,7 +222,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         private void ProcessAttribute(DothtmlAttributeNode attribute, ResolvedControl control, DataContextStack dataContext)
         {
-            if(attribute.AttributePrefix == "html")
+            if (attribute.AttributePrefix == "html")
             {
                 if (!control.Metadata.HasHtmlAttributesCollection) throw new DotvvmCompilationException($"control { control.Metadata.Name } does not have html attribute collection", attribute.Tokens);
                 control.SetHtmlAttribute(attribute.AttributeName, ProcessLiteral(attribute.Literal, dataContext));
@@ -286,7 +293,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 if (element != null && properties)
                 {
                     var property = FindProperty(control.Metadata, element.TagName);
-                    if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode == MappingMode.InnerElement)
+                    if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode.HasFlag(MappingMode.InnerElement))
                     {
                         content.Clear();
                         control.SetProperty(ProcessElementProperty(control, property, element.Content));
