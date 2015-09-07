@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Controls
             });
 
             // add ID
-            AddIdAttribute(writer);
+            AddAttributesToRender(writer, context);
 
             // render the radio button
             RenderInputTag(writer);

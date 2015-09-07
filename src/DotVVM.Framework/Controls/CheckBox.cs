@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                throw new Exception("Either the Checked or the CheckedItems property of a CheckBox must be set.");
+                throw new Exception("Either the Checked or the CheckedItems binding of a CheckBox must be set.");
             }
 
             // render the input tag
