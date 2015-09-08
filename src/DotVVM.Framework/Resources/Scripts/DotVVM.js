@@ -844,6 +844,17 @@ var DotvvmSerialization = (function () {
     DotvvmSerialization.prototype.flatSerialize = function (viewModel) {
         return this.serialize(viewModel, { ignoreSpecialProperties: true, oneLevel: true, serializeAll: true });
     };
+    DotvvmSerialization.prototype.getPureObject = function (viewModel) {
+        viewModel = ko.unwrap(viewModel);
+        if (viewModel instanceof Array)
+            return viewModel.map(this.getPureObject.bind(this));
+        var result = {};
+        for (var prop in viewModel) {
+            if (prop[0] != '$')
+                result[prop] = viewModel[prop];
+        }
+        return result;
+    };
     DotvvmSerialization.prototype.pad = function (value, digits) {
         while (value.length < digits) {
             value = "0" + value;

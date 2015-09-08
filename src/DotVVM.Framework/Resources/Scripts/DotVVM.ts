@@ -873,6 +873,16 @@ class DotvvmSerialization {
         return this.serialize(viewModel, { ignoreSpecialProperties: true, oneLevel: true, serializeAll: true });
     }
 
+    public getPureObject(viewModel: any) {
+        viewModel = ko.unwrap(viewModel);
+        if (viewModel instanceof Array) return viewModel.map(this.getPureObject.bind(this));
+        var result = {};
+        for (var prop in viewModel) {
+            if (prop[0] != '$') result[prop] = viewModel[prop];
+        }
+        return result;
+    }
+
     private pad(value: string, digits: number) {
         while (value.length < digits) {
             value = "0" + value;
