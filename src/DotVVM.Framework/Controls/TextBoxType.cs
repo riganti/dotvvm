@@ -8,6 +8,13 @@ namespace DotVVM.Framework.Controls
     {
         Normal,
         Password,
-        MultiLine
+        MultiLine,
+        Telephone,
+        Url,
+        Email,
+        Date,
+        Time,
+        Color,
+        Search,
     }
 }

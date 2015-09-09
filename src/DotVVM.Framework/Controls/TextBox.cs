@@ -29,15 +29,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the mode of the text field.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public TextBoxType Type
-        {
-            get { return (TextBoxType)GetValue(TypeProperty); }
-            set { SetValue(TypeProperty, value); }
-        }
-
-        public static readonly DotvvmProperty TypeProperty =
-            DotvvmProperty.Register<TextBoxType, TextBox>(c => c.Type, TextBoxType.Normal);
-
+        public TextBoxType Type { get; set; }
 
         /// <summary>
         /// Gets or sets whether the KO Text property binding should render with valueUpdate:'afterkeydown'
@@ -79,22 +71,53 @@ namespace DotVVM.Framework.Controls
                 }
             }, UpdateTextAfterKeydown ? "afterkeydown" : null);
 
-            if (Type == TextBoxType.Normal)
+            if (Type == TextBoxType.MultiLine)
+            {
+                TagName = "textarea";
+            }
+            else if(Type == TextBoxType.Normal)
             {
                 TagName = "input";
+                // do not overwrite type attribute
                 if (!Attributes.ContainsKey("type"))
                 {
                     writer.AddAttribute("type", "text");
                 }
             }
-            else if (Type == TextBoxType.Password)
+            else
             {
-                writer.AddAttribute("type", "password");
+                string type = null;
+                switch (Type)
+                {
+                    case TextBoxType.Password:
+                        type = "password";
+                        break;
+                    case TextBoxType.Telephone:
+                        type = "tel";
+                        break;
+                    case TextBoxType.Url:
+                        type = "url";
+                        break;
+                    case TextBoxType.Email:
+                        type = "email";
+                        break;
+                    case TextBoxType.Date:
+                        type = "date";
+                        break;
+                    case TextBoxType.Time:
+                        type = "time";
+                        break;
+                    case TextBoxType.Color:
+                        type = "color";
+                        break;
+                    case TextBoxType.Search:
+                        type = "search";
+                        break;
+                    default:
+                        throw new NotSupportedException($"TextBox Type { Type } not supported");
+                }
+                writer.AddAttribute("type", type);
                 TagName = "input";
-            }
-            else if (Type == TextBoxType.MultiLine)
-            {
-                TagName = "textarea";
             }
 
             // prepare changed event attribute

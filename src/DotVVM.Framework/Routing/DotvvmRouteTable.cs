@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Routing
         /// <param name="virtualPath">The virtual path of the Dothtml file.</param>
         /// <param name="defaultValues">The default values.</param>
         /// <param name="presenterFactory">The presenter factory.</param>
-        public void Add(string routeName, string url, string virtualPath, object defaultValues, Func<IDotvvmPresenter> presenterFactory = null)
+        public void Add(string routeName, string url, string virtualPath, object defaultValues = null, Func<IDotvvmPresenter> presenterFactory = null)
         {
             if (presenterFactory == null)
             {
