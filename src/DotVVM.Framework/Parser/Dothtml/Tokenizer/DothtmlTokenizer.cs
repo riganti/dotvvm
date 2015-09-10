@@ -432,10 +432,16 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             // read open brace
             Assert(Peek() == '{');
             Read();
-            if (!doubleCloseBrace && Peek() == '{')
+            if (Peek() == '{')
             {
-                doubleCloseBrace = true;
+                // escape
                 Read();
+                CreateToken(DothtmlTokenType.EscapeOpenCurlyBrace);
+                if (doubleCloseBrace) CreateToken(DothtmlTokenType.EscapeOpenCurlyBrace);
+                ReadTextUntil(DothtmlTokenType.Text, doubleCloseBrace ? "}}}" : "}}", true);
+                CreateToken(DothtmlTokenType.EscapeCloseCurlyBrace);
+                if (doubleCloseBrace) CreateToken(DothtmlTokenType.EscapeCloseCurlyBrace);
+                return true;
             }
             CreateToken(DothtmlTokenType.OpenBinding);
             SkipWhitespace();
