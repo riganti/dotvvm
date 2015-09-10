@@ -17,8 +17,7 @@
 		<dot:InlineScript Dependencies="jquery">
 			<![CDATA[ var k = 1 < 5; ]]>
 		</dot:InlineScript>
-
-
+		
         <h1>Task List</h1>
 
         <fieldset data-testattribute>
@@ -31,7 +30,7 @@
 
         <table class="table">
             <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
-                <tr class="{value: IsCompleted ? " completed" : "" }">
+                <tr class="{{value: IsCompleted ? " completed" : "}" }}">
                     <td>{{value: Title}}</td>
                     <td>
                         <dot:LinkButton Text="done"

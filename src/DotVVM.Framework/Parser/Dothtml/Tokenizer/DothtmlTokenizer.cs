@@ -467,6 +467,12 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenBinding, DothtmlTokenizerErrors.BindingInvalidFormat));
             }
+            else if(doubleCloseBrace)
+            {
+                ReadTextUntil(DothtmlTokenType.Text, "}}", false);
+                CreateToken(DothtmlTokenType.CloseBinding);
+                return true;
+            }
             else
             {
                 while (Peek() != '}')
