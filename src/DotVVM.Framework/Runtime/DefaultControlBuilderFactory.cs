@@ -25,6 +25,11 @@ namespace DotVVM.Framework.Runtime
 
         public DefaultControlBuilderFactory(DotvvmConfiguration configuration)
         {
+            for (int i = 0; i < compilationLocks.Length; i++)
+            {
+                compilationLocks[i] = new object();
+            }
+
             this.configuration = configuration;
 
             ViewCompilerFactory = () => configuration.ServiceLocator.GetService<IViewCompiler>();
@@ -47,18 +52,25 @@ namespace DotVVM.Framework.Runtime
             return controlBuilders.GetOrAdd(markupFile, CreateControlBuilder);
         }
 
+        object[] compilationLocks = new object[Environment.ProcessorCount * 2];
+
         /// <summary>
         /// Creates the control builder.
         /// </summary>
         private IControlBuilder CreateControlBuilder(MarkupFile file)
         {
-            // TODO: thread safety: do not call it multiple times for single View
+            var lockId = (file.GetHashCode() & 0x7fffffff ) % compilationLocks.Length;
+            // do not compile the same view multiple times
+            lock (compilationLocks[lockId])
+            {
+                if (controlBuilders.ContainsKey(file)) return controlBuilders[file];
 
-            var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
-            var assemblyName = namespaceName;
-            var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
+                var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
+                var assemblyName = namespaceName;
+                var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
 
-            return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+                return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+            }
         }
 
         /// <summary>
