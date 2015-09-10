@@ -6,7 +6,6 @@ using System.Diagnostics;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Exceptions;
 using System.Net;
-using System.Text;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
@@ -130,25 +129,22 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 }
                 else
                 {
-                    var text = Peek().Text;
-                    if (Peek().Type == DothtmlTokenType.EscapeCloseCurlyBrace) text = "}";
-                    else if (Peek().Type == DothtmlTokenType.EscapeOpenCurlyBrace) text = "{";
                     // text
                     if (CurrentElementContent.Count > 0 && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof(DothtmlLiteralNode))
                     {
                         // append to the previous literal
                         var lastLiteral = (DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
                         if (lastLiteral.Escape != false)
-                            CurrentElementContent.Add(new DothtmlLiteralNode() { Value = text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
+                            CurrentElementContent.Add(new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
                         else
                         {
-                            lastLiteral.Value += text;
+                            lastLiteral.Value += Peek().Text;
                             lastLiteral.Tokens.Add(Peek());
                         }
                     }
                     else
                     {
-                        CurrentElementContent.Add(new DothtmlLiteralNode() { Value = text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
+                        CurrentElementContent.Add(new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
                     }
                     Read();
                 }
@@ -307,32 +303,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             return node;
         }
 
-        private string ReadText()
-        {
-            var sb = new StringBuilder();
-            while(true)
-            {
-                switch (Peek().Type)
-                {
-                    case DothtmlTokenType.WhiteSpace:
-                        sb.Append(Peek().Text);
-                        break;
-                    case DothtmlTokenType.Text:
-                        sb.Append(Peek().Text);
-                        break;
-                    case DothtmlTokenType.EscapeOpenCurlyBrace:
-                        sb.Append('{');
-                        break;
-                    case DothtmlTokenType.EscapeCloseCurlyBrace:
-                        sb.Append('}');
-                        break;
-                    default:
-                        return sb.ToString();
-                }
-                Read();
-            }
-        }
-
         /// <summary>
         /// Reads the attribute.
         /// </summary>
@@ -374,9 +344,9 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                     }
                     else
                     {
-                        var stringIndex = CurrentIndex;
-                        attribute.Literal = new DothtmlLiteralNode() { Value = WebUtility.HtmlDecode(ReadText()), StartPosition = Peek().StartPosition };
-                        attribute.Literal.Tokens.AddRange(GetTokensFrom(stringIndex));
+                        Assert(DothtmlTokenType.Text);
+                        attribute.Literal = new DothtmlLiteralNode() { Value = WebUtility.HtmlDecode(Peek().Text), Tokens = { Peek() }, StartPosition = Peek().StartPosition };
+                        Read();
                     }
 
                     Assert(quote);

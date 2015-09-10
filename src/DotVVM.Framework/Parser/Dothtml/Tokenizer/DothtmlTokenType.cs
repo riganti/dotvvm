@@ -22,10 +22,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
         OpenBinding,
         CloseBinding,
 
-        EscapeOpenCurlyBrace,
-        EscapeCloseCurlyBrace,
-
-
         OpenCData,
         CDataBody,
         CloseCData,

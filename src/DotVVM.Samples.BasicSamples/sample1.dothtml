@@ -18,16 +18,13 @@
 			<![CDATA[ var k = 1 < 5; ]]>
 		</dot:InlineScript>
 
-		<span data-attribute="{{ ahojahoahj }}" />
-		
-		{{{ escaped }}}
 
         <h1>Task List</h1>
 
         <fieldset data-testattribute>
             <legend>Add Task</legend>
 
-            <p>Title: <dot:TextBox Text="{value: NewTaskTitle }" /></p>
+            <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
             <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
         </fieldset>
         <p>&nbsp;</p>
