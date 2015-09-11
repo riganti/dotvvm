@@ -747,7 +747,11 @@ class DotvvmSerialization {
 
                 // update the property
                 if (ko.isObservable(deserialized)) {
-                    result[prop] = deserialized;
+                    if (ko.isObservable(result[prop])) {
+                        result[prop](deserialized());
+                    } else {
+                        result[prop] = deserialized;
+                    }
                 } else {
                     if (ko.isObservable(result[prop])) {
                         result[prop](deserialized);
