@@ -59,7 +59,7 @@ namespace DotVVM.Framework
             writer.AddKnockoutDataBind("foreach", expression);
         }
 
-        public static string GenerateClientPostBackScript(BindingExpression expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
+        public static string GenerateClientPostBackScript(ICommandBinding expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
         {
             var uniqueControlId = "";
             if (expression is ControlCommandBindingExpression)
@@ -80,10 +80,10 @@ namespace DotVVM.Framework
             };
 
             // return the script
-            var condition = isOnChange ? "if (!dotvvm.isViewModelUpdating) " : "";
-            var returnStatement = returnValue != null ? string.Format("return {0};", returnValue.ToString().ToLower()) : "";
+            var condition = isOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
+            var returnStatement = returnValue != null ? string.Format(";return {0};", returnValue.ToString().ToLower()) : "";
             // call the function returned from binding js with runtime arguments
-            var postBackCall = String.Format("({0})({1});", expression.Javascript, String.Join(", ", arguments));
+            var postBackCall = String.Format("({0})({1})", expression.GetCommandJavascript(), String.Join(", ", arguments));
             return condition + postBackCall + returnStatement;
         }
 
