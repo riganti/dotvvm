@@ -20,7 +20,6 @@ namespace DotVVM.Framework.Controls
             RowDecorators = new List<Decorator>();
         }
 
-
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]

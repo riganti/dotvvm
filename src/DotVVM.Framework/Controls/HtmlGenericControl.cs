@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Controls
             // render binding HTML attributes
             var propertyValuePairs = Attributes.Where(a => a.Value is IValueBinding)
                 .Select(a => new KeyValuePair<string, IValueBinding>(a.Key, (IValueBinding)a.Value)).ToList();
-            if (RenderOnServer)
+            if (!RenderOnServer)
             {
                 if (propertyValuePairs.Any())
                 {

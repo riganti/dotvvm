@@ -125,7 +125,7 @@ var DotVVM = (function () {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
     };
-    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath) {
+    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context) {
         var _this = this;
         if (useWindowSetTimeout) {
             window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath); }, 0);
@@ -145,10 +145,12 @@ var DotVVM = (function () {
             return;
         }
         // perform the postback
-        this.updateDynamicPathFragments(sender, path);
-        var context = ko.contextFor(sender);
+        if (!context) {
+            context = ko.contextFor(sender);
+        }
+        this.updateDynamicPathFragments(context, path);
         var data = {
-            viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return val == context.$data; } }),
+            viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
             currentPath: path,
             command: command,
             controlUniqueId: controlUniqueId,
@@ -468,8 +470,7 @@ var DotVVM = (function () {
         var value = ko.unwrap(viewModel);
         return value.Items || value;
     };
-    DotVVM.prototype.updateDynamicPathFragments = function (sender, path) {
-        var context = ko.contextFor(sender);
+    DotVVM.prototype.updateDynamicPathFragments = function (context, path) {
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i].indexOf("[$index]") >= 0) {
                 path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");

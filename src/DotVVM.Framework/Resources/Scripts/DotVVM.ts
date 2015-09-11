@@ -137,7 +137,7 @@ class DotVVM {
             });
     }
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any): void {
         if (useWindowSetTimeout) {
             window.setTimeout(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath), 0);
             return;
@@ -160,10 +160,12 @@ class DotVVM {
         }
 
         // perform the postback
-        this.updateDynamicPathFragments(sender, path);
-        var context = ko.contextFor(sender);
+        if (!context) {
+            context = ko.contextFor(sender);
+        }
+        this.updateDynamicPathFragments(context, path);
         var data = {
-            viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return val == context.$data } }),
+            viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),
             currentPath: path,
             command: command,
             controlUniqueId: controlUniqueId,
@@ -498,9 +500,7 @@ class DotVVM {
         return value.Items || value;
     }
 
-    private updateDynamicPathFragments(sender: HTMLElement, path: string[]): void {
-        var context = ko.contextFor(sender);
-
+    private updateDynamicPathFragments(context: any, path: string[]): void {
         for (var i = path.length - 1; i >= 0; i--) {
             if (path[i].indexOf("[$index]") >= 0) {
                 path[i] = path[i].replace("[$index]", "[" + context.$index() + "]");
@@ -848,7 +848,7 @@ class DotvvmSerialization {
                     result[prop] = this.serialize(value, opt);
             }
         }
-        if(pathProp) opt.path.push(pathProp);
+        if (pathProp) opt.path.push(pathProp);
         return result;
     }
 

@@ -30,7 +30,7 @@
 
         <table class="table">
             <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
-                <tr class="{{value: IsCompleted ? " completed" : "}" }}">
+                <tr class="{value: IsCompleted ? " completed" : "" }">
                     <td>{{value: Title}}</td>
                     <td>
                         <dot:LinkButton Text="done"

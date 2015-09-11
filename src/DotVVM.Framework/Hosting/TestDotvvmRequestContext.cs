@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Hosting
     public class TestDotvvmRequestContext : IDotvvmRequestContext
     {
         public IOwinContext OwinContext { get; set; }
-        object ViewModel { get; set; }
+        public object ViewModel { get; set; }
         public DotvvmConfiguration Configuration { get; set; }
         public RouteBase Route { get; set; }
         public bool IsPostBack { get; set; }
