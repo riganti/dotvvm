@@ -5,27 +5,27 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-	<div class="container">
-		<h1>Server Rendering</h1>
-		
-		<table>
-			<dot:Repeater DataSource="{value: Months}" WrapperTagName="tbody" RenderSettings.Mode="Server">
-				<ItemTemplate>
-					<tr>
-						<td>{{value: MonthName}}</td>
-						<td>
-							<dot:TextBox Text="{value: Hours}" Placeholder="enter number of hours" />
-						</td>
-					</tr>
-				</ItemTemplate>
-			</dot:Repeater>
-		</table>
-	
-		<p><dot:Button Text="Recalculate" Click="{command: Recalculate()}" /></p>
+    <div class="container">
+        <h1>Server Rendering</h1>
 
-		<p>{{value: TotalHours}}</p>
+        <table>
+            <dot:Repeater DataSource="{value: Months}" WrapperTagName="tbody" RenderSettings.Mode="Server">
+                <ItemTemplate>
+                    <tr>
+                        <td>{{value: MonthName}}</td>
+                        <td>
+                            <dot:TextBox Text="{value: Hours}" Placeholder="enter number of hours" />
+                        </td>
+                    </tr>
+                </ItemTemplate>
+            </dot:Repeater>
+        </table>
 
-	</div>
-	<dot:RequiredResource Name="bootstrap" />
+        <p><dot:Button Text="Recalculate" Click="{command: Recalculate()}" /></p>
+
+        <p>{{value: TotalHours}}</p>
+
+    </div>
+    <dot:RequiredResource Name="bootstrap" />
 </body>
 </html>
