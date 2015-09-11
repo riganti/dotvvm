@@ -45,16 +45,16 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty InnerTextProperty =
             DotvvmProperty.Register<string, HtmlGenericControl>(t => t.InnerText, null);
-    
+
         /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
         public HtmlGenericControl()
         {
-            Attributes = new Dictionary<string, object>();            
+            Attributes = new Dictionary<string, object>();
         }
 
-        /// <summary>
+        /// <summary> ahoj kokoti
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
         public HtmlGenericControl(string tagName) : this()
@@ -90,9 +90,19 @@ namespace DotVVM.Framework.Controls
             // render binding HTML attributes
             var propertyValuePairs = Attributes.Where(a => a.Value is IValueBinding)
                 .Select(a => new KeyValuePair<string, IValueBinding>(a.Key, (IValueBinding)a.Value)).ToList();
-            if (propertyValuePairs.Any())
+            if (RenderOnServer)
             {
-                writer.AddKnockoutDataBind("attr", propertyValuePairs, this, null);
+                if (propertyValuePairs.Any())
+                {
+                    writer.AddKnockoutDataBind("attr", propertyValuePairs, this, null);
+                }
+            }
+            else
+            {
+                foreach (var prop in propertyValuePairs)
+                {
+                    writer.AddAttribute(prop.Key, prop.Value.Evaluate(this, null).ToString());
+                }
             }
 
             // handle Visible property
@@ -117,7 +127,7 @@ namespace DotVVM.Framework.Controls
         protected virtual void AddVisibleAttributeOrBinding(IHtmlWriter writer)
         {
             var visibleBinding = GetValueBinding(VisibleProperty);
-            if (visibleBinding != null)
+            if (visibleBinding != null && !RenderOnServer)
             {
                 writer.AddKnockoutDataBind("visible", this, VisibleProperty);
                 writer.AddStyleAttribute("display", "none");

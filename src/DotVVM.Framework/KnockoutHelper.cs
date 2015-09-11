@@ -15,7 +15,7 @@ namespace DotVVM.Framework
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null, string valueUpdate = null)
         {
             var expression = control.GetBinding(property);
-            if (expression is IValueBinding)
+            if (expression is IValueBinding && !control.RenderOnServer)
             {
                 writer.AddAttribute("data-bind", name + ": " + (expression as IValueBinding).GetKnockoutBindingExpression(), true, ", ");
                 if (valueUpdate != null)
