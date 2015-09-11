@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Controls
             {
                 foreach (var prop in propertyValuePairs)
                 {
-                    writer.AddAttribute(prop.Key, prop.Value.Evaluate(this, null).ToString());
+                    writer.AddAttribute(prop.Key, prop.Value.Evaluate(this, null)?.ToString());
                 }
             }
 

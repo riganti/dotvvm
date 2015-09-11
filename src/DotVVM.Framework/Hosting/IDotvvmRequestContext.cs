@@ -15,6 +15,8 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         IOwinContext OwinContext { get; }
 
+        object ViewModel { get; }
+
         /// <summary>
         /// Gets the global configuration of DotVVM.
         /// </summary>
