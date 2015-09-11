@@ -87,7 +87,7 @@ namespace DotVVM.Framework
             return condition + postBackCall + returnStatement;
         }
 
-        private static IEnumerable<string> GetContextPath(DotvvmControl control)
+        public static IEnumerable<string> GetContextPath(DotvvmControl control)
         {
             while (control != null)
             {
