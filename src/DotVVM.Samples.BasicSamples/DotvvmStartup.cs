@@ -46,6 +46,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("Sample29", "Sample29", "sample29.dothtml", null);
             config.RouteTable.Add("Sample30", "Sample30", "sample30.dothtml", null);
             config.RouteTable.Add("Sample31", "Sample31", "sample31.dothtml", null);
+            config.RouteTable.Add("Sample32", "Sample32", "sample32.dothtml", null);
             config.RouteTable.Add("AuthSampleLogin", "AuthSample/Login", "AuthSample/login.dothtml", null);
             config.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.dothtml", null);
             config.RouteTable.Add("ReturnFileSample", "ReturnFileSample", "ReturnFileSample/sample.dothtml", null);
@@ -63,8 +64,6 @@ namespace DotVVM.Samples.BasicSamples
 
             config.ServiceLocator.RegisterSingleton<IReturnedFileStorage>(() =>
                 new FileSystemReturnedFileStorage(Path.Combine(applicationPath, "TempFolder"), TimeSpan.FromMinutes(1)));
-
-
         }
     }
 }

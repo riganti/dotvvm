@@ -1,19 +1,17 @@
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
-using System;
-using System.IO;
-using System.Linq;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
+using System;
+using System.IO;
+using System.Linq;
 
 namespace DotVVM.Samples.Tests
 {
     public class SeleniumTestBase
     {
-
         public TestContext TestContext { get; set; }
-
 
         protected virtual Func<IWebDriver>[] BrowserFactories
         {
@@ -22,7 +20,12 @@ namespace DotVVM.Samples.Tests
                 return new Func<IWebDriver>[] {
                     //() => new InternetExplorerDriver(),
                     //() => new FirefoxDriver(),
-                    () => new ChromeDriver()
+                    () =>
+                    {
+                        var options = new ChromeOptions();
+                        options.AddArgument("test-type");
+                        return new ChromeDriver(options);
+                    }
                 };
             }
         }
@@ -78,7 +81,5 @@ namespace DotVVM.Samples.Tests
                 }
             }
         }
-
-
     }
 }
