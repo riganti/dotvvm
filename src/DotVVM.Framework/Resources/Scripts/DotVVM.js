@@ -87,7 +87,7 @@ var DotVVM = (function () {
                 persistedViewModel[p] = viewModel[p];
             }
         }
-        persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"], true);
+        persistedViewModel["viewModel"] = this.serialization.serialize(persistedViewModel["viewModel"], { serializeAll: true });
         document.getElementById("__dot_viewmodel_" + viewModelName).value = JSON.stringify(persistedViewModel);
     };
     DotVVM.prototype.tryEval = function (func) {
@@ -807,21 +807,26 @@ var DotvvmSerialization = (function () {
                 var options = viewModel[prop + "$options"];
                 if (!opt.serializeAll && options && options.doNotPost) {
                 }
-                else if (opt.oneLevel)
+                else if (opt.oneLevel) {
                     result[prop] = ko.unwrap(value);
+                }
                 else if (!opt.serializeAll && options && options.pathOnly) {
                     var path = options.pathOnly;
-                    if (!(path instanceof Array))
+                    if (!(path instanceof Array)) {
                         path = opt.path || this.findObject(value, opt.pathMatcher);
+                    }
                     if (path) {
-                        if (path.length === 0)
+                        if (path.length === 0) {
                             result[prop] = this.serialize(value, opt);
-                        else
+                        }
+                        else {
                             result[prop] = this.serialize(value, { ignoreSpecialProperties: opt.ignoreSpecialProperties, serializeAll: opt.serializeAll, path: path, pathOnly: true });
+                        }
                     }
                 }
-                else
+                else {
                     result[prop] = this.serialize(value, opt);
+                }
             }
         }
         if (pathProp)
