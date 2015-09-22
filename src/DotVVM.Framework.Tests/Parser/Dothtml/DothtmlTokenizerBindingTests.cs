@@ -384,10 +384,6 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[i++].Type);
         }
 
         [TestMethod]
@@ -406,6 +402,8 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("FirstName", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(1, tokenizer.Tokens[i].Length);
@@ -413,6 +411,114 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_BindingParsing_Valid_CurlyBraceInStringInBinding()
+        {
+            var input = @"tr {{binding: ""{"" + FirstName + ""}""}}";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
+
+            var i = 0;
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.OpenBinding, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(@"""{"" + FirstName + ""}""", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_BindingParsing_Valid_CurlyBraceInStringInBinding_EscapedQuotes()
+        {
+            var input = @"tr {{binding: ""\""{"" + FirstName + '\'""{'}}";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
+
+            var i = 0;
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.OpenBinding, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(@"""\""{"" + FirstName + '\'""{'", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_BindingParsing_Valid_Tag_CurlyBraceInStringInBinding()
+        {
+            var input = @"<a href=""{binding: ""{"" + FirstName + ""}""}"">";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
+
+            var i = 0;
+            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(DothtmlTokenType.OpenBinding, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(@"""{"" + FirstName + ""}""", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_BindingParsing_Valid_Tag_CurlyBraceInStringInBinding_EscapedQuotes()
+        {
+            var input = @"<a href=""{binding: ""\""{"" + FirstName + '\'""{'}"">";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
+
+            var i = 0;
+            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(DothtmlTokenType.OpenBinding, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(@"""\""{"" + FirstName + '\'""{'", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.DoubleQuote, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
 
         [TestMethod]

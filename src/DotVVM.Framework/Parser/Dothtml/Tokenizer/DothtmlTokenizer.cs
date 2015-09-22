@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Resources;
 
 namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
@@ -467,24 +468,27 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenBinding, DothtmlTokenizerErrors.BindingInvalidFormat));
             }
-            else if(doubleCloseBrace)
-            {
-                ReadTextUntil(DothtmlTokenType.Text, "}}", false);
-                CreateToken(DothtmlTokenType.CloseBinding);
-                return true;
-            }
             else
             {
-                while (Peek() != '}')
+                char ch;
+                while ((ch = Peek()) != '}')
                 {
-                    var ch = Peek();
-                    if (ch == NullChar)
+                    if (ch == '\'' || ch == '"')
+                    {
+                        // string literal - ignore curly braces inside
+                        string errorMessage;
+                        BindingTokenizer.ReadStringLiteral(Peek, Read, out errorMessage);
+                    }
+                    else if (ch == NullChar)
                     {
                         CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError());
                         CreateToken(DothtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenBinding, DothtmlTokenizerErrors.BindingNotClosed));
                         return true;
                     }
-                    Read();
+                    else
+                    {
+                        Read();
+                    }
                 }
                 CreateToken(DothtmlTokenType.Text);
             }

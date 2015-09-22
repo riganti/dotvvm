@@ -189,7 +189,9 @@ namespace DotVVM.Framework.Parser.Binding.Tokenizer
                     case '\'':
                     case '"':
                         FinishIncompleteIdentifier();
-                        ReadStringLiteral();
+                        string errorMessage;
+                        ReadStringLiteral(out errorMessage);
+                        CreateToken(BindingTokenType.StringLiteralToken, errorProvider: t => CreateTokenError(t, errorMessage));
                         break;
 
                     case '?':
@@ -234,35 +236,43 @@ namespace DotVVM.Framework.Parser.Binding.Tokenizer
             }
         }
 
-        private void ReadStringLiteral()
+        internal void ReadStringLiteral(out string errorMessage)
         {
-            var quoteChar = Peek();
-            Read();
+            ReadStringLiteral(Peek, Read, out errorMessage);
+        }
 
-            while (Peek() != quoteChar)
+        /// <summary>
+        /// Reads the string literal.
+        /// </summary>
+        internal static void ReadStringLiteral(Func<char> peekFunction, Func<char> readFunction, out string errorMessage)
+        {
+            var quoteChar = peekFunction();
+            readFunction();
+
+            while (peekFunction() != quoteChar)
             {
-                if (Peek() == NullChar)
+                if (peekFunction() == NullChar)
                 {
                     // unfinished string literal
-                    CreateToken(BindingTokenType.StringLiteralToken, errorProvider: t => CreateTokenError(t, "The string literal was not closed!"));
+                    errorMessage = "The string literal was not closed!";
                     return;
                 }
 
-                if (Peek() == '\\')
+                if (peekFunction() == '\\')
                 {
                     // escape char - read it and skip the next char so it won't end the loop
-                    Read();
-                    Read();
+                    readFunction();
+                    readFunction();
                 }
                 else
                 {
                     // normal character - read it
-                    Read();
+                    readFunction();
                 }
             }
-            Read();
+            readFunction();
 
-            CreateToken(BindingTokenType.StringLiteralToken);
+            errorMessage = null;
         }
     }
 }
