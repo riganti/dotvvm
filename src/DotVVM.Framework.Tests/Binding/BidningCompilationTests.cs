@@ -111,6 +111,14 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(ExecuteBinding("Cat(42)", viewModel), "42A");
         }
 
+
+        [TestMethod]
+        public void BindingCompiler_Valid_Char()
+        {
+            var viewModel = new TestViewModel() { };
+            Assert.AreEqual(ExecuteBinding("GetCharCode('a')", viewModel), (int)'a');
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
@@ -137,6 +145,9 @@ namespace DotVVM.Framework.Tests.Binding
             {
                 return obj.ToString() + (str ?? StringProp);
             }
+
+            public int GetCharCode(char ch)
+                => (int)ch;
         }
         enum TestEnum
         {
