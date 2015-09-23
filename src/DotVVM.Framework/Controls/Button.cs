@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public Button() : base("input")
         {
-            if (ButtonTagName==ButtonTagName.button)
+            if (ButtonTagName == ButtonTagName.button)
             {
                 TagName = "button";
             }
@@ -69,10 +69,67 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript((CommandBindingExpression)clickBinding, context, this));
             }
 
-            writer.AddKnockoutDataBind("value", this, TextProperty, () => writer.AddAttribute("value", Text));
+            if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
+            {
+                throw new Exception("The <dot:Button> control cannot have both inner content and the Text property set!");     // TODO
+            }
+
+            writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>
+            {
+                if (!HasOnlyWhiteSpaceContent())
+                {
+                    if (ButtonTagName == ButtonTagName.input)
+                    {
+                        throw new Exception("The <dot:Button> control cannot have inner content unless the 'ButtonTagName' property is set to 'button'!");     // TODO
+                    }
+                }
+
+                if (ButtonTagName == ButtonTagName.input)
+                {
+                    writer.AddAttribute("value", Text);
+                }
+            });
 
             base.AddAttributesToRender(writer, context);
         }
 
+        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        {
+            if (ButtonTagName == ButtonTagName.input)
+            {
+                writer.RenderSelfClosingTag(ButtonTagName.ToString());
+            }
+            else
+            {
+                base.RenderBeginTag(writer, context);
+            }
+        }
+
+        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        {
+            if (ButtonTagName == ButtonTagName.button)
+            {
+                if (!HasBinding(TextProperty))
+                {
+                    // render contents inside
+                    if (!HasOnlyWhiteSpaceContent())
+                    {
+                        base.RenderContents(writer, context);
+                    }
+                    else
+                    {
+                        writer.WriteText(Text);    
+                    }
+                }
+            }
+        }
+
+        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        {
+            if (ButtonTagName != ButtonTagName.input)
+            {
+                base.RenderEndTag(writer, context);
+            }
+        }
     }
 }

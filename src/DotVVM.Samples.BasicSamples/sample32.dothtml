@@ -15,12 +15,15 @@
     <div class="container">
         <h1>ButtonTagName property sample</h1>
         <dot:Button ID="ButtonTextProperty" ButtonTagName="button" Text="Button element"></dot:Button>
-        <br>
+        <br/>
+		<dot:Button ID="ButtonTextBinding" ButtonTagName="button" Text="{value: ButtonText}"></dot:Button>
+        <br/>
         <dot:Button ID="InputTextProperty" ButtonTagName="input" Text="Input element"></dot:Button>
-        <br>
+        <br/>
+		<dot:Button ID="InputTextBinding" ButtonTagName="input" Text="{value: ButtonText}"></dot:Button>
+        <br/>
 		<dot:Button ID="ButtonInnerText" ButtonTagName="button">Button element - inner text</dot:Button>
-        <br>
-        <dot:Button ID="InputInnerText" ButtonTagName="input">Button element - inner text</dot:Button>
+        <br/>
     </div>
 </body>
 </html>

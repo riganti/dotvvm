@@ -942,10 +942,11 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample32");
-                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextProperty33", "button");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextProperty", "button");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBinding", "button");
                 CheckButtonTextIsSetAndTagName(browser, "#InputTextProperty", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#InputTextBinding", "input");
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerText", "button");
-                CheckButtonTextIsSetAndTagName(browser, "#InputInnerText", "input");
             });
         }
 
