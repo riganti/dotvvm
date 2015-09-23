@@ -937,6 +937,42 @@ namespace DotVVM.Samples.Tests
             Sample26Test("Sample30");
         }
 
+        public void Sample31Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample31");
+
+                // select second option from combobox
+                browser.FindAll("select")[0].Click();
+                browser.FindAll("select")[0].FindAll("option")[0].Click();
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("1", browser.GetText("span"));
+                
+                // select second option from combobox
+                browser.FindAll("select")[0].Click();
+                browser.FindAll("select")[0].FindAll("option")[1].Click();
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("2", browser.GetText("span"));
+                
+                // select third option from combobox
+                browser.FindAll("select")[0].Click();
+                browser.FindAll("select")[0].FindAll("option")[2].Click();
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("3", browser.GetText("span"));
+
+                // select fourth option from combobox
+                browser.FindAll("select")[0].Click();
+                browser.FindAll("select")[0].FindAll("option")[3].Click();
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("4", browser.GetText("span"));
+            });
+        }
+
         public void Sample32Test()
         {
             RunInAllBrowsers(browser =>
