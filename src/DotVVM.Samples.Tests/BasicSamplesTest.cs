@@ -1009,6 +1009,54 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        public void Sample35Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample35");
+
+                Assert.AreEqual(1, browser.FindAll("#part1>div").Count);
+                Assert.AreEqual(4, browser.FindAll("#part1>div>p").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part1>div>p")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part1>div>p")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part1>div>p")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part1>div>p")[3].GetText());
+
+                Assert.AreEqual(1, browser.FindAll("#part2>ul").Count);
+                Assert.AreEqual(4, browser.FindAll("#part2>ul>li").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part2>ul>li")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part2>ul>li")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part2>ul>li")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part2>ul>li")[3].GetText());
+
+                Assert.AreEqual(4, browser.FindAll("#part3>p").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part3>p")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part3>p")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part3>p")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part3>p")[3].GetText());
+
+                Assert.AreEqual(1, browser.FindAll("#part1_server>div").Count);
+                Assert.AreEqual(4, browser.FindAll("#part1_server>div>p").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part1_server>div>p")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part1_server>div>p")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part1_server>div>p")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part1_server>div>p")[3].GetText());
+
+                Assert.AreEqual(1, browser.FindAll("#part2_server>ul").Count);
+                Assert.AreEqual(4, browser.FindAll("#part2_server>ul>li").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part2_server>ul>li")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part2_server>ul>li")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part2_server>ul>li")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part2_server>ul>li")[3].GetText());
+
+                Assert.AreEqual(4, browser.FindAll("#part3_server>p").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part3_server>p")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part3_server>p")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part3_server>p")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part3_server>p")[3].GetText());
+            });
+        }
+
         private static void CheckButtonTextIsSetAndTagName(SeleniumBrowserHelper browser, string selector, string expectedTagName, string expectedValue = null, bool textCanBeNull = false)
         {
             // check tagName

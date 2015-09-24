@@ -43,6 +43,18 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
 
         /// <summary>
+        /// Gets or sets whether the control should render a wrapper element.
+        /// </summary>
+        public bool RenderWrapperTag
+        {
+            get { return (bool) GetValue(RenderWrapperTagProperty); }
+            set { SetValue(RenderWrapperTagProperty, value); }
+        }
+        public static readonly DotvvmProperty RenderWrapperTagProperty =
+            DotvvmProperty.Register<bool, Repeater>(t => t.RenderWrapperTag, true);
+
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="Repeater"/> class.
         /// </summary>
         public Repeater()
@@ -103,6 +115,16 @@ namespace DotVVM.Framework.Controls
         }
 
 
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        {
+            if (!RenderWrapperTag)
+            {
+                EnsureNoAttributesSet();
+            }
+
+            base.AddAttributesToRender(writer, context);
+        }
+
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             TagName = WrapperTagName;
@@ -111,7 +133,7 @@ namespace DotVVM.Framework.Controls
             {
                 var javascriptDataSourceExpression = GetForeachDataBindJavascriptExpression();
 
-                if (!string.IsNullOrEmpty(TagName))
+                if (RenderWrapperTag)
                 {
                     writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
                 }
@@ -121,7 +143,7 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            if (!string.IsNullOrEmpty(TagName))
+            if (RenderWrapperTag)
             {
                 base.RenderBeginTag(writer, context);
             }
@@ -129,12 +151,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
         {
-            if (!string.IsNullOrEmpty(TagName))
+            if (RenderWrapperTag)
             {
                 base.RenderEndTag(writer, context);
             }
 
-            if (!RenderOnServer && string.IsNullOrEmpty(TagName))
+            if (!RenderOnServer && !RenderWrapperTag)
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
@@ -145,7 +167,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-
             if (RenderOnServer)
             {
                 // render on server

@@ -168,5 +168,15 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
         }
 
+        /// <summary>
+        /// Verifies that the control hasn't any HTML attributes or Visible or DataContext bindings set.
+        /// </summary>
+        protected void EnsureNoAttributesSet()
+        {
+            if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty))
+            {
+                throw new Exception("Cannot set HTML attributes, Visible or DataContext bindings on a control which doesn't render its own element!");   // TODO
+            }
+        }
     }
 }
