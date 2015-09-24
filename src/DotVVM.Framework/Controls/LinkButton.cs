@@ -20,6 +20,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
+            {
+                throw new Exception("The <dot:LinkButton> control cannot have both inner content and the Text property set!");     // TODO
+            }
+
             writer.AddAttribute("href", "#");
 
             var clickBinding = GetCommandBinding(ClickProperty);

@@ -57,6 +57,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
+            {
+                throw new Exception("The <dot:Button> control cannot have both inner content and the Text property set!");     // TODO
+            }
+
             if (ButtonTagName == ButtonTagName.button)
             {
                 TagName = "button";
@@ -68,12 +73,7 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript((CommandBindingExpression)clickBinding, context, this));
             }
-
-            if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
-            {
-                throw new Exception("The <dot:Button> control cannot have both inner content and the Text property set!");     // TODO
-            }
-
+            
             writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>
             {
                 if (!HasOnlyWhiteSpaceContent())

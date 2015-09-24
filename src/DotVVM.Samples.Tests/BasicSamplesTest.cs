@@ -986,6 +986,17 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        public void Sample33Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample33");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextProperty", "a");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBinding", "a");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerText", "a");
+            });
+        }
+
         private static void CheckButtonTextIsSetAndTagName(SeleniumBrowserHelper browser, string selector, string expectedTagName, string expectedValue = null, bool textCanBeNull = false)
         {
             // check tagName

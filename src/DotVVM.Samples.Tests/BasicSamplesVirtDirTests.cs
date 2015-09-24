@@ -92,9 +92,9 @@ namespace DotVVM.Samples.Tests
         public void Sample31Test_VirDir() { Sample31Test(); }
 
         [TestMethod]
-        public void Sample32Test_VirtDir()
-        {
-            Sample32Test();
-        }
+        public void Sample32Test_VirtDir() { Sample32Test(); }
+
+        [TestMethod]
+        public void Sample33Test_VirtDir() { Sample33Test(); }
     }
 }

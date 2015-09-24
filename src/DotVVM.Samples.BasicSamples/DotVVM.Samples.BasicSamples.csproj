@@ -160,6 +160,7 @@
     <Content Include="sample30.dothtml" />
     <Content Include="sample31.dothtml" />
     <Content Include="sample32.dothtml" />
+    <Content Include="sample33.dothtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
