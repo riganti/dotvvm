@@ -997,6 +997,18 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        public void Sample34Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample34");
+                CheckButtonTextIsSetAndTagName(browser, "#TextBox1", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#TextBox2", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#TextArea1", "textarea");
+                CheckButtonTextIsSetAndTagName(browser, "#TextArea2", "textarea");
+            });
+        }
+
         private static void CheckButtonTextIsSetAndTagName(SeleniumBrowserHelper browser, string selector, string expectedTagName, string expectedValue = null, bool textCanBeNull = false)
         {
             // check tagName

@@ -10,6 +10,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Renders a HTML text input control.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class TextBox : HtmlGenericControl
     {
 
@@ -29,10 +30,17 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the mode of the text field.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public TextBoxType Type { get; set; }
+        public TextBoxType Type
+        {
+            get { return (TextBoxType)GetValue(TypeProperty); }
+            set { SetValue(TypeProperty, value); }
+        }
+        public static readonly DotvvmProperty TypeProperty =
+            DotvvmProperty.Register<TextBoxType, TextBox>(c => c.Type, TextBoxType.Normal);
+
 
         /// <summary>
-        /// Gets or sets whether the KO Text property binding should render with valueUpdate:'afterkeydown'
+        /// Gets or sets whether the viewmodel property will be updated after the key is pressed. By default, the viewmodel is updated after the control loses its focus.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool UpdateTextAfterKeydown
@@ -75,7 +83,7 @@ namespace DotVVM.Framework.Controls
             {
                 TagName = "textarea";
             }
-            else if(Type == TextBoxType.Normal)
+            else if (Type == TextBoxType.Normal)
             {
                 TagName = "input";
                 // do not overwrite type attribute

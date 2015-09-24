@@ -9,7 +9,17 @@ namespace DotVVM.Samples.Tests
         public static string CheckTextValue(this SeleniumElementHelper element, string expectedValue, bool textCanBeNull = false)
         {
             var tagName = element.GetTagName().ToLower();
-            var buttonValue = tagName != "input" ? element.GetText() : element.GetAttribute("value");
+
+            string buttonValue;
+            if (tagName == "input" || tagName == "textarea")
+            {
+                buttonValue = element.GetAttribute("value");
+            }
+            else
+            {
+                buttonValue = element.GetText();
+            }
+
             //check value
             if (expectedValue != null)
             {
