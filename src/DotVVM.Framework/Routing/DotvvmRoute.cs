@@ -161,7 +161,14 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         protected override string BuildUrlCore(Dictionary<string, object> values)
         {
-            return string.Concat(urlBuilders.Select(b => b(values)));
+            try
+            {
+                return string.Concat(urlBuilders.Select(b => b(values)));
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"could not build url for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
+            }
         }
 
         /// <summary>
