@@ -9,7 +9,7 @@ DotVVM is inspired by ASP.NET WebForms, but it is much more modern. It brings fu
 How to start
 ------------
 
-First download and install the **[Visual Studio Extension](http://riganti.cz/download/DotVVM.VS2015Extension.zip)**.
+<!--First download and install the **[Visual Studio Extension](http://riganti.cz/download/DotVVM.VS2015Extension.zip)**.-->
 
 Then you can read the tutorial on our **[WIKI](https://github.com/riganti/dotvvm/wiki)**.
 
