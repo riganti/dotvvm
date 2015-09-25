@@ -949,14 +949,14 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("1", browser.GetText("span"));
-                
+
                 // select second option from combobox
                 browser.FindAll("select")[0].Click();
                 browser.FindAll("select")[0].FindAll("option")[1].Click();
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("2", browser.GetText("span"));
-                
+
                 // select third option from combobox
                 browser.FindAll("select")[0].Click();
                 browser.FindAll("select")[0].FindAll("option")[2].Click();
@@ -983,6 +983,11 @@ namespace DotVVM.Samples.Tests
                 CheckButtonTextIsSetAndTagName(browser, "#InputTextProperty", "input");
                 CheckButtonTextIsSetAndTagName(browser, "#InputTextBinding", "input");
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerText", "button");
+
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextPropertyUpperCase", "button");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBindingUpperCase", "button");
+                CheckButtonTextIsSetAndTagName(browser, "#InputTextPropertyUpperCase", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerTextUpperCase", "button");
             });
         }
 

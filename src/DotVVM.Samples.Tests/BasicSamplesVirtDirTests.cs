@@ -5,10 +5,7 @@ namespace DotVVM.Samples.Tests
     [TestClass]
     public class BasicSamplesVirtDirTests : BasicSamplesTests
     {
-        protected override string BaseUrl
-        {
-            get { return "http://localhost:8627/dotvvmSamples/"; }
-        }
+        protected override string BaseUrl => "http://localhost:8627/dotvvmSamples/";
 
         [TestMethod]
         public void Sample1Test_VirtDir() { Sample1Test(); }
@@ -87,7 +84,7 @@ namespace DotVVM.Samples.Tests
 
         [TestMethod]
         public void Sample30Test_VirtDir() { Sample30Test(); }
-        
+
         [TestMethod]
         public void Sample31Test_VirDir() { Sample31Test(); }
 
