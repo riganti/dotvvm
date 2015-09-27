@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Binding
 {
-    public interface ICommandBinding
+    public interface ICommandBinding: IBinding
     {
         string GetCommandJavascript();
     }

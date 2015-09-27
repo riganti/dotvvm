@@ -43,8 +43,8 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-            var textBinding = GetBinding(TextProperty);
-            if (textBinding?.Javascript == null)
+            var textBinding = GetValueBinding(TextProperty);
+            if (textBinding == null)
             {
                 if (!string.IsNullOrEmpty(Text))
                 {

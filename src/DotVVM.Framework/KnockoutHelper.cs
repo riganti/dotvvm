@@ -12,12 +12,12 @@ namespace DotVVM.Framework
 {
     public static class KnockoutHelper
     {
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null, string valueUpdate = null, bool serverRendering = true)
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null, string valueUpdate = null, bool serverRendering = true, bool setValueBack = false)
         {
-            var expression = control.GetBinding(property);
-            if (expression is IValueBinding && (!control.RenderOnServer || !serverRendering))
+            var expression = control.GetValueBinding(property);
+            if (expression != null && (!control.RenderOnServer || !serverRendering))
             {
-                writer.AddAttribute("data-bind", name + ": " + (expression as IValueBinding).GetKnockoutBindingExpression(), true, ", ");
+                writer.AddAttribute("data-bind", name + ": " + expression.GetKnockoutBindingExpression(), true, ", ");
                 if (valueUpdate != null)
                 {
                     writer.AddAttribute("data-bind", "valueUpdate: '" + valueUpdate + "'", true, ", ");
@@ -26,7 +26,13 @@ namespace DotVVM.Framework
             else
             {
                 if (nullBindingAction != null) nullBindingAction();
+                if (setValueBack && expression != null) control.SetValue(property, expression.Evaluate(control, property));
             }
+        }
+
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IValueBinding valueBinding)
+        {
+            writer.AddKnockoutDataBind(name, valueBinding.GetKnockoutBindingExpression());
         }
 
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmBindableControl control, DotvvmProperty property)

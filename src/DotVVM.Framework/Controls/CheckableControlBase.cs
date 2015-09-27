@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Controls
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             // label
-            var textBinding = GetBinding(TextProperty);
+            var textBinding = GetValueBinding(TextProperty);
             var labelRequired = textBinding != null || !string.IsNullOrEmpty(Text) || !HasOnlyWhiteSpaceContent();
             if (labelRequired)
             {
@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (textBinding != null)
                 {
-                    writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
+                    writer.AddKnockoutDataBind("text", textBinding);
                     writer.RenderBeginTag("span");
                     writer.RenderEndTag();
                 }
