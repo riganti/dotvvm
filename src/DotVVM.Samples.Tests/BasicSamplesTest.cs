@@ -719,6 +719,9 @@ namespace DotVVM.Samples.Tests
                 for (int i = 0; i < 3; i++)
                 {
                     Assert.AreEqual(urls[i], urls[i + 3]);
+
+                    StringAssert.IsNotNullOrWhiteSpace(browser.FindAll("a")[i].GetText());
+                    StringAssert.IsNotNullOrWhiteSpace(browser.FindAll("a")[i + 3].GetText());
                 }
             });
         }
