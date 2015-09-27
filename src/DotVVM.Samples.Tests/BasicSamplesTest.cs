@@ -949,22 +949,19 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual("1", browser.GetText("span"));
 
                 // select second option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[1].Click();
+                browser.FindAll("select")[0].Select(1);
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("2", browser.GetText("span"));
 
                 // select third option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[2].Click();
+                browser.FindAll("select")[0].Select(2);
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("3", browser.GetText("span"));
 
                 // select fourth option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[3].Click();
+                browser.FindAll("select")[0].Select(3);
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("4", browser.GetText("span"));
