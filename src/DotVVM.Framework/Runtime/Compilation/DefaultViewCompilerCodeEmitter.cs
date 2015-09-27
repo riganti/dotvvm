@@ -509,7 +509,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             
             UsedAssemblies.Add(BuilderDataContextType.Assembly);
             var root = SyntaxFactory.CompilationUnit().WithMembers(
-                SyntaxFactory.NamespaceDeclaration(SyntaxFactory.IdentifierName(namespaceName)).WithMembers(
+                SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(
                     SyntaxFactory.List<MemberDeclarationSyntax>(
                         otherClassDeclarations.Concat(new[]
                         {
