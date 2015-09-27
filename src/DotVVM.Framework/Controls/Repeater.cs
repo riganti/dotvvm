@@ -55,14 +55,6 @@ namespace DotVVM.Framework.Controls
 
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Repeater"/> class.
-        /// </summary>
-        public Repeater()
-        {
-        }
-
-
-        /// <summary>
         /// Occurs after the viewmodel is applied to the page and before the commands are executed.
         /// </summary>
         protected internal override void OnLoad(IDotvvmRequestContext context)
