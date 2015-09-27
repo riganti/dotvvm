@@ -32,27 +32,31 @@ namespace DotVVM.Framework.Controls
         }
 
 
+        private bool shouldRenderText = false;
+
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(RouteName, this, writer, context);
-
-            writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
+            
+            writer.AddKnockoutDataBind("text", this, TextProperty, () =>
+            {
+                shouldRenderText = true;
+            });
 
             base.AddAttributesToRender(writer, context);
         }
 
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-            var textBinding = GetBinding(TextProperty);
-            if (textBinding?.Javascript == null)
+            if (shouldRenderText)
             {
-                if (!string.IsNullOrEmpty(Text))
+                if (!HasOnlyWhiteSpaceContent())
                 {
-                    writer.WriteText(Text);
+                    base.RenderContents(writer, context);
                 }
                 else
                 {
-                    base.RenderContents(writer, context);
+                    writer.WriteText(Text);
                 }
             }
         }
