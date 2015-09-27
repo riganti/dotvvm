@@ -208,7 +208,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             if (value == null)
             {
-                return EmitIdentifier("null");
+                return SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression);
             }
             if (value is string)
             {
@@ -333,7 +333,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                         ),
                         SyntaxFactory.ArgumentList(
                             SyntaxFactory.SeparatedList(new[] {
-                                SyntaxFactory.Argument(SyntaxFactory.IdentifierName(propertyName)),
+                                SyntaxFactory.Argument(SyntaxFactory.ParseName(propertyName)),
                                 SyntaxFactory.Argument(binding)
                             })
                         )
@@ -562,13 +562,13 @@ namespace DotVVM.Framework.Runtime.Compilation
                         })
                     )
                 )
-            ).NormalizeWhitespace();
+            );
 
             // WORKAROUND: serializing and parsing the tree is necessary here because Roslyn throws compilation errors when pass the original tree which uses markup controls (they reference in-memory assemblies)
             // the trees are the same (root2.GetChanges(root) returns empty collection) but without serialization and parsing it does not work
-            SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
+            //SyntaxTree = CSharpSyntaxTree.ParseText(root.ToString());
             //SyntaxTree = root.SyntaxTree;
-            return new[] { SyntaxTree };
+            return new[] { root.SyntaxTree };
         }
 
 
