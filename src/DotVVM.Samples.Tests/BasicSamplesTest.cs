@@ -21,6 +21,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + sampleUrl);
+                Thread.Sleep(WaitTime);
 
                 Assert.AreEqual(3, browser.FindAll(".table tr").Count);
 
