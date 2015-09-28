@@ -104,7 +104,7 @@ namespace DotVVM.Framework.Controls
                     var binding = (IStaticValueBinding)value;
                     value = binding.Evaluate(this, property);
                 }
-                if (value is CommandBindingExpression)
+                else if (value is CommandBindingExpression)
                 {
                     var binding = (CommandBindingExpression)value;
                     value = (Action)(() => binding.Evaluate(this, property));
@@ -143,17 +143,7 @@ namespace DotVVM.Framework.Controls
         /// Gets the binding set to a specified property.
         /// </summary>
         public BindingExpression GetBinding(DotvvmProperty property, bool inherit = true)
-        {
-            var binding = base.GetValue(property, inherit) as BindingExpression;
-
-            //// if there is a controlProperty or controlCommand binding, evaluate it
-            //while (binding != null && !(binding is ValueBindingExpression || binding is CommandBindingExpression || binding is StaticCommandBindingExpression))
-            //{
-            //    binding = binding.Evaluate(this, property) as BindingExpression;
-            //}
-
-            return binding;
-        }
+            => base.GetValue(property, inherit) as BindingExpression;
 
         /// <summary>
         /// Gets the value binding set to a specified property.
@@ -161,7 +151,7 @@ namespace DotVVM.Framework.Controls
         public IValueBinding GetValueBinding(DotvvmProperty property, bool inherit = true)
         {
             var binding = GetBinding(property, inherit);
-            if (binding != null && !(binding is IValueBinding))
+            if (binding != null && !(binding is IStaticValueBinding)) // throw exception on incompatible binding types
             {
                 throw new Exception("ValueBindingExpression was expected!");        // TODO: exception handling
             }
@@ -171,14 +161,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the command binding set to a specified property.
         /// </summary>
-        public CommandBindingExpression GetCommandBinding(DotvvmProperty property, bool inherit = true)
+        public ICommandBinding GetCommandBinding(DotvvmProperty property, bool inherit = true)
         {
             var binding = GetBinding(property, inherit);
-            if (binding != null && !(binding is CommandBindingExpression))
+            if (binding != null && !(binding is ICommandBinding))
             {
                 throw new Exception("CommandBindingExpression was expected!");        // TODO: exception handling
             }
-            return binding as CommandBindingExpression;
+            return binding as ICommandBinding;
         }
 
         /// <summary>

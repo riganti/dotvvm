@@ -107,8 +107,7 @@ namespace DotVVM.Samples.Tests
                 var cells = table.FindAll("tr")[2].FindAll("td");
                 cells[0].Find("input").Clear();
                 cells[0].Find("input").SendKeys("111");
-                cells[1].Find("select").Click();
-                cells[1].FindAll("select option")[1].Click();
+                cells[1].Find("select").Select(1);
                 cells[2].Find("input").Clear();
                 cells[2].Find("input").SendKeys("Bread");
                 cells[3].Find("input").Clear();
@@ -120,8 +119,7 @@ namespace DotVVM.Samples.Tests
                 cells = table.FindAll("tr")[3].FindAll("td");
                 cells[0].Find("input").Clear();
                 cells[0].Find("input").SendKeys("222");
-                cells[1].Find("select").Click();
-                cells[1].FindAll("select option")[2].Click();
+                cells[1].Find("select").Select(2);
                 cells[2].Find("input").Clear();
                 cells[2].Find("input").SendKeys("Ham");
                 cells[3].Find("input").Clear();
@@ -133,8 +131,7 @@ namespace DotVVM.Samples.Tests
                 cells = table.FindAll("tr")[4].FindAll("td");
                 cells[0].Find("input").Clear();
                 cells[0].Find("input").SendKeys("333");
-                cells[1].Find("select").Click();
-                cells[1].FindAll("select option")[3].Click();
+                cells[1].Find("select").Select(3);
                 cells[2].Find("input").Clear();
                 cells[2].Find("input").SendKeys("Cheese");
                 cells[3].Find("input").Clear();
@@ -390,21 +387,19 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(BaseUrl + "Sample13");
 
                 // select city
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[1].Click();
+                browser.FindAll("select")[0].Select(1);
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
 
                 // select hotel
-                browser.FindAll("select")[1].FindAll("option")[1].Click();
+                browser.FindAll("select")[1].Select(1);
                 browser.FindAll("input[type=button]")[1].Click();
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("Hotel Seattle #2", browser.GetText("h2"));
 
                 // select city
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[0].Click();
+                browser.FindAll("select")[0].Select(0);
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
 
@@ -954,22 +949,19 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual("1", browser.GetText("span"));
 
                 // select second option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[1].Click();
+                browser.FindAll("select")[0].Select(1);
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("2", browser.GetText("span"));
 
                 // select third option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[2].Click();
+                browser.FindAll("select")[0].Select(2);
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("3", browser.GetText("span"));
 
                 // select fourth option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[3].Click();
+                browser.FindAll("select")[0].Select(3);
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("4", browser.GetText("span"));

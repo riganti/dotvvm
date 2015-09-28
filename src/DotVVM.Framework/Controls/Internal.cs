@@ -33,6 +33,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Internal>("MarkupFileName", isValueInherited: true);
 
         public static readonly DotvvmProperty MarkupLineNumberProperty =
-            DotvvmProperty.Register<int, Internal>("MarkupLineNumber", defaultValue: 0);
+            DotvvmProperty.Register<int, Internal>("MarkupLineNumber", defaultValue: -1, isValueInherited: false);
     }
 }

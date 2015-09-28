@@ -42,6 +42,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName);
             var pageName = emitter.EmitCreateObject(wrapperClassName);
             emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, pageName);
+            emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.MarkupFileNameProperty.Name, view.Metadata.VirtualPath);
             if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)))
             {
                 foreach (var directive in view.Directives)
@@ -194,7 +195,15 @@ namespace DotVVM.Framework.Runtime.Compilation
                 // markup control
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
+            // set unique id
             emitter.EmitSetAttachedProperty(name, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, name);
+            
+            if(control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
+            {
+                // set line number
+                emitter.EmitSetAttachedProperty(name, typeof(Internal).FullName, Internal.MarkupLineNumberProperty.Name, control.DothtmlNode.Tokens.First().LineNumber);
+            }
+
             if (control.HtmlAttributes != null && control.Metadata.HasHtmlAttributesCollection)
             {
                 ProcessHtmlAttributes(name, control.HtmlAttributes, control.DataContextTypeStack);

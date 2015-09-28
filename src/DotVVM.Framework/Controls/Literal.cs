@@ -98,10 +98,10 @@ namespace DotVVM.Framework.Controls
                 return;
             }
 
-            var textBinding = GetBinding(TextProperty);
-            if (textBinding != null && !RenderOnServer && textBinding.Javascript != null)
+            var textBinding = GetValueBinding(TextProperty);
+            if (textBinding != null && !RenderOnServer)
             {
-                var expression = textBinding.Javascript;
+                var expression = textBinding.GetKnockoutBindingExpression();
                 if (!string.IsNullOrEmpty(FormatString))
                 {
                     expression = "dotvvm.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";

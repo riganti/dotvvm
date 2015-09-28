@@ -24,16 +24,6 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<IEnumerable, CheckBox>(t => t.CheckedItems, null);
 
 
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="CheckBox"/> class.
-        /// </summary>
-        public CheckBox()
-        {
-        }
-
-        
-
         /// <summary>
         /// Renders the input tag.
         /// </summary>
@@ -45,13 +35,13 @@ namespace DotVVM.Framework.Controls
             if (checkedBinding != null && checkedItemsBinding == null)
             {
                 // boolean mode
-                writer.AddKnockoutDataBind("checked", this, CheckedProperty, () => { });
+                writer.AddKnockoutDataBind("checked", checkedBinding);
                 writer.AddKnockoutDataBind("checkedValue", "true");
             }
             else if (checkedBinding == null && checkedItemsBinding != null)
             {
                 // collection mode
-                writer.AddKnockoutDataBind("checked", this, CheckedItemsProperty, () => { });
+                writer.AddKnockoutDataBind("checked", checkedItemsBinding);
                 writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
                 {
                     var checkedValue = (CheckedValue ?? string.Empty).ToString();

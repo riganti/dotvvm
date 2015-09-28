@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var sortCommandBinding = GetCommandBinding(SortChangedProperty);
+                var sortCommandBinding = GetBinding(SortChangedProperty) as CommandBindingExpression;
                 if (sortCommandBinding != null)
                 {
                     sortCommand = s => sortCommandBinding.Delegate(new []{ s }.Concat(BindingExpression.GetDataContexts(this, true)).ToArray(), null);

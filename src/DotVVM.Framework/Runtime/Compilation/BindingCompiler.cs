@@ -15,6 +15,7 @@ using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Runtime.Filters;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -98,6 +99,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
             return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter);
         }
+
         public List<ActionFilterAttribute> GetActionFilters(Expression expression)
         {
             var list = new List<ActionFilterAttribute>();

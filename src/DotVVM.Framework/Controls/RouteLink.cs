@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(RouteName, this, writer, context);
-            
+
             writer.AddKnockoutDataBind("text", this, TextProperty, () =>
             {
                 shouldRenderText = true;

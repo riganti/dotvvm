@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Linq;
 using System.Threading;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Support.UI;
 
 namespace DotVVM.Samples.Tests
 {
@@ -19,6 +20,12 @@ namespace DotVVM.Samples.Tests
         {
             element.Click();
             Thread.Sleep(100);
+        }
+
+        public void Select(int index)
+        {
+            var select = new SelectElement(element);
+            select.SelectByIndex(index);
         }
 
         public bool IsDisplayed()
