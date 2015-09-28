@@ -943,26 +943,33 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(BaseUrl + "Sample31");
 
                 // select second option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[0].Click();
+                browser.Find("select").Click();
+                Assert.IsNotNull(browser.Find("select").Find("option"));
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("1", browser.GetText("span"));
 
                 // select second option from combobox
-                browser.FindAll("select")[0].Select(1);
+                browser.Find("select").Select(1);
+                browser.Find("h1").Click();
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("2", browser.GetText("span"));
 
                 // select third option from combobox
-                browser.FindAll("select")[0].Select(2);
+                browser.Find("select").Select(2);
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("3", browser.GetText("span"));
 
                 // select fourth option from combobox
-                browser.FindAll("select")[0].Select(3);
+                browser.Find("select").Select(3);
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("4", browser.GetText("span"));
