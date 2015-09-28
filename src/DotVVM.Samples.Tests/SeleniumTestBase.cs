@@ -18,14 +18,14 @@ namespace DotVVM.Samples.Tests
             get
             {
                 return new Func<IWebDriver>[] {
-                    //() => new InternetExplorerDriver(),
+                    () => new InternetExplorerDriver(),
                     () => new FirefoxDriver(),
-                    //() =>
-                    //{
-                    //    var options = new ChromeOptions();
-                    //    options.AddArgument("test-type");
-                    //    return new ChromeDriver(options);
-                    //}
+                    () =>
+                    {
+                        var options = new ChromeOptions();
+                        options.AddArgument("test-type");
+                        return new ChromeDriver(options);
+                    }
                 };
             }
         }
