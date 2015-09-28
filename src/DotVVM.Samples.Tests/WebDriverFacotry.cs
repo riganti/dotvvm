@@ -31,12 +31,14 @@ namespace DotVVM.Samples.Tests
 
         public string ExecutingDirectory => Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
 
-        public WebDriverFacotry()
+        public WebDriverFacotry(TestContext testContext)
         {
             try
             {
+                testContext.WriteLine($"ExecutingDirectory:{ExecutingDirectory}");
                 if (!File.Exists(Path.Combine(ExecutingDirectory, TestSettingsPath)))
                 {
+                    testContext.WriteLine($"copy '{Path.Combine(ExecutingDirectory, DefaultSettingConfigPath)}' to '{Path.Combine(ExecutingDirectory, TestSettingsPath)}'");
                     File.Copy(Path.Combine(ExecutingDirectory, DefaultSettingConfigPath), Path.Combine(ExecutingDirectory, TestSettingsPath));
                 }
                 ConfigurationManager.RefreshSection("appSettings");

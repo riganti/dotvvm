@@ -14,9 +14,11 @@ namespace DotVVM.Samples.Tests
     public class SeleniumTestBase
     {
         public TestContext TestContext { get; set; }
-        private WebDriverFacotry facotry = new WebDriverFacotry();
+        private WebDriverFacotry factory;
 
-        protected virtual List<Func<IWebDriver>> BrowserFactories => facotry.GetDriverFactories();
+        private WebDriverFacotry Factory => factory ?? (factory = new WebDriverFacotry(TestContext));
+
+        protected virtual List<Func<IWebDriver>> BrowserFactories => Factory.GetDriverFactories();
 
         /// <summary>
         /// Runs the specified action in all configured browsers.
