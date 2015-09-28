@@ -432,7 +432,7 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
 
                 // validate result
-                Assert.AreEqual("78", browser.FindAll("span").Last().GetText().Trim());
+                Assert.AreEqual("78", browser.Last("span").GetText().Trim());
             });
         }
 

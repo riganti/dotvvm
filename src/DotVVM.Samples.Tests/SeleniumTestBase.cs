@@ -16,7 +16,7 @@ namespace DotVVM.Samples.Tests
         public TestContext TestContext { get; set; }
         private WebDriverFacotry factory;
 
-        private WebDriverFacotry Factory => factory ?? (factory = new WebDriverFacotry(TestContext));
+        private WebDriverFacotry Factory => factory ?? (factory = new WebDriverFacotry());
 
         protected virtual List<Func<IWebDriver>> BrowserFactories => Factory.GetDriverFactories();
 
