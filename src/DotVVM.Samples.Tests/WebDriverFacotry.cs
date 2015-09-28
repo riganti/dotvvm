@@ -35,10 +35,10 @@ namespace DotVVM.Samples.Tests
         {
             try
             {
-                testContext.WriteLine($"ExecutingDirectory:{ExecutingDirectory}");
+                Log($"ExecutingDirectory: {ExecutingDirectory}");
                 if (!File.Exists(Path.Combine(ExecutingDirectory, TestSettingsPath)))
                 {
-                    testContext.WriteLine($"copy '{Path.Combine(ExecutingDirectory, DefaultSettingConfigPath)}' to '{Path.Combine(ExecutingDirectory, TestSettingsPath)}'");
+                    Log($"copy '{Path.Combine(ExecutingDirectory, DefaultSettingConfigPath)}' to '{Path.Combine(ExecutingDirectory, TestSettingsPath)}'");
                     File.Copy(Path.Combine(ExecutingDirectory, DefaultSettingConfigPath), Path.Combine(ExecutingDirectory, TestSettingsPath));
                 }
                 ConfigurationManager.RefreshSection("appSettings");
@@ -88,6 +88,20 @@ namespace DotVVM.Samples.Tests
             }
 
             return drivers;
+        }
+
+        public void Log(string message)
+        {
+            try
+            {
+                using (var sw = new StreamWriter(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Desktop), "Tests.log.txt"), true))
+                {
+                    sw.WriteLine(message);
+                }
+            }
+            catch (Exception)
+            {
+            }
         }
     }
 }

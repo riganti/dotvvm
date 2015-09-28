@@ -5,10 +5,7 @@ namespace DotVVM.Samples.Tests
     [TestClass]
     public class BasicSamplesRootDomainTests : BasicSamplesTests
     {
-        protected override string BaseUrl
-        {
-            get { return "http://localhost:8628/"; }
-        }
+        protected override string BaseUrl => "http://localhost:8628/";
 
         [TestMethod]
         public void Sample1Test_FullDomain() { Sample1Test(); }
