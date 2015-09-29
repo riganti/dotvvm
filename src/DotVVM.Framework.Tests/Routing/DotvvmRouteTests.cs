@@ -110,6 +110,17 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
+        public void DotvvmRoute_IsMatch_UrlOneParameterRequired_TwoSpecified()
+        {
+            var route = new DotvvmRoute("Article/{Id}", null, null, null);
+
+            IDictionary<string, object> parameters;
+            var result = route.IsMatch("Article/15/test", out parameters);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
         public void DotvvmRoute_IsMatch_UrlTwoParametersBothRequired_BothSpecified()
         {
             var route = new DotvvmRoute("Article/id_{Id}/{Title}", null, null, null);

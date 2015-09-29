@@ -14,13 +14,14 @@ namespace DotVVM.Samples.Tests
     {
         protected abstract string BaseUrl { get; }
 
-        private const int WaitTime = 500;
+        private const int WaitTime = 800;
 
         public void Sample1Test(string sampleUrl = "Sample1")
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + sampleUrl);
+                Thread.Sleep(WaitTime);
 
                 Assert.AreEqual(3, browser.FindAll(".table tr").Count);
 
@@ -141,6 +142,7 @@ namespace DotVVM.Samples.Tests
 
                 // verify line totals
                 browser.Find("input[type=text]").Click();
+                Thread.Sleep(WaitTime);
                 Assert.AreEqual("126", table.FindAll("tr")[2].FindAll("td")[5].GetText().Trim());
                 Assert.AreEqual("5.5", table.FindAll("tr")[3].FindAll("td")[5].GetText().Trim());
                 Assert.AreEqual("180", table.FindAll("tr")[4].FindAll("td")[5].GetText().Trim());
@@ -431,7 +433,7 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
 
                 // validate result
-                Assert.AreEqual("78", browser.FindAll("span").Last().GetText().Trim());
+                Assert.AreEqual("78", browser.Last("span").GetText().Trim());
             });
         }
 
@@ -942,26 +944,33 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(BaseUrl + "Sample31");
 
                 // select second option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[0].Click();
+                browser.Find("select").Click();
+                Assert.IsNotNull(browser.Find("select").Find("option"));
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("1", browser.GetText("span"));
 
                 // select second option from combobox
-                browser.FindAll("select")[0].Select(1);
+                browser.Find("select").Select(1);
+                browser.Find("h1").Click();
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("2", browser.GetText("span"));
 
                 // select third option from combobox
-                browser.FindAll("select")[0].Select(2);
+                browser.Find("select").Select(2);
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("3", browser.GetText("span"));
 
                 // select fourth option from combobox
-                browser.FindAll("select")[0].Select(3);
+                browser.Find("select").Select(3);
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("4", browser.GetText("span"));

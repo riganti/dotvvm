@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Routing
             {
                 urlBuilders.Add(v => prefix + v[name].ToString());
             }
-            var pattern = type?.GetPartRegex() ?? ".*?";
+            var pattern = type?.GetPartRegex() ?? "[^/]*?";
             parameters.Add(new KeyValuePair<string, IRouteParameterType>(name, type));
             var result = $"{ Regex.Escape(prefix) }(?<param{Regex.Escape(name)}>{pattern})";
             if (nullable) return "(" + result + ")?";
@@ -141,7 +141,7 @@ namespace DotVVM.Framework.Routing
             }
 
             values = new Dictionary<string, object>(DefaultValues);
-
+            
             foreach (var parameter in parameters)
             {
                 var g = match.Groups["param" + parameter.Key];
