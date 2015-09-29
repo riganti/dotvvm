@@ -107,6 +107,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             controlName = CreateControl(control);
             // compile control content
             base.VisitControl(control);
+            emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
             // set the property
             SetProperty(parentName, propertyControl.Property, SyntaxFactory.IdentifierName(controlName));
             controlName = parentName;
@@ -121,6 +122,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 // compile control content
                 base.VisitControl(control);
                 // add to collection in property
+                emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
                 emitter.EmitAddCollectionItem(parentName, controlName, propertyControlCollection.Property.Name);
             }
             controlName = parentName;

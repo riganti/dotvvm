@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Controls
         /// Gets the parent control.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public DotvvmControl Parent { get; internal set; }
+        public DotvvmControl Parent { get; set; }
 
 
         /// <summary>
@@ -319,6 +319,10 @@ namespace DotVVM.Framework.Controls
             return control is DotvvmBindableControl && (bool)((DotvvmBindableControl)control).GetValue(Internal.IsNamingContainerProperty);
         }
 
+        public virtual IEnumerable<DotvvmControl> GetChildren()
+        {
+            return Children;
+        }
 
 
 

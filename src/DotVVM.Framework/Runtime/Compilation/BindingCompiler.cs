@@ -69,14 +69,16 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public static T TryExecute<T>(BindingCompilationRequirementType requirement, Func<T> action)
         {
+#if !DEBUG
             if (requirement == BindingCompilationRequirementType.No) return default(T);
+#endif
             try
             {
                 return action();
             }
             catch (Exception ex)
             {
-                if (requirement == BindingCompilationRequirementType.IfPossible) return default(T);
+                if (requirement != BindingCompilationRequirementType.StronglyRequire) return default(T);
                 else throw new InvalidOperationException("binding compilation failed", ex);
             }
         }

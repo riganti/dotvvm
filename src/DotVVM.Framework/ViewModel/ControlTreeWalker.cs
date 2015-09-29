@@ -74,7 +74,7 @@ namespace DotVVM.Framework.ViewModel
             }
 
             // go through all children
-            foreach (var child in control.Children)
+            foreach (var child in control.GetChildren())
             {
                 ProcessControlTreeCore(child, action);
             }

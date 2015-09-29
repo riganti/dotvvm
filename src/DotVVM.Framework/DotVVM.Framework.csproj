@@ -89,7 +89,6 @@
   <ItemGroup>
     <Compile Include="Binding\ActiveDotvvmProperty.cs" />
     <Compile Include="Binding\AttachedPropertyAttribute.cs" />
-    <Compile Include="Binding\BindingBuildingExtensions.cs" />
     <Compile Include="Binding\BindingCompilationRequirements.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
