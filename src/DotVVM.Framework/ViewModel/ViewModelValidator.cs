@@ -31,7 +31,7 @@ namespace DotVVM.Framework.ViewModel
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, CombinePath(pathPrefix, "[" + index + "]")))
+                    foreach (var error in ValidateViewModel(item, pathPrefix + "()[" + index + "]"))
                     {
                         yield return error;
                     }
