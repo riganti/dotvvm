@@ -106,7 +106,7 @@ namespace DotVVM.Framework.ViewModel
 
         public static bool IsComplexType(Type type)
         {
-            return !IsPrimitiveType(type) && !IsEnum(type) && !IsNullableType(type);
+            return !IsPrimitiveType(type) && !IsEnum(type) && !IsNullableType(type) && type != typeof(object);
         }
     }
 }

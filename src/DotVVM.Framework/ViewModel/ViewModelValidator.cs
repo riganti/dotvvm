@@ -25,6 +25,20 @@ namespace DotVVM.Framework.ViewModel
                 yield break;
             }
             var viewModelType = viewModel.GetType();
+            if (ViewModelJsonConverter.IsEnumerable(viewModelType))
+            {
+                // collections
+                var index = 0;
+                foreach (var item in (IEnumerable)viewModel)
+                {
+                    foreach (var error in ValidateViewModel(item, CombinePath(pathPrefix, "[" + index + "]")))
+                    {
+                        yield return error;
+                    }
+                    index++;
+                }
+                yield break;
+            }
             if (ViewModelJsonConverter.IsPrimitiveType(viewModelType) || ViewModelJsonConverter.IsNullableType(viewModelType))
             {
                 yield break;
@@ -50,23 +64,10 @@ namespace DotVVM.Framework.ViewModel
                     }
                 }
 
-                // inspect collections and complex objects
+                // inspect objects
                 if (value != null)
                 {
-                    if (ViewModelJsonConverter.IsEnumerable(property.Type))
-                    {
-                        // collections
-                        var index = 0;
-                        foreach (var item in (IEnumerable)value)
-                        {
-                            foreach (var error in ValidateViewModel(item, path + "()[" + index + "]"))
-                            {
-                                yield return error;
-                            }
-                            index++;
-                        }
-                    }
-                    else if (ViewModelJsonConverter.IsComplexType(property.Type))
+                    if (ViewModelJsonConverter.IsComplexType(property.Type))
                     {
                         // complex objects
                         foreach (var error in ValidateViewModel(value, path))
