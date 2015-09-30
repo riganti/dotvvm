@@ -237,9 +237,9 @@ namespace DotVVM.Framework.Runtime.Compilation
             // TODO: attribute prefixes (html:{name} will be translated to html attribute)
             // find the property
             var property = FindProperty(control.Metadata, attribute.AttributeName);
-            if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute)) throw new DotvvmCompilationException($"property { property.FullName } can't be used as attribute", attribute.Tokens);
             if (property != null)
             {
+                if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute)) throw new DotvvmCompilationException($"property { property.FullName } can't be used as attribute", attribute.Tokens);
                 // handle DataContext changes
                 var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
                 if (typeChange != null)
