@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Controls
     public abstract class ItemsControl : HtmlGenericControl
     {
         /// <summary>
-        /// Gets or sets the source collection that is used.
+        /// Gets or sets the source collection or a GridViewDataSet that contains data in the control.
         /// </summary>
         public object DataSource
         {
