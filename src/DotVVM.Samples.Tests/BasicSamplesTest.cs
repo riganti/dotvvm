@@ -477,11 +477,9 @@ namespace DotVVM.Samples.Tests
 
                 Action performTest = () =>
                 {
-                    // make sure that thirs row's first cell is yellow
-                    Assert.AreEqual("",
-                        browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
-                    Assert.AreEqual("alternate",
-                        browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
+                    // make sure that third row's first cell is yellow
+                    Assert.AreEqual("", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
+                    Assert.AreEqual("alternate", browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
 
                     // go to second page
                     Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
@@ -530,6 +528,7 @@ namespace DotVVM.Samples.Tests
                     Assert.AreEqual("1", browser.FindAll("table")[1].FindAll("tr")[1].FindAll("td")[0].GetText());
                 };
 
+                Thread.Sleep(WaitTime * 6);
                 performTest();
                 Thread.Sleep(WaitTime * 6);
                 browser.NavigateToUrl(BaseUrl);

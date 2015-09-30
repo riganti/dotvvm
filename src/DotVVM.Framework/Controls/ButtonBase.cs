@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Controls
 
 
         /// <summary>
-        /// Gets or sets the command that will be triggered when the button is pressed.
+        /// Gets or sets the command that will be triggered when the button is clicked.
         /// </summary>
         public Action Click
         {

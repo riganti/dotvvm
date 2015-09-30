@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Controls
     {
 
         /// <summary>
-        /// Gets or sets the <see cref="CheckableControlBase.CheckedValue"/>s of all <see cref="CheckBox">CheckBoxes</see> that are checked and bound to this collection.
+        /// Gets or sets a collection of values of all checked checkboxes. Use this property in combination with the CheckedValue property.
         /// </summary>
         public IEnumerable CheckedItems
         {
