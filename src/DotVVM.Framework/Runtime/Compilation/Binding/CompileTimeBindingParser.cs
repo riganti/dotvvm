@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             if (!parser.OnEnd()) throw new BindingCompilationException(
                 $"unexpected token '{ expression.Substring(0, parser.Peek().StartPosition)} ---->{ parser.Peek().Text }<---- { expression.Substring(parser.Peek().StartPosition + parser.Peek().Length) }'", node);
 
-            var visitor = new ExpressionBuldingVisitor(InitSymbols(dataContexts));
+            var visitor = new ExpressionBuildingVisitor(InitSymbols(dataContexts));
             visitor.Scope = Expression.Parameter(dataContexts.DataContextType, "_this");
             return visitor.Visit(node);
         }

@@ -287,7 +287,7 @@
     <Compile Include="Runtime\Compilation\Binding\CompileTimeParserNodeContext.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeTypeConstraint.cs" />
     <Compile Include="Runtime\Compilation\Binding\DataContextResolverBindingParserNodeVisitor.cs" />
-    <Compile Include="Runtime\Compilation\Binding\ExpressionBuldingVisitor.cs" />
+    <Compile Include="Runtime\Compilation\Binding\ExpressionBuildingVisitor.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionHelper.cs" />
     <Compile Include="Runtime\Compilation\Binding\MethodGroupExpression.cs" />
     <Compile Include="Runtime\Compilation\Binding\StaticClassIdentifier.cs" />

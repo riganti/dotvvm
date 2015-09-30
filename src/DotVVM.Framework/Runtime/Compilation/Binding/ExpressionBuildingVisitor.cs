@@ -9,13 +9,13 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Runtime.Compilation.Binding
 {
-    public class ExpressionBuldingVisitor : BindingParserNodeVisitor<Expression>
+    public class ExpressionBuildingVisitor : BindingParserNodeVisitor<Expression>
     {
         public TypeRegistry Registry { get; set; }
         public Expression Scope { get; set; }
         private List<Exception> currentErrors;
 
-        public ExpressionBuldingVisitor(TypeRegistry registry)
+        public ExpressionBuildingVisitor(TypeRegistry registry)
         {
             Registry = registry;
         }

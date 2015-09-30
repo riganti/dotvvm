@@ -239,12 +239,13 @@ namespace DotVVM.Framework.Runtime.Compilation
             var property = FindProperty(control.Metadata, attribute.AttributeName);
             if (property != null)
             {
-                // this is not currently supported by property binding executors: 
-                //      var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
-                //      if (typeChange != null)
-                //      {
-                //      dataContext = new DataContextStack(typeChange, dataContext);
-                //      }
+                // handle DataContext changes
+                var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
+                if (typeChange != null)
+                {
+                    dataContext = new DataContextStack(typeChange, dataContext);
+                }
+
                 // set the property
                 if (attribute.Literal == null)
                 {
