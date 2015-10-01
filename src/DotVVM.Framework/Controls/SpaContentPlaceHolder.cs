@@ -9,15 +9,20 @@ using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// Container which can host a single page application.
+    /// </summary>
     public class SpaContentPlaceHolder : ContentPlaceHolder
     {
 
+        /// <summary>
+        /// Gets or sets the default name of the route that should be loaded when there is no hash part in the URL.
+        /// </summary>
         public string DefaultRouteName
         {
             get { return (string)GetValue(DefaultRouteNameProperty); }
             set { SetValue(DefaultRouteNameProperty, value); }
         }
-
         public static readonly DotvvmProperty DefaultRouteNameProperty
             = DotvvmProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
 

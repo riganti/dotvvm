@@ -11,14 +11,14 @@ using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Repeats a specified template for each of the items in the <see cref="DotvvmBindableControl.DataContext"/> property.
+    /// Repeats a template for each item in the DataSource collection.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = "ItemTemplate")]
     public class Repeater : ItemsControl
     {
 
         /// <summary>
-        /// Gets or sets the template for each <see cref="Repeater"/> item.
+        /// Gets or sets the template for each Repeater item.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
