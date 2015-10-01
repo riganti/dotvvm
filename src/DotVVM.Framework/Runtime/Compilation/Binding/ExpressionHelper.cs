@@ -279,7 +279,9 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 var convert = (UnaryExpression)result.Expression;
                 return convert.Operand;
             }
-            if (result.Expression.NodeType == ExpressionType.Throw) return null;
+            if (result.Expression.NodeType == ExpressionType.Throw)
+                // throw the exception
+                Expression.Lambda(result.Expression).Compile().DynamicInvoke();
             return result.Expression;
         }
     }

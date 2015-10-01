@@ -119,6 +119,13 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(ExecuteBinding("GetCharCode('a')", viewModel), (int)'a');
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_CollectionIndex()
+        {
+            var viewModel = new TestViewModel2() { Collection = new List<Something>() { new Something { Value = true } } };
+            Assert.AreEqual(ExecuteBinding("Collection[0].Value ? 'a' : 'b'", viewModel), "a");
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
@@ -161,6 +168,12 @@ namespace DotVVM.Framework.Tests.Binding
         {
             public int MyProperty { get; set; }
 
+            public IList<Something> Collection { get; set; }
+        }
+
+        class Something
+        {
+            public bool Value { get; set; }
         }
     }
 }
