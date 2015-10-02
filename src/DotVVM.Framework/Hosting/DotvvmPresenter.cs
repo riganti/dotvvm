@@ -148,7 +148,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     postData = await sr.ReadToEndAsync();
                 }
-                ViewModelSerializer.PopulateViewModel(context, page, postData);
+                ViewModelSerializer.PopulateViewModel(context, postData);
 
                 // validate CSRF token 
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
@@ -235,7 +235,7 @@ namespace DotVVM.Framework.Hosting
             }
 
             // render the output
-            ViewModelSerializer.BuildViewModel(context, page);
+            ViewModelSerializer.BuildViewModel(context);
             OutputRenderer.RenderPage(context, page);
             if (!context.IsInPartialRenderingMode)
             {

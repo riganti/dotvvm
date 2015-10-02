@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(DotvvmRequestContext context, DotvvmView view)
+        public void BuildViewModel(DotvvmRequestContext context)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
@@ -185,7 +185,7 @@ namespace DotVVM.Framework.Runtime
         /// Populates the view model from the data received from the request.
         /// </summary>
         /// <returns></returns>
-        public void PopulateViewModel(DotvvmRequestContext context, DotvvmView view, string serializedPostData)
+        public void PopulateViewModel(DotvvmRequestContext context, string serializedPostData)
         {
             var viewModelConverter = new ViewModelJsonConverter();
 

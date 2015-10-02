@@ -94,15 +94,18 @@ namespace DotVVM.Framework.ViewModel
                     block.Add(ExpressionUtils.Replace((int levc, JArray ev) =>
                         System.Diagnostics.Debug.WriteLine("ev read " + ev.First.ToString(Formatting.None) + ": " + property.Name + " in " + Type.Name), lastEVcount, encryptedValues));
 #endif
-                    var callDeserialize = ExpressionUtils.Replace(
-                        (JsonSerializer s, JArray ev, JObject j) => Deserialize(s, GetAndRemove(ev, 0).CreateReader(), property, j),
-                        serializer, encryptedValues, jobj);
                     // encryptedValues[(int)jobj["{p.Name}"]]
 
                     block.Add(Expression.Call(
                         value,
-                        Type.GetProperty(property.Name).SetMethod,
-                        Expression.Convert(callDeserialize, property.Type)));
+                        property.PropertyInfo.SetMethod,
+                        Expression.Convert(
+                            ExpressionUtils.Replace(
+                                (JsonSerializer s, JArray ev, object existing) => Deserialize(s, GetAndRemove(ev, 0).CreateReader(), property, existing),
+                                serializer, encryptedValues,
+                                    Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object))),
+                            property.Type)
+                        ));
                 }
                 else
                 {
@@ -114,16 +117,19 @@ namespace DotVVM.Framework.ViewModel
                     }
 
                     var jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
-                    var callDeserialize = ExpressionUtils.Replace((JsonSerializer s, JObject j) =>
-                        Deserialize(s, j[property.Name].CreateReader(), property, j), serializer, jobj);
 
                     // if ({jsonProp} != null) value.{p.Name} = deserialize();
                     block.Add(
                         Expression.IfThen(Expression.NotEqual(jsonProp, Expression.Constant(null)),
                             Expression.Call(
                             value,
-                            Type.GetProperty(property.Name).SetMethod,
-                            Expression.Convert(callDeserialize, property.Type)
+                            property.PropertyInfo.SetMethod,
+                            Expression.Convert(
+                                ExpressionUtils.Replace((JsonSerializer s, JObject j, object existingValue) =>
+                                    Deserialize(s, j[property.Name].CreateReader(), property, existingValue),
+                                    serializer, jobj,
+                                    Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object))),
+                                property.Type)
                     )));
 
                     if (checkEVCount)
@@ -172,7 +178,15 @@ namespace DotVVM.Framework.ViewModel
             }
             else
             {
-                return serializer.Deserialize(reader, property.Type);
+                if (existingValue != null && property.Populate)
+                {
+                    serializer.Populate(reader, existingValue);
+                    return existingValue;
+                }
+                else
+                {
+                    return serializer.Deserialize(reader, property.Type);
+                }
             }
         }
 

@@ -20,6 +20,7 @@ namespace DotVVM.Framework.ViewModel
         public bool TransferToServer { get; set; }
         public bool TransferToServerOnlyInPath { get; set; }
         public bool TransferToClient { get; set; }
+        public bool Populate { get; set; }
 
         public List<ViewModelPropertyValidationRule> ValidationRules { get; set; }
 
