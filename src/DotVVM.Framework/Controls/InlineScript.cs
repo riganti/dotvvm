@@ -14,6 +14,9 @@ namespace DotVVM.Framework.Controls
     public class InlineScript : DotvvmControl
     {
 
+        /// <summary>
+        /// Gets or sets the comma-separated list of resources that should be loaded before this script is executed.
+        /// </summary>
         public string Dependencies
         {
             get { return (string)GetValue(DependenciesProperty); }
@@ -21,6 +24,8 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty DependenciesProperty =
             DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies);
+
+
 
         internal override void OnPreRenderComplete(IDotvvmRequestContext context)
         {

@@ -247,7 +247,7 @@
     <Content Include="Packages\Antlr.3.5.0.2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.0.8.5.4-pre.nupkg">
+    <Content Include="Packages\DotVVM.0.8.5.6-pre.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="Packages\DotVVM\DotVVM.nuspec" />
