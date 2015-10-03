@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Controls
                 else if (value is CommandBindingExpression)
                 {
                     var binding = (CommandBindingExpression)value;
-                    value = (Action)(() => binding.Evaluate(this, property));
+                    value = binding.GetCommandDelegate(this, property);
                 }
             }
             return value;

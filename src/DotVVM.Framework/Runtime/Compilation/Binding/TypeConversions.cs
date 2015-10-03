@@ -121,22 +121,45 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             return null;
         }
 
-        // 6.1 Implicit Conversions
-        public static Expression ImplicitConversion(Expression src, Type destType, bool throwException = false)
+        public static Expression ReferenceConversion(Expression src, Type destType)
         {
-            if (src.Type == destType) return src;
+            if (destType.IsAssignableFrom(src.Type) && src.Type != typeof(void))
+            {
+                return Expression.Convert(src, destType);
+            }
+            return null;
+        }
 
+        // 6.1 Implicit Conversions
+        public static Expression ImplicitConversion(Expression src, Type destType, bool throwException = false, bool allowToString = false)
+        {
             if (src is MethodGroupExpression)
             {
                 return ((MethodGroupExpression)src).CreateDelegateExpression(destType);
             }
+            if (src.Type == destType) return src;
             var result = ImplicitConstantConversion(src, destType) ??
                   ImplicitNumericConversion(src, destType) ??
                   NullableConverion(src, destType) ??
                   NullLiteralConverion(src, destType) ??
-                  BoxingConversion(src, destType);
+                  BoxingConversion(src, destType) ??
+                  ReferenceConversion(src, destType);
+            if (allowToString && destType == typeof(string) && (result == null || src.Type == typeof(object)))
+            {
+                result = ToStringConversion(src);
+            }
             if (throwException && result == null) throw new InvalidOperationException($"could not implicitly convert expression of type { src.Type } to { destType }");
             return result;
+        }
+
+        public static Expression ToStringConversion(Expression src)
+        {
+            if (src.NodeType == ExpressionType.Constant)
+            {
+                var constant = (ConstantExpression)src;
+                return Expression.Constant(System.Convert.ToString(constant.Value), typeof(string));
+            }
+            else return Expression.Call(typeof(Convert), "ToString", Type.EmptyTypes, Expression.Convert(src, typeof(object)));
         }
 
         // 6.1.9 Implicit constant expression conversions
@@ -224,7 +247,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                     catch { }
                 }
                 // to char
-                if(destType == typeof(char) && value.Length == 1)
+                if (destType == typeof(char) && value.Length == 1)
                 {
                     return Expression.Constant(value[0]);
                 }

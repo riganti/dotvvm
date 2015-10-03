@@ -29,7 +29,7 @@
 		<p>&nbsp;</p>
 
 		<h1>GridView with simple collection</h1>
-		<dot:GridView DataSource="{value: Customers}" SortChanged="{command: _parent.SortCustomers(_this)}" class="table table-bordered"
+		<dot:GridView DataSource="{value: Customers}" SortChanged="{command: SortCustomers}" class="table table-bordered"
 					  RenderSettings.Mode="Server" PostBack.Update="true">
 			<Columns>
 				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />

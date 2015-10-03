@@ -93,10 +93,8 @@
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
-    <Compile Include="Binding\CommandPostbackJsCompile.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
     <Compile Include="Binding\CompiledBindingExpression.cs" />
-    <Compile Include="Binding\CompileJavascriptAttribute.cs" />
     <Compile Include="Binding\ConstantDataContextChangeAttribute.cs" />
     <Compile Include="Binding\ControlCommandBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
@@ -118,7 +116,6 @@
     <Compile Include="Binding\ResourceBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandCallableAttribute.cs" />
-    <Compile Include="Binding\StaticCommandJsCompile.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
@@ -281,6 +278,7 @@
     <Compile Include="Routing\GenericRouteParameterType.cs" />
     <Compile Include="Routing\IRouteParameterType.cs" />
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
+    <Compile Include="Runtime\Compilation\BindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />
     <Compile Include="Runtime\Compilation\Binding\BindingCompilationException.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeBindingParser.cs" />
@@ -293,6 +291,7 @@
     <Compile Include="Runtime\Compilation\Binding\StaticClassIdentifier.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeConversions.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeRegistry.cs" />
+    <Compile Include="Runtime\Compilation\CommandBindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
     <Compile Include="Runtime\Compilation\ControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\DataContextStack.cs" />
@@ -322,6 +321,7 @@
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyValue.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedTreeRoot.cs" />
     <Compile Include="Runtime\Compilation\RoslynExtensionMethods.cs" />
+    <Compile Include="Runtime\Compilation\StaticCommandBindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\ViewCompilingVisitor.cs" />
     <Compile Include="Runtime\DefaultControlBuilderFactory.cs" />
     <Compile Include="Runtime\DefaultOutputRenderer.cs" />

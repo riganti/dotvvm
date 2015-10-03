@@ -4,17 +4,16 @@ using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Parser;
 using System.Text.RegularExpressions;
+using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
 {
     [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
         Javascript = BindingCompilationRequirementType.IfPossible)]
-    [CompileJavascript]
+    [BindingCompilation]
     public class ControlPropertyBindingExpression : ValueBindingExpression
     {
-        public ControlPropertyBindingExpression()
-        {
-        }
+        public ControlPropertyBindingExpression() { }
 
         public ControlPropertyBindingExpression(CompiledBindingExpression expression)
             : base(expression)

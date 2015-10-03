@@ -20,6 +20,8 @@
 		
         <h1>Task List</h1>
 
+		<div Visible="{value: 'string'}"></div>
+
         <fieldset data-testattribute>
             <legend>Add Task</legend>
 

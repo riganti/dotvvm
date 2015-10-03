@@ -55,7 +55,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the command that will be triggered when the user changed the sort order.
         /// </summary>
-        [ConstantDataContextChange(typeof(string))]
         [MarkupOptions(AllowHardCodedValue = false)]
         public Action<string> SortChanged
         {
@@ -93,11 +92,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var sortCommandBinding = GetBinding(SortChangedProperty) as CommandBindingExpression;
-                if (sortCommandBinding != null)
-                {
-                    sortCommand = s => sortCommandBinding.Delegate(new []{ s }.Concat(BindingExpression.GetDataContexts(this, true)).ToArray(), null);
-                }
+                sortCommand = SortChanged;
             }
 
             var index = 0;

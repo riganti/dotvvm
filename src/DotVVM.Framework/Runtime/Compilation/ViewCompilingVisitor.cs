@@ -96,7 +96,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            emitter.EmitSetBinding(controlName, propertyBinding.Property.DescriptorFullName, ProcessBinding(propertyBinding.Binding));
+            emitter.EmitSetBinding(controlName, propertyBinding.Property.DescriptorFullName, ProcessBinding(propertyBinding.Binding, propertyBinding.Property.PropertyType));
             base.VisitPropertyBinding(propertyBinding);
         }
 
@@ -162,7 +162,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         protected ExpressionSyntax ProcessBindingOrValue(object obj, DataContextStack dataContext)
         {
             var binding = obj as ResolvedBinding;
-            if (binding != null) return ProcessBinding(binding);
+            if (binding != null) return ProcessBinding(binding, typeof(object));
             else return emitter.EmitValue(obj);
         }
 
@@ -216,10 +216,10 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Emits binding contructor and returns variable name
         /// </summary>
-        protected ExpressionSyntax ProcessBinding(ResolvedBinding binding)
+        protected ExpressionSyntax ProcessBinding(ResolvedBinding binding, Type expectedType)
         {
             //return emitter.EmitCreateObject(binding.Type, new object[] { binding.Value });
-            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(emitter, binding, "__b" + bindingIdCounter++) });
+            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(binding, "__b" + bindingIdCounter++, expectedType) });
         }
 
         /// <summary>

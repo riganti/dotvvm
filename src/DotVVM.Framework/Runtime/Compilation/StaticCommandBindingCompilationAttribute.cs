@@ -1,18 +1,17 @@
-﻿using System;
+﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
+using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Runtime.Compilation;
-using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
-using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
-using Newtonsoft.Json;
 
-namespace DotVVM.Framework.Binding
+namespace DotVVM.Framework.Runtime.Compilation
 {
-    [AttributeUsage(AttributeTargets.Class, AllowMultiple = false, Inherited = false)]
-    public class StaticCommandJsCompile : CompileJavascriptAttribute
+    public class StaticCommandBindingCompilationAttribute : BindingCompilationAttribute
     {
         public override string CompileToJs(ResolvedBinding binding, CompiledBindingExpression compiledExpression)
         {

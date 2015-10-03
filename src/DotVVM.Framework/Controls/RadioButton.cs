@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(CheckedItemProperty, value); }
         }
         public static readonly DotvvmProperty CheckedItemProperty =
-            DotvvmProperty.Register<IEnumerable, RadioButton>(t => t.CheckedItem, null);
+            DotvvmProperty.Register<object, RadioButton>(t => t.CheckedItem, null);
 
         /// <summary>
         /// Gets or sets an unique name of the radio button group.

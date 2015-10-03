@@ -101,7 +101,7 @@ namespace DotVVM.Framework.ViewModel
                         property.PropertyInfo.SetMethod,
                         Expression.Convert(
                             ExpressionUtils.Replace(
-                                (JsonSerializer s, JArray ev, object existing) => Deserialize(s, GetAndRemove(ev, 0).CreateReader(), property, existing),
+                                (JsonSerializer s, JArray ev, object existing) => Deserialize(s, GetAndRemove(ev, 0), property, existing),
                                 serializer, encryptedValues,
                                     Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object))),
                             property.Type)
@@ -126,7 +126,7 @@ namespace DotVVM.Framework.ViewModel
                             property.PropertyInfo.SetMethod,
                             Expression.Convert(
                                 ExpressionUtils.Replace((JsonSerializer s, JObject j, object existingValue) =>
-                                    Deserialize(s, j[property.Name].CreateReader(), property, existingValue),
+                                    Deserialize(s, j[property.Name], property, existingValue),
                                     serializer, jobj,
                                     Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object))),
                                 property.Type)
@@ -170,22 +170,22 @@ namespace DotVVM.Framework.ViewModel
             }
         }
 
-        private static object Deserialize(JsonSerializer serializer, JsonReader reader, ViewModelPropertyMap property, object existingValue)
+        private static object Deserialize(JsonSerializer serializer, JToken jtoken, ViewModelPropertyMap property, object existingValue)
         {
             if (property.JsonConverter != null && property.JsonConverter.CanRead && property.JsonConverter.CanConvert(property.Type))
             {
-                return property.JsonConverter.ReadJson(reader, property.Type, existingValue, serializer);
+                return property.JsonConverter.ReadJson(jtoken.CreateReader(), property.Type, existingValue, serializer);
             }
             else
             {
                 if (existingValue != null && property.Populate)
                 {
-                    serializer.Populate(reader, existingValue);
+                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject)jtoken, serializer, existingValue);
                     return existingValue;
                 }
                 else
                 {
-                    return serializer.Deserialize(reader, property.Type);
+                    return serializer.Deserialize(jtoken.CreateReader(), property.Type);
                 }
             }
         }

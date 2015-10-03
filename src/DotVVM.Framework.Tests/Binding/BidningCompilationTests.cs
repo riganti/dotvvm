@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new CompileTimeBindingParser();
             var expressionTree = parser.Parse(expression, context);
-            return BindingCompiler.CompileToDelegate(expressionTree, context).Compile()(contexts, control);
+            return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, typeof(object)).Compile()(contexts, control);
         }
 
         public object ExecuteBinding(string expression, params object[] contexts)
