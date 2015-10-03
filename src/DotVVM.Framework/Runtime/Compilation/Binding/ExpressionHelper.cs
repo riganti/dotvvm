@@ -237,9 +237,11 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
             var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.BinaryOperation(
                 CSharpBinderFlags.None, operation, typeof(object), GetBinderArguments(2));
-            return ApplyBinder(binder, left, right) ??
-                (operation == ExpressionType.Equal ? EqualsMethod(left, right) : null) ??
-                (operation == ExpressionType.NotEqual ? Expression.Not(EqualsMethod(left, right)) : null);
+            var result = ApplyBinder(binder, false, left, right);
+            if (result != null) return result;
+            if (operation == ExpressionType.Equal) return EqualsMethod(left, right);
+            if (operation == ExpressionType.NotEqual) return Expression.Not(EqualsMethod(left, right));
+            throw new Exception($"could not apply { operation } binary operator to { left } and { right }");
             // TODO: comparison operators
         }
 
@@ -247,14 +249,22 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         {
             var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.UnaryOperation(
                 CSharpBinderFlags.None, operation, typeof(object), GetBinderArguments(1));
-            return ApplyBinder(binder, expr);
+            return ApplyBinder(binder, true, expr);
         }
 
         public static Expression GetIndexer(Expression expr, Expression index)
         {
-            var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.GetIndex(
-                CSharpBinderFlags.None, typeof(object), GetBinderArguments(2));
-            return ApplyBinder(binder, expr, index);
+            if (expr.Type.IsArray) return Expression.ArrayIndex(expr, index);
+
+            var indexProp = (from p in expr.Type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
+                            let param = p.GetIndexParameters()
+                            where param.Length == 1
+                            let indexConvert = TypeConversion.ImplicitConversion(index, param[0].ParameterType)
+                            where indexConvert != null
+                            select Expression.MakeIndex(expr, p, new[] { indexConvert })).ToArray();
+            if (indexProp.Length == 0) throw new Exception($"could not find and indexer property on type { expr.Type } that accepts { index.Type } as argument");
+            if (indexProp.Length > 1) throw new Exception($"more than one indexer found on type { expr.Type } that accepts { index.Type } as argument");
+            return indexProp[0];
         }
 
         private static IEnumerable<CSharpArgumentInfo> GetBinderArguments(int count)
@@ -267,7 +277,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             return arr;
         }
 
-        private static Expression ApplyBinder(DynamicMetaObjectBinder binder, params Expression[] expressions)
+        private static Expression ApplyBinder(DynamicMetaObjectBinder binder, bool throwException, params Expression[] expressions)
         {
             var result = binder.Bind(DynamicMetaObject.Create(null, expressions[0]),
                 expressions.Skip(1).Select(e =>
@@ -280,8 +290,14 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 return convert.Operand;
             }
             if (result.Expression.NodeType == ExpressionType.Throw)
-                // throw the exception
-                Expression.Lambda(result.Expression).Compile().DynamicInvoke();
+            {
+                if (throwException)
+                {
+                    // throw the exception
+                    Expression.Lambda(result.Expression).Compile().DynamicInvoke();
+                }
+                else return null;
+            }
             return result.Expression;
         }
     }
