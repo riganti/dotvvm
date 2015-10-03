@@ -465,6 +465,16 @@ var DotVVM = (function () {
         }
         return Globalize.format(value, format, dotvvm.culture);
     };
+    DotVVM.prototype.buildClientId = function (element, fragments) {
+        var id = "";
+        for (var i = 0; i < fragments.length; i++) {
+            if (id.length > 0) {
+                id += "_";
+            }
+            id += ko.unwrap(fragments[i]);
+        }
+        return id;
+    };
     DotVVM.prototype.getDataSourceItems = function (viewModel) {
         var value = ko.unwrap(viewModel);
         return value.Items || value;

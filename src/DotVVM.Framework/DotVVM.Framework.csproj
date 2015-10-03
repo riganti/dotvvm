@@ -123,6 +123,8 @@
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
     <Compile Include="Configuration\IDotvvmStartup.cs" />
     <Compile Include="Controls\ButtonTagName.cs" />
+    <Compile Include="Controls\ClientIDFragment.cs" />
+    <Compile Include="Controls\ClientIDMode.cs" />
     <Compile Include="Controls\ContainsDotvvmPropertiesAttribute.cs" />
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DataPager.cs" />

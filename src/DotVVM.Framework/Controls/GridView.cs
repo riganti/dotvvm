@@ -19,6 +19,8 @@ namespace DotVVM.Framework.Controls
 
         public GridView() : base("table")
         {
+            SetValue(Internal.IsNamingContainerProperty, true);
+
             Columns = new List<GridViewColumn>();
             RowDecorators = new List<Decorator>();
         }
@@ -67,6 +69,8 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
+            EnsureControlHasId();
+
             DataBind(context);
             base.OnLoad(context);
         }
@@ -109,6 +113,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
+                    placeholder.ID = "i" + index;
                     Children.Add(placeholder);
 
                     CreateRow(context, placeholder);
@@ -224,6 +229,7 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                 Children.Add(placeholder);
 
                 CreateRow(context.RequestContext, placeholder);
