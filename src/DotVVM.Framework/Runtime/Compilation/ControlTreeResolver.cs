@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             try
             {
-                var wrapperType = ResolveWrapperType(root);
+                var wrapperType = ResolveWrapperType(root, fileName.EndsWith(".dotcontrol", StringComparison.Ordinal) ? typeof(DotvvmMarkupControl) : typeof(DotvvmView));
 
                 // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the 
                 // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
@@ -415,9 +415,9 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Resolves the type of the wrapper.
         /// </summary>
-        private Type ResolveWrapperType(DothtmlRootNode node)
+        private Type ResolveWrapperType(DothtmlRootNode node, Type defaultType)
         {
-            var wrapperType = typeof(DotvvmView);
+            var wrapperType = defaultType;
 
             var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
             if (baseControlDirective != null)
