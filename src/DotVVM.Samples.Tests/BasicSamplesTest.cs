@@ -1078,7 +1078,8 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample36");
-                
+                Thread.Sleep(WaitTime);
+
                 Assert.AreEqual("test1", browser.FindAll("*[data-id=test1_marker]").Single().GetAttribute("id"));
                 Assert.AreEqual("test2", browser.FindAll("*[data-id=test2_marker]").Single().GetAttribute("id"));
 
