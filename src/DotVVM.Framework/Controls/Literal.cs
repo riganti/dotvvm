@@ -5,7 +5,6 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
-using DotVVM.Framework.Parser;
 
 namespace DotVVM.Framework.Controls
 {
@@ -37,11 +36,22 @@ namespace DotVVM.Framework.Controls
             set { SetValue(TextProperty, value); }
         }
         public static readonly DotvvmProperty TextProperty =
-            DotvvmProperty.Register<string, Literal>(t => t.Text, "");
+            DotvvmProperty.Register<object, Literal>(t => t.Text, "");
 
 
+        /// <summary>
+        /// Gets or sets the format string that will be applied to numeric or date-time values.
+        /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string FormatString { get; set; }
+        public string FormatString
+        {
+            get { return (string)GetValue(FormatStringProperty); }
+            set { SetValue(FormatStringProperty, value); }
+        }
+        public static readonly DotvvmProperty FormatStringProperty =
+            DotvvmProperty.Register<string, Literal>(c => c.FormatString);
+
+
 
         protected virtual bool AlwaysRenderSpan
         {
@@ -93,7 +103,7 @@ namespace DotVVM.Framework.Controls
             if ((bool)GetValue(Internal.IsCommentProperty))
             {
                 writer.WriteUnencodedText("<!--");
-                writer.WriteUnencodedText(Text);
+                writer.WriteUnencodedText(Text ?? "");
                 writer.WriteUnencodedText("-->");
                 return;
             }

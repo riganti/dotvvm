@@ -1017,6 +1017,14 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        private static void CheckButtonTextIsSetAndTagName(SeleniumBrowserHelper browser, string selector, string expectedTagName, string expectedValue = null, bool textCanBeNull = false)
+        {
+            // check tagName
+            var element = browser.Find(selector);
+            element.CheckTagName(expectedTagName);
+            element.CheckTextValue(expectedValue, textCanBeNull);
+        }
+
         public void Sample35Test()
         {
             RunInAllBrowsers(browser =>
@@ -1065,12 +1073,42 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        private static void CheckButtonTextIsSetAndTagName(SeleniumBrowserHelper browser, string selector, string expectedTagName, string expectedValue = null, bool textCanBeNull = false)
+        public void Sample36Test()
         {
-            // check tagName
-            var element = browser.Find(selector);
-            element.CheckTagName(expectedTagName);
-            element.CheckTextValue(expectedValue, textCanBeNull);
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample36");
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("test1", browser.FindAll("*[data-id=test1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("test2", browser.FindAll("*[data-id=test2_marker]").Single().GetAttribute("id"));
+
+                Assert.AreEqual("test1a", browser.FindAll("*[data-id=test1a_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("test2a", browser.FindAll("*[data-id=test2a_marker]").Single().GetAttribute("id"));
+
+
+                var control1 = browser.FindAll("#ctl1").Single();
+                Assert.AreEqual("ctl1_control1", control1.FindAll("*[data-id=control1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("ctl1_control2", control1.FindAll("*[data-id=control2_marker]").Single().GetAttribute("id"));
+
+                var control2 = browser.FindAll("#ctl2").Single();
+                Assert.AreEqual("control1", control2.FindAll("*[data-id=control1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("control2", control2.FindAll("*[data-id=control2_marker]").Single().GetAttribute("id"));
+
+                var repeater1 = browser.FindAll("*[data-id=repeater1]").Single();
+                for (int i = 0; i < 4; i++)
+                {
+                    Assert.AreEqual(repeater1.GetAttribute("id") + "_i" + i + "_repeater1", repeater1.FindAll("*[data-id=repeater1_marker]")[i].GetAttribute("id"));
+                    Assert.AreEqual(repeater1.GetAttribute("id") + "_i" + i + "_repeater2", repeater1.FindAll("*[data-id=repeater2_marker]")[i].GetAttribute("id"));
+                }
+
+                var repeater2 = browser.FindAll("*[data-id=repeater2]").Single();
+                for (int i = 0; i < 4; i++)
+                {
+                    Assert.AreEqual(repeater2.GetAttribute("id") + "_i" + i + "_repeater1server", repeater2.FindAll("*[data-id=repeater1server_marker]")[i].GetAttribute("id"));
+                    Assert.AreEqual(repeater2.GetAttribute("id") + "_i" + i + "_repeater2server", repeater2.FindAll("*[data-id=repeater2server_marker]")[i].GetAttribute("id"));
+                }
+            });
         }
     }
 }

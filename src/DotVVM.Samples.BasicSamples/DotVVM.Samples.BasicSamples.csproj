@@ -164,8 +164,8 @@
     <Content Include="sample34.dothtml" />
     <Content Include="sample35.dothtml" />
     <Content Include="sample36.dothtml" />
+    <Content Include="sample36_control.dotcontrol" />
     <Content Include="sample37.dothtml" />
-    <None Include="sample36_control.dotcontrol" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
