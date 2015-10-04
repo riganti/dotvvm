@@ -740,7 +740,8 @@ var DotvvmSerialization = (function () {
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     if (ko.isObservable(result[prop])) {
-                        result[prop](deserialized());
+                        if (deserialized() != result[prop]())
+                            result[prop](deserialized());
                     }
                     else {
                         result[prop] = deserialized;
@@ -748,7 +749,8 @@ var DotvvmSerialization = (function () {
                 }
                 else {
                     if (ko.isObservable(result[prop])) {
-                        result[prop](deserialized);
+                        if (deserialized !== result[prop])
+                            result[prop](deserialized);
                     }
                     else {
                         result[prop] = ko.observable(deserialized);
