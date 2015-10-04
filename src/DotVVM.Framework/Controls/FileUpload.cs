@@ -44,13 +44,13 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets a command that is triggered when the upload is complete.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public Action UploadCompleted
+        public Command UploadCompleted
         {
-            get { return (Action)GetValue(UploadCompletedProperty); }
+            get { return (Command)GetValue(UploadCompletedProperty); }
             set { SetValue(UploadCompletedProperty, value); }
         }
         public static readonly DotvvmProperty UploadCompletedProperty
-            = DotvvmProperty.Register<Action, FileUpload>(p => p.UploadCompleted, null);
+            = DotvvmProperty.Register<Command, FileUpload>(p => p.UploadCompleted, null);
 
 
 

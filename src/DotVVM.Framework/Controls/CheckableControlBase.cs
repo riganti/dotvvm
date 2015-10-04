@@ -51,13 +51,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the command that will be triggered when the control check state is changed.
         /// </summary>
-        public Action Changed
+        public Command Changed
         {
-            get { return (Action)GetValue(ChangedProperty); }
+            get { return (Command)GetValue(ChangedProperty); }
             set { SetValue(ChangedProperty, value); }
         }
         public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Action, CheckableControlBase>(t => t.Changed, null);
+            DotvvmProperty.Register<Command, CheckableControlBase>(t => t.Changed, null);
 
 
 

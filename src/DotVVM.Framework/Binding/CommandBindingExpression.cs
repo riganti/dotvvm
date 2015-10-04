@@ -5,6 +5,11 @@ using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
 {
+    /// <summary>
+    /// Represents typical command binding delegate, quivalent to Func&lt;Task&gt;
+    /// </summary>
+    public delegate Task Command();
+
     [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
         Javascript = BindingCompilationRequirementType.StronglyRequire,
         ActionFilters = BindingCompilationRequirementType.IfPossible)]
@@ -35,7 +40,10 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public object Evaluate(DotvvmBindableControl control, DotvvmProperty property, params object[] args)
         {
-            return GetCommandDelegate(control, property).DynamicInvoke(args);
+            var action = GetCommandDelegate(control, property);
+            if (action is Command) return (action as Command)();
+            if (action is Action) { (action as Action)(); return null; }
+            return action.DynamicInvoke(args);
         }
 
         public virtual Delegate GetCommandDelegate(DotvvmBindableControl control, DotvvmProperty property)

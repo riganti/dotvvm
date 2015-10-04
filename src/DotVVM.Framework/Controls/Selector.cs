@@ -53,12 +53,12 @@ namespace DotVVM.Framework.Controls
 		/// <summary>
 		/// Gets or sets the command that will be triggered when the selection is changed.
 		/// </summary>
-		public Action SelectionChanged
+		public Command SelectionChanged
 		{
-			get { return (Action)GetValue(SelectionChangedProperty); }
+			get { return (Command)GetValue(SelectionChangedProperty); }
 			set { SetValue(SelectionChangedProperty, value); }
 		}
 		public static readonly DotvvmProperty SelectionChangedProperty =
-			DotvvmProperty.Register<Action, Selector>(t => t.SelectionChanged, null);
+			DotvvmProperty.Register<Command, Selector>(t => t.SelectionChanged, null);
 	}
 }
