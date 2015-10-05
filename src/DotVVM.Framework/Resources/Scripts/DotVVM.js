@@ -1,7 +1,8 @@
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    __.prototype = b.prototype;
+    d.prototype = new __();
 };
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
@@ -739,7 +740,8 @@ var DotvvmSerialization = (function () {
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     if (ko.isObservable(result[prop])) {
-                        result[prop](deserialized());
+                        if (deserialized() != result[prop]())
+                            result[prop](deserialized());
                     }
                     else {
                         result[prop] = deserialized;
@@ -747,7 +749,8 @@ var DotvvmSerialization = (function () {
                 }
                 else {
                     if (ko.isObservable(result[prop])) {
-                        result[prop](deserialized);
+                        if (deserialized !== result[prop])
+                            result[prop](deserialized);
                     }
                     else {
                         result[prop] = ko.observable(deserialized);

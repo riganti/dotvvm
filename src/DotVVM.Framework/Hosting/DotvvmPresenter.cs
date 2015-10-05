@@ -183,7 +183,8 @@ namespace DotVVM.Framework.Hosting
                     Exception commandException = null;
                     try
                     {
-                        actionInfo.Action();
+                        var result = actionInfo.Action();
+                        if (result is Task) await (Task)result;
                     }
                     catch (Exception ex)
                     {

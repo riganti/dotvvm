@@ -429,6 +429,7 @@
     <Compile Include="Utils\HttpAbstractions\StreamHelperExtensions.cs" />
     <Compile Include="Utils\JsonUtils.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="Utils\TaskUtils.cs" />
     <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />

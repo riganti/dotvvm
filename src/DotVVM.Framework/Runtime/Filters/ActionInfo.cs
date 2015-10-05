@@ -12,6 +12,6 @@ namespace DotVVM.Framework.Runtime.Filters
         public BindingExpression Binding { get; set; }
         public bool IsControlCommand { get; internal set; }
 
-        public Action Action { get; set; }
+        public Func<object> Action { get; set; }
     }
 }

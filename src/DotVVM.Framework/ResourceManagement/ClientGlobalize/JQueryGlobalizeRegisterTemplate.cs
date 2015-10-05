@@ -21,7 +21,7 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "C:\Users\Standa\OneDrive\code\GitRepos\dotvvm\src\DotVVM.Framework\ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt"
+    #line 1 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
     public partial class JQueryGlobalizeRegisterTemplate : JQueryGlobalizeRegisterTemplateBase
     {
@@ -49,14 +49,14 @@ if ( typeof require !== ""undefined""
 }
 Globalize.addCultureInfo(""");
             
-            #line 25 "C:\Users\Standa\OneDrive\code\GitRepos\dotvvm\src\DotVVM.Framework\ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt"
+            #line 25 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Name));
             
             #line default
             #line hidden
             this.Write("\", \"default\", ");
             
-            #line 25 "C:\Users\Standa\OneDrive\code\GitRepos\dotvvm\src\DotVVM.Framework\ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt"
+            #line 25 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(CultureInfoJson.ToString()));
             
             #line default
@@ -65,7 +65,7 @@ Globalize.addCultureInfo(""");
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 30 "C:\Users\Standa\OneDrive\code\GitRepos\dotvvm\src\DotVVM.Framework\ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt"
+        #line 30 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.tt"
 
 	public JObject CultureInfoJson { get; set; }
 	public string Name { get; set; }
