@@ -63,14 +63,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ChangedProperty =
             DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
 
-        public Action OnInput
-        {
-            get { return (Action)GetValue(OnInputProperty); }
-            set { SetValue(OnInputProperty, value); }
-        }
 
-        public static readonly DotvvmProperty OnInputProperty =
-            DotvvmProperty.Register<Action, TextBox>(t => t.OnInput, null);
+
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
@@ -140,13 +134,6 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(changedBinding, context, this, true, isOnChange: true));
             }
-
-            var onInputBinding = GetCommandBinding(OnInputProperty);
-            if (onInputBinding != null)
-            {
-                writer.AddAttribute("oninput", KnockoutHelper.GenerateClientPostBackScript(onInputBinding, context, this, true, isOnChange: true));
-            }
-
 
             base.AddAttributesToRender(writer, context);
         }
