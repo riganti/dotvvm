@@ -1,40 +1,20 @@
-ATTENTION: Redwood was renamed to DotVVM, see [our rename guide](https://github.com/riganti/dotvvm/wiki/DotVVM-renaming-guide)
-=========================================================================================
+DotVVM: "Javascript" Apps Without Javascript
+============================================
 
-DotVVM is an OWIN-based ASP.NET framework that allows you to write rich client applications without writing javascript code. All you have to do is to write a viewmodel in C# and view in HTML and DotVVM will generate the javascript part for you.
+DotVVM is an OWIN-based ASP.NET framework that can build line-of-business applications and SPAs without writing tons of Javascript code. You only have to write a viewmodel in C# and a view in HTML and DotVVM will generate the rest for you.
 
-DotVVM is inspired by ASP.NET WebForms, but it is much more modern. It brings full MVVM experience and it uses KnockoutJS on the client side.
+DotVVM is inspired by ASP.NET WebForms, but it is much more modern. It brings full MVVM experience and it uses KnockoutJS on the client side. 
 
 
-How to start
+How to Start
 ------------
 
-<!--First download and install the **[Visual Studio Extension](http://riganti.cz/download/DotVVM.VS2015Extension.zip)**.-->
+1. Install the [dotVVM for Visual Studio](http://www.dotvvm.com/Download/Free/DotVVM_Free.vsix) extension.
 
-Then you can read the tutorial on our **[WIKI](https://github.com/riganti/dotvvm/wiki)**.
-
-
-
-Why to use it?
---------------
-
-+ **Easy to use** - you don't have to know dozens of languages and frameworks like Knockout, Angular, jQuery etc. Just learn HTML, CSS, C# and go.
-+ **Stateful controls** - in ASP.NET MVC, writing a custom control that persists its own state an can be easily reused, is quite tricky. With DotVVM you can write such components and reuse them multiple times. 
-+ **MVVM** - if you have existing WPF or Windows Store app, you can reuse your viewmodels and create a web application and reuse some code. Viewmodels can be also easily tested using unit or integration tests.
-+ **Runs on vNext platform** - unlike WebForms, DotVVM is not restricted to full .NET and has no COM and IIS dependencies. 
-+ **Security** - you can encrypt or sign parts of the viewmodel so the user can not tamper with it. 
-+ **Rapid App Development** - with Visual Studio extension, it is quite easy to create a page and a viewmodel. If your application is complicated and contains many form controls, DotVVM can handle it quite easily.
+2. Read the **[documentation](http://www.dotvvm.com/docs)**. Oh yes, we are open source, but we actually have one. 
 
 
-Roadmap
--------
+More Info
+---------
 
-+ **Version 0.1**: First working demo. Basic controls, postback support
-+ **Version 0.2**: Few basic samples, master pages, simple stateless markup controls
-+ **Version 0.3**: Stateful controls, Validation
-+ **Version 0.4**: Postback.Update and RenderSettings.Mode properties (server side rendering)
-+ **Version 0.5**: Visual Studio extension
-+ **Version 0.6 (current)**: Stable version - more controls, several bug fixes
-+ **Version 0.7**: DNX support, bug fixes
-+ **Version 0.8**: Styles, more framework features and other controls
-+ **Version 0.9**: Automated translation of C# ViewModel commands to javascript
+You'll find more information on our website [www.dotvvm.com](http://www.dotvvm.com).
