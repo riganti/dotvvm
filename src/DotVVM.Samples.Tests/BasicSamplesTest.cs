@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests
     {
         protected abstract string BaseUrl { get; }
 
-        private const int WaitTime = 800;
+        private const int WaitTime = 1200;
 
         public void Sample1Test(string sampleUrl = "Sample1")
         {
@@ -142,7 +142,7 @@ namespace DotVVM.Samples.Tests
 
                 // verify line totals
                 browser.Find("input[type=text]").Click();
-                Thread.Sleep(WaitTime);
+                Thread.Sleep(WaitTime * 5);
                 Assert.AreEqual("126", table.FindAll("tr")[2].FindAll("td")[5].GetText().Trim());
                 Assert.AreEqual("5.5", table.FindAll("tr")[3].FindAll("td")[5].GetText().Trim());
                 Assert.AreEqual("180", table.FindAll("tr")[4].FindAll("td")[5].GetText().Trim());
@@ -430,7 +430,7 @@ namespace DotVVM.Samples.Tests
                     browser.FindAll("input[type=text]")[i].SendKeys((i + 1).ToString());
                 }
                 browser.Click("input[type=button]");
-                Thread.Sleep(WaitTime);
+                Thread.Sleep(WaitTime * 2);
 
                 // validate result
                 Assert.AreEqual("78", browser.Last("span").GetText().Trim());
