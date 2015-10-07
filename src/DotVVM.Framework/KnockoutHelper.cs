@@ -12,10 +12,10 @@ namespace DotVVM.Framework
 {
     public static class KnockoutHelper
     {
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null, string valueUpdate = null, bool serverRendering = true, bool setValueBack = false)
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null, string valueUpdate = null, bool renderEvenInServerRenderingMode = false, bool setValueBack = false)
         {
             var expression = control.GetValueBinding(property);
-            if (expression != null && (!control.RenderOnServer || !serverRendering))
+            if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
             {
                 writer.AddAttribute("data-bind", name + ": " + expression.GetKnockoutBindingExpression(), true, ", ");
                 if (valueUpdate != null)
