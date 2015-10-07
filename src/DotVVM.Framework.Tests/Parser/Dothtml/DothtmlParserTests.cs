@@ -318,7 +318,7 @@ test";
             var link = ((DothtmlElementNode)head.Content[0]);
             Assert.IsFalse(link.IsClosingTag);
             Assert.AreEqual("link", link.FullTagName);
-            Assert.IsTrue(link.HasNodeErrors);
+            Assert.IsFalse(link.HasNodeErrors);
             Assert.AreEqual(0, link.Content.Count);
 
             var body = ((DothtmlElementNode)html.Content[1]);
