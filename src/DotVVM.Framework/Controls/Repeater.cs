@@ -11,14 +11,14 @@ using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Repeats a specified template for each of the items in the <see cref="DotvvmBindableControl.DataContext"/> property.
+    /// Repeats a template for each item in the DataSource collection.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = "ItemTemplate")]
     public class Repeater : ItemsControl
     {
 
         /// <summary>
-        /// Gets or sets the template for each <see cref="Repeater"/> item.
+        /// Gets or sets the template for each Repeater item.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
@@ -43,18 +43,29 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Repeater>(t => t.WrapperTagName, "div");
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="Repeater"/> class.
+        /// Gets or sets whether the control should render a wrapper element.
         /// </summary>
+        public bool RenderWrapperTag
+        {
+            get { return (bool) GetValue(RenderWrapperTagProperty); }
+            set { SetValue(RenderWrapperTagProperty, value); }
+        }
+        public static readonly DotvvmProperty RenderWrapperTagProperty =
+            DotvvmProperty.Register<bool, Repeater>(t => t.RenderWrapperTag, true);
+
+
         public Repeater()
         {
+            SetValue(Internal.IsNamingContainerProperty, true);
         }
-
 
         /// <summary>
         /// Occurs after the viewmodel is applied to the page and before the commands are executed.
         /// </summary>
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
+            EnsureControlHasId();
+
             DataBind(context);
             base.OnLoad(context);
         }
@@ -96,12 +107,23 @@ namespace DotVVM.Framework.Controls
                     Children.Add(placeholder);
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
+                    placeholder.ID = "i" + index;
                     Debug.Assert(placeholder.properties[DataContextProperty] != null);
                     index++;
                 }
             }
         }
 
+
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        {
+            if (!RenderWrapperTag)
+            {
+                EnsureNoAttributesSet();
+            }
+
+            base.AddAttributesToRender(writer, context);
+        }
 
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
@@ -111,7 +133,7 @@ namespace DotVVM.Framework.Controls
             {
                 var javascriptDataSourceExpression = GetForeachDataBindJavascriptExpression();
 
-                if (!string.IsNullOrEmpty(TagName))
+                if (RenderWrapperTag)
                 {
                     writer.AddKnockoutForeachDataBind(javascriptDataSourceExpression);
                 }
@@ -121,7 +143,7 @@ namespace DotVVM.Framework.Controls
                 }
             }
 
-            if (!string.IsNullOrEmpty(TagName))
+            if (RenderWrapperTag)
             {
                 base.RenderBeginTag(writer, context);
             }
@@ -129,12 +151,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
         {
-            if (!string.IsNullOrEmpty(TagName))
+            if (RenderWrapperTag)
             {
                 base.RenderEndTag(writer, context);
             }
 
-            if (!RenderOnServer && string.IsNullOrEmpty(TagName))
+            if (!RenderOnServer && !RenderWrapperTag)
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
@@ -145,7 +167,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-
             if (RenderOnServer)
             {
                 // render on server
@@ -159,6 +180,7 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer() { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                 Children.Add(placeholder);
                 ItemTemplate.BuildContent(context.RequestContext, placeholder);
 

@@ -1,0 +1,62 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<CommandTable xmlns="http://schemas.microsoft.com/VisualStudio/2005-10-18/CommandTable" xmlns:xs="http://www.w3.org/2001/XMLSchema">
+  <Extern href="stdidcmd.h" />
+  <Extern href="vsshlids.h" />
+  <Commands package="GuidDotvvmMenuPackagePkg">
+    <Menus>
+      <Menu guid="GuidDotvvmMenuCmdSet" id="TopMenu" priority="0x700" type="Menu">
+        <Parent guid="guidSHLMainMenu" id="IDG_VS_MM_TOOLSADDINS" />
+        <Strings>
+          <ButtonText>&amp;DotVVM</ButtonText>
+          <CommandName>&amp;DotVVM</CommandName>
+        </Strings>
+      </Menu>
+    </Menus>
+   <Groups>
+      <Group guid="GuidHelpMenuGroup" id="HelpMenuGroupCmd" priority="0x702">
+        <Parent guid="GuidDotvvmMenuCmdSet" id="TopMenu"/>
+      </Group>
+    </Groups>
+    <Buttons>
+      <Button guid="ButtonsGuid" id="ShowOptions" priority="0x701">
+        <Parent guid="GuidHelpMenuGroup" id="HelpMenuGroupCmd"/>
+        <Strings>
+          <ButtonText>Options</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="ButtonsGuid" id="CheckUpdates" priority="0x702">
+        <Parent guid="GuidHelpMenuGroup" id="HelpMenuGroupCmd"/>
+        <Strings>
+          <ButtonText>Check for updates</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="ButtonsGuid" id="ShowDocs" priority="0x703">
+        <Parent guid="GuidHelpMenuGroup" id="HelpMenuGroupCmd"/>
+        <Strings>
+          <ButtonText>Documentation</ButtonText>
+        </Strings>
+      </Button>
+      <Button guid="ButtonsGuid" id="ShowAbout" priority="0x704">
+        <Parent guid="GuidHelpMenuGroup" id="HelpMenuGroupCmd"/>
+        <Strings>
+          <ButtonText>About</ButtonText>
+        </Strings>
+      </Button>
+    </Buttons>
+  </Commands>
+  <Symbols>
+    <GuidSymbol name="GuidDotvvmMenuPackagePkg" value="{1B39C66B-16E9-4B17-A90D-841357CC282C}"/>
+    <GuidSymbol name="GuidDotvvmMenuCmdSet" value="{1658ABCF-E4D1-423C-879C-AE9323010BFF}">
+      <IDSymbol name="TopMenu" value="0x3001" />
+    </GuidSymbol>
+    <GuidSymbol name="ButtonsGuid" value="{7708D46C-AD36-45EC-AD6E-9E1737CB6FE6}">
+      <IDSymbol name="ShowDocs" value="0x0002"/>
+      <IDSymbol name="ShowOptions" value="0x0003"/>
+      <IDSymbol name="ShowAbout" value="0x0004"/>
+      <IDSymbol name="CheckUpdates" value="0x0005"/>
+    </GuidSymbol>
+    <GuidSymbol name="GuidHelpMenuGroup" value="{4EA6B302-E341-4D55-8D3C-7F547B629AE9}">
+      <IDSymbol name="HelpMenuGroupCmd" value="0x0001"/>
+    </GuidSymbol>
+  </Symbols>
+</CommandTable>

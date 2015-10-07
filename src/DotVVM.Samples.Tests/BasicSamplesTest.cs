@@ -1,28 +1,27 @@
+using Microsoft.VisualStudio.TestTools.UITest.Extension;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OpenQA.Selenium;
 using System;
 using System.Drawing.Imaging;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Threading;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
-using OpenQA.Selenium;
-using System.IO;
 
 namespace DotVVM.Samples.Tests
 {
     public abstract class BasicSamplesTests : SeleniumTestBase
     {
-
         protected abstract string BaseUrl { get; }
 
-        private const int WaitTime = 500;
-
-
+        private const int WaitTime = 1200;
 
         public void Sample1Test(string sampleUrl = "Sample1")
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + sampleUrl);
+                Thread.Sleep(WaitTime);
 
                 Assert.AreEqual(3, browser.FindAll(".table tr").Count);
 
@@ -39,7 +38,6 @@ namespace DotVVM.Samples.Tests
                 Assert.IsTrue(browser.FindAll(".table tr").Last().GetAttribute("class").Contains("completed"));
             });
         }
-
 
         public void Sample2Test()
         {
@@ -90,7 +88,6 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-
         public void Sample3Test()
         {
             RunInAllBrowsers(browser =>
@@ -111,8 +108,7 @@ namespace DotVVM.Samples.Tests
                 var cells = table.FindAll("tr")[2].FindAll("td");
                 cells[0].Find("input").Clear();
                 cells[0].Find("input").SendKeys("111");
-                cells[1].Find("select").Click();
-                cells[1].FindAll("select option")[1].Click();
+                cells[1].Find("select").Select(1);
                 cells[2].Find("input").Clear();
                 cells[2].Find("input").SendKeys("Bread");
                 cells[3].Find("input").Clear();
@@ -124,8 +120,7 @@ namespace DotVVM.Samples.Tests
                 cells = table.FindAll("tr")[3].FindAll("td");
                 cells[0].Find("input").Clear();
                 cells[0].Find("input").SendKeys("222");
-                cells[1].Find("select").Click();
-                cells[1].FindAll("select option")[2].Click();
+                cells[1].Find("select").Select(2);
                 cells[2].Find("input").Clear();
                 cells[2].Find("input").SendKeys("Ham");
                 cells[3].Find("input").Clear();
@@ -137,8 +132,7 @@ namespace DotVVM.Samples.Tests
                 cells = table.FindAll("tr")[4].FindAll("td");
                 cells[0].Find("input").Clear();
                 cells[0].Find("input").SendKeys("333");
-                cells[1].Find("select").Click();
-                cells[1].FindAll("select option")[3].Click();
+                cells[1].Find("select").Select(3);
                 cells[2].Find("input").Clear();
                 cells[2].Find("input").SendKeys("Cheese");
                 cells[3].Find("input").Clear();
@@ -148,6 +142,7 @@ namespace DotVVM.Samples.Tests
 
                 // verify line totals
                 browser.Find("input[type=text]").Click();
+                Thread.Sleep(WaitTime * 5);
                 Assert.AreEqual("126", table.FindAll("tr")[2].FindAll("td")[5].GetText().Trim());
                 Assert.AreEqual("5.5", table.FindAll("tr")[3].FindAll("td")[5].GetText().Trim());
                 Assert.AreEqual("180", table.FindAll("tr")[4].FindAll("td")[5].GetText().Trim());
@@ -167,9 +162,7 @@ namespace DotVVM.Samples.Tests
                 // verify total price
                 Assert.AreEqual("281.5", table.FindAll("tr").Last().FindAll("th")[1].GetText().Trim());
             });
-
         }
-
 
         public void Sample4Test()
         {
@@ -193,7 +186,6 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-
         public void Sample5Test()
         {
             RunInAllBrowsers(browser =>
@@ -214,7 +206,6 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual("27", browser.FindAll("input[type=text]")[1].GetAttribute("value"));
             });
         }
-
 
         public void Sample6Test()
         {
@@ -241,7 +232,6 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual(originalValue, browser.Find("strong span").GetText());
             });
         }
-
 
         public void Sample8Test()
         {
@@ -274,7 +264,6 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-
         public void Sample9Test()
         {
             RunInAllBrowsers(browser =>
@@ -290,7 +279,6 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual("Tohle pochází z resource souboru!", browser.Find("p").GetText().Trim());
             });
         }
-
 
         public void Sample10Test()
         {
@@ -310,7 +298,6 @@ namespace DotVVM.Samples.Tests
                 Assert.AreNotEqual(originalUrl, browser.CurrentUrl);
             });
         }
-
 
         public void Sample11Test()
         {
@@ -373,7 +360,6 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-
         public void Sample12Test()
         {
             RunInAllBrowsers(browser =>
@@ -396,8 +382,6 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-
-
         public void Sample13Test()
         {
             RunInAllBrowsers(browser =>
@@ -405,22 +389,19 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(BaseUrl + "Sample13");
 
                 // select city
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[1].Click();
+                browser.FindAll("select")[0].Select(1);
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
 
                 // select hotel
-                browser.FindAll("select")[1].FindAll("option")[1].Click();
+                browser.FindAll("select")[1].Select(1);
                 browser.FindAll("input[type=button]")[1].Click();
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("Hotel Seattle #2", browser.GetText("h2"));
 
-
                 // select city
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[0].Click();
+                browser.FindAll("select")[0].Select(0);
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
 
@@ -432,7 +413,6 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual("Hotel Prague #1", browser.GetText("h2"));
             });
         }
-
 
         public void Sample14Test()
         {
@@ -450,13 +430,12 @@ namespace DotVVM.Samples.Tests
                     browser.FindAll("input[type=text]")[i].SendKeys((i + 1).ToString());
                 }
                 browser.Click("input[type=button]");
-                Thread.Sleep(WaitTime);
+                Thread.Sleep(WaitTime * 2);
 
                 // validate result
-                Assert.AreEqual("78", browser.FindAll("span").Last().GetText().Trim());
+                Assert.AreEqual("78", browser.Last("span").GetText().Trim());
             });
         }
-
 
         public void Sample15Test()
         {
@@ -490,7 +469,6 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-
         public void Sample16Test(string sampleUrl = "Sample16")
         {
             RunInAllBrowsers(browser =>
@@ -499,11 +477,9 @@ namespace DotVVM.Samples.Tests
 
                 Action performTest = () =>
                 {
-                    // make sure that thirs row's first cell is yellow
-                    Assert.AreEqual("",
-                        browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
-                    Assert.AreEqual("alternate",
-                        browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
+                    // make sure that third row's first cell is yellow
+                    Assert.AreEqual("", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
+                    Assert.AreEqual("alternate", browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
 
                     // go to second page
                     Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
@@ -526,7 +502,6 @@ namespace DotVVM.Samples.Tests
                     Thread.Sleep(WaitTime);
                     Assert.AreEqual("11", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
 
-
                     // try sorting in the first grid
                     browser.FindAll("table")[0].FindAll("tr")[0].FindAll("th")[2].Find("a").Click();
                     Thread.Sleep(WaitTime);
@@ -542,7 +517,6 @@ namespace DotVVM.Samples.Tests
                     Thread.Sleep(WaitTime);
                     Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
 
-
                     // try sorting in the first grid
                     browser.FindAll("table")[1].FindAll("tr")[0].FindAll("th")[2].Find("a").Click();
                     Thread.Sleep(WaitTime);
@@ -554,6 +528,7 @@ namespace DotVVM.Samples.Tests
                     Assert.AreEqual("1", browser.FindAll("table")[1].FindAll("tr")[1].FindAll("td")[0].GetText());
                 };
 
+                Thread.Sleep(WaitTime * 6);
                 performTest();
                 Thread.Sleep(WaitTime * 6);
                 browser.NavigateToUrl(BaseUrl);
@@ -563,7 +538,6 @@ namespace DotVVM.Samples.Tests
                 performTest();
             });
         }
-
 
         public void Sample17Test()
         {
@@ -638,7 +612,6 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual(BaseUrl + "Sample1", browser.CurrentUrl.TrimEnd('/'));
             });
         }
-
 
         public void Sample18Test()
         {
@@ -742,6 +715,9 @@ namespace DotVVM.Samples.Tests
                 for (int i = 0; i < 3; i++)
                 {
                     Assert.AreEqual(urls[i], urls[i + 3]);
+
+                    StringAssert.IsNotNullOrWhiteSpace(browser.FindAll("a")[i].GetText());
+                    StringAssert.IsNotNullOrWhiteSpace(browser.FindAll("a")[i + 3].GetText());
                 }
             });
         }
@@ -958,6 +934,181 @@ namespace DotVVM.Samples.Tests
         public void Sample30Test()
         {
             Sample26Test("Sample30");
+        }
+
+        public void Sample31Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample31");
+
+                // select second option from combobox
+                browser.Find("select").Click();
+                Assert.IsNotNull(browser.Find("select").Find("option"));
+                browser.Find("h1").Click();
+
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("1", browser.GetText("span"));
+
+                // select second option from combobox
+                browser.Find("select").Select(1);
+                browser.Find("h1").Click();
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("2", browser.GetText("span"));
+
+                // select third option from combobox
+                browser.Find("select").Select(2);
+                browser.Find("h1").Click();
+
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("3", browser.GetText("span"));
+
+                // select fourth option from combobox
+                browser.Find("select").Select(3);
+                browser.Find("h1").Click();
+
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("4", browser.GetText("span"));
+            });
+        }
+
+        public void Sample32Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample32");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextProperty", "button");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBinding", "button");
+                CheckButtonTextIsSetAndTagName(browser, "#InputTextProperty", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#InputTextBinding", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerText", "button");
+
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextPropertyUpperCase", "button");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBindingUpperCase", "button");
+                CheckButtonTextIsSetAndTagName(browser, "#InputTextPropertyUpperCase", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerTextUpperCase", "button");
+            });
+        }
+
+        public void Sample33Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample33");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextProperty", "a");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBinding", "a");
+                CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerText", "a");
+            });
+        }
+
+        public void Sample34Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample34");
+                CheckButtonTextIsSetAndTagName(browser, "#TextBox1", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#TextBox2", "input");
+                CheckButtonTextIsSetAndTagName(browser, "#TextArea1", "textarea");
+                CheckButtonTextIsSetAndTagName(browser, "#TextArea2", "textarea");
+            });
+        }
+
+        private static void CheckButtonTextIsSetAndTagName(SeleniumBrowserHelper browser, string selector, string expectedTagName, string expectedValue = null, bool textCanBeNull = false)
+        {
+            // check tagName
+            var element = browser.Find(selector);
+            element.CheckTagName(expectedTagName);
+            element.CheckTextValue(expectedValue, textCanBeNull);
+        }
+
+        public void Sample35Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample35");
+
+                Assert.AreEqual(1, browser.FindAll("#part1>div").Count);
+                Assert.AreEqual(4, browser.FindAll("#part1>div>p").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part1>div>p")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part1>div>p")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part1>div>p")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part1>div>p")[3].GetText());
+
+                Assert.AreEqual(1, browser.FindAll("#part2>ul").Count);
+                Assert.AreEqual(4, browser.FindAll("#part2>ul>li").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part2>ul>li")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part2>ul>li")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part2>ul>li")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part2>ul>li")[3].GetText());
+
+                Assert.AreEqual(4, browser.FindAll("#part3>p").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part3>p")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part3>p")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part3>p")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part3>p")[3].GetText());
+
+                Assert.AreEqual(1, browser.FindAll("#part1_server>div").Count);
+                Assert.AreEqual(4, browser.FindAll("#part1_server>div>p").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part1_server>div>p")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part1_server>div>p")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part1_server>div>p")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part1_server>div>p")[3].GetText());
+
+                Assert.AreEqual(1, browser.FindAll("#part2_server>ul").Count);
+                Assert.AreEqual(4, browser.FindAll("#part2_server>ul>li").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part2_server>ul>li")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part2_server>ul>li")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part2_server>ul>li")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part2_server>ul>li")[3].GetText());
+
+                Assert.AreEqual(4, browser.FindAll("#part3_server>p").Count);
+                Assert.AreEqual("Test 1", browser.FindAll("#part3_server>p")[0].GetText());
+                Assert.AreEqual("Test 2", browser.FindAll("#part3_server>p")[1].GetText());
+                Assert.AreEqual("Test 3", browser.FindAll("#part3_server>p")[2].GetText());
+                Assert.AreEqual("Test 4", browser.FindAll("#part3_server>p")[3].GetText());
+            });
+        }
+
+        public void Sample36Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample36");
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("test1", browser.FindAll("*[data-id=test1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("test2", browser.FindAll("*[data-id=test2_marker]").Single().GetAttribute("id"));
+
+                Assert.AreEqual("test1a", browser.FindAll("*[data-id=test1a_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("test2a", browser.FindAll("*[data-id=test2a_marker]").Single().GetAttribute("id"));
+
+
+                var control1 = browser.FindAll("#ctl1").Single();
+                Assert.AreEqual("ctl1_control1", control1.FindAll("*[data-id=control1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("ctl1_control2", control1.FindAll("*[data-id=control2_marker]").Single().GetAttribute("id"));
+
+                var control2 = browser.FindAll("#ctl2").Single();
+                Assert.AreEqual("control1", control2.FindAll("*[data-id=control1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("control2", control2.FindAll("*[data-id=control2_marker]").Single().GetAttribute("id"));
+
+                var repeater1 = browser.FindAll("*[data-id=repeater1]").Single();
+                for (int i = 0; i < 4; i++)
+                {
+                    Assert.AreEqual(repeater1.GetAttribute("id") + "_i" + i + "_repeater1", repeater1.FindAll("*[data-id=repeater1_marker]")[i].GetAttribute("id"));
+                    Assert.AreEqual(repeater1.GetAttribute("id") + "_i" + i + "_repeater2", repeater1.FindAll("*[data-id=repeater2_marker]")[i].GetAttribute("id"));
+                }
+
+                var repeater2 = browser.FindAll("*[data-id=repeater2]").Single();
+                for (int i = 0; i < 4; i++)
+                {
+                    Assert.AreEqual(repeater2.GetAttribute("id") + "_i" + i + "_repeater1server", repeater2.FindAll("*[data-id=repeater1server_marker]")[i].GetAttribute("id"));
+                    Assert.AreEqual(repeater2.GetAttribute("id") + "_i" + i + "_repeater2server", repeater2.FindAll("*[data-id=repeater2server_marker]")[i].GetAttribute("id"));
+                }
+            });
         }
     }
 }

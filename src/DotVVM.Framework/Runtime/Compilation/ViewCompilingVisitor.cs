@@ -42,6 +42,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName);
             var pageName = emitter.EmitCreateObject(wrapperClassName);
             emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, pageName);
+            emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.MarkupFileNameProperty.Name, view.Metadata.VirtualPath);
             if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)))
             {
                 foreach (var directive in view.Directives)
@@ -95,7 +96,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            emitter.EmitSetBinding(controlName, propertyBinding.Property.DescriptorFullName, ProcessBinding(propertyBinding.Binding));
+            emitter.EmitSetBinding(controlName, propertyBinding.Property.DescriptorFullName, ProcessBinding(propertyBinding.Binding, propertyBinding.Property.PropertyType));
             base.VisitPropertyBinding(propertyBinding);
         }
 
@@ -106,6 +107,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             controlName = CreateControl(control);
             // compile control content
             base.VisitControl(control);
+            emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
             // set the property
             SetProperty(parentName, propertyControl.Property, SyntaxFactory.IdentifierName(controlName));
             controlName = parentName;
@@ -120,6 +122,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 // compile control content
                 base.VisitControl(control);
                 // add to collection in property
+                emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
                 emitter.EmitAddCollectionItem(parentName, controlName, propertyControlCollection.Property.Name);
             }
             controlName = parentName;
@@ -159,7 +162,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         protected ExpressionSyntax ProcessBindingOrValue(object obj, DataContextStack dataContext)
         {
             var binding = obj as ResolvedBinding;
-            if (binding != null) return ProcessBinding(binding);
+            if (binding != null) return ProcessBinding(binding, typeof(object));
             else return emitter.EmitValue(obj);
         }
 
@@ -194,7 +197,15 @@ namespace DotVVM.Framework.Runtime.Compilation
                 // markup control
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
+            // set unique id
             emitter.EmitSetAttachedProperty(name, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, name);
+            
+            if(control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
+            {
+                // set line number
+                emitter.EmitSetAttachedProperty(name, typeof(Internal).FullName, Internal.MarkupLineNumberProperty.Name, control.DothtmlNode.Tokens.First().LineNumber);
+            }
+
             if (control.HtmlAttributes != null && control.Metadata.HasHtmlAttributesCollection)
             {
                 ProcessHtmlAttributes(name, control.HtmlAttributes, control.DataContextTypeStack);
@@ -205,10 +216,10 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Emits binding contructor and returns variable name
         /// </summary>
-        protected ExpressionSyntax ProcessBinding(ResolvedBinding binding)
+        protected ExpressionSyntax ProcessBinding(ResolvedBinding binding, Type expectedType)
         {
             //return emitter.EmitCreateObject(binding.Type, new object[] { binding.Value });
-            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(emitter, binding, "__b" + bindingIdCounter++) });
+            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(binding, "__b" + bindingIdCounter++, expectedType) });
         }
 
         /// <summary>

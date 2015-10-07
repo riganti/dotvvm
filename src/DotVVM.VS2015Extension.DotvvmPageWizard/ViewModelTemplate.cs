@@ -18,7 +18,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "D:\Riganti\External\dotVVM\src\DotVVM.VS2015Extension.DotvvmPageWizard\ViewModelTemplate.tt"
+    #line 1 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ViewModelTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
     public partial class ViewModelTemplate : ViewModelTemplateBase
     {
@@ -28,17 +28,17 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("\r\nusing System;\r\nusing System.Collections.Generic;\r\nusing System.Linq;\r\nusing Sys" +
-                    "tem.Text;\r\nusing DotVVM.Framework.ViewModel;\r\n\r\nnamespace ");
+            this.Write("using System;\r\nusing System.Collections.Generic;\r\nusing System.Linq;\r\nusing Syste" +
+                    "m.Text;\r\nusing DotVVM.Framework.ViewModel;\r\n\r\nnamespace ");
             
-            #line 13 "D:\Riganti\External\dotVVM\src\DotVVM.VS2015Extension.DotvvmPageWizard\ViewModelTemplate.tt"
+            #line 11 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ViewModelTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ViewModel.ViewModelNamespace));
             
             #line default
             #line hidden
             this.Write("\r\n{\r\n\tpublic class ");
             
-            #line 15 "D:\Riganti\External\dotVVM\src\DotVVM.VS2015Extension.DotvvmPageWizard\ViewModelTemplate.tt"
+            #line 13 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ViewModelTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ViewModel.ViewModelName));
             
             #line default
@@ -47,7 +47,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 20 "D:\Riganti\External\dotVVM\src\DotVVM.VS2015Extension.DotvvmPageWizard\ViewModelTemplate.tt"
+        #line 18 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ViewModelTemplate.tt"
 
 public PageWindowViewModel ViewModel { get; set; }
 

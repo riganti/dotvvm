@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, CheckableControlBase>(t => t.Text, "");
 
         /// <summary>
-        /// Gets or sets whether the <see cref="RadioButton" /> is checked.
+        /// Gets or sets whether the control is checked.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
         public bool Checked
@@ -36,6 +36,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Gets or sets the value that will be used as a result when the control is checked.
+        /// Use this property in combination with the CheckedValue or CheckedValues property.
         /// </summary>
         public object CheckedValue
         {
@@ -50,18 +51,18 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the command that will be triggered when the control check state is changed.
         /// </summary>
-        public Action Changed
+        public Command Changed
         {
-            get { return (Action)GetValue(ChangedProperty); }
+            get { return (Command)GetValue(ChangedProperty); }
             set { SetValue(ChangedProperty, value); }
         }
         public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Action, CheckableControlBase>(t => t.Changed, null);
+            DotvvmProperty.Register<Command, CheckableControlBase>(t => t.Changed, null);
 
 
 
         /// <summary>
-        /// Gets or sets a value indicating whether the button is enabled and can be clicked on.
+        /// Gets or sets a value indicating whether the control is enabled and can be clicked on.
         /// </summary>
         public bool Enabled
         {
@@ -88,7 +89,7 @@ namespace DotVVM.Framework.Controls
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
             // label
-            var textBinding = GetBinding(TextProperty);
+            var textBinding = GetValueBinding(TextProperty);
             var labelRequired = textBinding != null || !string.IsNullOrEmpty(Text) || !HasOnlyWhiteSpaceContent();
             if (labelRequired)
             {
@@ -122,7 +123,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (textBinding != null)
                 {
-                    writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
+                    writer.AddKnockoutDataBind("text", textBinding);
                     writer.RenderBeginTag("span");
                     writer.RenderEndTag();
                 }

@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Controls
 		{ }
 
         /// <summary>
-        /// Gets or sets the name of property in the <see cref="ItemsControl.DataSource"/> collection that will be displayed in the <see cref="Selector"/>.
+        /// Gets or sets the name of property in the DataSource collection that will be displayed in the control.
         /// </summary>
         public string DisplayMember
 		{
@@ -27,10 +27,10 @@ namespace DotVVM.Framework.Controls
 		public static readonly DotvvmProperty DisplayMemberProperty =
 			DotvvmProperty.Register<string, Selector>(t => t.DisplayMember, "");
 
-		/// <summary>
-		/// Gets or sets the name of property in the <see cref="ItemsControl.DataSource"/> collection that will be passed to the <see cref="SelectedValue"/> property.
-		/// </summary>
-		public string ValueMember
+        /// <summary>
+        /// Gets or sets the name of property in the DataSource collection that will be passed to the SelectedValue property when the item is selected.
+        /// </summary>
+        public string ValueMember
 		{
 			get { return (string)GetValue(ValueMemberProperty); }
 			set { SetValue(ValueMemberProperty, value); }
@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Controls
 
 
 		/// <summary>
-		/// Gets or sets the value selected in the <see cref="Selector"/>.
+		/// Gets or sets the value of the selected item.
 		/// </summary>
 		public object SelectedValue
 		{
@@ -51,14 +51,14 @@ namespace DotVVM.Framework.Controls
 			DotvvmProperty.Register<object, Selector>(t => t.SelectedValue);
 
 		/// <summary>
-		/// Gets or sets the command that will be triggered when selected item is changed.
+		/// Gets or sets the command that will be triggered when the selection is changed.
 		/// </summary>
-		public Action SelectionChanged
+		public Command SelectionChanged
 		{
-			get { return (Action)GetValue(SelectionChangedProperty); }
+			get { return (Command)GetValue(SelectionChangedProperty); }
 			set { SetValue(SelectionChangedProperty, value); }
 		}
 		public static readonly DotvvmProperty SelectionChangedProperty =
-			DotvvmProperty.Register<Action, Selector>(t => t.SelectionChanged, null);
+			DotvvmProperty.Register<Command, Selector>(t => t.SelectionChanged, null);
 	}
 }

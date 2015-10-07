@@ -1,9 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace DotVVM.Framework.Controls
 {
@@ -12,7 +12,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class HtmlGenericControl : DotvvmBindableControl, IControlWithHtmlAttributes
     {
-
         /// <summary>
         /// Gets the tag name.
         /// </summary>
@@ -25,7 +24,6 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
         public Dictionary<string, object> Attributes { get; private set; }
 
-
         /// <summary>
         /// Gets or sets whether the control is visible.
         /// </summary>
@@ -35,6 +33,7 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(VisibleProperty); }
             set { SetValue(VisibleProperty, value); }
         }
+
         public static readonly DotvvmProperty VisibleProperty =
             DotvvmProperty.Register<bool, HtmlGenericControl>(t => t.Visible, true);
 
@@ -43,6 +42,7 @@ namespace DotVVM.Framework.Controls
             get { return (string)GetValue(InnerTextProperty); }
             set { SetValue(InnerTextProperty, value); }
         }
+
         public static readonly DotvvmProperty InnerTextProperty =
             DotvvmProperty.Register<string, HtmlGenericControl>(t => t.InnerText, null);
 
@@ -66,7 +66,6 @@ namespace DotVVM.Framework.Controls
                 SetValue(RenderSettings.ModeProperty, RenderMode.Server);
             }
         }
-
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
@@ -116,7 +115,7 @@ namespace DotVVM.Framework.Controls
             });
 
             // hadle Id property
-            AddIdAttribute(writer);
+            RenderClientId(writer);
 
             base.AddAttributesToRender(writer, context);
         }
@@ -142,17 +141,6 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Adds the corresponding attribute for the Id property.
-        /// </summary>
-        protected virtual void AddIdAttribute(IHtmlWriter writer)
-        {
-            if (!string.IsNullOrEmpty(ID))
-            {
-                writer.AddAttribute("id", ID);
-            }
-        }
-
-        /// <summary>
         /// Renders the control begin tag.
         /// </summary>
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
@@ -168,5 +156,15 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
         }
 
+        /// <summary>
+        /// Verifies that the control hasn't any HTML attributes or Visible or DataContext bindings set.
+        /// </summary>
+        protected void EnsureNoAttributesSet()
+        {
+            if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty))
+            {
+                throw new Exception("Cannot set HTML attributes, Visible or DataContext bindings on a control which doesn't render its own element!");   // TODO
+            }
+        }
     }
 }

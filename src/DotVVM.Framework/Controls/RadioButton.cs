@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(CheckedItemProperty, value); }
         }
         public static readonly DotvvmProperty CheckedItemProperty =
-            DotvvmProperty.Register<IEnumerable, RadioButton>(t => t.CheckedItem, null);
+            DotvvmProperty.Register<object, RadioButton>(t => t.CheckedItem, null);
 
         /// <summary>
         /// Gets or sets an unique name of the radio button group.
@@ -39,11 +39,11 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderInputTag(IHtmlWriter writer)
         {
-            var checkedItemBinding = GetBinding(CheckedItemProperty);
+            var checkedItemBinding = GetValueBinding(CheckedItemProperty);
             if (checkedItemBinding != null)
             {
                 // selected item mode
-                writer.AddKnockoutDataBind("checked", this, CheckedItemProperty, () => { });
+                writer.AddKnockoutDataBind("checked", checkedItemBinding);
                 writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
                 {
                     var checkedValue = (CheckedValue ?? string.Empty).ToString();
@@ -61,10 +61,11 @@ namespace DotVVM.Framework.Controls
             // render the input tag
             writer.AddAttribute("type", "radio");
 
-            var groupNameBinding = GetBinding(GroupNameProperty);
+            var groupNameBinding = GetValueBinding(GroupNameProperty);
             if (groupNameBinding != null)
             {
-                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, IValueBinding>("name", groupNameBinding as IValueBinding) }, this, GroupNameProperty);
+                // TODO: do not overwrite existing attribute bindings
+                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, IValueBinding>("name", groupNameBinding) }, this, GroupNameProperty);
             }
             else
             {

@@ -15,6 +15,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets whether the control should be hidden even for valid values.
         /// </summary>
+        [AttachedProperty(typeof(bool))]
         public static readonly ActiveDotvvmProperty HideWhenValidProperty =
             DelegateActionProperty<bool>.Register<ValidationMessage>("HideWhenValid", AddHideWhenValid);
 
@@ -32,6 +33,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the name of CSS class which is applied to the control when it is not valid.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
+        [AttachedProperty(typeof(string))]
         public static readonly ActiveDotvvmProperty InvalidCssClassProperty =
             DelegateActionProperty<string>.Register<ValidationMessage>("InvalidCssClass", AddInvalidCssClass);
 
@@ -47,6 +49,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets whether the title attribute should be set to the error message.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
+        [AttachedProperty(typeof(bool))]
         public static readonly ActiveDotvvmProperty SetToolTipTextProperty =
             DelegateActionProperty<bool>.Register<ValidationMessage>("SetToolTipText", AddSetToolTipText);
 
@@ -65,6 +68,7 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets whether the error message text should be displayed.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
+        [AttachedProperty(typeof(bool))]
         public static readonly ActiveDotvvmProperty ShowErrorMessageTextProperty =
             DelegateActionProperty<bool>.Register<ValidationMessage>("ShowErrorMessageText", AddShowErrorMessageText);
 

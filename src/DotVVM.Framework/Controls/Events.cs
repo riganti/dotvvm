@@ -10,11 +10,11 @@ namespace DotVVM.Framework.Controls
     [ContainsDotvvmProperties]
     public class Events
     {
-        [AttachedProperty(typeof(Action))]
+        [AttachedProperty(typeof(Command))]
         public static ActiveDotvvmProperty ClickProperty =
             ActiveDotvvmProperty.RegisterCommandToAttribute<Events>("Click", "onclick");
 
-        [AttachedProperty(typeof(Action))]
+        [AttachedProperty(typeof(Command))]
         public static ActiveDotvvmProperty DoubleClickProperty =
             ActiveDotvvmProperty.RegisterCommandToAttribute<Events>("DoubleClick", "ondblclick");
     }

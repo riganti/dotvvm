@@ -9,11 +9,14 @@ using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// Allows the user to upload one or multiple files asynchronously.
+    /// </summary>
     public class FileUpload : HtmlGenericControl
     {
 
         /// <summary>
-        /// Gets or sets whether the user can select multiple files.
+        /// Gets or sets whether the user can select multiple files at once.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool AllowMultipleFiles
@@ -38,16 +41,16 @@ namespace DotVVM.Framework.Controls
 
 
         /// <summary>
-        /// Gets or sets a command that is called when the upload is complete.
+        /// Gets or sets a command that is triggered when the upload is complete.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public Action UploadCompleted
+        public Command UploadCompleted
         {
-            get { return (Action)GetValue(UploadCompletedProperty); }
+            get { return (Command)GetValue(UploadCompletedProperty); }
             set { SetValue(UploadCompletedProperty, value); }
         }
         public static readonly DotvvmProperty UploadCompletedProperty
-            = DotvvmProperty.Register<Action, FileUpload>(p => p.UploadCompleted, null);
+            = DotvvmProperty.Register<Command, FileUpload>(p => p.UploadCompleted, null);
 
 
 

@@ -12,7 +12,8 @@ namespace DotVVM.Framework.Controls
     {
         public void RenderHtmlAttribute(IHtmlWriter writer, IDotvvmRequestContext requestContext, string attributeName, object attributeValue)
         {
-            attributeValue = requestContext.TranslateVirtualPath((string)attributeValue);
+            if (attributeValue != null)
+                attributeValue = requestContext.TranslateVirtualPath((string)attributeValue);
             writer.WriteHtmlAttribute(attributeName, (string)attributeValue);
         }
     }

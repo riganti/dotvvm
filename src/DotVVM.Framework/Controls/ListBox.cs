@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Framework.Controls
 {
 	/// <summary>
-	/// Renders HTML list box.
+	/// Renders the HTML list box.
 	/// </summary>
 	public class ListBox : SelectHtmlControlBase
 	{
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Controls
 		}
 
 		/// <summary>
-		/// Gets or sets number of rows visible in this <see cref="ListBox"/>.
+		/// Gets or sets number of rows visible in this ListBox.
 		/// </summary>
 		public int Size
 		{

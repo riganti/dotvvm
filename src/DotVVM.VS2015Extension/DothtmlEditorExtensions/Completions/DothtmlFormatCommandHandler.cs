@@ -1,25 +1,26 @@
-using Microsoft.VisualStudio.OLE.Interop;
-using Microsoft.VisualStudio.Text.Editor;
-using Microsoft.VisualStudio.TextManager.Interop;
-using System.Diagnostics;
-using System;
-using System.Linq;
-using Microsoft.VisualStudio.Shell;
-using Microsoft.VisualStudio;
-using Microsoft.VisualStudio.Text;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
+using DotVVM.VS2015Extension.Bases;
+using DotVVM.VS2015Extension.Bases.Commands;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
+using Microsoft.VisualStudio;
+using Microsoft.VisualStudio.OLE.Interop;
+using Microsoft.VisualStudio.Shell;
+using Microsoft.VisualStudio.Text;
+using Microsoft.VisualStudio.Text.Editor;
+using Microsoft.VisualStudio.TextManager.Interop;
+using System;
+using System.Diagnostics;
+using System.Linq;
 using System.Text;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
 {
     public class DothtmlFormatCommandHandler : BaseCommandTarget
     {
-
-
         public override Guid CommandGroupId
         {
             get
@@ -36,14 +37,14 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
             }
         }
 
-        public DothtmlFormatCommandHandler(IVsTextView textViewAdapter, ITextView textView) : base(textViewAdapter, textView)
+        public DothtmlFormatCommandHandler(IVsTextView textViewAdapter, ITextView textView, BaseHandlerProvider provider) : base(textViewAdapter, textView, provider)
         {
         }
 
-        protected override bool Execute(uint nCmdID, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut, IOleCommandTarget nextCommandTarget)
+        protected override bool Execute(uint nCmdId, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut, NextIOleCommandTarget nextCommandTarget)
         {
             var groupId = CommandGroupId;
-            if (nextCommandTarget.Exec(ref groupId, nCmdID, nCmdexecopt, pvaIn, pvaOut) == VSConstants.S_OK)
+            if (nextCommandTarget.Execute(ref groupId, nCmdId, nCmdexecopt, pvaIn, pvaOut) == VSConstants.S_OK)
             {
                 // parse the content
                 var tokenizer = new DothtmlTokenizer();
@@ -51,7 +52,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
                 tokenizer.Tokenize(new StringReader(text));
                 var parser = new DothtmlParser();
                 var node = parser.Parse(tokenizer.Tokens);
-                
+
                 // prepare the metadata control resolver
                 var completionSource = TextView.TextBuffer.Properties.GetProperty<DothtmlCompletionSource>(typeof(DothtmlCompletionSource));
                 var metadataControlResolver = completionSource.MetadataControlResolver;
@@ -59,7 +60,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
 
                 try
                 {
-                    CompletionHelper.DTE.UndoContext.Open("Format Dothtml document");
+                    DTEHelper.UndoContext.Open("Format Dothtml document");
                     var edit = TextView.TextBuffer.CreateEdit(EditOptions.None, null, null);
 
                     // fix the casing of all elements
@@ -73,7 +74,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
                 }
                 finally
                 {
-                    CompletionHelper.DTE.UndoContext.Close();
+                    DTEHelper.UndoContext.Close();
                 }
             }
 

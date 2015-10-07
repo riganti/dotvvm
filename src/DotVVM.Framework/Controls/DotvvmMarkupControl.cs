@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// A base class for all controls with Dothtml markup.
     /// </summary>
-    public abstract class DotvvmMarkupControl : HtmlGenericControl
+    public class DotvvmMarkupControl : HtmlGenericControl
     {
         
         /// <summary>

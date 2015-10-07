@@ -7,8 +7,9 @@
             { "tagPrefix": "dot", "namespace": "DotVVM.Framework.Controls", "assembly": "DotVVM.Framework" },
             { "tagPrefix": "bootstrap", "namespace": "DotVVM.Framework.Controls.Bootstrap", "assembly": "DotVVM.Framework" },
             { "tagPrefix": "sample5", "tagName": "TestControl", "src": "sample5_control.dothtml" },
-          { "tagPrefix": "sample7", "tagName": "Calendar", "src": "sample7_calendar.dothtml" },
-            { "tagPrefix": "sample12", "namespace": "DotVVM.Samples.BasicSamples.Controls", "assembly": "DotVVM.Samples.BasicSamples" }
+            { "tagPrefix": "sample7", "tagName": "Calendar", "src": "sample7_calendar.dothtml" },
+            { "tagPrefix": "sample12", "namespace": "DotVVM.Samples.BasicSamples.Controls", "assembly": "DotVVM.Samples.BasicSamples" },
+            { "tagPrefix": "sample36", "tagName": "Control", "src": "sample36_control.dotcontrol" }
         ]
     },
     "security": {

@@ -13,7 +13,7 @@
     <dot:RequiredResource Name="globalize:cs-CZ" />
 </head>
 <body>
-    <div class="container" class="a" data-attribute="&lt; ahoj kokoti">
+    <div class="container" class="a" data-attribute="&lt;">
 		<dot:InlineScript Dependencies="jquery">
 			<![CDATA[ var k = 1 < 5; ]]>
 		</dot:InlineScript>

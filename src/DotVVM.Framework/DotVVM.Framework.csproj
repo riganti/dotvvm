@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <TypeScriptToolsVersion>1.5</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -89,15 +89,12 @@
   <ItemGroup>
     <Compile Include="Binding\ActiveDotvvmProperty.cs" />
     <Compile Include="Binding\AttachedPropertyAttribute.cs" />
-    <Compile Include="Binding\BindingBuildingExtensions.cs" />
     <Compile Include="Binding\BindingCompilationRequirements.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
     <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
-    <Compile Include="Binding\CommandPostbackJsCompile.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
     <Compile Include="Binding\CompiledBindingExpression.cs" />
-    <Compile Include="Binding\CompileJavascriptAttribute.cs" />
     <Compile Include="Binding\ConstantDataContextChangeAttribute.cs" />
     <Compile Include="Binding\ControlCommandBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
@@ -119,7 +116,6 @@
     <Compile Include="Binding\ResourceBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandCallableAttribute.cs" />
-    <Compile Include="Binding\StaticCommandJsCompile.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
@@ -127,6 +123,8 @@
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
     <Compile Include="Configuration\IDotvvmStartup.cs" />
     <Compile Include="Controls\ButtonTagName.cs" />
+    <Compile Include="Controls\ClientIDFragment.cs" />
+    <Compile Include="Controls\ClientIDMode.cs" />
     <Compile Include="Controls\ContainsDotvvmPropertiesAttribute.cs" />
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DataPager.cs" />
@@ -282,18 +280,20 @@
     <Compile Include="Routing\GenericRouteParameterType.cs" />
     <Compile Include="Routing\IRouteParameterType.cs" />
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
+    <Compile Include="Runtime\Compilation\BindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />
     <Compile Include="Runtime\Compilation\Binding\BindingCompilationException.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeBindingParser.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeParserNodeContext.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeTypeConstraint.cs" />
     <Compile Include="Runtime\Compilation\Binding\DataContextResolverBindingParserNodeVisitor.cs" />
-    <Compile Include="Runtime\Compilation\Binding\ExpressionBuldingVisitor.cs" />
+    <Compile Include="Runtime\Compilation\Binding\ExpressionBuildingVisitor.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionHelper.cs" />
     <Compile Include="Runtime\Compilation\Binding\MethodGroupExpression.cs" />
     <Compile Include="Runtime\Compilation\Binding\StaticClassIdentifier.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeConversions.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeRegistry.cs" />
+    <Compile Include="Runtime\Compilation\CommandBindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
     <Compile Include="Runtime\Compilation\ControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\DataContextStack.cs" />
@@ -323,6 +323,7 @@
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyValue.cs" />
     <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedTreeRoot.cs" />
     <Compile Include="Runtime\Compilation\RoslynExtensionMethods.cs" />
+    <Compile Include="Runtime\Compilation\StaticCommandBindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\ViewCompilingVisitor.cs" />
     <Compile Include="Runtime\DefaultControlBuilderFactory.cs" />
     <Compile Include="Runtime\DefaultOutputRenderer.cs" />
@@ -428,6 +429,7 @@
     <Compile Include="Utils\HttpAbstractions\StreamHelperExtensions.cs" />
     <Compile Include="Utils\JsonUtils.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="Utils\TaskUtils.cs" />
     <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ClientCommandAttribute.cs" />

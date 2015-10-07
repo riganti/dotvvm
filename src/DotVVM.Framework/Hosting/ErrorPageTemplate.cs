@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Hosting
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+    #line 1 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
     public partial class ErrorPageTemplate : ErrorPageTemplateBase
     {
@@ -48,168 +48,168 @@ span.current-line { color: red; }
 		<h1>Server Error in Application</h1>
 		<h2>HTTP ");
             
-            #line 24 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 24 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ErrorCode));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 24 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 24 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ErrorDescription)));
             
             #line default
             #line hidden
             this.Write("</h2>\r\n\t\t<p><strong>");
             
-            #line 25 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 25 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Exception.GetType().FullName));
             
             #line default
             #line hidden
             this.Write(": ");
             
-            #line 25 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 25 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Exception.Message)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n\r\n");
             
-            #line 27 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 27 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  if (Url != null) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Request URL: <strong>");
             
-            #line 28 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 28 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(Verb));
             
             #line default
             #line hidden
             this.Write(" ");
             
-            #line 28 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 28 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Url)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 29 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 29 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 31 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 31 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  if (ClassName != null) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Source Class: <strong>");
             
-            #line 32 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 32 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ClassName.AssemblyQualifiedName)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 33 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 33 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 35 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 35 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  if (!string.IsNullOrEmpty(FileName)) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Source File: <strong>");
             
-            #line 36 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 36 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(FileName)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 37 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 37 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 39 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 39 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  if (LineNumber > 0) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Line: <strong>");
             
-            #line 40 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 40 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(LineNumber));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 41 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 41 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 43 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 43 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  if (!string.IsNullOrEmpty(CurrentUserName)) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Current User: <strong>");
             
-            #line 44 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 44 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(CurrentUserName)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 45 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 45 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 47 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 47 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  if (!string.IsNullOrEmpty(IpAddress)) { 
             
             #line default
             #line hidden
             this.Write("\t\t<p>Client IP: <strong>");
             
-            #line 48 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 48 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(IpAddress)));
             
             #line default
             #line hidden
             this.Write("</strong></p>\r\n");
             
-            #line 49 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 49 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  } 
             
             #line default
             #line hidden
             this.Write("\r\n");
             
-            #line 51 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 51 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
  
 	var sourceLines = GetSourceLines();
     if (sourceLines != null)
@@ -220,7 +220,7 @@ span.current-line { color: red; }
             #line hidden
             this.Write("\t\t<p>&nbsp;</p>\r\n\t\t<h3>Source Location</h3>\r\n");
             
-            #line 58 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 58 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
 
         this.Write("<pre>");
         foreach (var line in sourceLines)
@@ -254,7 +254,7 @@ span.current-line { color: red; }
             #line hidden
             this.Write("\t\t\r\n\t\t<p>&nbsp;</p>\r\n\t\t<h3>Stack Trace</h3>\r\n");
             
-            #line 89 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+            #line 89 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
 
     this.Write("<pre>");
     WriteException(Exception);
@@ -276,7 +276,7 @@ span.current-line { color: red; }
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 111 "D:\Riganti\External\DotVVM\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
+        #line 111 "C:\Users\exyi\OneDrive\code\dotvvm\src\DotVVM.Framework\Hosting\ErrorPageTemplate.tt"
 
 	public int ErrorCode { get; set; }
 

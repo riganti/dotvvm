@@ -4,6 +4,7 @@ using DotVVM.Framework.Parser;
 using DotVVM.Framework.Utils;
 using System.Collections;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
+using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
 {
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.Binding
         Javascript = BindingCompilationRequirementType.StronglyRequire,
         Expression = BindingCompilationRequirementType.IfPossible,
         UpdateDelegate = BindingCompilationRequirementType.IfPossible)]
-    [CompileJavascript]
+    [BindingCompilation]
     public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
     {
 

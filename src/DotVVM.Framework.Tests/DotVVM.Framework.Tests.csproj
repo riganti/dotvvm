@@ -171,7 +171,6 @@
     <Compile Include="Runtime\ResourceManagerTests.cs" />
     <Compile Include="Routing\DotvvmRouteTests.cs" />
     <Compile Include="Runtime\DefaultViewCompilerTests.cs" />
-    <Compile Include="Runtime\NamingContainersTests.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="ViewModel\ViewModelValidatorTests.cs" />
     <Compile Include="VS2015Extension\MetadataControlResolverTests.cs" />

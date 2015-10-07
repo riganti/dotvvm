@@ -20,6 +20,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
+            {
+                throw new Exception("The <dot:LinkButton> control cannot have both inner content and the Text property set!");     // TODO
+            }
+
             writer.AddAttribute("href", "#");
 
             var clickBinding = GetCommandBinding(ClickProperty);
@@ -28,26 +33,29 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding, context, this));
             }
 
-            writer.AddKnockoutDataBind("text", this, TextProperty, () => { });
+            writer.AddKnockoutDataBind("text", this, TextProperty, () => { shouldRenderText = true; });
             
             base.AddAttributesToRender(writer, context);
         }
 
+        private bool shouldRenderText = false;
         /// <summary>
         /// Renders the contents inside the control begin and end tags.
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-            var textBinding = GetBinding(TextProperty);
-            if (textBinding == null && !string.IsNullOrEmpty(Text))
+            if (shouldRenderText)
             {
-                // render static value of the text property
-                writer.WriteText(Text);
-            }
-            else
-            {
-                // render control contents
-                RenderChildren(writer, context);
+                if (!string.IsNullOrEmpty(Text))
+                {
+                    // render static value of the text property
+                    writer.WriteText(Text);
+                }
+                else
+                {
+                    // render control contents
+                    RenderChildren(writer, context);
+                }
             }
         }
     }

@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Controls
                 else linkButton.Text = HeaderText;
                 cell.Children.Add(linkButton);
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
-                var binding = new CommandBindingExpression((o, i) => { sortCommand(sortExpression); return null; }, bindingId);
+                var binding = new CommandBindingExpression(h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
             }
             else

@@ -1,0 +1,25 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample32ViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .invalid {
+            color: red;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+        <h1>ButtonTagName property sample</h1>
+        <dot:LinkButton ID="ButtonTextProperty" ButtonTagName="button" Text="LinkButton element"></dot:LinkButton>
+        <br/>
+		<dot:LinkButton ID="ButtonTextBinding" ButtonTagName="button" Text="{value: ButtonText}"></dot:LinkButton>
+        <br/>
+		<dot:LinkButton ID="ButtonInnerText" ButtonTagName="button">LinkButton element - inner text</dot:LinkButton>
+        <br/>
+    </div>
+</body>
+</html>

@@ -12,6 +12,14 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
     public class MethodGroupExpression : Expression
     {
+        public override Type Type
+        {
+            get
+            {
+                return typeof(Delegate);
+            }
+        }
+
         public Expression Target { get; set; }
         public string MethodName { get; set; }
         public Type[] TypeArgs { get; set; }

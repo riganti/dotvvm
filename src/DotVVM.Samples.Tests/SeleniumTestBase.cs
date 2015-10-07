@@ -1,37 +1,34 @@
+using Microsoft.VisualStudio.TestTools.UITest.Extension;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
-using System;
-using System.IO;
-using System.Linq;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.IE;
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
 
 namespace DotVVM.Samples.Tests
 {
     public class SeleniumTestBase
     {
-
         public TestContext TestContext { get; set; }
+        private WebDriverFacotry factory;
 
+        private WebDriverFacotry Factory => factory ?? (factory = new WebDriverFacotry());
 
-        protected virtual Func<IWebDriver>[] BrowserFactories
-        {
-            get
-            {
-                return new Func<IWebDriver>[] {
-                    //() => new InternetExplorerDriver(),
-                    //() => new FirefoxDriver(),
-                    () => new ChromeDriver()
-                };
-            }
-        }
+        protected virtual List<Func<IWebDriver>> BrowserFactories => Factory.GetDriverFactories();
 
         /// <summary>
         /// Runs the specified action in all configured browsers.
         /// </summary>
         protected void RunInAllBrowsers(Action<SeleniumBrowserHelper> action)
         {
+            if (BrowserFactories.Count == 0)
+            {
+                throw new Exception("Factory doesn't contains drivers! Enable one driver at least to start UI Tests!");
+            }
             foreach (var browserFactory in BrowserFactories)
             {
                 var attemptNumber = 0;
@@ -78,7 +75,5 @@ namespace DotVVM.Samples.Tests
                 }
             }
         }
-
-
     }
 }

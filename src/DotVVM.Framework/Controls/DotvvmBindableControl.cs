@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public override object GetValue(DotvvmProperty property, bool inherit = true)
         {
-            var value = base.GetValue(property, inherit);
+            var value = GetValueRaw(property, inherit);
             while (value is IBinding)
             {
                 if (value is IStaticValueBinding)
@@ -104,13 +104,21 @@ namespace DotVVM.Framework.Controls
                     var binding = (IStaticValueBinding)value;
                     value = binding.Evaluate(this, property);
                 }
-                if (value is CommandBindingExpression)
+                else if (value is CommandBindingExpression)
                 {
                     var binding = (CommandBindingExpression)value;
-                    value = (Action)(() => binding.Evaluate(this, property));
+                    value = binding.GetCommandDelegate(this, property);
                 }
             }
             return value;
+        }
+
+        /// <summary>
+        /// Gets the value or a binding object for a specified property.
+        /// </summary>
+        protected virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
+        {
+            return base.GetValue(property, inherit);
         }
 
         /// <summary>
@@ -118,7 +126,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public override void SetValue(DotvvmProperty property, object value)
         {
-            var originalValue = base.GetValue(property, false);
+            var originalValue = GetValueRaw(property, false);
             if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))
             {
                 // if the property contains a binding and we are not passing another binding, update the value
@@ -134,26 +142,24 @@ namespace DotVVM.Framework.Controls
                 }
                 else
                 {
-                    base.SetValue(property, value);
+                    SetValueRaw(property, value);
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets the value or a binding to the specified property.
+        /// </summary>
+        protected virtual void SetValueRaw(DotvvmProperty property, object value)
+        {
+            base.SetValue(property, value);
         }
 
         /// <summary>
         /// Gets the binding set to a specified property.
         /// </summary>
         public BindingExpression GetBinding(DotvvmProperty property, bool inherit = true)
-        {
-            var binding = base.GetValue(property, inherit) as BindingExpression;
-
-            //// if there is a controlProperty or controlCommand binding, evaluate it
-            //while (binding != null && !(binding is ValueBindingExpression || binding is CommandBindingExpression || binding is StaticCommandBindingExpression))
-            //{
-            //    binding = binding.Evaluate(this, property) as BindingExpression;
-            //}
-
-            return binding;
-        }
+            => GetValueRaw(property, inherit) as BindingExpression;
 
         /// <summary>
         /// Gets the value binding set to a specified property.
@@ -161,7 +167,7 @@ namespace DotVVM.Framework.Controls
         public IValueBinding GetValueBinding(DotvvmProperty property, bool inherit = true)
         {
             var binding = GetBinding(property, inherit);
-            if (binding != null && !(binding is IValueBinding))
+            if (binding != null && !(binding is IStaticValueBinding)) // throw exception on incompatible binding types
             {
                 throw new Exception("ValueBindingExpression was expected!");        // TODO: exception handling
             }
@@ -171,14 +177,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the command binding set to a specified property.
         /// </summary>
-        public CommandBindingExpression GetCommandBinding(DotvvmProperty property, bool inherit = true)
+        public ICommandBinding GetCommandBinding(DotvvmProperty property, bool inherit = true)
         {
             var binding = GetBinding(property, inherit);
-            if (binding != null && !(binding is CommandBindingExpression))
+            if (binding != null && !(binding is ICommandBinding))
             {
                 throw new Exception("CommandBindingExpression was expected!");        // TODO: exception handling
             }
-            return binding as CommandBindingExpression;
+            return binding as ICommandBinding;
         }
 
         /// <summary>
@@ -186,7 +192,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public void SetBinding(DotvvmProperty property, IBinding binding)
         {
-            base.SetValue(property, binding);
+            SetValueRaw(property, binding);
         }
 
 

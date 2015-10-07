@@ -11,7 +11,6 @@ namespace DotVVM.Framework.Utils
 {
     public static class ReflectionUtils
     {
-
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
@@ -57,7 +56,6 @@ namespace DotVVM.Framework.Utils
             return item != null ? item.ToString() : "";
         }
 
-
         /// <summary>
         /// Converts a value to a specified type
         /// </summary>
@@ -93,7 +91,7 @@ namespace DotVVM.Framework.Utils
             {
                 try
                 {
-                    return Enum.Parse(type, (string)value);
+                    return Enum.Parse(type, (string)value, true);
                 }
                 catch (Exception ex)
                 {

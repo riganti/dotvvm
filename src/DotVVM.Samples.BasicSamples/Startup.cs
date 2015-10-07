@@ -21,7 +21,7 @@ namespace DotVVM.Samples.BasicSamples
         public void Configuration(IAppBuilder app)
         {
             //app.UseDotvvmErrorPages();
-            app.UseErrorPage();
+            app.UseErrorPage(new Microsoft.Owin.Diagnostics.ErrorPageOptions() { ShowExceptionDetails = true });
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
             {

@@ -1,10 +1,10 @@
+using OpenQA.Selenium;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Threading;
-using OpenQA.Selenium;
 
 namespace DotVVM.Samples.Tests
 {
@@ -22,83 +22,86 @@ namespace DotVVM.Samples.Tests
             get { return browser.Url; }
         }
 
-
         public void Click(string cssSelector)
         {
-            browser.FindElement(By.CssSelector(cssSelector)).Click();
+            browser.FirstByCssSelector(cssSelector).Click();
             Thread.Sleep(100);
         }
 
         public bool IsDisplayed(string cssSelector)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).Displayed;
+            return browser.FirstByCssSelector(cssSelector).Displayed;
         }
 
         public bool IsEnabled(string cssSelector)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).Enabled;
+            return browser.FirstByCssSelector(cssSelector).Enabled;
         }
 
         public bool IsSelected(string cssSelector)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).Selected;
+            return browser.FirstByCssSelector(cssSelector).Selected;
         }
 
         public string GetAttribute(string cssSelector, string attributeName)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).GetAttribute(attributeName);
+            return browser.FirstByCssSelector(cssSelector).GetAttribute(attributeName);
         }
 
         public string GetCssValue(string cssSelector, string propertyName)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).GetCssValue(propertyName);
+            return browser.FirstByCssSelector(cssSelector).GetCssValue(propertyName);
         }
 
         public string GetText(string cssSelector)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).Text;
+            return browser.FirstByCssSelector(cssSelector).Text;
         }
 
         public string GetTagName(string cssSelector)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).TagName;
+            return browser.FirstByCssSelector(cssSelector).TagName;
         }
 
         public Point GetLocation(string cssSelector)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).Location;
+            return browser.FirstByCssSelector(cssSelector).Location;
         }
 
         public Size GetSize(string cssSelector)
         {
-            return browser.FindElement(By.CssSelector(cssSelector)).Size;
+            return browser.FirstByCssSelector(cssSelector).Size;
         }
 
         public void SendKeys(string cssSelector, string text)
         {
-            browser.FindElement(By.CssSelector(cssSelector)).SendKeys(text);
+            browser.FirstByCssSelector(cssSelector).SendKeys(text);
         }
 
         public void Clear(string cssSelector)
         {
-            browser.FindElement(By.CssSelector(cssSelector)).Clear();
+            browser.FirstByCssSelector(cssSelector).Clear();
         }
 
         public void Submit(string cssSelector)
         {
-            browser.FindElement(By.CssSelector(cssSelector)).Submit();
+            browser.FirstByCssSelector(cssSelector).Submit();
         }
 
         public SeleniumElementHelper Find(string cssSelector)
         {
-            return new SeleniumElementHelper(browser.FindElement(By.CssSelector(cssSelector)));
+            return new SeleniumElementHelper(browser.FirstByCssSelector(cssSelector));
+        }
+
+        public SeleniumElementHelper Last(string cssSelector)
+        {
+            return new SeleniumElementHelper(browser.LastByCssSelector(cssSelector));
         }
 
         public List<SeleniumElementHelper> FindAll(string cssSelector)
         {
             return browser.FindElements(By.CssSelector(cssSelector)).Select(e => new SeleniumElementHelper(e)).ToList();
         }
-
 
         public string GetAlertText()
         {

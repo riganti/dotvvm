@@ -1,3 +1,4 @@
+using DotVVM.Framework.Runtime.Compilation;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Resources;
 namespace DotVVM.Framework.Binding
 {
     [BindingCompilationRequirements(OriginalString = BindingCompilationRequirementType.StronglyRequire, Delegate = BindingCompilationRequirementType.IfPossible)]
+    [BindingCompilation]
     public class ResourceBindingExpression : BindingExpression, IStaticValueBinding
     {
         private static ConcurrentDictionary<string, ResourceManager> cachedResourceManagers = new ConcurrentDictionary<string, ResourceManager>();

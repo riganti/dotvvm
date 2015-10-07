@@ -1,14 +1,14 @@
+using DotVVM.Framework.Parser.Dothtml.Tokenizer;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
+using EnvDTE;
+using EnvDTE80;
+using Microsoft.CodeAnalysis;
+using Microsoft.VisualStudio.Shell;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using EnvDTE;
-using Microsoft.CodeAnalysis;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
-using DotVVM.VS2015Extension.DotvvmPageWizard;
 using Project = EnvDTE.Project;
-using EnvDTE80;
-using Microsoft.VisualStudio.Shell;
 using Task = System.Threading.Tasks.Task;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base
@@ -51,7 +51,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Bas
 
         public static IEnumerable<ProjectItem> GetCurrentProjectFiles(DothtmlCompletionContext context)
         {
-            return Enumerable.OfType<ProjectItem>(context.DTE.ActiveDocument.ProjectItem.ContainingProject.ProjectItems).SelectMany(DTEHelper.GetSelfAndChildProjectItems);
+            return DTEHelper.GetCurrentProjectItems();
         }
 
         private static IEnumerable<ITypeSymbol> GetAllTypesInModuleSymbol(INamespaceSymbol symbol)
@@ -91,9 +91,9 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Bas
             }
         }
 
-
         private static DTE2 dte = null;
         private static object dteLocker = new object();
+
         public static DTE2 DTE
         {
             get
@@ -104,12 +104,22 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Bas
                     {
                         if (dte == null)
                         {
-                            dte = ServiceProvider.GlobalProvider.GetService(typeof (DTE)) as DTE2;
+                            dte = ServiceProvider.GlobalProvider.GetService(typeof(DTE)) as DTE2;
                         }
                     }
                 }
                 return dte;
             }
+        }
+
+        public static bool IsAssignable(INamedTypeSymbol targetType, ITypeSymbol valueType)
+        {
+            return targetType.GetThisAndAllBaseTypes().Concat(targetType.AllInterfaces).Contains(valueType);
+        }
+
+        public static INamedTypeSymbol FindIEnumerableType(ITypeSymbol type)
+        {
+            return type.AllInterfaces.FirstOrDefault(i => i.IsGenericType && i.ContainingNamespace.ToDisplayString() == "System.Collections.Generic" && i.Name == "IEnumerable");
         }
     }
 }

@@ -21,7 +21,7 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <TargetFrameworkProfile />
-    <TypeScriptToolsVersion>1.5</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -159,6 +159,14 @@
     <Content Include="sample29.dothtml" />
     <Content Include="sample30.dothtml" />
     <Content Include="sample31.dothtml" />
+    <Content Include="sample32.dothtml" />
+    <Content Include="sample33.dothtml" />
+    <Content Include="sample34.dothtml" />
+    <Content Include="sample35.dothtml" />
+    <Content Include="sample36.dothtml" />
+    <Content Include="sample36_control.dotcontrol" />
+    <Content Include="sample37.dothtml" />
+    <Content Include="sample38.dothtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -197,6 +205,7 @@
     <Compile Include="ViewModels\Sample17ViewModel.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_A.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
+    <Compile Include="ViewModels\Sample38ViewModel.cs" />
     <Compile Include="ViewModels\Sample27ViewModel.cs" />
     <Compile Include="ViewModels\Sample26ViewModel.cs" />
     <Compile Include="ViewModels\Sample19ViewModel.cs" />
@@ -206,7 +215,11 @@
     <Compile Include="ViewModels\Sample22ViewModel.cs" />
     <Compile Include="ViewModels\Sample20ViewModel.cs" />
     <Compile Include="ViewModels\Sample25ViewModel.cs" />
+    <Compile Include="ViewModels\Sample32ViewModel.cs" />
     <Compile Include="ViewModels\Sample31ViewModel.cs" />
+    <Compile Include="ViewModels\Sample34ViewModel.cs" />
+    <Compile Include="ViewModels\Sample36ViewModel.cs" />
+    <Compile Include="ViewModels\Sample35ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />
     <Compile Include="ViewModels\Sample1ViewModel.cs" />
     <Compile Include="ViewModels\Sample2ViewModel.cs" />

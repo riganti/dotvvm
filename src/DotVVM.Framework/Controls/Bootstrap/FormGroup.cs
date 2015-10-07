@@ -46,10 +46,10 @@ namespace DotVVM.Framework.Controls.Bootstrap
         private void RenderLabel(IHtmlWriter writer)
         {
             writer.AddAttribute("class", "control-label col-sm-2");
-            var textBinding = GetBinding(LabelTextProperty);
-            if (textBinding != null)
+            var textBinding = GetValueBinding(LabelTextProperty);
+            if (textBinding != null && !RenderOnServer)
             {
-                writer.AddKnockoutDataBind("text", this, LabelTextProperty, () => { });
+                writer.AddKnockoutDataBind("text", textBinding);
                 writer.RenderBeginTag("label");
                 writer.RenderEndTag();
             }
