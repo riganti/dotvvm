@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <MinimumVisualStudioVersion>14.0</MinimumVisualStudioVersion>
@@ -74,6 +74,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Content Include="dotvvmproj_256x256.png" />
+    <Content Include="dotvvmproj_32x32.png" />
     <Content Include="Startup.cs" />
     <Content Include="DefaultViewModel.cs" />
   </ItemGroup>
@@ -82,7 +84,6 @@
     <None Include="ProjectTemplate.csproj">
       <SubType>Designer</SubType>
     </None>
-    <None Include="DotVVM.VS2015Extension.ProjectTemplate.ico" />
     <Content Include="Web.config" />
     <Content Include="default.dothtml" />
     <None Include="Web.Debug.config">

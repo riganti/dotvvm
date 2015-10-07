@@ -1,16 +1,13 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel.Composition;
-using System.Linq;
 using Microsoft.VisualStudio.Utilities;
+using System.ComponentModel.Composition;
 
-namespace DotVVM.VS2015Extension.DothtmlEditorExtensions
+namespace DotVVM.VS2015Extension.Configuration
 {
-
-    public class DothtmlContentTypeDefinitions
+    public class ContentTypeDefinitions
     {
         public const string DothtmlContentType = "dothtml";
-
+        public const string JavaScriptContentType = "JavaScript";
+        public const string CSharpContentType = "cs";
 
         [Export(typeof(ContentTypeDefinition))]
         [Name(DothtmlContentType)]
@@ -32,6 +29,9 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions
         [ContentType(DothtmlContentType)]
         public FileExtensionToContentTypeDefinition DotcontrolFileExtensionDefinition { get; set; }
 
+        [Export(typeof(FileExtensionToContentTypeDefinition))]
+        [FileExtension(".cs")]
+        [ContentType(CSharpContentType)]
+        public FileExtensionToContentTypeDefinition CSharpFileExtensionDefinition { get; set; }
     }
-
 }

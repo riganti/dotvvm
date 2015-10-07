@@ -13,10 +13,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
         public static string GenerateViewModelName(string name)
         {
             // make first letter upper case
-            if (name.Length > 0 && char.IsLower(name[0]))
-            {
-                name = name.Substring(0, 1).ToUpper() + name.Substring(1);
-            }
+            name = MakeFirstLetterUpperCase(name);
 
             // append viewmodel if it is not there
             if (!name.EndsWith(ViewModelClassNameSuffix, StringComparison.CurrentCultureIgnoreCase))
@@ -30,10 +27,26 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
             return name;
         }
 
+        public static string GenerateCodeBehindClassName(string name)
+        {
+            // make first letter upper case
+            name = MakeFirstLetterUpperCase(name);
+            return name;
+        }
+
+        private static string MakeFirstLetterUpperCase(string name)
+        {
+            if (name.Length > 0 && char.IsLower(name[0]))
+            {
+                name = name.Substring(0, 1).ToUpper() + name.Substring(1);
+            }
+            return name;
+        }
+
         public static string GenerateViewModelLocation(string viewLocation)
         {
             // if the view location contains a folder named Views, change it to ViewModels, otherwise do nothing
-            var parts = viewLocation.Split('/');
+            var parts = viewLocation.Split('/', '\\');
             for (int i = 0; i < parts.Length; i++)
             {
                 if (string.Equals(parts[i], ViewsFolderName, StringComparison.CurrentCultureIgnoreCase))
@@ -46,7 +59,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
 
         public static string GenerateViewModelNamespace(string rootNamespace, string viewModelLocation)
         {
-            var parts = new[] { rootNamespace }.Concat(viewModelLocation.Split('/')).Where(n => !string.IsNullOrEmpty(n));
+            var parts = new[] { rootNamespace }.Concat(viewModelLocation.Split('/', '\\')).Where(n => !string.IsNullOrEmpty(n));
             return string.Join(".", parts);
         }
     }

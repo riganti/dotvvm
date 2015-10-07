@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -20,17 +21,66 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
 
         public IEnumerable<CompletionData> GetElementNames(DothtmlCompletionContext context, List<string> tagNameHierarchy)
         {
+            // get all available allControls
             var controls = allControls.GetOrRetrieve(() => ReloadAllControls(context));
 
+            // get element properties
+            var elementProperties = new List<CompletionData>();
             ControlMetadata currentControl;
             ControlPropertyMetadata currentProperty;
             GetElementContext(tagNameHierarchy, out currentControl, out currentProperty);
-
-            if (currentControl != null && currentProperty == null && currentControl.Properties.Any(p => p.IsElement))
+            if (currentControl != null)
             {
-                return currentControl.Properties.Where(p => p.IsElement).Select(p => new CompletionData(p.Name));
+                if (currentProperty == null)
+                {
+                    elementProperties.AddRange(currentControl.Properties.Where(p => p.IsElement).Select(p => new CompletionData(p.Name)));
+
+                    // get default property
+                    var defaultContentProperty = currentControl.GetProperty(currentControl.DefaultContentProperty);
+                    if (defaultContentProperty != null)
+                    {
+                        var filteredControls = GetElementNamesInPropertyContext(defaultContentProperty);
+                        return elementProperties.Concat(filteredControls);
+                    }
+                    else if (!currentControl.AllowContent)
+                    {
+                        // content is not allowed, return only inner properties
+                        return elementProperties;
+                    }
+                    else
+                    {
+                        // content is allowed - return all allControls
+                        return elementProperties.Concat(controls);
+                    }
+                }
+                else
+                {
+                    return GetElementNamesInPropertyContext(currentProperty);
+                }
             }
+
             return controls;
+        }
+
+        private IEnumerable<CompletionData> GetElementNamesInPropertyContext(ControlPropertyMetadata controlProperty)
+        {
+            IEnumerable<CompletionData> filteredControls;
+            if (CheckType(controlProperty.Type, typeof (ITemplate)))
+            {
+                // all controls can appear in a template
+                filteredControls = metadata.Select(c => new CompletionData(c.Key, c.Key));
+            }
+            else
+            {
+                // resolve element type
+                var iEnumerable = CompletionHelper.FindIEnumerableType(controlProperty.Type);
+                var elementType = iEnumerable != null ? iEnumerable.TypeArguments[0] : controlProperty.Type;
+
+                // filter the allControls collection
+                var filteredControlMetadata = metadata.Where(m => CompletionHelper.IsAssignable(m.Value.Type, elementType));
+                filteredControls = filteredControlMetadata.Select(c => new CompletionData(c.Key, c.Key));
+            }
+            return filteredControls;
         }
 
         public IEnumerable<CompletionData> GetControlAttributeNames(DothtmlCompletionContext context, List<string> tagNameHierarchy, out bool combineWithHtmlCompletions)
@@ -203,9 +253,9 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
             // find all attached properties
             var attachedProperties = attachedPropertyClasses
                 .SelectMany(c => c.GetMembers().OfType<IFieldSymbol>())
-                .Where(f => CheckType(f.Type, typeof(DotvvmProperty)))
+                .Where(f => f.Type.GetThisAndAllBaseTypes().Any(t => CheckType(t, typeof(DotvvmProperty))))
                 .Where(f => f.GetAttributes().Any(a => CheckType(a.AttributeClass, typeof(AttachedPropertyAttribute))));
-
+            
             return attachedProperties
                 .Select(f => new AttachedPropertyMetadata()
                 {
@@ -238,8 +288,11 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
 
         private ControlMetadata GetControlMetadata(INamedTypeSymbol control, string tagPrefix, string tagName)
         {
+            var attribute = control.GetAttributes().FirstOrDefault(a => CheckType(a.AttributeClass, typeof (ControlMarkupOptionsAttribute)));
+            
             return new ControlMetadata()
             {
+                Type = control,
                 TagPrefix = tagPrefix,
                 TagName = tagName,
                 Name = control.Name, 
@@ -250,18 +303,20 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
                     .Where(p => p.GetMethod != null && p.SetMethod != null)
                     .Select(GetPropertyMetadata)
                     .Where(p => p != null)
-                    .ToList()
+                    .ToList(),
+                AllowContent = attribute?.NamedArguments.Where(a => a.Key == "AllowContent").Select(a => a.Value.Value as bool?).FirstOrDefault() ?? true,
+                DefaultContentProperty = attribute?.NamedArguments.Where(a => a.Key == "DefaultContentProperty").Select(a => a.Value.Value as string).FirstOrDefault()
             };
         }
 
         private ControlPropertyMetadata GetPropertyMetadata(IPropertySymbol property)
         {
             var attribute = property.GetAttributes().FirstOrDefault(a => CheckType(a.AttributeClass, typeof(MarkupOptionsAttribute)));
-            
+
             var metadata = new ControlPropertyMetadata()
             {
                 Type = property.Type,
-                IsTemplate = CheckType((INamedTypeSymbol)property.Type, typeof(ITemplate)) || property.Type.AllInterfaces.Any(i => CheckType(i, typeof(ITemplate))),
+                IsTemplate = CheckType(property.Type, typeof(ITemplate)) || property.Type.AllInterfaces.Any(i => CheckType(i, typeof(ITemplate))),
                 AllowHtmlContent = property.Type.AllInterfaces.Any(i => CheckType(i, typeof(IControlWithHtmlAttributes)))
             };
 

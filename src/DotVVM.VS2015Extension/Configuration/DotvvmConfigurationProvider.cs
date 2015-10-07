@@ -1,18 +1,15 @@
 using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
+using DotVVM.Framework.Configuration;
+using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
 using EnvDTE;
-using EnvDTE80;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Newtonsoft.Json;
-using DotVVM.Framework.Configuration;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
-using DotVVM.VS2015Extension.DotvvmPageWizard;
 
-namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
+namespace DotVVM.VS2015Extension.Configuration
 {
     public class DotvvmConfigurationProvider : IDisposable
     {
@@ -60,10 +57,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions
         private void OnWorkspaceChanged()
         {
             cache.ClearCachedValues();
-            if (WorkspaceChanged != null)
-            {
-                WorkspaceChanged(this, EventArgs.Empty);
-            }
+            WorkspaceChanged?.Invoke(this, EventArgs.Empty);
         }
 
         public void Dispose()
