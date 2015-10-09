@@ -328,6 +328,55 @@ test";
             Assert.AreEqual(0, body.Content.Count);
         }
 
+        [TestMethod]
+        public void DothtmlParser_Valid_Comment()
+        {
+            var markup = @"test <!--<a href=""test1"">test2</a>--> test3 <img />";
+            var nodes = ParseMarkup(markup).Content;
+
+            Assert.AreEqual(4, nodes.Count);
+
+            Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
+            Assert.AreEqual("test ", ((DothtmlLiteralNode)nodes[0]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[0]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(@"<a href=""test1"">test2</a>", ((DothtmlLiteralNode)nodes[1]).Value);
+            Assert.IsTrue(((DothtmlLiteralNode)nodes[1]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(" test3 ", ((DothtmlLiteralNode)nodes[2]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[3], typeof(DothtmlElementNode));
+            Assert.AreEqual("img", ((DothtmlElementNode)nodes[3]).TagName);
+            Assert.IsTrue(((DothtmlElementNode)nodes[3]).IsSelfClosingTag);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_Valid_CData()
+        {
+            var markup = @"test <![CDATA[<a href=""test1"">test2</a>]]> test3 <img />";
+            var nodes = ParseMarkup(markup).Content;
+
+            Assert.AreEqual(4, nodes.Count);
+
+            Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
+            Assert.AreEqual("test ", ((DothtmlLiteralNode)nodes[0]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[0]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(@"<![CDATA[<a href=""test1"">test2</a>]]>", ((DothtmlLiteralNode)nodes[1]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[1]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(" test3 ", ((DothtmlLiteralNode)nodes[2]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[3], typeof(DothtmlElementNode));
+            Assert.AreEqual("img", ((DothtmlElementNode)nodes[3]).TagName);
+            Assert.IsTrue(((DothtmlElementNode)nodes[3]).IsSelfClosingTag);
+        }
 
         public static DothtmlRootNode ParseMarkup(string markup)
         {
