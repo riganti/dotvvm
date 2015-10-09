@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using Microsoft.CodeAnalysis;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
 {
@@ -17,6 +18,10 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml
         {
             get { return string.IsNullOrEmpty(TagPrefix) ? TagName : (TagPrefix + ":" + TagName); }
         }
+
+        public bool AllowContent { get; set; }
+        public string DefaultContentProperty { get; set; }
+        public INamedTypeSymbol Type { get; set; }
 
 
         public ControlPropertyMetadata GetProperty(string name)

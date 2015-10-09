@@ -14,13 +14,14 @@ namespace DotVVM.Samples.Tests
     {
         protected abstract string BaseUrl { get; }
 
-        private const int WaitTime = 500;
+        private const int WaitTime = 1200;
 
         public void Sample1Test(string sampleUrl = "Sample1")
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + sampleUrl);
+                Thread.Sleep(WaitTime);
 
                 Assert.AreEqual(3, browser.FindAll(".table tr").Count);
 
@@ -141,6 +142,7 @@ namespace DotVVM.Samples.Tests
 
                 // verify line totals
                 browser.Find("input[type=text]").Click();
+                Thread.Sleep(WaitTime * 5);
                 Assert.AreEqual("126", table.FindAll("tr")[2].FindAll("td")[5].GetText().Trim());
                 Assert.AreEqual("5.5", table.FindAll("tr")[3].FindAll("td")[5].GetText().Trim());
                 Assert.AreEqual("180", table.FindAll("tr")[4].FindAll("td")[5].GetText().Trim());
@@ -428,10 +430,10 @@ namespace DotVVM.Samples.Tests
                     browser.FindAll("input[type=text]")[i].SendKeys((i + 1).ToString());
                 }
                 browser.Click("input[type=button]");
-                Thread.Sleep(WaitTime);
+                Thread.Sleep(WaitTime * 2);
 
                 // validate result
-                Assert.AreEqual("78", browser.FindAll("span").Last().GetText().Trim());
+                Assert.AreEqual("78", browser.Last("span").GetText().Trim());
             });
         }
 
@@ -475,11 +477,9 @@ namespace DotVVM.Samples.Tests
 
                 Action performTest = () =>
                 {
-                    // make sure that thirs row's first cell is yellow
-                    Assert.AreEqual("",
-                        browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
-                    Assert.AreEqual("alternate",
-                        browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
+                    // make sure that third row's first cell is yellow
+                    Assert.AreEqual("", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetAttribute("class"));
+                    Assert.AreEqual("alternate", browser.FindAll("table")[0].FindAll("tr")[2].FindAll("td")[0].GetAttribute("class"));
 
                     // go to second page
                     Assert.AreEqual("1", browser.FindAll("table")[0].FindAll("tr")[1].FindAll("td")[0].GetText());
@@ -528,6 +528,7 @@ namespace DotVVM.Samples.Tests
                     Assert.AreEqual("1", browser.FindAll("table")[1].FindAll("tr")[1].FindAll("td")[0].GetText());
                 };
 
+                Thread.Sleep(WaitTime * 6);
                 performTest();
                 Thread.Sleep(WaitTime * 6);
                 browser.NavigateToUrl(BaseUrl);
@@ -942,26 +943,33 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(BaseUrl + "Sample31");
 
                 // select second option from combobox
-                browser.FindAll("select")[0].Click();
-                browser.FindAll("select")[0].FindAll("option")[0].Click();
+                browser.Find("select").Click();
+                Assert.IsNotNull(browser.Find("select").Find("option"));
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("1", browser.GetText("span"));
 
                 // select second option from combobox
-                browser.FindAll("select")[0].Select(1);
+                browser.Find("select").Select(1);
+                browser.Find("h1").Click();
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("2", browser.GetText("span"));
 
                 // select third option from combobox
-                browser.FindAll("select")[0].Select(2);
+                browser.Find("select").Select(2);
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("3", browser.GetText("span"));
 
                 // select fourth option from combobox
-                browser.FindAll("select")[0].Select(3);
+                browser.Find("select").Select(3);
+                browser.Find("h1").Click();
+
                 Thread.Sleep(WaitTime);
 
                 Assert.AreEqual("4", browser.GetText("span"));
@@ -1007,6 +1015,14 @@ namespace DotVVM.Samples.Tests
                 CheckButtonTextIsSetAndTagName(browser, "#TextArea1", "textarea");
                 CheckButtonTextIsSetAndTagName(browser, "#TextArea2", "textarea");
             });
+        }
+
+        private static void CheckButtonTextIsSetAndTagName(SeleniumBrowserHelper browser, string selector, string expectedTagName, string expectedValue = null, bool textCanBeNull = false)
+        {
+            // check tagName
+            var element = browser.Find(selector);
+            element.CheckTagName(expectedTagName);
+            element.CheckTextValue(expectedValue, textCanBeNull);
         }
 
         public void Sample35Test()
@@ -1057,12 +1073,42 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        private static void CheckButtonTextIsSetAndTagName(SeleniumBrowserHelper browser, string selector, string expectedTagName, string expectedValue = null, bool textCanBeNull = false)
+        public void Sample36Test()
         {
-            // check tagName
-            var element = browser.Find(selector);
-            element.CheckTagName(expectedTagName);
-            element.CheckTextValue(expectedValue, textCanBeNull);
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample36");
+                Thread.Sleep(WaitTime);
+
+                Assert.AreEqual("test1", browser.FindAll("*[data-id=test1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("test2", browser.FindAll("*[data-id=test2_marker]").Single().GetAttribute("id"));
+
+                Assert.AreEqual("test1a", browser.FindAll("*[data-id=test1a_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("test2a", browser.FindAll("*[data-id=test2a_marker]").Single().GetAttribute("id"));
+
+
+                var control1 = browser.FindAll("#ctl1").Single();
+                Assert.AreEqual("ctl1_control1", control1.FindAll("*[data-id=control1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("ctl1_control2", control1.FindAll("*[data-id=control2_marker]").Single().GetAttribute("id"));
+
+                var control2 = browser.FindAll("#ctl2").Single();
+                Assert.AreEqual("control1", control2.FindAll("*[data-id=control1_marker]").Single().GetAttribute("id"));
+                Assert.AreEqual("control2", control2.FindAll("*[data-id=control2_marker]").Single().GetAttribute("id"));
+
+                var repeater1 = browser.FindAll("*[data-id=repeater1]").Single();
+                for (int i = 0; i < 4; i++)
+                {
+                    Assert.AreEqual(repeater1.GetAttribute("id") + "_i" + i + "_repeater1", repeater1.FindAll("*[data-id=repeater1_marker]")[i].GetAttribute("id"));
+                    Assert.AreEqual(repeater1.GetAttribute("id") + "_i" + i + "_repeater2", repeater1.FindAll("*[data-id=repeater2_marker]")[i].GetAttribute("id"));
+                }
+
+                var repeater2 = browser.FindAll("*[data-id=repeater2]").Single();
+                for (int i = 0; i < 4; i++)
+                {
+                    Assert.AreEqual(repeater2.GetAttribute("id") + "_i" + i + "_repeater1server", repeater2.FindAll("*[data-id=repeater1server_marker]")[i].GetAttribute("id"));
+                    Assert.AreEqual(repeater2.GetAttribute("id") + "_i" + i + "_repeater2server", repeater2.FindAll("*[data-id=repeater2server_marker]")[i].GetAttribute("id"));
+                }
+            });
         }
     }
 }

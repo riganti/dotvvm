@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Controls
             });
 
             // hadle Id property
-            AddIdAttribute(writer);
+            RenderClientId(writer);
 
             base.AddAttributesToRender(writer, context);
         }
@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Controls
             var visibleBinding = GetValueBinding(VisibleProperty);
             if (visibleBinding != null && !RenderOnServer)
             {
-                writer.AddKnockoutDataBind("visible", this, VisibleProperty);
+                writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
                 writer.AddStyleAttribute("display", "none");
             }
             else
@@ -137,17 +137,6 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddStyleAttribute("display", "none");
                 }
-            }
-        }
-
-        /// <summary>
-        /// Adds the corresponding attribute for the Id property.
-        /// </summary>
-        protected virtual void AddIdAttribute(IHtmlWriter writer)
-        {
-            if (!string.IsNullOrEmpty(ID))
-            {
-                writer.AddAttribute("id", ID);
             }
         }
 

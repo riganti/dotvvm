@@ -183,3 +183,4 @@ UpgradeLog*.htm
 FakesAssemblies/
 *.bak
 /src/DotVVM.sln.GhostDoc.xml
+/src/.vs/config

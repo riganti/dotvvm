@@ -9,13 +9,13 @@ namespace DotVVM.Framework.Runtime
 {
     public interface IViewModelSerializer
     {
-        void BuildViewModel(DotvvmRequestContext context, DotvvmView view);
+        void BuildViewModel(DotvvmRequestContext context);
 
         string SerializeViewModel(DotvvmRequestContext context);
         
         string SerializeModelState(IDotvvmRequestContext context);
 
-        void PopulateViewModel(DotvvmRequestContext context, DotvvmView view, string serializedPostData);
+        void PopulateViewModel(DotvvmRequestContext context, string serializedPostData);
 
         void ResolveCommand(DotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo);
 

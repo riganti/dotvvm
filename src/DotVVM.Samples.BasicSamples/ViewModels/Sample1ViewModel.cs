@@ -38,6 +38,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
             NewTaskTitle = string.Empty;
         }
 
+        public async Task SaveDataAsync()
+        {
+            await Task.Delay(100); // do complicated database operation and send avian carriers to all our datacenters
+            Tasks.Add(new TaskViewModel { IsCompleted = false, TaskId = Guid.NewGuid(), Title = "Implement task storage" });
+        }
+
         public void CompleteTask(Guid id)
         {
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;

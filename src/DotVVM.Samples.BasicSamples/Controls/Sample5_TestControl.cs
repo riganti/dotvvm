@@ -36,8 +36,6 @@ namespace DotVVM.Samples.BasicSamples.Controls
         }
 
 
-
-
         public void Up()
         {
             Value++;

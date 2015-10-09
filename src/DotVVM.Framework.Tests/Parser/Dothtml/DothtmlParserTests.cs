@@ -295,6 +295,40 @@ test";
         }
 
 
+        [TestMethod]
+        public void DothtmlParser_Invalid_UnclosedLinkInHead()
+        {
+            var markup = @"<html><head><link></head><body></body></html>";
+            var nodes = ParseMarkup(markup).Content;
+
+            Assert.AreEqual(1, nodes.Count);
+
+            var html = ((DothtmlElementNode)nodes[0]);
+            Assert.IsFalse(html.IsClosingTag);
+            Assert.AreEqual("html", html.FullTagName);
+            Assert.IsFalse(html.HasNodeErrors);
+            Assert.AreEqual(2, html.Content.Count);
+
+            var head = ((DothtmlElementNode)html.Content[0]);
+            Assert.IsFalse(head.IsClosingTag);
+            Assert.AreEqual("head", head.FullTagName);
+            Assert.IsFalse(head.HasNodeErrors);
+            Assert.AreEqual(1, head.Content.Count);
+
+            var link = ((DothtmlElementNode)head.Content[0]);
+            Assert.IsFalse(link.IsClosingTag);
+            Assert.AreEqual("link", link.FullTagName);
+            Assert.IsFalse(link.HasNodeErrors);
+            Assert.AreEqual(0, link.Content.Count);
+
+            var body = ((DothtmlElementNode)html.Content[1]);
+            Assert.IsFalse(body.IsClosingTag);
+            Assert.AreEqual("body", body.FullTagName);
+            Assert.IsFalse(body.HasNodeErrors);
+            Assert.AreEqual(0, body.Content.Count);
+        }
+
+
         public static DothtmlRootNode ParseMarkup(string markup)
         {
             var tokenizer = new DothtmlTokenizer();

@@ -5,7 +5,6 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
 {
     public class LogService
     {
-
         public static string LogFilePath
         {
             get
@@ -35,8 +34,8 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
             }
             catch
             {
+                // ignored
             }
         }
-
     }
 }

@@ -53,7 +53,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
                     .Where(p => !string.Equals(p, currentFile, StringComparison.CurrentCultureIgnoreCase))
                     .ToList(),
                 Folders = allProjectItems
-                    .Select(p => p.Substring(0, p.LastIndexOf("/", StringComparison.CurrentCultureIgnoreCase) + 1).TrimEnd('/'))
+                    .Select(p => p.Substring(0, p.LastIndexOfAny(new[] { '/', '\\'}) + 1).TrimEnd('/', '\\'))
                     .Distinct()
                     .OrderBy(p => p)
                     .ToList()

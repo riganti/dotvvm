@@ -79,7 +79,7 @@
 
             <TextBlock Grid.Row="0" Grid.Column="0" Style="{StaticResource FormLabel}" Text="Class Name"/>
             <TextBox Grid.Row="0" Grid.Column="1" Style="{StaticResource FormTextBox}" Text="{Binding ViewModelName}" 
-                     IsEnabled="{Binding CreateView, Converter={StaticResource BooleanToVisibilityConverter}}" />
+                     IsEnabled="{Binding CreateView}" />
 
             <TextBlock Grid.Row="1" Grid.Column="0" Style="{StaticResource FormLabel}" Text="Location"/>
             <ComboBox Grid.Row="1" Grid.Column="1" Style="{StaticResource FormComboBox}" Text="{Binding ViewModelLocation}" IsTextSearchCaseSensitive="false" IsTextSearchEnabled="true" 

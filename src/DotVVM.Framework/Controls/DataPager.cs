@@ -9,6 +9,9 @@ using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// Renders the pagination control which can be integrated with the GridViewDataSet object to provide the paging capabilities.
+    /// </summary>
     public class DataPager : HtmlGenericControl
     {
         private static CommandBindingExpression GoToNextPageCommand =
@@ -23,6 +26,9 @@ namespace DotVVM.Framework.Controls
             new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
 
 
+        /// <summary>
+        /// Gets or sets the GridViewDataSet object in the viewmodel.
+        /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
         public IGridViewDataSet DataSet
         {
@@ -33,6 +39,9 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<IGridViewDataSet, DataPager>(c => c.DataSet);
 
 
+        /// <summary>
+        /// Gets or sets the template of the button which moves the user to the first page.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate FirstPageTemplate
         {
@@ -41,7 +50,10 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty FirstPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.FirstPageTemplate, null);
-        
+
+        /// <summary>
+        /// Gets or sets the template of the button which moves the user to the last page.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate LastPageTemplate
         {
@@ -51,6 +63,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty LastPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.LastPageTemplate, null);
 
+        /// <summary>
+        /// Gets or sets the template of the button which moves the user to the previous page.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate PreviousPageTemplate
         {
@@ -60,6 +75,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty PreviousPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.PreviousPageTemplate, null);
 
+        /// <summary>
+        /// Gets or sets the template of the button which moves the user to the next page.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate NextPageTemplate
         {
@@ -69,6 +87,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty NextPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.NextPageTemplate, null);
 
+        /// <summary>
+        /// Gets or sets whether a hyperlink should be rendered for the current page number. If set to false, only a plain text is rendered.
+        /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool RenderLinkForCurrentPage
         {
@@ -202,7 +223,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { }, serverRendering: false);
+            writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { }, renderEvenInServerRenderingMode: true);
             // this line caused some problems by overwriting visible property, I think it can be more confusing than useful
             //writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").TotalItemsCount() > 0");
             writer.RenderBeginTag("ul");

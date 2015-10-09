@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public override object GetValue(DotvvmProperty property, bool inherit = true)
         {
-            var value = base.GetValue(property, inherit);
+            var value = GetValueRaw(property, inherit);
             while (value is IBinding)
             {
                 if (value is IStaticValueBinding)
@@ -107,10 +107,18 @@ namespace DotVVM.Framework.Controls
                 else if (value is CommandBindingExpression)
                 {
                     var binding = (CommandBindingExpression)value;
-                    value = (Action)(() => binding.Evaluate(this, property));
+                    value = binding.GetCommandDelegate(this, property);
                 }
             }
             return value;
+        }
+
+        /// <summary>
+        /// Gets the value or a binding object for a specified property.
+        /// </summary>
+        protected virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
+        {
+            return base.GetValue(property, inherit);
         }
 
         /// <summary>
@@ -118,7 +126,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public override void SetValue(DotvvmProperty property, object value)
         {
-            var originalValue = base.GetValue(property, false);
+            var originalValue = GetValueRaw(property, false);
             if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))
             {
                 // if the property contains a binding and we are not passing another binding, update the value
@@ -134,16 +142,24 @@ namespace DotVVM.Framework.Controls
                 }
                 else
                 {
-                    base.SetValue(property, value);
+                    SetValueRaw(property, value);
                 }
             }
+        }
+
+        /// <summary>
+        /// Sets the value or a binding to the specified property.
+        /// </summary>
+        protected virtual void SetValueRaw(DotvvmProperty property, object value)
+        {
+            base.SetValue(property, value);
         }
 
         /// <summary>
         /// Gets the binding set to a specified property.
         /// </summary>
         public BindingExpression GetBinding(DotvvmProperty property, bool inherit = true)
-            => base.GetValue(property, inherit) as BindingExpression;
+            => GetValueRaw(property, inherit) as BindingExpression;
 
         /// <summary>
         /// Gets the value binding set to a specified property.
@@ -176,7 +192,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public void SetBinding(DotvvmProperty property, IBinding binding)
         {
-            base.SetValue(property, binding);
+            SetValueRaw(property, binding);
         }
 
 

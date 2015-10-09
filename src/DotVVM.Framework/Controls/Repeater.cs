@@ -11,14 +11,14 @@ using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Repeats a specified template for each of the items in the <see cref="DotvvmBindableControl.DataContext"/> property.
+    /// Repeats a template for each item in the DataSource collection.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = "ItemTemplate")]
     public class Repeater : ItemsControl
     {
 
         /// <summary>
-        /// Gets or sets the template for each <see cref="Repeater"/> item.
+        /// Gets or sets the template for each Repeater item.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
@@ -54,11 +54,18 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<bool, Repeater>(t => t.RenderWrapperTag, true);
 
 
+        public Repeater()
+        {
+            SetValue(Internal.IsNamingContainerProperty, true);
+        }
+
         /// <summary>
         /// Occurs after the viewmodel is applied to the page and before the commands are executed.
         /// </summary>
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
+            EnsureControlHasId();
+
             DataBind(context);
             base.OnLoad(context);
         }
@@ -100,6 +107,7 @@ namespace DotVVM.Framework.Controls
                     Children.Add(placeholder);
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
+                    placeholder.ID = "i" + index;
                     Debug.Assert(placeholder.properties[DataContextProperty] != null);
                     index++;
                 }
@@ -172,6 +180,7 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer() { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                 Children.Add(placeholder);
                 ItemTemplate.BuildContent(context.RequestContext, placeholder);
 

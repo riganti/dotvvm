@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             try
             {
-                var wrapperType = ResolveWrapperType(root);
+                var wrapperType = ResolveWrapperType(root, fileName.EndsWith(".dotcontrol", StringComparison.Ordinal) ? typeof(DotvvmMarkupControl) : typeof(DotvvmView));
 
                 // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the 
                 // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
@@ -231,7 +231,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             if (!string.IsNullOrEmpty(attribute.AttributePrefix))
             {
-                throw new DotvvmCompilationException("Attributes with XML namespaces are not supported!");
+                throw new DotvvmCompilationException("Attributes with XML namespaces are not supported!", attribute.Tokens);
             }
 
             // TODO: attribute prefixes (html:{name} will be translated to html attribute)
@@ -239,26 +239,31 @@ namespace DotVVM.Framework.Runtime.Compilation
             var property = FindProperty(control.Metadata, attribute.AttributeName);
             if (property != null)
             {
+                if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute)) throw new DotvvmCompilationException($"property { property.FullName } can't be used as attribute", attribute.Tokens);
+                // handle DataContext changes
                 var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
                 if (typeChange != null)
                 {
                     dataContext = new DataContextStack(typeChange, dataContext);
                 }
+
                 // set the property
                 if (attribute.Literal == null)
                 {
-                    throw new DotvvmCompilationException($"The attribute '{property.Name}' on the control '{control.Metadata.Name}' must have a value!");
+                    throw new DotvvmCompilationException($"The attribute '{property.Name}' on the control '{control.Metadata.Name}' must have a value!", attribute.Tokens);
                 }
                 else if (attribute.Literal is DothtmlBindingNode)
                 {
                     // binding
                     var bindingNode = (DothtmlBindingNode)attribute.Literal;
+                    if (!property.MarkupOptions.AllowBinding) throw new DotvvmCompilationException($"property { property.FullName } can't contain binding", bindingNode.Tokens);
                     var resolvedBinding = ProcessBinding(bindingNode, dataContext);
                     control.SetProperty(new ResolvedPropertyBinding(property, resolvedBinding));
                 }
                 else
                 {
                     // hard-coded value in markup
+                    if (!property.MarkupOptions.AllowHardCodedValue) throw new DotvvmCompilationException($"property { property.FullName } can't contain hard coded value", attribute.Literal.Tokens);
                     // TODO: smarter conversions
                     var value = ReflectionUtils.ConvertValue(attribute.Literal.Value, property.PropertyType);
                     control.SetPropertyValue(property, value);
@@ -271,7 +276,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             else
             {
-                throw new DotvvmCompilationException($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}'!");
+                throw new DotvvmCompilationException($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not have attribute collection!");
             }
         }
 
@@ -410,9 +415,9 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Resolves the type of the wrapper.
         /// </summary>
-        private Type ResolveWrapperType(DothtmlRootNode node)
+        private Type ResolveWrapperType(DothtmlRootNode node, Type defaultType)
         {
-            var wrapperType = typeof(DotvvmView);
+            var wrapperType = defaultType;
 
             var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
             if (baseControlDirective != null)

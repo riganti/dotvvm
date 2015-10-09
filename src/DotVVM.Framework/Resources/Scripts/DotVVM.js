@@ -1,8 +1,7 @@
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
@@ -466,6 +465,16 @@ var DotVVM = (function () {
         }
         return Globalize.format(value, format, dotvvm.culture);
     };
+    DotVVM.prototype.buildClientId = function (element, fragments) {
+        var id = "";
+        for (var i = 0; i < fragments.length; i++) {
+            if (id.length > 0) {
+                id += "_";
+            }
+            id += ko.unwrap(fragments[i]);
+        }
+        return id;
+    };
     DotVVM.prototype.getDataSourceItems = function (viewModel) {
         var value = ko.unwrap(viewModel);
         return value.Items || value;
@@ -730,7 +739,8 @@ var DotvvmSerialization = (function () {
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     if (ko.isObservable(result[prop])) {
-                        result[prop](deserialized());
+                        if (deserialized() != result[prop]())
+                            result[prop](deserialized());
                     }
                     else {
                         result[prop] = deserialized;
@@ -738,7 +748,8 @@ var DotvvmSerialization = (function () {
                 }
                 else {
                     if (ko.isObservable(result[prop])) {
-                        result[prop](deserialized);
+                        if (deserialized !== result[prop])
+                            result[prop](deserialized);
                     }
                     else {
                         result[prop] = ko.observable(deserialized);

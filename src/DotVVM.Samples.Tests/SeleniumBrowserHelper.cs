@@ -93,6 +93,11 @@ namespace DotVVM.Samples.Tests
             return new SeleniumElementHelper(browser.FirstByCssSelector(cssSelector));
         }
 
+        public SeleniumElementHelper Last(string cssSelector)
+        {
+            return new SeleniumElementHelper(browser.LastByCssSelector(cssSelector));
+        }
+
         public List<SeleniumElementHelper> FindAll(string cssSelector)
         {
             return browser.FindElements(By.CssSelector(cssSelector)).Select(e => new SeleniumElementHelper(e)).ToList();

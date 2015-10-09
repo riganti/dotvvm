@@ -4,10 +4,16 @@ using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// Hyperlink which builds the URL from route name and parameter values.
+    /// </summary>
     public class RouteLink : HtmlGenericControl
     {
 
-        
+
+        /// <summary>
+        /// Gets or sets the name of the route in the route table.
+        /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public string RouteName
         {
@@ -18,6 +24,9 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, RouteLink>(c => c.RouteName);
 
 
+        /// <summary>
+        /// Gets or sets the text of the hyperlink.
+        /// </summary>
         public string Text
         {
             get { return (string)GetValue(TextProperty); }

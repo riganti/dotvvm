@@ -1,6 +1,7 @@
 using DotVVM.Samples.Tests.Exceptions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
+using System.Linq;
 
 namespace DotVVM.Samples.Tests
 {
@@ -47,6 +48,16 @@ namespace DotVVM.Samples.Tests
                 throw new NoSuchElementException($"Element not found. Selector: {selector}");
             }
             return elements[0];
+        }
+
+        public static IWebElement LastByCssSelector(this IWebDriver driver, string selector)
+        {
+            var elements = driver.FindElements(By.CssSelector(selector));
+            if (elements.Count == 0)
+            {
+                throw new NoSuchElementException($"Element not found. Selector: {selector}");
+            }
+            return elements.Last();
         }
 
         public static IWebElement SingleByCssSelector(this IWebDriver driver, string selector)

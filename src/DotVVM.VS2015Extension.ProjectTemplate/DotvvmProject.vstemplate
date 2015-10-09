@@ -3,7 +3,8 @@
   <TemplateData>
     <Name>ASP.NET DotVVM Project</Name>
     <Description>ASP.NET Application using DotVVM framework</Description>
-    <Icon>DotVVM.VS2015Extension.ProjectTemplate.ico</Icon>
+    <Icon>dotvvmproj_32x32.png</Icon>
+    <PreviewImage>dotvvmproj_256x256.png</PreviewImage>
     <ProjectType>CSharp</ProjectType>
     <RequiredFrameworkVersion>4.5.1</RequiredFrameworkVersion>
     <SortOrder>1000</SortOrder>
@@ -20,7 +21,7 @@
       <ProjectItem ReplaceParameters="true" TargetFileName="Web.Release.config">Web.Release.config</ProjectItem>
       <ProjectItem ReplaceParameters="true" TargetFileName="Startup.cs">Startup.cs</ProjectItem>
       <ProjectItem ReplaceParameters="true" TargetFileName="ViewModels\DefaultViewModel.cs">DefaultViewModel.cs</ProjectItem>
-      <ProjectItem ReplaceParameters="true" TargetFileName="Views\default.dothtml">default.dothtml</ProjectItem>
+      <ProjectItem ReplaceParameters="true" ItemType="Content"  TargetFileName="Views\default.dothtml">default.dothtml</ProjectItem>
     </Project>
   </TemplateContent>
   <WizardExtension>
@@ -28,7 +29,7 @@
     <FullClassName>NuGet.VisualStudio.TemplateWizard</FullClassName>
   </WizardExtension>
   <WizardData>
-    <packages repository="extension" repositoryId="DotVVM.VS2015Extension..ff9401c7-99da-4a9c-9800-1ffdcd4f13b3">
+    <packages repository="extension" repositoryId="DotVVM.VS2015Extension.Free..ff9401c7-99da-4a9c-9800-1ffdcd4f13b3">
       <package id="Newtonsoft.Json" version="7.0.1" />
       <package id="Owin" version="1.0.0" />
       <package id="Microsoft.Owin" version="3.0.1" />
@@ -42,7 +43,7 @@
       <package id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
       <package id="ExpressionEvaluator" version="2.0.3.0" />
       <package id="Antlr" version="3.5.0.2" />
-      <package id="DotVVM" version="0.8.5.2-pre" />
+      <package id="DotVVM" version="0.8.5.8-pre" />
     </packages>
   </WizardData>
 </VSTemplate>

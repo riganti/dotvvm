@@ -1,8 +1,8 @@
+using DotVVM.Framework.Parser.Dothtml.Parser;
+using Microsoft.CodeAnalysis;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.CodeAnalysis;
-using DotVVM.Framework.Parser.Dothtml.Parser;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base
 {
@@ -11,8 +11,6 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Bas
         public abstract TriggerPoint TriggerPoint { get; }
 
         public abstract IEnumerable<SimpleDothtmlCompletion> GetItems(DothtmlCompletionContext context);
-        
-
 
         protected List<string> GetTagHierarchy(DothtmlCompletionContext context)
         {

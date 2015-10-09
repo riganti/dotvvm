@@ -7,13 +7,13 @@ using System.Linq;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Renders a HTML button.
+    /// Renders the HTML button which is able to trigger a postback.
     /// </summary>
     public class Button : ButtonBase
     {
         /// <summary>
-        /// Gets or sets whether the button should render as input[type=submit] or input[type=button].
-        /// The submit button has some special features, e.g. handles the Return key in HTML forms etc.
+        /// Gets or sets whether the control should render a submit button or a normal button (type="submit" or type="button").
+        /// The submit button has some special features in the browsers, e.g. handles the Return key in HTML forms etc.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool IsSubmitButton
@@ -26,8 +26,7 @@ namespace DotVVM.Framework.Controls
             = DotvvmProperty.Register<bool, Button>(c => c.IsSubmitButton, false);
 
         /// <summary>
-        /// Controls which tag would be used to render button.
-        /// (input or button)
+        /// Gets or sets whether the control should render the &lt;input&gt; or the &lt;button&gt; tag in the HTML.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public ButtonTagName ButtonTagName

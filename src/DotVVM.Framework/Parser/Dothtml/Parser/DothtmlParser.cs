@@ -94,6 +94,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                                     if (beginTag != null && beginTagName != beginTag.FullTagName)
                                     {
                                         beginTag.CorrespondingEndTag = element;
+                                        ElementHierarchy.Pop();
                                     }
                                     else
                                     {

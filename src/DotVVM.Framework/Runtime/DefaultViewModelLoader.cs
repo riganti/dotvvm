@@ -5,6 +5,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -21,7 +22,7 @@ namespace DotVVM.Framework.Runtime
                 throw new Exception("Couldn't find a viewmodel for the specified view!");       // TODO: exception handling
             }
 
-            var viewModelType = Type.GetType(viewModel);
+            var viewModelType = ReflectionUtils.FindType(view.Directives[Constants.ViewModelDirectiveName]); // TODO: this is known at compile time, do not find it again
             if (viewModelType == null)
             {
                 throw new Exception(string.Format("Couldn't create a class of type '{0}'!", viewModel));       // TODO: exception handling

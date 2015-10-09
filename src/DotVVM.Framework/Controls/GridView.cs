@@ -11,15 +11,23 @@ using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// A multi-purpose grid control with advanced binding and templating options and sorting support.
+    /// </summary>
     public class GridView : ItemsControl
     {
 
         public GridView() : base("table")
         {
+            SetValue(Internal.IsNamingContainerProperty, true);
+
             Columns = new List<GridViewColumn>();
             RowDecorators = new List<Decorator>();
         }
 
+        /// <summary>
+        /// Gets or sets a collection of columns that will be placed inside the grid.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
@@ -31,7 +39,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ColumnsProperty =
             DotvvmProperty.Register<List<GridViewColumn>, GridView>(c => c.Columns);
 
-
+        /// <summary>
+        /// Gets or sets a list of decorators that will be applied on each row.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
@@ -43,7 +53,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty RowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
-        [ConstantDataContextChange(typeof(string))]
+
+        /// <summary>
+        /// Gets or sets the command that will be triggered when the user changed the sort order.
+        /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
         public Action<string> SortChanged
         {
@@ -56,6 +69,8 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
+            EnsureControlHasId();
+
             DataBind(context);
             base.OnLoad(context);
         }
@@ -81,11 +96,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var sortCommandBinding = GetBinding(SortChangedProperty) as CommandBindingExpression;
-                if (sortCommandBinding != null)
-                {
-                    sortCommand = s => sortCommandBinding.Delegate(new []{ s }.Concat(BindingExpression.GetDataContexts(this, true)).ToArray(), null);
-                }
+                sortCommand = SortChanged;
             }
 
             var index = 0;
@@ -102,6 +113,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
+                    placeholder.ID = "i" + index;
                     Children.Add(placeholder);
 
                     CreateRow(context, placeholder);
@@ -217,6 +229,7 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                 Children.Add(placeholder);
 
                 CreateRow(context.RequestContext, placeholder);

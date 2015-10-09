@@ -34,5 +34,8 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty MarkupLineNumberProperty =
             DotvvmProperty.Register<int, Internal>("MarkupLineNumber", defaultValue: -1, isValueInherited: false);
+
+        public static readonly DotvvmProperty ClientIDFragmentProperty =
+            DotvvmProperty.Register<string, Internal>("ClientIDFragmentProperty", defaultValue: null, isValueInherited: false); 
     }
 }

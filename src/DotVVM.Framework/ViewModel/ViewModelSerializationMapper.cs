@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using Newtonsoft.Json;
+using System.Collections;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -40,8 +41,9 @@ namespace DotVVM.Framework.ViewModel
                     Type = property.PropertyType,
                     TransferToClient = property.GetMethod != null,
                     TransferToServer = property.SetMethod != null,
-                    JsonConverter = GetJsonConverter(property)
-            };
+                    JsonConverter = GetJsonConverter(property),
+                    Populate = ViewModelJsonConverter.IsComplexType(property.PropertyType) && !ViewModelJsonConverter.IsEnumerable(property.PropertyType)
+                };
 
                 var bindAttribute = property.GetCustomAttribute<BindAttribute>();
                 if (bindAttribute != null)
@@ -73,7 +75,7 @@ namespace DotVVM.Framework.ViewModel
             }
             try
             {
-                return (JsonConverter) Activator.CreateInstance(converterType);
+                return (JsonConverter)Activator.CreateInstance(converterType);
             }
             catch (Exception ex)
             {
