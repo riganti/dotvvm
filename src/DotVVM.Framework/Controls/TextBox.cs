@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddAttribute("value", Text);
                 }
-            }, UpdateTextAfterKeydown ? "afterkeydown" : null, serverRendering: false);
+            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
 
             if (Type == TextBoxType.MultiLine)
             {
