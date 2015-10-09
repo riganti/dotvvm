@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Resources;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -170,9 +171,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         private void SetParent(DotvvmControl item)
         {
-            if (item.Parent != null)
+            if (item.Parent != null && item.Parent != parent)
             {
-                throw new InvalidOperationException(Parser_Dothtml.ControlCollection_ControlAlreadyHasParent);
+                throw new DotvvmControlException(parent, Parser_Dothtml.ControlCollection_ControlAlreadyHasParent);
             }
             item.Parent = parent;
             if(item.GetValue(Internal.UniqueIDProperty) == null)
