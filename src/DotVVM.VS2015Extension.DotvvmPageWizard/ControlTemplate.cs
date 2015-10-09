@@ -18,7 +18,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
+    #line 1 "D:\Work\Dotvvm\src\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
     public partial class ControlTemplate : ControlTemplateBase
     {
@@ -28,32 +28,47 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
         /// </summary>
         public virtual string TransformText()
         {
-            this.Write("@viewModel System.Object, mscorlib\r\n@baseType ");
+            this.Write("@viewModel System.Object, mscorlib\r\n");
             
-            #line 6 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
+            #line 6 "D:\Work\Dotvvm\src\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
+ if (ViewModel.CreateCodeBehind) { 
+
+            
+            #line default
+            #line hidden
+            this.Write("@baseType ");
+            
+            #line 7 "D:\Work\Dotvvm\src\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ViewModel.CodeBehindClassNamespace));
             
             #line default
             #line hidden
             this.Write(".");
             
-            #line 6 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
+            #line 7 "D:\Work\Dotvvm\src\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ViewModel.CodeBehindClassName));
             
             #line default
             #line hidden
             this.Write(", ");
             
-            #line 6 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
+            #line 7 "D:\Work\Dotvvm\src\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ViewModel.CodeBehindClassRootNamespace));
             
             #line default
             #line hidden
-            this.Write("\r\n\r\n\r\n");
+            
+            #line 7 "D:\Work\Dotvvm\src\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
+ 
+} 
+            
+            #line default
+            #line hidden
+            this.Write("\r\n");
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 9 "D:\Work\DotVVMCommercial\src\DotvvmCommercial\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
+        #line 10 "D:\Work\Dotvvm\src\DotVVM.VS2015Extension.DotvvmPageWizard\ControlTemplate.tt"
  
 public ControlWindowViewModel ViewModel { get; set; }
 
