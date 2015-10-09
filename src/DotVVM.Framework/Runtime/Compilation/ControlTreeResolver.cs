@@ -22,7 +22,6 @@ namespace DotVVM.Framework.Runtime.Compilation
         private IControlResolver controlResolver;
         private IBindingParser bindingParser;
 
-
         public ControlTreeResolver(DotvvmConfiguration configuration)
         {
             controlResolver = configuration.ServiceLocator.GetService<IControlResolver>();
@@ -135,6 +134,10 @@ namespace DotVVM.Framework.Runtime.Compilation
                     ex.LineNumber = node.Tokens.First().LineNumber;
                 }
                 throw;
+            }
+            catch (Exception ex)
+            {
+                throw new DotvvmCompilationException("", ex, node.Tokens);
             }
         }
 
