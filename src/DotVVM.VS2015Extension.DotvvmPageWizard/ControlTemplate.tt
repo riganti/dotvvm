@@ -3,8 +3,9 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>@viewModel System.Object, mscorlib
-@baseType <#= ViewModel.CodeBehindClassNamespace #>.<#= ViewModel.CodeBehindClassName #>, <#= ViewModel.CodeBehindClassRootNamespace #>
-
+<# if (ViewModel.CreateCodeBehind) { 
+#>@baseType <#= ViewModel.CodeBehindClassNamespace #>.<#= ViewModel.CodeBehindClassName #>, <#= ViewModel.CodeBehindClassRootNamespace #><# 
+} #>
 
 <#+ 
 public ControlWindowViewModel ViewModel { get; set; }

@@ -20,7 +20,6 @@ namespace DotVVM.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
-            //app.UseDotvvmErrorPages();
             app.UseErrorPage(new Microsoft.Owin.Diagnostics.ErrorPageOptions() { ShowExceptionDetails = true });
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
@@ -48,7 +47,7 @@ namespace DotVVM.Samples.BasicSamples
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM
-            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, errorPages: false);
+            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, errorPages: true);
             
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

@@ -13,6 +13,34 @@ How to Start
 
 2. Read the **[documentation](http://www.dotvvm.com/docs)**. Oh yes, we are open source, but we actually have one. 
 
+Simple Sample
+-------------
+DotHTML markup: 
+```html
+<div class="form-control">
+  <dot:TextBox Text="{value: Name}" />
+</div>
+<div class="form-control">
+  <dot:TextBox Text="{value: Email}" />
+</div>
+<div class="button-bar">
+  <dot:Button Text="Submit" Click="{command: Submit()}" />
+</div>
+```
+
+ViewModel in C#:
+```C#
+public class ContactFormViewModel
+{
+  public string Name { get; set; }
+  public string Email { get; set; }
+  public void Submit()
+  {
+    ContactService.Submit(Name, Email);
+  }
+}
+```
+
 
 More Info
 ---------

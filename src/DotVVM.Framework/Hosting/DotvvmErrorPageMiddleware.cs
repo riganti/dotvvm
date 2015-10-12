@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using DotVVM.Framework.Hosting.ErrorPages;
 
 namespace DotVVM.Framework.Hosting
 {
     public class DotvvmErrorPageMiddleware: OwinMiddleware
     {
+        public ErrorFormatter Formatter { get; set; }
+
         public DotvvmErrorPageMiddleware(OwinMiddleware next) : base(next)
         {
         }
@@ -36,28 +39,28 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the error response.
         /// </summary>
-        public static Task RenderErrorResponse(IOwinContext context, Exception error)
+        public Task RenderErrorResponse(IOwinContext context, Exception error)
         {
             context.Response.ContentType = "text/html";
 
-            var template = new ErrorPageTemplate()
-            {
-                Exception = error,
-                ErrorCode = context.Response.StatusCode,
-                ErrorDescription = ((HttpStatusCode)context.Response.StatusCode).ToString(),
-                IpAddress = context.Request.RemoteIpAddress,
-                CurrentUserName = context.Request.User != null ? context.Request.User.Identity.Name : "",
-                Url = context.Request.Uri.ToString(),
-                Verb = context.Request.Method
-            };
-            if (error is ParserException)
-            {
-                template.FileName = ((ParserException)error).FileName;
-                template.LineNumber = ((ParserException)error).LineNumber;
-                template.PositionOnLine = ((ParserException)error).PositionOnLine;
-            }
+            //var template = new ErrorPageTemplate()
+            //{
+            //    Exception = error,
+            //    ErrorCode = context.Response.StatusCode,
+            //    ErrorDescription = ((HttpStatusCode)context.Response.StatusCode).ToString(),
+            //    IpAddress = context.Request.RemoteIpAddress,
+            //    CurrentUserName = context.Request.User != null ? context.Request.User.Identity.Name : "",
+            //    Url = context.Request.Uri.ToString(),
+            //    Verb = context.Request.Method
+            //};
+            //if (error is ParserException)
+            //{
+            //    template.FileName = ((ParserException)error).FileName;
+            //    template.LineNumber = ((ParserException)error).LineNumber;
+            //    template.PositionOnLine = ((ParserException)error).PositionOnLine;
+            //}
 
-            var text = template.TransformText();
+            var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault())).ErrorHtml(error, context);
             return context.Response.WriteAsync(text);
         }
     }
