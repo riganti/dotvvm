@@ -105,13 +105,22 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 Objects = e.LoaderExceptions.Select(lde => lde.GetType().Name + ": " + lde.Message).ToArray(),
                 Display = ExceptionAdditionalInfo.DisplayMode.ToString
             });
-            f.AddInfoLoader<DotvvmCompilationException>(e => new ExceptionAdditionalInfo
+            f.AddInfoLoader<DotvvmCompilationException>(e =>
             {
-                Title = "DotVVM compilation",
-                Objects = new object[] {
-                    $"error in '{ string.Concat(e.Tokens.Select(t => t.Text)) }' at line { e.Tokens.First().LineNumber } in { e.FileName }"
-                },
-                Display = ExceptionAdditionalInfo.DisplayMode.ToString
+                var info = new ExceptionAdditionalInfo()
+                {
+                    Title = "DotVVM Compiler",
+                    Objects = null,
+                    Display = ExceptionAdditionalInfo.DisplayMode.ToString
+                };
+                if (e.Tokens != null && e.Tokens.Any())
+                {
+                    info.Objects = new object[]
+                    {
+                        $"error in '{string.Concat(e.Tokens.Select(t => t.Text))}' at line {e.Tokens.First().LineNumber} in {e.FileName}"
+                    };
+                }
+                return info;
             });
             
             return f;

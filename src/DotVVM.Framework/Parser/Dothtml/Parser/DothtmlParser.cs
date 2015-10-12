@@ -438,7 +438,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         {
             if (Peek() == null || !Peek().Type.Equals(desiredType))
             {
-                throw new DotvvmCompilationException($"DotVVM parser internal error! The token {desiredType} was expected!");
+                throw new DotvvmInternalException($"DotVVM parser internal error! The token {desiredType} was expected!");
             }
             return true;
         }

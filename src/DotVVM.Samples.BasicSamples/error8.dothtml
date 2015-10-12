@@ -1,0 +1,15 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample1ViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <p>Hello!</p>
+
+	<dot:Repeater DataSource="{value: NonExistingProperty}">		
+	</dot:Repeater>
+
+</body>
+</html>

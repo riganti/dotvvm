@@ -160,6 +160,7 @@
     <Compile Include="Controls\ValidationMessage.cs" />
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
+    <Compile Include="DotvvmInternalException.cs" />
     <Compile Include="Exceptions\DotvvmCompilationException.cs" />
     <Compile Include="Exceptions\DotvvmControlException.cs" />
     <Compile Include="Extensions.cs" />

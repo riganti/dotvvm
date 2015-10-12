@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public class DotvvmMarkupErrorSection : IErrorSectionFormatter
     {
-        public string DisplayName => "Dotvvm markup";
+        public string DisplayName => "DotVVM Markup";
 
         public string Id => "dothtml";
 
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     errorColumn: compilationException.Tokens.First().ColumnNumber,
                     errorLength: compilationException.Tokens.Where(t => t.LineNumber == compilationException.LineNumber).Sum(t => t.Length));
             }
-            else if(exc is DotvvmControlException)
+            else if (exc is DotvvmControlException)
             {
                 var controlException = (DotvvmControlException)exc;
                 return ErrorFormatter.LoadSourcePiece(controlException.FileName, controlException.LineNumber ?? 0);

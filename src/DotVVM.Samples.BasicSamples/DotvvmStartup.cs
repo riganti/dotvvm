@@ -58,6 +58,17 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("AuthSamplePage", "AuthSample/SecuredPage", "AuthSample/securedPage.dothtml");
             config.RouteTable.Add("ReturnFileSample", "ReturnFileSample", "ReturnFileSample/sample.dothtml");
 
+            config.RouteTable.Add("Error1", "Error1", "error1.dothtml");
+            config.RouteTable.Add("Error2", "Error2", "error2.dothtml");
+            config.RouteTable.Add("Error3", "Error3", "error3.dothtml");
+            config.RouteTable.Add("Error4", "Error4", "error4.dothtml");
+            config.RouteTable.Add("Error5", "Error5", "error5.dothtml");
+            config.RouteTable.Add("Error6", "Error6", "error6.dothtml");
+            config.RouteTable.Add("Error7", "Error7", "error7.dothtml");
+            config.RouteTable.Add("Error8", "Error8", "error8.dothtml");
+            config.RouteTable.Add("Error9", "Error9", "error9.dothtml");
+
+
             var bundles = new BundlingResourceProcessor();
             bundles.RegisterBundle(config.Resources.FindNamedResource("testJsBundle"), "testJs", "testJs2");
             config.Resources.DefaultResourceProcessors.Add(bundles);

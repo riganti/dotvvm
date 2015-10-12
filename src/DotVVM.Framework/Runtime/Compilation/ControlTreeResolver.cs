@@ -128,8 +128,9 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             catch (DotvvmCompilationException ex)
             {
-                if (ex.ColumnNumber == null)
+                if (ex.Tokens == null)
                 {
+                    ex.Tokens = node.Tokens;
                     ex.ColumnNumber = node.Tokens.First().ColumnNumber;
                     ex.LineNumber = node.Tokens.First().LineNumber;
                 }

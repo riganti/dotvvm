@@ -34,6 +34,7 @@ namespace DotVVM.Framework.Exceptions
             LineNumber = tokens.FirstOrDefault()?.LineNumber;
             ColumnNumber = tokens.FirstOrDefault()?.ColumnNumber;
         }
+
         public DotvvmCompilationException(string message, IEnumerable<TokenBase> tokens) : base(message)
         {
             this.Tokens = tokens;

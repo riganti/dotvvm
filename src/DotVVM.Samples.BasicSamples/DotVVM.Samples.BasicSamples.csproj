@@ -136,6 +136,14 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <Content Include="error2.dothtml" />
+    <Content Include="error3.dothtml" />
+    <Content Include="error4.dothtml" />
+    <Content Include="error5.dothtml" />
+    <Content Include="error6.dothtml" />
+    <Content Include="error7.dothtml" />
+    <Content Include="error8.dothtml" />
+    <Content Include="error9.dothtml" />
     <None Include="Properties\PublishProfiles\CI.pubxml" />
     <Content Include="sample15.dothtml" />
     <Content Include="sample16.dothtml" />
@@ -168,6 +176,7 @@
     <Content Include="sample37.dothtml" />
     <Content Include="sample38.dothtml" />
     <Content Include="sample21.dothtml" />
+    <Content Include="error1.dothtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
