@@ -74,10 +74,6 @@
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="DotVVM.Framework, Version=0.8.5.8, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\packages\DotVVM.0.8.5.8-pre\lib\net451\DotVVM.Framework.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
       <EmbedInteropTypes>True</EmbedInteropTypes>
     </Reference>
@@ -416,6 +412,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
+      <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
+      <Name>DotVVM.Framework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DotVVM.VS2015Extension.Common\DotVVM.VS2015Extension.Common.csproj">
       <Project>{1e9c1d75-410c-4174-a761-c52116ee9887}</Project>
       <Name>DotVVM.VS2015Extension.Common</Name>
