@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Configuration;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
+using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml;
+using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base;
 using Microsoft.CodeAnalysis.Text;
 
 namespace DotVVM.Framework.Tests.VS2015Extension

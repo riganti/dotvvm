@@ -5,8 +5,6 @@ using DotVVM.VS2015Extension.Bases;
 using DotVVM.VS2015Extension.Bases.Commands;
 using DotVVM.VS2015Extension.Bases.Directives;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
 using DotVVM.VS2015Extension.DotvvmPageWizard;
 using EnvDTE;
 using Microsoft.CodeAnalysis;
@@ -38,7 +36,6 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
 
         protected override bool Execute(uint nCmdId, uint nCmdexecopt, IntPtr pvaIn, IntPtr pvaOut, NextIOleCommandTarget nextCommandTarget)
         {
-
             //check triggered automatic function
             if (VsShellUtilities.IsInAutomationFunction(provider.ServiceProvider))
             {
@@ -56,13 +53,22 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
             return false;
         }
 
+        /// <summary>
+        /// Checks if directive is selected and returns it.
+        /// </summary>
+        private static DothtmlDirectiveNode GetCurrentDirective(int position, DothtmlRootNode rootNode)
+        {
+            return rootNode.Directives.FirstOrDefault(s => s.StartPosition <= position &&
+                                                           position <= s.StartPosition + s.Length);
+        }
+
         private bool ProcessDirectives(int position, DothtmlRootNode rootNode)
         {
-            var currentDirective =  GetCurrentDirective(position, rootNode);
+            var currentDirective = GetCurrentDirective(position, rootNode);
             if (currentDirective == null) return false;
 
             //check viewModel and typeBased directive and navigate to definition of the viewModel
-            if (currentDirective.Name.Equals( Constants.ViewModelDirectiveName,StringComparison.OrdinalIgnoreCase) || currentDirective.Name.Equals(Constants.BaseTypeDirective, StringComparison.OrdinalIgnoreCase))
+            if (currentDirective.Name.Equals(Constants.ViewModelDirectiveName, StringComparison.OrdinalIgnoreCase) || currentDirective.Name.Equals(Constants.BaseTypeDirective, StringComparison.OrdinalIgnoreCase))
             {
                 if (NavigateToViewModel(new ViewModelDirectiveValue(currentDirective))) return true;
             }
@@ -95,8 +101,6 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
 
         private bool NavigateToViewModel(ViewModelDirectiveValue currentDirective)
         {
-
-
             //get all declarations of the viewmodel's name
             var declarations = WorkspaceHelper
                 .GetSyntaxTreeInfos()
@@ -128,15 +132,6 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
                 }
             }
             return false;
-        }
-
-        /// <summary>
-        /// Checks if directive is selected and returns it.
-        /// </summary>
-        private static DothtmlDirectiveNode GetCurrentDirective(int position, DothtmlRootNode rootNode)
-        {
-            return rootNode.Directives.FirstOrDefault(s => s.StartPosition <= position &&
-                                                           position <= s.StartPosition + s.Length);
         }
     }
 }

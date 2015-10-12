@@ -1,13 +1,13 @@
-using System;
-using System.Collections.Concurrent;
-using System.IO;
 using DotVVM.Framework.Configuration;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions;
+using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense;
 using DotVVM.VS2015Extension.DotvvmPageWizard;
 using EnvDTE;
 using Microsoft.VisualStudio.Shell;
 using Microsoft.VisualStudio.Shell.Interop;
 using Newtonsoft.Json;
+using System;
+using System.Collections.Concurrent;
+using System.IO;
 
 namespace DotVVM.VS2015Extension.Configuration
 {
@@ -17,12 +17,12 @@ namespace DotVVM.VS2015Extension.Configuration
         private CachedValue<string, DotvvmConfiguration> cache = new CachedValue<string, DotvvmConfiguration>();
         private IVsFileChangeEx fileChangeService;
 
-        public event EventHandler WorkspaceChanged;
-
         public DotvvmConfigurationProvider()
         {
             fileChangeService = ServiceProvider.GlobalProvider.GetService(typeof(SVsFileChangeEx)) as IVsFileChangeEx;
         }
+
+        public event EventHandler WorkspaceChanged;
 
         public DotvvmConfiguration GetConfiguration(Project project)
         {
@@ -46,6 +46,14 @@ namespace DotVVM.VS2015Extension.Configuration
             return configuration;
         }
 
+        public void Dispose()
+        {
+            foreach (var tracker in changeTrackers.Values)
+            {
+                tracker.Dispose();
+            }
+        }
+
         private FileChangeTracker CreateChangeTracker(string fileName)
         {
             var tracker = new FileChangeTracker(fileChangeService, fileName);
@@ -58,14 +66,6 @@ namespace DotVVM.VS2015Extension.Configuration
         {
             cache.ClearCachedValues();
             WorkspaceChanged?.Invoke(this, EventArgs.Empty);
-        }
-
-        public void Dispose()
-        {
-            foreach (var tracker in changeTrackers.Values)
-            {
-                tracker.Dispose();
-            }
         }
     }
 }

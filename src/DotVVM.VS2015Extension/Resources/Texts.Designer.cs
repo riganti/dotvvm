@@ -88,7 +88,7 @@ namespace DotVVM.VS2015Extension.Resources {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to New version available. Would you like to install it?.
+        ///   Looks up a localized string similar to New version of DOTVVM extension is available. Would you like to install it?.
         /// </summary>
         public static string UpdateCheckNewVersionMessage {
             get {
