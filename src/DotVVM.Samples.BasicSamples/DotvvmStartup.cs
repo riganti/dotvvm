@@ -35,6 +35,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("Sample18", "Sample18", "sample18.dothtml");
             config.RouteTable.Add("Sample19", "Sample19", "sample19.dothtml");
             config.RouteTable.Add("Sample20", "Sample20", "sample20.dothtml");
+            config.RouteTable.Add("Sample21", "Sample21", "sample21.dothtml");
             config.RouteTable.Add("Sample22", "Sample22", "sample22.dothtml");
             config.RouteTable.Add("Sample22-PageDetail", "Sample22/{Id}", "sample22.dothtml");
             config.RouteTable.Add("Sample23", "Sample23", "sample23.dothtml");

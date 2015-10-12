@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Threading;
+using OpenQA.Selenium.Interactions;
 
 namespace DotVVM.Samples.Tests
 {
@@ -700,6 +701,92 @@ namespace DotVVM.Samples.Tests
                 // try to validate
                 Assert.AreEqual("true", browser.FindAll("span").Last().GetText());
                 Assert.AreEqual(0, browser.FindAll("li").Count());
+            });
+        }
+
+        public void Sample21Test()
+        {
+            RunInAllBrowsers(browser => 
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample21");
+
+                Assert.AreEqual("0", browser.Find("*[data-id='total-changes']").GetText());
+
+                // first textbox with update mode on key press
+                var textBox1 = browser.FindAll("input[type=text]")[0];
+                new Actions(browser.WebDriver).Click(textBox1.WebElement).Perform();
+                Thread.Sleep(WaitTime);
+                new Actions(browser.WebDriver).SendKeys("test").Perform();
+
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("0", browser.Find("*[data-id='total-changes']").GetText());
+                Assert.AreEqual("Valuetest", browser.Find("*[data-id='first-textbox']").GetText());
+
+                new Actions(browser.WebDriver).SendKeys(Keys.Tab).Perform();
+                Assert.AreEqual("Valuetest", browser.Find("*[data-id='first-textbox']").GetText());
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("1", browser.Find("*[data-id='total-changes']").GetText());
+
+                // second textbox
+                var textBox2 = browser.FindAll("input[type=text]")[1];
+                new Actions(browser.WebDriver).Click(textBox2.WebElement).Perform();
+                Thread.Sleep(WaitTime);
+                new Actions(browser.WebDriver).SendKeys("test").Perform();
+
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("1", browser.Find("*[data-id='total-changes']").GetText());
+                Assert.AreEqual("Value", browser.Find("*[data-id='second-textbox']").GetText());
+
+                new Actions(browser.WebDriver).SendKeys(Keys.Tab).Perform();
+                Assert.AreEqual("Valuetest", browser.Find("*[data-id='second-textbox']").GetText());
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("2", browser.Find("*[data-id='total-changes']").GetText());
+
+
+                // click on checkbox
+                browser.Click("input[type=checkbox]");
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("3", browser.Find("*[data-id='total-changes']").GetText());
+
+                browser.Click("input[type=checkbox]");
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("4", browser.Find("*[data-id='total-changes']").GetText());
+
+
+                // click on radio button
+                browser.FindAll("input[type=radio]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("5", browser.Find("*[data-id='total-changes']").GetText());
+
+                browser.FindAll("input[type=radio]")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("6", browser.Find("*[data-id='total-changes']").GetText());
+
+                browser.FindAll("input[type=radio]")[2].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("7", browser.Find("*[data-id='total-changes']").GetText());
+
+                browser.FindAll("input[type=radio]")[3].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("8", browser.Find("*[data-id='total-changes']").GetText());
+
+                browser.FindAll("input[type=radio]")[4].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("9", browser.Find("*[data-id='total-changes']").GetText());
+
+
+                // combo box
+                browser.Find("select").Select(1);
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("10", browser.Find("*[data-id='total-changes']").GetText());
+
+                browser.Find("select").Select(2);
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("11", browser.Find("*[data-id='total-changes']").GetText());
+
+                browser.Find("select").Select(0);
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("12", browser.Find("*[data-id='total-changes']").GetText());
             });
         }
 

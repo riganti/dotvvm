@@ -22,6 +22,11 @@ namespace DotVVM.Samples.Tests
             get { return browser.Url; }
         }
 
+        public IWebDriver WebDriver
+        {
+            get { return browser; }
+        }
+
         public void Click(string cssSelector)
         {
             browser.FirstByCssSelector(cssSelector).Click();
