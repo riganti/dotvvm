@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                         errorColumn: f.GetFileColumnNumber())
                 };
 
-                m.AdditionalInfo = InfoLoaders.Select(info => info(exception)).Where(info => info != null).ToArray();
+                m.AdditionalInfo = InfoLoaders.Select(info => info(exception)).Where(info => info != null && info.Objects != null).ToArray();
             }
             if (exception.InnerException != null) m.InnerException = LoadException(exception.InnerException, m.Stack);
             return m;
@@ -63,19 +63,22 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             result.LineNumber = lineNumber;
             result.ErrorColumn = errorColumn;
             result.ErrorLength = errorLength;
-            try
+            if (fileName != null)
             {
-                var lines = File.ReadAllLines(fileName);
-                result.CurrentLine = lines[lineNumber - 1];
-                result.PreLines = lines.Skip(lineNumber - additionalLineCount).TakeWhile(l => l != result.CurrentLine).ToArray();
-                result.PostLines = lines.Skip(lineNumber).Take(additionalLineCount).ToArray();
-                return result;
+                try
+                {
+                    var lines = File.ReadAllLines(fileName);
+                    result.CurrentLine = lines[lineNumber - 1];
+                    result.PreLines = lines.Skip(lineNumber - additionalLineCount).TakeWhile(l => l != result.CurrentLine).ToArray();
+                    result.PostLines = lines.Skip(lineNumber).Take(additionalLineCount).ToArray();
+                    return result;
+                }
+                catch
+                {
+                    result.LoadFailed = true;
+                }
             }
-            catch (Exception)
-            {
-                result.LoadFailed = true;
-                return result;
-            }
+            return result;
         }
 
         public List<Func<Exception, IOwinContext, IErrorSectionFormatter>> Formatters = new List<Func<Exception, IOwinContext, IErrorSectionFormatter>>();

@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             catch (Exception ex)
             {
                 if (requirement != BindingCompilationRequirementType.StronglyRequire) return default(T);
-                else throw new InvalidOperationException("binding compilation failed", ex);
+                else throw;
             }
         }
 

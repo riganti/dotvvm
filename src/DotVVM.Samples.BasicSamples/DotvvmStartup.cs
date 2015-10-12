@@ -67,6 +67,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("Error7", "Error7", "error7.dothtml");
             config.RouteTable.Add("Error8", "Error8", "error8.dothtml");
             config.RouteTable.Add("Error9", "Error9", "error9.dothtml");
+            config.RouteTable.Add("Error10", "Error10", "error10.dothtml");
 
 
             var bundles = new BundlingResourceProcessor();

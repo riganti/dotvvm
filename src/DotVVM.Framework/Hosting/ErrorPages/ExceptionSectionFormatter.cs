@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     w.Write("<div> <h3>");
                     w.WriteText(info.Title);
                     w.Write("</h3>");
-                    foreach (var obj in info.Objects)
+                    if(info.Objects != null) foreach (var obj in info.Objects)
                     {
                         if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToString)
                         {

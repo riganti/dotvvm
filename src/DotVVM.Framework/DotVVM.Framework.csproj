@@ -163,6 +163,7 @@
     <Compile Include="DotvvmInternalException.cs" />
     <Compile Include="Exceptions\DotvvmCompilationException.cs" />
     <Compile Include="Exceptions\DotvvmControlException.cs" />
+    <Compile Include="Exceptions\ExceptionUtils.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Hosting\ErrorPages\DictionarySection.cs" />
     <Compile Include="Hosting\ErrorPages\DotvvmMarkupErrorSection.cs" />

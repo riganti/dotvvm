@@ -20,27 +20,22 @@ namespace DotVVM.Framework.Exceptions
         public int? LineNumber { get; set; }
 
 
-        public DotvvmCompilationException(string message) : base(message)
-        {
-        }
+        public DotvvmCompilationException(string message) : base(message) { }
 
-        public DotvvmCompilationException(string message, Exception innerException) : base(message, innerException)
-        {
-        }
+        public DotvvmCompilationException(string message, Exception innerException) : base(message, innerException) { }
 
         public DotvvmCompilationException(string message, Exception innerException, IEnumerable<TokenBase> tokens) : base(message, innerException)
         {
-            this.Tokens = tokens;
-            LineNumber = tokens.FirstOrDefault()?.LineNumber;
-            ColumnNumber = tokens.FirstOrDefault()?.ColumnNumber;
+            if (tokens != null)
+            {
+                if (!(tokens is IList<TokenBase>)) tokens = tokens.ToArray();
+                this.Tokens = tokens;
+                LineNumber = tokens.FirstOrDefault()?.LineNumber;
+                ColumnNumber = tokens.FirstOrDefault()?.ColumnNumber;
+            }
         }
 
-        public DotvvmCompilationException(string message, IEnumerable<TokenBase> tokens) : base(message)
-        {
-            this.Tokens = tokens;
-            LineNumber = tokens.FirstOrDefault()?.LineNumber;
-            ColumnNumber = tokens.FirstOrDefault()?.ColumnNumber;
-        }
+        public DotvvmCompilationException(string message, IEnumerable<TokenBase> tokens) : this(message, null, tokens) { }
 
         public override void GetObjectData(SerializationInfo info, StreamingContext context)
         {

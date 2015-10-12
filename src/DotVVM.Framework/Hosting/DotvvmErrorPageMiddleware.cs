@@ -43,24 +43,8 @@ namespace DotVVM.Framework.Hosting
         {
             context.Response.ContentType = "text/html";
 
-            //var template = new ErrorPageTemplate()
-            //{
-            //    Exception = error,
-            //    ErrorCode = context.Response.StatusCode,
-            //    ErrorDescription = ((HttpStatusCode)context.Response.StatusCode).ToString(),
-            //    IpAddress = context.Request.RemoteIpAddress,
-            //    CurrentUserName = context.Request.User != null ? context.Request.User.Identity.Name : "",
-            //    Url = context.Request.Uri.ToString(),
-            //    Verb = context.Request.Method
-            //};
-            //if (error is ParserException)
-            //{
-            //    template.FileName = ((ParserException)error).FileName;
-            //    template.LineNumber = ((ParserException)error).LineNumber;
-            //    template.PositionOnLine = ((ParserException)error).PositionOnLine;
-            //}
-
-            var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault())).ErrorHtml(error, context);
+            var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault()))
+                .ErrorHtml(error, context);
             return context.Response.WriteAsync(text);
         }
     }

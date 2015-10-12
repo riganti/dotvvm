@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Parser;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime.Compilation.Binding
 {
@@ -13,20 +14,35 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         public Expression Parse(string expression, DataContextStack dataContexts)
         {
-            var tokenizer = new Parser.Binding.Tokenizer.BindingTokenizer();
-            tokenizer.Tokenize(new StringReader(expression));
+            try
+            {
+                var tokenizer = new Parser.Binding.Tokenizer.BindingTokenizer();
+                tokenizer.Tokenize(new StringReader(expression));
 
-            var parser = new Parser.Binding.Parser.BindingParser();
-            parser.Tokens = tokenizer.Tokens;
-            var node = parser.ReadExpression();
+                var parser = new Parser.Binding.Parser.BindingParser();
+                parser.Tokens = tokenizer.Tokens;
+                var node = parser.ReadExpression();
+                if (!parser.OnEnd())
+                    throw new BindingCompilationException(
+                        $"unexpected token '{ expression.Substring(0, parser.Peek().StartPosition)} ---->{ parser.Peek().Text }<---- { expression.Substring(parser.Peek().StartPosition + parser.Peek().Length) }'",
+                        null, new TokenBase[] { parser.Peek() });
+                foreach (var n in node.EnumerateNodes())
+                {
+                    if (n.HasNodeErrors) throw new BindingCompilationException(string.Join(", ", n.NodeErrors), n);
+                }
 
-            if (node.EnumerateNodes().Any(n => n.HasNodeErrors)) throw new BindingCompilationException($"parsing of expression { expression } failed", node);
-            if (!parser.OnEnd()) throw new BindingCompilationException(
-                $"unexpected token '{ expression.Substring(0, parser.Peek().StartPosition)} ---->{ parser.Peek().Text }<---- { expression.Substring(parser.Peek().StartPosition + parser.Peek().Length) }'", node);
-
-            var visitor = new ExpressionBuildingVisitor(InitSymbols(dataContexts));
-            visitor.Scope = Expression.Parameter(dataContexts.DataContextType, "_this");
-            return visitor.Visit(node);
+                var visitor = new ExpressionBuildingVisitor(InitSymbols(dataContexts));
+                visitor.Scope = Expression.Parameter(dataContexts.DataContextType, "_this");
+                return visitor.Visit(node);
+            }
+            catch (Exception ex)
+            {
+                ex.ForInnerExceptions<BindingCompilationException>(bce =>
+                {
+                    if (bce.Expression == null) bce.Expression = expression;
+                });
+                throw;
+            }
         }
 
         public static TypeRegistry InitSymbols(DataContextStack dataContext)

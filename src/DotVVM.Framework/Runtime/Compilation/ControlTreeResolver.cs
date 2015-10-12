@@ -68,14 +68,15 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             if (!view.Directives.ContainsKey(Constants.ViewModelDirectiveName))
             {
-                throw new DotvvmCompilationException($"The @viewModel directive is missing in the page '{fileName}'!");
+                throw new DotvvmCompilationException($"The @viewModel directive is missing in the page '{fileName}'!", view.DothtmlNode.Tokens.Take(1));
             }
 
             var viewModelTypeName = view.Directives[Constants.ViewModelDirectiveName];
             var viewModelType = ReflectionUtils.FindType(viewModelTypeName);
             if (viewModelType == null)
             {
-                throw new DotvvmCompilationException($"The type '{viewModelTypeName}' required in the @viewModel directive in '{fileName}' was not found!");
+                throw new DotvvmCompilationException($"The type '{viewModelTypeName}' required in the @viewModel directive in was not found!",
+                    (view.DothtmlNode as DothtmlRootNode)?.Directives?.FirstOrDefault(d => d.Name == Constants.ViewModelDirectiveName)?.Tokens);
             }
             view.DataContextTypeStack = new DataContextStack(viewModelType)
             {

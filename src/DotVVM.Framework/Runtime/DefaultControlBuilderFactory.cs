@@ -75,9 +75,12 @@ namespace DotVVM.Framework.Runtime
                 }
                 catch (DotvvmCompilationException ex)
                 {
-                    if (!Path.IsPathRooted(ex.FileName)) ex.FileName = Path.Combine(
-                        file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
-                        ex.FileName);
+                    if (ex.FileName == null)
+                        ex.FileName = file.FullPath;
+                    else if (!Path.IsPathRooted(ex.FileName))
+                        ex.FileName = Path.Combine(
+                            file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
+                            ex.FileName);
                     throw;
                 }
             }
