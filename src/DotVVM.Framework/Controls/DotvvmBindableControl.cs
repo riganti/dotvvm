@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
@@ -169,7 +170,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is IStaticValueBinding)) // throw exception on incompatible binding types
             {
-                throw new Exception("ValueBindingExpression was expected!");        // TODO: exception handling
+                throw new DotvvmControlException(this, "ValueBindingExpression was expected!");        
             }
             return binding as IValueBinding;
         }
@@ -182,7 +183,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is ICommandBinding))
             {
-                throw new Exception("CommandBindingExpression was expected!");        // TODO: exception handling
+                throw new DotvvmControlException(this, "CommandBindingExpression was expected!");        
             }
             return binding as ICommandBinding;
         }
@@ -289,7 +290,7 @@ namespace DotVVM.Framework.Controls
             var result = GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
             if (result == null)
             {
-                throw new Exception("The {controlProperty: ...} binding can be only used in a markup control."); // TODO: exception handling
+                throw new DotvvmControlException(this, "The {controlProperty: ...} binding can be only used in a markup control."); 
             }
             return result;
         }

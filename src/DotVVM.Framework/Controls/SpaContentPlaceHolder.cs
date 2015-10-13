@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
@@ -61,7 +62,7 @@ namespace DotVVM.Framework.Controls
                 var route = context.RequestContext.Configuration.RouteTable[DefaultRouteName];
                 if (route.ParameterNames.Any())
                 {
-                    throw new ArgumentException(string.Format("The route {0} specified in SpaContentPlaceHolder DefaultRouteName property cannot contain route parameters!", DefaultRouteName));
+                    throw new DotvvmControlException(this, $"The route '{DefaultRouteName}' specified in SpaContentPlaceHolder DefaultRouteName property cannot contain route parameters!");
                 }
                 writer.AddAttribute(Constants.SpaContentPlaceHolderDefaultRouteDataAttributeName, route.Url);
             }

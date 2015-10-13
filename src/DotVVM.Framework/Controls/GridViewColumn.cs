@@ -1,6 +1,7 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -63,7 +64,7 @@ namespace DotVVM.Framework.Controls
 
         private Exception ValueBindingNotSet()
         {
-            return new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
+            return new DotvvmControlException(this, $"The ValueBinding property is not set on the '{GetType()}' control!");
         }
 
 
@@ -73,7 +74,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (sortCommand == null)
                 {
-                    throw new Exception("Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
+                    throw new DotvvmControlException(this, "Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
                 }
 
                 var sortExpression = GetSortExpression();

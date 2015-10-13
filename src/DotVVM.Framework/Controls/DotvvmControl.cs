@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -254,11 +255,11 @@ namespace DotVVM.Framework.Controls
             {
                 if (string.IsNullOrWhiteSpace(ID))
                 {
-                    throw new Exception(string.Format("The control of type '{0}' must have ID!", GetType().FullName)); // TODO: exception handling
+                    throw new DotvvmControlException(this, $"The control of type '{GetType().FullName}' must have ID!"); 
                 }
                 if (!Regex.IsMatch(ID, "^[a-zA-Z_][a-zA-Z0-9_]*$"))
                 {
-                    throw new Exception(string.Format("The control ID '{0}' is not valid! It can contain only characters, numbers and the underscore character, and it cannot start with a number!", ID)); // TODO: exception handling
+                    throw new DotvvmControlException(this, $"The control ID '{ID}' is not valid! It can contain only characters, numbers and the underscore character, and it cannot start with a number!"); 
                 }
             }
         }
@@ -297,7 +298,7 @@ namespace DotVVM.Framework.Controls
             var control = FindControl(id, throwIfNotFound);
             if (!(control is T))
             {
-                throw new Exception(string.Format("The control with ID '{0}' was found, however it is not an instance of the desired type '{1}'.", id, typeof(T)));
+                throw new DotvvmControlException(this, $"The control with ID '{id}' was found, however it is not an instance of the desired type '{typeof(T)}'.");
             }
             return (T)control;
         }

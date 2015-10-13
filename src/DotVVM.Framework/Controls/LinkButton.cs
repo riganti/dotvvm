@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -22,7 +23,7 @@ namespace DotVVM.Framework.Controls
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
-                throw new Exception("The <dot:LinkButton> control cannot have both inner content and the Text property set!");     // TODO
+                throw new DotvvmControlException(this, "The <dot:LinkButton> control cannot have both inner content and the Text property set!");
             }
 
             writer.AddAttribute("href", "#");

@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Controls
                         type = "search";
                         break;
                     default:
-                        throw new NotSupportedException($"TextBox Type { Type } not supported");
+                        throw new NotSupportedException($"TextBox Type '{ Type }' not supported");
                 }
                 writer.AddAttribute("type", type);
                 TagName = "input";

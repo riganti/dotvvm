@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Controls
@@ -49,7 +50,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetValueBinding(DataSourceProperty);
             if (binding == null)
             {
-                throw new Exception(string.Format("The DataSource property of the {0} control must be set!", GetType().Name));
+                throw new DotvvmControlException(this, $"The DataSource property of the '{GetType().Name}' control must be set!");
             }
             return binding;
         }
@@ -78,7 +79,7 @@ namespace DotVVM.Framework.Controls
             {
                 return ((IGridViewDataSet)dataSource).Items;
             }
-            throw new NotSupportedException(string.Format("The object of type {0} is not supported in the DataSource property!", dataSource.GetType()));
+            throw new NotSupportedException($"The object of type '{dataSource.GetType()}' is not supported in the DataSource property!");
         }
 
         protected string WrapJavascriptDataSourceAccess(string expression)

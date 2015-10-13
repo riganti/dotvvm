@@ -4,6 +4,7 @@ using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -163,7 +164,7 @@ namespace DotVVM.Framework.Controls
         {
             if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty))
             {
-                throw new Exception("Cannot set HTML attributes, Visible or DataContext bindings on a control which does not render its own element!");   // TODO
+                throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible or DataContext bindings on a control which does not render its own element!");
             }
         }
     }

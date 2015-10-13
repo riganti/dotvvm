@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -24,7 +25,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetValueBinding(ValueBindingProperty);
             if (binding == null)
             {
-                throw new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
+                throw new DotvvmControlException(this, $"The ValueBinding property is not set on the '{GetType()}' control!");
             }
             return binding;
         }
