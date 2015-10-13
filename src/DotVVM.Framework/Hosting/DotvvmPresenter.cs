@@ -370,7 +370,7 @@ namespace DotVVM.Framework.Hosting
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (Exception ex)
             {
-                var dotex = new DotvvmControlException(lastChild, "Unhandled exception occured while executing page lifecycle event", ex);
+                var dotex = new DotvvmControlException(lastChild, "Unhandled exception occured while executing page lifecycle event.", ex);
                 dotex.FileName = Path.Combine(ApplicationPath, dotex.FileName);
                 throw dotex;
             }

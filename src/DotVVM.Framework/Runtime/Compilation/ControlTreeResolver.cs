@@ -244,7 +244,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var property = FindProperty(control.Metadata, attribute.AttributeName);
             if (property != null)
             {
-                if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute)) throw new DotvvmCompilationException($"property { property.FullName } can't be used as attribute", attribute.Tokens);
+                if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute)) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot be used as attribute", attribute.Tokens);
                 // handle DataContext changes
                 var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
                 if (typeChange != null)
@@ -261,14 +261,14 @@ namespace DotVVM.Framework.Runtime.Compilation
                 {
                     // binding
                     var bindingNode = (DothtmlBindingNode)attribute.Literal;
-                    if (!property.MarkupOptions.AllowBinding) throw new DotvvmCompilationException($"property { property.FullName } can't contain binding", bindingNode.Tokens);
+                    if (!property.MarkupOptions.AllowBinding) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot contain binding.", bindingNode.Tokens);
                     var resolvedBinding = ProcessBinding(bindingNode, dataContext);
                     control.SetProperty(new ResolvedPropertyBinding(property, resolvedBinding));
                 }
                 else
                 {
                     // hard-coded value in markup
-                    if (!property.MarkupOptions.AllowHardCodedValue) throw new DotvvmCompilationException($"property { property.FullName } can't contain hard coded value", attribute.Literal.Tokens);
+                    if (!property.MarkupOptions.AllowHardCodedValue) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot contain hard coded value.", attribute.Literal.Tokens);
                     // TODO: smarter conversions
                     var value = ReflectionUtils.ConvertValue(attribute.Literal.Value, property.PropertyType);
                     control.SetPropertyValue(property, value);
@@ -281,7 +281,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             else
             {
-                throw new DotvvmCompilationException($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not have attribute collection!");
+                throw new DotvvmCompilationException($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not allow HTML attributes!");
             }
         }
 

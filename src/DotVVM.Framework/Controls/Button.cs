@@ -3,6 +3,7 @@ using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -56,7 +57,7 @@ namespace DotVVM.Framework.Controls
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
-                throw new Exception("The <dot:Button> control cannot have both inner content and the Text property set!");     // TODO
+                throw new DotvvmControlException(this, "The <dot:Button> control cannot have both inner content and the Text property set!");
             }
 
             if (ButtonTagName == ButtonTagName.button)
@@ -77,7 +78,7 @@ namespace DotVVM.Framework.Controls
                 {
                     if (ButtonTagName == ButtonTagName.input)
                     {
-                        throw new Exception("The <dot:Button> control cannot have inner content unless the 'ButtonTagName' property is set to 'button'!");     // TODO
+                        throw new DotvvmControlException(this, "The <dot:Button> control cannot have inner content unless the 'ButtonTagName' property is set to 'button'!");
                     }
                 }
 

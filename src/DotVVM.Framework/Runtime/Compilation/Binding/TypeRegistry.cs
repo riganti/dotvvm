@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             }
             expr = resolvers.Select(r => r(name)).FirstOrDefault(e => e != null);
             if (expr != null) return expr;
-            if (throwException) throw new InvalidOperationException($"could not resolve identifier { name }");
+            if (throwException) throw new InvalidOperationException($"The identifier '{ name }' could not be resolved!");
             return null;
         }
 
