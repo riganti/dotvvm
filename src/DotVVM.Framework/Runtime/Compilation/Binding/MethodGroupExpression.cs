@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         public Expression CreateDelegateExpression()
         {
             var methodInfo = Target.Type.GetMethod(MethodName);
-            if (methodInfo == null) throw new Exception($"can't create delegate from method { MethodName } on type { Target.Type.FullName }");
+            if (methodInfo == null) throw new Exception($"can not create delegate from method '{ MethodName }' on type '{ Target.Type.FullName }'");
 
             if (IsStatic)
                 return Expression.Constant(Delegate.CreateDelegate(GetDelegateType(methodInfo), methodInfo));

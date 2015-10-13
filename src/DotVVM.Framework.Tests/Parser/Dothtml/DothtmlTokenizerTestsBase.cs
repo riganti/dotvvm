@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             if (position != inputLength)
             {
-                throw new Exception("The parser didn't finished the file!");
+                throw new Exception("The parser did not finished the file!");
             }
         }
     }

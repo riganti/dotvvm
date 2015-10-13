@@ -68,8 +68,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 try
                 {
                     var lines = File.ReadAllLines(fileName);
-                    result.CurrentLine = lines[lineNumber - 1];
-                    result.PreLines = lines.Skip(lineNumber - additionalLineCount).TakeWhile(l => l != result.CurrentLine).ToArray();
+                    if (lineNumber >= 0)
+                    {
+                        result.CurrentLine = lines[Math.Max(0, lineNumber - 1)];
+                        result.PreLines = lines.Skip(lineNumber - additionalLineCount).TakeWhile(l => l != result.CurrentLine).ToArray();
+                    }
+                    else additionalLineCount = 30;
                     result.PostLines = lines.Skip(lineNumber).Take(additionalLineCount).ToArray();
                     return result;
                 }

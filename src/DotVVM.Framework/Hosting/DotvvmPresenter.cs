@@ -83,6 +83,11 @@ namespace DotVVM.Framework.Hosting
             {
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             }
+            catch (DotvvmControlException ex)
+            {
+                ex.FileName = Path.Combine(ApplicationPath, ex.FileName);
+                throw;
+            }
         }
 
         public async Task ProcessRequestCore(DotvvmRequestContext context)
@@ -362,17 +367,10 @@ namespace DotVVM.Framework.Hosting
                     action(child);
                 }
             }
-            catch (DotvvmControlException ex)
-            {
-                ex.FileName = Path.Combine(ApplicationPath, ex.FileName);
-                throw;
-            }
             catch (DotvvmInterruptRequestExecutionException) { throw; }
             catch (Exception ex)
             {
-                var dotex = new DotvvmControlException(lastChild, "Unhandled exception occured while executing page lifecycle event.", ex);
-                dotex.FileName = Path.Combine(ApplicationPath, dotex.FileName);
-                throw dotex;
+                throw new DotvvmControlException(lastChild, "Unhandled exception occured while executing page lifecycle event.", ex);
             }
         }
     }

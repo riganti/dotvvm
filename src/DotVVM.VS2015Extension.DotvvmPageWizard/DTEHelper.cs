@@ -133,7 +133,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
                     }
                     catch
                     {
-                        throw new Exception($"Couldn't add a folder '{path[i]}' in the project!");
+                        throw new Exception($"Could not add a folder '{path[i]}' in the project!");
                     }
                 }
                 else if (projectItem.Kind != ProjectItemKindPhysicalFolder)

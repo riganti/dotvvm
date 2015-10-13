@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Controls
         {
             if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty))
             {
-                throw new Exception("Cannot set HTML attributes, Visible or DataContext bindings on a control which doesn't render its own element!");   // TODO
+                throw new Exception("Cannot set HTML attributes, Visible or DataContext bindings on a control which does not render its own element!");   // TODO
             }
         }
     }

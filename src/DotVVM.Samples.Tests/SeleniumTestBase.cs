@@ -27,7 +27,7 @@ namespace DotVVM.Samples.Tests
         {
             if (BrowserFactories.Count == 0)
             {
-                throw new Exception("Factory doesn't contains drivers! Enable one driver at least to start UI Tests!");
+                throw new Exception("Factory does not contains drivers! Enable one driver at least to start UI Tests!");
             }
             foreach (var browserFactory in BrowserFactories)
             {

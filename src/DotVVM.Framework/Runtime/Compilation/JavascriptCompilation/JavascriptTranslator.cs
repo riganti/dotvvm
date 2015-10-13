@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             if (expression is BinaryExpression) return TranslateBinary((BinaryExpression)expression);
             else if (expression is UnaryExpression) return TranslateUnary((UnaryExpression)expression);
 
-            throw new NotSupportedException($"expression type { expression.NodeType } can't be transaled to Javascript");
+            throw new NotSupportedException($"expression type { expression.NodeType } can not be transaled to Javascript");
         }
 
         /// <summary>
@@ -192,7 +192,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             var args = expression.Arguments.Select(Translate).ToArray();
             var result = TryTranslateMethodCall(thisExpression, args, expression.Method);
             if (result == null)
-                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can't be translated to Javascript");
+                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can not be translated to Javascript");
             return result;
         }
 

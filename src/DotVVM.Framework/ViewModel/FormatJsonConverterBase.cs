@@ -35,7 +35,7 @@ namespace DotVVM.Framework.ViewModel
                 }
                 return ProvideEmptyValue(objectType);
             }
-            throw new JsonException($"The converter {GetType()} couldn't convert the value from string!");
+            throw new JsonException($"The converter {GetType()} could not convert the value from string!");
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.ViewModel
             }
             else
             {
-                throw new JsonException($"The converter {GetType()} couldn't convert the value to string!");
+                throw new JsonException($"The converter {GetType()} could not convert the value to string!");
             }
         }
 

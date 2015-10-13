@@ -7,6 +7,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime.Compilation;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -94,6 +95,9 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage)
         {
+            if (!masterPage.ViewModelType.IsAssignableFrom(childPage.ViewModelType))
+                throw new DotvvmControlException(childPage, $"Master page requires viewModel of type '{masterPage.ViewModelType}' and it is not assignable from '{childPage.ViewModelType}'.");
+
             // find content place holders
             var placeHolders = GetMasterPageContentPlaceHolders(masterPage);
 
