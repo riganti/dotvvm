@@ -212,7 +212,7 @@ namespace DotVVM.Framework.Parser
             LastToken = new TToken()
             {
                 LineNumber = CurrentLine,
-                ColumnNumber = PositionOnLine,
+                ColumnNumber = Math.Max(0, PositionOnLine - DistanceSinceLastToken - 1),
                 StartPosition = LastTokenPosition,
                 Length = DistanceSinceLastToken - charsFromEndToSkip,
                 Type = type,
