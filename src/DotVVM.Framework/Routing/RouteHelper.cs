@@ -20,7 +20,8 @@ namespace DotVVM.Framework.Routing
 
             if (defaultFiles.Contains(pureName)) yield return directory;
 
-            yield return directory + pureName; 
+            if (!string.IsNullOrEmpty(directory)) yield return directory + "/" + pureName;
+            else yield return directory + pureName; 
         }
 
 
@@ -42,7 +43,7 @@ namespace DotVVM.Framework.Routing
                 var routes = getRouteList(virtualPath).ToArray();
                 foreach (var route in routes)
                 {
-                    config.RouteTable.Add(virtualPath, route, virtualPath);
+                    config.RouteTable.Add(route, route, virtualPath);
                 }
             }
         }

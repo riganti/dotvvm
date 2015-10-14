@@ -113,8 +113,11 @@ namespace DotVVM.Framework.Controls
             {
                 // inner Text is rendered as attribute only if contains binding
                 // otherwise it is rendered directly as encoded content
-                Children.Clear();
-                Children.Add(new Literal(InnerText));
+                if (!string.IsNullOrWhiteSpace(InnerText))
+                {
+                    Children.Clear();
+                    Children.Add(new Literal(InnerText));
+                }
             });
 
             // hadle Id property
