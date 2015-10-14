@@ -12,6 +12,7 @@ using Microsoft.AspNet.Identity;
 using DotVVM.Framework.Storage;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting.ErrorPages;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.BasicSamples.Startup))]
 namespace DotVVM.Samples.BasicSamples
@@ -20,6 +21,8 @@ namespace DotVVM.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
+            CrazyExceptionInitReplacer.DoIt();
+
             app.UseErrorPage(new Microsoft.Owin.Diagnostics.ErrorPageOptions() { ShowExceptionDetails = true });
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions()

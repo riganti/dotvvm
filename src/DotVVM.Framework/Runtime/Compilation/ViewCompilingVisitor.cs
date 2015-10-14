@@ -221,7 +221,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         protected ExpressionSyntax ProcessBinding(ResolvedBinding binding, Type expectedType)
         {
             //return emitter.EmitCreateObject(binding.Type, new object[] { binding.Value });
-            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(binding, "__b" + bindingIdCounter++, expectedType) });
+            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(emitter, binding, "__b" + bindingIdCounter++, expectedType) });
         }
 
         /// <summary>
