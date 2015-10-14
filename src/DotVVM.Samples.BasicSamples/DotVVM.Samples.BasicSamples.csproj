@@ -180,6 +180,7 @@
     <Content Include="sample38.dothtml" />
     <Content Include="sample21.dothtml" />
     <Content Include="error1.dothtml" />
+    <Content Include="sample39.dothtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -193,6 +194,7 @@
   <ItemGroup>
     <Compile Include="AuthSample\LoginViewModel.cs" />
     <Compile Include="AuthSample\SecuredPageViewModel.cs" />
+    <Compile Include="Controls\ControlWithExtensionCommand.cs" />
     <Compile Include="Controls\Sample5_TestControl.cs" />
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="DotvvmStartup.cs" />
@@ -219,6 +221,7 @@
     <Compile Include="ViewModels\Sample17ViewModel_A.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
     <Compile Include="ViewModels\Sample21ViewModel.cs" />
+    <Compile Include="ViewModels\Sample39ViewModel.cs" />
     <Compile Include="ViewModels\Sample38ViewModel.cs" />
     <Compile Include="ViewModels\Sample27ViewModel.cs" />
     <Compile Include="ViewModels\Sample26ViewModel.cs" />
