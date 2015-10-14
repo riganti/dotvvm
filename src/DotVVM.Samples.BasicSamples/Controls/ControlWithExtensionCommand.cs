@@ -29,7 +29,7 @@ namespace DotVVM.Samples.BasicSamples.Controls
 
         protected override void OnInit(IDotvvmRequestContext context)
         {
-            this.RegisterExtensionCommand(h => List.Add(List.Count), "AddToList");
+            this.RegisterExtensionCommand(() => List.Add(List.Count), "AddToList");
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)

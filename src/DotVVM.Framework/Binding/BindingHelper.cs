@@ -9,7 +9,13 @@ namespace DotVVM.Framework.Binding
 {
     public static class BindingHelper
     {
-        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmBindableControl control, Action<object[]> action, string methodUsageId)
+        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmBindableControl control, Command action, string methodUsageId)
+            => RegisterExtensionCommand(control, action, methodUsageId);
+
+        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmBindableControl control, Action action, string methodUsageId)
+            => RegisterExtensionCommand(control, action, methodUsageId);
+
+        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmBindableControl control, Delegate action, string methodUsageId)
         {
             control.EnsureControlHasId();
             var id = control.ID + methodUsageId;
