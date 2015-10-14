@@ -156,7 +156,7 @@
     <Content Include="sample18.dothtml" />
     <Content Include="sample19.dothtml" />
     <Content Include="sample17.dothtml" />
-    <Content Include="ReturnFileSample\sample.dothtml" />
+    <Content Include="ReturnFileSample\Index.dothtml" />
     <Content Include="ReturnFileSample\excel-file.xlsx" />
     <Content Include="ReturnFileSample\word-file.docx" />
     <Content Include="sample20.dothtml" />

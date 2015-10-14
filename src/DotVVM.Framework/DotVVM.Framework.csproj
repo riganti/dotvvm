@@ -298,6 +298,7 @@
     </Compile>
     <Compile Include="Routing\GenericRouteParameterType.cs" />
     <Compile Include="Routing\IRouteParameterType.cs" />
+    <Compile Include="Routing\RouteHelper.cs" />
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
     <Compile Include="Runtime\Compilation\BindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />

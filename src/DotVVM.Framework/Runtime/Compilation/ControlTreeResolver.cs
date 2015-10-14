@@ -245,12 +245,6 @@ namespace DotVVM.Framework.Runtime.Compilation
             if (property != null)
             {
                 if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute)) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot be used as attribute", attribute.Tokens);
-                // handle DataContext changes
-                var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
-                if (typeChange != null)
-                {
-                    dataContext = new DataContextStack(typeChange, dataContext);
-                }
 
                 // set the property
                 if (attribute.Literal == null)
