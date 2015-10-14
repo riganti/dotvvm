@@ -91,6 +91,7 @@
     <Compile Include="Binding\AttachedPropertyAttribute.cs" />
     <Compile Include="Binding\BindingCompilationRequirements.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
+    <Compile Include="Binding\BindingHelper.cs" />
     <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
