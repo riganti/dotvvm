@@ -21,8 +21,6 @@ namespace DotVVM.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
-            CrazyExceptionInitReplacer.DoIt();
-
             app.UseErrorPage(new Microsoft.Owin.Diagnostics.ErrorPageOptions() { ShowExceptionDetails = true });
 
             app.UseCookieAuthentication(new CookieAuthenticationOptions()
