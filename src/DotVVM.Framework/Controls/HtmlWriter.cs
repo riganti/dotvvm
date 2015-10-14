@@ -270,7 +270,7 @@ namespace DotVVM.Framework.Controls
         public void WriteText(string text)
         {
             EnsureTagFullyOpen();
-            writer.Write(WebUtility.HtmlEncode(text).Replace("\"", "&quot;"));
+            writer.Write(WebUtility.HtmlEncode(text ?? "").Replace("\"", "&quot;"));
         }
 
         /// <summary>
@@ -279,7 +279,7 @@ namespace DotVVM.Framework.Controls
         public void WriteUnencodedText(string text)
         {
             EnsureTagFullyOpen();
-            writer.Write(text);
+            writer.Write(text ?? "");
         }
 
     }
