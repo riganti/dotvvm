@@ -124,7 +124,9 @@ namespace DotVVM.Framework.Runtime
                 }
             }
 
+
             // copy the directives from content page to the master page (except the @masterpage)
+            masterPage.ViewModelType = childPage.ViewModelType;
             foreach (var directive in childPage.Directives)
             {
                 if (directive.Key == Constants.MasterPageDirective)

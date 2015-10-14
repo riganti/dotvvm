@@ -74,8 +74,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         protected virtual string FormatMethod(MethodBase method)
         {
             var sb = new StringBuilder();
-            sb.Append(method.DeclaringType.FullName);
-            sb.Append(".");
+            if (method.DeclaringType != null)
+            {
+                sb.Append(method.DeclaringType.FullName);
+                sb.Append(".");
+            }
             sb.Append(method.Name);
             sb.Append("(");
             var f = false;
