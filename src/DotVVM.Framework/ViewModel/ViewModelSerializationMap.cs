@@ -338,6 +338,7 @@ namespace DotVVM.Framework.ViewModel
             return !(
                 // primitives can't contain encrypted fields
                 type.IsPrimitive ||
+                type.IsEnum ||
                 type == typeof(string) ||
                 // types in assemblies than don't reference dotvvm also can't contain encryped values (as long as generic arguments also met the conditions)
                 (type.Assembly.GetReferencedAssemblies().All(a => a.FullName != DotvvmAssemblyName) &&

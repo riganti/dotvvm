@@ -52,6 +52,7 @@ namespace DotVVM.Framework.Runtime
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).BuildControl(controlBuilderFactory);
 
                 PerformMasterPageComposition(contentPage, masterPage);
+                masterPage.ViewModelType = contentPage.ViewModelType;
                 contentPage = masterPage;
             }
 

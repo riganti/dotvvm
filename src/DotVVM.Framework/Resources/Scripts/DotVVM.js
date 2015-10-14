@@ -571,7 +571,13 @@ var DotVVM = (function () {
         }
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
-        return routePath.replace(/\{[^\}]+\}/g, function (s) { return ko.unwrap(params[s.substring(1, s.length - 1)]) || ""; });
+        return routePath.replace(/\{[^\}]+\??\}/g, function (s) {
+            var paramName = s.substring(1, s.length - 1);
+            if (paramName && paramName.length > 0 && paramName.substring(paramName.length - 1) === "?") {
+                paramName = paramName.substring(0, paramName.length - 1);
+            }
+            return ko.unwrap(params[paramName]) || "";
+        });
     };
     return DotVVM;
 })();

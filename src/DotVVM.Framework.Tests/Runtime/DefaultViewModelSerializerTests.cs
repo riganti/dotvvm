@@ -234,8 +234,6 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
 
-
-
         [TestMethod]
         public void DefaultViewModelSerializer_Enum()
         {
@@ -257,6 +255,14 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
         }
 
+
+        public class EnumCollectionTestViewModel
+        {
+            public TestEnum Property1 { get; set; }
+
+            public List<EnumTestViewModel> Children { get; set; }
+        }
+
         public class EnumTestViewModel
         {
             public TestEnum Property1 { get; set; }
@@ -268,6 +274,41 @@ namespace DotVVM.Framework.Tests.Runtime
             Second,
             Third
         }
+
+
+
+
+        [TestMethod]
+        public void DefaultViewModelSerializer_EnumInCollection()
+        {
+            var oldViewModel = new EnumCollectionTestViewModel()
+            {
+                Property1 = TestEnum.Third,
+                Children = new List<EnumTestViewModel>()
+                {
+                    new EnumTestViewModel() { Property1 = TestEnum.First },
+                    new EnumTestViewModel() { Property1 = TestEnum.Second },
+                    new EnumTestViewModel() { Property1 = TestEnum.Third }
+                }
+            };
+
+            context.ViewModel = oldViewModel;
+            serializer.BuildViewModel(context);
+            var result = context.GetSerializedViewModel();
+            result = UnwrapSerializedViewModel(result);
+            result = WrapSerializedViewModel(result);
+
+            var newViewModel = new EnumCollectionTestViewModel() { Children = new List<EnumTestViewModel>() };
+            context.ViewModel = newViewModel;
+            serializer.PopulateViewModel(context, result);
+
+            Assert.IsFalse(result.Contains(typeof(TestEnum).FullName));
+            Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
+            Assert.AreEqual(oldViewModel.Children[0].Property1, newViewModel.Children[0].Property1);
+            Assert.AreEqual(oldViewModel.Children[1].Property1, newViewModel.Children[1].Property1);
+            Assert.AreEqual(oldViewModel.Children[2].Property1, newViewModel.Children[2].Property1);
+        }
+
 
         /// <summary>
         /// Wraps the serialized view model to an object that comes from the client.
