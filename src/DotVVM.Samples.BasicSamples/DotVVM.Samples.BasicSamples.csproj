@@ -147,6 +147,7 @@
     <Content Include="error10.dothtml" />
     <Content Include="error11.dothtml" />
     <Content Include="error11.dotmaster" />
+    <Content Include="error12.dothtml" />
     <None Include="Properties\PublishProfiles\CI.pubxml" />
     <Content Include="sample15.dothtml" />
     <Content Include="sample16.dothtml" />

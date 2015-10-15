@@ -191,7 +191,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var missingProperties = control.Metadata.Properties.Values.Where(p => p.MarkupOptions.Required && !control.Properties.ContainsKey(p));
             if (missingProperties.Any())
             {
-                throw new DotvvmCompilationException($"control { control.Metadata.Name } is missing required properties: { string.Join(", ", missingProperties) }", control.DothtmlNode.Tokens);
+                throw new DotvvmCompilationException($"The control '{ control.Metadata.Name }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.", control.DothtmlNode.Tokens);
             }
             return control;
         }
