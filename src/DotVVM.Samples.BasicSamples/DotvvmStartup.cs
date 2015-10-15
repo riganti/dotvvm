@@ -19,6 +19,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.Add("Sample17_SPA", "Sample17", "sample17.dothtml");
             config.RouteTable.Add("Sample17_A", "Sample17/A/{Id}", "sample17_a.dothtml");
             config.RouteTable.Add("Sample17_B", "Sample17/B", "sample17_b.dothtml");
+            config.RouteTable.Add("Sample22", "Sample22", "sample22.dothtml");
             config.RouteTable.Add("Sample22-PageDetail", "Sample22/{Id}", "sample22.dothtml");
 
             config.AutoRegisterRoutes();
