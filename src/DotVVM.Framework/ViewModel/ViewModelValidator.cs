@@ -82,33 +82,33 @@ namespace DotVVM.Framework.ViewModel
                             yield return error;
                         }
                     }
+                }
+            }
 
-                    if (value is IValidatableObject)
+            if (viewModel is IValidatableObject)
+            {
+                foreach (var error in ((IValidatableObject)viewModel).Validate(new ValidationContext(viewModel)))
+                {
+                    var paths = new List<string>();
+                    if (error.MemberNames != null)
                     {
-                        foreach (var error in ((IValidatableObject) value).Validate(new ValidationContext(value)))
+                        foreach (var memberName in error.MemberNames)
                         {
-                            var paths = new List<string>();
-                            if (error.MemberNames != null )
-                            {
-                                foreach (var memberName in error.MemberNames)
-                                {
-                                    paths.Add(CombinePath(path, memberName));
-                                }
-                            }
-                            if (!paths.Any())
-                            {
-                                paths.Add(path);
-                            }
-
-                            foreach (var memberPath in paths)
-                            {
-                                yield return new ViewModelValidationError()
-                                {
-                                    PropertyPath = memberPath,
-                                    ErrorMessage = error.ErrorMessage
-                                };
-                            }
+                            paths.Add(CombinePath(pathPrefix, memberName));
                         }
+                    }
+                    if (!paths.Any())
+                    {
+                        paths.Add(pathPrefix);
+                    }
+
+                    foreach (var memberPath in paths)
+                    {
+                        yield return new ViewModelValidationError()
+                        {
+                            PropertyPath = memberPath,
+                            ErrorMessage = error.ErrorMessage
+                        };
                     }
                 }
             }

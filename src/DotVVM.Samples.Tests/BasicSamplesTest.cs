@@ -706,7 +706,7 @@ namespace DotVVM.Samples.Tests
 
         public void Sample21Test()
         {
-            RunInAllBrowsers(browser => 
+            RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample21");
 
@@ -1195,6 +1195,25 @@ namespace DotVVM.Samples.Tests
                     Assert.AreEqual(repeater2.GetAttribute("id") + "_i" + i + "_repeater1server", repeater2.FindAll("*[data-id=repeater1server_marker]")[i].GetAttribute("id"));
                     Assert.AreEqual(repeater2.GetAttribute("id") + "_i" + i + "_repeater2server", repeater2.FindAll("*[data-id=repeater2server_marker]")[i].GetAttribute("id"));
                 }
+            });
+        }
+
+        public void Sample40Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample40");
+                Thread.Sleep(WaitTime);
+
+                browser.FindAll("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(2, browser.FindAll("ul")[0].FindAll("li").Count);
+                Assert.AreEqual("false", browser.Find("#result").GetText());
+
+                browser.FindAll("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(1, browser.FindAll("ul")[1].FindAll("li").Count);
+                Assert.AreEqual("false", browser.Find("#result").GetText());
             });
         }
     }
