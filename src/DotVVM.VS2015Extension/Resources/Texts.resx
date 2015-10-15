@@ -127,7 +127,7 @@
     <value>Installator is corrupted, try again later.</value>
   </data>
   <data name="UpdateCheckNewVersionMessage" xml:space="preserve">
-    <value>New version available. Would you like to install it?</value>
+    <value>New version of the DotVVM Pro for Visual Studio is available. Would you like to install it?</value>
   </data>
   <data name="UpdateCheckNewVersionTitle" xml:space="preserve">
     <value>New version</value>

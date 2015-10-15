@@ -7,6 +7,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime.Compilation;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -51,6 +52,7 @@ namespace DotVVM.Framework.Runtime
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).BuildControl(controlBuilderFactory);
 
                 PerformMasterPageComposition(contentPage, masterPage);
+                masterPage.ViewModelType = contentPage.ViewModelType;
                 contentPage = masterPage;
             }
 
@@ -94,6 +96,9 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage)
         {
+            if (!masterPage.ViewModelType.IsAssignableFrom(childPage.ViewModelType))
+                throw new DotvvmControlException(childPage, $"Master page requires viewModel of type '{masterPage.ViewModelType}' and it is not assignable from '{childPage.ViewModelType}'.");
+
             // find content place holders
             var placeHolders = GetMasterPageContentPlaceHolders(masterPage);
 
@@ -120,7 +125,9 @@ namespace DotVVM.Framework.Runtime
                 }
             }
 
+
             // copy the directives from content page to the master page (except the @masterpage)
+            masterPage.ViewModelType = childPage.ViewModelType;
             foreach (var directive in childPage.Directives)
             {
                 if (directive.Key == Constants.MasterPageDirective)

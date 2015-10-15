@@ -91,6 +91,7 @@
     <Compile Include="Binding\AttachedPropertyAttribute.cs" />
     <Compile Include="Binding\BindingCompilationRequirements.cs" />
     <Compile Include="Binding\BindingExpression.cs" />
+    <Compile Include="Binding\BindingHelper.cs" />
     <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
     <Compile Include="Binding\CommandBindingExpression.cs" />
     <Compile Include="Binding\CommandResolver.cs" />
@@ -160,8 +161,27 @@
     <Compile Include="Controls\ValidationMessage.cs" />
     <Compile Include="Controls\ValidationMessageMode.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
+    <Compile Include="DotvvmInternalException.cs" />
     <Compile Include="Exceptions\DotvvmCompilationException.cs" />
+    <Compile Include="Exceptions\DotvvmControlException.cs" />
+    <Compile Include="Exceptions\ExceptionUtils.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="Hosting\ErrorPages\DictionarySection.cs" />
+    <Compile Include="Hosting\ErrorPages\DotvvmMarkupErrorSection.cs" />
+    <Compile Include="Hosting\ErrorPages\ErrorPageTemplate.cs" />
+    <Compile Include="Hosting\ErrorPages\ErrorPageTemplate1.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>ErrorPageTemplate.tt</DependentUpon>
+    </Compile>
+    <Compile Include="Hosting\ErrorPages\ErrorFormatter.cs" />
+    <Compile Include="Hosting\ErrorPages\ExceptionAdditionalInfo.cs" />
+    <Compile Include="Hosting\ErrorPages\ExceptionModel.cs" />
+    <Compile Include="Hosting\ErrorPages\ExceptionSectionFormatter.cs" />
+    <Compile Include="Hosting\ErrorPages\IErrorSectionFormatter.cs" />
+    <Compile Include="Hosting\ErrorPages\IErrorWriter.cs" />
+    <Compile Include="Hosting\ErrorPages\SourceModel.cs" />
+    <Compile Include="Hosting\ErrorPages\StackFrameModel.cs" />
     <Compile Include="Hosting\FileUploadPageTemplate.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -279,6 +299,7 @@
     </Compile>
     <Compile Include="Routing\GenericRouteParameterType.cs" />
     <Compile Include="Routing\IRouteParameterType.cs" />
+    <Compile Include="Routing\RouteHelper.cs" />
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
     <Compile Include="Runtime\Compilation\BindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\BindingParser.cs" />
@@ -368,11 +389,6 @@
     <Compile Include="Styles\StyleRepository.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
-    <Compile Include="Hosting\ErrorPageTemplate.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>ErrorPageTemplate.tt</DependentUpon>
-    </Compile>
     <Compile Include="Hosting\FileReader.cs" />
     <Compile Include="Hosting\IMarkupFileLoader.cs" />
     <Compile Include="Hosting\IDotvvmPresenter.cs" />
@@ -472,9 +488,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="dotvvmwizard.snk" />
-    <None Include="Hosting\ErrorPageTemplate.tt">
+    <None Include="Hosting\ErrorPages\ErrorPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
-      <LastGenOutput>ErrorPageTemplate.cs</LastGenOutput>
+      <LastGenOutput>ErrorPageTemplate1.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
     <None Include="Resources\Scripts\DotVVM.Debug.js.map" />

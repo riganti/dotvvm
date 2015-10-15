@@ -58,6 +58,28 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("Email", results[0].PropertyPath);
         }
 
+        [TestMethod]
+        public void ViewModelValidator_Child_CustomValidationAttribute()
+        {
+            var testViewModel = new TestViewModel4() { Child = new TestViewModel4Child() { IsChecked = true } };
+            var validator = new ViewModelValidator();
+            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual("Child().ConditionalRequired", results[0].PropertyPath);
+        }
+
+        [TestMethod]
+        public void ViewModelValidator_Child_IValidatableObject()
+        {
+            var testViewModel = new TestViewModel5() { Child = new TestViewModel5Child() { IsChecked = true } };
+            var validator = new ViewModelValidator();
+            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual("Child().ConditionalRequired", results[0].PropertyPath);
+        }
+
 
         public class TestViewModel
         {
@@ -84,5 +106,63 @@ namespace DotVVM.Framework.Tests.ViewModel
             [EmailAddress]
             public string Email { get; set; }
         }
+
+        public class TestViewModel4
+        {
+
+            public TestViewModel4Child Child { get; set; }
+
+        }
+
+        public class TestViewModel4Child
+        {
+
+            public bool IsChecked { get; set; }
+
+            [ConditionalRequiredValue]
+            public string ConditionalRequired { get; set; }
+
+        }
+
+        public class ConditionalRequiredValueAttribute : ValidationAttribute
+        {
+            public override bool RequiresValidationContext => true;
+
+            protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+            {
+                var entity = (TestViewModel4Child)validationContext.ObjectInstance;
+                if (entity.IsChecked && string.IsNullOrEmpty(entity.ConditionalRequired))
+                {
+                    return new ValidationResult("Value is required when the field is checked!", new[] { validationContext.MemberName });    
+                }
+
+                return base.IsValid(value, validationContext);
+            }
+        }
+
+
+        public class TestViewModel5
+        {
+
+            public TestViewModel5Child Child { get; set; }
+
+        }
+
+        public class TestViewModel5Child : IValidatableObject
+        {
+
+            public bool IsChecked { get; set; }
+
+            public string ConditionalRequired { get; set; }
+
+            public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+            {
+                if (IsChecked && string.IsNullOrEmpty(ConditionalRequired))
+                {
+                    yield return new ValidationResult("Value is required when the field is checked!", new[] { nameof(ConditionalRequired) });
+                }
+            }
+        }
     }
+
 }

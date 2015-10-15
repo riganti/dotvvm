@@ -3,6 +3,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Controls
         {
             writer.AddKnockoutDataBind("with", this, UploadedFilesProperty, () =>
             {
-                throw new Exception("The UploadedFiles property of the FileUpload control must be bound!");   // TODO: Exception handling
+                throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload control must be bound!"); 
             });
             writer.AddAttribute("class", "dot-upload", true);
 

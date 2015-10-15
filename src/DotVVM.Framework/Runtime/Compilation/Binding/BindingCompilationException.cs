@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Parser.Binding.Parser;
+﻿using DotVVM.Framework.Parser;
+using DotVVM.Framework.Parser.Binding.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,12 +10,18 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 {
     public class BindingCompilationException : Exception
     {
-        public BindingParserNode Node { get; set; }
+        public IEnumerable<TokenBase> Tokens { get; set; }
+        public string Expression { get; set; }
 
         public BindingCompilationException(string message, Exception innerException, BindingParserNode node)
+            : this(message, innerException, node.Tokens)
+        {
+        }
+
+        public BindingCompilationException(string message, Exception innerException, IEnumerable<TokenBase> tokens)
             : base(message, innerException)
         {
-            Node = node;
+            Tokens = tokens;
         }
 
         public BindingCompilationException(string message, BindingParserNode node)

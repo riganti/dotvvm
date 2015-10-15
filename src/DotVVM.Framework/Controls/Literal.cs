@@ -164,7 +164,8 @@ namespace DotVVM.Framework.Controls
         {
             if ((bool)GetValue(Internal.IsCommentProperty)) return true;
 
-            var unencodedValue = HtmlEncode ? Text : WebUtility.HtmlDecode(Text);
+            var text = (GetValue(TextProperty) ?? "").ToString();
+            var unencodedValue = HtmlEncode ? text : WebUtility.HtmlDecode(text);
             return unencodedValue.All(char.IsWhiteSpace);
         }
     }

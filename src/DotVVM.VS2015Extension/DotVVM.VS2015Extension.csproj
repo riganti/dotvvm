@@ -13,6 +13,21 @@
     <IncludeAssemblyInVSIXContainer>true</IncludeAssemblyInVSIXContainer>
     <IncludeDebugSymbolsInVSIXContainer>true</IncludeDebugSymbolsInVSIXContainer>
     <IncludeDebugSymbolsInLocalVSIXDeployment>true</IncludeDebugSymbolsInLocalVSIXDeployment>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
   </PropertyGroup>
   <PropertyGroup>
     <SignAssembly>true</SignAssembly>
@@ -34,7 +49,6 @@
     <AssemblyName>DotVVM.VS2015Extension</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <GeneratePkgDefFile>false</GeneratePkgDefFile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -58,10 +72,6 @@
   <ItemGroup>
     <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
       <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="DotVVM.Framework, Version=0.8.5.8, Culture=neutral, PublicKeyToken=23f3607db32275da, processorArchitecture=MSIL">
-      <HintPath>..\packages\DotVVM.0.8.5.8-pre\lib\net451\DotVVM.Framework.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="EnvDTE, Version=8.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
@@ -122,7 +132,10 @@
       <HintPath>..\packages\Microsoft.Owin.StaticFiles.3.0.1\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.VisualStudio.ComponentModelHost, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
+    <Reference Include="Microsoft.VisualStudio.ComponentModelHost, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\PublicAssemblies\Microsoft.VisualStudio.ComponentModelHost.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.VisualStudio.CoreUtility, Version=14.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 14.0\VSSDK\VisualStudioIntegration\Common\Assemblies\v4.0\Microsoft.VisualStudio.CoreUtility.dll</HintPath>
@@ -249,6 +262,9 @@
     <Compile Include="CachedValue.cs" />
     <Compile Include="CommandsDeclaration\OptionsCommandHandler.cs" />
     <Compile Include="CommandsDeclaration\DocsCommandHandler.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\CustomCommit.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\Completions\CustomCommit\MainTagAttributeNameCustomCommit.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\Completions\CustomCommit\TrimStartCommit.cs" />
     <Compile Include="VsPackagesConfiguration.cs" />
     <Compile Include="Configuration\DothtmlContentTypeDefinitions.cs" />
     <Compile Include="Configuration\DotvvmConfigurationProvider.cs" />
@@ -275,44 +291,44 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="DothtmlEditorExtensions\Classification\VisualStudioTheme.cs" />
     <Compile Include="DothtmlEditorExtensions\Classification\VisualStudioThemeManager.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\CompletionComparer.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\CompletionRefreshHandler.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\CustomCompletionSet.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\FileChangeTracker.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\DothtmlCompletionCommandHandler.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\DothtmlCompletionHandlerProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\DothtmlCompletionSource.cs">
+    <Compile Include="DothtmlEditorExtensions\Intellisense\CompletionComparer.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\CompletionRefreshHandler.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\CustomCompletionSet.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\FileChangeTracker.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\DothtmlCompletionCommandHandler.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\DothtmlCompletionHandlerProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\DothtmlCompletionSource.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="DothtmlEditorExtensions\Completions\DothtmlCompletionSourceProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\DothtmlFormatCommandHandler.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\AttachedPropertyMetadata.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\BindingNameCompletionProviderBase.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\BindingValueCompletionProviderBase.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\CompletionHelper.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\DirectiveNameHtmlCompletionProviderBase.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\DirectiveValueHtmlCompletionProviderBase.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\IDothtmlCompletionProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\DothtmlCompletionProviderBase.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\DothtmlCompletionContext.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\TagAttributeNameHtmlCompletionProviderBase.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\TagAttributeValueHtmlCompletionProviderBase.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\TagNameHtmlCompletionProviderBase.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\Base\TriggerPoint.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\CompletionData.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\ControlMetadata.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\ControlPropertyMetadata.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\IDotvvmConfigurationProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\MainDirectiveNameCompletionProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\MainBindingNameCompletionProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\MainTagAttributeNameCompletionProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\MainTagAttributeValueCompletionProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\MainTagNameCompletionProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\MasterPageDirectiveCompletionProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\MetadataControlResolver.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\SyntaxTreeInfo.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\Dothtml\TypeNameDirectiveCompletionProvider.cs" />
-    <Compile Include="DothtmlEditorExtensions\Completions\SimpleDothtmlCompletion.cs">
+    <Compile Include="DothtmlEditorExtensions\Intellisense\DothtmlCompletionSourceProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\DothtmlFormatCommandHandler.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\AttachedPropertyMetadata.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\BindingNameCompletionProviderBase.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\BindingValueCompletionProviderBase.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\CompletionHelper.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\DirectiveNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\DirectiveValueHtmlCompletionProviderBase.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\IDothtmlCompletionProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\DothtmlCompletionProviderBase.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\DothtmlCompletionContext.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\TagAttributeNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\TagAttributeValueHtmlCompletionProviderBase.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\TagNameHtmlCompletionProviderBase.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Base\TriggerPoint.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionData.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\ControlMetadata.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\ControlPropertyMetadata.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionProviders\IDotvvmConfigurationProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionProviders\MainDirectiveNameCompletionProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionProviders\MainBindingNameCompletionProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionProviders\MainTagAttributeNameCompletionProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionProviders\MainTagAttributeValueCompletionProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionProviders\MainTagNameCompletionProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionProviders\MasterPageDirectiveCompletionProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\MetadataControlResolver.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\SyntaxTreeInfo.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\CompletionProviders\TypeNameDirectiveCompletionProvider.cs" />
+    <Compile Include="DothtmlEditorExtensions\Intellisense\Dothtml\Completions\SimpleDothtmlCompletion.cs">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Resources\Texts.Designer.cs">
@@ -340,7 +356,7 @@
     <Content Include="Packages\Antlr.3.5.0.2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.0.8.5.8-pre.nupkg">
+    <Content Include="Packages\DotVVM.0.8.5.10-pre.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />
@@ -396,6 +412,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
+      <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
+      <Name>DotVVM.Framework</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DotVVM.VS2015Extension.Common\DotVVM.VS2015Extension.Common.csproj">
       <Project>{1e9c1d75-410c-4174-a761-c52116ee9887}</Project>
       <Name>DotVVM.VS2015Extension.Common</Name>
@@ -417,7 +437,7 @@
     <ProjectReference Include="..\DotVVM.VS2015Extension.DotvvmPageWizard\DotVVM.VS2015Extension.DotvvmPageWizard.csproj">
       <Project>{bd603cb0-aa93-4431-a5e7-7118474f9d4a}</Project>
       <Name>DotVVM.VS2015Extension.DotvvmPageWizard</Name>
-      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup%3bBuiltProjectOutputGroupDependencies%3bGetCopyToOutputDirectoryItems%3bSatelliteDllsProjectOutputGroup%3b</IncludeOutputGroupsInVSIX>
+      <IncludeOutputGroupsInVSIX>BuiltProjectOutputGroup;BuiltProjectOutputGroupDependencies;GetCopyToOutputDirectoryItems;SatelliteDllsProjectOutputGroup;</IncludeOutputGroupsInVSIX>
       <IncludeOutputGroupsInVSIXLocalOnly>DebugSymbolsProjectOutputGroup%3b</IncludeOutputGroupsInVSIXLocalOnly>
     </ProjectReference>
     <ProjectReference Include="..\DotVVM.VS2015Extension.DotvvmProjectSubType\DotVVM.VS2015Extension.DotvvmProjectSubType.csproj">
@@ -463,6 +483,7 @@
     <EmbeddedResource Include="Resources\Texts.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Texts.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

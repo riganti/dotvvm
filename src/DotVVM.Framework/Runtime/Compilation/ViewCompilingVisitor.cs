@@ -43,6 +43,8 @@ namespace DotVVM.Framework.Runtime.Compilation
             var pageName = emitter.EmitCreateObject(wrapperClassName);
             emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, pageName);
             emitter.EmitSetAttachedProperty(pageName, typeof(Internal).FullName, Internal.MarkupFileNameProperty.Name, view.Metadata.VirtualPath);
+            if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type))
+                emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType), emitter.EmitValue(view.DataContextTypeStack.DataContextType));
             if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)))
             {
                 foreach (var directive in view.Directives)
@@ -75,7 +77,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         private void SetProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
-            if(property.IsVirtual)
+            if (property.IsVirtual)
             {
                 emitter.EmitSetProperty(controlName, property.PropertyInfo.Name, value);
             }
@@ -199,8 +201,8 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             // set unique id
             emitter.EmitSetAttachedProperty(name, typeof(Internal).FullName, Internal.UniqueIDProperty.Name, name);
-            
-            if(control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
+
+            if (control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
             {
                 // set line number
                 emitter.EmitSetAttachedProperty(name, typeof(Internal).FullName, Internal.MarkupLineNumberProperty.Name, control.DothtmlNode.Tokens.First().LineNumber);
@@ -219,7 +221,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         protected ExpressionSyntax ProcessBinding(ResolvedBinding binding, Type expectedType)
         {
             //return emitter.EmitCreateObject(binding.Type, new object[] { binding.Value });
-            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(binding, "__b" + bindingIdCounter++, expectedType) });
+            return emitter.CreateObject(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(emitter, binding, "__b" + bindingIdCounter++, expectedType) });
         }
 
         /// <summary>

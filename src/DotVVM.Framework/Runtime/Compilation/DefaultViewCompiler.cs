@@ -11,6 +11,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;

@@ -7,6 +7,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Compilation;
 using System.Reflection;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -59,7 +60,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private IControlBuilder CreateControlBuilder(MarkupFile file)
         {
-            var lockId = (file.GetHashCode() & 0x7fffffff ) % compilationLocks.Length;
+            var lockId = (file.GetHashCode() & 0x7fffffff) % compilationLocks.Length;
             // do not compile the same view multiple times
             lock (compilationLocks[lockId])
             {
@@ -68,8 +69,20 @@ namespace DotVVM.Framework.Runtime
                 var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
                 var assemblyName = namespaceName;
                 var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
-
-                return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+                try
+                {
+                    return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+                }
+                catch (DotvvmCompilationException ex)
+                {
+                    if (ex.FileName == null)
+                        ex.FileName = file.FullPath;
+                    else if (!Path.IsPathRooted(ex.FileName))
+                        ex.FileName = Path.Combine(
+                            file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
+                            ex.FileName);
+                    throw;
+                }
             }
         }
 

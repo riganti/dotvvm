@@ -1,5 +1,4 @@
-﻿using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
+﻿using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml;
 using DotVVM.VS2015Extension.DotvvmPageWizard;
 using EnvDTE;
 using EnvDTE80;
@@ -22,10 +21,12 @@ namespace DotVVM.VS2015Extension.Bases
 {
     public class WorkspaceHelper
     {
-        private VisualStudioWorkspace workspace;
+        public const string ProjectItemKindPhysicalFolder = "{6BB5F8EF-4483-11D3-8BCF-00C04F8EC28C}";
+        private static readonly object InstanceLocker = new object();
         private static VisualStudioWorkspace staticWorkspace;
         private static object workspaceLocker = new object();
-        public const string ProjectItemKindPhysicalFolder = "{6BB5F8EF-4483-11D3-8BCF-00C04F8EC28C}";
+        private static WorkspaceHelper instance;
+        private VisualStudioWorkspace workspace;
 
         public static VisualStudioWorkspace ServiceProvidedWorkspace
         {
@@ -42,6 +43,22 @@ namespace DotVVM.VS2015Extension.Bases
                     }
                 }
                 return staticWorkspace;
+            }
+        }
+
+        public static WorkspaceHelper Current
+        {
+            get
+            {
+                if (instance == null)
+                    lock (InstanceLocker)
+                    {
+                        if (instance == null)
+                        {
+                            instance = new WorkspaceHelper() { Workspace = ServiceProvidedWorkspace };
+                        }
+                    }
+                return instance;
             }
         }
 
@@ -68,52 +85,9 @@ namespace DotVVM.VS2015Extension.Bases
             }
         }
 
-        private static readonly object InstanceLocker = new object();
-
-        private static WorkspaceHelper instance;
-
-        public static WorkspaceHelper Current
-        {
-            get
-            {
-                if (instance == null)
-                    lock (InstanceLocker)
-                    {
-                        if (instance == null)
-                        {
-                            instance = new WorkspaceHelper() { Workspace = ServiceProvidedWorkspace };
-                        }
-                    }
-                return instance;
-            }
-        }
-
-        private List<Compilation> GetCompilations()
-        {
-            var compilations = new List<Compilation>();
-
-            foreach (var p in Workspace.CurrentSolution.Projects)
-            {
-                try
-                {
-                    var compilation = Task.Run(() => p.GetCompilationAsync()).Result;
-                    if (compilation != null)
-                    {
-                        compilations.Add(compilation);
-                    }
-                }
-                catch (Exception ex)
-                {
-                    LogService.LogError(new Exception("Cannot get the compilation!", ex));
-                }
-            }
-
-            return compilations;
-        }
-
         public void GetTypeDestination(string typeName)
         {
-            throw  new NotImplementedException();
+            throw new NotImplementedException();
             var compilations = GetCompilations();
 
             //var directives = compilations.SelectMany(s => s.SyntaxTrees.Where(g=> g.nam).Select(f => f.GetRoot().GetDirectives()));
@@ -148,6 +122,29 @@ namespace DotVVM.VS2015Extension.Bases
         public void GetTypeDestination(Type type)
         {
             throw new NotImplementedException();
+        }
+
+        private List<Compilation> GetCompilations()
+        {
+            var compilations = new List<Compilation>();
+
+            foreach (var p in Workspace.CurrentSolution.Projects)
+            {
+                try
+                {
+                    var compilation = Task.Run(() => p.GetCompilationAsync()).Result;
+                    if (compilation != null)
+                    {
+                        compilations.Add(compilation);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogService.LogError(new Exception("Cannot get the compilation!", ex));
+                }
+            }
+
+            return compilations;
         }
     }
 }

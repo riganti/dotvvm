@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -215,7 +216,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RenderOnServer)
             {
-                throw new InvalidOperationException("The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
+                throw new DotvvmControlException(this, "The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
             }
 
             base.AddAttributesToRender(writer, context);
@@ -223,7 +224,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { }, serverRendering: false);
+            writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { }, renderEvenInServerRenderingMode: true);
             // this line caused some problems by overwriting visible property, I think it can be more confusing than useful
             //writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").TotalItemsCount() > 0");
             writer.RenderBeginTag("ul");
@@ -288,7 +289,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetValueBinding(DataSetProperty);
             if (binding == null)
             {
-                throw new NotSupportedException("The DataSet property of the dot:DataPager control must be set!");
+                throw new DotvvmControlException(this, "The DataSet property of the dot:DataPager control must be set!");
             }
             return binding;
         }

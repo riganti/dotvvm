@@ -26,6 +26,21 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, TextBox>(t => t.Text, "");
 
 
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the control is enabled and can be modified.
+        /// </summary>
+        public bool Enabled
+        {
+            get { return (bool)GetValue(EnabledProperty); }
+            set { SetValue(EnabledProperty, value); }
+        }
+        public static readonly DotvvmProperty EnabledProperty =
+            DotvvmProperty.Register<bool, TextBox>(t => t.Enabled, true);
+
+
+
+
         /// <summary>
         /// Gets or sets the mode of the text field.
         /// </summary>
@@ -71,13 +86,21 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            {
+                if (!Enabled)
+                {
+                    writer.AddAttribute("disabled", "disabled");
+                }
+            });
+
             writer.AddKnockoutDataBind("value", this, TextProperty, () =>
             {
                 if (Type != TextBoxType.MultiLine)
                 {
                     writer.AddAttribute("value", Text);
                 }
-            }, UpdateTextAfterKeydown ? "afterkeydown" : null, serverRendering: false);
+            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
 
             if (Type == TextBoxType.MultiLine)
             {
@@ -122,7 +145,7 @@ namespace DotVVM.Framework.Controls
                         type = "search";
                         break;
                     default:
-                        throw new NotSupportedException($"TextBox Type { Type } not supported");
+                        throw new NotSupportedException($"TextBox Type '{ Type }' not supported");
                 }
                 writer.AddAttribute("type", type);
                 TagName = "input";

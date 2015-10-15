@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true)
         {
             if (target is MethodGroupExpression)
-                throw new Exception("can't access member on method group");
+                throw new Exception("can not access member on method group");
 
             var type = target.Type;
             var isStatic = target is StaticClassIdentifierExpression;
@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 .ToArray();
             if (members.Length == 0)
             {
-                if (throwExceptions) throw new Exception($"couldn't find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }");
+                if (throwExceptions) throw new Exception($"could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }");
                 else return null;
             }
             if (members.Length == 1)

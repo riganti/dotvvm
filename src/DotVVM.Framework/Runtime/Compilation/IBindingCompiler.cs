@@ -10,6 +10,6 @@ namespace DotVVM.Framework.Runtime.Compilation
 {
     public interface IBindingCompiler
     {
-        ExpressionSyntax EmitCreateBinding(ResolvedBinding binding, string id, Type expectedType);
+        ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id, Type expectedType);
     }
 }

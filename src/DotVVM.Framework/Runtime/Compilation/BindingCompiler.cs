@@ -64,11 +64,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             catch (Exception ex)
             {
                 if (requirement != BindingCompilationRequirementType.StronglyRequire) return default(T);
-                else throw new InvalidOperationException("binding compilation failed", ex);
+                else throw;
             }
         }
 
-        public virtual ExpressionSyntax EmitCreateBinding(ResolvedBinding binding, string id, Type expectedType)
+        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id, Type expectedType)
         {
             var compilerAttribute = GetCompilationAttribute(binding.BindingType);
             var requirements = compilerAttribute.GetRequirements(binding.BindingType);

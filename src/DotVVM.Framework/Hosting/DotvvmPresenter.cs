@@ -17,6 +17,7 @@ using DotVVM.Framework.Security;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -31,6 +32,7 @@ namespace DotVVM.Framework.Hosting
         public IOutputRenderer OutputRenderer { get; private set; }
 
         public ICsrfProtector CsrfProtector { get; private set; }
+        public string ApplicationPath { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
@@ -42,6 +44,7 @@ namespace DotVVM.Framework.Hosting
             ViewModelSerializer = configuration.ServiceLocator.GetService<IViewModelSerializer>();
             OutputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
             CsrfProtector = configuration.ServiceLocator.GetService<ICsrfProtector>();
+            ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
         /// <summary>
@@ -79,6 +82,11 @@ namespace DotVVM.Framework.Hosting
             catch (UnauthorizedAccessException)
             {
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+            }
+            catch (DotvvmControlException ex)
+            {
+                ex.FileName = Path.Combine(ApplicationPath, ex.FileName);
+                throw;
             }
         }
 
@@ -350,9 +358,19 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         private void InvokePageLifeCycleEventRecursive(DotvvmControl control, Action<DotvvmControl> action)
         {
-            foreach (var child in control.GetThisAndAllDescendants())
+            DotvvmControl lastChild = control;
+            try
             {
-                action(child);
+                foreach (var child in control.GetThisAndAllDescendants())
+                {
+                    lastChild = child;
+                    action(child);
+                }
+            }
+            catch (DotvvmInterruptRequestExecutionException) { throw; }
+            catch (Exception ex)
+            {
+                throw new DotvvmControlException(lastChild, "Unhandled exception occured while executing page lifecycle event.", ex);
             }
         }
     }

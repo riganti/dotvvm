@@ -16,6 +16,11 @@ namespace DotVVM.Samples.Tests
             this.element = element;
         }
 
+        public IWebElement WebElement
+        {
+            get { return element; }
+        }
+
         public void Click()
         {
             element.Click();

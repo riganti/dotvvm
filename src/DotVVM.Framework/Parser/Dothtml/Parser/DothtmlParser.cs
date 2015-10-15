@@ -94,6 +94,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                                     if (beginTag != null && beginTagName != beginTag.FullTagName)
                                     {
                                         beginTag.CorrespondingEndTag = element;
+                                        ElementHierarchy.Pop();
                                     }
                                     else
                                     {
@@ -130,7 +131,9 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 else
                 {
                     // text
-                    if (CurrentElementContent.Count > 0 && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof(DothtmlLiteralNode))
+                    if (CurrentElementContent.Count > 0 
+                        && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof(DothtmlLiteralNode)
+                        && !((DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1]).IsComment)
                     {
                         // append to the previous literal
                         var lastLiteral = (DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
@@ -209,14 +212,14 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             node.Tokens.Add(Peek());
             Read();
             Assert(DothtmlTokenType.CDataBody);
-            var body = Peek().Text;
-            node.Value = body;
             node.Tokens.Add(Peek());
             node.Escape = true;
             Read();
             Assert(DothtmlTokenType.CloseCData);
             node.Tokens.Add(Peek());
             Read();
+
+            node.Value = string.Join(string.Empty, node.Tokens.Select(t => t.Text));
             return node;
         }
 
@@ -435,7 +438,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         {
             if (Peek() == null || !Peek().Type.Equals(desiredType))
             {
-                throw new DotvvmCompilationException($"DotVVM parser internal error! The token {desiredType} was expected!");
+                throw new DotvvmInternalException($"DotVVM parser internal error! The token {desiredType} was expected!");
             }
             return true;
         }

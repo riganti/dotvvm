@@ -16,18 +16,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         public object InitializeViewModel(IDotvvmRequestContext context, DotvvmView view)
         {
-            string viewModel;
-            if (!view.Directives.TryGetValue(Constants.ViewModelDirectiveName, out viewModel))
-            {
-                throw new Exception("Couldn't find a viewmodel for the specified view!");       // TODO: exception handling
-            }
-
-            var viewModelType = ReflectionUtils.FindType(view.Directives[Constants.ViewModelDirectiveName]); // TODO: this is known at compile time, do not find it again
-            if (viewModelType == null)
-            {
-                throw new Exception(string.Format("Couldn't create a class of type '{0}'!", viewModel));       // TODO: exception handling
-            }
-            return CreateViewModelInstance(viewModelType);
+            return CreateViewModelInstance(view.ViewModelType);
         }
 
         /// <summary>

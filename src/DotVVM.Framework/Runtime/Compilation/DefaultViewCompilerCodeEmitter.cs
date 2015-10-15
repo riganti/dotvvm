@@ -222,6 +222,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 return EmitIntegerLiteral((int)value);
             }
+            if(value is Type)
+            {
+                UsedAssemblies.Add((value as Type).Assembly);
+                return SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName((value as Type).FullName));
+            }
 
             var type = value.GetType();
             if (type.IsEnum)
@@ -285,7 +290,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         }
 
         /// <summary>
-        /// Emits the set property statement.
+        /// Emits the set DotvvmProperty statement.
         /// </summary>
         public void EmitSetValue(string controlName, string propertyName, string variableName)
         {
@@ -294,7 +299,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         }
 
         /// <summary>
-        /// Emits the set property statement.
+        /// Emits the set DotvvmProperty statement.
         /// </summary>
         public void EmitSetValue(string controlName, string propertyName, ExpressionSyntax valueSyntax)
         {

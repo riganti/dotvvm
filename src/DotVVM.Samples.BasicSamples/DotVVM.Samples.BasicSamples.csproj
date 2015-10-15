@@ -136,6 +136,17 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
+    <Content Include="error2.dothtml" />
+    <Content Include="error3.dothtml" />
+    <Content Include="error4.dothtml" />
+    <Content Include="error5.dothtml" />
+    <Content Include="error6.dothtml" />
+    <Content Include="error7.dothtml" />
+    <Content Include="error8.dothtml" />
+    <Content Include="error9.dothtml" />
+    <Content Include="error10.dothtml" />
+    <Content Include="error11.dothtml" />
+    <Content Include="error11.dotmaster" />
     <None Include="Properties\PublishProfiles\CI.pubxml" />
     <Content Include="sample15.dothtml" />
     <Content Include="sample16.dothtml" />
@@ -145,7 +156,7 @@
     <Content Include="sample18.dothtml" />
     <Content Include="sample19.dothtml" />
     <Content Include="sample17.dothtml" />
-    <Content Include="ReturnFileSample\sample.dothtml" />
+    <Content Include="ReturnFileSample\Index.dothtml" />
     <Content Include="ReturnFileSample\excel-file.xlsx" />
     <Content Include="ReturnFileSample\word-file.docx" />
     <Content Include="sample20.dothtml" />
@@ -167,6 +178,9 @@
     <Content Include="sample36_control.dotcontrol" />
     <Content Include="sample37.dothtml" />
     <Content Include="sample38.dothtml" />
+    <Content Include="sample21.dothtml" />
+    <Content Include="error1.dothtml" />
+    <Content Include="sample39.dothtml" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -180,6 +194,7 @@
   <ItemGroup>
     <Compile Include="AuthSample\LoginViewModel.cs" />
     <Compile Include="AuthSample\SecuredPageViewModel.cs" />
+    <Compile Include="Controls\ControlWithExtensionCommand.cs" />
     <Compile Include="Controls\Sample5_TestControl.cs" />
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="DotvvmStartup.cs" />
@@ -205,6 +220,8 @@
     <Compile Include="ViewModels\Sample17ViewModel.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_A.cs" />
     <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
+    <Compile Include="ViewModels\Sample21ViewModel.cs" />
+    <Compile Include="ViewModels\Sample39ViewModel.cs" />
     <Compile Include="ViewModels\Sample38ViewModel.cs" />
     <Compile Include="ViewModels\Sample27ViewModel.cs" />
     <Compile Include="ViewModels\Sample26ViewModel.cs" />

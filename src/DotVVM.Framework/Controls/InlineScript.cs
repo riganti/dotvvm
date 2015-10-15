@@ -5,6 +5,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -33,7 +34,7 @@ namespace DotVVM.Framework.Controls
 
             if (!Children.All(c => c is Literal))
             {
-                throw new Exception("The <dot:InlineScript>...</dot:InlineScript> control can only contain text content!");
+                throw new DotvvmControlException(this, "The <dot:InlineScript>...</dot:InlineScript> control can only contain text content!");
             }
             
             var script = string.Concat(Children.Cast<Literal>().Select(c => c.Text));
