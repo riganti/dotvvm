@@ -816,11 +816,20 @@ class DotvvmSerialization {
         }
 
         if (viewModel instanceof Array) {
-            var array = [];
-            for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.serialize(viewModel[i], opt));
+            if (opt.pathOnly) {
+                var index = parseInt(opt.path.pop());
+                var array = new Array(index + 1);
+                array[index] = this.serialize(viewModel[index], opt);
+                opt.path.push(index.toString());
+                return array;
+            } else {
+
+                var array = [];
+                for (var i = 0; i < viewModel.length; i++) {
+                    array.push(this.serialize(viewModel[i], opt));
+                }
+                return array;
             }
-            return array;
         }
 
         if (viewModel instanceof Date) {

@@ -1,0 +1,247 @@
+<#@ template language="C#" #>
+<#@ import namespace="System" #>
+<#@ import namespace="System.IO" #>
+<#@ import namespace="System.Linq" #>
+<#@ import namespace="System.Collections" #>
+<#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Net" #>
+<#@ import namespace="System.Reflection" #>
+<#@ import namespace="Newtonsoft.Json" #>
+<#@ import namespace="Newtonsoft.Json.Linq" #>
+
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>Server Error in Application</title>
+		<style type="text/css">
+body { font-family: 'Segoe UI',Tahoma,sans-serif; font-size: 11pt; }
+h1 { font-weight: normal; font-size: 24pt; font-style: italic; }
+h2 { font-style: normal; font-size: 16pt; font-weight: bold; margin-bottom: 35px; }
+h3 { color: #004fbd; font-weight: normal; font-size: 14pt; }
+p.summary { color: #004fbd, font-size: 1.5em }
+table { border-collapse: separate; border-spacing: 0; margin: 0 0 20px; }
+th { vertical-align: bottom; padding: 10px 5px 5px 5px; font-weight: 400; color: #a0a0a0; text-align: left; }
+td { padding: 3px 10px; }
+th, td { border-right: 1px #ddd solid; border-bottom: 1px #ddd solid; border-left: 1px transparent solid; border-top: 1px transparent solid; box-sizing: border-box; }
+th:last-child, td:last-child { border-right: 1px transparent solid; }
+pre { font-size: 12pt; margin: 0px; font-family: 'Consolas',monospace; }
+.source .source-errorLine { color: #ff2c00; }
+.errorUnderline { text-decoration: underline; }
+input.collapse { display: none }
+input[type=checkbox].collapse ~ .collapse-on  { display: none; }
+input[type=checkbox]:checked.collapse ~ .collapse-on  { display: inherit; }
+input[type=checkbox]:checked.collapse ~ .collapse-off  { display: none; }
+label.nav {
+	display: inline-block;
+	padding: 5px;
+	font-size: 1.5em;
+	color: white;
+	background-color: #25384a;
+}
+.code { font-family: 'Consolas',monospace; }
+.object-obj, .object-arr { padding-left: 10px; }
+.container { display: none }
+.object-browser .propname { font-weight: bold; }
+<#foreach(var f in Formatters){#>
+#menu_radio_<#=f.Id#>:checked ~ #container_<#=f.Id#> { display: block; }
+#menu_radio_<#=f.Id#>:checked ~ label[for='menu_radio_<#=f.Id#>'] { background-color: #004fbd; }
+<#f.WriteHead(this);#>
+<#}#>
+		</style>
+	</head>
+	<body>
+		<h1>Server Error, HTTP <#= ErrorCode #>: <#= WebUtility.HtmlEncode(ErrorDescription) #></h1>
+		<p class="summary"><#= WebUtility.HtmlEncode(Summary) #></p>
+		<hr />
+		<div>
+		<# foreach(var f in Formatters) {#>
+			<input type="radio" id="menu_radio_<#=f.Id#>" class="collapse" name="menu" <#= f == Formatters[0] ? "checked='checked'" : "" #> />
+			<label for="menu_radio_<#=f.Id#>" class="nav">
+				<#=f.DisplayName#>
+			</label>
+		<#}#>
+		<hr />
+		<#foreach(var formatter in Formatters){#>
+		<div class="container" id="container_<#=formatter.Id#>">
+			<#formatter.WriteBody(this);#>
+		</div>
+		<#}#>
+
+		</div>
+
+		<p>&nbsp;</p>
+
+	</body>
+</html>
+
+
+
+
+<#+
+	public int ErrorCode { get; set; }
+
+	public string ErrorDescription { get; set; }
+
+	public string Summary { get; set; }
+
+	public IErrorSectionFormatter[] Formatters { get; set; }
+
+	public void WriteText(string str) {
+		Write(WebUtility.HtmlEncode(str));
+	}
+
+	private void WriteException(Exception ex) 
+	{
+		using (var sr = new StringReader(ex.ToString()))
+		{
+			string line;
+			while ((line = sr.ReadLine()) != null)
+			{
+				this.Write(WebUtility.HtmlEncode(line));
+				this.Write("<br />");
+			}
+		}
+	}
+
+	public void ObjectBrowser(object obj)
+	{
+		var jobject = JObject.FromObject(obj);
+		ObjectBrowser(jobject);
+	}
+
+	public void ObjectBrowser(JArray arr)
+	{#>
+		<div class="object-browser code">
+			<label>
+			<input type="checkbox" class="collapse" />
+			<span class="collapse-off">&gt; { } </span>
+			<span class="collapse-on">[
+				<div class="object-arr">
+					<#+
+					foreach(var p in arr) {
+						if(p is JObject) {
+							ObjectBrowser((JObject)p);
+						} else if (p is JArray) {
+							ObjectBrowser((JArray)p);
+						} else {
+							this.Write(p.ToString());
+						}
+					}
+					#>
+				</div>
+				]
+			</span>
+		</div>
+	<#+}
+
+	public void ObjectBrowser(JObject obj)
+	{#>
+		<div class="object-browser code">
+			<label>
+			<input type="checkbox" class="collapse" />
+			<span class="collapse-off">&gt; { } </span>
+			<span class="collapse-on">{
+				<div class="object-obj">
+					<#+
+					foreach(var p in obj) {
+						#><div class='prop'><span class='propname'><#+
+						this.WriteText(p.Key);
+						#></span>:<#+
+						if(p.Value is JObject) {
+							ObjectBrowser((JObject)p.Value);
+						} else if (p.Value is JArray) {
+							ObjectBrowser((JArray)p.Value);
+						} else {
+							this.WriteText(p.Value.ToString());
+						}
+						this.Write("</div>");
+					}
+					#>
+				</div>
+				}
+			</span>
+		</div>
+	<#+}
+
+
+	public void WriteSourceCode(SourceModel source, bool collapse = true)
+	{#>
+		<div class="source code">
+			<label>
+				<#+if(collapse){#> <input type="checkbox" class="collapse" /> <#+}#>
+				<div class="source-prelines collapse-on">
+					<#+ if(source.PreLines != null) WriteSourceLines(source.LineNumber - source.PreLines.Length, source.PreLines); #>
+				</div>
+				<div class="source-errorLine">
+					<#+ if(source.CurrentLine != null) WriteErrorLine(source.LineNumber, source.CurrentLine, source.ErrorColumn, source.ErrorLength);#>
+				</div>
+				<div class="source-postlines collapse-on">
+					<#+ if(source.PostLines != null) WriteSourceLines(source.LineNumber + 1, source.PostLines);#>
+				</div>
+			</label>
+		</div>
+	<#+}
+
+    private void WriteSourceLines(int startLine, params string[] lines)
+	{
+		Write("<pre>");
+		for(var i = 0; i < lines.Length; i++)
+		{
+			Write("<span class='lineNumber'>");
+			Write(startLine + i + ": ");
+			Write("</span><span class='codeLine'>");
+			Write(WebUtility.HtmlEncode(lines[i]));
+			WriteLine("</span>");
+		}
+		Write("</pre>");
+	}
+
+	private void WriteErrorLine(int lineNumber, string line, int errorColumn, int errorLength)
+	{
+		Write("<pre>");
+		Write("<span class='lineNumber'>");
+		Write(lineNumber + ": ");
+		Write("</span><span class='codeLine'>");
+		Write(WebUtility.HtmlEncode(line.Remove(errorColumn)));
+		Write("<span class='errorUnderline'>");
+		Write(WebUtility.HtmlEncode(line.Substring(errorColumn, Math.Min(line.Length - errorColumn, errorLength))));
+		Write("</span>");
+		Write(WebUtility.HtmlEncode(line.Substring(Math.Min(line.Length, errorColumn + errorLength))));
+		WriteLine("</span>");
+		Write("</pre>");
+	}
+
+	public void WriteKVTable(IEnumerable keys, IEnumerable values)
+	{
+		var zip = keys.Cast<object>().Zip(values.Cast<object>(), (k, v) => new KeyValuePair<object, object>(k, v));
+		#>
+
+		<table class="kvtable">
+			<tr>
+				<th> Variable </th>
+				<th> Value </th>
+			</tr>
+			<#+foreach(var kvp in zip) {#>
+				<tr>
+					<td><#+ WriteObject(kvp.Key); #></td>
+					<td><#+ WriteObject(kvp.Value); #></td>
+				</tr>
+			<#+}#>
+		</table>
+
+		<#+
+	}
+
+	public void WriteObject(object obj) 
+	{
+		if (obj is IEnumerable<string>) WriteText(string.Concat((IEnumerable<string>)obj));
+		else WriteText(Convert.ToString(obj)); 
+	}
+
+    class SourceLine
+    {
+        public int? LineNumber { get; set; }
+
+        public string Text { get; set; }
+	}
+#>
