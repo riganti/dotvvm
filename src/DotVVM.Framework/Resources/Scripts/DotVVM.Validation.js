@@ -3,8 +3,7 @@
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 var DotvvmValidationContext = (function () {
     function DotvvmValidationContext(valueToValidate, parentViewModel, parameters) {
@@ -70,6 +69,9 @@ var DotvvmValidation = (function () {
             "regularExpression": new DotvvmRegularExpressionValidator()
         };
         this.errors = ko.observableArray([]);
+        this.events = {
+            validationErrorsChanged: new DotvvmEvent("dotvvm.extensions.validation.events.validationErrorsChanged")
+        };
         this.elementUpdateFunctions = {
             // shows the element when it is valid
             hideWhenValid: function (element, errorMessage, param) {
@@ -101,12 +103,12 @@ var DotvvmValidation = (function () {
             // displays the error message
             showErrorMessageText: function (element, errorMessage, param) {
                 element[element.innerText ? "innerText" : "textContent"] = errorMessage;
-            },
+            }
         };
     }
     /// Validates the specified view model
     DotvvmValidation.prototype.validateViewModel = function (viewModel) {
-        if (!viewModel || !viewModel.$type || !dotvvm.viewModels.root.validationRules)
+        if (!viewModel || !dotvvm.viewModels.root.validationRules)
             return;
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
@@ -115,7 +117,7 @@ var DotvvmValidation = (function () {
         var rulesForType = dotvvm.viewModels.root.validationRules[type] || {};
         // validate all properties
         for (var property in viewModel) {
-            if (!viewModel.hasOwnProperty(property) || property.indexOf("$") >= 0)
+            if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
                 continue;
             var viewModelProperty = viewModel[property];
             if (!viewModelProperty || !ko.isObservable(viewModelProperty))
@@ -152,20 +154,7 @@ var DotvvmValidation = (function () {
                 validationError.errorMessage(rule.errorMessage);
                 this.addValidationError(viewModel, validationError);
             }
-            else {
-                // remove
-                this.removeValidationError(viewModel, validationError);
-                validationError.errorMessage("");
-            }
         }
-    };
-    // clears validation errors
-    DotvvmValidation.prototype.clearValidationErrors = function () {
-        var errors = this.errors();
-        for (var i = 0; i < errors.length; i++) {
-            errors[i].errorMessage("");
-        }
-        this.errors.removeAll();
     };
     // merge validation rules
     DotvvmValidation.prototype.mergeValidationRules = function (args) {
@@ -182,13 +171,77 @@ var DotvvmValidation = (function () {
             }
         }
     };
-    // get validation errors
-    DotvvmValidation.prototype.getValidationErrors = function (viewModel) {
-        var target = ko.unwrap(viewModel);
-        if (target && target.$validationErrors) {
-            return target.$validationErrors;
+    DotvvmValidation.prototype.clearValidationErrors = function (viewModel) {
+        this.clearValidationErrorsCore(viewModel);
+        var errors = this.errors();
+        for (var i = 0; i < errors.length; i++) {
+            errors[i].errorMessage("");
         }
-        return [];
+        this.errors.removeAll();
+    };
+    DotvvmValidation.prototype.clearValidationErrorsCore = function (viewModel) {
+        viewModel = ko.unwrap(viewModel);
+        if (!viewModel || !viewModel.$type)
+            return;
+        // clear validation errors
+        if (viewModel.$validationErrors) {
+            viewModel.$validationErrors.removeAll();
+        }
+        else {
+            viewModel.$validationErrors = ko.observableArray([]);
+        }
+        // validate all properties
+        for (var property in viewModel) {
+            if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
+                continue;
+            var viewModelProperty = viewModel[property];
+            if (!viewModelProperty || !ko.isObservable(viewModelProperty))
+                continue;
+            var value = viewModel[property]();
+            if (value) {
+                if (Array.isArray(value)) {
+                    // handle collections
+                    for (var i = 0; i < value.length; i++) {
+                        this.clearValidationErrorsCore(value[i]);
+                    }
+                }
+                else if (value.$type) {
+                    // handle nested objects
+                    this.clearValidationErrorsCore(value);
+                }
+            }
+        }
+    };
+    // get validation errors
+    DotvvmValidation.prototype.getValidationErrors = function (viewModel, recursive) {
+        viewModel = ko.unwrap(viewModel);
+        if (!viewModel || !viewModel.$type || !viewModel.$validationErrors)
+            return [];
+        var errors = viewModel.$validationErrors();
+        if (recursive) {
+            // get child validation errors
+            for (var property in viewModel) {
+                if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
+                    continue;
+                var viewModelProperty = viewModel[property];
+                if (!viewModelProperty || !ko.isObservable(viewModelProperty))
+                    continue;
+                var value = viewModel[property]();
+                if (value) {
+                    if (Array.isArray(value)) {
+                        // handle collections
+                        for (var i = 0; i < value.length; i++) {
+                            errors = errors.concat(this.getValidationErrors(value[i], recursive));
+                        }
+                    }
+                    else if (value.$type) {
+                        // handle nested objects
+                        errors = errors.concat(this.getValidationErrors(value, recursive));
+                    }
+                }
+            }
+        }
+        return errors;
     };
     // shows the validation errors from server
     DotvvmValidation.prototype.showValidationErrorsFromServer = function (args) {
@@ -197,7 +250,7 @@ var DotvvmValidation = (function () {
         var validationTarget = dotvvm.evaluateOnViewModel(context, args.validationTargetPath);
         validationTarget = ko.unwrap(validationTarget);
         // add validation errors
-        this.clearValidationErrors();
+        this.clearValidationErrors(args.viewModel);
         var modelState = args.serverResponseObject.modelState;
         for (var i = 0; i < modelState.length; i++) {
             // find the observable property
@@ -216,14 +269,10 @@ var DotvvmValidation = (function () {
         }
     };
     DotvvmValidation.prototype.addValidationError = function (viewModel, error) {
-        this.removeValidationError(viewModel, error);
-        viewModel.$validationErrors.push(error);
-        this.errors.push(error);
-    };
-    DotvvmValidation.prototype.removeValidationError = function (viewModel, error) {
-        var errorMessage = error.errorMessage();
-        viewModel.$validationErrors.remove(function (e) { return e.errorMessage() === errorMessage; });
-        this.errors.remove(error);
+        if (viewModel.$validationErrors.indexOf(error) < 0) {
+            viewModel.$validationErrors.push(error);
+            this.errors.push(error);
+        }
     };
     return DotvvmValidation;
 })();
@@ -239,13 +288,14 @@ dotvvm.events.beforePostback.subscribe(function (args) {
         var context = ko.contextFor(args.sender);
         var validationTarget = dotvvm.evaluateOnViewModel(context, args.validationTargetPath);
         // validate the object
-        dotvvm.extensions.validation.clearValidationErrors();
+        dotvvm.extensions.validation.clearValidationErrors(args.viewModel);
         dotvvm.extensions.validation.validateViewModel(validationTarget);
         if (dotvvm.extensions.validation.errors().length > 0) {
             args.cancel = true;
             args.clientValidationFailed = true;
         }
     }
+    dotvvm.extensions.validation.events.validationErrorsChanged.trigger(args);
 });
 dotvvm.events.afterPostback.subscribe(function (args) {
     if (!args.wasInterrupted && args.serverResponseObject) {
@@ -260,6 +310,7 @@ dotvvm.events.afterPostback.subscribe(function (args) {
             args.isHandled = true;
         }
     }
+    dotvvm.extensions.validation.events.validationErrorsChanged.trigger(args);
 });
 // add knockout binding handler
 ko.bindingHandlers["dotvvmValidation"] = {

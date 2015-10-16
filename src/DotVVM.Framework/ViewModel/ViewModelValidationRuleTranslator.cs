@@ -30,7 +30,7 @@ namespace DotVVM.Framework.ViewModel
                     var typedAttribute = (RegularExpressionAttribute)attribute;
                     yield return new ViewModelPropertyValidationRule()
                     {
-                        ClientRuleName = "regexp",
+                        ClientRuleName = "regularExpression",
                         SourceValidationAttribute = attribute,
                         ErrorMessage = attribute.FormatErrorMessage(property.Name),
                         Parameters = new Object[] { typedAttribute.Pattern }

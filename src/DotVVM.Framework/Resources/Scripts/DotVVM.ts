@@ -832,13 +832,13 @@ class DotvvmSerialization {
         var result = {};
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop)) {
-                if (opt.pathOnly && prop != pathProp) {
+                if (opt.pathOnly && prop !== pathProp) {
                     continue;
                 }
 
                 var value = viewModel[prop];
 
-                if (opt.ignoreSpecialProperties && prop[0] == "$") continue;
+                if (opt.ignoreSpecialProperties && prop[0] === "$") continue;
                 if (!opt.serializeAll && /\$options$/.test(prop)) {
                     continue;
                 }

@@ -1,8 +1,7 @@
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
@@ -807,11 +806,11 @@ var DotvvmSerialization = (function () {
         var result = {};
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop)) {
-                if (opt.pathOnly && prop != pathProp) {
+                if (opt.pathOnly && prop !== pathProp) {
                     continue;
                 }
                 var value = viewModel[prop];
-                if (opt.ignoreSpecialProperties && prop[0] == "$")
+                if (opt.ignoreSpecialProperties && prop[0] === "$")
                     continue;
                 if (!opt.serializeAll && /\$options$/.test(prop)) {
                     continue;
