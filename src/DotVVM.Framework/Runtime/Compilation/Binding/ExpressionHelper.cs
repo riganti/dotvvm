@@ -59,16 +59,33 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
 
         public static Expression CallMethod(Expression target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
         {
-            // the following piece of code is nicer and more readable than method recognition done in roslyn, c# dynamic and also expression evaluator :)
-            var methods = from m in target.Type.GetMethods(flags)
-                          where m.Name == name
-                          let r = TryCallMethod(target, m, typeArguments, arguments, namedArgs)
-                          where r != null
-                          orderby r.CastCount descending, r.AutomaticTypeArgCount
-                          select r;
-            var method = methods.First();
+            // the following piece of code is nicer and more readable than method recognition done in roslyn, C# dynamic and also expression evaluator :)
+            var method = FindValidMethodOveloads(target.Type, name, flags, typeArguments, arguments, namedArgs);
             return Expression.Call(target, method.Method, method.Arguments);
         }
+
+        public static Expression CallMethod(Type target, BindingFlags flags, string name, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs = null)
+        {
+            // the following piece of code is nicer and more readable than method recognition done in roslyn, C# dynamic and also expression evaluator :)
+            var method = FindValidMethodOveloads(target, name, flags, typeArguments, arguments, namedArgs);
+            return Expression.Call(method.Method, method.Arguments);
+        }
+
+
+        private static MethodRecognitionResult FindValidMethodOveloads(Type type, string name, BindingFlags flags, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
+        {
+            var methods = FindValidMethodOveloads(type.GetMethods(flags).Where(m => m.Name == name), typeArguments, arguments, namedArgs);
+            var method = methods.FirstOrDefault();
+            if (method == null) throw new InvalidOperationException($"Could not find overload of method '{name}'.");
+            return method;
+        }
+
+        private static IEnumerable<MethodRecognitionResult> FindValidMethodOveloads(IEnumerable<MethodInfo> methods, Type[] typeArguments, Expression[] arguments, IDictionary<string, Expression> namedArgs)
+            => from m in methods
+               let r = TryCallMethod(m, typeArguments, arguments, namedArgs)
+               where r != null
+               orderby r.CastCount descending, r.AutomaticTypeArgCount
+               select r;
 
         class MethodRecognitionResult
         {
@@ -78,7 +95,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             public MethodInfo Method { get; set; }
         }
 
-        private static MethodRecognitionResult TryCallMethod(Expression target, MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
+        private static MethodRecognitionResult TryCallMethod(MethodInfo method, Type[] typeArguments, Expression[] positionalArguments, IDictionary<string, Expression> namedArguments)
         {
             var parameters = method.GetParameters();
 
@@ -230,6 +247,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         public static Expression GetBinaryOperator(Expression left, Expression right, ExpressionType operation)
         {
             if (operation == ExpressionType.Coalesce) return Expression.Coalesce(left, right);
+            if (operation == ExpressionType.Assign) return Expression.Assign(left, TypeConversion.ImplicitConversion(right, left.Type, true, true));
 
             // TODO: support lazy evaluation
             if (operation == ExpressionType.AndAlso) operation = ExpressionType.And;
@@ -257,11 +275,11 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             if (expr.Type.IsArray) return Expression.ArrayIndex(expr, index);
 
             var indexProp = (from p in expr.Type.GetProperties(BindingFlags.Instance | BindingFlags.Public)
-                            let param = p.GetIndexParameters()
-                            where param.Length == 1
-                            let indexConvert = TypeConversion.ImplicitConversion(index, param[0].ParameterType)
-                            where indexConvert != null
-                            select Expression.MakeIndex(expr, p, new[] { indexConvert })).ToArray();
+                             let param = p.GetIndexParameters()
+                             where param.Length == 1
+                             let indexConvert = TypeConversion.ImplicitConversion(index, param[0].ParameterType)
+                             where indexConvert != null
+                             select Expression.MakeIndex(expr, p, new[] { indexConvert })).ToArray();
             if (indexProp.Length == 0) throw new Exception($"could not find and indexer property on type { expr.Type } that accepts { index.Type } as argument");
             if (indexProp.Length > 1) throw new Exception($"more than one indexer found on type { expr.Type } that accepts { index.Type } as argument");
             return indexProp[0];

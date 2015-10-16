@@ -18,12 +18,25 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             SkipWhitespace();
-            return CreateNode(ReadConditionalExpression(), startIndex);
+            return CreateNode(ReadAssignmentExpression(), startIndex);
         }
 
         public bool OnEnd()
         {
             return CurrentIndex >= Tokens.Count;
+        }
+
+        private BindingParserNode ReadAssignmentExpression()
+        {
+            var first = ReadConditionalExpression();
+            if (Peek() != null && Peek().Type == BindingTokenType.AssignOperator)
+            {
+                var startIndex = CurrentIndex;
+                Read();
+                var second = ReadAssignmentExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AssignOperator), startIndex);
+            }
+            else return first;
         }
 
         private BindingParserNode ReadConditionalExpression()

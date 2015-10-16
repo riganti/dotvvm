@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Parser.Binding.Tokenizer
                         }
                         else
                         {
-                            CreateToken(BindingTokenType.EqualsEqualsOperator, errorProvider: t => CreateTokenError(t, "Assignments are not allowed in bindings!"));
+                            CreateToken(BindingTokenType.AssignOperator);
                         }
                         break;
 

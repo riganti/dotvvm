@@ -316,6 +316,8 @@
     <Compile Include="Runtime\Compilation\IBindingParser.cs" />
     <Compile Include="Runtime\Compilation\IControlTreeResolver.cs" />
     <Compile Include="Runtime\Compilation\IViewCompiler.cs" />
+    <Compile Include="Runtime\Compilation\JavascriptCompilation\ExpressionDependencyResolver.cs" />
+    <Compile Include="Runtime\Compilation\JavascriptCompilation\ExtractExpressionVisitor.cs" />
     <Compile Include="Runtime\Compilation\JavascriptCompilation\IJsMethodTranslator.cs" />
     <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptCompilationHelper.cs" />
     <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptTranslator.cs" />

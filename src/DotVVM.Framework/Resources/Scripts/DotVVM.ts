@@ -79,13 +79,6 @@ class DotVVM {
         }
     }
 
-    private staticCommandPostbackScript(methodName: string, args: string[], callback = result => { }) {
-        return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) => {
-            this.staticCommandPostback(pageArea, methodName, args.map(
-                a => a == null ? null : this.evaluateOnContext(ko.contextFor(sender), a)), callback);
-        }
-    }
-
     private persistViewModel(viewModelName: string) {
         var viewModel = this.viewModels[viewModelName];
         var persistedViewModel = {};

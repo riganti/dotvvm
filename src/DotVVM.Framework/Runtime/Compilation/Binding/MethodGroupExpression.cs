@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         public string MethodName { get; set; }
         public Type[] TypeArgs { get; set; }
 
-        public bool IsStatic => Target is ConstantExpression && ((ConstantExpression)Target).Value == null;
+        public bool IsStatic => Target is StaticClassIdentifierExpression;
 
         private static MethodInfo CreateDelegateFromStringMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(string) });
         private static MethodInfo CreateDelegateMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(MethodInfo) });
@@ -67,7 +67,14 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         public Expression CreateMethodCall(IEnumerable<Expression> args)
         {
             var argsArray = args.ToArray();
-            return ExpressionHelper.CallMethod(Target, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
+            if (IsStatic)
+            {
+                return ExpressionHelper.CallMethod((Target as StaticClassIdentifierExpression).Type, BindingFlags.Static | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
+            }
+            else
+            {
+                return ExpressionHelper.CallMethod(Target, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
+            }
         }
     }
 }

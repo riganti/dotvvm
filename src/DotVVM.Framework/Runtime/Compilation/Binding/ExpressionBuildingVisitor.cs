@@ -183,6 +183,9 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 case BindingTokenType.OrElseOperator:
                     eop = ExpressionType.OrElse;
                     break;
+                case BindingTokenType.AssignOperator:
+                    eop = ExpressionType.Assign;
+                    break;
                 default:
                     throw new NotSupportedException($"unary operator { node.Operator } is not supported");
             }
