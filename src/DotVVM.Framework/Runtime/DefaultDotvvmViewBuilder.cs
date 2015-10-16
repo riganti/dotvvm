@@ -116,13 +116,9 @@ namespace DotVVM.Framework.Runtime
                 }
 
                 // replace the contents
-                var children = content.Children.ToArray();
+                content.Parent.Children.Remove(content);
                 placeHolder.Children.Clear();
-                content.Children.Clear();
-                foreach (var child in children)
-                {
-                    placeHolder.Children.Add(child);
-                }
+                placeHolder.Children.Add(content);
             }
 
 

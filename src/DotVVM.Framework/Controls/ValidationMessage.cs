@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Runtime;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -16,71 +17,34 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets whether the control should be hidden even for valid values.
         /// </summary>
         [AttachedProperty(typeof(bool))]
-        public static readonly ActiveDotvvmProperty HideWhenValidProperty =
-            DelegateActionProperty<bool>.Register<ValidationMessage>("HideWhenValid", AddHideWhenValid);
-
-        private static void AddHideWhenValid(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
-        {
-            if (value)
-            {
-                var bindingGroup = new KnockoutBindingGroup();
-                bindingGroup.Add("hideWhenValid", "true");
-                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
-            }
-        }
+        public static readonly DotvvmProperty HideWhenValidProperty =
+            DotvvmProperty.Register<bool, ValidationMessage>("HideWhenValid", isValueInherited: true);
 
         /// <summary>
         /// Gets or sets the name of CSS class which is applied to the control when it is not valid.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         [AttachedProperty(typeof(string))]
-        public static readonly ActiveDotvvmProperty InvalidCssClassProperty =
-            DelegateActionProperty<string>.Register<ValidationMessage>("InvalidCssClass", AddInvalidCssClass);
-
-        private static void AddInvalidCssClass(IHtmlWriter writer, RenderContext context, string value, DotvvmControl control)
-        {
-            var bindingGroup = new KnockoutBindingGroup();
-            bindingGroup.Add("invalidCssClass", KnockoutHelper.MakeStringLiteral(value));
-            writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
-        }
-
+        public static readonly DotvvmProperty InvalidCssClassProperty =
+            DotvvmProperty.Register<string, ValidationMessage>("InvalidCssClass", isValueInherited: true);
 
         /// <summary>
         /// Gets or sets whether the title attribute should be set to the error message.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         [AttachedProperty(typeof(bool))]
-        public static readonly ActiveDotvvmProperty SetToolTipTextProperty =
-            DelegateActionProperty<bool>.Register<ValidationMessage>("SetToolTipText", AddSetToolTipText);
-
-        private static void AddSetToolTipText(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
-        {
-            if (value)
-            {
-                var bindingGroup = new KnockoutBindingGroup();
-                bindingGroup.Add("setToolTipText", "true");
-                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
-            }
-        }
-
+        public static readonly DotvvmProperty SetToolTipTextProperty =
+            DotvvmProperty.Register<bool, ValidationMessage>("SetToolTipText", isValueInherited: true);
 
         /// <summary>
         /// Gets or sets whether the error message text should be displayed.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         [AttachedProperty(typeof(bool))]
-        public static readonly ActiveDotvvmProperty ShowErrorMessageTextProperty =
-            DelegateActionProperty<bool>.Register<ValidationMessage>("ShowErrorMessageText", AddShowErrorMessageText);
+        public static readonly DotvvmProperty ShowErrorMessageTextProperty =
+            DotvvmProperty.Register<bool, ValidationMessage>("ShowErrorMessageText", isValueInherited: true);
 
-        private static void AddShowErrorMessageText(IHtmlWriter writer, RenderContext context, bool value, DotvvmControl control)
-        {
-            if (value)
-            {
-                var bindingGroup = new KnockoutBindingGroup();
-                bindingGroup.Add("showErrorMessageText", "true");
-                writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
-            }
-        }
+
 
         /// <summary>
         /// Gets or sets a binding that points to the validated value.
@@ -90,10 +54,38 @@ namespace DotVVM.Framework.Controls
         public static readonly ActiveDotvvmProperty ValidatedValueProperty =
             DelegateActionProperty<object>.Register<ValidationMessage>("ValidatedValue", AddValidatedValue);
 
+
+
+
+        public static List<DotvvmProperty> ValidationOptionProperties { get; } = new List<DotvvmProperty>()
+        {
+            HideWhenValidProperty,
+            InvalidCssClassProperty,
+            SetToolTipTextProperty,
+            ShowErrorMessageTextProperty
+        };
+
+
+
+
         private static void AddValidatedValue(IHtmlWriter writer, RenderContext context, object value, DotvvmControl control)
         {
             writer.AddKnockoutDataBind("dotvvmValidation", (DotvvmBindableControl)control, ValidatedValueProperty);
+
+            // render options
+            var bindingGroup = new KnockoutBindingGroup();
+            foreach (var property in ValidationOptionProperties)
+            {
+                var javascriptName = property.Name.Substring(0, 1).ToLower() + property.Name.Substring(1);
+                var optionValue = control.GetValue(property);
+                if (!object.Equals(optionValue, property.DefaultValue))
+                {
+                    bindingGroup.Add(javascriptName, JsonConvert.SerializeObject(optionValue));
+                }
+            }
+            writer.AddKnockoutDataBind("dotvvmValidationOptions", bindingGroup);
         }
+
 
 
         /// <summary>

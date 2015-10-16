@@ -45,7 +45,18 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
 
         public static IEnumerable<ProjectItem> GetSelfAndChildProjectItems(ProjectItem projectItem)
         {
+            if (projectItem.Properties == null)
+            {
+                yield break;
+            }
+
             yield return projectItem;
+
+            if (projectItem.ProjectItems == null)
+            {
+                yield break;
+            }
+
             for (int i = 1; i <= projectItem.ProjectItems.Count; i++)
             {
                 ProjectItem item = null;
