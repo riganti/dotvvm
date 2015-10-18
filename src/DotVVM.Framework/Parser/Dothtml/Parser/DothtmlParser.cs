@@ -6,6 +6,7 @@ using System.Diagnostics;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Exceptions;
 using System.Net;
+using System;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
@@ -14,7 +15,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     /// </summary>
     public class DothtmlParser : ParserBase<DothtmlToken, DothtmlTokenType>
     {
-        public static readonly HashSet<string> AutomaticClosingTags = new HashSet<string>
+        public static readonly HashSet<string> AutomaticClosingTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "html", "head", "body", "p", "dt", "dd", "li", "option", "thead", "th", "tbody", "tr", "td", "tfoot", "colgroup"
         };
@@ -85,7 +86,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                             {
                                 var beginTag = (DothtmlElementNode)ElementHierarchy.Peek();
                                 var beginTagName = beginTag.FullTagName;
-                                if (beginTagName != element.FullTagName)
+                                if (!beginTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
                                 {
                                     element.NodeErrors.Add(string.Format(DothtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
                                     ResolveWrongClosingTag(element);
@@ -176,7 +177,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Debug.Assert(startElement != null);
             Debug.Assert(startElement.FullTagName != element.FullTagName);
 
-            while (startElement != null && startElement.FullTagName != element.FullTagName)
+            while (startElement != null && !startElement.FullTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
             {
                 ElementHierarchy.Pop();
                 if (HtmlWriter.SelfClosingTags.Contains(startElement.FullTagName))
@@ -254,7 +255,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             Assert(DothtmlTokenType.OpenTag);
             Read();
-            SkipWhitespace();
 
             if (Peek().Type == DothtmlTokenType.Slash)
             {
@@ -262,6 +262,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 SkipWhitespace();
                 node.IsClosingTag = true;
             }
+
+            
 
             // element name
             Assert(DothtmlTokenType.Text);
@@ -305,6 +307,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
         }
+
+
 
         /// <summary>
         /// Reads the attribute.

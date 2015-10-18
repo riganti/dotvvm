@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Controls
             { "style", ";" }
         };
 
-        public static readonly ISet<string> SelfClosingTags = new HashSet<string>
+        public static readonly ISet<string> SelfClosingTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "area", "base", "br" , "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"
         };

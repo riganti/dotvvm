@@ -185,8 +185,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             // read tag name
             if (!ReadTagOrAttributeName(isAttributeName: false))
             {
-                CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError());
-                CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.TagNameExpected));
+                CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.TagNameExpected));
                 return false;
             }
 

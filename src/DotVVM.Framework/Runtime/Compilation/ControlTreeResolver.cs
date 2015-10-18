@@ -355,7 +355,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     .Select(childObject => ProcessObjectElement(childObject, dataContext));
                 return new ResolvedPropertyControlCollection(property, collection.ToList());
             }
-            else if (property.DeclaringType == typeof(string))
+            else if (property.PropertyType == typeof(string))
             {
                 // string property
                 var strings = FilterNodes<DothtmlLiteralNode>(elementContent, property);
