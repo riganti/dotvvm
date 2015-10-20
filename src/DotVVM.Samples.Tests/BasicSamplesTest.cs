@@ -1216,5 +1216,28 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual("false", browser.Find("#result").GetText());
             });
         }
+
+        public void Sample43Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample43");
+                Thread.Sleep(WaitTime);
+                
+                browser.FindAll("input")[0].SendKeys("25");
+                Thread.Sleep(WaitTime);
+                browser.FindAll("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.IsFalse(browser.FindAll("span")[0].IsDisplayed());
+                Assert.AreEqual(25, browser.FindAll("span")[1].GetText());
+
+                browser.FindAll("input")[0].SendKeys("a");
+                Thread.Sleep(WaitTime);
+                browser.FindAll("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.IsTrue(browser.FindAll("span")[0].IsDisplayed());
+                Assert.AreEqual(25, browser.FindAll("span")[1].GetText());
+            });
+        }
     }
 }

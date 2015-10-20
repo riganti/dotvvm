@@ -109,5 +109,8 @@ namespace DotVVM.Samples.Tests
         [TestMethod]
         public void Sample40Test_VirtDir() { Sample40Test(); }
 
+        [TestMethod]
+        public void Sample43Test_VirtDir() { Sample43Test(); }
+
     }
 }
