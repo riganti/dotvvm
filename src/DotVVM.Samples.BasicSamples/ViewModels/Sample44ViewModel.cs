@@ -34,13 +34,20 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public bool CheckEnabled { get; set; } = true;
 
-        public void DisableAll()
+
+        //ListBox
+        public string SelectedFruitFromList { get; set; }
+        public bool ListEnabled { get; set; } = true;
+
+        public void SwitchEnabledState()
         {
-            CheckEnabled = false;
-            ComboEnabled = false;
-            RadioEnabled = false;
-            TextEnabled = false;
+            CheckEnabled = !CheckEnabled;
+            ComboEnabled = !ComboEnabled;
+            RadioEnabled = !RadioEnabled;
+            TextEnabled = !TextEnabled;
+            ListEnabled = !ListEnabled;
         }
+
 
 
     }

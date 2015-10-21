@@ -14,8 +14,9 @@
 	<dot:RadioButton Checked="{value: RadioButton1}" GroupName="RadioGroup" Text="Radio 1" Enabled="{value: RadioEnabled}" />
 	<dot:RadioButton Checked="{value: RadioButton2}" GroupName="RadioGroup" Text="Radio 2" Enabled="{value: RadioEnabled}" />
 	<dot:CheckBox Text="CheckBox" Checked="{value: CheckBoxChecked}" Enabled="{value: CheckEnabled}" />
+	<dot:ListBox DataSource="{value: Fruits}" SelectedValue="{value: SelectedFruitFromList}" Enabled="{value: ListEnabled}" />
 	<br />
-	<dot:Button Text="Disable all" Click="{command: DisableAll()}" />
+	<dot:Button Text="Switch enabled state" Click="{command: SwitchEnabledState()}" />
 	
 
 </body>

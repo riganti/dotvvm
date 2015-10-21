@@ -1252,6 +1252,7 @@ namespace DotVVM.Samples.Tests
                 Assert.IsTrue(browser.FindAll("label")[0].IsEnabled());
                 Assert.IsTrue(browser.FindAll("label")[1].IsEnabled());
                 Assert.IsTrue(browser.FindAll("label")[2].IsEnabled());
+                Assert.IsTrue(browser.FindAll("select")[1].IsEnabled());
 
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
@@ -1262,6 +1263,8 @@ namespace DotVVM.Samples.Tests
                 Assert.IsFalse(browser.FindAll("label")[0].IsEnabled());
                 Assert.IsFalse(browser.FindAll("label")[1].IsEnabled());
                 Assert.IsFalse(browser.FindAll("label")[2].IsEnabled());
+                Assert.IsFalse(browser.FindAll("select")[1].IsEnabled());
+
             });
         }
     }
