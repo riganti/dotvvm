@@ -16,6 +16,7 @@ using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -131,6 +132,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Interrupts the execution of the current request.
         /// </summary>
+        [DebuggerHidden]
         public void InterruptRequest()
         {
             throw new DotvvmInterruptRequestExecutionException();    

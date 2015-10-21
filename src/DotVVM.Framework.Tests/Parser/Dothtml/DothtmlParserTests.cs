@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
         {
             var markup = @"this <b>is<a>test</a></b> a test";
             var nodes = ParseMarkup(markup).Content;
-            
+
             var innerContent = ((DothtmlElementNode)nodes[1]).Content;
             Assert.AreEqual(2, innerContent.Count);
 
@@ -254,6 +254,20 @@ test";
             Assert.IsTrue(((DothtmlElementNode)nodes[0]).IsClosingTag);
             Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
             Assert.IsTrue(((DothtmlElementNode)nodes[0]).HasNodeErrors);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_SlashAttributeValue()
+        {
+            var markup = "<a href=/>Test</a>";
+            var nodes = ParseMarkup(markup).Content;
+
+            Assert.AreEqual(1, nodes.Count);
+            var ael = (DothtmlElementNode)nodes[0];
+            Assert.AreEqual("a", ael.FullTagName);
+            Assert.AreEqual(1, ael.Attributes.Count);
+            Assert.AreEqual("href", ael.Attributes[0].AttributeName);
+            Assert.AreEqual("/", ael.Attributes[0].Literal.Value);
         }
 
         [TestMethod]
