@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Renders the HTML drop-down list.
     /// </summary>
-    [ControlMarkupOptions(AllowContent = false)]
+    [ControlMarkupOptions()]
     public class ComboBox : SelectHtmlControlBase
     {
 
