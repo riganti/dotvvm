@@ -117,13 +117,11 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            if (!RenderWrapperTag)
-            {
-                EnsureNoAttributesSet();
-            }
-
             base.AddAttributesToRender(writer, context);
         }
+
+        protected override bool RendersHtmlTag => RenderWrapperTag;
+
 
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
