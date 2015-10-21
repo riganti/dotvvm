@@ -274,6 +274,46 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(result.ArgumentExpressions.Count, 0);
         }
 
+        [TestMethod]
+        public void BindingParser_AssignOperator_Valid()
+        {
+            var result = (BinaryOperatorBindingParserNode)Parse("a = b");
+            Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
+
+            var first = (IdentifierNameBindingParserNode)result.FirstExpression;
+            Assert.AreEqual("a", first.Name);
+
+            var second = (IdentifierNameBindingParserNode)result.SecondExpression;
+            Assert.AreEqual("b", second.Name);
+        }
+
+        [TestMethod]
+        public void BindingParser_AssignOperator_Incomplete()
+        {
+            var result = (BinaryOperatorBindingParserNode)Parse("a = ");
+            Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
+
+            var first = (IdentifierNameBindingParserNode)result.FirstExpression;
+            Assert.AreEqual("a", first.Name);
+
+            var second = (IdentifierNameBindingParserNode)result.SecondExpression;
+            Assert.IsTrue(second.HasNodeErrors);
+        }
+
+        [TestMethod]
+        public void BindingParser_AssignOperator_Incomplete1()
+        {
+            var result = (BinaryOperatorBindingParserNode)Parse("=");
+            Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
+
+            var first = (IdentifierNameBindingParserNode)result.FirstExpression;
+            Assert.IsTrue(first.HasNodeErrors);
+
+            var second = (IdentifierNameBindingParserNode)result.SecondExpression;
+            Assert.IsTrue(second.HasNodeErrors);
+        }
+
+
         private static BindingParserNode Parse(string expression)
         {
             var tokenizer = new BindingTokenizer();
