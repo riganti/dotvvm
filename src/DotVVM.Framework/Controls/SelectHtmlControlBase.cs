@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Controls
 {
@@ -13,11 +14,21 @@ namespace DotVVM.Framework.Controls
 	/// </summary>
 	public abstract class SelectHtmlControlBase : Selector
 	{
-		
         /// <summary>
-		/// Initializes a new instance of the <see cref="SelectHtmlControlBase"/> class.
+        /// Gets or sets a value indicating whether the control is enabled and can be modified.
         /// </summary>
-		public SelectHtmlControlBase()
+        public bool Enabled
+        {
+            get { return (bool)GetValue(EnabledProperty); }
+            set { SetValue(EnabledProperty, value); }
+        }
+        public static readonly DotvvmProperty EnabledProperty =
+            DotvvmProperty.Register<bool, SelectHtmlControlBase>(t => t.Enabled, true);
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="SelectHtmlControlBase"/> class.
+        /// </summary>
+        public SelectHtmlControlBase()
 			: base("select")
         {
             
@@ -28,6 +39,15 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+
+            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            {
+                if (!Enabled)
+                {
+                    writer.AddAttribute("disabled", "disabled");
+                }
+            });
+
             if (!RenderOnServer)
             {
                 writer.AddKnockoutDataBind("options", this, DataSourceProperty, () => { });

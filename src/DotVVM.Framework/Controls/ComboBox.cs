@@ -13,16 +13,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class ComboBox : SelectHtmlControlBase
     {
-        /// <summary>
-        /// Gets or sets a value indicating whether the control is enabled and can be modified.
-        /// </summary>
-        public bool Enabled
-        {
-            get { return (bool)GetValue(EnabledProperty); }
-            set { SetValue(EnabledProperty, value); }
-        }
-        public static readonly DotvvmProperty EnabledProperty =
-            DotvvmProperty.Register<bool, ComboBox>(t => t.Enabled, true);
 
         /// <summary>
         /// Gets or sets a text of an empty item. This item is auto-generated and is not part of the DataSource collection. The empty item has a value of null.
@@ -40,13 +30,6 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
-            {
-                if (!Enabled)
-                {
-                    writer.AddAttribute("disabled", "disabled");
-                }
-            });
             if (!RenderOnServer)
             {
                 if (!string.IsNullOrWhiteSpace(EmptyItemText))
