@@ -137,7 +137,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             currentTemplateIndex++;
             emitter.PushNewMethod(methodName);
             // build the statements
-            controlName = emitter.EmitCreateObject(typeof(Placeholder));
+            controlName = emitter.EmitCreateObject(typeof(PlaceHolder));
 
             base.VisitPropertyTemplate(propertyTemplate);
 

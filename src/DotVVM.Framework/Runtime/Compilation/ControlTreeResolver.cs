@@ -387,7 +387,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         private List<ResolvedControl> ProcessTemplate(IEnumerable<DothtmlNode> elementContent, DataContextStack dataContext)
         {
-            var placeholderMetadata = controlResolver.ResolveControl(typeof(Placeholder));
+            var placeholderMetadata = controlResolver.ResolveControl(typeof(PlaceHolder));
             var content = elementContent.Select(e => ProcessNode(e, placeholderMetadata, dataContext));
             return content.ToList();
         }
