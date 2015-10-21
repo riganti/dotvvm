@@ -1223,7 +1223,7 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl(BaseUrl + "Sample43");
                 Thread.Sleep(WaitTime);
-                
+
                 browser.FindAll("input")[0].SendKeys("25");
                 Thread.Sleep(WaitTime);
                 browser.FindAll("input[type=button]")[0].Click();
@@ -1237,6 +1237,31 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
                 Assert.IsTrue(browser.FindAll("span")[0].IsDisplayed());
                 Assert.AreEqual(25, browser.FindAll("span")[1].GetText());
+            });
+        }
+
+        public void Sample44Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample44");
+                Thread.Sleep(WaitTime);
+
+                Assert.IsTrue(browser.FindAll("select")[0].IsEnabled());
+                Assert.IsTrue(browser.FindAll("input")[0].IsEnabled());
+                Assert.IsTrue(browser.FindAll("label")[0].IsEnabled());
+                Assert.IsTrue(browser.FindAll("label")[1].IsEnabled());
+                Assert.IsTrue(browser.FindAll("label")[2].IsEnabled());
+
+                browser.FindAll("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
+
+
+                Assert.IsFalse(browser.FindAll("select")[0].IsEnabled());
+                Assert.IsFalse(browser.FindAll("input")[0].IsEnabled());
+                Assert.IsFalse(browser.FindAll("label")[0].IsEnabled());
+                Assert.IsFalse(browser.FindAll("label")[1].IsEnabled());
+                Assert.IsFalse(browser.FindAll("label")[2].IsEnabled());
             });
         }
     }
