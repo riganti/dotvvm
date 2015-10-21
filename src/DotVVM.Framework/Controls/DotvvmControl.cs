@@ -99,6 +99,15 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Determines whether the specified property is set.
+        /// </summary>
+        public bool IsPropertySet(DotvvmProperty property, bool inherit = true)
+        {
+            return property.IsSet(this, inherit);
+        }
+
+
+        /// <summary>
         /// Sets the value of a specified property.
         /// </summary>
         public virtual void SetValue(DotvvmProperty property, object value)
@@ -485,5 +494,6 @@ namespace DotVVM.Framework.Controls
                 }
             }
         }
+
     }
 }

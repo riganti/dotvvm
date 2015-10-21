@@ -9,10 +9,11 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Controls
 {
-	/// <summary>
-	/// Renders the HTML list box.
-	/// </summary>
-	public class ListBox : SelectHtmlControlBase
+    /// <summary>
+    /// Renders the HTML list box.
+    /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
+    public class ListBox : SelectHtmlControlBase
 	{
         /// <summary>
         /// Initializes a new instance of the <see cref="ListBox"/> class.

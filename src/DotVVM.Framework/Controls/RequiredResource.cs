@@ -10,6 +10,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Declares a resource that will be rendered in the <see cref="BodyResourceLinks" /> control later.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class RequiredResource : DotvvmControl
     {
 

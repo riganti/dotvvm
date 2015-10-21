@@ -13,14 +13,14 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Repeats a template for each item in the DataSource collection.
     /// </summary>
-    [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = "ItemTemplate")]
+    [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(ItemTemplate))]
     public class Repeater : ItemsControl
     {
 
         /// <summary>
         /// Gets or sets the template for each Repeater item.
         /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        [MarkupOptions(MappingMode = MappingMode.InnerElement, Required = true)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
         public ITemplate ItemTemplate
@@ -113,12 +113,7 @@ namespace DotVVM.Framework.Controls
                 }
             }
         }
-
-
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
-        {
-            base.AddAttributesToRender(writer, context);
-        }
+         
 
         protected override bool RendersHtmlTag => RenderWrapperTag;
 

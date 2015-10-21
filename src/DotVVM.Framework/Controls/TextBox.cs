@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the text in the control.
         /// </summary>
+        [MarkupOptions(Required = true)]
         public string Text
         {
             get { return Convert.ToString(GetValue(TextProperty)); }

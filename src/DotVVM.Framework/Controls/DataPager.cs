@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Renders the pagination control which can be integrated with the GridViewDataSet object to provide the paging capabilities.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class DataPager : HtmlGenericControl
     {
         private static CommandBindingExpression GoToNextPageCommand =
@@ -225,8 +226,6 @@ namespace DotVVM.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
             writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { }, renderEvenInServerRenderingMode: true);
-            // this line caused some problems by overwriting visible property, I think it can be more confusing than useful
-            //writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").TotalItemsCount() > 0");
             writer.RenderBeginTag("ul");
         }
 

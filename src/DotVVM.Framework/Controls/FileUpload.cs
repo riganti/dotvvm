@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Allows the user to upload one or multiple files asynchronously.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class FileUpload : HtmlGenericControl
     {
 
