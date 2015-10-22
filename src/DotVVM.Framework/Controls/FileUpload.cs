@@ -1,4 +1,5 @@
 using System;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -7,6 +8,7 @@ using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
@@ -53,6 +55,55 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty UploadCompletedProperty
             = DotvvmProperty.Register<Command, FileUpload>(p => p.UploadCompleted, null);
+
+
+        /// <summary>
+        /// Gets or sets the text on the upload button. The default value is "Upload".
+        /// </summary>
+        [Localizable(true)]
+        public string UploadButtonText
+        {
+            get { return (string)GetValue(UploadButtonTextProperty); }
+            set { SetValue(UploadButtonTextProperty, value); }
+        }
+        public static readonly DotvvmProperty UploadButtonTextProperty
+            = DotvvmProperty.Register<string, FileUpload>(c => c.UploadButtonText, Resources.Controls.FileUpload_UploadButtonText, isValueInherited: true);
+
+        /// <summary>
+        /// Gets or sets the text on the indicator showing number of files. The defaule value is "{0} files". The number of files will be substituted for the "{0}" placeholder.
+        /// </summary>
+        [Localizable(true)]
+        public string NumberOfFilesIndicatorText
+        {
+            get { return (string)GetValue(NumberOfFilesIndicatorTextProperty); }
+            set { SetValue(NumberOfFilesIndicatorTextProperty, value); }
+        }
+        public static readonly DotvvmProperty NumberOfFilesIndicatorTextProperty
+            = DotvvmProperty.Register<string, FileUpload>(c => c.NumberOfFilesIndicatorText, Resources.Controls.FileUpload_NumberOfFilesText, isValueInherited: true);
+
+        /// <summary>
+        /// Gets or sets the text that appears when there is an error during the upload.
+        /// </summary>
+        [Localizable(true)]
+        public string UploadErrorMessageText
+        {
+            get { return (string)GetValue(UploadErrorMessageTextProperty); }
+            set { SetValue(UploadErrorMessageTextProperty, value); }
+        }
+        public static readonly DotvvmProperty UploadErrorMessageTextProperty
+            = DotvvmProperty.Register<string, FileUpload>(c => c.UploadErrorMessageText, Resources.Controls.FileUpload_UploadErrorMessageText, isValueInherited: true);
+
+        /// <summary>
+        /// Gets or sets the text that appears when all files are uploaded successfully.
+        /// </summary>
+        [Localizable(true)]
+        public string SuccessMessageText
+        {
+            get { return (string)GetValue(SuccessMessageTextProperty); }
+            set { SetValue(SuccessMessageTextProperty, value); }
+        }
+        public static readonly DotvvmProperty SuccessMessageTextProperty
+            = DotvvmProperty.Register<string, FileUpload>(c => c.SuccessMessageText, Resources.Controls.FileUpload_SuccessMessageText, isValueInherited: true);
 
 
 
@@ -102,15 +153,15 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("visible", "!IsBusy()");
             writer.RenderBeginTag("span");
             writer.AddAttribute("href", "#");
-            writer.AddAttribute("onclick", string.Format("dotvvm.fileUpload.showUploadDialog('{0}_iframe'); return false;", ID));
+            writer.AddAttribute("onclick", $"dotvvm.fileUpload.showUploadDialog('{ID}_iframe'); return false;");
             writer.RenderBeginTag("a");
-            writer.WriteUnencodedText("Upload");     // TODO: localization
+            writer.WriteUnencodedText(UploadButtonText);
             writer.RenderEndTag();
             writer.RenderEndTag();
 
             // render upload files
             writer.AddAttribute("class", "dot-upload-files");
-            writer.AddKnockoutDataBind("html", "dotvvm.format('{0} files', Files().length)");     // TODO: localization
+            writer.AddKnockoutDataBind("html", $"dotvvm.format({JsonConvert.SerializeObject(NumberOfFilesIndicatorText)}, Files().length)");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
 
@@ -126,7 +177,7 @@ namespace DotVVM.Framework.Controls
 
             // render result
             writer.AddAttribute("class", "dot-upload-result");
-            writer.AddKnockoutDataBind("html", "Error() ? 'Error occured.' : 'The files are uploaded.'");       // TODO: localization
+            writer.AddKnockoutDataBind("html", $"Error() ? {JsonConvert.SerializeObject(UploadErrorMessageText)} : {JsonConvert.SerializeObject(SuccessMessageText)}");
             writer.AddKnockoutDataBind("attr", "{ title: Error }");
             writer.AddKnockoutDataBind("css", "{ 'dot-upload-result-success': !Error(), 'dot-upload-result-error': Error }");
             writer.AddKnockoutDataBind("visible", "!IsBusy() && Files().length > 0");

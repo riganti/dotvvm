@@ -70,6 +70,42 @@ namespace DotVVM.Framework.Resources {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to {0} files.
+        /// </summary>
+        internal static string FileUpload_NumberOfFilesText {
+            get {
+                return ResourceManager.GetString("FileUpload_NumberOfFilesText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to The files were uploaded successfully..
+        /// </summary>
+        internal static string FileUpload_SuccessMessageText {
+            get {
+                return ResourceManager.GetString("FileUpload_SuccessMessageText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Upload.
+        /// </summary>
+        internal static string FileUpload_UploadButtonText {
+            get {
+                return ResourceManager.GetString("FileUpload_UploadButtonText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Error occured..
+        /// </summary>
+        internal static string FileUpload_UploadErrorMessageText {
+            get {
+                return ResourceManager.GetString("FileUpload_UploadErrorMessageText", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Markup controls must derive from DotvvmMarkupControl class!.
         /// </summary>
         internal static string ViewCompiler_MarkupControlMustDeriveFromDotvvmMarkupControl {
