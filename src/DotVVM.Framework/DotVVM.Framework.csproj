@@ -242,9 +242,6 @@
     <Compile Include="ResourceManagement\ScriptResource.cs" />
     <Compile Include="ResourceManagement\SingleResourceProcessorBase.cs" />
     <Compile Include="ResourceManagement\StylesheetResource.cs" />
-    <Compile Include="Controls\Bootstrap\FormGroup.cs" />
-    <Compile Include="Controls\Bootstrap\GlyphIcon.cs" />
-    <Compile Include="Controls\Bootstrap\HorizontalForm.cs" />
     <Compile Include="Controls\Button.cs" />
     <Compile Include="Controls\ButtonBase.cs" />
     <Compile Include="Controls\CheckBox.cs" />
