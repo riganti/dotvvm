@@ -1269,6 +1269,31 @@ namespace DotVVM.Samples.Tests
                 Assert.IsFalse(browser.FindAll("select")[1].IsEnabled());
 
             });
+
+        }
+
+        public void Sample45Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample45");
+                Thread.Sleep(WaitTime);
+
+                browser.FindAll("input")[0].SendKeys("hello");
+                try
+                {
+                    browser.FindAll("input[type=button]")[0].Click();
+                    Assert.Fail();
+                }
+                catch (AssertFailedException ex)
+                {
+                    throw;
+                }
+                catch (Exception)
+                {
+                    // ignored
+                }
+            });
         }
     }
 }
