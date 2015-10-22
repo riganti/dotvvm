@@ -279,11 +279,6 @@
     <Compile Include="Controls\RequiredResource.cs" />
     <Compile Include="Controls\TextBox.cs" />
     <Compile Include="ResourceManagement\ResourceManager.cs" />
-    <Compile Include="Resources\DothtmlParserErrors.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>DothtmlParserErrors.resx</DependentUpon>
-    </Compile>
     <Compile Include="Resources\DothtmlTokenizerErrors.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -416,11 +411,6 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Controls.resx</DependentUpon>
     </Compile>
-    <Compile Include="Resources\Parser.Dothtml.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Parser.Dothtml.resx</DependentUpon>
-    </Compile>
     <Compile Include="Routing\DotvvmRoute.cs" />
     <Compile Include="Routing\DotvvmRouteComponent.cs" />
     <Compile Include="Routing\DotvvmRouteTable.cs" />
@@ -473,11 +463,6 @@
       <LastGenOutput>Controls.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Resources\Parser.Dothtml.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Parser.Dothtml.Designer.cs</LastGenOutput>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="dotvvmwizard.snk" />
@@ -492,10 +477,6 @@
     <None Include="Resources\Scripts\DotVVM.Validation.js.map" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\DothtmlParserErrors.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>DothtmlParserErrors.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
     <EmbeddedResource Include="Resources\DothtmlTokenizerErrors.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>DothtmlTokenizerErrors.Designer.cs</LastGenOutput>

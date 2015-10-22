@@ -424,11 +424,11 @@ namespace DotVVM.Framework.Runtime.Compilation
                 wrapperType = ReflectionUtils.FindType(baseControlDirective.Value);
                 if (wrapperType == null)
                 {
-                    throw new Exception(string.Format(Resources.Controls.ViewCompiler_TypeSpecifiedInBaseTypeDirectiveNotFound, baseControlDirective.Value));
+                    throw new DotvvmCompilationException($"The type '{baseControlDirective.Value}' specified in basetype directive was not found!");
                 }
                 if (!typeof(DotvvmMarkupControl).IsAssignableFrom(wrapperType))
                 {
-                    throw new Exception(string.Format(Resources.Controls.ViewCompiler_MarkupControlMustDeriveFromDotvvmMarkupControl));
+                    throw new DotvvmCompilationException("Markup controls must derive from DotvvmMarkupControl class!");
                 }
             }
 

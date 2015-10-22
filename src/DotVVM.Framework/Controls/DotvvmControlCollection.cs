@@ -173,7 +173,7 @@ namespace DotVVM.Framework.Controls
         {
             if (item.Parent != null && item.Parent != parent)
             {
-                throw new DotvvmControlException(parent, Parser_Dothtml.ControlCollection_ControlAlreadyHasParent);
+                throw new DotvvmControlException(parent, "The control cannot be added to the collection because it already has a different parent! Remove it from the original collection first.");
             }
             item.Parent = parent;
             if(item.GetValue(Internal.UniqueIDProperty) == null)

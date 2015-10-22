@@ -247,7 +247,7 @@ namespace DotVVM.Framework.Controls
         {
             if (openTags.Count == 0)
             {
-                throw new InvalidOperationException(Parser_Dothtml.HtmlWriter_CannotCloseTagBecauseNoTagIsOpen);
+                throw new InvalidOperationException("The HtmlWriter cannot close the tag because no tag is open!");
             }
 
             var tag = openTags.Pop();
