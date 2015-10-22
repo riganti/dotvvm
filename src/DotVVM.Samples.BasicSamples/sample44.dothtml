@@ -11,13 +11,12 @@
 
 	<dot:ComboBox DataSource="{value: Fruits}" SelectedValue="{value: SelectedFruit}" Enabled="{value: ComboEnabled}"/>
 	<dot:TextBox Text="{value: Text}" Enabled="{value: TextEnabled}" />
-	<dot:RadioButton Checked="{value: RadioButton1}" GroupName="RadioGroup" Text="Radio 1" Enabled="{value: RadioEnabled}" />
-	<dot:RadioButton Checked="{value: RadioButton2}" GroupName="RadioGroup" Text="Radio 2" Enabled="{value: RadioEnabled}" />
+	<dot:RadioButton Checked="{value: RadioButton1}" GroupName="RadioGroup" Text="Radio 1" Enabled="{value: RadioEnabled}" CheckedValue="true" />
+	<dot:RadioButton Checked="{value: RadioButton2}" GroupName="RadioGroup" Text="Radio 2" Enabled="{value: RadioEnabled}" CheckedValue="true" />
 	<dot:CheckBox Text="CheckBox" Checked="{value: CheckBoxChecked}" Enabled="{value: CheckEnabled}" />
 	<dot:ListBox DataSource="{value: Fruits}" SelectedValue="{value: SelectedFruitFromList}" Enabled="{value: ListEnabled}" />
 	<br />
 	<dot:Button Text="Switch enabled state" Click="{command: SwitchEnabledState()}" />
-	
 
 </body>
 </html>

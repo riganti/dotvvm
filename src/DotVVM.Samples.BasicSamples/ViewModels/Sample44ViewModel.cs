@@ -22,7 +22,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         public bool TextEnabled { get; set; } = true;
 
         //RadioButton
-        public bool RadioButton1 { get; set; }
+        public bool RadioButton1 { get; set; } = true;
 
         public bool RadioButton2 { get; set; }
 
@@ -47,8 +47,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
             TextEnabled = !TextEnabled;
             ListEnabled = !ListEnabled;
         }
-
-
 
     }
 }

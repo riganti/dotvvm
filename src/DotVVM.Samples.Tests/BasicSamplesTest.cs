@@ -1229,14 +1229,14 @@ namespace DotVVM.Samples.Tests
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
                 Assert.IsFalse(browser.FindAll("span")[0].IsDisplayed());
-                Assert.AreEqual(25, browser.FindAll("span")[1].GetText());
+                Assert.AreEqual("25", browser.FindAll("span")[1].GetText());
 
                 browser.FindAll("input")[0].SendKeys("a");
                 Thread.Sleep(WaitTime);
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
                 Assert.IsTrue(browser.FindAll("span")[0].IsDisplayed());
-                Assert.AreEqual(25, browser.FindAll("span")[1].GetText());
+                Assert.AreEqual("25", browser.FindAll("span")[1].GetText());
             });
         }
 
@@ -1260,9 +1260,12 @@ namespace DotVVM.Samples.Tests
 
                 Assert.IsFalse(browser.FindAll("select")[0].IsEnabled());
                 Assert.IsFalse(browser.FindAll("input")[0].IsEnabled());
-                Assert.IsFalse(browser.FindAll("label")[0].IsEnabled());
-                Assert.IsFalse(browser.FindAll("label")[1].IsEnabled());
-                Assert.IsFalse(browser.FindAll("label")[2].IsEnabled());
+                browser.FindAll("label")[0].Click();
+                browser.FindAll("label")[1].Click();
+                browser.FindAll("label")[2].Click();
+                Assert.IsFalse(browser.FindAll("label")[0].IsSelected());
+                Assert.IsFalse(browser.FindAll("label")[1].IsSelected());
+                Assert.IsFalse(browser.FindAll("label")[2].IsSelected());
                 Assert.IsFalse(browser.FindAll("select")[1].IsEnabled());
 
             });
