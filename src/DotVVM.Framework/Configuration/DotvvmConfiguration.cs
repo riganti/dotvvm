@@ -127,6 +127,11 @@ namespace DotVVM.Framework.Configuration
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
 
+            configuration.Markup.Controls.AddRange(new[]
+            {
+                new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" }
+            });
+
             configuration.Resources.Register(Constants.JQueryResourceName,
                 new ScriptResource()
                 {
