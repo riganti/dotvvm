@@ -42,6 +42,7 @@ namespace DotVVM.Framework.Controls
 		/// <summary>
 		/// Gets or sets the value of the selected item.
 		/// </summary>
+		[MarkupOptions(AllowHardCodedValue = false, Required = true)]
 		public object SelectedValue
 		{
 			get { return GetValue(SelectedValueProperty); }

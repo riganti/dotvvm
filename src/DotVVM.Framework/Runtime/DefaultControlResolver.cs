@@ -148,7 +148,7 @@ namespace DotVVM.Framework.Runtime
             }
             else
             {
-                throw new NotSupportedException(string.Format("The binding {{{0}: ... }} is unknown!", bindingType));   // TODO: exception handling
+                throw new NotSupportedException($"The binding {{{bindingType}: ... }} is unknown!");   // TODO: exception handling
             }
         }
 
@@ -180,7 +180,7 @@ namespace DotVVM.Framework.Runtime
                 }
             }
 
-            throw new Exception(string.Format(Resources.Controls.ControlResolver_ControlNotFound, tagPrefix, tagName));
+            throw new Exception($"The control <{tagPrefix}:{tagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
         }
 
         /// <summary>

@@ -9,7 +9,7 @@ using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
-    [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = "ContentTemplate")]
+    [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(ContentTemplate))]
     public class GridViewTemplateColumn : GridViewColumn
     {
 

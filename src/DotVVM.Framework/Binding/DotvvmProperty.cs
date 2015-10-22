@@ -82,26 +82,46 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
-        public virtual object GetValue(DotvvmControl dotvvcmontrol, bool inherit = true)
+        public virtual object GetValue(DotvvmControl control, bool inherit = true)
         {
             object value;
-            if (dotvvcmontrol.properties != null && dotvvcmontrol.properties.TryGetValue(this, out value))
+            if (control.properties != null && control.properties.TryGetValue(this, out value))
             {
                 return value;
             }
-            if (IsValueInherited && inherit && dotvvcmontrol.Parent != null)
+            if (IsValueInherited && inherit && control.Parent != null)
             {
-                return GetValue(dotvvcmontrol.Parent);
+                return GetValue(control.Parent);
             }
             return DefaultValue;
         }
 
+
+        /// <summary>
+        /// Gets whether the value of the property is set
+        /// </summary>
+        public virtual bool IsSet(DotvvmControl control, bool inherit = true)
+        {
+            if (control.properties != null && control.properties.ContainsKey(this))
+            {
+                return true;
+            }
+
+            if (IsValueInherited && inherit && control.Parent != null)
+            {
+                return IsSet(control.Parent);
+            }
+
+            return false;
+        }
+
+
         /// <summary>
         /// Sets the value of the property.
         /// </summary>
-        public virtual void SetValue(DotvvmControl dotvvmControl, object value)
+        public virtual void SetValue(DotvvmControl control, object value)
         {
-            dotvvmControl.Properties[this] = value;
+            control.Properties[this] = value;
         }
 
 

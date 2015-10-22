@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the name of the route in the route table.
         /// </summary>
-        [MarkupOptions(AllowBinding = false)]
+        [MarkupOptions(AllowBinding = false, Required = true)]
         public string RouteName
         {
             get { return (string)GetValue(RouteNameProperty); }

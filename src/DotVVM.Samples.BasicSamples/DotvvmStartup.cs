@@ -8,6 +8,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Web;
+using DotVVM.Framework.Parser;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -37,6 +38,21 @@ namespace DotVVM.Samples.BasicSamples
 
             config.ServiceLocator.RegisterSingleton<IReturnedFileStorage>(() =>
                 new FileSystemReturnedFileStorage(Path.Combine(applicationPath, "TempFolder"), TimeSpan.FromMinutes(1)));
+
+
+            config.Resources.Register("bootstrap",
+                new ScriptResource()
+                {
+                    Url = "~/Scripts/bootstrap.min.js",
+                    CdnUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js",
+                    GlobalObjectName = "typeof $().emulateTransitionEnd == 'function'",
+                    Dependencies = new[] { "bootstrap-css", Constants.JQueryResourceName }
+                });
+            config.Resources.Register("bootstrap-css",
+                new StylesheetResource()
+                {
+                    Url = "~/Content/bootstrap.min.css"
+                });
         }
     }
 }

@@ -154,7 +154,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
-        
+
         [TestMethod]
         public void DothtmlTokenizer_ElementParsing_Valid_SelfClosing_DoubleQuotedAttribute()
         {
@@ -236,29 +236,15 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
 
-
         [TestMethod]
-        public void DothtmlTokenizer_ElementParsing_Incomplete_OpenTag_InvalidTagName()
+        public void DothtmlTokenizer_Invalid_OpenBraceInText()
         {
-            var input = @"<'";
-
-            // parse
+            var input = "inline < script";
             var tokenizer = new DothtmlTokenizer();
             tokenizer.Tokenize(new StringReader(input));
-            CheckForErrors(tokenizer, input.Length);
 
-            var i = 0;
-            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.IsTrue(tokenizer.Tokens.All(t => t.Type == DothtmlTokenType.Text));
+            Assert.AreEqual(string.Concat(tokenizer.Tokens.Select(t => t.Text)), input);
         }
 
         [TestMethod]
@@ -272,15 +258,8 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
-            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.IsTrue(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
 
@@ -303,7 +282,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             var i = 0;
             Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            
+
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.IsTrue(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
@@ -332,7 +311,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
-        
+
         [TestMethod]
         public void DothtmlTokenizer_ElementParsing_Incomplete_OpenTag_WhiteSpace()
         {
@@ -414,7 +393,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-            
+
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
             Assert.IsTrue(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
@@ -424,7 +403,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
-        
+
         [TestMethod]
         public void DothtmlTokenizer_ElementParsing_Incomplete_OpenTag_AttributeName_Equals()
         {
@@ -702,7 +681,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.Colon, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError); 
+            Assert.IsTrue(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(DothtmlTokenType.Equals, tokenizer.Tokens[i++].Type);
@@ -711,26 +690,6 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.SingleQuote, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(DothtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
-            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
-        }
-
-        [TestMethod]
-        public void DothtmlTokenizer_ElementParsing_Invalid_EmptyTag()
-        {
-            var input = @"<>";
-
-            // parse
-            var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
-            CheckForErrors(tokenizer, input.Length);
-
-            var i = 0;
-            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
-            
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
 
@@ -744,26 +703,12 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
-            var i = 0;
-            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+            for (int i = 0; i < 2; i++)
+            {
+                Assert.IsTrue(tokenizer.Tokens[i].HasError);
+                Assert.AreEqual("<", tokenizer.Tokens[i].Text);
+                Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            }
         }
 
         [TestMethod]
@@ -776,42 +721,12 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
-            var i = 0;
-            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[0].Type);
+            Assert.IsTrue(tokenizer.Tokens[0].HasError);
+            Assert.AreEqual("<", tokenizer.Tokens[0].Text);
 
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-        }
-
-        [TestMethod]
-        public void DothtmlTokenizer_ElementParsing_Invalid_OpenTag_Quotes()
-        {
-            var input = @"<'";
-
-            // parse
-            var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
-            CheckForErrors(tokenizer, input.Length);
-
-            var i = 0;
-            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(0, tokenizer.Tokens[i].Length);
-            Assert.IsTrue(tokenizer.Tokens[i].HasError);
-            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
-
-            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[1].Type);
+            Assert.AreEqual("=", tokenizer.Tokens[1].Text);
         }
 
         [TestMethod]
@@ -827,6 +742,6 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             var i = 0;
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
         }
-        
+
     }
 }

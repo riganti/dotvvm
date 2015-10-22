@@ -11,6 +11,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Renders the HTML drop-down list.
     /// </summary>
+    [ControlMarkupOptions()]
     public class ComboBox : SelectHtmlControlBase
     {
 
@@ -25,6 +26,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty EmptyItemTextProperty 
             = DotvvmProperty.Register<string, ComboBox>(c => c.EmptyItemText, string.Empty);
+
 
 
 

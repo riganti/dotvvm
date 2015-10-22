@@ -84,13 +84,13 @@ test <dot:Literal Text='test' />";
         public void DefaultViewCompiler_CodeGeneration_NestedControls()
         {
             var markup = @"@viewModel System.Object, mscorlib
-<dot:Placeholder>test <dot:Literal /></dot:Placeholder>";
+<dot:PlaceHolder>test <dot:Literal /></dot:PlaceHolder>";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
             Assert.AreEqual(1, page.Children.Count);
 
-            Assert.IsInstanceOfType(page.Children[0], typeof(Placeholder));
+            Assert.IsInstanceOfType(page.Children[0], typeof(PlaceHolder));
 
             Assert.AreEqual(2, page.Children[0].Children.Count);
             Assert.IsTrue(page.Children[0].Children.All(c => c is Literal));
@@ -142,7 +142,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
 
-            DotvvmControl placeholder = new Placeholder();
+            DotvvmControl placeholder = new PlaceHolder();
             ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, placeholder);
             placeholder = placeholder.Children[0];
             
@@ -233,9 +233,9 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
             Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
 
-            var container = new Placeholder();
+            var container = new PlaceHolder();
             ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, container);
-            Assert.IsInstanceOfType(container.Children[0], typeof(Placeholder));
+            Assert.IsInstanceOfType(container.Children[0], typeof(PlaceHolder));
 
             var literal1 = container.Children[0].Children[0];
             Assert.IsInstanceOfType(literal1, typeof(Literal));
@@ -268,9 +268,9 @@ test <dot:Literal><a /></dot:Literal>";
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
             Assert.IsInstanceOfType(page.Children[0], typeof(Repeater));
 
-            var container = new Placeholder();
+            var container = new PlaceHolder();
             ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, container);
-            Assert.IsInstanceOfType(container.Children[0], typeof(Placeholder));
+            Assert.IsInstanceOfType(container.Children[0], typeof(PlaceHolder));
 
             var literal1 = container.Children[0].Children[0];
             Assert.IsInstanceOfType(literal1, typeof(Literal));

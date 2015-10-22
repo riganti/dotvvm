@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// A multi-purpose grid control with advanced binding and templating options and sorting support.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(Columns))]
     public class GridView : ItemsControl
     {
 

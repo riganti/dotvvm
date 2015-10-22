@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
 	/// <summary>
 	/// Renders <c>select</c> HTML element control.
 	/// </summary>
-	public abstract class SelectHtmlControlBase : Selector
+    public abstract class SelectHtmlControlBase : Selector
 	{
         /// <summary>
         /// Gets or sets a value indicating whether the control is enabled and can be modified.
@@ -24,6 +24,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmProperty.Register<bool, SelectHtmlControlBase>(t => t.Enabled, true);
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectHtmlControlBase"/> class.

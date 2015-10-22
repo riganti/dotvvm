@@ -9,6 +9,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Displays all validation messages from the current Validation.Target.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class ValidationSummary : HtmlGenericControl
     {
         
@@ -24,6 +25,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets whether the errors from child objects in the viewmodel will be displayed too.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public bool IncludeErrorsFromChildren
         {
             get { return (bool) GetValue(IncludeErrorsFromChildrenProperty); }
