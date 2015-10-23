@@ -437,7 +437,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         private DotvvmProperty FindProperty(ControlResolverMetadata parentMetadata, string name)
         {
-            return parentMetadata.FindProperty(name) ?? (name.Contains(".") ? DotvvmProperty.ResolveProperty(name) : null);
+            return parentMetadata.FindProperty(name) ?? (name.Contains(".") ? DotvvmProperty.ResolveProperty(name, false) : null);
         }
 
         private static void EnsureContentAllowed(ControlResolverMetadata controlMetadata)

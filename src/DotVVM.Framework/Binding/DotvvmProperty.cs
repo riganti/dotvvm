@@ -169,7 +169,7 @@ namespace DotVVM.Framework.Binding
 
 
         public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
-            => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance )
+            => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                where !registeredProperties.ContainsKey(p.DeclaringType.FullName + "." + p.Name)
                let markupOptions = GetVirtualPropertyMarkupOptions(p)
                where markupOptions != null
@@ -214,9 +214,10 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> from the full name (DeclaringTypeName.PropertyName).
         /// </summary>
-        public static DotvvmProperty ResolveProperty(string fullName)
+        public static DotvvmProperty ResolveProperty(string fullName, bool caseSensitive = true)
         {
-            return registeredProperties.Values.LastOrDefault(p => p.FullName == fullName);
+            return registeredProperties.Values.LastOrDefault(p => 
+                p.FullName.Equals(fullName, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
