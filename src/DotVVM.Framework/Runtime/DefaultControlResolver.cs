@@ -215,7 +215,7 @@ namespace DotVVM.Framework.Runtime
             var attribute = type.Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
 
             var properties = GetControlProperties(type.Type);
-            var metadata = new ControlResolverMetadata()
+            var metadata = new ControlResolverMetadata
             {
                 Name = type.Type.Name,
                 Namespace = type.Type.Namespace,

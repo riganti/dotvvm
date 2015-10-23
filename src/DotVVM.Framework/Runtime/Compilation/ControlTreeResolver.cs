@@ -30,38 +30,29 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public ResolvedTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
         {
-            try
+            var wrapperType = ResolveWrapperType(root, fileName.EndsWith(".dotcontrol", StringComparison.Ordinal) ? typeof(DotvvmMarkupControl) : typeof(DotvvmView));
+
+            // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the 
+            // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
+            // actually resolved when the control builder is ready and the metadata are complete.
+            var viewMetadata = controlResolver.BuildControlMetadata(new ControlType(wrapperType, virtualPath: fileName));
+            var view = new ResolvedTreeRoot(viewMetadata, root, null);
+
+            foreach (var directive in root.Directives)
             {
-                var wrapperType = ResolveWrapperType(root, fileName.EndsWith(".dotcontrol", StringComparison.Ordinal) ? typeof(DotvvmMarkupControl) : typeof(DotvvmView));
-
-                // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the 
-                // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
-                // actually resolved when the control builder is ready and the metadata are complete.
-                var viewMetadata = controlResolver.BuildControlMetadata(new ControlType(wrapperType, virtualPath: fileName));
-                var view = new ResolvedTreeRoot(viewMetadata, root, null);
-
-                foreach (var directive in root.Directives)
+                if (directive.Name != Constants.BaseTypeDirective)
                 {
-                    if (directive.Name != Constants.BaseTypeDirective)
-                    {
-                        view.Directives.Add(directive.Name, directive.Value);
-                    }
+                    view.Directives.Add(directive.Name, directive.Value);
                 }
-
-                ResolveViewModel(fileName, view, wrapperType);
-
-                foreach (var node in root.Content)
-                {
-                    view.Content.Add(ProcessNode(node, viewMetadata, view.DataContextTypeStack));
-                }
-                return view;
-
             }
-            catch (DotvvmCompilationException ex)
+
+            ResolveViewModel(fileName, view, wrapperType);
+
+            foreach (var node in root.Content)
             {
-                ex.FileName = fileName;
-                throw;
+                view.Content.Add(ProcessNode(node, viewMetadata, view.DataContextTypeStack));
             }
+            return view;
         }
 
         private void ResolveViewModel(string fileName, ResolvedTreeRoot view, Type wrapperType)
