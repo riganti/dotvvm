@@ -119,6 +119,7 @@ namespace DotVVM.Framework.Runtime
                 content.Parent.Children.Remove(content);
                 placeHolder.Children.Clear();
                 placeHolder.Children.Add(content);
+                content.SetValue(Internal.IsMasterPageCompositionFinished, true);
             }
 
 
@@ -165,7 +166,9 @@ namespace DotVVM.Framework.Runtime
             }
 
             // make sure that the Content controls are not nested in other elements
-            var contents = childPage.GetAllDescendants().OfType<Content>().ToList();
+            var contents = childPage.GetAllDescendants().OfType<Content>()
+                .Where(c => !(bool) c.GetValue(Internal.IsMasterPageCompositionFinished))
+                .ToList();
             if (contents.Any(c => c.Parent != childPage))
             {
                 throw new Exception("The control <dot:Content /> cannot be placed inside any control!");    // TODO: exception handling
