@@ -124,10 +124,6 @@ namespace DotVVM.Framework.Runtime
             {
                 return typeof(CommandBindingExpression);
             }
-            //else if (bindingType == Constants.ControlStateBinding)
-            //{
-            //    return typeof (ControlStateBindingExpression);
-            //}
             else if (bindingType == Constants.ControlPropertyBinding)
             {
                 bindingValue = "_control." + bindingValue;
