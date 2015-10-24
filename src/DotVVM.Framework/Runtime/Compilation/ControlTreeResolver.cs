@@ -236,7 +236,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 if(property.IsBindingProperty)
                 {
-                    var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control);
+                    var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
                     if (typeChange != null)
                     {
                         dataContext = new DataContextStack(typeChange, dataContext);

@@ -165,7 +165,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             Assert(Peek() == '<');
             Read();
 
-            if (Peek() == '!' || Peek() == '?')
+            if (Peek() == '!' || Peek() == '?' || Peek() == '%')
             {
                 ReadHtmlSpecial(true);
                 return true;
@@ -229,7 +229,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
 
         public void ReadHtmlSpecial(bool openBraceConsumed = false)
         {
-            var s = ReadOneOf("![CDATA[", "!--", "!DOCTYPE", "?");
+            var s = ReadOneOf("![CDATA[", "!--", "!DOCTYPE", "?", "%--");
             if (s == "![CDATA[")
             {
                 // CDATA section
@@ -249,6 +249,20 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                 // comment
                 CreateToken(DothtmlTokenType.OpenComment);
                 if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->", false))
+                {
+                    CreateToken(DothtmlTokenType.CloseComment);
+                }
+                else
+                {
+                    CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
+                    CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
+                }
+            }
+            else if(s == "%--")
+            {
+                // server side comment
+                CreateToken(DothtmlTokenType.OpenServerComment);
+                if(ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false))
                 {
                     CreateToken(DothtmlTokenType.CloseComment);
                 }

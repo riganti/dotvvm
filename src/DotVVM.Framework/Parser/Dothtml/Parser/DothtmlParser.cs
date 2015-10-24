@@ -129,6 +129,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 {
                     CurrentElementContent.Add(ReadComment());
                 }
+                else if(Peek().Type == DothtmlTokenType.OpenServerComment)
+                {
+                    // skip server-side comment
+                    Read();
+                    Assert(DothtmlTokenType.CommentBody);
+                    Read();
+                    Assert(DothtmlTokenType.CloseComment);
+                    Read();
+                }
                 else
                 {
                     // text
@@ -226,7 +235,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         private DothtmlLiteralNode ReadComment()
         {
-            Assert(DothtmlTokenType.OpenComment);
             var node = new DothtmlLiteralNode()
             {
                 IsComment = true,
