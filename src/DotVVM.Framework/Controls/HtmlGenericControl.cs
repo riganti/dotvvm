@@ -159,14 +159,11 @@ namespace DotVVM.Framework.Controls
             if (visibleBinding != null && !RenderOnServer)
             {
                 writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
-                writer.AddStyleAttribute("display", "none");
             }
-            else
+
+            if (!Visible)
             {
-                if (!Visible)
-                {
-                    writer.AddStyleAttribute("display", "none");
-                }
+                writer.AddStyleAttribute("display", "none");
             }
         }
 
