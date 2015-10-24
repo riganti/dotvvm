@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
+using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
 {
@@ -45,14 +46,22 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets or sets the Reflection property information.
         /// </summary>
-        public PropertyInfo PropertyInfo { get; set; }
+        public PropertyInfo PropertyInfo { get; private set; }
 
         /// <summary>
         /// Gets or sets the markup options.
         /// </summary>
         public MarkupOptionsAttribute MarkupOptions { get; set; }
 
+        /// <summary>
+        /// Virtual DotvvmProperty are not explicitly registred but marked with [MarkupOptions] attribute on DotvvmControl
+        /// </summary>
         public bool IsVirtual { get; set; }
+
+        /// <summary>
+        /// Determines if property type inherits from IBinding
+        /// </summary>
+        public bool IsBindingProperty { get; private set; }
 
         /// <summary>
         /// Gets the full name of the descriptor.
@@ -163,6 +172,7 @@ namespace DotVVM.Framework.Binding
                 property.IsValueInherited = isValueInherited;
                 property.PropertyInfo = propertyInfo;
                 property.MarkupOptions = markupOptions;
+                property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
                 return property;
             });
         }

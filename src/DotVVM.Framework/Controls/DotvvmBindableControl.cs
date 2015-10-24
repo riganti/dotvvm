@@ -97,6 +97,7 @@ namespace DotVVM.Framework.Controls
         public override object GetValue(DotvvmProperty property, bool inherit = true)
         {
             var value = GetValueRaw(property, inherit);
+            if (property.IsBindingProperty) return value;
             while (value is IBinding)
             {
                 if (value is IStaticValueBinding)

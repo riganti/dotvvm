@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            emitter.EmitSetBinding(controlName, propertyBinding.Property.DescriptorFullName, ProcessBinding(propertyBinding.Binding, propertyBinding.Property.PropertyType));
+            emitter.EmitSetBinding(controlName, propertyBinding.Property.DescriptorFullName, ProcessBinding(propertyBinding.Binding, propertyBinding.Property.IsBindingProperty ? typeof(object) : propertyBinding.Property.PropertyType));
             base.VisitPropertyBinding(propertyBinding);
         }
 

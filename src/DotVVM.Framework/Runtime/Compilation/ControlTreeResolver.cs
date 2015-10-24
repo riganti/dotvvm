@@ -230,11 +230,19 @@ namespace DotVVM.Framework.Runtime.Compilation
                 throw new DotvvmCompilationException("Attributes with XML namespaces are not supported!", attribute.Tokens);
             }
 
-            // TODO: attribute prefixes (html:{name} will be translated to html attribute)
             // find the property
             var property = FindProperty(control.Metadata, attribute.AttributeName);
             if (property != null)
             {
+                if(property.IsBindingProperty)
+                {
+                    var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
+                    if (typeChange != null)
+                    {
+                        dataContext = new DataContextStack(typeChange, dataContext);
+                    }
+                }
+
                 if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute)) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot be used as attribute", attribute.Tokens);
 
                 // set the property
