@@ -160,7 +160,7 @@ namespace DotVVM.Framework.Runtime
         private List<Content> GetChildPageContents(DotvvmView childPage, List<ContentPlaceHolder> parentPlaceHolders)
         {
             // make sure that the body contains only whitespace and Content controls
-            if (!childPage.Children.All(c => (c is Literal && ((Literal)c).HasWhiteSpaceContentOnly()) || (c is Content)))
+            if (!childPage.Children.All(c => (c is RawLiteral && ((RawLiteral)c).IsWhitespace) || (c is Content)))
             {
                 throw new Exception("If the page contains @masterpage directive, it can only contain white space and <dot:Content /> controls!");    // TODO: exception handling
             }

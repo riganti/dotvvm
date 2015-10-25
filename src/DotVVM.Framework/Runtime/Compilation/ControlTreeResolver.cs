@@ -14,6 +14,7 @@ using DotVVM.Framework.Utils;
 using System.Collections;
 using System.Linq.Expressions;
 using DotVVM.Framework.Exceptions;
+using System.Net;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -91,17 +92,20 @@ namespace DotVVM.Framework.Runtime.Compilation
                 }
                 else if (node is DothtmlLiteralNode)
                 {
+                    var literalNode = ((DothtmlLiteralNode)node);
                     // text content
-                    var literalValue = ((DothtmlLiteralNode)node).Value;
-                    var escape = ((DothtmlLiteralNode)node).Escape;
-                    if (node.IsNotEmpty())
-                    {
-                        EnsureContentAllowed(parentMetadata);
-                    }
-                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
-                    literal.SetPropertyValue(Internal.IsCommentProperty, ((DothtmlLiteralNode)node).IsComment);
-                    literal.SetPropertyValue(Literal.HtmlEncodeProperty, escape);
-                    literal.SetPropertyValue(Literal.TextProperty, literalValue);
+                    var whitespace = literalNode.IsComment || string.IsNullOrWhiteSpace(literalNode.Value);
+                    if (!whitespace) EnsureContentAllowed(parentMetadata);
+
+                    string text;
+                    if (literalNode.IsComment)
+                        text = "<!--" + literalNode.Value + "-->";
+                    else if (literalNode.Escape)
+                        text = WebUtility.HtmlEncode(literalNode.Value);
+                    else text = literalNode.Value;
+
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(RawLiteral)), node, dataContext);
+                    literal.ContructorParameters = new object[] { text, whitespace };
                     return literal;
                 }
                 else if (node is DothtmlElementNode)
@@ -234,7 +238,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var property = FindProperty(control.Metadata, attribute.AttributeName);
             if (property != null)
             {
-                if(property.IsBindingProperty)
+                if (property.IsBindingProperty)
                 {
                     var typeChange = DataContextChangeAttribute.GetDataContextExpression(dataContext, control, property);
                     if (typeChange != null)

@@ -9,6 +9,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Controls.Infrastructure;
 
 namespace DotVVM.Framework.Controls
 {
@@ -179,7 +180,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public bool HasOnlyWhiteSpaceContent()
         {
-            return Children.All(c => (c is Literal && ((Literal)c).HasWhiteSpaceContentOnly()));
+            return Children.All(c => (c is RawLiteral && ((RawLiteral)c).IsWhitespace));
         }
 
 
@@ -379,11 +380,6 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-
-        public bool IsWhiteSpaceLiteral()
-        {
-            return (this is Literal) && !((Literal)this).HasBinding(Literal.TextProperty) && string.IsNullOrWhiteSpace(((Literal)this).Text);
-        }
 
         /// <summary>
         /// Occurs before the viewmodel is applied to the page.
