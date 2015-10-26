@@ -18,7 +18,6 @@ namespace DotVVM.Framework.Runtime
     /// </summary>
     public class DefaultControlResolver : IControlResolver
     {
-
         private readonly DotvvmConfiguration configuration;
         private readonly IControlBuilderFactory controlBuilderFactory;
 

@@ -54,6 +54,5 @@ namespace DotVVM.Framework.Runtime
                 return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (ControlBuilderType != null ? ControlBuilderType.GetHashCode() : 0);
             }
         }
-
     }
 }

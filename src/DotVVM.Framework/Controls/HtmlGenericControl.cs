@@ -161,7 +161,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
             }
 
-            if (!Visible)
+            if ((visibleBinding == null || DataContext != null) && !Visible)
             {
                 writer.AddStyleAttribute("display", "none");
             }
