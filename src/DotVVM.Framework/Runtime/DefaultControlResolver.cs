@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Runtime
         private readonly IControlBuilderFactory controlBuilderFactory;
 
         private static ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>();
-        private static ConcurrentDictionary<Type, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<Type, ControlResolverMetadata>();
+        private static ConcurrentDictionary<ControlType, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<ControlType, ControlResolverMetadata>();
 
         private static object locker = new object();
         private static bool isInitialized = false;
@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         public ControlResolverMetadata ResolveControl(ControlType controlType)
         {
-            return cachedMetadata.GetOrAdd(controlType.Type, _ => BuildControlMetadata(controlType));
+            return cachedMetadata.GetOrAdd(controlType, _ => BuildControlMetadata(controlType));
         }
 
         /// <summary>
