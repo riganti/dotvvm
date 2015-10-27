@@ -64,7 +64,7 @@ namespace DotVVM.Framework.ViewModel
 
                     foreach (var rule in property.ValidationRules)
                     {
-                        var propertyResult = rule.SourceValidationAttribute.GetValidationResult(value, context);
+                        var propertyResult = rule.SourceValidationAttribute?.GetValidationResult(value, context);
                         if (propertyResult != ValidationResult.Success)
                         {
                             yield return new ViewModelValidationError()

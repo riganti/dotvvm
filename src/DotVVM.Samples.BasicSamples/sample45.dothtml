@@ -8,7 +8,7 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-	<dot:TextBox Text="{value: Num}" />
+	<dot:TextBox Text="{value: Num}" /> * 2 = {{value: Num * 2 }}
 	<dot:Button Text="POSTBACK" Click="{command: DoNothing()}" />
 </body>
 </html>

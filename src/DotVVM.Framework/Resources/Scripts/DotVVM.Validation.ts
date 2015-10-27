@@ -29,6 +29,24 @@ class DotvvmRegularExpressionValidator extends DotvvmValidatorBase {
     }
 }
 
+class DotvvmIntRangeValidator extends DotvvmValidatorBase {
+    public isValid(context: DotvvmValidationContext): boolean {
+        var val = context.valueToValidate;
+        var from = context.parameters[0];
+        var to = context.parameters[1];
+        return val % 1 === 0 && val >= from && val <= to;
+    }
+}
+
+class DotvvmRangeValidator extends DotvvmValidatorBase {
+    public isValid(context: DotvvmValidationContext): boolean {
+        var val = context.valueToValidate;
+        var from = context.parameters[0];
+        var to = context.parameters[1];
+        return val >= from && val <= to;
+    }
+}
+
 class ValidationError {
     public errorMessage = ko.observable("");
     public isValid = ko.computed(() => this.errorMessage());
@@ -57,10 +75,11 @@ class DotvvmValidation
 {
     public rules: IDotvvmValidationRules = {
         "required": new DotvvmRequiredValidator(),
-        "regularExpression": new DotvvmRegularExpressionValidator()
+        "regularExpression": new DotvvmRegularExpressionValidator(),
+        "intrange": new DotvvmIntRangeValidator(),
+        "range": new DotvvmRangeValidator(),
         //"numeric": new DotvvmNumericValidator(),
         //"datetime": new DotvvmDateTimeValidator(),
-        //"range": new DotvvmRangeValidator()
     }
     
     public errors = ko.observableArray([]);
@@ -287,7 +306,7 @@ interface DotvvmExtensions {
     validation?: DotvvmValidation;
 }
 interface DotvvmViewModel {
-    validationRules;
+    validationRules?;
 }
 // init the plugin
 declare var dotvvm: DotVVM;
