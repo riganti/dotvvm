@@ -396,34 +396,34 @@ namespace DotVVM.Samples.Tests
 
         public void Sample13Test()
         {
-            //RunInAllBrowsers(browser =>
-            //{
-            //    browser.NavigateToUrl(BaseUrl + "Sample13");
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample13");
 
-            //    // select city
-            //    browser.FindElements("select")[0].Select(1);
-            //    browser.FindElements("input[type=button]")[0].Click();
-            //    Thread.Sleep(WaitTime);
+                // select city
+                browser.FindElements("select")[0].Select(1);
+                browser.FindElements("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
 
-            //    // select hotel
-            //    browser.FindElements("select")[1].Select(1);
-            //    browser.FindElements("input[type=button]")[1].Click();
-            //    Thread.Sleep(WaitTime);
+                // select hotel
+                browser.FindElements("select")[1].Select(1);
+                browser.FindElements("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
 
-            //    Assert.AreEqual("Hotel Seattle #2", browser.GetText("h2"));
+                browser.First("h2").CheckIfInnerTextEquals("Hotel Seattle #2");
 
-            //    // select city
-            //    browser.FindElements("select")[0].Select(0);
-            //    browser.FindElements("input[type=button]")[0].Click();
-            //    Thread.Sleep(WaitTime);
+                // select city
+                browser.FindElements("select")[0].Select(0);
+                browser.FindElements("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
 
-            //    // select hotel
-            //    browser.FindElements("select")[1].FindElements("option")[0].Click();
-            //    browser.FindElements("input[type=button]")[1].Click();
-            //    Thread.Sleep(WaitTime);
+                // select hotel
+                browser.FindElements("select")[1].FindElements("option")[0].Click();
+                browser.FindElements("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
 
-            //    Assert.AreEqual("Hotel Prague #1", browser.GetText("h2"));
-            //});
+                browser.First("h2").CheckIfInnerTextEquals("Hotel Prague #1");
+            });
         }
 
         public void Sample14Test()
@@ -451,34 +451,34 @@ namespace DotVVM.Samples.Tests
 
         public void Sample15Test()
         {
-            //    RunInAllBrowsers(browser =>
-            //    {
-            //        browser.NavigateToUrl(BaseUrl + "Sample15");
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample15");
 
-            //        // try the long action interrupted by the short one
-            //        browser.FindElements("input[type=button]")[0].Click();
-            //        Thread.Sleep(2000);
-            //        browser.FindElements("input[type=button]")[1].Click();
-            //        Thread.Sleep(WaitTime);
+                // try the long action interrupted by the short one
+                browser.FindElements("input[type=button]")[0].Click();
+                Thread.Sleep(2000);
+                browser.FindElements("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
 
-            //        // the postback index should be 1 now (because of short action)
-            //        Assert.AreEqual("1", browser.FindElements("span")[0].GetText().Trim());
-            //        Assert.AreEqual("short", browser.FindElements("span")[1].GetText().Trim());
+                // the postback index should be 1 now (because of short action)
+                Assert.AreEqual("1", browser.FindElements("span")[0].GetText().Trim());
+                Assert.AreEqual("short", browser.FindElements("span")[1].GetText().Trim());
 
-            //        // the result of the long action should be canceled, the counter shouldn't increase
-            //        Thread.Sleep(10000);
-            //        Assert.AreEqual("1", browser.FindElements("span")[0].GetText().Trim());
-            //        Assert.AreEqual("short", browser.FindElements("span")[1].GetText().Trim());
-            //        Thread.Sleep(WaitTime);
+                // the result of the long action should be canceled, the counter shouldn't increase
+                Thread.Sleep(10000);
+                Assert.AreEqual("1", browser.FindElements("span")[0].GetText().Trim());
+                Assert.AreEqual("short", browser.FindElements("span")[1].GetText().Trim());
+                Thread.Sleep(WaitTime);
 
-            //        // test update progress control
-            //        Assert.IsFalse(browser.IsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']"));
-            //        browser.FindElements("input[type=button]")[2].Click();
-            //        Thread.Sleep(WaitTime);
-            //        Assert.IsTrue(browser.IsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']"));
-            //        Thread.Sleep(6000);
-            //        Assert.IsFalse(browser.IsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']"));
-            //    });
+                // test update progress control
+                browser.CheckIfIsNotDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");
+                browser.FindElements("input[type=button]")[2].Click();
+                Thread.Sleep(WaitTime);
+                browser.CheckIfIsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");
+                Thread.Sleep(6000);
+                browser.CheckIfIsNotDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");
+            });
         }
 
         public void Sample16Test(string sampleUrl = "Sample16")
@@ -491,7 +491,7 @@ namespace DotVVM.Samples.Tests
                 {
                     // make sure that thirs row's first cell is yellow
                     Assert.AreEqual("",
-                        browser.FindElements("table")[0].FindElements("tr")[1].FindElements("td")[0].GetAttribute("class"));
+                    browser.FindElements("table")[0].FindElements("tr")[1].FindElements("td")[0].GetAttribute("class"));
                     Assert.AreEqual("alternate",
                         browser.FindElements("table")[0].FindElements("tr")[2].FindElements("td")[0].GetAttribute("class"));
 
