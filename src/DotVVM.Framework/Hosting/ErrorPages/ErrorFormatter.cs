@@ -37,6 +37,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
                 m.AdditionalInfo = InfoLoaders.Select(info => info(exception)).Where(info => info != null && info.Objects != null).ToArray();
             }
+            stack.Reverse();
             m.Stack = stack.ToArray();
             if (exception.InnerException != null) m.InnerException = LoadException(exception.InnerException, m.Stack);
             return m;
