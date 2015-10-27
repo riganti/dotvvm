@@ -51,12 +51,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty FormatStringProperty =
             DotvvmProperty.Register<string, Literal>(c => c.FormatString);
 
-
-
-        protected virtual bool AlwaysRenderSpan
+        [MarkupOptions(AllowBinding = false)]
+        public bool RenderSpanElement
         {
-            get { return false; }
+            get { return (bool)GetValue(RenderSpanElementProperty); }
+            set { SetValue(RenderSpanElementProperty, value); }
         }
+        public static readonly DotvvmProperty RenderSpanElementProperty =
+            DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, false);
 
 
         /// <summary>
@@ -116,7 +118,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                if (AlwaysRenderSpan)
+                if (RenderSpanElement)
                 {
                     AddAttributesToRender(writer, context);
                     writer.RenderBeginTag("span");
@@ -141,7 +143,7 @@ namespace DotVVM.Framework.Controls
                     writer.WriteUnencodedText(textToDisplay);
                 }
 
-                if (AlwaysRenderSpan)
+                if (RenderSpanElement)
                 {
                     writer.RenderEndTag();
                 }
