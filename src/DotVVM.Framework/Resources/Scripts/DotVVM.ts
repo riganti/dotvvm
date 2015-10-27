@@ -9,14 +9,24 @@ interface DotvvmPostbackScriptFunction {
     (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string): void
 }
 
+interface DotvvmExtensions {
+}
+
+interface DotvvmViewModel {
+    viewModel?;
+    renderedResources?: string[];
+    url?: string;
+    virtualDirectory?: string;
+}
+
 class DotVVM {
 
     private postBackCounter = 0;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
 
-    public extensions: any = {};
-    public viewModels: any = {};
+    public extensions: DotvvmExtensions = {};
+    public viewModels: { [name: string]: DotvvmViewModel } = {};
     public culture: string;
     public serialization: DotvvmSerialization = new DotvvmSerialization();
     public events = {

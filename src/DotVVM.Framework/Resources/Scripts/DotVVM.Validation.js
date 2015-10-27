@@ -109,13 +109,13 @@ var DotvvmValidation = (function () {
     }
     /// Validates the specified view model
     DotvvmValidation.prototype.validateViewModel = function (viewModel) {
-        if (!viewModel || !dotvvm.viewModels.root.validationRules)
+        if (!viewModel || !dotvvm.viewModels['root'].validationRules)
             return;
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
         if (!type)
             return;
-        var rulesForType = dotvvm.viewModels.root.validationRules[type] || {};
+        var rulesForType = dotvvm.viewModels['root'].validationRules[type] || {};
         // validate all properties
         for (var property in viewModel) {
             if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
@@ -292,6 +292,7 @@ dotvvm.events.beforePostback.subscribe(function (args) {
         dotvvm.extensions.validation.clearValidationErrors(args.viewModel);
         dotvvm.extensions.validation.validateViewModel(validationTarget);
         if (dotvvm.extensions.validation.errors().length > 0) {
+            console.log("validation failed: postback aborted; errors: ", dotvvm.extensions.validation.errors());
             args.cancel = true;
             args.clientValidationFailed = true;
         }
@@ -334,4 +335,3 @@ ko.bindingHandlers["dotvvmValidation"] = {
         }
     }
 };
-//# sourceMappingURL=DotVVM.Validation.js.map

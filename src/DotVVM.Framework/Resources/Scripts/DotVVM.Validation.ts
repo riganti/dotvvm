@@ -106,12 +106,12 @@ class DotvvmValidation
 
     /// Validates the specified view model
     public validateViewModel(viewModel: any) {
-        if (!viewModel || !dotvvm.viewModels.root.validationRules) return;
+        if (!viewModel || !dotvvm.viewModels['root'].validationRules) return;
 
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
         if (!type) return;
-        var rulesForType = dotvvm.viewModels.root.validationRules[type] || {};
+        var rulesForType = dotvvm.viewModels['root'].validationRules[type] || {};
 
         // validate all properties
         for (var property in viewModel) {
@@ -283,7 +283,12 @@ class DotvvmValidation
         }
     }
 };
-
+interface DotvvmExtensions {
+    validation?: DotvvmValidation;
+}
+interface DotvvmViewModel {
+    validationRules;
+}
 // init the plugin
 declare var dotvvm: DotVVM;
 if (!dotvvm) {
@@ -302,6 +307,7 @@ dotvvm.events.beforePostback.subscribe(args => {
         dotvvm.extensions.validation.clearValidationErrors(args.viewModel);
         dotvvm.extensions.validation.validateViewModel(validationTarget);
         if (dotvvm.extensions.validation.errors().length > 0) {
+            console.log("validation failed: postback aborted; errors: ", dotvvm.extensions.validation.errors()); 
             args.cancel = true;
             args.clientValidationFailed = true;
         }
