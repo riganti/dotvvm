@@ -100,14 +100,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
-            if ((bool)GetValue(Internal.IsCommentProperty))
-            {
-                writer.WriteUnencodedText("<!--");
-                writer.WriteUnencodedText(Text ?? "");
-                writer.WriteUnencodedText("-->");
-                return;
-            }
-
             var textBinding = GetValueBinding(TextProperty);
             if (textBinding != null && !RenderOnServer)
             {
@@ -154,19 +146,6 @@ namespace DotVVM.Framework.Controls
                     writer.RenderEndTag();
                 }
             }
-        }
-
-
-        /// <summary>
-        /// Determines whether the control contains only white space.
-        /// </summary>
-        public bool HasWhiteSpaceContentOnly()
-        {
-            if ((bool)GetValue(Internal.IsCommentProperty)) return true;
-
-            var text = (GetValue(TextProperty) ?? "").ToString();
-            var unencodedValue = HtmlEncode ? text : WebUtility.HtmlDecode(text);
-            return unencodedValue.All(char.IsWhiteSpace);
         }
     }
 }

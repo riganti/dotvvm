@@ -26,9 +26,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty PathFragmentProperty =
             DotvvmProperty.Register<string, Internal>("PathFragment");
 
-        public static readonly DotvvmProperty IsCommentProperty =
-            DotvvmProperty.Register<bool, Internal>("IsComment", defaultValue: false);
-
         public static readonly DotvvmProperty MarkupFileNameProperty =
             DotvvmProperty.Register<string, Internal>("MarkupFileName", isValueInherited: true);
 
