@@ -126,6 +126,14 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(ExecuteBinding("Collection[0].Value ? 'a' : 'b'", viewModel), "a");
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_AndAlso()
+        {
+            var viewModel = new TestViewModel() { };
+            Assert.AreEqual(false, ExecuteBinding("false && BoolMethod()", viewModel));
+            Assert.AreEqual(false, viewModel.BoolMethodExecuted);
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
@@ -155,6 +163,13 @@ namespace DotVVM.Framework.Tests.Binding
 
             public int GetCharCode(char ch)
                 => (int)ch;
+
+            public bool BoolMethodExecuted { get; set; }
+            public bool BoolMethod()
+            {
+                BoolMethodExecuted = true;
+                return false;
+            }
         }
         enum TestEnum
         {
