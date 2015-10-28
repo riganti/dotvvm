@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Routing
             }
             else
             {
-                isOptional = DefaultValues.Any(k => k.Key == name);
+                isOptional = DefaultValues.ContainsKey(name);
             }
 
             // determine route parameter constraint
@@ -192,7 +192,7 @@ namespace DotVVM.Framework.Routing
                 return false;
             }
 
-            values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
+            values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
             
             foreach (var parameter in parameters)
             {
@@ -219,7 +219,7 @@ namespace DotVVM.Framework.Routing
             }
             catch (Exception ex)
             {
-                throw new Exception($"could not build url for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
+                throw new Exception($"Could not build url for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
             }
         }
 

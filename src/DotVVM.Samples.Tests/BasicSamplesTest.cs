@@ -799,12 +799,26 @@ namespace DotVVM.Samples.Tests
                 // verify link urls
                 var urls = browser.FindAll("a").Select(a => a.GetAttribute("href")).ToList();
 
-                for (int i = 0; i < 3; i++)
-                {
-                    Assert.AreEqual(urls[i], urls[i + 3]);
+                Assert.AreEqual(BaseUrl + "Sample22/1", urls[0]);
+                Assert.AreEqual(BaseUrl + "Sample22/2", urls[1]);
+                Assert.AreEqual(BaseUrl + "Sample22/3", urls[2]);
+                Assert.AreEqual(BaseUrl + "Sample22/1", urls[3]);
+                Assert.AreEqual(BaseUrl + "Sample22/2", urls[4]);
+                Assert.AreEqual(BaseUrl + "Sample22/3", urls[5]);
+                Assert.AreEqual(BaseUrl + "Sample22/1", urls[6]);
+                Assert.AreEqual(BaseUrl + "Sample22/2", urls[7]);
+                Assert.AreEqual(BaseUrl + "Sample22/3", urls[8]);
+                Assert.AreEqual(BaseUrl + "Sample22/1", urls[9]);
+                Assert.AreEqual(BaseUrl + "Sample22/2", urls[10]);
+                Assert.AreEqual(BaseUrl + "Sample22/3", urls[11]);
 
-                    StringAssert.IsNotNullOrWhiteSpace(browser.FindAll("a")[i].GetText());
-                    StringAssert.IsNotNullOrWhiteSpace(browser.FindAll("a")[i + 3].GetText());
+                for (int j = 0; j < 2; j++)
+                {
+                    for (int i = 0; i < 3; i++)
+                    {
+                        StringAssert.IsNotNullOrWhiteSpace(browser.FindAll("a")[j * 6 + i].GetText());
+                        StringAssert.IsNotNullOrWhiteSpace(browser.FindAll("a")[j * 6 + i + 3].GetText());
+                    }
                 }
             });
         }
