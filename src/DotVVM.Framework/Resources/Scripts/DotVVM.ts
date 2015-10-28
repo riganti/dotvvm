@@ -516,7 +516,7 @@ class DotVVM {
     public getDataSourceItems(viewModel: any) {
         var value = ko.unwrap(viewModel);
         if (typeof value === "undefined" || value == null) return [];
-        return value.Items || value;
+        return ko.unwrap(value.Items || value);
     }
 
     private updateDynamicPathFragments(context: any, path: string[]): void {

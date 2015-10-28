@@ -476,7 +476,7 @@ var DotVVM = (function () {
         var value = ko.unwrap(viewModel);
         if (typeof value === "undefined" || value == null)
             return [];
-        return value.Items || value;
+        return ko.unwrap(value.Items || value);
     };
     DotVVM.prototype.updateDynamicPathFragments = function (context, path) {
         for (var i = path.length - 1; i >= 0; i--) {

@@ -277,7 +277,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RenderOnServer && numberOfRows == 0)
             {
-                emptyDataContainer.Render(writer, context);
+                emptyDataContainer?.Render(writer, context);
             }
             else
             {
@@ -289,10 +289,7 @@ namespace DotVVM.Framework.Controls
         {
             base.RenderEndTag(writer, context);
 
-            if (emptyDataContainer != null)
-            {
-                emptyDataContainer.Render(writer, context);
-            }
+            emptyDataContainer?.Render(writer, context);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)

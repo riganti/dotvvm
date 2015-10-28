@@ -178,10 +178,7 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindEndComment();
             }
 
-            if (emptyDataContainer != null)
-            {
-                emptyDataContainer.Render(writer, context);
-            }
+            emptyDataContainer?.Render(writer, context);
         }
 
         /// <summary>
@@ -215,7 +212,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RenderOnServer && numberOfRows == 0)
             {
-                emptyDataContainer.Render(writer, context);
+                emptyDataContainer?.Render(writer, context);
             }
             else
             {
