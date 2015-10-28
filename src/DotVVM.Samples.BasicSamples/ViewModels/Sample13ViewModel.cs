@@ -12,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public override Task Init()
         {
-            Cities = _dataService.GetCitites();
+            Cities = _dataService.GetCities();
             return base.Init();
         }
 
@@ -22,7 +22,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public List<HotelModel> HotelsInCity { get; set; }
 
-        public int SelectedHotelId { get; set; }
+        public int? SelectedHotelId { get; set; }
 
         public HotelModel SelectedHotel { get; set; }
 
@@ -33,7 +33,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public void SelectedHotelChanged()
         {
-            SelectedHotel = _dataService.GetHotelById(SelectedHotelId);
+            SelectedHotel = _dataService.GetHotelById(SelectedHotelId.Value);
         }
     }
 
@@ -68,7 +68,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 				new HotelModel() { Id = 9, CityId = 3, Name = "Hotel New York #3" }
 			};
 
-        public List<CityModel> GetCitites()
+        public List<CityModel> GetCities()
         {
             return new List<CityModel>() 
 			{
