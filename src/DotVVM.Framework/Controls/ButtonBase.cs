@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            writer.AddKnockoutDataBind("dotvvmEnable", this, EnabledProperty, () =>
             {
                 if (!Enabled)
                 {

@@ -5,14 +5,19 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
     /// Base class for all controls that decorates another control (e.g. adds attributes).
     /// </summary>
-    public class Decorator : DotvvmBindableControl 
+    public class Decorator : HtmlGenericControl 
     {
+
+        public Decorator() : base("")
+        {
+        }
 
         public virtual Decorator Clone()
         {
@@ -32,5 +37,14 @@ namespace DotVVM.Framework.Controls
             return decorator;
         }
 
+        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        {
+            // do nothing
+        }
+
+        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        {
+            // do nothing
+        }
     }
 }

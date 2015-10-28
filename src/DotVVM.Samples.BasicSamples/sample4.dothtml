@@ -1,5 +1,5 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample1ViewModel, DotVVM.Samples.BasicSamples
-@masterPage sample4_parent.dothtml
+@viewmodel DotVVM.Samples.BasicSamples.ViewModels.Sample1ViewModel, DotVVM.Samples.BasicSamples
+@masterpage sample4_parent.dothtml
 
 <dot:Content ContentPlaceHolderID="SubContent">
 	<h1>Task List</h1>

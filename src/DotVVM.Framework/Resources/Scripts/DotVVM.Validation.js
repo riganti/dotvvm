@@ -47,6 +47,32 @@ var DotvvmRegularExpressionValidator = (function (_super) {
     };
     return DotvvmRegularExpressionValidator;
 })(DotvvmValidatorBase);
+var DotvvmIntRangeValidator = (function (_super) {
+    __extends(DotvvmIntRangeValidator, _super);
+    function DotvvmIntRangeValidator() {
+        _super.apply(this, arguments);
+    }
+    DotvvmIntRangeValidator.prototype.isValid = function (context) {
+        var val = context.valueToValidate;
+        var from = context.parameters[0];
+        var to = context.parameters[1];
+        return val % 1 === 0 && val >= from && val <= to;
+    };
+    return DotvvmIntRangeValidator;
+})(DotvvmValidatorBase);
+var DotvvmRangeValidator = (function (_super) {
+    __extends(DotvvmRangeValidator, _super);
+    function DotvvmRangeValidator() {
+        _super.apply(this, arguments);
+    }
+    DotvvmRangeValidator.prototype.isValid = function (context) {
+        var val = context.valueToValidate;
+        var from = context.parameters[0];
+        var to = context.parameters[1];
+        return val >= from && val <= to;
+    };
+    return DotvvmRangeValidator;
+})(DotvvmValidatorBase);
 var ValidationError = (function () {
     function ValidationError(targetObservable) {
         var _this = this;
@@ -66,7 +92,9 @@ var DotvvmValidation = (function () {
     function DotvvmValidation() {
         this.rules = {
             "required": new DotvvmRequiredValidator(),
-            "regularExpression": new DotvvmRegularExpressionValidator()
+            "regularExpression": new DotvvmRegularExpressionValidator(),
+            "intrange": new DotvvmIntRangeValidator(),
+            "range": new DotvvmRangeValidator(),
         };
         this.errors = ko.observableArray([]);
         this.events = {
@@ -108,13 +136,13 @@ var DotvvmValidation = (function () {
     }
     /// Validates the specified view model
     DotvvmValidation.prototype.validateViewModel = function (viewModel) {
-        if (!viewModel || !dotvvm.viewModels.root.validationRules)
+        if (!viewModel || !dotvvm.viewModels['root'].validationRules)
             return;
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
         if (!type)
             return;
-        var rulesForType = dotvvm.viewModels.root.validationRules[type] || {};
+        var rulesForType = dotvvm.viewModels['root'].validationRules[type] || {};
         // validate all properties
         for (var property in viewModel) {
             if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0)
@@ -291,6 +319,7 @@ dotvvm.events.beforePostback.subscribe(function (args) {
         dotvvm.extensions.validation.clearValidationErrors(args.viewModel);
         dotvvm.extensions.validation.validateViewModel(validationTarget);
         if (dotvvm.extensions.validation.errors().length > 0) {
+            console.log("validation failed: postback aborted; errors: ", dotvvm.extensions.validation.errors());
             args.cancel = true;
             args.clientValidationFailed = true;
         }

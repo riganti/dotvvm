@@ -13,24 +13,27 @@ namespace DotVVM.Framework.Routing
         private static HashSet<string> defaultFiles = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { "Index", "Default" };
         private static IEnumerable<string> GetRoutesForFile(string fileName)
         {
-            var directory = Path.GetDirectoryName(fileName);
-            var pureName = Path.GetFileNameWithoutExtension(fileName);
+            var slashIndex = fileName.LastIndexOf('/');
+            var pureName = Path.GetFileNameWithoutExtension(slashIndex < 0 ? fileName : fileName.Substring(slashIndex + 1));
+            var directory = slashIndex < 0 ? "" : fileName.Remove(slashIndex);
 
             if (!char.IsLetterOrDigit(pureName[0])) yield break;
 
             if (defaultFiles.Contains(pureName)) yield return directory;
 
             if (!string.IsNullOrEmpty(directory)) yield return directory + "/" + pureName;
-            else yield return directory + pureName; 
+            else yield return pureName;
         }
 
 
 
-        public static void AutoRegisterRoutes(this DotvvmConfiguration config, string path = "/", string pattern = "*.dothtml")
+        public static void AutoRegisterRoutes(this DotvvmConfiguration config, string path = "", string pattern = "*.dothtml")
             => AutoRegisterRoutes(config, GetRoutesForFile, path, pattern);
         public static void AutoRegisterRoutes(this DotvvmConfiguration config, Func<string, IEnumerable<string>> getRouteList, string path = "/", string pattern = "*.dothtml")
         {
-            var rootPath = config.ApplicationPhysicalPath.Replace('\\','/').TrimEnd('/') + "/" +  path.Replace('\\','/').TrimStart('/');
+            path = path.Replace('\\', '/');
+            if (path.StartsWith("/", StringComparison.Ordinal)) path = path.Remove(0, 1);
+            var rootPath = config.ApplicationPhysicalPath.Replace('\\', '/').TrimEnd('/') + "/" + path;
 
             if (!rootPath.EndsWith("/", StringComparison.Ordinal)) rootPath += "/";
 
@@ -38,13 +41,28 @@ namespace DotVVM.Framework.Routing
 
             foreach (var filePath in Directory.EnumerateFiles(rootPath, pattern, SearchOption.AllDirectories))
             {
-                var virtualPath = filePath.Substring(rootPath.Length);
+                var virtualPath = Combine(path, filePath.Substring(rootPath.Length).TrimStart('/', '\\').Replace('\\', '/'));
                 if (mappedFiles.Contains(virtualPath)) continue;
                 var routes = getRouteList(virtualPath).ToArray();
                 foreach (var route in routes)
                 {
                     config.RouteTable.Add(route, route, virtualPath);
                 }
+            }
+        }
+
+
+        private static string Combine(string a, string b)
+        {
+            if (a.Length == 0) return b;
+            if (b.Length == 0) return a;
+            if (a[a.Length - 1] == '/')
+            {
+                return a + b;
+            }
+            else
+            {
+                return a + "/" + b;
             }
         }
     }

@@ -68,13 +68,14 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
             if (currentDirective == null) return false;
 
             //check viewModel and typeBased directive and navigate to definition of the viewModel
-            if (currentDirective.Name.Equals(Constants.ViewModelDirectiveName, StringComparison.OrdinalIgnoreCase) || currentDirective.Name.Equals(Constants.BaseTypeDirective, StringComparison.OrdinalIgnoreCase))
+            if (currentDirective.Name.Equals(Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
+                || currentDirective.Name.Equals(Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (NavigateToViewModel(new ViewModelDirectiveValue(currentDirective))) return true;
             }
 
             //check masterPage directive
-            if (currentDirective.Name.Equals(Constants.MasterPageDirective, StringComparison.OrdinalIgnoreCase))
+            if (currentDirective.Name.Equals(Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (NavigateToMasterPage(currentDirective)) return true;
             }

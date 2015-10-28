@@ -20,8 +20,14 @@ namespace DotVVM.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                writer.AddKnockoutDataBind("if", $"({ GetForeachDataBindJavascriptExpression() }).length");
+                writer.AddKnockoutDataBind("visible", $"!({ GetForeachDataBindJavascriptExpression() }).length");
+
+                if (DataSource != null && GetIEnumerableFromDataSource(DataSource).OfType<object>().Any())
+                {
+                    writer.AddStyleAttribute("display", "none");
+                }
             }
+
             base.AddAttributesToRender(writer, context);
         }
 

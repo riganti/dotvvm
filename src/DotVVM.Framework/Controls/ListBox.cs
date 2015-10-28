@@ -12,7 +12,6 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Renders the HTML list box.
     /// </summary>
-    [ControlMarkupOptions(AllowContent = false)]
     public class ListBox : SelectHtmlControlBase
 	{
         /// <summary>

@@ -20,7 +20,7 @@
 		dotvvm.events.init.subscribe(function() { alert("init"); });
 		dotvvm.events.beforePostback.subscribe(function() { alert("beforePostback"); });
 		dotvvm.events.afterPostback.subscribe(function() { alert("afterPostback"); });
-		dotvvm.events.error.subscribe(function() { alert("custom error handler"); return true; });
+		dotvvm.events.error.subscribe(function(args) { alert("custom error handler"); args.handled = true; });
 	</dot:InlineScript>
 </body>
 </html>

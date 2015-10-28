@@ -7,14 +7,10 @@ namespace DotVVM.Framework.Runtime
 {
     public class ControlType
     {
-
         public Type Type { get; private set; }
-
         public Type ControlBuilderType { get; private set; }
-
         public string VirtualPath { get; private set; }
         public Type DataContextRequirement { get; private set; }
-
 
 
         /// <summary>
@@ -58,6 +54,5 @@ namespace DotVVM.Framework.Runtime
                 return ((Type != null ? Type.GetHashCode() : 0) * 397) ^ (ControlBuilderType != null ? ControlBuilderType.GetHashCode() : 0);
             }
         }
-
     }
 }

@@ -15,13 +15,7 @@
 <body>
     <div class="container" class="a" data-attribute="&lt;">
 
-        <div>
-
-        </div>
-
-
-
-        <dot:InlineScript Dependencies="jquery">
+        <dot:InlineScript dependencies="jquery">
             <![CDATA[ var k = 1 < 5; ]]>
         </dot:InlineScript>
 
@@ -30,8 +24,8 @@
         <fieldset data-testattribute>
             <legend>Add Task</legend>
 
-            <p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
-            <p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
+            <p>Title: <dot:TextBox text="{value: NewTaskTitle}" /></p>
+            <p><dot:Button text="Create" Click="{command: AddTask()}" /></p>
         </fieldset>
         <p>&nbsp;</p>
 
@@ -47,9 +41,9 @@
                 </tr>
             </dot:Repeater>
         </table>
-
-        <dot:Literal FormatString="d" Text="12" />
     </div>
+
+	<%-- server-side comment not rendered in html --%>
 
     <dot:RequiredResource Name="bootstrap" />
 </body>

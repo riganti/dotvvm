@@ -9,7 +9,7 @@ using DotVVM.Framework.Hosting.ErrorPages;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class DotvvmErrorPageMiddleware: OwinMiddleware
+    public class DotvvmErrorPageMiddleware : OwinMiddleware
     {
         public ErrorFormatter Formatter { get; set; }
 
@@ -43,9 +43,17 @@ namespace DotVVM.Framework.Hosting
         {
             context.Response.ContentType = "text/html";
 
-            var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault()))
-                .ErrorHtml(error, context);
-            return context.Response.WriteAsync(text);
+            try
+            {
+
+                var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault()))
+                    .ErrorHtml(error, context);
+                return context.Response.WriteAsync(text);
+            }
+            catch (Exception exc)
+            {
+                throw new Exception("Error occured inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
+            }
         }
     }
 }

@@ -26,17 +26,17 @@ namespace DotVVM.Framework.Runtime.Compilation
                 var method = visitor.Replaced[param] as MethodCallExpression;
                 js = CompileMethodCall(method, binding.DataContextTypeStack, callback);
             }
-            return "var context = ko.contextFor(this);(function(i_pageArea){with(context){" + js + "}})";
+            return "var context = ko.contextFor(this);var sender = this;(function(i_pageArea){with(context){" + js + "}})";
         }
 
         protected virtual string CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, string callbackFunction = null)
         {
             if (methodExpression == null)
             {
-                throw new NotSupportedException("static command binding must be method call");
+                throw new NotSupportedException("Static command binding must be a method call!");
             }
             var argsScript = GetArgsScript(methodExpression, dataContext);
-            return $"dotvvm.staticCommandPostback(i_pageArea, '{GetMethodName(methodExpression)}', { argsScript },{callbackFunction})";
+            return $"dotvvm.staticCommandPostback(i_pageArea, sender, '{GetMethodName(methodExpression)}', { argsScript }, {callbackFunction})";
 
         }
 

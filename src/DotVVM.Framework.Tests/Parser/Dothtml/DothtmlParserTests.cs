@@ -392,6 +392,17 @@ test";
             Assert.IsTrue(((DothtmlElementNode)nodes[3]).IsSelfClosingTag);
         }
 
+        [TestMethod]
+        public void BindingParser_TextBinding_Invalid_MissingName()
+        {
+            var markup = "<a href='#'>{{Property1}}</a>";
+            var node = (DothtmlElementNode)ParseMarkup(markup).Content[0];
+            Assert.AreEqual("a", (node.FullTagName));
+            Assert.IsInstanceOfType(node.Content[0], typeof(DothtmlBindingNode));
+            var content = node.Content[0] as DothtmlBindingNode;
+            
+        }
+
         public static DothtmlRootNode ParseMarkup(string markup)
         {
             var tokenizer = new DothtmlTokenizer();

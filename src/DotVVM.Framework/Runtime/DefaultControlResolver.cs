@@ -18,12 +18,11 @@ namespace DotVVM.Framework.Runtime
     /// </summary>
     public class DefaultControlResolver : IControlResolver
     {
-
         private readonly DotvvmConfiguration configuration;
         private readonly IControlBuilderFactory controlBuilderFactory;
 
         private static ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>();
-        private static ConcurrentDictionary<Type, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<Type, ControlResolverMetadata>();
+        private static ConcurrentDictionary<ControlType, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<ControlType, ControlResolverMetadata>();
 
         private static object locker = new object();
         private static bool isInitialized = false;
@@ -100,7 +99,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         public ControlResolverMetadata ResolveControl(ControlType controlType)
         {
-            return cachedMetadata.GetOrAdd(controlType.Type, _ => BuildControlMetadata(controlType));
+            return cachedMetadata.GetOrAdd(controlType, _ => BuildControlMetadata(controlType));
         }
 
         /// <summary>
@@ -124,10 +123,6 @@ namespace DotVVM.Framework.Runtime
             {
                 return typeof(CommandBindingExpression);
             }
-            //else if (bindingType == Constants.ControlStateBinding)
-            //{
-            //    return typeof (ControlStateBindingExpression);
-            //}
             else if (bindingType == Constants.ControlPropertyBinding)
             {
                 bindingValue = "_control." + bindingValue;
@@ -215,7 +210,7 @@ namespace DotVVM.Framework.Runtime
             var attribute = type.Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
 
             var properties = GetControlProperties(type.Type);
-            var metadata = new ControlResolverMetadata()
+            var metadata = new ControlResolverMetadata
             {
                 Name = type.Type.Name,
                 Namespace = type.Type.Namespace,
@@ -236,7 +231,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         protected virtual Dictionary<string, DotvvmProperty> GetControlProperties(Type controlType)
         {
-            return DotvvmProperty.ResolveProperties(controlType).Concat(DotvvmProperty.GetVirtualProperties(controlType)).ToDictionary(p => p.Name, p => p);
+            return DotvvmProperty.ResolveProperties(controlType).Concat(DotvvmProperty.GetVirtualProperties(controlType)).ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
         }
 
     }

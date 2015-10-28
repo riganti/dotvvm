@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
         /// </summary>
         public DotvvmView()
         {
-            Directives = new Dictionary<string, string>();
+            Directives = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
             ResourceDependencies.Add(Constants.DotvvmResourceName);
             ResourceDependencies.Add(Constants.DotvvmValidationResourceName);

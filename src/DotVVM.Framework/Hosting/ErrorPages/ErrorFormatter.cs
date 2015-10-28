@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             m.OriginalException = exception;
             m.TypeName = exception.GetType().FullName;
             var s = new StackTrace(exception, true);
-            m.Stack = new StackFrameModel[s.FrameCount];
+            var stack = new List<StackFrameModel>();
             bool skipping = existingTrace != null;
             for (int i = s.FrameCount - 1; i >= 0; i--)
             {
@@ -28,15 +28,17 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 if (skipping && existingTrace.Length > i && f.GetMethod() == existingTrace[i].Method) continue;
                 skipping = false;
 
-                m.Stack[i] = new StackFrameModel
+                stack.Add(new StackFrameModel
                 {
                     Method = f.GetMethod(),
                     At = LoadSourcePiece(f.GetFileName(), f.GetFileLineNumber(),
                         errorColumn: f.GetFileColumnNumber())
-                };
+                });
 
                 m.AdditionalInfo = InfoLoaders.Select(info => info(exception)).Where(info => info != null && info.Objects != null).ToArray();
             }
+            stack.Reverse();
+            m.Stack = stack.ToArray();
             if (exception.InnerException != null) m.InnerException = LoadException(exception.InnerException, m.Stack);
             return m;
         }

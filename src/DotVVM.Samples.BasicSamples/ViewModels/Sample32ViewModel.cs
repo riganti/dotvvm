@@ -10,5 +10,15 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
 
         public string ButtonText => "Hello!";
 
+        public bool Enabled { get; set; }
+
+        public int Counter { get; set; }
+
+        public void Switch()
+        {
+            Counter++;
+            Enabled = !Enabled;
+        }
+
     }
 }

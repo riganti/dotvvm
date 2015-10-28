@@ -51,12 +51,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty FormatStringProperty =
             DotvvmProperty.Register<string, Literal>(c => c.FormatString);
 
-
-
-        protected virtual bool AlwaysRenderSpan
+        [MarkupOptions(AllowBinding = false)]
+        public bool RenderSpanElement
         {
-            get { return false; }
+            get { return (bool)GetValue(RenderSpanElementProperty); }
+            set { SetValue(RenderSpanElementProperty, value); }
         }
+        public static readonly DotvvmProperty RenderSpanElementProperty =
+            DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, false);
 
 
         /// <summary>
@@ -100,14 +102,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
-            if ((bool)GetValue(Internal.IsCommentProperty))
-            {
-                writer.WriteUnencodedText("<!--");
-                writer.WriteUnencodedText(Text ?? "");
-                writer.WriteUnencodedText("-->");
-                return;
-            }
-
             var textBinding = GetValueBinding(TextProperty);
             if (textBinding != null && !RenderOnServer)
             {
@@ -124,7 +118,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                if (AlwaysRenderSpan)
+                if (RenderSpanElement)
                 {
                     AddAttributesToRender(writer, context);
                     writer.RenderBeginTag("span");
@@ -149,24 +143,11 @@ namespace DotVVM.Framework.Controls
                     writer.WriteUnencodedText(textToDisplay);
                 }
 
-                if (AlwaysRenderSpan)
+                if (RenderSpanElement)
                 {
                     writer.RenderEndTag();
                 }
             }
-        }
-
-
-        /// <summary>
-        /// Determines whether the control contains only white space.
-        /// </summary>
-        public bool HasWhiteSpaceContentOnly()
-        {
-            if ((bool)GetValue(Internal.IsCommentProperty)) return true;
-
-            var text = (GetValue(TextProperty) ?? "").ToString();
-            var unencodedValue = HtmlEncode ? text : WebUtility.HtmlDecode(text);
-            return unencodedValue.All(char.IsWhiteSpace);
         }
     }
 }

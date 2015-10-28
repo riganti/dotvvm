@@ -249,9 +249,9 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             if (operation == ExpressionType.Coalesce) return Expression.Coalesce(left, right);
             if (operation == ExpressionType.Assign) return Expression.Assign(left, TypeConversion.ImplicitConversion(right, left.Type, true, true));
 
-            // TODO: support lazy evaluation
-            if (operation == ExpressionType.AndAlso) operation = ExpressionType.And;
-            else if (operation == ExpressionType.OrElse) operation = ExpressionType.Or;
+            // TODO: type conversions
+            if (operation == ExpressionType.AndAlso) return Expression.AndAlso(left, right);
+            else if (operation == ExpressionType.OrElse) return Expression.OrElse(left, right);
 
             var binder = (DynamicMetaObjectBinder)Microsoft.CSharp.RuntimeBinder.Binder.BinaryOperation(
                 CSharpBinderFlags.None, operation, typeof(object), GetBinderArguments(2));

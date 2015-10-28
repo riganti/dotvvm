@@ -97,19 +97,21 @@ var DotVVM = (function () {
     DotVVM.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
-    DotVVM.prototype.staticCommandPostback = function (viewModeName, command, args, callback, errorCallback) {
-        // TODO: events for static command postback
+    DotVVM.prototype.staticCommandPostback = function (viewModelName, sender, command, args, callback, errorCallback) {
         var _this = this;
         if (callback === void 0) { callback = function (_) { }; }
         if (errorCallback === void 0) { errorCallback = function (xhr) { }; }
+        if (this.isPostBackProhibited(sender))
+            return;
+        // TODO: events for static command postback
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
-            "$csrfToken": this.viewModels[viewModeName].viewModel.$csrfToken
+            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
         });
-        this.postJSON(this.viewModels[viewModeName].url, "POST", ko.toJSON(data), function (response) {
+        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
             if (!_this.isPostBackStillActive(currentPostBackCounter))
                 return;
             callback(JSON.parse(response.responseText));
@@ -119,6 +121,8 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context) {
         var _this = this;
+        if (this.isPostBackProhibited(sender))
+            return;
         if (useWindowSetTimeout) {
             window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath); }, 0);
             return;
@@ -470,6 +474,8 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.getDataSourceItems = function (viewModel) {
         var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
         return value.Items || value;
     };
     DotVVM.prototype.updateDynamicPathFragments = function (context, path) {
@@ -565,12 +571,18 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
         return routePath.replace(/\{[^\}]+\??\}/g, function (s) {
-            var paramName = s.substring(1, s.length - 1);
+            var paramName = s.substring(1, s.length - 1).toLowerCase();
             if (paramName && paramName.length > 0 && paramName.substring(paramName.length - 1) === "?") {
                 paramName = paramName.substring(0, paramName.length - 1);
             }
             return ko.unwrap(params[paramName]) || "";
         });
+    };
+    DotVVM.prototype.isPostBackProhibited = function (element) {
+        if (element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+            return true;
+        }
+        return false;
     };
     return DotVVM;
 })();
@@ -941,6 +953,19 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
             var innerBindingContext = bindingContext.extend({ $control: value });
             ko.applyBindingsToDescendants(innerBindingContext, element);
             return { controlsDescendantBindings: true }; // do not apply binding again
+        }
+    };
+    ko.bindingHandlers['dotvvmEnable'] = {
+        'update': function (element, valueAccessor) {
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            if (value && element.disabled) {
+                element.disabled = false;
+                element.removeAttribute("disabled");
+            }
+            else if ((!value) && (!element.disabled)) {
+                element.disabled = true;
+                element.setAttribute("disabled", "disabled");
+            }
         }
     };
 })();

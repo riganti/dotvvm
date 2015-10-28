@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
+using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
 {
@@ -45,14 +46,22 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets or sets the Reflection property information.
         /// </summary>
-        public PropertyInfo PropertyInfo { get; set; }
+        public PropertyInfo PropertyInfo { get; private set; }
 
         /// <summary>
         /// Gets or sets the markup options.
         /// </summary>
         public MarkupOptionsAttribute MarkupOptions { get; set; }
 
+        /// <summary>
+        /// Virtual DotvvmProperty are not explicitly registred but marked with [MarkupOptions] attribute on DotvvmControl
+        /// </summary>
         public bool IsVirtual { get; set; }
+
+        /// <summary>
+        /// Determines if property type inherits from IBinding
+        /// </summary>
+        public bool IsBindingProperty { get; private set; }
 
         /// <summary>
         /// Gets the full name of the descriptor.
@@ -163,13 +172,14 @@ namespace DotVVM.Framework.Binding
                 property.IsValueInherited = isValueInherited;
                 property.PropertyInfo = propertyInfo;
                 property.MarkupOptions = markupOptions;
+                property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
                 return property;
             });
         }
 
 
         public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
-            => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance )
+            => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                where !registeredProperties.ContainsKey(p.DeclaringType.FullName + "." + p.Name)
                let markupOptions = GetVirtualPropertyMarkupOptions(p)
                where markupOptions != null
@@ -214,9 +224,10 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Resolves the <see cref="DotvvmProperty"/> from the full name (DeclaringTypeName.PropertyName).
         /// </summary>
-        public static DotvvmProperty ResolveProperty(string fullName)
+        public static DotvvmProperty ResolveProperty(string fullName, bool caseSensitive = true)
         {
-            return registeredProperties.Values.LastOrDefault(p => p.FullName == fullName);
+            return registeredProperties.Values.LastOrDefault(p => 
+                p.FullName.Equals(fullName, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>
