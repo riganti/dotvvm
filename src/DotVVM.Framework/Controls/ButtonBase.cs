@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (!Enabled)
                 {
-                    writer.AddAttribute("disabled", "disabled");
+                    writer.AddAttribute("disabled", "");
                 }
             });
 
