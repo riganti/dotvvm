@@ -470,6 +470,8 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.getDataSourceItems = function (viewModel) {
         var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
         return value.Items || value;
     };
     DotVVM.prototype.updateDynamicPathFragments = function (context, path) {
