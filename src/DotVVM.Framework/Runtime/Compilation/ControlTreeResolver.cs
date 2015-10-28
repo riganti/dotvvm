@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             foreach (var directive in root.Directives)
             {
-                if (directive.Name != Constants.BaseTypeDirective)
+                if (!string.Equals(directive.Name, Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
                 {
                     view.Directives.Add(directive.Name, directive.Value);
                 }
@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             if (viewModelType == null)
             {
                 throw new DotvvmCompilationException($"The type '{viewModelTypeName}' required in the @viewModel directive in was not found!",
-                    (view.DothtmlNode as DothtmlRootNode)?.Directives?.FirstOrDefault(d => d.Name == Constants.ViewModelDirectiveName)?.Tokens);
+                    (view.DothtmlNode as DothtmlRootNode)?.Directives?.FirstOrDefault(d => string.Equals(d.Name, Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase))?.Tokens);
             }
             view.DataContextTypeStack = new DataContextStack(viewModelType)
             {
@@ -421,13 +421,13 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             var wrapperType = defaultType;
 
-            var baseControlDirective = node.Directives.SingleOrDefault(d => d.Name == Constants.BaseTypeDirective);
+            var baseControlDirective = node.Directives.SingleOrDefault(d => string.Equals(d.Name, Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase));
             if (baseControlDirective != null)
             {
                 wrapperType = ReflectionUtils.FindType(baseControlDirective.Value);
                 if (wrapperType == null)
                 {
-                    throw new DotvvmCompilationException($"The type '{baseControlDirective.Value}' specified in basetype directive was not found!");
+                    throw new DotvvmCompilationException($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
                 }
                 if (!typeof(DotvvmMarkupControl).IsAssignableFrom(wrapperType))
                 {

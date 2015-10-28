@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Runtime
             masterPage.ViewModelType = childPage.ViewModelType;
             foreach (var directive in childPage.Directives)
             {
-                if (directive.Key == Constants.MasterPageDirective)
+                if (string.Equals(directive.Key, Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
                 {
                     continue;
                 }
