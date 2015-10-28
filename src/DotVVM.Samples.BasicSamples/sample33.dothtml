@@ -8,18 +8,28 @@
         .invalid {
             color: red;
         }
+		a[disabled] {
+			color: gray;
+		}
     </style>
     <dot:RequiredResource Name="globalize:cs-CZ" />
 </head>
 <body>
     <div class="container">
         <h1>ButtonTagName property sample</h1>
-        <dot:LinkButton ID="ButtonTextProperty" ButtonTagName="button" Text="LinkButton element"></dot:LinkButton>
-        <br/>
-		<dot:LinkButton ID="ButtonTextBinding" ButtonTagName="button" Text="{value: ButtonText}"></dot:LinkButton>
-        <br/>
-		<dot:LinkButton ID="ButtonInnerText" ButtonTagName="button">LinkButton element - inner text</dot:LinkButton>
-        <br/>
+		<p>
+			<dot:LinkButton ID="ButtonTextProperty" Text="LinkButton element"></dot:LinkButton>
+			<br/>
+			<dot:LinkButton ID="ButtonTextBinding" Text="{value: ButtonText}"></dot:LinkButton>
+			<br/>
+			<dot:LinkButton ID="ButtonInnerText">LinkButton element - inner text</dot:LinkButton>
+        </p>
+
+		<p>
+			<dot:LinkButton ID="EnabledLinkButton" Enabled="{value: Enabled}" Click="{command: Switch()}">Enable Disable</dot:LinkButton>
+			<dot:CheckBox Checked="{value: Enabled}" />
+			{{value: Counter}}
+        </p>
     </div>
 </body>
 </html>

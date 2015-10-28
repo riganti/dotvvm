@@ -1089,6 +1089,23 @@ namespace DotVVM.Samples.Tests
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonTextProperty", "a");
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBinding", "a");
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerText", "a");
+
+                // try to click on a disabled button
+                browser.Click("#EnabledLinkButton");
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("0", browser.FindAll("span").Last().GetText());
+
+                // enable it
+                browser.Click("input[type=checkbox]");
+                Thread.Sleep(WaitTime);
+                browser.Click("#EnabledLinkButton");
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("1", browser.FindAll("span").Last().GetText());
+
+                // try to click on a disabled button again
+                browser.Click("#EnabledLinkButton");
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("1", browser.FindAll("span").Last().GetText());
             });
         }
 
