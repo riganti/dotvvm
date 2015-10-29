@@ -9,6 +9,7 @@
     <p>Hello!</p>
 
 	<dot:Repeater>		<!-- missing DataSource property -->
+	bla
 	</dot:Repeater>
 
 </body>

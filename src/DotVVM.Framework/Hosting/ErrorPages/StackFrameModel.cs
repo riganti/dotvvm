@@ -11,5 +11,30 @@ namespace DotVVM.Framework.Hosting.ErrorPages
     {
         public MethodBase Method { get; set; }
         public SourceModel At { get; set; }
+        public IFrameMoreInfo[] MoreInfo { get; set; }
+    }
+
+    public interface IFrameMoreInfo
+    {
+        string Link { get; }
+        string ContentHtml { get; }
+    }
+
+    public class FrameMoreInfo : IFrameMoreInfo
+    {
+        public string ContentHtml { get; set; }
+
+        public string Link { get; set; }
+
+        public FrameMoreInfo(string link, string content)
+        {
+            Link = link;
+            ContentHtml = content;
+        }
+
+        public static FrameMoreInfo CreateThumbLink(string link, string thumbLink)
+        {
+            return new FrameMoreInfo(link, $"<img width='15px' height='15px' src='{thumbLink}' />");
+        }
     }
 }

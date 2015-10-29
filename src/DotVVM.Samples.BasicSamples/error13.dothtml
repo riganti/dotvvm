@@ -6,11 +6,11 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-    <p>Hello!</p>
+    <p>Hello control exception!</p>
 
-    <dot:Repeater DataSource="value instead of binding">
-		blah
-    </dot:Repeater>
+	<dot:Repeater DataContext="{resource: '42'}">
+		blabla
+	</dot:Repeater>
 
 </body>
 </html>

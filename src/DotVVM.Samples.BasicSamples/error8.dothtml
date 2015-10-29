@@ -9,6 +9,7 @@
     <p>Hello!</p>
 
 	<dot:Repeater DataSource="{value: NonExistingProperty}">		
+		bla
 	</dot:Repeater>
 
 </body>
