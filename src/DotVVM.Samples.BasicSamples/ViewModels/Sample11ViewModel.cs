@@ -4,6 +4,7 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels
 {
@@ -42,10 +43,22 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
             NewTaskTitle = string.Empty;
         }
 
+        //[ModelValidationFilter("CompleteTask")]
         public void CompleteTask(Guid id)
         {
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
 
+        public class TaskViewModel
+        {
+
+            public Guid TaskId { get; set; }
+
+            [RegularExpression("^[^_]", ErrorMessage = "Task starting with underscore is incompletible")]
+            [ValidationSettings(OnlyInTarget = true, OnlyInGroups = new[] { "CompleteTask" })]
+            public string Title { get; set; }
+
+            public bool IsCompleted { get; set; }
+        }
     }
 }

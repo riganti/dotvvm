@@ -436,6 +436,7 @@
     <Compile Include="ViewModel\DateTimeFormatJsonConverterBase.cs" />
     <Compile Include="ViewModel\FormatJsonConverterBase.cs" />
     <Compile Include="ViewModel\IViewModelValidationMetadataProvider.cs" />
+    <Compile Include="ViewModel\ValidationSettingsAttribute.cs" />
     <Compile Include="ViewModel\ViewModelValidator.cs" />
     <Compile Include="ViewModel\ViewModelPropertyValidationRule.cs" />
     <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />

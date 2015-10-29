@@ -30,7 +30,7 @@
 			</p>
 			<p><dot:Button Text="Create" Click="{command: AddTask()}" /></p> 
 
-			<div class="validator"><dot:ValidationSummary Id="validationSummary" /></div>
+			<div class="validator"><dot:ValidationSummary Id="validationSummary" IncludeErrorsFromChildren="true" /></div>
 		</fieldset>
 		<p>&nbsp;</p>
 		
@@ -41,10 +41,11 @@
 						<td>{{value: Title}}</td>
 						<td>
 							<dot:LinkButton 
-								Text="done" 
+								Text="done"
 								Click="{command: _parent.CompleteTask(TaskId)}" 
 								Visible="{value: !IsCompleted}"
-								Validate.Enabled="false" />
+								Validate.Groups="CompleteTask"
+								Validate.Target="{value: _this}" />
 						</td>
 					</tr>
 				</ItemTemplate>

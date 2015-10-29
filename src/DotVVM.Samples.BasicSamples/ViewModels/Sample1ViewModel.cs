@@ -41,7 +41,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         public async Task SaveDataAsync()
         {
             await Task.Delay(100); // do complicated database operation and send avian carriers to all our datacenters
-            Tasks.Add(new TaskViewModel { IsCompleted = false, TaskId = Guid.NewGuid(), Title = "Implement task storage" });
+            Tasks.Add(new TaskViewModel { IsCompleted = false, TaskId = Guid.NewGuid(), Title = "Implement task storage" }); // Storage probably not working well ;) => procratinate using task list
         }
 
         public void CompleteTask(Guid id)

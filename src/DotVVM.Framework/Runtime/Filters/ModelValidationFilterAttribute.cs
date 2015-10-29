@@ -15,16 +15,25 @@ namespace DotVVM.Framework.Runtime.Filters
 
         private ViewModelValidator viewModelValidator = new ViewModelValidator();
 
+        public string[] Groups { get; }
+
+        public ModelValidationFilterAttribute(params string[] groups)
+        {
+            Groups = groups;
+        }
+
 
         /// <summary>
         /// Called before the command is executed.
         /// </summary>
         protected internal override void OnCommandExecuting(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
+            //if (Groups != null) context.ModelState.ValidationGroups = new HashSet<string>(Groups);
+
             if (!string.IsNullOrEmpty(context.ModelState.ValidationTargetPath))
             {
                 // perform the validation
-                context.ModelState.Errors.AddRange(viewModelValidator.ValidateViewModel(context.ModelState.ValidationTarget));
+                context.ModelState.Errors.AddRange(viewModelValidator.ValidateViewModel(context.ModelState.ValidationTarget, context.ModelState.ValidationGroups));
 
                 // return the model state when error occurs
                 context.FailOnInvalidModelState();

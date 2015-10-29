@@ -344,7 +344,7 @@ namespace DotVVM.Samples.Tests
 
                 // fill valid value in the task title
                 browser.Clear("input[type=text]");
-                browser.SendKeys("input[type=text]", "test@mail.com");
+                browser.SendKeys("input[type=text]", "_test@mail.com");
                 Thread.Sleep(WaitTime);
                 browser.Click("input[type=button]");
                 Thread.Sleep(WaitTime);
@@ -358,6 +358,8 @@ namespace DotVVM.Samples.Tests
 
                 // ensure the item was added
                 Assert.AreEqual(4, browser.FindAll(".table tr").Count);
+
+                // TODO: ensure items starting with underscore can't be done
             });
         }
 

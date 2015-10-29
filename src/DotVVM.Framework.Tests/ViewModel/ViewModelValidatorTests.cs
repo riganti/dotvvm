@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel();
             var validator = new ViewModelValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var results = validator.ValidateViewModel(testViewModel, null).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Text", results[0].PropertyPath);
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 Child = new TestViewModel2() {  Code = "123" }
             };
             var validator = new ViewModelValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var results = validator.ValidateViewModel(testViewModel, null).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(4, results.Count);
             Assert.AreEqual("Child().Id", results[0].PropertyPath);
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel3() { Email = "aaa" };
             var validator = new ViewModelValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var results = validator.ValidateViewModel(testViewModel, null).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Email", results[0].PropertyPath);
@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel4() { Child = new TestViewModel4Child() { IsChecked = true } };
             var validator = new ViewModelValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var results = validator.ValidateViewModel(testViewModel, null).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Child().ConditionalRequired", results[0].PropertyPath);
@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         {
             var testViewModel = new TestViewModel5() { Child = new TestViewModel5Child() { IsChecked = true } };
             var validator = new ViewModelValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var results = validator.ValidateViewModel(testViewModel, null).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Child().ConditionalRequired", results[0].PropertyPath);
@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 Children = new List<TestViewModel5Child>() {new TestViewModel5Child() {IsChecked = true}}
             };
             var validator = new ViewModelValidator();
-            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+            var results = validator.ValidateViewModel(testViewModel, null).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
             Assert.AreEqual("Children()[0].ConditionalRequired", results[0].PropertyPath);

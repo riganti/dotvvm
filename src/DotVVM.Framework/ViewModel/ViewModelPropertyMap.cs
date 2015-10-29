@@ -23,10 +23,11 @@ namespace DotVVM.Framework.ViewModel
         public bool Populate { get; set; }
 
         public List<ViewModelPropertyValidationRule> ValidationRules { get; set; }
+        public ValidationSettingsAttribute ValidationSettings { get; set; }
 
         public IEnumerable<ViewModelPropertyValidationRule> ClientValidationRules
         {
-            get { return ValidationRules.Where(r => !string.IsNullOrEmpty(r.ClientRuleName)); }
+            get { return ValidationSettings != null? new ViewModelPropertyValidationRule[0] : ValidationRules.Where(r => !string.IsNullOrEmpty(r.ClientRuleName)); }
         }
 
         public JsonConverter JsonConverter { get; set; }

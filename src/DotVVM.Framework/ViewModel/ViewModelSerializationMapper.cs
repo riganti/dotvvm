@@ -59,6 +59,8 @@ namespace DotVVM.Framework.ViewModel
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
 
+                propertyMap.ValidationSettings = property.GetCustomAttribute<ValidationSettingsAttribute>();
+
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
                 propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();
 

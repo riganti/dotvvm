@@ -21,6 +21,11 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public object ValidationTarget { get; internal set; }
 
+        /// <summary>
+        /// Gets or sets the validation groups turned on
+        /// </summary>
+        public ISet<string> ValidationGroups { get; set; }
+
 
         /// <summary>
         /// Gets a collection of validation errors.

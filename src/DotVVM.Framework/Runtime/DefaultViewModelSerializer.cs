@@ -123,7 +123,7 @@ namespace DotVVM.Framework.Runtime
         {
             var manager = context.ResourceManager;
             var resourceObj = new JObject();
-            foreach(var resource in manager.GetNamedResourcesInOrder())
+            foreach (var resource in manager.GetNamedResourcesInOrder())
             {
                 if (predicate(resource.Name))
                 {

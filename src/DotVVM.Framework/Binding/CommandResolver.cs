@@ -1,6 +1,7 @@
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Binding
 {
@@ -29,6 +30,8 @@ namespace DotVVM.Framework.Binding
             }
 
             context.ModelState.ValidationTarget = findResult.Control.GetValue(Validate.TargetProperty) ?? context.ViewModel;
+            if (findResult.Control.GetValue(Validate.GroupsProperty) != null)
+                context.ModelState.ValidationGroups = new HashSet<string>(findResult.Control.GetValue(Validate.GroupsProperty) as IEnumerable<string>);
 
             return new ActionInfo
             {

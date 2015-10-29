@@ -105,6 +105,13 @@ namespace DotVVM.Framework.Utils
                 return value.ToString();
             }
 
+            if(value is string && type.IsArray)
+            {
+                var str = value as string;
+                if (type == typeof(string[]))
+                    return str.Split(',');
+            }
+
             // convert
             return Convert.ChangeType(value, type);
         }

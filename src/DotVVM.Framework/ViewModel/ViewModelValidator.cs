@@ -11,15 +11,15 @@ namespace DotVVM.Framework.ViewModel
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        public IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel)
+        public IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel, ISet<string> groups)
         {
-            return ValidateViewModel(viewModel, "", new HashSet<object>());
+            return ValidateViewModel(viewModel, "", groups ?? new HashSet<string>(), new HashSet<object>());
         }
 
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        private IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel, string pathPrefix, HashSet<object> alreadyValidated)
+        private IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel, string pathPrefix, ISet<string> groups, HashSet<object> alreadyValidated)
         {
             if (alreadyValidated.Contains(viewModel)) yield break;
 
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.ViewModel
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, pathPrefix + "()[" + index + "]", alreadyValidated))
+                    foreach (var error in ValidateViewModel(item, pathPrefix + "()[" + index + "]", groups, alreadyValidated))
                     {
                         yield return error;
                     }
@@ -54,6 +54,12 @@ namespace DotVVM.Framework.ViewModel
             var map = ViewModelJsonConverter.GetSerializationMapForType(viewModel.GetType());
             foreach (var property in map.Properties.Where(p => p.TransferToServer))
             {
+                if(property.ValidationSettings != null)
+                {
+                    if (property.ValidationSettings.OnlyInGroups != null && !property.ValidationSettings.OnlyInGroups.Any(groups.Contains)) continue;
+                    if (property.ValidationSettings.NotInGroups != null && property.ValidationSettings.NotInGroups.Any(groups.Contains)) continue;
+                }
+
                 var value = property.PropertyInfo.GetValue(viewModel);
                 var path = CombinePath(pathPrefix, property.Name);
 
@@ -79,10 +85,10 @@ namespace DotVVM.Framework.ViewModel
                 // inspect objects
                 if (value != null)
                 {
-                    if (ViewModelJsonConverter.IsComplexType(property.Type))
+                    if (ViewModelJsonConverter.IsComplexType(property.Type) && (property.ValidationSettings == null || !property.ValidationSettings.OnlyInTarget))
                     {
                         // complex objects
-                        foreach (var error in ValidateViewModel(value, path, alreadyValidated))
+                        foreach (var error in ValidateViewModel(value, path, groups, alreadyValidated))
                         {
                             yield return error;
                         }
