@@ -42,6 +42,7 @@ label.nav {
 .object-obj, .object-arr { padding-left: 10px; }
 .container { display: none }
 .object-browser .propname { font-weight: bold; }
+.docLinks { float: right; }
 <#foreach(var f in Formatters){#>
 #menu_radio_<#=f.Id#>:checked ~ #container_<#=f.Id#> { display: block; }
 #menu_radio_<#=f.Id#>:checked ~ label[for='menu_radio_<#=f.Id#>'] { background-color: #004fbd; }
