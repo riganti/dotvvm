@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -37,5 +38,8 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmProperty IsMasterPageCompositionFinished =
             DotvvmProperty.Register<bool, Internal>("IsMasterPageCompositionFinished", defaultValue: false, isValueInherited: false);
+
+        public static DotvvmProperty RequestContextProperty =
+            DotvvmProperty.Register<IDotvvmRequestContext, Internal>("RequestContext", defaultValue: null, isValueInherited: true);
     }
 }

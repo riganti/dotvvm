@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Framework.Tests.Binding
 {
     [TestClass]
-    public class BidningCompilationTests
+    public class BindingCompilationTests
     {
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control)
         {

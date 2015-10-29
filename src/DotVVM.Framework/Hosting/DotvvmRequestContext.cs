@@ -104,6 +104,8 @@ namespace DotVVM.Framework.Hosting
             get { return DotvvmPresenter.DeterminePartialRendering(OwinContext); }
         }
 
+
+
         /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
         /// </summary>

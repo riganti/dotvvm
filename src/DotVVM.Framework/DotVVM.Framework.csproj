@@ -134,6 +134,7 @@
     <Compile Include="Controls\IGridViewDataSet.cs" />
     <Compile Include="Controls\IHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\Infrastructure\RawLiteral.cs" />
+    <Compile Include="Controls\LifeCycleEventType.cs" />
     <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\MultiHtmlWriter.cs" />
