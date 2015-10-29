@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
     public class CompileTimeBindingParser : IBindingParser
     {
 
-        public Expression Parse(string expression, DataContextStack dataContexts)
+        public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options)
         {
             try
             {
@@ -32,8 +32,10 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                     if (n.HasNodeErrors) throw new BindingCompilationException(string.Join(", ", n.NodeErrors), n);
                 }
 
-                var visitor = new ExpressionBuildingVisitor(InitSymbols(dataContexts));
-                visitor.Scope = Expression.Parameter(dataContexts.DataContextType, "_this");
+                var symbols = InitSymbols(dataContexts);
+                symbols = options.AddTypes(symbols);
+                var visitor = new ExpressionBuildingVisitor(symbols);
+                visitor.Scope = symbols.Resolve(options.ScopeParameter);
                 return visitor.Visit(node);
             }
             catch (Exception ex)

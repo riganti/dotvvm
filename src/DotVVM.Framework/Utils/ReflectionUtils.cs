@@ -109,10 +109,12 @@ namespace DotVVM.Framework.Utils
             return Convert.ChangeType(value, type);
         }
 
-        public static Type FindType(string name)
+        public static Type FindType(string name, bool ignoreCase = false)
         {
-            // Type.GetType sometimes might work well, I don't know about these cases but as fallback...
-            var type = Type.GetType(name, false);
+            var stringComparison = ignoreCase ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal;
+
+            // Type.GetType might sometimes work well
+            var type = Type.GetType(name, false, ignoreCase);
             if (type != null) return type;
 
             var split = name.Split(',');
@@ -126,9 +128,9 @@ namespace DotVVM.Framework.Utils
                 if (type != null) return type;
             }
 
-            type = assemblies.Where(a => name.StartsWith(a.GetName().Name)).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
+            type = assemblies.Where(a => name.StartsWith(a.GetName().Name, stringComparison)).Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
             if (type != null) return type;
-            return assemblies.Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
+            return assemblies.Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
         }
 
         public static Type GetEnumerableType(Type collectionType)
