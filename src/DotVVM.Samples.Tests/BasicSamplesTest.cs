@@ -1313,11 +1313,8 @@ namespace DotVVM.Samples.Tests
                 browser.FindAll("input")[0].SendKeys("hello");
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
-
-                // TODO: what's the point of this test?
             });
         }
-
 
 
         public void Sample46Test()
@@ -1368,6 +1365,63 @@ namespace DotVVM.Samples.Tests
 
                 isNotPresent("null_marker4_parent");
                 isDisplayed("null_marker4");
+            });
+        }
+
+        public void Sample47Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample47");
+                Thread.Sleep(WaitTime);
+
+                browser.FindAll("a")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 1 Subchild 1", browser.GetText("#result"));
+
+                browser.FindAll("a")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 1 Subchild 2", browser.GetText("#result"));
+
+                browser.FindAll("a")[2].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 1 Subchild 3", browser.GetText("#result"));
+
+                browser.FindAll("a")[3].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 2 Subchild 1", browser.GetText("#result"));
+
+                browser.FindAll("a")[4].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 2 Subchild 2", browser.GetText("#result"));
+
+                browser.FindAll("a")[5].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 3 Subchild 1", browser.GetText("#result"));
+
+                browser.FindAll("a")[6].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 1 Subchild 1", browser.GetText("#result"));
+
+                browser.FindAll("a")[7].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 1 Subchild 2", browser.GetText("#result"));
+
+                browser.FindAll("a")[8].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 1 Subchild 3", browser.GetText("#result"));
+
+                browser.FindAll("a")[9].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 2 Subchild 1", browser.GetText("#result"));
+
+                browser.FindAll("a")[10].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 2 Subchild 2", browser.GetText("#result"));
+
+                browser.FindAll("a")[11].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Child 3 Subchild 1", browser.GetText("#result"));
             });
         }
     }
