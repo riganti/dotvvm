@@ -201,7 +201,18 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 while (Peek() != '/' && Peek() != '>')
                 {
-                    if (!ReadAttribute())
+                    if(Peek() == '<')
+                    {
+                        // comment inside element
+                        Read();
+                        var c = ReadOneOf("!--", "%--");
+                        if (c == null) CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, ""));
+                        else if (c == "!--") ReadComment();
+                        else if (c == "%--") ReadServerComment();
+                        else throw new Exception();
+                        SkipWhitespace();
+                    }
+                    else if (!ReadAttribute())
                     {
                         CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag));
                         return false;
@@ -232,73 +243,89 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             var s = ReadOneOf("![CDATA[", "!--", "!DOCTYPE", "?", "%--");
             if (s == "![CDATA[")
             {
-                // CDATA section
-                CreateToken(DothtmlTokenType.OpenCData);
-                if (ReadTextUntil(DothtmlTokenType.CDataBody, "]]>", false))
-                {
-                    CreateToken(DothtmlTokenType.CloseCData);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.CDataBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseCData, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenCData, DothtmlTokenizerErrors.CDataNotClosed));
-                }
+                ReadCData();
             }
             else if (s == "!--")
             {
-                // comment
-                CreateToken(DothtmlTokenType.OpenComment);
-                if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->", false))
-                {
-                    CreateToken(DothtmlTokenType.CloseComment);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
-                }
+                ReadComment();
             }
             else if(s == "%--")
             {
-                // server side comment
-                CreateToken(DothtmlTokenType.OpenServerComment);
-                if(ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false))
-                {
-                    CreateToken(DothtmlTokenType.CloseComment);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
-                }
+                ReadServerComment();
             }
             else if (s == "!DOCTYPE")
             {
-                // DOCTYPE
-                CreateToken(DothtmlTokenType.OpenDoctype);
-                if (ReadTextUntil(DothtmlTokenType.DoctypeBody, ">", true))
-                {
-                    CreateToken(DothtmlTokenType.CloseDoctype);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.DoctypeBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseDoctype, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenDoctype, DothtmlTokenizerErrors.DoctypeNotClosed));
-                }
+                ReadDoctype();
             }
             else if (s == "?")
             {
-                // XML processing instruction
-                CreateToken(DothtmlTokenType.OpenXmlProcessingInstruction);
-                if (ReadTextUntil(DothtmlTokenType.XmlProcessingInstructionBody, "?>", true))
-                {
-                    CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.XmlProcessingInstructionBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenXmlProcessingInstruction, DothtmlTokenizerErrors.XmlProcessingInstructionNotClosed));
-                }
+                ReadXmlPI();
+            }
+        }
+       
+        void ReadCData()
+        {
+            CreateToken(DothtmlTokenType.OpenCData);
+            if (ReadTextUntil(DothtmlTokenType.CDataBody, "]]>", false))
+            {
+                CreateToken(DothtmlTokenType.CloseCData);
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.CDataBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseCData, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenCData, DothtmlTokenizerErrors.CDataNotClosed));
+            }
+        }
+        void ReadComment()
+        {
+            CreateToken(DothtmlTokenType.OpenComment);
+            if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->", false))
+            {
+                CreateToken(DothtmlTokenType.CloseComment);
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
+            }
+        }
+        void ReadServerComment()
+        {
+            CreateToken(DothtmlTokenType.OpenServerComment);
+            if (ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false))
+            {
+                CreateToken(DothtmlTokenType.CloseComment);
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
+            }
+        }
+        void ReadDoctype()
+        {
+            CreateToken(DothtmlTokenType.OpenDoctype);
+            if (ReadTextUntil(DothtmlTokenType.DoctypeBody, ">", true))
+            {
+                CreateToken(DothtmlTokenType.CloseDoctype);
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.DoctypeBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseDoctype, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenDoctype, DothtmlTokenizerErrors.DoctypeNotClosed));
+            }
+        }
+        void ReadXmlPI()
+        {
+            CreateToken(DothtmlTokenType.OpenXmlProcessingInstruction);
+            if (ReadTextUntil(DothtmlTokenType.XmlProcessingInstructionBody, "?>", true))
+            {
+                CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction);
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.XmlProcessingInstructionBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenXmlProcessingInstruction, DothtmlTokenizerErrors.XmlProcessingInstructionNotClosed));
             }
         }
 

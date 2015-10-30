@@ -132,11 +132,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 else if(Peek().Type == DothtmlTokenType.OpenServerComment)
                 {
                     // skip server-side comment
-                    Read();
-                    Assert(DothtmlTokenType.CommentBody);
-                    Read();
-                    Assert(DothtmlTokenType.CloseComment);
-                    Read();
+                    SkipComment();
                 }
                 else
                 {
@@ -253,6 +249,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             return node;
         }
 
+        void SkipComment()
+        {
+            Read();
+            Assert(DothtmlTokenType.CommentBody);
+            Read();
+            Assert(DothtmlTokenType.CloseComment);
+            Read();
+        }
+
         /// <summary>
         /// Reads the element.
         /// </summary>
@@ -292,12 +297,13 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             // attributes
             if (!node.IsClosingTag)
             {
+                SkipWhiteSpaceOrComment();
                 while (Peek().Type == DothtmlTokenType.Text)
                 {
                     var attribute = ReadAttribute();
                     attribute.ParentElement = node;
                     node.Attributes.Add(attribute);
-                    SkipWhitespace();
+                    SkipWhiteSpaceOrComment();
                 }
 
                 if (Peek().Type == DothtmlTokenType.Slash)
@@ -439,6 +445,25 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
+        }
+
+        void SkipWhiteSpaceOrComment()
+        {
+            while(true)
+            {
+                switch (Peek().Type)
+                {
+                    case DothtmlTokenType.WhiteSpace:
+                        Read();
+                        break;
+                    case DothtmlTokenType.OpenComment:
+                    case DothtmlTokenType.OpenServerComment:
+                        SkipComment();
+                        break;
+                    default:
+                        return;
+                }
+            }
         }
 
         protected override DothtmlTokenType WhiteSpaceToken => DothtmlTokenType.WhiteSpace;
