@@ -286,5 +286,97 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(">", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
+
+        [TestMethod]
+        public void DothtmlTokenizer_CommentInsideElement()
+        {
+            var input = "<a <!-- comment --> href='so'>";
+            var tokens = Tokenize(input);
+
+            Assert.AreEqual(DothtmlTokenType.OpenTag, tokens[0].Type);
+            Assert.AreEqual(@"<", tokens[0].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Text, tokens[1].Type);
+            Assert.AreEqual(@"a", tokens[1].Text);
+
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokens[2].Type);
+            Assert.AreEqual(@" ", tokens[2].Text);
+
+            Assert.AreEqual(DothtmlTokenType.OpenComment, tokens[3].Type);
+            Assert.AreEqual(@"<!--", tokens[3].Text);
+
+            Assert.AreEqual(DothtmlTokenType.CommentBody, tokens[4].Type);
+            Assert.AreEqual(@" comment ", tokens[4].Text);
+
+            Assert.AreEqual(DothtmlTokenType.CloseComment, tokens[5].Type);
+            Assert.AreEqual(@"-->", tokens[5].Text);
+
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokens[6].Type);
+            Assert.AreEqual(@" ", tokens[6].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Text, tokens[7].Type);
+            Assert.AreEqual(@"href", tokens[7].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Equals, tokens[8].Type);
+            Assert.AreEqual(@"=", tokens[8].Text);
+
+            Assert.AreEqual(DothtmlTokenType.SingleQuote, tokens[9].Type);
+            Assert.AreEqual(@"'", tokens[9].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Text, tokens[10].Type);
+            Assert.AreEqual(@"so", tokens[10].Text);
+
+            Assert.AreEqual(DothtmlTokenType.SingleQuote, tokens[11].Type);
+            Assert.AreEqual(@"'", tokens[11].Text);
+
+            Assert.AreEqual(DothtmlTokenType.CloseTag, tokens[12].Type);
+            Assert.AreEqual(@">", tokens[12].Text);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_ServerCommentInsideElement()
+        {
+            var input = "<a <%-- comment --%> href=''>";
+            var tokens = Tokenize(input);
+
+            Assert.AreEqual(DothtmlTokenType.OpenTag, tokens[0].Type);
+            Assert.AreEqual(@"<", tokens[0].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Text, tokens[1].Type);
+            Assert.AreEqual(@"a", tokens[1].Text);
+
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokens[2].Type);
+            Assert.AreEqual(@" ", tokens[2].Text);
+
+            Assert.AreEqual(DothtmlTokenType.OpenServerComment, tokens[3].Type);
+            Assert.AreEqual(@"<%--", tokens[3].Text);
+
+            Assert.AreEqual(DothtmlTokenType.CommentBody, tokens[4].Type);
+            Assert.AreEqual(@" comment ", tokens[4].Text);
+
+            Assert.AreEqual(DothtmlTokenType.CloseComment, tokens[5].Type);
+            Assert.AreEqual(@"--%>", tokens[5].Text);
+
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokens[6].Type);
+            Assert.AreEqual(@" ", tokens[6].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Text, tokens[7].Type);
+            Assert.AreEqual(@"href", tokens[7].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Equals, tokens[8].Type);
+            Assert.AreEqual(@"=", tokens[8].Text);
+
+            Assert.AreEqual(DothtmlTokenType.SingleQuote, tokens[9].Type);
+            Assert.AreEqual(@"'", tokens[9].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Text, tokens[10].Type);
+            Assert.AreEqual(@"", tokens[10].Text);
+
+            Assert.AreEqual(DothtmlTokenType.SingleQuote, tokens[11].Type);
+            Assert.AreEqual(@"'", tokens[11].Text);
+
+            Assert.AreEqual(DothtmlTokenType.CloseTag, tokens[12].Type);
+            Assert.AreEqual(@">", tokens[12].Text);
+        }
     }
 }

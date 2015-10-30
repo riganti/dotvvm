@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Routing
             var name = Url.Substring(startIndex, index - startIndex).Trim();
             
             // determine whether the parameter is optional - it must end with ?, or must be present in the DefaultValues collection
-            var isOptional = name.EndsWith("?");
+            var isOptional = name.EndsWith("?", StringComparison.Ordinal);
             if (isOptional)
             {
                 name = name.Substring(0, name.Length - 1);

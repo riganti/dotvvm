@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Hosting
 
         public string TranslateVirtualPath(string virtualUrl)
         {
-            if (virtualUrl.StartsWith("~/"))
+            if (virtualUrl.StartsWith("~/", System.StringComparison.Ordinal))
             {
                 virtualUrl = ApplicationHostPath.TrimEnd('/') + virtualUrl.Substring(1);
             }

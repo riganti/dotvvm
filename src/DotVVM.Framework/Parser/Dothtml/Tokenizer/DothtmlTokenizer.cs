@@ -157,13 +157,16 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
         /// <summary>
         /// Reads the element.
         /// </summary>
-        private bool ReadElement()
+        private bool ReadElement(bool wasOpenBraceRead = false)
         {
             var isClosingTag = false;
 
-            // open tag brace
-            Assert(Peek() == '<');
-            Read();
+            if (!wasOpenBraceRead)
+            {
+                // open tag brace
+                Assert(Peek() == '<');
+                Read();
+            }
 
             if (Peek() == '!' || Peek() == '?' || Peek() == '%')
             {
@@ -201,18 +204,28 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 while (Peek() != '/' && Peek() != '>')
                 {
-                    if(Peek() == '<')
+                    if (Peek() == '<')
                     {
                         // comment inside element
                         Read();
-                        var c = ReadOneOf("!--", "%--");
-                        if (c == null) CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, ""));
-                        else if (c == "!--") ReadComment();
-                        else if (c == "%--") ReadServerComment();
-                        else throw new Exception();
-                        SkipWhitespace();
+                        if (Peek() == '!' || Peek() == '%')
+                        {
+                            var c = ReadOneOf("!--", "%--");
+                            if (c == null) CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, ""));
+                            else if (c == "!--") ReadComment();
+                            else if (c == "%--") ReadServerComment();
+                            else throw new Exception();
+                            SkipWhitespace();
+                        }
+                        else
+                        {
+                            CreateToken(DothtmlTokenType.CloseTag, charsFromEndToSkip: 1, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag));
+                            ReadElement(wasOpenBraceRead: true);
+                            return false;
+                        }
                     }
-                    else if (!ReadAttribute())
+                    else
+                    if (!ReadAttribute())
                     {
                         CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag));
                         return false;

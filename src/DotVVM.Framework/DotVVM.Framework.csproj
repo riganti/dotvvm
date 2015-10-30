@@ -100,11 +100,6 @@
     <Compile Include="Binding\IStaticValueBinding.cs" />
     <Compile Include="Binding\IUpdatableValueBinding.cs" />
     <Compile Include="Binding\IValueBinding.cs" />
-    <Compile Include="Binding\NumberUtils.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>NumberUtils.tt</DependentUpon>
-    </Compile>
     <Compile Include="Binding\DotvvmProperty.cs" />
     <Compile Include="Binding\ResourceBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandBindingExpression.cs" />
@@ -199,7 +194,6 @@
     <Compile Include="Parser\Binding\Parser\BindingParser.cs" />
     <Compile Include="Parser\Binding\Parser\BindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\BindingParserNodeVisitor.cs" />
-    <Compile Include="Parser\Binding\Parser\BindingSpecialProperty.cs" />
     <Compile Include="Parser\Binding\Parser\ConditionalExpressionBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\FunctionCallBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\IBindingParserNodeContext.cs" />
@@ -208,7 +202,6 @@
     <Compile Include="Parser\Binding\Parser\MemberAccessBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\NumberLiteralSuffix.cs" />
     <Compile Include="Parser\Binding\Parser\ParenthesizedExpressionBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\SpecialPropertyBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\UnaryOperatorBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Tokenizer\BindingToken.cs" />
     <Compile Include="Parser\Binding\Tokenizer\BindingTokenizer.cs" />
@@ -291,9 +284,6 @@
     <Compile Include="Runtime\Compilation\BindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\Binding\BindingCompilationException.cs" />
     <Compile Include="Runtime\Compilation\Binding\CompileTimeBindingParser.cs" />
-    <Compile Include="Runtime\Compilation\Binding\CompileTimeParserNodeContext.cs" />
-    <Compile Include="Runtime\Compilation\Binding\CompileTimeTypeConstraint.cs" />
-    <Compile Include="Runtime\Compilation\Binding\DataContextResolverBindingParserNodeVisitor.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionBuildingVisitor.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionHelper.cs" />
     <Compile Include="Runtime\Compilation\Binding\MethodGroupExpression.cs" />
@@ -412,7 +402,6 @@
       <DependentUpon>Controls.resx</DependentUpon>
     </Compile>
     <Compile Include="Routing\DotvvmRoute.cs" />
-    <Compile Include="Routing\DotvvmRouteComponent.cs" />
     <Compile Include="Routing\DotvvmRouteTable.cs" />
     <Compile Include="Routing\RouteBase.cs" />
     <Compile Include="Runtime\ControlResolverMetadata.cs" />
@@ -445,7 +434,6 @@
     <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IDotvvmViewModel.cs" />
     <Compile Include="ViewModel\KeyPropertyAttribute.cs" />
-    <Compile Include="ViewModel\PropertyOptionsAttribute.cs" />
     <Compile Include="ViewModel\DotvvmViewModelBase.cs" />
     <Compile Include="ViewModel\ViewModelJsonConverter.cs" />
     <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
@@ -500,10 +488,6 @@
     <TypeScriptCompile Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Binding\NumberUtils.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>NumberUtils.cs</LastGenOutput>
-    </Content>
     <Content Include="Hosting\FileUploadPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>

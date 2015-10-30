@@ -233,10 +233,10 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public static string TranslateVirtualPath(string virtualUrl, IOwinContext owinContext)
         {
-            if (virtualUrl.StartsWith("~/"))
+            if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             {
                 var url = DotvvmMiddleware.GetVirtualDirectory(owinContext) + "/" + virtualUrl.Substring(2);
-                if (!url.StartsWith("/"))
+                if (!url.StartsWith("/", StringComparison.Ordinal))
                 {
                     url = "/" + url;
                 }

@@ -198,6 +198,7 @@ namespace DotVVM.Framework.Parser
             {
                 var ch = Peek();
                 strings = strings.Where(s => s[index] == ch).ToArray();
+                if (strings.Length == 0) return null;
                 index++;
                 Read();
             }

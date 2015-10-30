@@ -46,11 +46,11 @@ namespace DotVVM.Framework.Security {
         /// <param name="pseudoRandomFunction">The HMAC function to use as PRF.</param>
         public NistSP800108DeriveBytes(byte[] masterKey, string label, string[] context, HMAC pseudoRandomFunction) {
             // Validate arguments
-            if (masterKey == null) throw new ArgumentNullException("masterKey");
-            if (masterKey.Length == 0) throw new ArgumentException("The argument cannot be empty.", "masterKey");
-            if (label == null) throw new ArgumentNullException("label");
-            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "label");
-            if (pseudoRandomFunction == null) throw new ArgumentNullException("pseudoRandomFunction");
+            if (masterKey == null) throw new ArgumentNullException(nameof(masterKey));
+            if (masterKey.Length == 0) throw new ArgumentException("The argument cannot be empty.", nameof(masterKey));
+            if (label == null) throw new ArgumentNullException(nameof(label));
+            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(label));
+            if (pseudoRandomFunction == null) throw new ArgumentNullException(nameof(pseudoRandomFunction));
 
             // Setup internal parameters
             this.pseudoRandomFunction = pseudoRandomFunction;
