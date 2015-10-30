@@ -115,10 +115,10 @@ namespace DotVVM.Framework.Controls
                 {
                     var placeholder = new DataItemContainer {DataItemIndex = index};
                     ItemTemplate.BuildContent(context, placeholder);
-                    Children.Add(placeholder);
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList) items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     placeholder.ID = "i" + index;
+                    Children.Add(placeholder);
                     index++;
                 }
                 numberOfRows = index;
@@ -200,8 +200,8 @@ namespace DotVVM.Framework.Controls
                 var placeholder = new DataItemContainer() { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                 placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
-                Children.Add(placeholder);
                 ItemTemplate.BuildContent(context.RequestContext, placeholder);
+                Children.Add(placeholder);
 
                 placeholder.Render(writer, context);
             }
