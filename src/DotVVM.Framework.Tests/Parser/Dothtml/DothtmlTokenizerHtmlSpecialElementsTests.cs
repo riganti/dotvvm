@@ -287,6 +287,78 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
 
+
+        [TestMethod]
+        public void DothtmlTokenizer_ServerCommentParsing_Valid()
+        {
+            var input = @"test <%-- this is a text < > "" ' --%> test2";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
+
+            // first line
+            var i = 0;
+            Assert.AreEqual("test ", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("<!--", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.OpenServerComment, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(@" this is a text < > "" ' ", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.CommentBody, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("-->", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.CloseComment, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(" test2", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_ServerCommentParsing_Valid_2()
+        {
+            var input = @"test <%--<a href=""test1"">test2</a>--%> test3 <img />";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            tokenizer.Tokenize(new StringReader(input));
+            CheckForErrors(tokenizer, input.Length);
+
+            // first line
+            var i = 0;
+            Assert.AreEqual("test ", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("<!--", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.OpenServerComment, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(@"<a href=""test1"">test2</a>", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.CommentBody, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("-->", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.CloseComment, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(" test3 ", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("<", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("img", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(" ", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual("/", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.Slash, tokenizer.Tokens[i++].Type);
+
+            Assert.AreEqual(">", tokenizer.Tokens[i].Text);
+            Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
+        }
+
         [TestMethod]
         public void DothtmlTokenizer_CommentInsideElement()
         {
