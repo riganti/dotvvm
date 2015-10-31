@@ -180,8 +180,18 @@ namespace DotVVM.Framework.ViewModel
             {
                 if (existingValue != null && property.Populate)
                 {
-                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject)jtoken, serializer, existingValue);
-                    return existingValue;
+                    if (jtoken.Type == JTokenType.Null)
+                        return null;
+                    else if (jtoken.Type == JTokenType.Object)
+                    {
+                        serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject)jtoken, serializer, existingValue);
+                        return existingValue;
+                    }
+                    else
+                    {
+                        serializer.Populate(jtoken.CreateReader(), existingValue);
+                        return existingValue;
+                    }
                 }
                 else
                 {
