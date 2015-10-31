@@ -193,7 +193,7 @@
     <Content Include="sample47.dothtml" />
     <Content Include="sample48.dothtml" />
     <Content Include="sample48_2.dothtml" />
-    <None Include="sample48_master.dotmaster" />
+    <Content Include="sample48_master.dotmaster" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
