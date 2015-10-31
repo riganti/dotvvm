@@ -1234,6 +1234,26 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        public void Sample42Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample42");
+                Thread.Sleep(WaitTime);
+
+                browser.FindAll("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Hello Deep Thought!", browser.FindAll("span[data-bind=\"text: Greeting\"")[0].GetText());
+
+                browser.NavigateToUrl(BaseUrl + "Sample42");
+                Thread.Sleep(WaitTime);
+
+                browser.FindAll("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Hello Deep Thought!", browser.FindAll("span[data-bind=\"text: Greeting\"")[0].GetText());
+            });
+        }
+
         public void Sample43Test()
         {
             RunInAllBrowsers(browser =>
@@ -1299,8 +1319,6 @@ namespace DotVVM.Samples.Tests
                 browser.FindAll("input")[0].SendKeys("hello");
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
-
-                // TODO: what's the point of this test?
             });
         }
 
