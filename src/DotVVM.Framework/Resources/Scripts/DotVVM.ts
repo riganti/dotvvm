@@ -74,8 +74,6 @@ class DotVVM {
             var url = spaPlaceHolder.getAttribute("data-dot-spacontentplaceholder-defaultroute");
             if (url) {
                 document.location.hash = "#!/" + url;
-            } else {
-                this.navigateCore(viewModelName, "/");
             }
         }
     }

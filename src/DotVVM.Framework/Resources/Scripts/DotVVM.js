@@ -57,9 +57,6 @@ var DotVVM = (function () {
             if (url) {
                 document.location.hash = "#!/" + url;
             }
-            else {
-                this.navigateCore(viewModelName, "/");
-            }
         }
     };
     DotVVM.prototype.onDocumentReady = function (callback) {
@@ -970,4 +967,3 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         }
     };
 })();
-//# sourceMappingURL=dotvvm.js.map
