@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Hosting
         public static bool IsInCurrentVirtualDirectory(IOwinContext context, ref string url)
         {
             var virtualDirectory = GetVirtualDirectory(context);
-            if (url.StartsWith(virtualDirectory))
+            if (url.StartsWith(virtualDirectory, StringComparison.Ordinal))
             {
                 url = url.Substring(virtualDirectory.Length).TrimStart('/');
                 return true;

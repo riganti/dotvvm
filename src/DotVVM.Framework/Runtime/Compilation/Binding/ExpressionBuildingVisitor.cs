@@ -93,11 +93,6 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             return Expression.Constant(node.Value);
         }
 
-        protected override Expression VisitSpecialProperty(SpecialPropertyBindingParserNode node)
-        {
-            return base.VisitSpecialProperty(node);
-        }
-
         protected override Expression VisitParenthesizedExpression(ParenthesizedExpressionBindingParserNode node)
         {
             // just visit content

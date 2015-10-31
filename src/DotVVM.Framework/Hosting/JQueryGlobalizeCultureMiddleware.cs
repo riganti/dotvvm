@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Hosting
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
 
-            if (url.StartsWith(Constants.GlobalizeCultureUrlPath))
+            if (url.StartsWith(Constants.GlobalizeCultureUrlPath, StringComparison.Ordinal))
             {
                 return RenderResponse(context);
             }

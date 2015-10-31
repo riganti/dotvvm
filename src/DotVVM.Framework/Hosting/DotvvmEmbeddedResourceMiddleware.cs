@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Hosting
             }
 
             // embedded resource handler URL
-            if (url.StartsWith(Constants.ResourceHandlerMatchUrl))
+            if (url.StartsWith(Constants.ResourceHandlerMatchUrl, StringComparison.Ordinal))
             {
                 return RenderEmbeddedResource(context);
             }
@@ -53,11 +53,11 @@ namespace DotVVM.Framework.Hosting
             var resourceName = context.Request.Query["name"];
             var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == context.Request.Query["assembly"]);
 
-            if (resourceName.EndsWith(".js"))
+            if (resourceName.EndsWith(".js", StringComparison.Ordinal))
             {
                 context.Response.ContentType = "text/javascript";
             }
-            else if (resourceName.EndsWith(".css"))
+            else if (resourceName.EndsWith(".css", StringComparison.Ordinal))
             {
                 context.Response.ContentType = "text/css";
             }

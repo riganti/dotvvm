@@ -376,7 +376,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 if (lastDigit == 'm') type = NumberLiteralSuffix.Decimal;
                 else if (lastDigit == 'f') type = NumberLiteralSuffix.Float;
                 else if (lastDigit == 'd') type = NumberLiteralSuffix.Double;
-                else if (text.EndsWith("ul") || text.EndsWith("lu")) type = NumberLiteralSuffix.UnsignedLong;
+                else if (text.EndsWith("ul", StringComparison.Ordinal) || text.EndsWith("lu", StringComparison.Ordinal)) type = NumberLiteralSuffix.UnsignedLong;
                 else if (lastDigit == 'u') type = NumberLiteralSuffix.Unsigned;
                 else if (lastDigit == 'l') type = NumberLiteralSuffix.Long;
                 else
@@ -435,7 +435,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
 
             // if all are digits, or '0x' + hex digits => too large number
             if (text.All(char.IsDigit) ||
-                (text.StartsWith("0x") && text.Skip(2).All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f'))))
+                (text.StartsWith("0x", StringComparison.Ordinal) && text.Skip(2).All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f'))))
                 error = $"number number {text} is too large for integral literal, try to append 'd' to real number literal";
             else error = $"could not parse {text} as numeric literal";
             return null;

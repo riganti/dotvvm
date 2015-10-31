@@ -58,7 +58,7 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public void Add(string routeName, RouteBase route)
         {
-            if (list.Any(r => r.Key == routeName))
+            if (list.Any(r => string.Equals(r.Key, routeName, StringComparison.InvariantCultureIgnoreCase)))
             {
                 throw new InvalidOperationException($"The route with name '{routeName}' has already been registered!");
             }
@@ -66,14 +66,14 @@ namespace DotVVM.Framework.Routing
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));
         }
 
-        public RouteBase this[string key]
+        public RouteBase this[string routeName]
         {
             get
             {
-                var route = list.FirstOrDefault(i => i.Key == key).Value;
+                var route = list.FirstOrDefault(r => string.Equals(r.Key, routeName, StringComparison.InvariantCultureIgnoreCase)).Value;
                 if (route == null)
                 {
-                    throw new ArgumentException($"The route with name '{key}' does not exist!");
+                    throw new ArgumentException($"The route with name '{routeName}' does not exist!");
                 }
                 return route;
             }

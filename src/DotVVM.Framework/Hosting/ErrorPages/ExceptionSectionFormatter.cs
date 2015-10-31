@@ -41,17 +41,18 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     w.Write("<div> <h3>");
                     w.WriteText(info.Title);
                     w.Write("</h3>");
-                    if(info.Objects != null) foreach (var obj in info.Objects)
-                    {
-                        if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToString)
+                    if (info.Objects != null)
+                        foreach (var obj in info.Objects)
                         {
-                            w.Write("<p>" + WebUtility.HtmlEncode(obj.ToString()) + "</p>");
+                            if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToString)
+                            {
+                                w.Write("<p>" + WebUtility.HtmlEncode(obj.ToString()) + "</p>");
+                            }
+                            else if (info.Display == ExceptionAdditionalInfo.DisplayMode.ObjectBrowser)
+                            {
+                                w.ObjectBrowser(obj);
+                            }
                         }
-                        else if (info.Display == ExceptionAdditionalInfo.DisplayMode.ObjectBrowser)
-                        {
-                            w.ObjectBrowser(obj);
-                        }
-                    }
                     w.Write("</div><hr />");
                 }
                 w.Write("</div>");
@@ -64,6 +65,14 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 w.WriteText(FormatMethod(frame.Method));
                 w.Write(" </span>");
                 if (frame.At.FileName != null) w.WriteText(frame.At.FileName + " +" + frame.At.LineNumber);
+                w.Write("<span class='docLinks'>");
+                foreach (var icon in frame.MoreInfo)
+                {
+                    w.Write("<a href='" + icon.Link + "'>");
+                    w.Write(icon.ContentHtml);
+                    w.Write("</a>");
+                }
+                w.Write("</span>");
                 w.WriteSourceCode(frame.At);
                 w.Write("</div>");
             }

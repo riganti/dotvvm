@@ -65,7 +65,7 @@ namespace Microsoft.AspNet.WebUtilities
             {
                 if (value < 0)
                 {
-                    throw new ArgumentOutOfRangeException("value", value, "Position must be positive.");
+                    throw new ArgumentOutOfRangeException(nameof(value), value, "Position must be positive.");
                 }
                 if (value == Position)
                 {
@@ -259,7 +259,7 @@ namespace Microsoft.AspNet.WebUtilities
         {
             if (minCount > _buffer.Length)
             {
-                throw new ArgumentOutOfRangeException("minCount", minCount, "The value must be smaller than the buffer size: " + _buffer.Length);
+                throw new ArgumentOutOfRangeException(nameof(minCount), minCount, "The value must be smaller than the buffer size: " + _buffer.Length);
             }
             while (_bufferCount < minCount)
             {

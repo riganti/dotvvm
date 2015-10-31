@@ -27,6 +27,7 @@ class DotVVM {
 
     public extensions: DotvvmExtensions = {};
     public viewModels: { [name: string]: DotvvmViewModel } = {};
+    private viewModelObservables: { [name: string]: KnockoutObservable<DotvvmViewModel> } = {};
     public culture: string;
     public serialization: DotvvmSerialization = new DotvvmSerialization();
     public events = {
@@ -46,7 +47,9 @@ class DotVVM {
         }
         var viewModel = thisVm.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
 
-        ko.applyBindings(viewModel, document.documentElement);
+        this.viewModelObservables[viewModelName] = ko.observable(viewModel);
+        ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
+
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
         this.isViewModelUpdating = false;
 
@@ -380,7 +383,6 @@ class DotVVM {
                     var updatedControls = this.cleanUpdatedControls(resultObject);
 
                     // update the viewmodel
-                    ko.cleanNode(document.documentElement);
                     this.viewModels[viewModelName] = {};
                     for (var p in resultObject) {
                         if (resultObject.hasOwnProperty(p)) {
@@ -392,8 +394,8 @@ class DotVVM {
                     isSuccess = true;
 
                     // add updated controls
-                    this.restoreUpdatedControls(resultObject, updatedControls, false);
-                    ko.applyBindings(this.viewModels[viewModelName].viewModel, document.documentElement);
+                    this.viewModelObservables[viewModelName](this.viewModels[viewModelName].viewModel);
+                    this.restoreUpdatedControls(resultObject, updatedControls, true);
 
                     this.isViewModelUpdating = false;
                 } else if (resultObject.action === "redirect") {
@@ -516,7 +518,7 @@ class DotVVM {
     public getDataSourceItems(viewModel: any) {
         var value = ko.unwrap(viewModel);
         if (typeof value === "undefined" || value == null) return [];
-        return value.Items || value;
+        return ko.unwrap(value.Items || value);
     }
 
     private updateDynamicPathFragments(context: any, path: string[]): void {

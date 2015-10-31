@@ -194,12 +194,12 @@ namespace DotVVM.Framework.Runtime.Compilation
         private ResolvedBinding ProcessBinding(DothtmlBindingNode node, DataContextStack context)
         {
             var value = node.Value;
-            var bindingType = controlResolver.ResolveBinding(node.Name, ref value);
+            var bindingOptions = controlResolver.ResolveBinding(node.Name);
             Expression expression = null;
             Exception parsingError = null;
             try
             {
-                expression = bindingParser.Parse(value, context);
+                expression = bindingParser.Parse(value, context, bindingOptions);
             }
             catch (Exception exception)
             {
@@ -207,7 +207,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             return new ResolvedBinding()
             {
-                BindingType = bindingType,
+                BindingType = bindingOptions.BindingType,
                 Value = node.Value,
                 Expression = expression,
                 DataContextTypeStack = context,

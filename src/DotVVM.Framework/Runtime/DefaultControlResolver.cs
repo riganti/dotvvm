@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Runtime
         private readonly DotvvmConfiguration configuration;
         private readonly IControlBuilderFactory controlBuilderFactory;
 
-        private static ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>();
+        private static ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>(StringComparer.OrdinalIgnoreCase);
         private static ConcurrentDictionary<ControlType, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<ControlType, ControlResolverMetadata>();
 
         private static object locker = new object();
@@ -110,36 +110,25 @@ namespace DotVVM.Framework.Runtime
             return ResolveControl(new ControlType(controlType));
         }
 
+        public static Dictionary<string, BindingParserOptions> BindingTypes = new Dictionary<string, BindingParserOptions>(StringComparer.OrdinalIgnoreCase)
+        {
+            { Constants.ValueBinding, BindingParserOptions.Create<ValueBindingExpression>() },
+            { Constants.CommandBinding, BindingParserOptions.Create<CommandBindingExpression>() },
+            { Constants.ControlPropertyBinding, BindingParserOptions.Create<ControlPropertyBindingExpression>("_control") },
+            { Constants.ControlCommandBinding, BindingParserOptions.Create<ControlCommandBindingExpression>("_control") },
+            { Constants.ResourceBinding, BindingParserOptions.Create<ResourceBindingExpression>() },
+            { Constants.StaticCommandBinding, BindingParserOptions.Create<StaticCommandBindingExpression>() },
+        };
+
         /// <summary>
         /// Resolves the binding type.
         /// </summary>
-        public virtual Type ResolveBinding(string bindingType, ref string bindingValue)
+        public virtual BindingParserOptions ResolveBinding(string bindingType)
         {
-            if (bindingType == Constants.ValueBinding)
+            BindingParserOptions bpo;
+            if(BindingTypes.TryGetValue(bindingType, out bpo))
             {
-                return typeof(ValueBindingExpression);
-            }
-            else if (bindingType == Constants.CommandBinding)
-            {
-                return typeof(CommandBindingExpression);
-            }
-            else if (bindingType == Constants.ControlPropertyBinding)
-            {
-                bindingValue = "_control." + bindingValue;
-                return typeof(ControlPropertyBindingExpression);
-            }
-            else if (bindingType == Constants.ControlCommandBinding)
-            {
-                bindingValue = "_control." + bindingValue;
-                return typeof(ControlCommandBindingExpression);
-            }
-            else if (bindingType == Constants.ResourceBinding)
-            {
-                return typeof(ResourceBindingExpression);
-            }
-            else if (bindingType == Constants.StaticCommandBinding)
-            {
-                return typeof(StaticCommandBindingExpression);
+                return bpo;
             }
             else
             {
@@ -183,7 +172,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         protected virtual ControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName)
         {
-            var type = ReflectionUtils.FindType(namespaceName + "." + tagName + ", " + assemblyName);
+            var type = ReflectionUtils.FindType(namespaceName + "." + tagName + ", " + assemblyName, ignoreCase: true);
             if (type == null)
             {
                 // the control was not found

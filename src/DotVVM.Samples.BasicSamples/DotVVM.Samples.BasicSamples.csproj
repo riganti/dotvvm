@@ -148,6 +148,7 @@
     <Content Include="error11.dothtml" />
     <Content Include="error11.dotmaster" />
     <Content Include="error12.dothtml" />
+    <Content Include="error13.dothtml" />
     <None Include="Properties\PublishProfiles\CI.pubxml" />
     <Content Include="sample15.dothtml" />
     <Content Include="sample16.dothtml" />
@@ -189,6 +190,10 @@
     <Content Include="sample44.dothtml" />
     <Content Include="sample45.dothtml" />
     <Content Include="sample46.dothtml" />
+    <Content Include="sample47.dothtml" />
+    <Content Include="sample48.dothtml" />
+    <Content Include="sample48_2.dothtml" />
+    <None Include="sample48_master.dotmaster" />
     <None Include="Scripts\jquery-1.9.1.intellisense.js" />
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
@@ -251,6 +256,8 @@
     <Compile Include="ViewModels\Sample45ViewModel.cs" />
     <Compile Include="ViewModels\Sample44ViewModel.cs" />
     <Compile Include="ViewModels\Sample43ViewModel.cs" />
+    <Compile Include="ViewModels\Sample48ViewModel.cs" />
+    <Compile Include="ViewModels\Sample47ViewModel.cs" />
     <Compile Include="ViewModels\Sample46ViewModel.cs" />
     <Compile Include="ViewModels\Sample6ViewModel.cs" />
     <Compile Include="ViewModels\Sample1ViewModel.cs" />

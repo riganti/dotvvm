@@ -135,9 +135,8 @@ namespace DotVVM.Framework.Controls
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList) items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     placeholder.ID = "i" + index;
-                    Children.Add(placeholder);
-
                     CreateRow(context, placeholder);
+                    Children.Add(placeholder);
 
                     index++;
                 }
@@ -161,7 +160,6 @@ namespace DotVVM.Framework.Controls
         private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
-            Children.Add(head);
 
             var headerRow = new HtmlGenericControl("tr");
             // workaroud: header template must have to be one level nested, because it is in the Columns property which nests the dataContext to the item type
@@ -176,6 +174,8 @@ namespace DotVVM.Framework.Controls
 
                 column.CreateHeaderControls(context, this, sortCommand, cell);
             }
+
+            Children.Add(head);
         }
 
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
@@ -263,9 +263,8 @@ namespace DotVVM.Framework.Controls
                 var placeholder = new DataItemContainer { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                 placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
-                Children.Add(placeholder);
-
                 CreateRow(context.RequestContext, placeholder);
+                Children.Add(placeholder);
 
                 placeholder.Render(writer, context);
             }
@@ -277,7 +276,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RenderOnServer && numberOfRows == 0)
             {
-                emptyDataContainer.Render(writer, context);
+                emptyDataContainer?.Render(writer, context);
             }
             else
             {
@@ -289,10 +288,7 @@ namespace DotVVM.Framework.Controls
         {
             base.RenderEndTag(writer, context);
 
-            if (emptyDataContainer != null)
-            {
-                emptyDataContainer.Render(writer, context);
-            }
+            emptyDataContainer?.Render(writer, context);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)

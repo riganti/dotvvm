@@ -115,10 +115,10 @@ namespace DotVVM.Framework.Controls
                 {
                     var placeholder = new DataItemContainer {DataItemIndex = index};
                     ItemTemplate.BuildContent(context, placeholder);
-                    Children.Add(placeholder);
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList) items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     placeholder.ID = "i" + index;
+                    Children.Add(placeholder);
                     index++;
                 }
                 numberOfRows = index;
@@ -178,10 +178,7 @@ namespace DotVVM.Framework.Controls
                 writer.WriteKnockoutDataBindEndComment();
             }
 
-            if (emptyDataContainer != null)
-            {
-                emptyDataContainer.Render(writer, context);
-            }
+            emptyDataContainer?.Render(writer, context);
         }
 
         /// <summary>
@@ -203,8 +200,8 @@ namespace DotVVM.Framework.Controls
                 var placeholder = new DataItemContainer() { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                 placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
-                Children.Add(placeholder);
                 ItemTemplate.BuildContent(context.RequestContext, placeholder);
+                Children.Add(placeholder);
 
                 placeholder.Render(writer, context);
             }
@@ -215,7 +212,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RenderOnServer && numberOfRows == 0)
             {
-                emptyDataContainer.Render(writer, context);
+                emptyDataContainer?.Render(writer, context);
             }
             else
             {

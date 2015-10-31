@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Hosting
         {
             // verify the request
             var isPost = context.Request.Method == "POST";
-            if (isPost && !context.Request.ContentType.StartsWith("multipart/form-data"))
+            if (isPost && !context.Request.ContentType.StartsWith("multipart/form-data", StringComparison.Ordinal))
             {
                 context.Response.StatusCode = (int)HttpStatusCode.BadRequest;
                 return;

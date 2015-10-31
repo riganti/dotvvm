@@ -104,6 +104,8 @@ namespace DotVVM.Framework.Hosting
             get { return DotvvmPresenter.DeterminePartialRendering(OwinContext); }
         }
 
+
+
         /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
         /// </summary>
@@ -231,10 +233,10 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public static string TranslateVirtualPath(string virtualUrl, IOwinContext owinContext)
         {
-            if (virtualUrl.StartsWith("~/"))
+            if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             {
                 var url = DotvvmMiddleware.GetVirtualDirectory(owinContext) + "/" + virtualUrl.Substring(2);
-                if (!url.StartsWith("/"))
+                if (!url.StartsWith("/", StringComparison.Ordinal))
                 {
                     url = "/" + url;
                 }

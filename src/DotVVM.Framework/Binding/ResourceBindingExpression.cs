@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Binding
             }
 
             // parse expression
-            var lastDotPosition = OriginalString.LastIndexOf(".");
+            var lastDotPosition = OriginalString.LastIndexOf(".", StringComparison.Ordinal);
             var resourceType = OriginalString.Substring(0, lastDotPosition);
             var resourceKey = OriginalString.Substring(lastDotPosition + 1);
 
