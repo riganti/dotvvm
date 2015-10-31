@@ -1,0 +1,11 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample48ViewModelB, DotVVM.Samples.BasicSamples
+@masterPage sample48_master.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+	<dot:TextBox Text="{value: TestValueB}" />
+	<dot:TextBox Text="{value: TestValue}" />
+
+	<dot:Button Click="{command: Test()}" Text="Test" />
+
+</dot:Content>

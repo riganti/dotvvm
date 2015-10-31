@@ -111,6 +111,9 @@ namespace DotVVM.Samples.Tests
         public void Sample40Test_VirtDir() { Sample40Test(); }
 
         [TestMethod]
+        public void Sample42Test_VirtDir() { Sample42Test(); }
+
+        [TestMethod]
         public void Sample43Test_VirtDir() { Sample43Test(); }
 
         [TestMethod]
@@ -124,5 +127,8 @@ namespace DotVVM.Samples.Tests
 
         [TestMethod]
         public void Sample47Test_VirtDir() { Sample47Test(); }
+
+        [TestMethod]
+        public void Sample48Test_VirtDir() { Sample48Test(); }
     }
 }

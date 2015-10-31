@@ -160,6 +160,7 @@ namespace DotVVM.Framework.Controls
         private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
+            Children.Add(head);
 
             var headerRow = new HtmlGenericControl("tr");
             // workaroud: header template must have to be one level nested, because it is in the Columns property which nests the dataContext to the item type
@@ -175,7 +176,6 @@ namespace DotVVM.Framework.Controls
                 column.CreateHeaderControls(context, this, sortCommand, cell);
             }
 
-            Children.Add(head);
         }
 
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)

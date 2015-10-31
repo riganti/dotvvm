@@ -13,6 +13,7 @@ var DotVVM = (function () {
         this.isViewModelUpdating = true;
         this.extensions = {};
         this.viewModels = {};
+        this.viewModelObservables = {};
         this.serialization = new DotvvmSerialization();
         this.events = {
             init: new DotvvmEvent("dotvvm.events.init", true),
@@ -31,7 +32,8 @@ var DotVVM = (function () {
             thisVm.renderedResources.forEach(function (r) { return _this.resourceSigns[r] = true; });
         }
         var viewModel = thisVm.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
-        ko.applyBindings(viewModel, document.documentElement);
+        this.viewModelObservables[viewModelName] = ko.observable(viewModel);
+        ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
         this.isViewModelUpdating = false;
         // handle SPA
@@ -339,7 +341,6 @@ var DotVVM = (function () {
                     // remove updated controls
                     var updatedControls = _this.cleanUpdatedControls(resultObject);
                     // update the viewmodel
-                    ko.cleanNode(document.documentElement);
                     _this.viewModels[viewModelName] = {};
                     for (var p in resultObject) {
                         if (resultObject.hasOwnProperty(p)) {
@@ -349,8 +350,8 @@ var DotVVM = (function () {
                     _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
                     isSuccess = true;
                     // add updated controls
-                    _this.restoreUpdatedControls(resultObject, updatedControls, false);
-                    ko.applyBindings(_this.viewModels[viewModelName].viewModel, document.documentElement);
+                    _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);
+                    _this.restoreUpdatedControls(resultObject, updatedControls, true);
                     _this.isViewModelUpdating = false;
                 }
                 else if (resultObject.action === "redirect") {

@@ -1248,6 +1248,26 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+        public void Sample42Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample42");
+                Thread.Sleep(WaitTime);
+
+                browser.FindAll("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Hello Deep Thought!", browser.FindAll("span[data-bind=\"text: Greeting\"")[0].GetText());
+
+                browser.NavigateToUrl(BaseUrl + "Sample42");
+                Thread.Sleep(WaitTime);
+
+                browser.FindAll("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Hello Deep Thought!", browser.FindAll("span[data-bind=\"text: Greeting\"")[0].GetText());
+            });
+        }
+
         public void Sample43Test()
         {
             RunInAllBrowsers(browser =>
@@ -1422,6 +1442,57 @@ namespace DotVVM.Samples.Tests
                 browser.FindAll("a")[11].Click();
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("Child 3 Subchild 1", browser.GetText("#result"));
+            });
+        }
+
+        public void Sample48Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample48");
+                Thread.Sleep(WaitTime);
+
+                // verify items count
+                Assert.AreEqual(3, browser.FindAll("ul#first li").Count);
+
+                // verify first page values
+                Assert.AreEqual("Hello", browser.FindAll("input[type=text]")[0].GetAttribute("value"));
+                Assert.AreEqual("1", browser.FindAll("input[type=text]")[1].GetAttribute("value"));
+                Assert.AreEqual("A", browser.Find("#test2").GetText()); 
+
+                // try the postback
+                browser.Find("input[type=button]").Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Hello1", browser.Find("#testResult").GetText());
+
+                // go to second page
+                browser.FindAll("a")[1].Click();
+                Thread.Sleep(WaitTime);
+                
+                // verify items count
+                Assert.AreEqual(3, browser.FindAll("ul#first li").Count);
+
+                // verify second page values
+                Assert.AreEqual("World", browser.FindAll("input[type=text]")[0].GetAttribute("value"));
+                Assert.AreEqual("2", browser.FindAll("input[type=text]")[1].GetAttribute("value"));
+                Assert.AreEqual("B", browser.Find("#test2").GetText());
+
+                // try the postback
+                browser.Find("input[type=button]").Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("World2", browser.Find("#testResult").GetText());
+
+                // go to first page
+                browser.FindAll("a")[0].Click();
+                Thread.Sleep(WaitTime);
+                
+                // verify items count
+                Assert.AreEqual(3, browser.FindAll("ul#first li").Count);
+
+                // verify first page values
+                Assert.AreEqual("Hello", browser.FindAll("input[type=text]")[0].GetAttribute("value"));
+                Assert.AreEqual("1", browser.FindAll("input[type=text]")[1].GetAttribute("value"));
+                Assert.AreEqual("A", browser.Find("#test2").GetText());
             });
         }
     }
