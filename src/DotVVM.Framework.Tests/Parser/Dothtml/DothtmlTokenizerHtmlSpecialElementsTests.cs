@@ -303,13 +303,13 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual("test ", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual("<!--", tokenizer.Tokens[i].Text);
+            Assert.AreEqual("<%--", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.OpenServerComment, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(@" this is a text < > "" ' ", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.CommentBody, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual("-->", tokenizer.Tokens[i].Text);
+            Assert.AreEqual("--%>", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.CloseComment, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(" test2", tokenizer.Tokens[i].Text);
@@ -331,13 +331,13 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual("test ", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual("<!--", tokenizer.Tokens[i].Text);
+            Assert.AreEqual("<%--", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.OpenServerComment, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(@"<a href=""test1"">test2</a>", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.CommentBody, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual("-->", tokenizer.Tokens[i].Text);
+            Assert.AreEqual("--%>", tokenizer.Tokens[i].Text);
             Assert.AreEqual(DothtmlTokenType.CloseComment, tokenizer.Tokens[i++].Type);
 
             Assert.AreEqual(" test3 ", tokenizer.Tokens[i].Text);
