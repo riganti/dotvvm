@@ -247,6 +247,7 @@ namespace DotVVM.Framework.Hosting
             // render the output
             ViewModelSerializer.BuildViewModel(context);
             OutputRenderer.RenderPage(context, page);
+            context.OwinContext.Response.Headers["Cache-Control"] = "no-cache";
             if (!context.IsInPartialRenderingMode)
             {
                 // standard get

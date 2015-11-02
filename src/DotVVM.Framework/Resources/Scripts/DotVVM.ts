@@ -547,7 +547,6 @@ class DotVVM {
     private getJSON(url: string, method: string, spaPlaceHolderUniqueId: string, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void) {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
-        xhr.open("GET", url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("X-DotVVM-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
         xhr.onreadystatechange = () => {
