@@ -362,4 +362,3 @@ ko.bindingHandlers["dotvvmValidation"] = {
         }
     }
 };
-//# sourceMappingURL=DotVVM.Validation.js.map

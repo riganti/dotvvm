@@ -926,6 +926,8 @@ var DotvvmSerialization = (function () {
 var DotvvmPostBackHandler = (function () {
     function DotvvmPostBackHandler() {
     }
+    DotvvmPostBackHandler.prototype.execute = function (callback) {
+    };
     return DotvvmPostBackHandler;
 })();
 var ConfirmPostBackHandler = (function (_super) {
@@ -998,4 +1000,3 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         }
     };
 })();
-//# sourceMappingURL=dotvvm.js.map

@@ -967,8 +967,9 @@ class DotvvmSerialization {
 }
 
 
-abstract class DotvvmPostBackHandler {
-    public abstract execute(callback: () => void);
+class DotvvmPostBackHandler {
+    public execute(callback: () => void) {
+    }
 }
 
 class ConfirmPostBackHandler extends DotvvmPostBackHandler {
