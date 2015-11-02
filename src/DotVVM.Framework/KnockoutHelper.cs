@@ -174,6 +174,7 @@ namespace DotVVM.Framework
             }
 
             // reparent the expression to work in current DataContext
+            // FIXME: This does not work:
             var validationBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
             string validationExpression = validationBindingExpression.GetKnockoutBindingExpression();
             validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
