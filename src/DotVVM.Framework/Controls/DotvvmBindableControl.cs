@@ -26,14 +26,11 @@ namespace DotVVM.Framework.Controls
 
 
 
-        private Dictionary<DotvvmProperty, BindingExpression> dataBindings = new Dictionary<DotvvmProperty, BindingExpression>();
         /// <summary>
         /// Gets a collection of all data-bindings set on this control.
         /// </summary>
-        protected internal IReadOnlyDictionary<DotvvmProperty, BindingExpression> DataBindings
-        {
-            get { return dataBindings; }
-        }
+        protected internal IEnumerable<KeyValuePair<DotvvmProperty, IBinding>> DataBindings
+            => properties.Where(kvp => kvp.Value is IBinding).Select(kvp => new KeyValuePair<DotvvmProperty, IBinding>(kvp.Key, kvp.Value as IBinding));
 
         /// <summary>
         /// Gets or sets whether this control should be rendered on the server.
@@ -81,6 +78,7 @@ namespace DotVVM.Framework.Controls
         public override void SetValue(DotvvmProperty property, object value)
         {
             var originalValue = GetValueRaw(property, false);
+            // TODO: really do we want to update the value binding only if it's not a binding
             if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))
             {
                 // if the property contains a binding and we are not passing another binding, update the value
@@ -88,16 +86,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                // register data-bindings when they are applied to the property
-                dataBindings.Remove(property);
-                if (value is BindingExpression)
-                {
-                    dataBindings[property] = (BindingExpression)value;
-                }
-                else
-                {
-                    SetValueRaw(property, value);
-                }
+                SetValueRaw(property, value);
             }
         }
 
@@ -112,8 +101,8 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the binding set to a specified property.
         /// </summary>
-        public BindingExpression GetBinding(DotvvmProperty property, bool inherit = true)
-            => GetValueRaw(property, inherit) as BindingExpression;
+        public IBinding GetBinding(DotvvmProperty property, bool inherit = true)
+            => GetValueRaw(property, inherit) as IBinding;
 
         /// <summary>
         /// Gets the value binding set to a specified property.
@@ -123,7 +112,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is IStaticValueBinding)) // throw exception on incompatible binding types
             {
-                throw new DotvvmControlException(this, "ValueBindingExpression was expected!");        
+                throw new DotvvmControlException(this, "ValueBindingExpression was expected!");
             }
             return binding as IValueBinding;
         }
@@ -136,7 +125,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is ICommandBinding))
             {
-                throw new DotvvmControlException(this, "CommandBindingExpression was expected!");        
+                throw new DotvvmControlException(this, "CommandBindingExpression was expected!");
             }
             return binding as ICommandBinding;
         }
@@ -204,6 +193,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the hierarchy of all DataContext bindings from the root to current control.
         /// </summary>
+        [Obsolete]
         internal IEnumerable<IValueBinding> GetDataContextHierarchy()
         {
             var bindings = new List<IValueBinding>();
@@ -243,7 +233,7 @@ namespace DotVVM.Framework.Controls
             var result = GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
             if (result == null)
             {
-                throw new DotvvmControlException(this, "The {controlProperty: ...} binding can be only used in a markup control."); 
+                throw new DotvvmControlException(this, "The {controlProperty: ...} binding can be only used in a markup control.");
             }
             return result;
         }
@@ -274,11 +264,18 @@ namespace DotVVM.Framework.Controls
             }
             return current;
         }
-
+        
         protected internal bool HasBinding(DotvvmProperty property)
         {
             object value;
-            return Properties.TryGetValue(property, out value) && value is BindingExpression;
+            return Properties.TryGetValue(property, out value) && value is IBinding;
+        }
+
+        protected internal bool HasBinding<TBinding>(DotvvmProperty property)
+            where TBinding: IBinding
+        {
+            object value;
+            return Properties.TryGetValue(property, out value) && value is TBinding;
         }
 
         /// <summary>
