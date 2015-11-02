@@ -505,7 +505,6 @@ var DotVVM = (function () {
     DotVVM.prototype.getJSON = function (url, method, spaPlaceHolderUniqueId, success, error) {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
-        xhr.open("GET", url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("X-DotVVM-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
         xhr.onreadystatechange = function () {
