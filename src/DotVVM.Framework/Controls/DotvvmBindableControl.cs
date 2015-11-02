@@ -13,10 +13,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public abstract class DotvvmBindableControl : DotvvmControl
     {
-        private Dictionary<string, object> controlState;
-
-
-
         /// <summary>
         /// Gets or sets the data context.
         /// </summary>
@@ -40,56 +36,12 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets the collection of properties used to persist control state for postbacks.
-        /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public Dictionary<string, object> ControlState
-        {
-            get
-            {
-                if (controlState == null)
-                {
-                    controlState = new Dictionary<string, object>();
-                }
-                return controlState;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indication whether the control requires the control state.
-        /// </summary>
-        protected internal virtual bool RequiresControlState
-        {
-            get { return false; }
-        }
-
-        /// <summary>
         /// Gets or sets whether this control should be rendered on the server.
         /// </summary>
         protected internal virtual bool RenderOnServer
         {
             get { return (RenderMode)GetValue(RenderSettings.ModeProperty) == RenderMode.Server; }
         }
-
-        /// <summary>
-        /// Gets the value from control state.
-        /// </summary>
-        protected internal virtual T GetControlStateValue<T>(string key, T defaultValue = default(T))
-        {
-            if (!RequiresControlState) return defaultValue;
-            object value;
-            return ControlState.TryGetValue(key, out value) ? (T)value : defaultValue;
-        }
-
-        /// <summary>
-        /// Sets the value for specified control state item.
-        /// </summary>
-        protected internal virtual void SetControlStateValue(string key, object value)
-        {
-            ControlState[key] = value;
-        }
-
-
 
         /// <summary>
         /// Gets the value of a specified property.
