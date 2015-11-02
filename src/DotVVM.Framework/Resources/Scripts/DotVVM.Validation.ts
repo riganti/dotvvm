@@ -302,7 +302,7 @@ class DotvvmValidation
         }
     }
 };
-interface DotvvmExtensions {
+interface IDotvvmExtensions {
     validation?: DotvvmValidation;
 }
 interface DotvvmViewModel {

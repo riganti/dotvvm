@@ -118,14 +118,18 @@ namespace DotVVM.Framework.Runtime.Compilation
         public override void VisitPropertyControlCollection(ResolvedPropertyControlCollection propertyControlCollection)
         {
             var parentName = controlName;
+            var collectionName = emitter.EmitEnsureCollectionInitialized(parentName, propertyControlCollection.Property);
+
             foreach (var control in propertyControlCollection.Controls)
             {
                 controlName = CreateControl(control);
+
                 // compile control content
                 base.VisitControl(control);
+
                 // add to collection in property
                 emitter.EmitSetProperty(controlName, nameof(DotvvmControl.Parent), SyntaxFactory.IdentifierName(parentName));
-                emitter.EmitAddCollectionItem(parentName, controlName, propertyControlCollection.Property.Name);
+                emitter.EmitAddCollectionItem(collectionName, controlName, null);
             }
             controlName = parentName;
         }

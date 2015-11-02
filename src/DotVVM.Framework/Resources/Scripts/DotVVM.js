@@ -15,6 +15,7 @@ var DotVVM = (function () {
         this.viewModels = {};
         this.viewModelObservables = {};
         this.serialization = new DotvvmSerialization();
+        this.postBackHandlers = new DotvvmPostBackHandlers();
         this.events = {
             init: new DotvvmEvent("dotvvm.events.init", true),
             beforePostback: new DotvvmEvent("dotvvm.events.beforePostback"),
@@ -66,8 +67,8 @@ var DotVVM = (function () {
     // binding helpers
     DotVVM.prototype.postbackScript = function (bindingId) {
         var _this = this;
-        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
-            _this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget);
+        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget, context, handlers) {
+            _this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget, context, handlers);
         };
     };
     DotVVM.prototype.persistViewModel = function (viewModelName) {
@@ -118,12 +119,19 @@ var DotVVM = (function () {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
     };
-    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context) {
+    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers) {
         var _this = this;
         if (this.isPostBackProhibited(sender))
             return;
         if (useWindowSetTimeout) {
-            window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath); }, 0);
+            window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers); }, 0);
+            return;
+        }
+        if (handlers && handlers.length > 0) {
+            var handler = this.postBackHandlers[handlers[0].name];
+            var options = this.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
+            var handlerInstance = handler(options);
+            handlerInstance.execute(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)); });
             return;
         }
         var viewModel = this.viewModels[viewModelName].viewModel;
@@ -914,6 +922,30 @@ var DotvvmSerialization = (function () {
         return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + sign + offsetHour + ":" + offsetMinute;
     };
     return DotvvmSerialization;
+})();
+var DotvvmPostBackHandler = (function () {
+    function DotvvmPostBackHandler() {
+    }
+    return DotvvmPostBackHandler;
+})();
+var ConfirmPostBackHandler = (function (_super) {
+    __extends(ConfirmPostBackHandler, _super);
+    function ConfirmPostBackHandler(message) {
+        _super.call(this);
+        this.message = message;
+    }
+    ConfirmPostBackHandler.prototype.execute = function (callback) {
+        if (confirm(this.message)) {
+            callback();
+        }
+    };
+    return ConfirmPostBackHandler;
+})(DotvvmPostBackHandler);
+var DotvvmPostBackHandlers = (function () {
+    function DotvvmPostBackHandlers() {
+        this.confirm = function (options) { return new ConfirmPostBackHandler(options.message); };
+    }
+    return DotvvmPostBackHandlers;
 })();
 var dotvvm = new DotVVM();
 // add knockout binding handler for update progress control

@@ -148,11 +148,14 @@ namespace DotVVM.Framework.Binding
         public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false, DotvvmProperty property = null)
         {
             var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
+            var field = typeof (TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public);
 
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
                 var propertyInfo = typeof(TDeclaringType).GetProperty(propertyName);
-                var markupOptions = (propertyInfo != null ? propertyInfo.GetCustomAttribute<MarkupOptionsAttribute>() : null) ?? new MarkupOptionsAttribute()
+                var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>() 
+                    ?? field?.GetCustomAttribute<MarkupOptionsAttribute>()
+                    ?? new MarkupOptionsAttribute()
                 {
                     AllowBinding = true,
                     AllowHardCodedValue = true,

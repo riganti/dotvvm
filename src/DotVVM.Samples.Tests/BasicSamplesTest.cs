@@ -1495,5 +1495,67 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual("A", browser.Find("#test2").GetText());
             });
         }
+
+        public void Sample49Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample49");
+                Thread.Sleep(WaitTime);
+
+                // confirm first
+                browser.FindAll("input[type=button]")[0].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Confirmation 1", browser.GetAlertText());
+                browser.ConfirmAlert();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("1", browser.FindAll("span").Last().GetText());
+
+                // cancel second
+                browser.FindAll("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Confirmation 1", browser.GetAlertText());
+                browser.ConfirmAlert();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Confirmation 2", browser.GetAlertText());
+                browser.CancelAlert();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("1", browser.FindAll("span").Last().GetText());
+
+                // confirm second
+                browser.FindAll("input[type=button]")[1].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Confirmation 1", browser.GetAlertText());
+                browser.ConfirmAlert();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Confirmation 2", browser.GetAlertText());
+                browser.ConfirmAlert();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("2", browser.FindAll("span").Last().GetText());
+
+                // confirm third
+                browser.FindAll("input[type=button]")[2].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual(null, browser.GetAlertText());
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("3", browser.FindAll("span").Last().GetText());
+
+                // confirm fourth
+                browser.FindAll("input[type=button]")[3].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Generated 1", browser.GetAlertText());
+                browser.ConfirmAlert();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("4", browser.FindAll("span").Last().GetText());
+
+                // confirm fifth
+                browser.FindAll("input[type=button]")[4].Click();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("Generated 2", browser.GetAlertText());
+                browser.ConfirmAlert();
+                Thread.Sleep(WaitTime);
+                Assert.AreEqual("5", browser.FindAll("span").Last().GetText());
+            });
+        }
     }
 }

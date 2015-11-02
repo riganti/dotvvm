@@ -2,11 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework
 {
@@ -65,7 +67,7 @@ namespace DotVVM.Framework
             writer.AddKnockoutDataBind("foreach", expression);
         }
 
-        public static string GenerateClientPostBackScript(ICommandBinding expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
+        public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, RenderContext context, DotvvmBindableControl control, bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
         {
             var uniqueControlId = "";
             if (expression is ControlCommandBindingExpression)
@@ -82,7 +84,9 @@ namespace DotVVM.Framework
                 "[" + String.Join(", ", GetContextPath(control).Reverse().Select(p => '"' + p + '"')) + "]",
                 "'" + uniqueControlId + "'",
                 useWindowSetTimeout ? "true" : "false",
-                JsonConvert.SerializeObject(GetValidationTargetExpression(control))
+                JsonConvert.SerializeObject(GetValidationTargetExpression(control)),
+                "null",
+                GetPostBackHandlersScript(control, propertyName)
             };
 
             // return the script
@@ -91,6 +95,38 @@ namespace DotVVM.Framework
             // call the function returned from binding js with runtime arguments
             var postBackCall = String.Format("{0}({1})", expression.GetCommandJavascript(), String.Join(", ", arguments));
             return condition + postBackCall + returnStatement;
+        }
+
+        /// <summary>
+        /// Generates a list of postback update handlers.
+        /// </summary>
+        private static string GetPostBackHandlersScript(DotvvmBindableControl control, string eventName)
+        {
+            var handlers = (List<PostBackHandler>)control.GetValue(PostBack.HandlersProperty);
+            if (handlers == null) return "null";
+
+            var effectiveHandlers = handlers.Where(h => string.IsNullOrEmpty(h.EventName) || h.EventName == eventName);
+            var sb = new StringBuilder();
+            sb.Append("[");
+            foreach (var handler in effectiveHandlers)
+            {
+                if (sb.Length > 1)
+                {
+                    sb.Append(",");
+                }
+                sb.Append("{name:'");
+                sb.Append(handler.ClientHandlerName);
+                sb.Append("',options:function(){return {");
+                foreach (var option in handler.GetHandlerOptionClientExpressions())
+                {
+                    sb.Append(option.Key);
+                    sb.Append(":");
+                    sb.Append(option.Value);
+                }
+                sb.Append("};}}");
+            }
+            sb.Append("]");
+            return sb.ToString();
         }
 
         public static IEnumerable<string> GetContextPath(DotvvmControl control)

@@ -7,6 +7,7 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Controls;
 using System.Collections;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime.Compilation
@@ -386,16 +387,26 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         public void EmitAddCollectionItem(string controlName, string variableName, string collectionPropertyName = "Children")
         {
+            ExpressionSyntax collectionExpression;
+            if (string.IsNullOrEmpty(collectionPropertyName))
+            {
+                collectionExpression = SyntaxFactory.IdentifierName(controlName);
+            }
+            else
+            {
+                collectionExpression = SyntaxFactory.MemberAccessExpression(
+                    SyntaxKind.SimpleMemberAccessExpression,
+                    SyntaxFactory.IdentifierName(controlName),
+                    SyntaxFactory.IdentifierName(collectionPropertyName)
+                );
+            }
+
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
                     SyntaxFactory.InvocationExpression(
                         SyntaxFactory.MemberAccessExpression(
                             SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(controlName),
-                                SyntaxFactory.IdentifierName(collectionPropertyName)
-                            ),
+                            collectionExpression,
                             SyntaxFactory.IdentifierName("Add")
                         )
                     ).WithArgumentList(
@@ -411,6 +422,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 )
             );
         }
+        
 
         /// <summary>
         /// Emits the add HTML attribute.
@@ -496,6 +508,109 @@ namespace DotVVM.Framework.Runtime.Compilation
                     )
                 )
             );
+        }
+
+        public string EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
+        {
+            if (property.IsVirtual)
+            {
+                CurrentStatements.Add(
+                    SyntaxFactory.IfStatement(
+                        SyntaxFactory.BinaryExpression(
+                            SyntaxKind.EqualsExpression,
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName(parentName),
+                                SyntaxFactory.IdentifierName(property.Name)
+                            ),
+                            SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+                        ),
+                        SyntaxFactory.ExpressionStatement(
+                            SyntaxFactory.AssignmentExpression(
+                                SyntaxKind.SimpleAssignmentExpression,
+                                SyntaxFactory.MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    SyntaxFactory.IdentifierName(parentName),
+                                    SyntaxFactory.IdentifierName(property.Name)
+                                ),
+                                SyntaxFactory.ObjectCreationExpression(
+                                    SyntaxFactory.ParseTypeName(property.PropertyType.FullName)
+                                )
+                            )
+                        )
+                    )
+                );
+
+                return EmitCreateVariable(
+                    SyntaxFactory.MemberAccessExpression(
+                        SyntaxKind.SimpleMemberAccessExpression,
+                        SyntaxFactory.IdentifierName(parentName),
+                        SyntaxFactory.IdentifierName(property.Name)
+                    )
+                );
+            }
+            else
+            {
+                CurrentStatements.Add(
+                    SyntaxFactory.IfStatement(
+                        SyntaxFactory.BinaryExpression(
+                            SyntaxKind.EqualsExpression,
+                            SyntaxFactory.InvocationExpression(
+                                SyntaxFactory.MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    SyntaxFactory.IdentifierName(parentName),
+                                    SyntaxFactory.IdentifierName("GetValue")
+                                ),
+                                SyntaxFactory.ArgumentList(
+                                    SyntaxFactory.SeparatedList(new[]
+                                    {
+                                        SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName))
+                                    })
+                                )
+                            ),
+                            SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+                        ),
+                        SyntaxFactory.ExpressionStatement(
+                            SyntaxFactory.InvocationExpression(
+                                SyntaxFactory.MemberAccessExpression(
+                                    SyntaxKind.SimpleMemberAccessExpression,
+                                    SyntaxFactory.IdentifierName(parentName),
+                                    SyntaxFactory.IdentifierName("SetValue")
+                                ),
+                                SyntaxFactory.ArgumentList(
+                                    SyntaxFactory.SeparatedList(new[]
+                                    {
+                                        SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName)),
+                                        SyntaxFactory.Argument(
+                                            SyntaxFactory.ObjectCreationExpression(
+                                                SyntaxFactory.ParseTypeName(property.PropertyType.FullName)
+                                            )
+                                        )
+                                    })
+                                )
+                            )
+                        )
+                    )
+                );
+                return EmitCreateVariable(
+                    SyntaxFactory.CastExpression(
+                        SyntaxFactory.ParseTypeName(property.PropertyType.FullName),
+                        SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName(parentName),
+                                SyntaxFactory.IdentifierName("GetValue")
+                            ),
+                            SyntaxFactory.ArgumentList(
+                                SyntaxFactory.SeparatedList(new[]
+                                {
+                                    SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName))
+                                })
+                            )
+                        )
+                    )
+                );
+            }
         }
 
         /// <summary>
@@ -609,5 +724,6 @@ namespace DotVVM.Framework.Runtime.Compilation
                             })))
                 );
         }
+
     }
 }

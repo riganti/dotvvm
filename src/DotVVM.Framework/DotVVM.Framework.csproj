@@ -110,6 +110,7 @@
     <Compile Include="Configuration\HtmlTagAttributePair.cs" />
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
     <Compile Include="Configuration\IDotvvmStartup.cs" />
+    <Compile Include="Controls\ConfirmPostBackHandler.cs" />
     <Compile Include="Controls\ButtonTagName.cs" />
     <Compile Include="Controls\ClientIDFragment.cs" />
     <Compile Include="Controls\ClientIDMode.cs" />
@@ -133,6 +134,8 @@
     <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\MultiHtmlWriter.cs" />
+    <Compile Include="Controls\PostBackHandler.cs" />
+    <Compile Include="Controls\PostBackHandlerCollection.cs" />
     <Compile Include="Controls\RenderMode.cs" />
     <Compile Include="Controls\RenderSettings.cs" />
     <Compile Include="Controls\RouteLink.cs" />

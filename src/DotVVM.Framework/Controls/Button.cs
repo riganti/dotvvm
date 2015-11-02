@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Controls
             var clickBinding = GetCommandBinding(ClickProperty);
             if (clickBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding, context, this));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, context, this));
             }
 
             writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>

@@ -6,10 +6,10 @@ interface RenderedResourceList {
 }
 
 interface DotvvmPostbackScriptFunction {
-    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string): void
+    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: DotvvmPostBackHandlerConfiguration[]): void
 }
 
-interface DotvvmExtensions {
+interface IDotvvmExtensions {
 }
 
 interface DotvvmViewModel {
@@ -25,11 +25,12 @@ class DotVVM {
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
 
-    public extensions: DotvvmExtensions = {};
+    public extensions: IDotvvmExtensions = {};
     public viewModels: { [name: string]: DotvvmViewModel } = {};
     private viewModelObservables: { [name: string]: KnockoutObservable<DotvvmViewModel> } = {};
     public culture: string;
     public serialization: DotvvmSerialization = new DotvvmSerialization();
+    public postBackHandlers = new DotvvmPostBackHandlers();
     public events = {
         init: new DotvvmEvent<DotvvmEventArgs>("dotvvm.events.init", true),
         beforePostback: new DotvvmEvent<DotvvmBeforePostBackEventArgs>("dotvvm.events.beforePostback"),
@@ -85,8 +86,8 @@ class DotVVM {
 
     // binding helpers
     private postbackScript(bindingId: string): DotvvmPostbackScriptFunction {
-        return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) => {
-            this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget);
+        return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget, context, handlers) => {
+            this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget, context, handlers);
         }
     }
 
@@ -143,11 +144,19 @@ class DotVVM {
             });
     }
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: DotvvmPostBackHandlerConfiguration[]): void {
         if (this.isPostBackProhibited(sender)) return;
 
         if (useWindowSetTimeout) {
-            window.setTimeout(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath), 0);
+            window.setTimeout(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers), 0);
+            return;
+        }
+
+        if (handlers && handlers.length > 0) {
+            var handler = this.postBackHandlers[handlers[0].name];
+            var options = this.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
+            var handlerInstance = handler(options);
+            handlerInstance.execute(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)));
             return;
         }
 
@@ -958,6 +967,32 @@ class DotvvmSerialization {
 }
 
 
+abstract class DotvvmPostBackHandler {
+    public abstract execute(callback: () => void);
+}
+
+class ConfirmPostBackHandler extends DotvvmPostBackHandler {
+    constructor(public message: string) {
+        super();
+    }
+
+    public execute(callback: () => void) {
+        if (confirm(this.message)) {
+            callback();
+        }
+    }
+}
+
+class DotvvmPostBackHandlers {
+    public confirm = (options: any) => new ConfirmPostBackHandler(<string>options.message);
+}
+
+interface DotvvmPostBackHandlerConfiguration {
+    name: string;
+    options: () => any;
+}
+
+
 var dotvvm = new DotVVM();
 
 
@@ -1018,3 +1053,4 @@ interface KnockoutBindingHandlers {
         }
     };
 })();
+
