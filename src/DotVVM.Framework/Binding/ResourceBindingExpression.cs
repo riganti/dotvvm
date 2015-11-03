@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public object Evaluate(Controls.DotvvmBindableControl control, DotvvmProperty property)
         {
-            if (Delegate != null) return Delegate(new object[0], null);
+            if (Delegate != null) return ExecDelegate(control, true);
 
             if (!OriginalString.Contains("."))
             {
