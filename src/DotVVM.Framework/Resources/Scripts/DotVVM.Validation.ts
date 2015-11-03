@@ -11,7 +11,7 @@ class DotvvmValidatorBase {
         return false;
     }
     public isEmpty(value: string): boolean {
-        return value == null || value.trim() == "";
+        return value == null || (typeof value == "string" && value.trim() == "");
     }
 }
 

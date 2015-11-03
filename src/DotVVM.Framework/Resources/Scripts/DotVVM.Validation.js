@@ -20,7 +20,7 @@ var DotvvmValidatorBase = (function () {
         return false;
     };
     DotvvmValidatorBase.prototype.isEmpty = function (value) {
-        return value == null || value.trim() == "";
+        return value == null || (typeof value == "string" && value.trim() == "");
     };
     return DotvvmValidatorBase;
 })();
@@ -362,4 +362,3 @@ ko.bindingHandlers["dotvvmValidation"] = {
         }
     }
 };
-//# sourceMappingURL=DotVVM.Validation.js.map
