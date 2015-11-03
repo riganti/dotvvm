@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using DotVVM.Framework.Hosting;
+using System.Collections.Concurrent;
 
 namespace DotVVM.Framework.Runtime.Filters
 {
@@ -50,6 +51,9 @@ namespace DotVVM.Framework.Runtime.Filters
 
         public void Authorize(IDotvvmRequestContext context)
         {
+            // check for [NotAuthorized] attribute
+            if (!CanBeAuthorized(context.ViewModel.GetType())) return;
+
             // the user must not be anonymous
             if (context.OwinContext.Request.User == null || !context.OwinContext.Request.User.Identity.IsAuthenticated)
             {
@@ -64,6 +68,12 @@ namespace DotVVM.Framework.Runtime.Filters
                     SetUnauthorizedResponse(context);
                 }
             }
+        }
+
+        private static ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
+        protected static bool CanBeAuthorized(Type viewModelType)
+        {
+            return canBeAuthorizedCache.GetOrAdd(viewModelType, t => IsDefined(t, typeof(NotAuthorizedAttribute)));
         }
 
         protected virtual void SetUnauthorizedResponse(IDotvvmRequestContext context)

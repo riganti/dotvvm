@@ -337,6 +337,7 @@
     <Compile Include="Runtime\Filters\AuthorizeAttribute.cs" />
     <Compile Include="Runtime\Filters\ExceptionFilterAttribute.cs" />
     <Compile Include="Runtime\Filters\ModelValidationFilterAttribute.cs" />
+    <Compile Include="Runtime\Filters\NotAuthorizedAttribute.cs" />
     <Compile Include="Runtime\IControlBuilderFactory.cs" />
     <Compile Include="Runtime\IOutputRenderer.cs" />
     <Compile Include="Runtime\IDotvvmViewBuilder.cs" />
