@@ -9,12 +9,13 @@ using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {
-        public void RenderPage(DotvvmRequestContext context, DotvvmView view)
+        protected void RenderPage(DotvvmRequestContext context, DotvvmView view, Stream result)
         {
             // embed resource links
             EmbedResourceLinks(view);
@@ -23,20 +24,51 @@ namespace DotVVM.Framework.Runtime
             var renderContext = new RenderContext(context);
 
             // get the HTML
-            using (var textWriter = new StringWriter())
+            using (var textWriter = new StreamWriter(result))
             {
                 var htmlWriter = new HtmlWriter(textWriter, context);
                 view.Render(htmlWriter, renderContext);
-                context.RenderedHtml = textWriter.ToString();
             }
         }
 
-        public async Task WriteHtmlResponse(DotvvmRequestContext context)
+        public async Task WriteHtmlResponse(DotvvmRequestContext context, DotvvmView view)
         {
             // return the response
             context.OwinContext.Response.ContentType = "text/html; charset=utf-8";
             context.OwinContext.Response.Headers["Cache-Control"] = "no-cache";
-            await context.OwinContext.Response.WriteAsync(context.RenderedHtml);
+            RenderPage(context, view, context.OwinContext.Response.Body);
+        }
+
+        public void RenderPostbackUpdatedControls(DotvvmRequestContext request, DotvvmView page)
+        {
+            var context = new RenderContext(request);
+            var stack = new Stack<DotvvmControl>();
+            stack.Push(page);
+            do
+            {
+                var control = stack.Pop();
+
+                object val;
+                if (control.properties != null &&
+                    control.properties.TryGetValue(PostBack.UpdateProperty, out val) &&
+                    val is bool && (bool)val)
+                {
+                    using (var w = new StringWriter())
+                    {
+                        control.EnsureControlHasId();
+                        control.Render(new HtmlWriter(w, request), context);
+                        request.PostBackUpdatedControls[control.ID] = w.ToString();
+                    }
+                }
+                else
+                {
+                    foreach (var child in control.GetChildren())
+                    {
+                        stack.Push(child);
+                    }
+                }
+
+            } while (stack.Count > 0);
         }
 
 
@@ -93,5 +125,6 @@ namespace DotVVM.Framework.Runtime
             sections[0].Children.Add(new BodyResourceLinks());
             sections[1].Children.Add(new HeadResourceLinks());
         }
+
     }
 }

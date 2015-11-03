@@ -246,15 +246,15 @@ namespace DotVVM.Framework.Hosting
 
             // render the output
             ViewModelSerializer.BuildViewModel(context);
-            OutputRenderer.RenderPage(context, page);
             if (!context.IsInPartialRenderingMode)
             {
                 // standard get
-                await OutputRenderer.WriteHtmlResponse(context);
+                await OutputRenderer.WriteHtmlResponse(context, page);
             }
             else
             {
                 // postback or SPA content
+                OutputRenderer.RenderPostbackUpdatedControls(context, page);
                 ViewModelSerializer.AddPostBackUpdatedControls(context);
                 await OutputRenderer.WriteViewModelResponse(context, page);
             }

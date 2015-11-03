@@ -71,8 +71,6 @@ namespace DotVVM.Framework.Hosting
 
         internal Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 
-        internal string RenderedHtml { get; set; }
-
         internal JObject ViewModelJson { get; set; }
 
         internal JObject ReceivedViewModelJson { get; set; }

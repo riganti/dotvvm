@@ -54,9 +54,7 @@ namespace DotVVM.Framework.Runtime
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
-                bool changed;
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], out changed, true);
-                if (!changed) context.ViewModelJson.Remove("viewModelDiff");
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], true);
                 context.ViewModelJson.Remove("viewModel");
             }
             return context.ViewModelJson.ToString(JsonFormatting);

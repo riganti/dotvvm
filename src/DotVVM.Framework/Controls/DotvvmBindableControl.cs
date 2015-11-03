@@ -150,22 +150,9 @@ namespace DotVVM.Framework.Controls
                 EnsureControlHasId();
             }
 
-            if (context.RequestContext.IsInPartialRenderingMode && (bool)GetValue(PostBack.UpdateProperty) && !(writer is MultiHtmlWriter))
-            {
-                // render the control and capture the HTML
-                using (var htmlBuilder = new StringWriter())
-                {
-                    var controlWriter = new HtmlWriter(htmlBuilder, context.RequestContext);
-                    var multiWriter = new MultiHtmlWriter(writer, controlWriter);
-                    base.Render(multiWriter, context);
-                    context.RequestContext.PostBackUpdatedControls[ID] = htmlBuilder.ToString();
-                }
-            }
-            else
-            {
-                // render the control directly to the output
-                base.Render(writer, context);
-            }
+
+            // render the control directly to the output
+            base.Render(writer, context);
         }
 
 
@@ -264,7 +251,7 @@ namespace DotVVM.Framework.Controls
             }
             return current;
         }
-        
+
         protected internal bool HasBinding(DotvvmProperty property)
         {
             object value;
@@ -272,7 +259,7 @@ namespace DotVVM.Framework.Controls
         }
 
         protected internal bool HasBinding<TBinding>(DotvvmProperty property)
-            where TBinding: IBinding
+            where TBinding : IBinding
         {
             object value;
             return Properties.TryGetValue(property, out value) && value is TBinding;
