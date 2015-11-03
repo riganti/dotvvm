@@ -86,3 +86,4 @@
     });
     dotvvm.events.init.subscribe(function (e) { return setDebugMapProperty(dotvvm.viewModels["root"]); });
 })(jQuery);
+//# sourceMappingURL=DotVVM.Debug.js.map
