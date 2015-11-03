@@ -14,7 +14,7 @@
 </head>
 <body>
     <div class="container" class="a" data-attribute="&lt;">
-
+		
         <dot:InlineScript dependencies="jquery">
             <![CDATA[ var k = 1 < 5; ]]>
         </dot:InlineScript>
