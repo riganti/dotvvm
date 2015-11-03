@@ -30,7 +30,6 @@ namespace DotVVM.Samples.BasicSamples.AuthSample
             {
                 this.UserName = Context.OwinContext.Authentication.User.Identity.Name;
                 this.AdminRole = Context.OwinContext.Authentication.User.IsInRole("admin");
-                Context.OwinContext.Authentication.SignOut(Context.OwinContext.Authentication.User.Identity.AuthenticationType);
             }
             return base.Init();
         }
@@ -48,7 +47,7 @@ namespace DotVVM.Samples.BasicSamples.AuthSample
             }
             auth.SignIn(id);
 
-            if(Context.Query["ReturnUrl"] != null)
+            if(Context.Query.ContainsKey("ReturnUrl"))
             {
                 Context.Redirect((string)Context.Query["ReturnUrl"]);
             }

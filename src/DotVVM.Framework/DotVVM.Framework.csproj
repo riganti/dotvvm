@@ -127,6 +127,7 @@
     <Compile Include="Controls\GridViewTextColumn.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
     <Compile Include="Controls\GridViewDataSet.cs" />
+    <Compile Include="Controls\IfAuthorized.cs" />
     <Compile Include="Controls\IGridViewDataSet.cs" />
     <Compile Include="Controls\IHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\Infrastructure\RawLiteral.cs" />

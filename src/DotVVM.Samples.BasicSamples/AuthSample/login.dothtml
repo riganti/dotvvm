@@ -12,7 +12,12 @@
 		
 		<fieldset>
 			<legend>Login form</legend>
-			<p>This is sample without db - you don't have to know password</p>
+			<p>This is sample without db - you don't have to know password :)</p>
+			<dot:IfAuthorized>
+				<p>
+					You are already logged in, go to <a href="~/AuthSample/SecuredPage">the page only for logged users</a>
+				</p>
+			</dot:IfAuthorized>
 			<p>User name: <dot:TextBox Text="{value: UserName}" /></p>
 			<p>
 				<dot:CheckBox ID="adminRole" Text="Admin role" Checked="{value: AdminRole}" />

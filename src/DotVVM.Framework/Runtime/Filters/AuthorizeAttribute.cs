@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Runtime.Filters
         private static ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
         protected static bool CanBeAuthorized(Type viewModelType)
         {
-            return canBeAuthorizedCache.GetOrAdd(viewModelType, t => IsDefined(t, typeof(NotAuthorizedAttribute)));
+            return canBeAuthorizedCache.GetOrAdd(viewModelType, t => !IsDefined(t, typeof(NotAuthorizedAttribute)));
         }
 
         protected virtual void SetUnauthorizedResponse(IDotvvmRequestContext context)
