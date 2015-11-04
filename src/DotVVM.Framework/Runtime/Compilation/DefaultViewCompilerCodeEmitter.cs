@@ -518,18 +518,10 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             if (property.IsVirtual)
             {
-                CurrentStatements.Add(
-                    SyntaxFactory.IfStatement(
-                        SyntaxFactory.BinaryExpression(
-                            SyntaxKind.EqualsExpression,
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.IdentifierName(parentName),
-                                SyntaxFactory.IdentifierName(property.Name)
-                            ),
-                            SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
-                        ),
-                        SyntaxFactory.ExpressionStatement(
+                StatementSyntax initializer;
+                if (property.PropertyInfo.SetMethod != null)
+                {
+                    initializer = SyntaxFactory.ExpressionStatement(
                             SyntaxFactory.AssignmentExpression(
                                 SyntaxKind.SimpleAssignmentExpression,
                                 SyntaxFactory.MemberAccessExpression(
@@ -542,7 +534,28 @@ namespace DotVVM.Framework.Runtime.Compilation
                                         SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new ArgumentSyntax[] { }))
                                     )
                             )
+                        );
+                }
+                else
+                {
+                    initializer = SyntaxFactory.ThrowStatement(
+                        CreateObjectExpression(typeof(InvalidOperationException),
+                            new[] { EmitStringLiteral($"Property '{ property.FullName }' can't be used as control collection since it is not initialized and does not have setter available for automatic initialization") }
                         )
+                    );
+                }
+                CurrentStatements.Add(
+                    SyntaxFactory.IfStatement(
+                        SyntaxFactory.BinaryExpression(
+                            SyntaxKind.EqualsExpression,
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.IdentifierName(parentName),
+                                SyntaxFactory.IdentifierName(property.Name)
+                            ),
+                            SyntaxFactory.LiteralExpression(SyntaxKind.NullLiteralExpression)
+                        ),
+                        initializer
                     )
                 );
 

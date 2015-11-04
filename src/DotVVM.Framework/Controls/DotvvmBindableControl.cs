@@ -49,16 +49,22 @@ namespace DotVVM.Framework.Controls
             if (property.IsBindingProperty) return value;
             while (value is IBinding)
             {
+                DotvvmBindableControl control = this;
+                if(inherit && !properties.ContainsKey(property))
+                {
+                    int n;
+                    control = (DotvvmBindableControl)GetClosestWithPropertyValue(out n, d => d is DotvvmBindableControl && d.properties != null && d.properties.ContainsKey(property));
+                }
                 if (value is IStaticValueBinding)
                 {
                     // handle binding
                     var binding = (IStaticValueBinding)value;
-                    value = binding.Evaluate(this, property);
+                    value = binding.Evaluate(control, property);
                 }
                 else if (value is CommandBindingExpression)
                 {
                     var binding = (CommandBindingExpression)value;
-                    value = binding.GetCommandDelegate(this, property);
+                    value = binding.GetCommandDelegate(control, property);
                 }
             }
             return value;
