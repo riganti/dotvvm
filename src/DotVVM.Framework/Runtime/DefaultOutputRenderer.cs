@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {
-        protected void RenderPage(DotvvmRequestContext context, DotvvmView view, Stream result)
+        protected string RenderPage(DotvvmRequestContext context, DotvvmView view)
         {
             // embed resource links
             EmbedResourceLinks(view);
@@ -24,10 +24,11 @@ namespace DotVVM.Framework.Runtime
             var renderContext = new RenderContext(context);
 
             // get the HTML
-            using (var textWriter = new StreamWriter(result))
+            using (var textWriter = new StringWriter())
             {
                 var htmlWriter = new HtmlWriter(textWriter, context);
                 view.Render(htmlWriter, renderContext);
+                return textWriter.ToString();
             }
         }
 
@@ -36,7 +37,8 @@ namespace DotVVM.Framework.Runtime
             // return the response
             context.OwinContext.Response.ContentType = "text/html; charset=utf-8";
             context.OwinContext.Response.Headers["Cache-Control"] = "no-cache";
-            RenderPage(context, view, context.OwinContext.Response.Body);
+            var html = RenderPage(context, view);
+            await context.OwinContext.Response.WriteAsync(html);
         }
 
         public void RenderPostbackUpdatedControls(DotvvmRequestContext request, DotvvmView page)
