@@ -429,6 +429,8 @@
     <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
     <Compile Include="ViewModel\ControlTreeWalker.cs" />
     <Compile Include="ViewModel\DateTimeFormatJsonConverterBase.cs" />
+    <Compile Include="ViewModel\EncryptedValuesReader.cs" />
+    <Compile Include="ViewModel\EncryptedValuesWriter.cs" />
     <Compile Include="ViewModel\FormatJsonConverterBase.cs" />
     <Compile Include="ViewModel\IViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\ViewModelValidator.cs" />
