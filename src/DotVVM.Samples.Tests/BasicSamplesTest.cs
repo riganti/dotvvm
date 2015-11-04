@@ -383,11 +383,11 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        public void Sample13Test()
+        public void Sample13Test(string url = "Sample13")
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(BaseUrl + "Sample13");
+                browser.NavigateToUrl(BaseUrl + url);
 
                 // select city
                 browser.FindAll("select")[0].Select(1);
@@ -1556,6 +1556,11 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("5", browser.FindAll("span").Last().GetText());
             });
+        }
+
+        public void Sample51Test()
+        {
+            Sample13Test("Sample51");
         }
     }
 }
