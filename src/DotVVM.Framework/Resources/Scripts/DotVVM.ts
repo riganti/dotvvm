@@ -219,6 +219,9 @@ class DotVVM {
                     }
                     isSuccess = true;
 
+                    // remove updated controls which were previously hidden
+                    this.cleanUpdatedControls(resultObject, updatedControls);
+
                     // add updated controls
                     this.restoreUpdatedControls(resultObject, updatedControls, true);
                     this.isViewModelUpdating = false;
@@ -573,15 +576,16 @@ class DotVVM {
         return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
     }
 
-    private cleanUpdatedControls(resultObject: any) {
-        var updatedControls = {};
+    private cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var control = document.getElementById(id);
-                var nextSibling = control.nextSibling;
-                var parent = control.parentNode;
-                ko.removeNode(control);
-                updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                if (control) {
+                    var nextSibling = control.nextSibling;
+                    var parent = control.parentNode;
+                    ko.removeNode(control);
+                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                }
             }
         }
         return updatedControls;
@@ -591,12 +595,14 @@ class DotVVM {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var updatedControl = updatedControls[id];
-                if (updatedControl.nextSibling) {
-                    updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
-                } else {
-                    updatedControl.parent.appendChild(updatedControl.control);
+                if (updatedControl) {
+                    if (updatedControl.nextSibling) {
+                        updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                    } else {
+                        updatedControl.parent.appendChild(updatedControl.control);
+                    }
+                    updatedControl.control.outerHTML = resultObject.updatedControls[id];
                 }
-                updatedControl.control.outerHTML = resultObject.updatedControls[id];
             }
         }
 
@@ -604,7 +610,9 @@ class DotVVM {
             window.setTimeout(() => {
                 for (var id in resultObject.updatedControls) {
                     var updatedControl = document.getElementById(id);
-                    ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                    if (updatedControl) {
+                        ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                    }
                 }
             }, 0);
         }

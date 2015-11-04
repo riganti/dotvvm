@@ -40,7 +40,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-
             writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
             {
                 if (!Enabled)
@@ -49,18 +48,14 @@ namespace DotVVM.Framework.Controls
                 }
             });
 
-            if (!RenderOnServer)
+            writer.AddKnockoutDataBind("options", this, DataSourceProperty, renderEvenInServerRenderingMode: true);
+            if (!string.IsNullOrEmpty(DisplayMember))
             {
-                writer.AddKnockoutDataBind("options", this, DataSourceProperty, () => { });
-
-                if (!string.IsNullOrEmpty(DisplayMember))
-                {
-                    writer.AddKnockoutDataBind("optionsText", KnockoutHelper.MakeStringLiteral(DisplayMember));
-                }
-                if (!string.IsNullOrEmpty(ValueMember))
-                {
-                    writer.AddKnockoutDataBind("optionsValue", KnockoutHelper.MakeStringLiteral(ValueMember));
-                }
+                writer.AddKnockoutDataBind("optionsText", KnockoutHelper.MakeStringLiteral(DisplayMember));
+            }
+            if (!string.IsNullOrEmpty(ValueMember))
+            {
+                writer.AddKnockoutDataBind("optionsValue", KnockoutHelper.MakeStringLiteral(ValueMember));
             }
 
 			// changed event
@@ -70,40 +65,11 @@ namespace DotVVM.Framework.Controls
 				writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(SelectionChanged), selectionChangedBinding, context, this, isOnChange: true,useWindowSetTimeout:true));
 			}
 
-			// selected value
-            writer.AddKnockoutDataBind("value", this, SelectedValueProperty, () => { });
-            
+            // selected value
+            writer.AddKnockoutDataBind("value", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
+
             base.AddAttributesToRender(writer, context);
         }
-
-        /// <summary>
-        /// Renders the contents inside the control begin and end tags.
-        /// </summary>
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
-        {
-            base.RenderContents(writer, context);
-            if (RenderOnServer)
-            {
-                // render items
-                bool first = true;
-                foreach (var item in GetIEnumerableFromDataSource(DataSource))
-                {
-                    var value = string.IsNullOrEmpty(ValueMember) ? item : ReflectionUtils.GetObjectProperty(item, ValueMember);
-                    var text = string.IsNullOrEmpty(DisplayMember) ? item : ReflectionUtils.GetObjectProperty(item, DisplayMember);
-
-                    if (first)
-                    {
-                        writer.WriteUnencodedText(Environment.NewLine);
-                        first = false;
-                    }
-                    writer.WriteUnencodedText("    ");  //Indent
-                    writer.AddAttribute("value", value != null ? value.ToString() : "");
-                    writer.RenderBeginTag("option");
-                    writer.WriteText(text != null ? text.ToString() : "");
-                    writer.RenderEndTag();
-                    writer.WriteUnencodedText(Environment.NewLine);
-                }
-            }
-        }
+        
 	}
 }
