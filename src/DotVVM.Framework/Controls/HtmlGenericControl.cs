@@ -156,7 +156,7 @@ namespace DotVVM.Framework.Controls
         protected virtual void AddVisibleAttributeOrBinding(IHtmlWriter writer)
         {
             writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
-            if (!Visible || (Properties.ContainsKey(DataContextProperty) && DataContext == null))
+            if (GetValue(VisibleProperty) as bool? == false)
             {
                 writer.AddStyleAttribute("display", "none");
             }
