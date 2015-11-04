@@ -1,7 +1,7 @@
 using Newtonsoft.Json.Linq;
+using System.Linq;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -63,13 +63,13 @@ namespace DotVVM.Framework.Utils
                 }
             }
             // remove abandoned $options
-            foreach (var item in diff)
+            foreach (var item in Enumerable.ToArray<KeyValuePair<string, JToken>>(diff))
             {
                 if (item.Key.EndsWith("$options", StringComparison.Ordinal))
                 {
                     if (diff[item.Key.Remove(item.Key.Length - "$options".Length)] == null)
                     {
-                        item.Value.Remove();
+                        diff.Remove(item.Key);
                     }
                 }
             }
