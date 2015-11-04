@@ -198,7 +198,7 @@ this is a content";
 
             Assert.AreEqual(1, result.Content.Count);
             Assert.IsInstanceOfType(result.Content[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual("this is a content", ((DothtmlLiteralNode)result.Content[0]).Value);
+            Assert.AreEqual("\r\nthis is a content", ((DothtmlLiteralNode)result.Content[0]).Value);
         }
 
         [TestMethod]
@@ -216,7 +216,7 @@ test";
 
             Assert.AreEqual(1, result.Content.Count);
             Assert.IsInstanceOfType(result.Content[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual("<!DOCTYPE html>\r\ntest", ((DothtmlLiteralNode)result.Content[0]).Value);
+            Assert.AreEqual("\r\n<!DOCTYPE html>\r\ntest", ((DothtmlLiteralNode)result.Content[0]).Value);
         }
 
 
@@ -390,6 +390,60 @@ test";
             Assert.IsInstanceOfType(nodes[3], typeof(DothtmlElementNode));
             Assert.AreEqual("img", ((DothtmlElementNode)nodes[3]).TagName);
             Assert.IsTrue(((DothtmlElementNode)nodes[3]).IsSelfClosingTag);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_Valid_CommentBeforeDirective()
+        {
+            var markup = "<!-- my comment --> @viewModel TestDirective\r\nTest";
+            var root = ParseMarkup(markup);
+            var nodes = root.Content;
+
+            Assert.AreEqual(3, nodes.Count);
+
+            Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(" my comment ", ((DothtmlLiteralNode)nodes[0]).Value);
+            Assert.IsTrue(((DothtmlLiteralNode)nodes[0]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(@" ", ((DothtmlLiteralNode)nodes[1]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[1]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(@"Test", ((DothtmlLiteralNode)nodes[2]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
+
+            Assert.AreEqual(1, root.Directives.Count);
+            Assert.AreEqual("viewModel", root.Directives[0].Name);
+            Assert.AreEqual("TestDirective", root.Directives[0].Value);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_Valid_CommentInsideDirectives()
+        {
+            var markup = "@masterPage hello\r\n<!-- my comment --> @viewModel TestDirective\r\nTest";
+            var root = ParseMarkup(markup);
+            var nodes = root.Content;
+
+            Assert.AreEqual(3, nodes.Count);
+
+            Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(" my comment ", ((DothtmlLiteralNode)nodes[0]).Value);
+            Assert.IsTrue(((DothtmlLiteralNode)nodes[0]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(@" ", ((DothtmlLiteralNode)nodes[1]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[1]).IsComment);
+
+            Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
+            Assert.AreEqual(@"Test", ((DothtmlLiteralNode)nodes[2]).Value);
+            Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
+
+            Assert.AreEqual(2, root.Directives.Count);
+            Assert.AreEqual("masterPage", root.Directives[0].Name);
+            Assert.AreEqual("hello", root.Directives[0].Value);
+            Assert.AreEqual("viewModel", root.Directives[1].Name);
+            Assert.AreEqual("TestDirective", root.Directives[1].Value);
         }
 
         [TestMethod]

@@ -42,7 +42,6 @@ this is a test content";
             Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
 
-            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
         }
 
@@ -57,10 +56,8 @@ this is a test content";
             tokenizer.Tokenize(new StringReader(input));
             CheckForErrors(tokenizer, input.Length);
 
-
             // first line
             var i = 0;
-            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
         }
 
