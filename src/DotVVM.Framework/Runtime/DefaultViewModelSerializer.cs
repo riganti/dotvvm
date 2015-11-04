@@ -69,7 +69,6 @@ namespace DotVVM.Framework.Runtime
             var serializer = CreateJsonSerializer();
             var viewModelConverter = new ViewModelJsonConverter()
             {
-                EncryptedValues = new JArray(),
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
@@ -121,7 +120,7 @@ namespace DotVVM.Framework.Runtime
         {
             var manager = context.ResourceManager;
             var resourceObj = new JObject();
-            foreach(var resource in manager.GetNamedResourcesInOrder())
+            foreach (var resource in manager.GetNamedResourcesInOrder())
             {
                 if (predicate(resource.Name))
                 {
@@ -185,7 +184,6 @@ namespace DotVVM.Framework.Runtime
         /// <returns></returns>
         public void PopulateViewModel(DotvvmRequestContext context, string serializedPostData)
         {
-            var viewModelConverter = new ViewModelJsonConverter();
 
             // get properties
             var data = context.ReceivedViewModelJson = JObject.Parse(serializedPostData);
@@ -194,13 +192,14 @@ namespace DotVVM.Framework.Runtime
             // load CSRF token
             context.CsrfToken = viewModelToken["$csrfToken"].Value<string>();
 
+            ViewModelJsonConverter viewModelConverter;
             if (viewModelToken["$encryptedValues"] != null)
             {
                 // load encrypted values
                 var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-                viewModelConverter.EncryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
+                viewModelConverter = new ViewModelJsonConverter(JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
-            else viewModelConverter.EncryptedValues = new JArray();
+            else viewModelConverter = new ViewModelJsonConverter();
 
             // get validation path
             context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();
