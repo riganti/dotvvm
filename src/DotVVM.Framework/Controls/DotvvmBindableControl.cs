@@ -24,14 +24,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DataContextProperty =
             DotvvmProperty.Register<object, DotvvmBindableControl>(c => c.DataContext, isValueInherited: true);
 
-
-
-        /// <summary>
-        /// Gets a collection of all data-bindings set on this control.
-        /// </summary>
-        protected internal IEnumerable<KeyValuePair<DotvvmProperty, IBinding>> DataBindings
-            => properties.Where(kvp => kvp.Value is IBinding).Select(kvp => new KeyValuePair<DotvvmProperty, IBinding>(kvp.Key, kvp.Value as IBinding));
-
         /// <summary>
         /// Gets or sets whether this control should be rendered on the server.
         /// </summary>
@@ -272,11 +264,11 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets all bindings set on the control.
+        /// Gets all bindings set on the control (excluding BindingProperties).
         /// </summary>
-        internal IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
+        public IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
         {
-            return Properties.Where(p => p.Value is BindingExpression)
+            return Properties.Where(p => p.Value is BindingExpression && !p.Key.IsBindingProperty)
                 .Select(p => new KeyValuePair<DotvvmProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));
         }
     }
