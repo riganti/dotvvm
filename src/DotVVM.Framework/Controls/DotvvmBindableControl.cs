@@ -148,7 +148,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public override sealed void Render(IHtmlWriter writer, RenderContext context)
+        public override void Render(IHtmlWriter writer, RenderContext context)
         {
             if (Properties.ContainsKey(PostBack.UpdateProperty))
             {

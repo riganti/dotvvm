@@ -102,6 +102,20 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<bool, DataPager>(c => c.RenderLinkForCurrentPage);
 
 
+        /// <summary>
+        /// Gets or sets whether the pager should hide automatically when there is only one page of results.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool HideWhenOnlyOnePage
+        {
+            get { return (bool)GetValue(HideWhenOnlyOnePageProperty); }
+            set { SetValue(HideWhenOnlyOnePageProperty, value); }
+        }
+        public static readonly DotvvmProperty HideWhenOnlyOnePageProperty
+            = DotvvmProperty.Register<bool, DataPager>(c => c.HideWhenOnlyOnePage, true);
+        
+
+
 
         private HtmlGenericControl content;
         private HtmlGenericControl firstLi;
@@ -225,7 +239,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { }, renderEvenInServerRenderingMode: true);
+            if (HideWhenOnlyOnePage)
+            {
+                writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").PagesCount() > 1");
+            }
+
+            writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
             writer.RenderBeginTag("ul");
         }
 

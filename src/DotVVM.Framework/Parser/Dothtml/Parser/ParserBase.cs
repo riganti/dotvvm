@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         /// <summary>
         /// Skips the whitespace.
         /// </summary>
-        protected List<TToken> SkipWhitespace()
+        protected List<TToken> SkipWhiteSpace()
         {
             return Enumerable.ToList<TToken>(ReadMultiple(t => t.Type.Equals(WhiteSpaceToken)));
         }

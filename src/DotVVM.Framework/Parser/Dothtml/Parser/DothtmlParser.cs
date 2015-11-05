@@ -44,20 +44,18 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             var root = new DothtmlRootNode();
             root.Tokens.AddRange(Tokens);
             ElementHierarchy.Push(root);
-            SkipWhitespace();
-
-            // read directives
-            while (Peek() != null && Peek().Type == DothtmlTokenType.DirectiveStart)
-            {
-                root.Directives.Add(ReadDirective());
-            }
-
-            SkipWhitespace();
 
             // read content
+            var doNotAppend = false;
             while (Peek() != null)
             {
-                if (Peek().Type == DothtmlTokenType.OpenTag)
+                if (Peek().Type == DothtmlTokenType.DirectiveStart)
+                {
+                    // directive
+                    root.Directives.Add(ReadDirective());
+                    doNotAppend = true;
+                }
+                else if (Peek().Type == DothtmlTokenType.OpenTag)
                 {
                     // element - check element hierarchy
                     var element = ReadElement();
@@ -129,7 +127,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 {
                     CurrentElementContent.Add(ReadComment());
                 }
-                else if(Peek().Type == DothtmlTokenType.OpenServerComment)
+                else if (Peek().Type == DothtmlTokenType.OpenServerComment)
                 {
                     // skip server-side comment
                     SkipComment();
@@ -137,13 +135,14 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 else
                 {
                     // text
-                    if (CurrentElementContent.Count > 0 
+                    if (!doNotAppend 
+                        && CurrentElementContent.Count > 0 
                         && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof(DothtmlLiteralNode)
                         && !((DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1]).IsComment)
                     {
                         // append to the previous literal
                         var lastLiteral = (DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
-                        if (lastLiteral.Escape != false)
+                        if (lastLiteral.Escape)
                             CurrentElementContent.Add(new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
                         else
                         {
@@ -156,6 +155,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                         CurrentElementContent.Add(new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
                     }
                     Read();
+
+                    doNotAppend = false;
                 }
             }
 
@@ -272,7 +273,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             if (Peek().Type == DothtmlTokenType.Slash)
             {
                 Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
                 node.IsClosingTag = true;
             }
 
@@ -292,7 +293,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 node.TagNameToken = Read();
                 node.TagName = node.TagNameToken.Text;
             }
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             // attributes
             if (!node.IsClosingTag)
@@ -309,14 +310,14 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 if (Peek().Type == DothtmlTokenType.Slash)
                 {
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     node.IsSelfClosingTag = true;
                 }
             }
 
             Assert(DothtmlTokenType.CloseTag);
             Read();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
@@ -346,12 +347,12 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 attribute.AttributeNameToken = Read();
                 attribute.AttributeName = attribute.AttributeNameToken.Text;
             }
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             if (Peek().Type == DothtmlTokenType.Equals)
             {
                 Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
 
                 // attribute value
                 if (Peek().Type == DothtmlTokenType.SingleQuote || Peek().Type == DothtmlTokenType.DoubleQuote)
@@ -379,7 +380,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                     attribute.Literal = new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition };
                     Read();
                 }
-                SkipWhitespace();
+                SkipWhiteSpace();
             }
 
             attribute.Tokens.AddRange(GetTokensFrom(startIndex));
@@ -396,21 +397,21 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             Assert(DothtmlTokenType.OpenBinding);
             Read();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             // binding type
             Assert(DothtmlTokenType.Text);
             binding.Name = Read().Text;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             Assert(DothtmlTokenType.Colon);
             Read();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             // expression
             Assert(DothtmlTokenType.Text);
             binding.Value = Read().Text;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             Assert(DothtmlTokenType.CloseBinding);
             Read();
@@ -430,18 +431,18 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             Assert(DothtmlTokenType.DirectiveStart);
             Read();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             Assert(DothtmlTokenType.DirectiveName);
             var directiveNameToken = Read();
             node.Name = directiveNameToken.Text.Trim();
 
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             Assert(DothtmlTokenType.DirectiveValue);
             var directiveValueToken = Read();
             node.Value = directiveValueToken.Text.Trim();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;

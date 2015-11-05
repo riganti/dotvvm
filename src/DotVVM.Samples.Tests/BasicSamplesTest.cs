@@ -1562,5 +1562,38 @@ namespace DotVVM.Samples.Tests
         {
             Sample13Test("Sample51");
         }
+
+
+        public void Sample52Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample52");
+                Thread.Sleep(WaitTime);
+
+                // verify the second pager is hidden
+                Assert.IsTrue(browser.FindAll(".pagination")[0].IsDisplayed());
+                Assert.IsFalse(browser.FindAll(".pagination")[1].IsDisplayed());
+                Assert.AreEqual(2, browser.Find("ul").FindAll("li").Count);
+
+                // verify the second pager appears
+                browser.Click("input[type=button]");
+                Thread.Sleep(WaitTime);
+
+                // verify the second pager appears
+                Assert.IsTrue(browser.FindAll(".pagination")[0].IsDisplayed());
+                Assert.IsTrue(browser.FindAll(".pagination")[1].IsDisplayed());
+                Assert.AreEqual(3, browser.Find("ul").FindAll("li").Count);
+
+                // switch to another page
+                browser.Find(".pagination").FindAll("li a")[4].Click();
+                Thread.Sleep(WaitTime);
+
+                // verify the second pager is still visible
+                Assert.IsTrue(browser.FindAll(".pagination")[0].IsDisplayed());
+                Assert.IsTrue(browser.FindAll(".pagination")[1].IsDisplayed());
+                Assert.AreEqual(3, browser.Find("ul").FindAll("li").Count);
+            });
+        }
     }
 }
