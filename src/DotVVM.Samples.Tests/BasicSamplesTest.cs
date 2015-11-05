@@ -1257,14 +1257,14 @@ namespace DotVVM.Samples.Tests
 
                 browser.FindAll("input[type=button]")[0].Click();
                 Thread.Sleep(WaitTime);
-                Assert.AreEqual("Hello Deep Thought!", browser.FindAll("span[data-bind=\"text: Greeting\"")[0].GetText());
+                Assert.AreEqual("Hello Deep Thought!", browser.FindAll("span[data-bind=\"text: Greeting\"]")[0].GetText());
 
                 browser.NavigateToUrl(BaseUrl + "Sample42");
                 Thread.Sleep(WaitTime);
 
                 browser.FindAll("input[type=button]")[1].Click();
                 Thread.Sleep(WaitTime);
-                Assert.AreEqual("Hello Deep Thought!", browser.FindAll("span[data-bind=\"text: Greeting\"")[0].GetText());
+                Assert.AreEqual("Hello Deep Thought!", browser.FindAll("span[data-bind=\"text: Greeting\"]")[0].GetText());
             });
         }
 
