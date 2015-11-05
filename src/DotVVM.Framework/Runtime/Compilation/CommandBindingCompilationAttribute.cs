@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 );
             }
             // TODO: convert delegates to another delegates
-            throw new Exception($"can not convert '{expr.Type}' to '{expectedType}'");
+            throw new Exception($"can not convert expression '{ expr }' to '{expectedType}'");
         }
 
         public static Type GetTaskType(Type taskType)
