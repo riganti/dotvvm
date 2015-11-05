@@ -755,7 +755,7 @@ var DotvvmSerialization = (function () {
                     continue;
                 }
                 // deserialize value
-                var deserialized = this.deserialize(value, result[prop], deserializeAll);
+                var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
                 // handle date
                 if (options && options.isDate && deserialized) {
                     deserialized = new Date(deserialized);

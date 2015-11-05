@@ -228,7 +228,7 @@ namespace DotVVM.Framework.ViewModel
                 if (property.TransferToClient)
                 {
                     // writer.WritePropertyName("{property.Name"});
-                    var prop = Expression.Convert(Expression.Property(value, property.Name), typeof (object));
+                    var prop = Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof (object));
 
                     if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData ||
                         property.ViewModelProtection == ViewModelProtectionSettings.SignData)

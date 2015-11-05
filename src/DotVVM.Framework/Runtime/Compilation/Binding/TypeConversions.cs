@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         {
             if (src is MethodGroupExpression)
             {
-                return ((MethodGroupExpression)src).CreateDelegateExpression(destType);
+                return ((MethodGroupExpression)src).CreateDelegateExpression(destType, throwException);
             }
             if (src.Type == destType) return src;
             var result = ImplicitConstantConversion(src, destType) ??
