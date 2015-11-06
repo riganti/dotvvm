@@ -9,7 +9,7 @@ DotVVM: "Javascript" Apps Without Javascript
 How to Start
 ------------
 
-1. Install the **[dotVVM for Visual Studio](http://www.dotvvm.com/Download/Free/DotVVM_Free.vsix)** extension.
+1. Install the **[dotVVM for Visual Studio](http://dotvvm.com/download/vsix_free)** extension.
 
 2. Read the **[documentation](http://www.dotvvm.com/docs)**. Oh yes, we are open source, but we actually have one. 
 
