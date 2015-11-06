@@ -226,28 +226,21 @@ namespace DotVVM.Framework.Controls
 
         private static Action<DotvvmControl> GetPageLifeCycleEventAction(LifeCycleEventType eventType, IDotvvmRequestContext context)
         {
-            Action<DotvvmControl> action;
             switch (eventType)
             {
                 case LifeCycleEventType.PreInit:
-                    action = c => c.OnPreInit(context);
-                    break;
+                    return c => c.OnPreInit(context);
                 case LifeCycleEventType.Init:
-                    action = c => c.OnInit(context);
-                    break;
+                    return c => c.OnInit(context);
                 case LifeCycleEventType.Load:
-                    action = c => c.OnLoad(context);
-                    break;
+                    return c => c.OnLoad(context);
                 case LifeCycleEventType.PreRender:
-                    action = c => c.OnPreRender(context);
-                    break;
+                    return c => c.OnPreRender(context);
                 case LifeCycleEventType.PreRenderComplete:
-                    action = c => c.OnPreRenderComplete(context);
-                    break;
+                    return c => c.OnPreRenderComplete(context);
                 default:
                     throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
             }
-            return action;
         }
 
 
@@ -284,7 +277,7 @@ namespace DotVVM.Framework.Controls
             }
             catch (Exception ex)
             {
-                throw new DotvvmControlException(lastChild, "Unhandled exception occured while executing page lifecycle event.", ex);
+                throw new DotvvmControlException(lastChild, $"Unhandled exception occured while executing { eventType } event.", ex);
             }
         }
     }
