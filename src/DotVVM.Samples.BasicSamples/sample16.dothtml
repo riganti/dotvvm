@@ -62,6 +62,8 @@
         <dot:EmptyData DataSource="{value: Null}">
             This is displayed because data is empty
         </dot:EmptyData>
+
+		<dot:Button Text="Set the data source" Click="{staticCommand: Null = GetDataList()}" />
     </div>
     <dot:RequiredResource Name="bootstrap" />
 </body>

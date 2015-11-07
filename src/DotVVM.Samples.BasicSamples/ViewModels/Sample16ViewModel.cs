@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using System.Web;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels
 {
@@ -78,6 +79,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         public void SortCustomers(string column)
         {
             SelectedSortColumn = column;
+        }
+
+        [StaticCommandCallable]
+        public List<CustomerData> GetDataList()
+        {
+            return GetData().ToList();
         }
     }
 
