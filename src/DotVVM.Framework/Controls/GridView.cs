@@ -84,6 +84,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty SortChangedProperty =
             DotvvmProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
+        public bool ShowHeaderWhenNoData
+        {
+            get { return (bool)GetValue(ShowHeaderWhenNoDataProperty); }
+            set { SetValue(ShowHeaderWhenNoDataProperty, value); }
+        }
+        public static readonly DotvvmProperty ShowHeaderWhenNoDataProperty =
+            DotvvmProperty.Register<bool, GridView>(t => t.ShowHeaderWhenNoData, false);
+
 
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
@@ -123,19 +131,25 @@ namespace DotVVM.Framework.Controls
                 sortCommand = SortChanged;
             }
 
+            // WORKAROUND: DataSource is null => don't throw exception
+            if(sortCommand == null && dataSource == null)
+            {
+                sortCommand = s => { throw new Exception("can't sort null data source"); };
+            }
+
+            CreateHeaderRow(context, sortCommand);
             var index = 0;
             if (dataSource != null)
             {
                 // create header row
-                CreateHeaderRow(context, sortCommand);
                 var items = GetIEnumerableFromDataSource(dataSource);
                 var javascriptDataSourceExpression = dataSourceBinding.GetKnockoutBindingExpression();
 
                 foreach (var item in items)
                 {
                     // create row
-                    var placeholder = new DataItemContainer {DataItemIndex = index};
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList) items, javascriptDataSourceExpression, index));
+                    var placeholder = new DataItemContainer { DataItemIndex = index };
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     placeholder.ID = "i" + index;
                     CreateRow(context, placeholder);
@@ -163,6 +177,8 @@ namespace DotVVM.Framework.Controls
         private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
+            var dsBinding = GetValueBinding(DataSourceProperty);
+            head.SetBinding(VisibleProperty, new ValueBindingExpression(h => dsBinding.Evaluate(this, DataSourceProperty) != null, dsBinding.GetKnockoutBindingExpression()));
             Children.Add(head);
 
             var headerRow = new HtmlGenericControl("tr");
