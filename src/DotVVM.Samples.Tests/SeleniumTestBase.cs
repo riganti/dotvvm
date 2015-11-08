@@ -39,6 +39,7 @@ namespace DotVVM.Samples.Tests
                     attemptNumber++;
                     exception = null;
                     var browser = browserFactory();
+                    browser.Manage().Timeouts().ImplicitlyWait(TimeSpan.FromMilliseconds(700));
                     browserName = browser.GetType().Name;
                     var helper = new SeleniumBrowserHelper(browser);
 

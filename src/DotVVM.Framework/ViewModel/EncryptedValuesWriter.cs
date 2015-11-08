@@ -54,6 +54,8 @@ namespace DotVVM.Framework.ViewModel
             }
         }
 
+        public bool IsVirtualNest() => virtualNests > 0;
+
         public void Value(object value)
         {
             EnsureObjectStarted();

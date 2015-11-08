@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Runtime
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter()
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack)
             {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
@@ -197,9 +197,9 @@ namespace DotVVM.Framework.Runtime
             {
                 // load encrypted values
                 var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-                viewModelConverter = new ViewModelJsonConverter(JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
+                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
-            else viewModelConverter = new ViewModelJsonConverter();
+            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack);
 
             // get validation path
             context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();

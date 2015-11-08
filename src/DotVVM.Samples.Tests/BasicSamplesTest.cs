@@ -1595,5 +1595,30 @@ namespace DotVVM.Samples.Tests
                 Assert.AreEqual(3, browser.Find("ul").FindAll("li").Count);
             });
         }
+
+        public void Sample53Test()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(BaseUrl + "Sample53");
+                var d = browser.WebDriver;
+
+                var textBoxes = d.FindElements(By.TagName("input"));
+                textBoxes[0].SendKeys("ABC");
+                var tb2 = textBoxes[1].GetAttribute("value");
+                Assert.IsTrue(string.IsNullOrEmpty(textBoxes[2].GetAttribute("value")));
+                Assert.IsTrue(string.IsNullOrEmpty(textBoxes[3].GetAttribute("value")));
+                textBoxes[2].SendKeys("DEF");
+                textBoxes[3].SendKeys("GHI");
+                d.FindElement(By.LinkText("Postback")).Click();
+                Thread.Sleep(500);
+                textBoxes = d.FindElements(By.TagName("input"));
+                Assert.AreNotEqual("ABC", textBoxes[0].GetAttribute("value"));
+                Assert.AreEqual(tb2, textBoxes[1].GetAttribute("value"));
+                Assert.AreNotEqual("DEF", textBoxes[2].GetAttribute("value"));
+                Assert.AreEqual("GHI", textBoxes[3].GetAttribute("value"));
+                Assert.AreEqual("GHI", d.FindElement(By.Id("serverToClientLabel")).Text);
+            });
+        }
     }
 }
