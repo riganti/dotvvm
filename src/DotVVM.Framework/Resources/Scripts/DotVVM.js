@@ -11,6 +11,7 @@ var DotVVM = (function () {
         this.postBackCounter = 0;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
+        this.isSpaReady = ko.observable(false);
         this.extensions = {};
         this.viewModels = {};
         this.viewModelObservables = {};
@@ -57,6 +58,9 @@ var DotVVM = (function () {
             var url = spaPlaceHolder.getAttribute("data-dot-spacontentplaceholder-defaultroute");
             if (url) {
                 document.location.hash = "#!/" + url;
+            }
+            else {
+                this.isSpaReady(true);
             }
         }
     };
@@ -359,6 +363,7 @@ var DotVVM = (function () {
                     // add updated controls
                     _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);
                     _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                    _this.isSpaReady(true);
                     _this.isViewModelUpdating = false;
                 }
                 else if (resultObject.action === "redirect") {

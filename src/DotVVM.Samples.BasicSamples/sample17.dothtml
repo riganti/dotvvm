@@ -2,4 +2,5 @@
 @masterPage sample17_master.dothtml
 
 <dot:Content ContentPlaceHolderID="MainContent">
+	Real bullshit
 </dot:Content>

@@ -55,6 +55,7 @@ namespace DotVVM.Framework.Controls
         {
             writer.AddAttribute("id", ID);
             writer.AddAttribute("name", Constants.SpaContentPlaceHolderID);
+            writer.AddKnockoutDataBind("if", "dotvvm.isSpaReady");
             writer.AddAttribute(Constants.SpaContentPlaceHolderDataAttributeName, GetSpaContentPlaceHolderUniqueId());
 
             if (!string.IsNullOrEmpty(DefaultRouteName))
