@@ -80,6 +80,8 @@ namespace DotVVM.Framework.ViewModel
             var encryptedValuesReader = Expression.Parameter(typeof(EncryptedValuesReader), "encryptedValuesReader");
             var value = Expression.Variable(Type, "value");
 
+            // add current object to encrypted values, this is needed because one property can potentionaly contain more objects (is a collection)
+            block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
 
             // value = new {Type}();
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
@@ -104,7 +106,7 @@ namespace DotVVM.Framework.ViewModel
                 }
                 else
                 {
-                    var checkEV = property.TransferToClient && ShouldCheckEncrypedValues(property.Type);
+                    var checkEV = property.TransferAfterPostback && property.TransferFirstRequest && ShouldCheckEncrypedValues(property.Type);
                     if (checkEV)
                     {
                         // lastEncrypedValuesCount = encrypedValues.Count
@@ -134,7 +136,11 @@ namespace DotVVM.Framework.ViewModel
                 }
             }
 
+            // close encrypted values
+            block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
+
             block.Add(value);
+
 
             // build the lambda expression
             var ex = Expression.Lambda<Action<JObject, JsonSerializer, object, EncryptedValuesReader>>(
@@ -204,6 +210,8 @@ namespace DotVVM.Framework.ViewModel
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
             block.Add(Expression.Call(writer, "WriteStartObject", Type.EmptyTypes));
 
+            block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.Nest), Type.EmptyTypes));
+
             // writer.WritePropertyName("$validationErrors")
             // writer.WriteStartArray()
             // writer.WriteEndArray()
@@ -223,9 +231,9 @@ namespace DotVVM.Framework.ViewModel
                 var options = new Dictionary<string, object>();
                 if (property.TransferToClient)
                 {
-                    if(property.TransferFirstRequest != property.TransferAfterPostback)
+                    if (property.TransferFirstRequest != property.TransferAfterPostback)
                     {
-                        if(property.ViewModelProtection != ViewModelProtectionSettings.None) throw new Exception("Property sent only on selected requests can use viewModel protection.");
+                        if (property.ViewModelProtection != ViewModelProtectionSettings.None) throw new Exception("Property sent only on selected requests can use viewModel protection.");
 
                         Expression condition = isPostback;
                         if (property.TransferAfterPostback) condition = Expression.Not(condition);
@@ -247,7 +255,7 @@ namespace DotVVM.Framework.ViewModel
                         property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                     {
                         var checkEV = property.ViewModelProtection == ViewModelProtectionSettings.None &&
-                                           property.TransferToServer && ShouldCheckEncrypedValues(property.Type);
+                                           ShouldCheckEncrypedValues(property.Type);
                         if (checkEV)
                         {
                             // lastEncrypedValuesCount = encrypedValues.Count
@@ -262,15 +270,15 @@ namespace DotVVM.Framework.ViewModel
 
                         if (checkEV)
                         {
-                            if(property.TransferAfterPostback != property.TransferFirstRequest)
+                            // if not fully transported, ensure nothing happened
+                            if (property.TransferAfterPostback != property.TransferFirstRequest && !property.TransferToServer)
                             {
-                                block.Add(Expression.IfThen(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.IsVirtualNest), Type.EmptyTypes),
-                                    Expression.Throw(ExpressionUtils.Replace(() => new Exception("Property sent only on selected requests can use viewModel protection.")))
-                                ));
+                                block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.ClearEmptyNest), Type.EmptyTypes));
                             }
-
-                            // encryptedValues.Add(encryptedValues.Count - lastEVcount)
-                            block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
+                            else
+                            {
+                                block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
+                            }
                         }
                     }
 
@@ -310,7 +318,7 @@ namespace DotVVM.Framework.ViewModel
             }
 
             block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
-
+            block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
             // compile the expression
             var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, EncryptedValuesWriter, bool>>(
                 Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
