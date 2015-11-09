@@ -4,11 +4,16 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// Renders the pagination control which can be integrated with the GridViewDataSet object to provide the paging capabilities.
+    /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class DataPager : HtmlGenericControl
     {
         private static CommandBindingExpression GoToNextPageCommand =
@@ -23,6 +28,9 @@ namespace DotVVM.Framework.Controls
             new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
 
 
+        /// <summary>
+        /// Gets or sets the GridViewDataSet object in the viewmodel.
+        /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
         public IGridViewDataSet DataSet
         {
@@ -33,6 +41,9 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<IGridViewDataSet, DataPager>(c => c.DataSet);
 
 
+        /// <summary>
+        /// Gets or sets the template of the button which moves the user to the first page.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate FirstPageTemplate
         {
@@ -41,7 +52,10 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty FirstPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.FirstPageTemplate, null);
-        
+
+        /// <summary>
+        /// Gets or sets the template of the button which moves the user to the last page.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate LastPageTemplate
         {
@@ -51,6 +65,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty LastPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.LastPageTemplate, null);
 
+        /// <summary>
+        /// Gets or sets the template of the button which moves the user to the previous page.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate PreviousPageTemplate
         {
@@ -60,6 +77,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty PreviousPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.PreviousPageTemplate, null);
 
+        /// <summary>
+        /// Gets or sets the template of the button which moves the user to the next page.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate NextPageTemplate
         {
@@ -69,6 +89,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty NextPageTemplateProperty =
             DotvvmProperty.Register<ITemplate, DataPager>(c => c.NextPageTemplate, null);
 
+        /// <summary>
+        /// Gets or sets whether a hyperlink should be rendered for the current page number. If set to false, only a plain text is rendered.
+        /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool RenderLinkForCurrentPage
         {
@@ -79,11 +102,25 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<bool, DataPager>(c => c.RenderLinkForCurrentPage);
 
 
+        /// <summary>
+        /// Gets or sets whether the pager should hide automatically when there is only one page of results.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool HideWhenOnlyOnePage
+        {
+            get { return (bool)GetValue(HideWhenOnlyOnePageProperty); }
+            set { SetValue(HideWhenOnlyOnePageProperty, value); }
+        }
+        public static readonly DotvvmProperty HideWhenOnlyOnePageProperty
+            = DotvvmProperty.Register<bool, DataPager>(c => c.HideWhenOnlyOnePage, true);
+        
+
+
 
         private HtmlGenericControl content;
         private HtmlGenericControl firstLi;
         private HtmlGenericControl previousLi;
-        private Placeholder numbersPlaceholder; 
+        private PlaceHolder numbersPlaceHolder; 
         private HtmlGenericControl nextLi;
         private HtmlGenericControl lastLi;
 
@@ -133,8 +170,8 @@ namespace DotVVM.Framework.Controls
                 content.Children.Add(previousLi);
 
                 // number fields
-                numbersPlaceholder = new Placeholder();
-                content.Children.Add(numbersPlaceholder);
+                numbersPlaceHolder = new PlaceHolder();
+                content.Children.Add(numbersPlaceHolder);
 
                 var i = 0;
                 foreach (var number in dataSet.NearPageIndexes)
@@ -148,7 +185,7 @@ namespace DotVVM.Framework.Controls
                     var link = new LinkButton() { Text = (number + 1).ToString() };
                     link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
                     li.Children.Add(link);
-                    numbersPlaceholder.Children.Add(li);
+                    numbersPlaceHolder.Children.Add(li);
 
                     i++;
                 }
@@ -194,7 +231,7 @@ namespace DotVVM.Framework.Controls
         {
             if (RenderOnServer)
             {
-                throw new InvalidOperationException("The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
+                throw new DotvvmControlException(this, "The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
             }
 
             base.AddAttributesToRender(writer, context);
@@ -202,9 +239,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { }, serverRendering: false);
-            // this line caused some problems by overwriting visible property, I think it can be more confusing than useful
-            //writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").TotalItemsCount() > 0");
+            if (HideWhenOnlyOnePage)
+            {
+                writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").PagesCount() > 1");
+            }
+
+            writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
             writer.RenderBeginTag("ul");
         }
 
@@ -220,7 +260,7 @@ namespace DotVVM.Framework.Controls
             writer.WriteKnockoutForeachComment("NearPageIndexes");
 
             // render page number
-            numbersPlaceholder.Children.Clear();
+            numbersPlaceHolder.Children.Clear();
             HtmlGenericControl li;
             if (!RenderLinkForCurrentPage)
             {
@@ -230,7 +270,7 @@ namespace DotVVM.Framework.Controls
                 literal.SetBinding(Literal.TextProperty,
                     new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
                 li.Children.Add(literal);
-                numbersPlaceholder.Children.Add(li);
+                numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
 
                 writer.AddKnockoutDataBind("visible", "$data != $parent.PageIndex()");
@@ -243,7 +283,7 @@ namespace DotVVM.Framework.Controls
             link.SetBinding(ButtonBase.TextProperty,
                 new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
-            numbersPlaceholder.Children.Add(li);
+            numbersPlaceHolder.Children.Add(li);
             li.Render(writer, context);
 
             writer.WriteKnockoutDataBindEndComment();
@@ -267,7 +307,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetValueBinding(DataSetProperty);
             if (binding == null)
             {
-                throw new NotSupportedException("The DataSet property of the dot:DataPager control must be set!");
+                throw new DotvvmControlException(this, "The DataSet property of the dot:DataPager control must be set!");
             }
             return binding;
         }

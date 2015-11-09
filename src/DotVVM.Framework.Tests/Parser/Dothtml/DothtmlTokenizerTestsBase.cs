@@ -2,11 +2,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
+using DotVVM.Framework.Parser;
+using System.Text;
 
 namespace DotVVM.Framework.Tests.Parser.Dothtml
 {
     public abstract class DothtmlTokenizerTestsBase
     {
+        protected IList<DothtmlToken> Tokenize(string markup)
+        {
+            var t = new DothtmlTokenizer();
+            t.Tokenize(new StringReader(markup));
+            return t.Tokens;
+        }
+
+        public string CreateTest<TTokenType>(IEnumerable<TokenBase<TTokenType>> tokens)
+        {
+            var test = new StringBuilder();
+
+            int i = 0;
+            foreach (var token in tokens)
+            {
+                test.AppendLine($"Assert.AreEqual({ typeof(TTokenType).Name }.{ token.Type.ToString() }, tokens[{ i }].Type);");
+                if(token.HasError)
+                {
+                    test.AppendLine($"Assert.IsTrue(tokens[{i}].HasError)");
+                }
+                test.AppendLine($"Assert.AreEqual(@\"{ token.Text.Replace("\"", "\"\"") }\", tokens[{i}].Text);");
+                test.AppendLine();
+                i++;
+            }
+            return test.ToString();
+        }
 
         protected void CheckForErrors(DothtmlTokenizer tokenizer, int inputLength)
         {
@@ -29,7 +56,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             if (position != inputLength)
             {
-                throw new Exception("The parser didn't finished the file!");
+                throw new Exception("The parser did not finished the file!");
             }
         }
     }

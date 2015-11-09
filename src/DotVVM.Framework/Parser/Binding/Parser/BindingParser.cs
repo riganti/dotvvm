@@ -1,12 +1,12 @@
+using DotVVM.Framework.Parser.Binding.Tokenizer;
+using DotVVM.Framework.Parser.Dothtml.Parser;
+using DotVVM.Framework.Runtime.Compilation;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using DotVVM.Framework.Parser.Binding.Tokenizer;
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Parser.Binding.Parser
 {
@@ -17,13 +17,26 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         public BindingParserNode ReadExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
-            return CreateNode(ReadConditionalExpression(), startIndex);
+            SkipWhiteSpace();
+            return CreateNode(ReadAssignmentExpression(), startIndex);
         }
 
         public bool OnEnd()
         {
             return CurrentIndex >= Tokens.Count;
+        }
+
+        private BindingParserNode ReadAssignmentExpression()
+        {
+            var first = ReadConditionalExpression();
+            if (Peek() != null && Peek().Type == BindingTokenType.AssignOperator)
+            {
+                var startIndex = CurrentIndex;
+                Read();
+                var second = ReadAssignmentExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AssignOperator), startIndex);
+            }
+            else return first;
         }
 
         private BindingParserNode ReadConditionalExpression()
@@ -186,7 +199,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         private BindingParserNode ReadUnaryExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             if (Peek() != null)
             {
@@ -225,7 +238,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     {
                         if (arguments.Count > 0)
                         {
-                            SkipWhitespace();
+                            SkipWhiteSpace();
                             if (IsCurrentTokenIncorrect(BindingTokenType.Comma))
                                 arguments.Add(CreateNode(new LiteralExpressionBindingParserNode(null), CurrentIndex, "The ',' was expected"));
                             else Read();
@@ -234,7 +247,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     }
                     var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
                 }
                 else if (next.Type == BindingTokenType.OpenArrayBrace)
@@ -244,7 +257,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     var innerExpression = ReadExpression();
                     var error = IsCurrentTokenIncorrect(BindingTokenType.CloseArrayBrace);
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     expression = CreateNode(new ArrayAccessBindingParserNode(expression, innerExpression), startIndex, error ? "The ']' was expected." : null);
                 }
                 else
@@ -256,10 +269,11 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             }
             return expression;
         }
+
         private BindingParserNode ReadAtomicExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             var token = Peek();
             if (token != null && token.Type == BindingTokenType.OpenParenthesis)
@@ -269,14 +283,14 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 var innerExpression = ReadExpression();
                 var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
                 Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
                 return CreateNode(new ParenthesizedExpressionBindingParserNode(innerExpression), startIndex, error ? "The ')' was expected." : null);
             }
             else if (token != null && token.Type == BindingTokenType.StringLiteralToken)
             {
                 // string literal
                 var literal = Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
 
                 string error;
                 var node = CreateNode(new LiteralExpressionBindingParserNode(ParseStringLiteral(literal.Text, out error)), startIndex);
@@ -296,7 +310,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         private BindingParserNode ReadConstantExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             if (Peek() != null && Peek().Type == BindingTokenType.Identifier)
             {
@@ -304,13 +318,13 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 if (identifier.Text == "true" || identifier.Text == "false")
                 {
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     return CreateNode(new LiteralExpressionBindingParserNode(identifier.Text == "true"), startIndex);
                 }
                 else if (identifier.Text == "null")
                 {
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     return CreateNode(new LiteralExpressionBindingParserNode(null), startIndex);
                 }
                 else if (Char.IsDigit(identifier.Text[0]))
@@ -320,7 +334,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     var number = ParseNumberLiteral(identifier.Text, out error);
 
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
 
                     var node = CreateNode(new LiteralExpressionBindingParserNode(number), startIndex);
                     if (error != null)
@@ -334,16 +348,15 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             return CreateNode(ReadIdentifierNameExpression(), startIndex);
         }
 
-
         private IdentifierNameBindingParserNode ReadIdentifierNameExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             if (Peek() != null && Peek().Type == BindingTokenType.Identifier)
             {
                 var identifier = Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
                 return CreateNode(new IdentifierNameBindingParserNode(identifier.Text), startIndex);
             }
 
@@ -357,42 +370,12 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             error = null;
             NumberLiteralSuffix type = NumberLiteralSuffix.None;
             var lastDigit = text[text.Length - 1];
-            if (char.IsLetter(lastDigit))
-            {
-                // number type suffix
-                if (lastDigit == 'm') type = NumberLiteralSuffix.Decimal;
-                else if (lastDigit == 'f') type = NumberLiteralSuffix.Float;
-                else if (lastDigit == 'd') type = NumberLiteralSuffix.Double;
-                else if (text.EndsWith("ul") || text.EndsWith("lu")) type = NumberLiteralSuffix.UnsignedLong;
-                else if (lastDigit == 'u') type = NumberLiteralSuffix.Unsigned;
-                else if (lastDigit == 'l') type = NumberLiteralSuffix.Long;
-                else
-                {
-                    error = "number literal type suffix not known";
-                    return null;
-                }
 
-                if (type == NumberLiteralSuffix.UnsignedLong) text = text.Remove(text.Length - 2); // remove 2 last chars
-                else text = text.Remove(text.Length - 1); // remove last char
-            }
-            if (text.Contains(".") || text.Contains("e") || type == NumberLiteralSuffix.Float || type == NumberLiteralSuffix.Double)
-            {
-                const NumberStyles decimalStyle = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
-                // real number
-                switch (type)
-                {
-                    case NumberLiteralSuffix.None: // double is defualt
-                    case NumberLiteralSuffix.Double:
-                        return TryParse<double>(double.TryParse, text, out error, decimalStyle);
-                    case NumberLiteralSuffix.Float:
-                        return TryParse<float>(float.TryParse, text, out error, decimalStyle);
-                    case NumberLiteralSuffix.Decimal:
-                        return TryParse<decimal>(decimal.TryParse, text, out error, decimalStyle);
-                    default:
-                        error = $"could not parse real number of type { type }";
-                        return null;
-                }
-            }
+            if (ParseNumberLiteralSuffix(ref text, ref error, lastDigit, ref type)) return null;
+
+            object numberLiteral;
+            if (ParseNumberLiteralDoubleFloat(text, ref error, type, out numberLiteral)) return numberLiteral;
+
             const NumberStyles integerStyle = NumberStyles.AllowLeadingSign;
             // try parse integral constant
             object result = null;
@@ -422,13 +405,78 @@ namespace DotVVM.Framework.Parser.Binding.Parser
 
             // if all are digits, or '0x' + hex digits => too large number
             if (text.All(char.IsDigit) ||
-                (text.StartsWith("0x") && text.Skip(2).All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f'))))
+                (text.StartsWith("0x", StringComparison.Ordinal) && text.Skip(2).All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f'))))
                 error = $"number number {text} is too large for integral literal, try to append 'd' to real number literal";
             else error = $"could not parse {text} as numeric literal";
             return null;
         }
 
-        delegate bool TryParseDelegate<T>(string text, NumberStyles styles, IFormatProvider format, out T result);
+        private static bool ParseNumberLiteralDoubleFloat(string text, ref string error, NumberLiteralSuffix type,
+            out object numberLiteral)
+        {
+            numberLiteral = null;
+            if (text.Contains(".") || text.Contains("e") || type == NumberLiteralSuffix.Float ||
+                type == NumberLiteralSuffix.Double)
+            {
+                const NumberStyles decimalStyle = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
+                // real number
+                switch (type)
+                {
+                    case NumberLiteralSuffix.None: // double is defualt
+                    case NumberLiteralSuffix.Double:
+                        {
+                            numberLiteral = TryParse<double>(double.TryParse, text, out error, decimalStyle);
+                            return true;
+                        }
+
+                    case NumberLiteralSuffix.Float:
+                        {
+                            numberLiteral = TryParse<float>(float.TryParse, text, out error, decimalStyle);
+                            return true;
+                        }
+
+                    case NumberLiteralSuffix.Decimal:
+                        {
+                            numberLiteral = TryParse<decimal>(decimal.TryParse, text, out error, decimalStyle);
+                            return true;
+                        }
+
+                    default:
+                        error = $"could not parse real number of type {type}";
+                        {
+                            return true;
+                        }
+                }
+            }
+            return false;
+        }
+
+        private static bool ParseNumberLiteralSuffix(ref string text, ref string error, char lastDigit, ref NumberLiteralSuffix type)
+        {
+            if (char.IsLetter(lastDigit))
+            {
+                // number type suffix
+                if (lastDigit == 'm') type = NumberLiteralSuffix.Decimal;
+                else if (lastDigit == 'f') type = NumberLiteralSuffix.Float;
+                else if (lastDigit == 'd') type = NumberLiteralSuffix.Double;
+                else if (text.EndsWith("ul", StringComparison.Ordinal) || text.EndsWith("lu", StringComparison.Ordinal))
+                    type = NumberLiteralSuffix.UnsignedLong;
+                else if (lastDigit == 'u') type = NumberLiteralSuffix.Unsigned;
+                else if (lastDigit == 'l') type = NumberLiteralSuffix.Long;
+                else
+                {
+                    error = "number literal type suffix not known";
+                    return true;
+                }
+
+                if (type == NumberLiteralSuffix.UnsignedLong) text = text.Remove(text.Length - 2); // remove 2 last chars
+                else text = text.Remove(text.Length - 1); // remove last char
+            }
+            return false;
+        }
+
+        private delegate bool TryParseDelegate<T>(string text, NumberStyles styles, IFormatProvider format, out T result);
+
         private static object TryParse<T>(TryParseDelegate<T> method, string text, out string error, NumberStyles styles)
         {
             error = null;

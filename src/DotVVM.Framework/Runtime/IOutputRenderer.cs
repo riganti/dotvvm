@@ -12,9 +12,7 @@ namespace DotVVM.Framework.Runtime
     public interface IOutputRenderer
     {
 
-        void RenderPage(DotvvmRequestContext context, DotvvmView view);
-
-        Task WriteHtmlResponse(DotvvmRequestContext context);
+        Task WriteHtmlResponse(DotvvmRequestContext context, DotvvmView view);
 
         Task WriteViewModelResponse(DotvvmRequestContext context, DotvvmView view);
 
@@ -23,5 +21,6 @@ namespace DotVVM.Framework.Runtime
         Task RenderHtmlResponse(IOwinContext context, string html);
 
         Task RenderPlainTextResponse(IOwinContext context, string text);
+        void RenderPostbackUpdatedControls(DotvvmRequestContext context, DotvvmView page);
     }
 }

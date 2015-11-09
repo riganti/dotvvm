@@ -31,7 +31,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
         /// </summary>
-        public override void Render(IHtmlWriter writer, string friendlyName = null)
+        public override void Render(IHtmlWriter writer)
         {
             writer.AddAttribute("type", "text/javascript");
             writer.RenderBeginTag("script");

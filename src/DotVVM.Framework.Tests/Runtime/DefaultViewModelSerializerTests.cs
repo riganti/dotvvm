@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Tests.Runtime
         private DotvvmConfiguration configuration;
         private DefaultViewModelSerializer serializer;
         private DotvvmRequestContext context;
-        
+
         [TestInitialize]
         public void TestInit()
         {
@@ -69,14 +69,14 @@ namespace DotVVM.Framework.Tests.Runtime
                 Property5 = null
             };
             context.ViewModel = oldViewModel;
-            serializer.BuildViewModel(context, new DotvvmView());
+            serializer.BuildViewModel(context);
             var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, new DotvvmView(), result);
+            serializer.PopulateViewModel(context, result);
 
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
             Assert.AreEqual(oldViewModel.Property2, newViewModel.Property2);
@@ -86,6 +86,48 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.AreEqual(oldViewModel.Property4[1].PropertyA, newViewModel.Property4[1].PropertyA);
             Assert.AreEqual(oldViewModel.Property4[1].PropertyB, newViewModel.Property4[1].PropertyB);
             Assert.AreEqual(oldViewModel.Property5, newViewModel.Property5);
+        }
+
+        [TestMethod]
+        public void Serializer_Valid_ExistingValueNotReplaced()
+        {
+            var json = SerializeViewModel(new TestViewModel12 { Property = new TestViewModel13 { MyProperty = 56 } });
+
+            var viewModel = new TestViewModel12 { Property = new TestViewModel13 { MyProperty = 55 } };
+            viewModel.Property.SetPrivateField(123);
+            PopulateViewModel(viewModel, json);
+            Assert.AreEqual(56, viewModel.Property.MyProperty);
+            Assert.AreEqual(123, viewModel.Property.GetPrivateField());
+        }
+
+        private string SerializeViewModel(object viewModel)
+        {
+            context.ViewModel = viewModel;
+            serializer.SendDiff = false;
+            serializer.BuildViewModel(context);
+            return UnwrapSerializedViewModel(serializer.SerializeViewModel(context));
+        }
+
+        private void PopulateViewModel(object viewModel, string json)
+        {
+            context.ViewModel = viewModel;
+            serializer.PopulateViewModel(context,
+                "{'validationTargetPath': null,'viewModel':" + json + "}");
+        }
+
+        class TestViewModel12
+        {
+            public TestViewModel13 Property { get; set; }
+        }
+        class TestViewModel13
+        {
+            public int MyProperty { get; set; }
+            private int privateField = 33;
+            public void SetPrivateField(int value)
+            {
+                privateField = value;
+            }
+            public int GetPrivateField() => privateField;
         }
 
 
@@ -121,14 +163,14 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             context.ViewModel = oldViewModel;
 
-            serializer.BuildViewModel(context, new DotvvmView());
+            serializer.BuildViewModel(context);
             var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel3();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, new DotvvmView(), result);
+            serializer.PopulateViewModel(context, result);
 
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
             Assert.AreEqual(oldViewModel.Property2, newViewModel.Property2);
@@ -172,15 +214,15 @@ namespace DotVVM.Framework.Tests.Runtime
             };
             context.ViewModel = oldViewModel;
 
-            serializer.BuildViewModel(context, new DotvvmView());
+            serializer.BuildViewModel(context);
             var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new TestViewModel5();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, new DotvvmView(), result);
-            
+            serializer.PopulateViewModel(context, result);
+
             Assert.AreEqual(oldViewModel.ProtectedNullable, newViewModel.ProtectedNullable);
         }
 
@@ -192,8 +234,6 @@ namespace DotVVM.Framework.Tests.Runtime
         }
 
 
-
-
         [TestMethod]
         public void DefaultViewModelSerializer_Enum()
         {
@@ -202,17 +242,25 @@ namespace DotVVM.Framework.Tests.Runtime
                 Property1 = TestEnum.Second
             };
             context.ViewModel = oldViewModel;
-            serializer.BuildViewModel(context, new DotvvmView());
+            serializer.BuildViewModel(context);
             var result = context.GetSerializedViewModel();
             result = UnwrapSerializedViewModel(result);
             result = WrapSerializedViewModel(result);
 
             var newViewModel = new EnumTestViewModel();
             context.ViewModel = newViewModel;
-            serializer.PopulateViewModel(context, new DotvvmView(), result);
+            serializer.PopulateViewModel(context, result);
 
-            Assert.IsFalse(result.Contains(typeof (TestEnum).FullName));
+            Assert.IsFalse(result.Contains(typeof(TestEnum).FullName));
             Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
+        }
+
+
+        public class EnumCollectionTestViewModel
+        {
+            public TestEnum Property1 { get; set; }
+
+            public List<EnumTestViewModel> Children { get; set; }
         }
 
         public class EnumTestViewModel
@@ -226,6 +274,41 @@ namespace DotVVM.Framework.Tests.Runtime
             Second,
             Third
         }
+
+
+
+
+        [TestMethod]
+        public void DefaultViewModelSerializer_EnumInCollection()
+        {
+            var oldViewModel = new EnumCollectionTestViewModel()
+            {
+                Property1 = TestEnum.Third,
+                Children = new List<EnumTestViewModel>()
+                {
+                    new EnumTestViewModel() { Property1 = TestEnum.First },
+                    new EnumTestViewModel() { Property1 = TestEnum.Second },
+                    new EnumTestViewModel() { Property1 = TestEnum.Third }
+                }
+            };
+
+            context.ViewModel = oldViewModel;
+            serializer.BuildViewModel(context);
+            var result = context.GetSerializedViewModel();
+            result = UnwrapSerializedViewModel(result);
+            result = WrapSerializedViewModel(result);
+
+            var newViewModel = new EnumCollectionTestViewModel() { Children = new List<EnumTestViewModel>() };
+            context.ViewModel = newViewModel;
+            serializer.PopulateViewModel(context, result);
+
+            Assert.IsFalse(result.Contains(typeof(TestEnum).FullName));
+            Assert.AreEqual(oldViewModel.Property1, newViewModel.Property1);
+            Assert.AreEqual(oldViewModel.Children[0].Property1, newViewModel.Children[0].Property1);
+            Assert.AreEqual(oldViewModel.Children[1].Property1, newViewModel.Children[1].Property1);
+            Assert.AreEqual(oldViewModel.Children[2].Property1, newViewModel.Children[2].Property1);
+        }
+
 
         /// <summary>
         /// Wraps the serialized view model to an object that comes from the client.

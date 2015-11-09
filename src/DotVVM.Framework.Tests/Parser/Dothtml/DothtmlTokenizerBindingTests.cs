@@ -22,7 +22,6 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
-            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.OpenTag, tokenizer.Tokens[i++].Type);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);

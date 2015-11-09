@@ -1,0 +1,21 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VSTemplate Version="3.0.0" Type="Item" xmlns="http://schemas.microsoft.com/developer/vstemplate/2005" xmlns:sdk="http://schemas.microsoft.com/developer/vstemplate-sdkextension/2010">
+  <TemplateData>
+    <Name>DotVVM User Control</Name>
+    <Description>ASP.NET DotVVM User Control</Description>
+    <Icon>dotcontrol_32x32.png</Icon>
+    <PreviewImage>dotcontrol_256x256.png</PreviewImage>
+    <TemplateID>8d43a1bd-2994-45be-ae7e-a409a3f1b2d3</TemplateID>
+    <ProjectType>CSharp</ProjectType>
+    <RequiredFrameworkVersion>4.5</RequiredFrameworkVersion>
+    <NumberOfParentCategoriesToRollUp>1</NumberOfParentCategoriesToRollUp>
+    <DefaultName>control</DefaultName>
+  </TemplateData>
+  <TemplateContent>
+    <ProjectItem ReplaceParameters="true" ItemType="Content" TargetFileName="$safeitemname$.dotcontrol">control.dotcontrol</ProjectItem>
+  </TemplateContent>
+  <WizardExtension>
+    <Assembly>DotVVM.VS2015Extension.DotvvmPageWizard, Version=1.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da</Assembly>
+    <FullClassName>DotVVM.VS2015Extension.DotvvmPageWizard.ControlWizard</FullClassName>
+  </WizardExtension>
+</VSTemplate>

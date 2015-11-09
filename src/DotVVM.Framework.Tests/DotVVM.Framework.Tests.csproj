@@ -26,6 +26,7 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -156,7 +157,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Binding\BidningCompilationTests.cs" />
+    <Compile Include="Binding\BindingCompilationTests.cs" />
     <Compile Include="Binding\CommandResolverTests.cs" />
     <Compile Include="Parser\Binding\BindingParserTests.cs" />
     <Compile Include="Parser\Binding\BindingTokenizerTests.cs" />
@@ -167,11 +168,12 @@
     <Compile Include="Parser\Dothtml\DothtmlTokenizerHtmlSpecialElementsTests.cs" />
     <Compile Include="Parser\Dothtml\DothtmlTokenizerTestsBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Runtime\ControlLifeCycleMock.cs" />
     <Compile Include="Runtime\DefaultViewModelSerializerTests.cs" />
+    <Compile Include="Runtime\DotvvmControlCollectionTests.cs" />
     <Compile Include="Runtime\ResourceManagerTests.cs" />
     <Compile Include="Routing\DotvvmRouteTests.cs" />
     <Compile Include="Runtime\DefaultViewCompilerTests.cs" />
-    <Compile Include="Runtime\NamingContainersTests.cs" />
     <Compile Include="TestExtensions.cs" />
     <Compile Include="ViewModel\ViewModelValidatorTests.cs" />
     <Compile Include="VS2015Extension\MetadataControlResolverTests.cs" />

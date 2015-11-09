@@ -16,6 +16,7 @@ using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -70,8 +71,6 @@ namespace DotVVM.Framework.Hosting
 
         internal Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 
-        internal string RenderedHtml { get; set; }
-
         internal JObject ViewModelJson { get; set; }
 
         internal JObject ReceivedViewModelJson { get; set; }
@@ -103,6 +102,8 @@ namespace DotVVM.Framework.Hosting
             get { return DotvvmPresenter.DeterminePartialRendering(OwinContext); }
         }
 
+
+
         /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
         /// </summary>
@@ -131,6 +132,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Interrupts the execution of the current request.
         /// </summary>
+        [DebuggerHidden]
         public void InterruptRequest()
         {
             throw new DotvvmInterruptRequestExecutionException();    
@@ -229,10 +231,10 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public static string TranslateVirtualPath(string virtualUrl, IOwinContext owinContext)
         {
-            if (virtualUrl.StartsWith("~/"))
+            if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             {
                 var url = DotvvmMiddleware.GetVirtualDirectory(owinContext) + "/" + virtualUrl.Substring(2);
-                if (!url.StartsWith("/"))
+                if (!url.StartsWith("/", StringComparison.Ordinal))
                 {
                     url = "/" + url;
                 }

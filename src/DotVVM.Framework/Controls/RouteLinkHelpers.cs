@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Controls
             {
                 expression = JsonConvert.SerializeObject(param.Value);
             }
-            return JsonConvert.SerializeObject(param.Key) + ": " + expression;
+            return JsonConvert.SerializeObject(param.Key.ToLower()) + ": " + expression;
         }
 
         private static void EnsureValidBindingType(IBinding binding)
@@ -118,7 +118,7 @@ namespace DotVVM.Framework.Controls
 
         private static Dictionary<string, object> ComposeNewRouteParameters(HtmlGenericControl control, RenderContext context, RouteBase route)
         {
-            var parameters = new Dictionary<string, object>(route.DefaultValues);
+            var parameters = new Dictionary<string, object>(route.DefaultValues, StringComparer.OrdinalIgnoreCase);
             foreach (var param in context.RequestContext.Parameters)
             {
                 parameters[param.Key] = param.Value;
@@ -136,8 +136,7 @@ namespace DotVVM.Framework.Controls
 
         private static List<KeyValuePair<string, object>> GetRouteParameters(HtmlGenericControl control)
         {
-            return control.Attributes.Where(a => a.Key.StartsWith(RouteParameterPrefix)).ToList();
+            return control.Attributes.Where(a => a.Key.StartsWith(RouteParameterPrefix, StringComparison.OrdinalIgnoreCase)).ToList();
         }
-
     }
 }

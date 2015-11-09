@@ -5,6 +5,8 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Utils
 {
@@ -55,6 +57,14 @@ namespace DotVVM.Framework.Utils
             if (result.CanReduce) result = result.Reduce();
             return result;
         }
+
+        [Conditional("DEBUG")]
+        public static void AddDebug(this IList<Expression> block, [CallerFilePath] string fileName = null, [CallerLineNumber] int lineNumber = -1)
+        {
+            if (fileName == null || lineNumber < 0) throw new ArgumentException();
+            block.Add(Expression.DebugInfo(Expression.SymbolDocument(fileName), lineNumber, 0, lineNumber + 1, 0));
+        }
+
         #region Replace overloads
 
         public static Expression Replace<T1, TRes>(Expression<Func<T1, TRes>> ex, Expression p1)

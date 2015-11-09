@@ -7,6 +7,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Compilation;
 using System.Reflection;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -59,7 +60,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private IControlBuilder CreateControlBuilder(MarkupFile file)
         {
-            var lockId = (file.GetHashCode() & 0x7fffffff ) % compilationLocks.Length;
+            var lockId = (file.GetHashCode() & 0x7fffffff) % compilationLocks.Length;
             // do not compile the same view multiple times
             lock (compilationLocks[lockId])
             {
@@ -68,8 +69,20 @@ namespace DotVVM.Framework.Runtime
                 var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
                 var assemblyName = namespaceName;
                 var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
-
-                return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+                try
+                {
+                    return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+                }
+                catch (DotvvmCompilationException ex)
+                {
+                    if (ex.FileName == null)
+                        ex.FileName = file.FullPath;
+                    else if (!Path.IsPathRooted(ex.FileName))
+                        ex.FileName = Path.Combine(
+                            file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
+                            ex.FileName);
+                    throw;
+                }
             }
         }
 
@@ -78,43 +91,37 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         public static string GetClassFromFileName(string fileName)
         {
-            return Path.GetFileNameWithoutExtension(fileName);
+            return GetValidIdentifier(Path.GetFileNameWithoutExtension(fileName));
         }
 
+        protected static string GetValidIdentifier(string identifier)
+        {
+            var arr = identifier.ToCharArray();
+            for (int i = 0; i < arr.Length; i++)
+            {
+                if (!char.IsLetterOrDigit(arr[i]))
+                {
+                    arr[i] = '_';
+                }
+            }
+            identifier = new string(arr);
+            if (char.IsDigit(arr[0])) identifier = "C" + identifier;
+            if (csharpKeywords.Contains(identifier)) identifier += "0";
+            return identifier;
+        }
+        
         /// <summary>
         /// Gets the name of the namespace from the file name.
         /// </summary>
         public static string GetNamespaceFromFileName(string fileName, DateTime lastWriteDateTimeUtc)
         {
-            // remove extension
-            fileName = fileName.Substring(0, fileName.Length - MarkupFile.ViewFileExtension.Length);
+            // TODO: make sure crazy directory names are ok, it should also work on linux :)
 
             // replace \ and / for .
-            fileName = fileName.Replace('/', '.').Replace('\\', '.');
+            var parts = fileName.Split(new[] { '/', '\\' });
+            parts[parts.Length - 1] = Path.GetFileNameWithoutExtension(parts[parts.Length - 1]);
 
-            // remove spaces
-            foreach (var ch in Path.GetInvalidPathChars())
-            {
-                fileName = fileName.Replace(ch, '_');
-            }
-
-            // get rid of the extension
-            fileName = fileName.Substring(fileName.LastIndexOf('.') + 1).Trim('.');
-            if (fileName != string.Empty)
-            {
-                fileName = "." + fileName;
-            }
-
-            // make sure any part of the filename is not a C# keyword
-            var parts = fileName.Split('.');
-            for (int i = 0; i < parts.Length; i++)
-            {
-                if (csharpKeywords.Contains(parts[i]))
-                {
-                    parts[i] += "0";
-                }
-            }
-            fileName = string.Join(".", parts);
+            fileName = string.Join(".", parts.Select(GetValidIdentifier));
             return "DotvvmGeneratedViews" + fileName + "_" + lastWriteDateTimeUtc.Ticks;
         }
 

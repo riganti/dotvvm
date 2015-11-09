@@ -17,6 +17,7 @@ using DotVVM.Framework.Security;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -31,6 +32,7 @@ namespace DotVVM.Framework.Hosting
         public IOutputRenderer OutputRenderer { get; private set; }
 
         public ICsrfProtector CsrfProtector { get; private set; }
+        public string ApplicationPath { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
@@ -42,6 +44,7 @@ namespace DotVVM.Framework.Hosting
             ViewModelSerializer = configuration.ServiceLocator.GetService<IViewModelSerializer>();
             OutputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
             CsrfProtector = configuration.ServiceLocator.GetService<ICsrfProtector>();
+            ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
         /// <summary>
@@ -80,6 +83,11 @@ namespace DotVVM.Framework.Hosting
             {
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             }
+            catch (DotvvmControlException ex)
+            {
+                ex.FileName = Path.Combine(ApplicationPath, ex.FileName);
+                throw;
+            }
         }
 
         public async Task ProcessRequestCore(DotvvmRequestContext context)
@@ -101,9 +109,10 @@ namespace DotVVM.Framework.Hosting
 
             // build the page view
             var page = DotvvmViewBuilder.BuildView(context);
+            page.SetValue(Internal.RequestContextProperty, context);
 
             // run the preinit phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnPreInit(context));
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit, context);
 
             // locate and create the view model
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
@@ -127,7 +136,7 @@ namespace DotVVM.Framework.Hosting
             }
 
             // run the init phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnInit(context));
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init, context);
 
             if (!isPostBack)
             {
@@ -138,7 +147,7 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // run the load phase in the page
-                InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
             }
             else
             {
@@ -148,7 +157,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     postData = await sr.ReadToEndAsync();
                 }
-                ViewModelSerializer.PopulateViewModel(context, page, postData);
+                ViewModelSerializer.PopulateViewModel(context, postData);
 
                 // validate CSRF token 
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
@@ -162,7 +171,7 @@ namespace DotVVM.Framework.Hosting
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
                 // run the load phase in the page
-                InvokePageLifeCycleEventRecursive(page, c => c.OnLoad(context));
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
 
                 // invoke the postback command
                 ActionInfo actionInfo;
@@ -183,7 +192,8 @@ namespace DotVVM.Framework.Hosting
                     Exception commandException = null;
                     try
                     {
-                        actionInfo.Action();
+                        var result = actionInfo.Action();
+                        if (result is Task) await (Task)result;
                     }
                     catch (Exception ex)
                     {
@@ -217,10 +227,10 @@ namespace DotVVM.Framework.Hosting
             }
 
             // run the prerender phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnPreRender(context));
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender, context);
 
             // run the prerender complete phase in the page
-            InvokePageLifeCycleEventRecursive(page, c => c.OnPreRenderComplete(context));
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete, context);
 
             // generate CSRF token if required
             if (string.IsNullOrEmpty(context.CsrfToken))
@@ -235,16 +245,16 @@ namespace DotVVM.Framework.Hosting
             }
 
             // render the output
-            ViewModelSerializer.BuildViewModel(context, page);
-            OutputRenderer.RenderPage(context, page);
+            ViewModelSerializer.BuildViewModel(context);
             if (!context.IsInPartialRenderingMode)
             {
                 // standard get
-                await OutputRenderer.WriteHtmlResponse(context);
+                await OutputRenderer.WriteHtmlResponse(context, page);
             }
             else
             {
                 // postback or SPA content
+                OutputRenderer.RenderPostbackUpdatedControls(context, page);
                 ViewModelSerializer.AddPostBackUpdatedControls(context);
                 await OutputRenderer.WriteViewModelResponse(context, page);
             }
@@ -341,18 +351,6 @@ namespace DotVVM.Framework.Hosting
         public static string DetermineSpaContentPlaceHolderUniqueId(IOwinContext context)
         {
             return context.Request.Headers[Constants.SpaContentPlaceHolderHeaderName];
-        }
-
-
-        /// <summary>
-        /// Invokes the specified method on all controls in the page control tree.
-        /// </summary>
-        private void InvokePageLifeCycleEventRecursive(DotvvmControl control, Action<DotvvmControl> action)
-        {
-            foreach (var child in control.GetThisAndAllDescendants())
-            {
-                action(child);
-            }
         }
     }
 }

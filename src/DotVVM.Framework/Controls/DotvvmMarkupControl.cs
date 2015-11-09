@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// A base class for all controls with Dothtml markup.
     /// </summary>
-    public abstract class DotvvmMarkupControl : HtmlGenericControl
+    public class DotvvmMarkupControl : HtmlGenericControl
     {
         
         /// <summary>
@@ -46,10 +46,10 @@ namespace DotVVM.Framework.Controls
 
         private string GetJsValue(DotvvmProperty property)
         {
-            var binding = GetBinding(property);
-            if (binding?.Javascript != null)
+            var valueBinding = GetValueBinding(property);
+            if (valueBinding != null)
             {
-                return binding.Javascript;
+                return valueBinding.GetKnockoutBindingExpression();
             }
             return JsonConvert.SerializeObject(GetValue(property), Formatting.None);
         }

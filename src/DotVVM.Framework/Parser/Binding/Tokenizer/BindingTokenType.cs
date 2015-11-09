@@ -37,6 +37,8 @@ namespace DotVVM.Framework.Parser.Binding.Tokenizer
         AndOperator,
         AndAlsoOperator,
         OrOperator,
-        OrElseOperator
+        OrElseOperator,
+
+        AssignOperator
     }
 }

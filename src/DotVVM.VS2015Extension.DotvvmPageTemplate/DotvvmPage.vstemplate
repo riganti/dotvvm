@@ -3,7 +3,8 @@
   <TemplateData>
     <Name>DotVVM Page</Name>
     <Description>ASP.NET DotVVM Page</Description>
-    <Icon>DotVVM.VS2015Extension.DotvvmPageTemplate.ico</Icon>
+    <Icon>dothtml_32x32.png</Icon>
+    <PreviewImage>dothtml_256x256.png</PreviewImage>
     <TemplateID>2f42be36-22d4-4cbb-87a6-22257d141307</TemplateID>
     <ProjectType>CSharp</ProjectType>
     <RequiredFrameworkVersion>4.5</RequiredFrameworkVersion>
@@ -11,7 +12,7 @@
     <DefaultName>page</DefaultName>
   </TemplateData>
   <TemplateContent>
-    <ProjectItem ReplaceParameters="true" TargetFileName="$safeitemname$.dothtml">page.dothtml</ProjectItem>
+    <ProjectItem ReplaceParameters="true"  ItemType="Content"  TargetFileName="$safeitemname$.dothtml">page.dothtml</ProjectItem>
   </TemplateContent>
   <WizardExtension>
     <Assembly>DotVVM.VS2015Extension.DotvvmPageWizard, Version=1.0.0.0, Culture=neutral, PublicKeyToken=23f3607db32275da</Assembly>

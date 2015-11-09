@@ -29,8 +29,6 @@ namespace DotVVM.Framework.Parser
         public const string DotvvmResourceName = "dotvvm";
         public const string DotvvmValidationResourceName = "dotvvm.validation";
         public const string DotvvmDebugResourceName = "dotvvm.debug";
-        public const string BootstrapResourceName = "bootstrap";
-        public const string BootstrapCssResourceName = "bootstrap-css";
         public const string GlobalizeResourceName = "globalize";
         public const string GlobalizeCultureResourceName = "globalize:{0}";
 

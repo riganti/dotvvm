@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -13,7 +14,7 @@ namespace DotVVM.Framework.Controls
     {
 
         /// <summary>
-        /// Gets or sets the <see cref="CheckableControlBase.CheckedValue"/>s of all <see cref="CheckBox">CheckBoxes</see> that are checked and bound to this collection.
+        /// Gets or sets a collection of values of all checked checkboxes. Use this property in combination with the CheckedValue property.
         /// </summary>
         public IEnumerable CheckedItems
         {
@@ -53,7 +54,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                throw new Exception("Either the Checked or the CheckedItems binding of a CheckBox must be set.");
+                throw new DotvvmControlException(this, "Either the Checked or the CheckedItems binding of a CheckBox must be set.");
             }
 
             // render the input tag

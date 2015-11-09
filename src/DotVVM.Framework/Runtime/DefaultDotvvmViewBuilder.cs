@@ -7,6 +7,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime.Compilation;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -51,6 +52,7 @@ namespace DotVVM.Framework.Runtime
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).BuildControl(controlBuilderFactory);
 
                 PerformMasterPageComposition(contentPage, masterPage);
+                masterPage.ViewModelType = contentPage.ViewModelType;
                 contentPage = masterPage;
             }
 
@@ -94,6 +96,9 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private void PerformMasterPageComposition(DotvvmView childPage, DotvvmView masterPage)
         {
+            if (!masterPage.ViewModelType.IsAssignableFrom(childPage.ViewModelType))
+                throw new DotvvmControlException(childPage, $"Master page requires viewModel of type '{masterPage.ViewModelType}' and it is not assignable from '{childPage.ViewModelType}'.");
+
             // find content place holders
             var placeHolders = GetMasterPageContentPlaceHolders(masterPage);
 
@@ -111,19 +116,18 @@ namespace DotVVM.Framework.Runtime
                 }
 
                 // replace the contents
-                var children = content.Children.ToArray();
+                content.Parent.Children.Remove(content);
                 placeHolder.Children.Clear();
-                content.Children.Clear();
-                foreach (var child in children)
-                {
-                    placeHolder.Children.Add(child);
-                }
+                placeHolder.Children.Add(content);
+                content.SetValue(Internal.IsMasterPageCompositionFinished, true);
             }
 
+
             // copy the directives from content page to the master page (except the @masterpage)
+            masterPage.ViewModelType = childPage.ViewModelType;
             foreach (var directive in childPage.Directives)
             {
-                if (directive.Key == Constants.MasterPageDirective)
+                if (string.Equals(directive.Key, Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
                 {
                     continue;
                 }
@@ -156,13 +160,15 @@ namespace DotVVM.Framework.Runtime
         private List<Content> GetChildPageContents(DotvvmView childPage, List<ContentPlaceHolder> parentPlaceHolders)
         {
             // make sure that the body contains only whitespace and Content controls
-            if (!childPage.Children.All(c => (c is Literal && ((Literal)c).HasWhiteSpaceContentOnly()) || (c is Content)))
+            if (!childPage.Children.All(c => (c is RawLiteral && ((RawLiteral)c).IsWhitespace) || (c is Content)))
             {
                 throw new Exception("If the page contains @masterpage directive, it can only contain white space and <dot:Content /> controls!");    // TODO: exception handling
             }
 
             // make sure that the Content controls are not nested in other elements
-            var contents = childPage.GetAllDescendants().OfType<Content>().ToList();
+            var contents = childPage.GetAllDescendants().OfType<Content>()
+                .Where(c => !(bool) c.GetValue(Internal.IsMasterPageCompositionFinished))
+                .ToList();
             if (contents.Any(c => c.Parent != childPage))
             {
                 throw new Exception("The control <dot:Content /> cannot be placed inside any control!");    // TODO: exception handling

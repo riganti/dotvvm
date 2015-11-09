@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
@@ -32,5 +33,6 @@ namespace DotVVM.Framework.Controls
             }
             set { SetValue(Internal.UniqueIDProperty, value != null ? value.ToString() : null); }
         }
+        
     }
 }

@@ -17,8 +17,8 @@ namespace DotVVM.Framework.Binding
         {
             return DelegateActionProperty<object>.Register<TDeclaringType>(name, (writer, context, value, control) =>
             {
-                var binding = value as CommandBindingExpression;
-                var script = KnockoutHelper.GenerateClientPostBackScript(binding, context, control as DotvvmBindableControl);
+                var binding = value as ICommandBinding;
+                var script = KnockoutHelper.GenerateClientPostBackScript(name, binding, context, control as DotvvmBindableControl);
                 writer.AddAttribute(attributeName, script);
             });
         }

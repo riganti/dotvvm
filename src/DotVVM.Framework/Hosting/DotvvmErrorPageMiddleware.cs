@@ -5,11 +5,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using DotVVM.Framework.Hosting.ErrorPages;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class DotvvmErrorPageMiddleware: OwinMiddleware
+    public class DotvvmErrorPageMiddleware : OwinMiddleware
     {
+        public ErrorFormatter Formatter { get; set; }
+
         public DotvvmErrorPageMiddleware(OwinMiddleware next) : base(next)
         {
         }
@@ -36,29 +39,21 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the error response.
         /// </summary>
-        public static Task RenderErrorResponse(IOwinContext context, Exception error)
+        public Task RenderErrorResponse(IOwinContext context, Exception error)
         {
             context.Response.ContentType = "text/html";
 
-            var template = new ErrorPageTemplate()
+            try
             {
-                Exception = error,
-                ErrorCode = context.Response.StatusCode,
-                ErrorDescription = ((HttpStatusCode)context.Response.StatusCode).ToString(),
-                IpAddress = context.Request.RemoteIpAddress,
-                CurrentUserName = context.Request.User != null ? context.Request.User.Identity.Name : "",
-                Url = context.Request.Uri.ToString(),
-                Verb = context.Request.Method
-            };
-            if (error is ParserException)
-            {
-                template.FileName = ((ParserException)error).FileName;
-                template.LineNumber = ((ParserException)error).LineNumber;
-                template.PositionOnLine = ((ParserException)error).PositionOnLine;
-            }
 
-            var text = template.TransformText();
-            return context.Response.WriteAsync(text);
+                var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault()))
+                    .ErrorHtml(error, context);
+                return context.Response.WriteAsync(text);
+            }
+            catch (Exception exc)
+            {
+                throw new Exception("Error occured inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
+            }
         }
     }
 }

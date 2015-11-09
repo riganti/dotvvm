@@ -1,9 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Linq.Expressions;
+﻿using DotVVM.Framework.ViewModel;
+using System;
 using System.Collections;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 {
@@ -20,6 +22,8 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public static readonly Dictionary<MethodInfo, IJsMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJsMethodTranslator>();
         public static readonly HashSet<Type> Interfaces = new HashSet<Type>();
+
+        public bool WriteUnknownParameters { get; set; } = true;
 
         static JavascriptTranslator()
         {
@@ -100,26 +104,58 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string Translate(Expression expression)
         {
-
             switch (expression.NodeType)
             {
                 case ExpressionType.Constant:
                     return TranslateConstant((ConstantExpression)expression);
+
                 case ExpressionType.Call:
                     return TranslateMethodCall((MethodCallExpression)expression);
+
                 case ExpressionType.MemberAccess:
                     return TranslateMemberAccess((MemberExpression)expression);
+
                 case ExpressionType.Parameter:
                     return TranslateParameter((ParameterExpression)expression);
+
                 case ExpressionType.Conditional:
                     return TranslateConditional((ConditionalExpression)expression);
+
                 case ExpressionType.Index:
                     return TranslateIndex((IndexExpression)expression);
+
+                case ExpressionType.Assign:
+                    return TranslateAssing((BinaryExpression)expression);
             }
             if (expression is BinaryExpression) return TranslateBinary((BinaryExpression)expression);
             else if (expression is UnaryExpression) return TranslateUnary((UnaryExpression)expression);
 
-            throw new NotSupportedException($"expression type { expression.NodeType } can't be transaled to Javascript");
+            throw new NotSupportedException($"expression type { expression.NodeType } can not be transaled to Javascript");
+        }
+
+        public string TranslateAssing(BinaryExpression expression)
+        {
+            var property = expression.Left as MemberExpression;
+            if (property != null)
+            {
+                var target = Translate(property.Expression);
+                var value = Translate(expression.Right);
+                return TryTranslateMethodCall(target, new[] { value }, (property.Member as PropertyInfo)?.SetMethod) ??
+                    SetProperty(target, property.Member as PropertyInfo, value);
+            }
+            throw new NotSupportedException($"can not assign expression of type {expression.Left.NodeType}");
+        }
+
+        private string SetProperty(string target, PropertyInfo property, string value)
+        {
+            if (ViewModelJsonConverter.IsPrimitiveType(property.PropertyType))
+            {
+                return target + "." + property.Name + "(" + value + ")";
+            }
+            else
+            {
+                return $"dotvvm.serialization.deserialize({ value }, { target }.{ property.Name })";
+            }
         }
 
         /// <summary>
@@ -178,7 +214,8 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 string context = string.Concat(Enumerable.Repeat("$parentContext.", c));
                 return context + "$control";
             }
-            throw new NotSupportedException();
+            if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return expression.Name;
+            else throw new NotSupportedException();
         }
 
         public string TranslateConstant(ConstantExpression expression)
@@ -192,10 +229,9 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             var args = expression.Arguments.Select(Translate).ToArray();
             var result = TryTranslateMethodCall(thisExpression, args, expression.Method);
             if (result == null)
-                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can't be translated to Javascript");
+                throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can not be translated to Javascript");
             return result;
         }
-
 
         protected string TryTranslateMethodCall(string context, string[] args, MethodInfo method)
         {
@@ -239,6 +275,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             else return null;
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public string TranslateBinary(BinaryExpression expression)
         {
             var left = ParenthesizedTranslate(expression, expression.Left);
@@ -288,7 +325,6 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 case ExpressionType.ExclusiveOrAssign: op = "^="; break;
                 case ExpressionType.Coalesce: op = "||"; break;
                 case ExpressionType.ArrayIndex: op = "{0}[{1}]"; break;
-
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
@@ -312,9 +348,11 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 case ExpressionType.Negate:
                     op = "-{0}";
                     break;
+
                 case ExpressionType.UnaryPlus:
                     op = "+{0}";
                     break;
+
                 case ExpressionType.Not:
                     if (expression.Operand.Type == typeof(bool))
                         op = "!{0}";
@@ -332,6 +370,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 case ExpressionType.TypeAs:
                     // convert does not make sense in Javascript
                     return operand;
+
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }

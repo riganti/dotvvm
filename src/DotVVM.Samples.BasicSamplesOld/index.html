@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>DotVVM Samples HomePage</title>
+    <link rel="stylesheet" href="Content/bootstrap/bootstrap.css" />
+    <script src="Scripts/jquery-1.9.1.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>DotVVM Samples</h1>
+
+        <ul>
+            <li><a href="Sample1">Sample 1 - Task List</a></li>
+            <li><a href="Sample2">Sample 2 - CheckBox &amp; RadioButton</a></li>
+            <li><a href="Sample3">Sample 3 - Invoice Editor</a></li>
+            <li><a href="Sample4">Sample 4 - Master Pages</a></li>
+            <li><a href="Sample5">Sample 5 - Markup Control</a></li>
+            <li><a href="Sample6">Sample 6 - ViewModel property encryption and protection</a></li>
+            <li><a href="Sample7">Sample 7 - Client-side rendered Calendar control</a></li>
+            <li><a href="Sample8">Sample 8 - Client-side events</a></li>
+            <li><a href="Sample9">Sample 9 - Localization</a></li>
+            <li><a href="Sample10">Sample 10 - Redirect test</a></li>
+            <li><a href="Sample11">Sample 11 - Simple validation test</a></li>
+            <li><a href="Sample12">Sample 12 - PostBack.Update property test</a></li>
+            <li><a href="Sample13">Sample 13 - Cascade selectors</a></li>
+            <li><a href="Sample14">Sample 14 - RenderSettings.Mode="Server" property test</a></li>
+            <li><a href="Sample15">Sample 15 - UpdateProgress control and double postback prevention</a></li>
+            <li><a href="Sample16">Sample 16 - GridView with paging and sorting</a></li>
+            <li><a href="Sample17">Sample 17 - SPA</a></li>
+            <li><a href="Sample18">Sample 18 - Nested validation test</a></li>
+            <li><a href="Sample19">Sample 19 - File upload test</a></li>
+            <li><a href="Sample20">Sample 20 - Validation rules loaded on postback</a></li>
+            <li><a href="Sample21">Sample 21 - Changed event tests</a></li>
+            <li><a href="Sample22">Sample 22 - RouteLink in Repeater</a></li>
+            <li><a href="Sample23">Sample 23 - StaticCommand tests</a></li>
+            <li><a href="Sample24">Sample 24 - Serialization tests</a></li>
+            <li><a href="Sample25">Sample 25 - DateTime custom format serialization</a></li>
+            <li><a href="Sample26">Sample 26 - Nested validation test</a></li>
+            <li><a href="Sample27">Sample 27 - Formatting sample</a></li>
+            <li><a href="Sample28">Sample 28 - GridView with server rendering</a></li>
+            <li><a href="Sample29">Sample 29 - Repeater with server rendering</a></li>
+            <li><a href="Sample31">Sample 31 - ComboBox items in dothtml</a></li>
+            <li><a href="Sample32">Sample 32 - ButtonTagName property sample</a></li>
+            <li><a href="Sample33">Sample 33 - LinkButton sample</a></li>
+            <li><a href="Sample34">Sample 34 - TextBox sample</a></li>
+            <li><a href="Sample35">Sample 35 - Repeater wrapper tag sample</a></li>
+            <li><a href="Sample36">Sample 36 - ID generation tests</a></li>
+            <li><a href="Sample37">Sample 37 - Async command</a></li>
+            <li><a href="Sample38">Sample 38 - ViewModel deserialization does not drop objects</a></li>
+            <li><a href="Sample39">Sample 39 - Control extension commands</a></li>
+            <li><a href="Sample40">Sample 40 - Recursive ValidationSummary</a></li>
+            <li><a href="Sample40">Sample 41 - Partial view model sent to server</a></li>
+            <li><a href="Sample43">Sample 43 - Regex Validation</a></li>
+            <li><a href="Sample44">Sample 44 - Enabled property</a></li>
+            <li><a href="Sample45">Sample 45 - TextBox bound to int property</a></li>
+            <li><a href="Sample46">Sample 46 - EmptyDataTemplate in Repeater and GridView</a></li>
+            <li><a href="Sample47">Sample 47 - Nested Repeaters</a></li>
+            <li><a href="Sample48">Sample 48 - SPA ViewModel reapplication</a></li>
+            <li><a href="Sample49">Sample 49 - PostBack handlers</a></li>
+            <li><a href="Sample50">Sample 50 - Non-pair HTML tag matching</a></li>
+            <li><a href="Sample51">Sample 51 - Cascade selectors - server rendering</a></li>
+            <li><a href="Sample52">Sample 52 - DataPager - HideWhenOnePageOnly</a></li>
+            <li><a href="AuthSample/SecuredPage">Authentication and authorization Sample - Page for signed users</a></li>
+        </ul>
+
+        <ul>
+            <li><a href="Error1">Error Page 1</a></li>
+            <li><a href="Error2">Error Page 2</a></li>
+            <li><a href="Error3">Error Page 3</a></li>
+            <li><a href="Error4">Error Page 4</a></li>
+            <li><a href="Error5">Error Page 5</a></li>
+            <li><a href="Error6">Error Page 6</a></li>
+            <li><a href="Error7">Error Page 7</a></li>
+            <li><a href="Error8">Error Page 8</a></li>
+            <li><a href="Error9">Error Page 9 - binding invalid symbol</a></li>
+            <li><a href="Error10">Error Page 10 - malformed binding</a></li>
+            <li><a href="Error11">Error Page 11 - master page viewmodel incompatible with content page</a></li>
+            <li><a href="Error12">Error Page 12 - missing required property</a></li>
+        </ul>
+    </div>
+
+    <script>
+        var quickAction = "";
+        function showQA(key) {
+            quickAction += String.fromCharCode(key.charCode);
+            $("a").css({ fontWeight: "inherit" });
+            if (key.charCode == 13) document.getElementsByTagName("a").item(parseInt(quickAction.trim())).click();
+            else $(document.getElementsByTagName("a").item(parseInt(quickAction.trim()))).css({ fontWeight: "bold" });
+        }
+        $(document).keypress(showQA);
+    </script>
+</body>
+</html>

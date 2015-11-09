@@ -1,3 +1,4 @@
+using DotVVM.Framework.Runtime.Compilation;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -8,6 +9,7 @@ using System.Resources;
 namespace DotVVM.Framework.Binding
 {
     [BindingCompilationRequirements(OriginalString = BindingCompilationRequirementType.StronglyRequire, Delegate = BindingCompilationRequirementType.IfPossible)]
+    [BindingCompilation]
     public class ResourceBindingExpression : BindingExpression, IStaticValueBinding
     {
         private static ConcurrentDictionary<string, ResourceManager> cachedResourceManagers = new ConcurrentDictionary<string, ResourceManager>();
@@ -31,7 +33,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public object Evaluate(Controls.DotvvmBindableControl control, DotvvmProperty property)
         {
-            if (Delegate != null) return Delegate(new object[0], null);
+            if (Delegate != null) return ExecDelegate(control, true);
 
             if (!OriginalString.Contains("."))
             {
@@ -39,7 +41,7 @@ namespace DotVVM.Framework.Binding
             }
 
             // parse expression
-            var lastDotPosition = OriginalString.LastIndexOf(".");
+            var lastDotPosition = OriginalString.LastIndexOf(".", StringComparison.Ordinal);
             var resourceType = OriginalString.Substring(0, lastDotPosition);
             var resourceKey = OriginalString.Substring(lastDotPosition + 1);
 

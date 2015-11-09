@@ -9,13 +9,13 @@ using DotVVM.Framework.Utils;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Renders a HTML drop-down list.
+    /// Renders the HTML drop-down list.
     /// </summary>
     public class ComboBox : SelectHtmlControlBase
     {
 
         /// <summary>
-        /// Defaultly selected value which is NOT part of the DataSource.
+        /// Gets or sets a text of an empty item. This item is auto-generated and is not part of the DataSource collection. The empty item has a value of null.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public string EmptyItemText
@@ -25,6 +25,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty EmptyItemTextProperty 
             = DotvvmProperty.Register<string, ComboBox>(c => c.EmptyItemText, string.Empty);
+
 
 
 

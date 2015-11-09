@@ -7,6 +7,9 @@ using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// Container for content that will be displayed for the time the page is doing a postback.
+    /// </summary>
     public class UpdateProgress : HtmlGenericControl
     {
         public UpdateProgress() : base("div")

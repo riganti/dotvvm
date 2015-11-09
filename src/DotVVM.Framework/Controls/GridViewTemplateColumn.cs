@@ -5,9 +5,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
+    [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(ContentTemplate))]
     public class GridViewTemplateColumn : GridViewColumn
     {
 
@@ -19,15 +21,6 @@ namespace DotVVM.Framework.Controls
             ContentTemplate.BuildContent(context, container);
         }
 
-        private IValueBinding GetValueBinding()
-        {
-            var binding = GetValueBinding(ValueBindingProperty);
-            if (binding == null)
-            {
-                throw new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
-            }
-            return binding;
-        }
     }
 
     

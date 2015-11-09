@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the text in the control.
         /// </summary>
+        [MarkupOptions(Required = true)]
         public string Text
         {
             get { return Convert.ToString(GetValue(TextProperty)); }
@@ -24,6 +25,21 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, TextBox>(t => t.Text, "");
+
+
+
+        /// <summary>
+        /// Gets or sets a value indicating whether the control is enabled and can be modified.
+        /// </summary>
+        public bool Enabled
+        {
+            get { return (bool)GetValue(EnabledProperty); }
+            set { SetValue(EnabledProperty, value); }
+        }
+        public static readonly DotvvmProperty EnabledProperty =
+            DotvvmProperty.Register<bool, TextBox>(t => t.Enabled, true);
+
+
 
 
         /// <summary>
@@ -55,13 +71,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the command that will be triggered when the control text is changed.
         /// </summary>
-        public Action Changed
+        public Command Changed
         {
-            get { return (Action)GetValue(ChangedProperty); }
+            get { return (Command)GetValue(ChangedProperty); }
             set { SetValue(ChangedProperty, value); }
         }
         public static readonly DotvvmProperty ChangedProperty =
-            DotvvmProperty.Register<Action, TextBox>(t => t.Changed, null);
+            DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
 
 
 
@@ -71,13 +87,21 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            {
+                if (!Enabled)
+                {
+                    writer.AddAttribute("disabled", "disabled");
+                }
+            });
+
             writer.AddKnockoutDataBind("value", this, TextProperty, () =>
             {
                 if (Type != TextBoxType.MultiLine)
                 {
                     writer.AddAttribute("value", Text);
                 }
-            }, UpdateTextAfterKeydown ? "afterkeydown" : null, serverRendering: false);
+            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
 
             if (Type == TextBoxType.MultiLine)
             {
@@ -122,7 +146,7 @@ namespace DotVVM.Framework.Controls
                         type = "search";
                         break;
                     default:
-                        throw new NotSupportedException($"TextBox Type { Type } not supported");
+                        throw new NotSupportedException($"TextBox Type '{ Type }' not supported");
                 }
                 writer.AddAttribute("type", type);
                 TagName = "input";
@@ -132,7 +156,7 @@ namespace DotVVM.Framework.Controls
             var changedBinding = GetCommandBinding(ChangedProperty);
             if (changedBinding != null)
             {
-                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(changedBinding, context, this, true, isOnChange: true));
+                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, context, this, true, isOnChange: true));
             }
 
             base.AddAttributesToRender(writer, context);

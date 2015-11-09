@@ -1,0 +1,29 @@
+{
+    "$schema": "http://www.riganti.cz/download/dotvvm.schema.0.6.json",
+
+    "debug": true,
+    "markup": {
+        "controls": [
+            { "tagPrefix": "dot", "namespace": "DotVVM.Framework.Controls", "assembly": "DotVVM.Framework" },
+            { "tagPrefix": "sample5", "tagName": "TestControl", "src": "sample5_control.dothtml" },
+            { "tagPrefix": "sample7", "tagName": "Calendar", "src": "sample7_calendar.dothtml" },
+            { "tagPrefix": "sample12", "namespace": "DotVVM.Samples.BasicSamples.Controls", "assembly": "DotVVM.Samples.BasicSamples" },
+            { "tagPrefix": "sample36", "tagName": "Control", "src": "sample36_control.dotcontrol" }
+        ]
+    },
+    "security": {
+        // DO NOT USE THESE KEYS IN ANY APP! GENERATE YOUR OWN SET OF KEYS FOR EACH APPLICATION.
+        "encryptionKey": "Nk+qs7NeAQoUJjRpfclJeWRHjkRPFBvkLTP/B2/gN8Y=",
+        "signingKey": "ig8jvMT5/oKbh54Tq7i/g/E7IvyoNv8wl9dgnFEqYDQ="
+    },
+    "resources": {
+        "stylesheets": {
+            "testCss": { "url": "~/Content/testResource.css" }
+        },
+        "scripts": {
+            "testJs": {"url": "~/Scripts/testResource.js" },
+            "testJs2": {"url": "~/Scripts/testResource2.js" },
+            "testJsBundle": {"url": "~/Scripts/testResourceBundle.js" }
+        }
+    }
+}

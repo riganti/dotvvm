@@ -11,15 +11,41 @@ using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// A multi-purpose grid control with advanced binding and templating options and sorting support.
+    /// </summary>
+    [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(Columns))]
     public class GridView : ItemsControl
     {
+        private EmptyData emptyDataContainer;
+        private int numberOfRows;
+        private HtmlGenericControl head;
 
         public GridView() : base("table")
         {
+            SetValue(Internal.IsNamingContainerProperty, true);
+
             Columns = new List<GridViewColumn>();
             RowDecorators = new List<Decorator>();
         }
 
+
+        /// <summary>
+        /// Gets or sets the template which will be displayed when the DataSource is empty.
+        /// </summary>
+        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        public ITemplate EmptyDataTemplate
+        {
+            get { return (ITemplate)GetValue(EmptyDataTemplateProperty); }
+            set { SetValue(EmptyDataTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty EmptyDataTemplateProperty =
+            DotvvmProperty.Register<ITemplate, GridView>(t => t.EmptyDataTemplate, null);
+
+
+        /// <summary>
+        /// Gets or sets a collection of columns that will be placed inside the grid.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
@@ -31,7 +57,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ColumnsProperty =
             DotvvmProperty.Register<List<GridViewColumn>, GridView>(c => c.Columns);
 
-
+        /// <summary>
+        /// Gets or sets a list of decorators that will be applied on each row.
+        /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
@@ -43,7 +71,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty RowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
 
-        [ConstantDataContextChange(typeof(string))]
+
+        /// <summary>
+        /// Gets or sets the command that will be triggered when the user changed the sort order.
+        /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
         public Action<string> SortChanged
         {
@@ -54,15 +85,21 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
 
+
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
+            EnsureControlHasId();
+
             DataBind(context);
             base.OnLoad(context);
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            DataBind(context);     // TODO: support for observable collection
+            if (RenderOnServer)
+            {
+                DataBind(context);     // TODO: support for observable collection
+            }
             base.OnPreRender(context);
         }
 
@@ -70,6 +107,8 @@ namespace DotVVM.Framework.Controls
         private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
+            emptyDataContainer = null;
+            head = null;
 
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
@@ -81,11 +120,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var sortCommandBinding = GetBinding(SortChangedProperty) as CommandBindingExpression;
-                if (sortCommandBinding != null)
-                {
-                    sortCommand = s => sortCommandBinding.Delegate(new []{ s }.Concat(BindingExpression.GetDataContexts(this, true)).ToArray(), null);
-                }
+                sortCommand = SortChanged;
             }
 
             var index = 0;
@@ -99,21 +134,35 @@ namespace DotVVM.Framework.Controls
                 foreach (var item in items)
                 {
                     // create row
-                    var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
+                    var placeholder = new DataItemContainer {DataItemIndex = index};
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList) items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
-                    Children.Add(placeholder);
-
+                    placeholder.ID = "i" + index;
                     CreateRow(context, placeholder);
+                    Children.Add(placeholder);
 
                     index++;
                 }
+                numberOfRows = index;
+            }
+            else
+            {
+                numberOfRows = 0;
+            }
+
+            // add empty item
+            if (EmptyDataTemplate != null)
+            {
+                emptyDataContainer = new EmptyData();
+                emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
+                EmptyDataTemplate.BuildContent(context, emptyDataContainer);
+                Children.Add(emptyDataContainer);
             }
         }
 
         private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
-            var head = new HtmlGenericControl("thead");
+            head = new HtmlGenericControl("thead");
             Children.Add(head);
 
             var headerRow = new HtmlGenericControl("tr");
@@ -129,6 +178,7 @@ namespace DotVVM.Framework.Controls
 
                 column.CreateHeaderControls(context, this, sortCommand, cell);
             }
+
         }
 
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
@@ -189,10 +239,8 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-            if (Children.Count == 0) return;
-
             // render the header
-            Children[0].Render(writer, context);
+            head?.Render(writer, context);
 
             // render body
             if (!RenderOnServer)
@@ -206,7 +254,7 @@ namespace DotVVM.Framework.Controls
             {
                 // render on server
                 var index = 0;
-                foreach (var child in Children.Skip(1))
+                foreach (var child in Children.Except(new[] { head, emptyDataContainer }))
                 {
                     child.Render(writer, context);
                     index++;
@@ -217,14 +265,47 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
-                Children.Add(placeholder);
-
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                 CreateRow(context.RequestContext, placeholder);
+                Children.Add(placeholder);
 
                 placeholder.Render(writer, context);
             }
 
             writer.RenderEndTag();
+        }
+
+        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
+        {
+            if (RenderOnServer && numberOfRows == 0)
+            {
+                emptyDataContainer?.Render(writer, context);
+            }
+            else
+            {
+                base.RenderControl(writer, context);
+            }
+        }
+
+        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        {
+            base.RenderEndTag(writer, context);
+
+            emptyDataContainer?.Render(writer, context);
+        }
+
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        {
+            if (!RenderOnServer)
+            {
+                writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
+                if (numberOfRows == 0)
+                {
+                    writer.AddStyleAttribute("display", "none");
+                }
+            }
+
+            base.AddAttributesToRender(writer, context);
         }
     }
 }

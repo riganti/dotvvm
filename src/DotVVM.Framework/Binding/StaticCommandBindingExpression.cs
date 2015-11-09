@@ -8,18 +8,19 @@ using System.Reflection;
 using System.Linq.Expressions;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
 {
     [BindingCompilationRequirements(Javascript = BindingCompilationRequirementType.StronglyRequire)]
-    [StaticCommandJsCompile]
+    [StaticCommandBindingCompilation]
     public class StaticCommandBindingExpression : CommandBindingExpression
     {
         public StaticCommandBindingExpression(CompiledBindingExpression expression)
             : base(expression)
-        { } 
+        { }
 
-        public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
+        public override Delegate GetCommandDelegate(DotvvmBindableControl control, DotvvmProperty property)
         {
             throw new NotImplementedException();
         }

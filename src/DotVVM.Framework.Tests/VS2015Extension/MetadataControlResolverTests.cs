@@ -7,8 +7,8 @@ using System.Threading.Tasks;
 using Microsoft.CodeAnalysis;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Configuration;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
+using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml;
+using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base;
 using Microsoft.CodeAnalysis.Text;
 
 namespace DotVVM.Framework.Tests.VS2015Extension
@@ -20,7 +20,6 @@ namespace DotVVM.Framework.Tests.VS2015Extension
         private ProjectInfo project;
         private DothtmlCompletionContext context;
 
-        
         [TestInitialize]
         public void TestInit()
         {
@@ -28,10 +27,12 @@ namespace DotVVM.Framework.Tests.VS2015Extension
             {
                 workspace = new AdhocWorkspace();
 
-                project = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "TestProj", "TestProj", LanguageNames.CSharp)
-                    .WithMetadataReferences(new[] {
-                        MetadataReference.CreateFromFile(typeof(DotvvmConfiguration).Assembly.Location),
-                        MetadataReference.CreateFromFile(typeof(object).Assembly.Location)
+                project = ProjectInfo.Create(ProjectId.CreateNewId(), VersionStamp.Create(), "TestProj", "TestProj",
+                    LanguageNames.CSharp)
+                    .WithMetadataReferences(new[]
+                    {
+                        MetadataReference.CreateFromFile(typeof (DotvvmConfiguration).Assembly.Location),
+                        MetadataReference.CreateFromFile(typeof (object).Assembly.Location)
                     });
                 workspace.AddProject(project);
 
@@ -42,14 +43,12 @@ namespace DotVVM.Framework.Tests.VS2015Extension
                     Configuration = DotvvmConfiguration.CreateDefault(),
                     RoslynWorkspace = workspace
                 };
-
             }
             catch (ReflectionTypeLoadException ex)
             {
                 throw new Exception(string.Join("\r\n", ex.LoaderExceptions.Select(e => e.ToString())));
             }
         }
-
 
         [TestMethod]
         public void MetadataControlResolver_ReloadAllControls()
@@ -72,7 +71,8 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
             var repeater = allControls.FirstOrDefault(c => c.DisplayText == "dot:Repeater");
 
-            var itemTemplateProperty = resolver.GetMetadata("dot:Repeater").Properties.FirstOrDefault(p => p.Name == "ItemTemplate");
+            var itemTemplateProperty =
+                resolver.GetMetadata("dot:Repeater").Properties.FirstOrDefault(p => p.Name == "ItemTemplate");
             Assert.IsTrue(itemTemplateProperty.IsTemplate);
             Assert.IsTrue(itemTemplateProperty.IsElement);
         }
@@ -94,7 +94,7 @@ namespace DotVVM.Framework.Tests.VS2015Extension
             TestInit();
 
             var resolver = new MetadataControlResolver();
-            var values = resolver.GetControlAttributeValues(context, new List<string>() { "html" }, "RenderSettings.Mode");
+            var values = resolver.GetControlAttributeValues(context, new List<string>() {"html"}, "RenderSettings.Mode");
 
             Assert.IsTrue(values.Any(v => v.DisplayText == "Server"));
             Assert.IsTrue(values.Any(v => v.DisplayText == "Client"));
@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
             ControlMetadata control;
             ControlPropertyMetadata property;
-            resolver.GetElementContext(new List<string>() { "html", "body", "dot:Button" }, out control, out property);
+            resolver.GetElementContext(new List<string>() {"html", "body", "dot:Button"}, out control, out property);
 
             Assert.IsNotNull(control);
             Assert.IsNull(property);
@@ -126,7 +126,7 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
             ControlMetadata control;
             ControlPropertyMetadata property;
-            resolver.GetElementContext(new List<string>() { "html" }, out control, out property);
+            resolver.GetElementContext(new List<string>() {"html"}, out control, out property);
 
             Assert.IsNotNull(control);
             Assert.IsNull(property);
@@ -145,7 +145,8 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
             ControlMetadata control;
             ControlPropertyMetadata property;
-            resolver.GetElementContext(new List<string>() { "html", "body", "dot:Repeater", "ItemTemplate" }, out control, out property);
+            resolver.GetElementContext(new List<string>() {"html", "body", "dot:Repeater", "ItemTemplate"}, out control,
+                out property);
 
             Assert.IsNotNull(control);
             Assert.IsNotNull(property);
@@ -161,13 +162,101 @@ namespace DotVVM.Framework.Tests.VS2015Extension
 
             ControlMetadata control;
             ControlPropertyMetadata property;
-            resolver.GetElementContext(new List<string>() { "html", "body", "dot:Repeater", "WrapperTagName" }, out control, out property);
+            resolver.GetElementContext(new List<string>() {"html", "body", "dot:Repeater", "WrapperTagName"},
+                out control, out property);
 
             Assert.IsNotNull(control);
-            Assert.IsNull(property);        // the property cannot be used as element
+            Assert.IsNull(property); // the property cannot be used as element
         }
 
-        
+        [TestMethod]
+        public void MetadataControlResolver_ElementNames_DefaultContentProperty()
+        {
+            TestInit();
 
+            var resolver = new MetadataControlResolver();
+            var allControls = resolver.ReloadAllControls(context);
+
+            var tagNameHierarchy = new List<string>() {"html", "body", "dot:Repeater"};
+            var completions = resolver.GetElementNames(context, tagNameHierarchy).ToList();
+
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "ItemTemplate"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "dot:Button"));
+        }
+
+        [TestMethod]
+        public void MetadataControlResolver_ElementNames_DefaultContentPropertySpecified()
+        {
+            TestInit();
+
+            var resolver = new MetadataControlResolver();
+            var allControls = resolver.ReloadAllControls(context);
+
+            var tagNameHierarchy = new List<string>() {"html", "body", "dot:Repeater", "ItemTemplate"};
+            var completions = resolver.GetElementNames(context, tagNameHierarchy).ToList();
+
+            Assert.IsFalse(completions.Any(c => c.CompletionText == "ItemTemplate"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "dot:Button"));
+        }
+
+        [TestMethod]
+        public void MetadataControlResolver_ElementNames_ControlWithoutContent()
+        {
+            TestInit();
+
+            var resolver = new MetadataControlResolver();
+            var allControls = resolver.ReloadAllControls(context);
+
+            var tagNameHierarchy = new List<string>() {"html", "body", "dot:TextBox"};
+            var completions = resolver.GetElementNames(context, tagNameHierarchy).ToList();
+
+            Assert.IsTrue(completions.Count == 0);
+        }
+
+        [TestMethod]
+        public void MetadataControlResolver_ElementNames_TypedCollectionProperty()
+        {
+            TestInit();
+
+            var resolver = new MetadataControlResolver();
+            var allControls = resolver.ReloadAllControls(context);
+
+            var tagNameHierarchy = new List<string>() {"html", "body", "dot:GridView", "Columns"};
+            var completions = resolver.GetElementNames(context, tagNameHierarchy).ToList();
+
+            Assert.IsFalse(completions.Any(c => c.CompletionText == "dot:Button"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "dot:GridViewTextColumn"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "dot:GridViewTemplateColumn"));
+        }
+
+        [TestMethod]
+        public void MetadataControlResolver_AttributeNames_ActiveProperties()
+        {
+            TestInit();
+
+            var resolver = new MetadataControlResolver();
+            var allControls = resolver.ReloadAllControls(context);
+
+            var tagNameHierarchy = new List<string>() {"html"};
+            bool combineWithHtmlCompletions;
+            var completions =
+                resolver.GetControlAttributeNames(context, tagNameHierarchy, out combineWithHtmlCompletions)
+                    .Concat(resolver.GetAttachedPropertyNames(context))
+                    .ToList();
+
+            Assert.IsTrue(combineWithHtmlCompletions);
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "DataContext"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Visible"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validate.Enabled"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validate.Target"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "RenderSettings.Mode"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "PostBack.Update"));
+
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.ValidatedValue"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.HideWhenValid"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.InvalidCssClass"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.SetToolTipText"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.ShowErrorMessageText"));
+        }
     }
 }

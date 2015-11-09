@@ -22,7 +22,10 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
 
         public Expression GetExpression()
         {
-            if (ParsingError != null) throw new DotvvmCompilationException($"can't get expression, parsing of binding {{{ BindingType.Name }: { Value }}} failed", ParsingError, BindingNode.Tokens);
+            if (ParsingError != null)
+            {
+                throw new DotvvmCompilationException($"The binding '{{{ BindingType.Name }: { Value }}}' is not valid!", ParsingError, BindingNode.Tokens);
+            }
             return Expression;
         }
     }

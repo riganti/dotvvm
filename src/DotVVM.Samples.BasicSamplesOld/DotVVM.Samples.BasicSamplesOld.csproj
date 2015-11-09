@@ -1,0 +1,343 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{BDF78B2F-9C1F-4481-B80A-1537139994F4}</ProjectGuid>
+    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>DotVVM.Samples.BasicSamples</RootNamespace>
+    <AssemblyName>DotVVM.Samples.BasicSamples</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <UseIISExpress>true</UseIISExpress>
+    <IISExpressSSLPort />
+    <IISExpressAnonymousAuthentication />
+    <IISExpressWindowsAuthentication />
+    <IISExpressUseClassicPipelineMode />
+    <TargetFrameworkProfile />
+    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <UseGlobalApplicationHostFile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>
+    </DocumentationFile>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.1.0\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.Owin, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Diagnostics, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Diagnostics.3.0.1\lib\net45\Microsoft.Owin.Diagnostics.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.FileSystems, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.FileSystems.3.0.1\lib\net45\Microsoft.Owin.FileSystems.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Host.SystemWeb, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.Security.Cookies, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.Cookies.3.0.1\lib\net45\Microsoft.Owin.Security.Cookies.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.Owin.StaticFiles, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.StaticFiles.3.0.1\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
+      <HintPath>..\packages\Owin.1.0.0\lib\net40\Owin.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.1.37\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.DynamicData" />
+    <Reference Include="System.Web.Entity" />
+    <Reference Include="System.Web.ApplicationServices" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Web" />
+    <Reference Include="System.Xml" />
+    <Reference Include="System.Configuration" />
+    <Reference Include="System.Web.Services" />
+    <Reference Include="System.EnterpriseServices" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Content\bootstrap-theme.css" />
+    <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\bootstrap.css" />
+    <Content Include="Content\bootstrap.min.css" />
+    <Content Include="Content\testResource.css" />
+    <Content Include="fonts\glyphicons-halflings-regular.svg" />
+    <Content Include="index.html" />
+    <Content Include="sample2.dothtml" />
+    <Content Include="sample3.dothtml" />
+    <Content Include="sample4.dothtml" />
+    <Content Include="sample4_parent.dothtml" />
+    <Content Include="sample4_root.dothtml" />
+    <Content Include="dotvvm.json" />
+    <Content Include="sample5.dothtml" />
+    <Content Include="sample5_control.dothtml" />
+    <Content Include="sample6.dothtml" />
+    <Content Include="sample8.dothtml" />
+    <Content Include="sample9.dothtml" />
+    <Content Include="sample10.dothtml" />
+    <Content Include="sample11.dothtml" />
+    <Content Include="AuthSample\login.dothtml" />
+    <Content Include="AuthSample\securedPage.dothtml" />
+    <Content Include="sample11.dothtml" />
+    <Content Include="sample12.dothtml" />
+    <Content Include="sample13.dothtml" />
+    <Content Include="sample14.dothtml" />
+    <Content Include="packages.config" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
+    <Content Include="fonts\glyphicons-halflings-regular.woff" />
+    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
+    <Content Include="fonts\glyphicons-halflings-regular.eot" />
+    <Content Include="Content\bootstrap-theme.css.map" />
+    <Content Include="Content\bootstrap.css.map" />
+    <Content Include="error2.dothtml" />
+    <Content Include="error3.dothtml" />
+    <Content Include="error4.dothtml" />
+    <Content Include="error5.dothtml" />
+    <Content Include="error6.dothtml" />
+    <Content Include="error7.dothtml" />
+    <Content Include="error8.dothtml" />
+    <Content Include="error9.dothtml" />
+    <Content Include="error10.dothtml" />
+    <Content Include="error11.dothtml" />
+    <Content Include="error11.dotmaster" />
+    <Content Include="error12.dothtml" />
+    <Content Include="error13.dothtml" />
+    <None Include="Properties\PublishProfiles\CI.pubxml" />
+    <Content Include="sample15.dothtml" />
+    <Content Include="sample16.dothtml" />
+    <Content Include="sample17_a.dothtml" />
+    <Content Include="sample17_b.dothtml" />
+    <Content Include="sample17_master.dothtml" />
+    <Content Include="sample18.dothtml" />
+    <Content Include="sample19.dothtml" />
+    <Content Include="sample17.dothtml" />
+    <Content Include="ReturnFileSample\Index.dothtml" />
+    <Content Include="ReturnFileSample\excel-file.xlsx" />
+    <Content Include="ReturnFileSample\word-file.docx" />
+    <Content Include="sample20.dothtml" />
+    <Content Include="sample22.dothtml" />
+    <Content Include="sample23.dothtml" />
+    <Content Include="sample24.dothtml" />
+    <Content Include="sample25.dothtml" />
+    <Content Include="sample26.dothtml" />
+    <Content Include="sample27.dothtml" />
+    <Content Include="sample28.dothtml" />
+    <Content Include="sample29.dothtml" />
+    <Content Include="sample30.dothtml" />
+    <Content Include="sample31.dothtml" />
+    <Content Include="sample32.dothtml" />
+    <Content Include="sample33.dothtml" />
+    <Content Include="sample34.dothtml" />
+    <Content Include="sample35.dothtml" />
+    <Content Include="sample36.dothtml" />
+    <Content Include="sample36_control.dotcontrol" />
+    <Content Include="sample37.dothtml" />
+    <Content Include="sample38.dothtml" />
+    <Content Include="sample21.dothtml" />
+    <Content Include="error1.dothtml" />
+    <Content Include="sample39.dothtml" />
+    <Content Include="sample40.dothtml" />
+    <Content Include="sample41.dothtml" />
+    <Content Include="sample42.dothtml" />
+    <Content Include="sample43.dothtml" />
+    <Content Include="sample44.dothtml" />
+    <Content Include="sample45.dothtml" />
+    <Content Include="sample46.dothtml" />
+    <Content Include="sample47.dothtml" />
+    <Content Include="sample48.dothtml" />
+    <Content Include="sample48_2.dothtml" />
+    <Content Include="sample48_master.dotmaster" />
+    <Content Include="sample49.dothtml" />
+    <Content Include="sample50.dothtml" />
+    <Content Include="sample51.dothtml" />
+    <Content Include="sample52.dothtml" />
+    <None Include="Scripts\jquery-1.9.1.intellisense.js" />
+    <Content Include="Scripts\bootstrap.js" />
+    <Content Include="Scripts\bootstrap.min.js" />
+    <Content Include="Scripts\jquery-1.9.1.js" />
+    <Content Include="Scripts\jquery-1.9.1.min.js" />
+    <Content Include="Scripts\testResource.js" />
+    <Content Include="Scripts\testResource2.js" />
+    <Content Include="Scripts\testResourceBundle.js" />
+    <Content Include="Web.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AuthSample\LoginViewModel.cs" />
+    <Compile Include="AuthSample\SecuredPageViewModel.cs" />
+    <Compile Include="Controls\ControlWithExtensionCommand.cs" />
+    <Compile Include="Controls\Sample5_TestControl.cs" />
+    <Compile Include="Controls\ServerRenderedLabel.cs" />
+    <Compile Include="DotvvmStartup.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ReturnFileSample\SampleViewModel.cs" />
+    <Compile Include="Sample9_Resources.cs-CZ.Designer.cs">
+      <DependentUpon>Sample9_Resources.cs-CZ.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Sample9_Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Sample9_Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\Sample11ViewModel.cs" />
+    <Compile Include="ViewModels\Sample12ViewModel.cs" />
+    <Compile Include="ViewModels\Sample15ViewModel.cs" />
+    <Compile Include="ViewModels\Sample14ViewModel.cs" />
+    <Compile Include="ViewModels\Sample13ViewModel.cs" />
+    <Compile Include="ViewModels\Sample41ViewModel.cs" />
+    <Compile Include="ViewModels\Sample16ViewModel.cs" />
+    <Compile Include="ViewModels\Sample17ViewModel.cs" />
+    <Compile Include="ViewModels\Sample17ViewModel_A.cs" />
+    <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
+    <Compile Include="ViewModels\Sample21ViewModel.cs" />
+    <Compile Include="ViewModels\Sample39ViewModel.cs" />
+    <Compile Include="ViewModels\Sample38ViewModel.cs" />
+    <Compile Include="ViewModels\Sample27ViewModel.cs" />
+    <Compile Include="ViewModels\Sample26ViewModel.cs" />
+    <Compile Include="ViewModels\Sample19ViewModel.cs" />
+    <Compile Include="ViewModels\Sample18ViewModel.cs" />
+    <Compile Include="ViewModels\Sample24ViewModel.cs" />
+    <Compile Include="ViewModels\Sample23ViewModel.cs" />
+    <Compile Include="ViewModels\Sample22ViewModel.cs" />
+    <Compile Include="ViewModels\Sample20ViewModel.cs" />
+    <Compile Include="ViewModels\Sample25ViewModel.cs" />
+    <Compile Include="ViewModels\Sample32ViewModel.cs" />
+    <Compile Include="ViewModels\Sample31ViewModel.cs" />
+    <Compile Include="ViewModels\Sample34ViewModel.cs" />
+    <Compile Include="ViewModels\Sample36ViewModel.cs" />
+    <Compile Include="ViewModels\Sample35ViewModel.cs" />
+    <Compile Include="ViewModels\Sample40ViewModel.cs" />
+    <Compile Include="ViewModels\Sample42ViewModel.cs" />
+    <Compile Include="ViewModels\Sample45ViewModel.cs" />
+    <Compile Include="ViewModels\Sample44ViewModel.cs" />
+    <Compile Include="ViewModels\Sample43ViewModel.cs" />
+    <Compile Include="ViewModels\Sample49ViewModel.cs" />
+    <Compile Include="ViewModels\Sample48ViewModel.cs" />
+    <Compile Include="ViewModels\Sample47ViewModel.cs" />
+    <Compile Include="ViewModels\Sample46ViewModel.cs" />
+    <Compile Include="ViewModels\Sample52ViewModel.cs" />
+    <Compile Include="ViewModels\Sample50ViewModel.cs" />
+    <Compile Include="ViewModels\Sample6ViewModel.cs" />
+    <Compile Include="ViewModels\Sample1ViewModel.cs" />
+    <Compile Include="ViewModels\Sample2ViewModel.cs" />
+    <Compile Include="ViewModels\Sample5ViewModel.cs" />
+    <Compile Include="ViewModels\Sample3ViewModel.cs" />
+    <Compile Include="ViewModels\Sample10ViewModel.cs" />
+    <Compile Include="ViewModels\Sample9ViewModel.cs" />
+    <Compile Include="ViewModels\Sample8ViewModel.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="sample1.dothtml" />
+    <Content Include="Scripts\jquery-1.9.1.min.map" />
+    <None Include="Web.Debug.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+    <None Include="Web.Release.config">
+      <DependentUpon>Web.config</DependentUpon>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
+      <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
+      <Name>DotVVM.Framework</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Sample9_Resources.cs-CZ.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Sample9_Resources.cs-CZ.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Sample9_Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Sample9_Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup />
+  <PropertyGroup>
+    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
+    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
+  <ProjectExtensions>
+    <VisualStudio>
+      <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
+        <WebProjectProperties>
+          <UseIIS>False</UseIIS>
+          <AutoAssignPort>True</AutoAssignPort>
+          <DevelopmentServerPort>8628</DevelopmentServerPort>
+          <DevelopmentServerVPath>/</DevelopmentServerVPath>
+          <IISUrl>http://localhost:8628/</IISUrl>
+          <NTLMAuthentication>False</NTLMAuthentication>
+          <UseCustomServer>False</UseCustomServer>
+          <CustomServerUrl>
+          </CustomServerUrl>
+          <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
+        </WebProjectProperties>
+      </FlavorProperties>
+    </VisualStudio>
+  </ProjectExtensions>
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

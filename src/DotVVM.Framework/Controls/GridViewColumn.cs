@@ -1,6 +1,7 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -13,15 +14,6 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         public ITemplate HeaderTemplate { get; set; }
 
-
-        [MarkupOptions(AllowHardCodedValue = false)]
-        public object ValueBinding
-        {
-            get { return GetValue(ValueBindingProperty); }
-            set { SetValue(ValueBindingProperty, value); }
-        }
-        public static readonly DotvvmProperty ValueBindingProperty =
-            DotvvmProperty.Register<object, GridViewColumn>(c => c.ValueBinding);
 
 
         [MarkupOptions(AllowBinding = false)]
@@ -59,12 +51,7 @@ namespace DotVVM.Framework.Controls
 
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);
-
-
-        private Exception ValueBindingNotSet()
-        {
-            return new Exception(string.Format("The ValueBinding property is not set on the {0} control!", GetType()));
-        }
+        
 
 
         public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell)
@@ -73,7 +60,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (sortCommand == null)
                 {
-                    throw new Exception("Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
+                    throw new DotvvmControlException(this, "Cannot use column sorting where no sort command is specified. Either put IGridViewDataSet in the DataSource property of the GridView, or set the SortChanged command on the GridView to implement custom sorting logic!");
                 }
 
                 var sortExpression = GetSortExpression();
@@ -83,7 +70,7 @@ namespace DotVVM.Framework.Controls
                 else linkButton.Text = HeaderText;
                 cell.Children.Add(linkButton);
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
-                var binding = new CommandBindingExpression((o, i) => { sortCommand(sortExpression); return null; }, bindingId);
+                var binding = new CommandBindingExpression(h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
             }
             else
@@ -97,25 +84,10 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private string GetSortExpression()
+        protected virtual string GetSortExpression()
         {
             // TODO: verify that sortExpression is a single property name
-            if (string.IsNullOrEmpty(SortExpression))
-            {
-                var valueBinding = GetValueBinding(ValueBindingProperty) as ValueBindingExpression;
-                if (valueBinding != null)
-                {
-                    return valueBinding.OriginalString;
-                }
-                else
-                {
-                    throw ValueBindingNotSet();
-                }
-            }
-            else
-            {
-                return SortExpression;
-            }
+            return SortExpression;
         }
     }
 

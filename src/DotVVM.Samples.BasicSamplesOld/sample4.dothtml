@@ -1,0 +1,31 @@
+@viewmodel DotVVM.Samples.BasicSamples.ViewModels.Sample1ViewModel, DotVVM.Samples.BasicSamples
+@masterpage sample4_parent.dothtml
+
+<dot:Content ContentPlaceHolderID="SubContent">
+	<h1>Task List</h1>
+		
+	<fieldset>
+		<legend>Add Task</legend>
+
+		<p>Title: <dot:TextBox Text="{value: NewTaskTitle}" /></p>
+		<p><dot:Button Text="Create" Click="{command: AddTask()}" /></p>
+	</fieldset>
+	<p>&nbsp;</p>
+		
+	<table class="table">
+		<dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+			<ItemTemplate>
+				<tr class="{value: IsCompleted ? "completed" : ""}">
+					<td>{{value: Title}}</td>
+					<td>
+						<dot:LinkButton 
+							Text="done" 
+							Click="{command: _parent.CompleteTask(TaskId)}" 
+							Visible="{value: !IsCompleted}" />
+					</td>
+				</tr>
+			</ItemTemplate>
+		</dot:Repeater>
+	</table>
+</dot:Content>
+		

@@ -48,8 +48,6 @@ namespace DotVVM.Framework.ViewModel
         /// </summary>
         private void ProcessControlTreeCore(DotvvmControl control, Action<DotvvmControl> action)
         {
-            action(control);
-
             // if there is a DataContext binding, locate the correct token
             var hasDataContext = false;
             if (control is DotvvmBindableControl)
@@ -73,8 +71,10 @@ namespace DotVVM.Framework.ViewModel
                 }
             }
 
+            action(control);
+
             // go through all children
-            foreach (var child in control.Children)
+            foreach (var child in control.GetChildren())
             {
                 ProcessControlTreeCore(child, action);
             }

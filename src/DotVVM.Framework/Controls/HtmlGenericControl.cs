@@ -4,6 +4,7 @@ using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -37,12 +38,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty VisibleProperty =
             DotvvmProperty.Register<bool, HtmlGenericControl>(t => t.Visible, true);
 
+        /// <summary>
+        /// Gets or sets the inner text of the HTML element. 
+        /// </summary>
         public string InnerText
         {
             get { return (string)GetValue(InnerTextProperty); }
             set { SetValue(InnerTextProperty, value); }
         }
-
         public static readonly DotvvmProperty InnerTextProperty =
             DotvvmProperty.Register<string, HtmlGenericControl>(t => t.InnerText, null);
 
@@ -72,6 +75,14 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            // verify that the properties are used only where they should
+            if (!RendersHtmlTag)
+            {
+                EnsureNoAttributesSet();
+            }
+            CheckInnerTextUsage();
+
+
             // render hard-coded HTML attributes
             foreach (var attribute in Attributes.Where(a => a.Value is string || a.Value == null))
             {
@@ -112,12 +123,31 @@ namespace DotVVM.Framework.Controls
             {
                 // inner Text is rendered as attribute only if contains binding
                 // otherwise it is rendered directly as encoded content
+                if (!string.IsNullOrWhiteSpace(InnerText))
+                {
+                    Children.Clear();
+                    Children.Add(new Literal(InnerText));
+                }
             });
 
             // hadle Id property
-            AddIdAttribute(writer);
+            RenderClientId(writer);
 
             base.AddAttributesToRender(writer, context);
+        }
+
+        /// <summary>
+        /// Checks the inner text property usage.
+        /// </summary>
+        private void CheckInnerTextUsage()
+        {
+            if (GetType() != typeof (HtmlGenericControl))
+            {
+                if (GetValueRaw(InnerTextProperty) != null)
+                {
+                    throw new DotvvmControlException(this, "The DotVVM controls do not support the 'InnerText' property. It can be only used on HTML elements.");
+                }
+            }
         }
 
         /// <summary>
@@ -125,29 +155,10 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void AddVisibleAttributeOrBinding(IHtmlWriter writer)
         {
-            var visibleBinding = GetValueBinding(VisibleProperty);
-            if (visibleBinding != null && !RenderOnServer)
+            writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
+            if (GetValue(VisibleProperty) as bool? == false)
             {
-                writer.AddKnockoutDataBind("visible", this, VisibleProperty);
                 writer.AddStyleAttribute("display", "none");
-            }
-            else
-            {
-                if (!Visible)
-                {
-                    writer.AddStyleAttribute("display", "none");
-                }
-            }
-        }
-
-        /// <summary>
-        /// Adds the corresponding attribute for the Id property.
-        /// </summary>
-        protected virtual void AddIdAttribute(IHtmlWriter writer)
-        {
-            if (!string.IsNullOrEmpty(ID))
-            {
-                writer.AddAttribute("id", ID);
             }
         }
 
@@ -174,8 +185,14 @@ namespace DotVVM.Framework.Controls
         {
             if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty))
             {
-                throw new Exception("Cannot set HTML attributes, Visible or DataContext bindings on a control which doesn't render its own element!");   // TODO
+                throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible or DataContext bindings on a control which does not render its own element!");
             }
         }
+
+        /// <summary>
+        /// Gets a value whether this control renders a HTML tag.
+        /// </summary>
+        protected virtual bool RendersHtmlTag => true;
+
     }
 }

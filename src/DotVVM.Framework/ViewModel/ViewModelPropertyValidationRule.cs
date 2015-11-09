@@ -21,5 +21,14 @@ namespace DotVVM.Framework.ViewModel
         [JsonIgnore]
         public ValidationAttribute SourceValidationAttribute { get; set; }
 
+        public ViewModelPropertyValidationRule(string clientRule, ValidationAttribute sourceValidationAttribute, string errorMessage, params object[] parameters)
+        {
+            ClientRuleName = clientRule;
+            SourceValidationAttribute = sourceValidationAttribute;
+            ErrorMessage = errorMessage;
+            Parameters = parameters;
+        }
+
+        public ViewModelPropertyValidationRule() { }
     }
 }

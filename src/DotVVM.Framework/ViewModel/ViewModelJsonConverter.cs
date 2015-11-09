@@ -22,7 +22,17 @@ namespace DotVVM.Framework.ViewModel
         private static readonly ViewModelSerializationMapper viewModelSerializationMapper = new ViewModelSerializationMapper();
         private static readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
 
-        public JArray EncryptedValues { get; set; }
+        public ViewModelJsonConverter(JObject encryptedValues = null)
+        {
+            EncryptedValues = encryptedValues ?? new JObject();
+            evReader = EncryptedValuesReader.FromObject(EncryptedValues);
+            evWriter = new EncryptedValuesWriter(EncryptedValues.CreateWriter());
+        }
+
+        public JObject EncryptedValues { get; }
+        private EncryptedValuesReader evReader;
+        private EncryptedValuesWriter evWriter;
+
 
         public HashSet<ViewModelSerializationMap> UsedSerializationMaps { get; set; }
 
@@ -42,7 +52,7 @@ namespace DotVVM.Framework.ViewModel
             return !IsEnumerable(objectType) && IsComplexType(objectType);
         }
 
-        
+
 
         /// <summary>
         /// Reads the JSON representation of the object.
@@ -61,7 +71,7 @@ namespace DotVVM.Framework.ViewModel
             // deserialize
             var serializationMap = GetSerializationMapForType(objectType);
             var instance = serializationMap.ConstructorFactory();
-            serializationMap.ReaderFactory(JObject.Load(reader), serializer, instance, EncryptedValues);
+            serializationMap.ReaderFactory(JObject.Load(reader), serializer, instance, evReader);
             return instance;
         }
 
@@ -71,7 +81,7 @@ namespace DotVVM.Framework.ViewModel
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.WriterFactory(writer, value, serializer, EncryptedValues, UsedSerializationMaps, serializationMap);
+            serializationMap.WriterFactory(writer, value, serializer, evWriter, UsedSerializationMaps, serializationMap);
         }
 
         /// <summary>
@@ -80,13 +90,13 @@ namespace DotVVM.Framework.ViewModel
         public virtual void Populate(JObject jobj, JsonSerializer serializer, object value)
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.ReaderFactory(jobj, serializer, value, EncryptedValues);
+            serializationMap.ReaderFactory(jobj, serializer, value, evReader);
         }
 
 
         public static bool IsEnumerable(Type type)
         {
-            return typeof (IEnumerable).IsAssignableFrom(type);
+            return typeof(IEnumerable).IsAssignableFrom(type);
         }
 
         public static bool IsPrimitiveType(Type type)
@@ -106,7 +116,7 @@ namespace DotVVM.Framework.ViewModel
 
         public static bool IsComplexType(Type type)
         {
-            return !IsPrimitiveType(type) && !IsEnum(type) && !IsNullableType(type);
+            return !IsPrimitiveType(type) && !IsEnum(type) && !IsNullableType(type) && type != typeof(object);
         }
     }
 }

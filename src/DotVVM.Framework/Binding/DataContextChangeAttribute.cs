@@ -20,15 +20,14 @@ namespace DotVVM.Framework.Binding
 
         public static Type GetDataContextExpression(DataContextStack dataContextStack, ResolvedControl control, DotvvmProperty property = null)
         {
-            var attributes = property == null ? control.Metadata.Type.GetCustomAttributes<DataContextChangeAttribute>() : property.PropertyInfo?.GetCustomAttributes<DataContextChangeAttribute>();
-            if (attributes == null) return null;
+            var attributes = property == null ? control.Metadata.Type.GetCustomAttributes<DataContextChangeAttribute>().ToArray() : property.PropertyInfo?.GetCustomAttributes<DataContextChangeAttribute>().ToArray();
+            if (attributes == null || attributes.Length == 0) return null;
             var type = dataContextStack.DataContextType;
-            var paramDataContextExpression = type;
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
                 type = attribute.GetChildDataContextType(type, dataContextStack, control, property);
             }
-            return type == paramDataContextExpression ? null : type;
+            return type;
         }
     }
 }

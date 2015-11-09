@@ -25,15 +25,15 @@ namespace DotVVM.Framework.Controls
 
 
         /// <summary>
-        /// Gets or sets the command that will be triggered when the button is pressed.
+        /// Gets or sets the command that will be triggered when the button is clicked.
         /// </summary>
-        public Action Click
+        public Command Click
         {
-            get { return (Action)GetValue(ClickProperty); }
+            get { return (Command)GetValue(ClickProperty); }
             set { SetValue(ClickProperty, value); }
         }
         public static readonly DotvvmProperty ClickProperty =
-            DotvvmProperty.Register<Action, ButtonBase>(t => t.Click, null);
+            DotvvmProperty.Register<Command, ButtonBase>(t => t.Click, null);
 
 
         /// <summary>
@@ -62,11 +62,11 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
+            writer.AddKnockoutDataBind("dotvvmEnable", this, EnabledProperty, () =>
             {
                 if (!Enabled)
                 {
-                    writer.AddAttribute("disabled", "disabled");
+                    writer.AddAttribute("disabled", "");
                 }
             });
 

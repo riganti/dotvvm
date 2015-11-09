@@ -16,6 +16,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Runtime.Filters;
 using System.Diagnostics;
+using DotVVM.Framework.Parser.Dothtml.Parser;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -23,25 +25,10 @@ namespace DotVVM.Framework.Runtime.Compilation
     {
         public static ConcurrentDictionary<int, CompiledBindingExpression> GlobalBindingList = new ConcurrentDictionary<int, CompiledBindingExpression>();
         private static int globalBindingIndex = 0;
-        private static ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute> requirementCache = new ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute>();
 
-        public static BindingCompilationRequirementsAttribute GetRequirements(Type bindingType)
+        public static BindingCompilationAttribute GetCompilationAttribute(Type bindingType)
         {
-            return requirementCache.GetOrAdd(bindingType, _ =>
-            {
-                return bindingType.GetCustomAttribute<BindingCompilationRequirementsAttribute>(true) ?? new BindingCompilationRequirementsAttribute
-                {
-                    Delegate = BindingCompilationRequirementType.IfPossible,
-                    OriginalString = BindingCompilationRequirementType.IfPossible,
-                    Expression = BindingCompilationRequirementType.IfPossible,
-                    Javascript = BindingCompilationRequirementType.IfPossible
-                };
-            });
-        }
-
-        public static CompileJavascriptAttribute GetJsCompiler(Type bindingType)
-        {
-            return bindingType.GetCustomAttributes<CompileJavascriptAttribute>().FirstOrDefault();
+            return bindingType.GetCustomAttributes<BindingCompilationAttribute>().FirstOrDefault();
         }
 
         private static KeyValuePair<string, Expression> GetParameter(int index, string name, Expression vmArray, Type[] parents)
@@ -67,66 +54,42 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        public static T TryExecute<T>(BindingCompilationRequirementType requirement, Func<T> action)
+        public static T TryExecute<T>(DothtmlNode node, string errorMessage, BindingCompilationRequirementType requirement, Func<T> action)
         {
+#if !DEBUG
             if (requirement == BindingCompilationRequirementType.No) return default(T);
+#endif
             try
             {
                 return action();
             }
             catch (Exception ex)
             {
-                if (requirement == BindingCompilationRequirementType.IfPossible) return default(T);
-                else throw new InvalidOperationException("binding compilation failed", ex);
+                if (requirement != BindingCompilationRequirementType.StronglyRequire) return default(T);
+                else if (ex is DotvvmCompilationException) throw;
+                else throw new DotvvmCompilationException(errorMessage, ex, node.Tokens);
             }
         }
 
-        public static Expression<CompiledBindingExpression.BindingDelegate> CompileToDelegate(Expression binding, DataContextStack dataContext)
+        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id, Type expectedType)
         {
-            var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
-            var controlRootParameter = Expression.Parameter(typeof(DotvvmControl), "controlRoot");
-            var expr = ExpressionUtils.Replace(binding, GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
-            expr = ExpressionUtils.ConvertToObject(expr);
-            return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, viewModelsParameter, controlRootParameter);
-        }
+            var compilerAttribute = GetCompilationAttribute(binding.BindingType);
+            var requirements = compilerAttribute.GetRequirements(binding.BindingType);
 
-        public static Expression<CompiledBindingExpression.BindingUpdateDelegate> CompileToUpdateDelegate(Expression binding, DataContextStack dataContext)
-        {
-            var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
-            var controlRootParameter = Expression.Parameter(typeof(DotvvmControl), "controlRoot");
-            var valueParameter = Expression.Parameter(typeof(object), "value");
-            var expr = ExpressionUtils.Replace(binding, GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
-            var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
-            return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter);
-        }
-
-        public List<ActionFilterAttribute> GetActionFilters(Expression expression)
-        {
-            var list = new List<ActionFilterAttribute>();
-            expression.ForEachMember(m =>
-            {
-                list.AddRange(m.GetCustomAttributes<ActionFilterAttribute>());
-            });
-            return list;
-        }
-
-        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id)
-        {
-            var requirements = GetRequirements(binding.BindingType);
+            var expression = new Lazy<Expression>(() => compilerAttribute.GetExpression(binding));
             var compiled = new CompiledBindingExpression();
-            compiled.Delegate = TryExecute(requirements.Delegate, () => CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
-            compiled.UpdateDelegate = TryExecute(requirements.UpdateDelegate, () => CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
-            compiled.OriginalString = TryExecute(requirements.OriginalString, () => binding.Value);
-            compiled.Expression = TryExecute(requirements.Expression, () => binding.GetExpression());
+            compiled.Delegate = TryExecute(binding.BindingNode, "Error while compiling binding to delegate.", requirements.Delegate, () => compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType).Compile());
+            compiled.UpdateDelegate = TryExecute(binding.BindingNode, "Error while compiling update delegate.", requirements.UpdateDelegate, () => compilerAttribute.CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
+            compiled.OriginalString = TryExecute(binding.BindingNode, "hey, no, that should not happen. Really.", requirements.OriginalString, () => binding.Value);
+            compiled.Expression = TryExecute(binding.BindingNode, "Could not get binding expression.", requirements.Expression, () => binding.GetExpression());
             compiled.Id = id;
-            compiled.ActionFilters = TryExecute(requirements.ActionFilters, () => GetActionFilters(binding.GetExpression()).ToArray());
+            compiled.ActionFilters = TryExecute(binding.BindingNode, "", requirements.ActionFilters, () => compilerAttribute.GetActionFilters(binding.GetExpression()).ToArray());
 
-            var jsCompiler = GetJsCompiler(binding.BindingType);
-            compiled.Javascript = TryExecute(requirements.Javascript, () => jsCompiler.CompileToJs(binding, compiled));
+            compiled.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJs(binding, compiled));
 
             var index = Interlocked.Increment(ref globalBindingIndex);
             if (!GlobalBindingList.TryAdd(index, compiled))
-                throw new Exception("WTF");
+                throw new Exception("internal bug");
             return EmitGetCompiledBinding(index);
         }
 

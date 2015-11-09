@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq; 
 
 namespace DotVVM.Framework.ViewModel
@@ -12,14 +13,16 @@ namespace DotVVM.Framework.ViewModel
         /// </summary>
         public IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel)
         {
-            return ValidateViewModel(viewModel, "");
+            return ValidateViewModel(viewModel, "", new HashSet<object>());
         }
 
         /// <summary>
         /// Validates the view model.
         /// </summary>
-        private IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel, string pathPrefix)
+        private IEnumerable<ViewModelValidationError> ValidateViewModel(object viewModel, string pathPrefix, HashSet<object> alreadyValidated)
         {
+            if (alreadyValidated.Contains(viewModel)) yield break;
+
             if (viewModel == null)
             {
                 yield break;
@@ -30,49 +33,87 @@ namespace DotVVM.Framework.ViewModel
                 yield break;
             }
 
+            alreadyValidated.Add(viewModel);
+
+            if (ViewModelJsonConverter.IsEnumerable(viewModelType))
+            {
+                // collections
+                var index = 0;
+                foreach (var item in (IEnumerable)viewModel)
+                {
+                    foreach (var error in ValidateViewModel(item, pathPrefix + "()[" + index + "]", alreadyValidated))
+                    {
+                        yield return error;
+                    }
+                    index++;
+                }
+                yield break;
+            }
+
             // validate all properties on the object
             var map = ViewModelJsonConverter.GetSerializationMapForType(viewModel.GetType());
-            foreach (var property in map.Properties)
+            foreach (var property in map.Properties.Where(p => p.TransferToServer))
             {
                 var value = property.PropertyInfo.GetValue(viewModel);
                 var path = CombinePath(pathPrefix, property.Name);
 
                 // validate the property
-                foreach (var rule in property.ValidationRules)
+                if (property.ValidationRules.Any())
                 {
-                    if (!rule.SourceValidationAttribute.IsValid(value))
+                    var context = new ValidationContext(viewModel) { MemberName = property.Name };
+
+                    foreach (var rule in property.ValidationRules)
                     {
-                        yield return new ViewModelValidationError()
+                        var propertyResult = rule.SourceValidationAttribute?.GetValidationResult(value, context);
+                        if (propertyResult != ValidationResult.Success)
                         {
-                            PropertyPath = path,
-                            ErrorMessage = rule.ErrorMessage
-                        };
+                            yield return new ViewModelValidationError()
+                            {
+                                PropertyPath = path,
+                                ErrorMessage = rule.ErrorMessage
+                            };
+                        }
                     }
                 }
 
-                // inspect collections and complex objects
+                // inspect objects
                 if (value != null)
                 {
-                    if (ViewModelJsonConverter.IsEnumerable(property.Type))
-                    {
-                        // collections
-                        var index = 0;
-                        foreach (var item in (IEnumerable)value)
-                        {
-                            foreach (var error in ValidateViewModel(item, path + "()[" + index + "]"))
-                            {
-                                yield return error;
-                            }
-                            index++;
-                        }
-                    }
-                    else if (ViewModelJsonConverter.IsComplexType(property.Type))
+                    if (ViewModelJsonConverter.IsComplexType(property.Type))
                     {
                         // complex objects
-                        foreach (var error in ValidateViewModel(value, path))
+                        foreach (var error in ValidateViewModel(value, path, alreadyValidated))
                         {
                             yield return error;
                         }
+                    }
+                }
+            }
+
+            if (viewModel is IValidatableObject)
+            {
+                foreach (var error in ((IValidatableObject)viewModel).Validate(new ValidationContext(viewModel)))
+                {
+                    var paths = new List<string>();
+                    if (error.MemberNames != null)
+                    {
+                        foreach (var memberName in error.MemberNames)
+                        {
+                            paths.Add(CombinePath(pathPrefix, memberName));
+                        }
+                    }
+                    if (!paths.Any())
+                    {
+                        paths.Add(pathPrefix);
+                    }
+
+                    foreach (var memberPath in paths)
+                    {
+                        yield return new ViewModelValidationError()
+                        {
+                            PropertyPath = memberPath,
+                            ErrorMessage = error.ErrorMessage
+                        };
                     }
                 }
             }
@@ -87,7 +128,7 @@ namespace DotVVM.Framework.ViewModel
             {
                 return path;
             }
-            else if (!prefix.EndsWith("]"))
+            else if (!prefix.EndsWith("]", StringComparison.Ordinal))
             {
                 return prefix + "()." + path;
             }

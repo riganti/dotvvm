@@ -46,11 +46,12 @@ namespace DotVVM.Framework.Tests.Runtime
             var configuration = DotvvmConfiguration.CreateDefault();
             var manager = new ResourceManager(configuration);
 
-            manager.AddRequiredResource(Constants.BootstrapResourceName);
+            manager.AddRequiredResource(Constants.DotvvmFileUploadCssResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.BootstrapCssResourceName), resourcesInCorrectOrder[0]);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.JQueryResourceName), resourcesInCorrectOrder[1]);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.BootstrapResourceName), resourcesInCorrectOrder[2]);
+            Assert.AreEqual(configuration.Resources.FindResource(Constants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
+            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmResourceName), resourcesInCorrectOrder[1]);
+            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmFileUploadResourceName), resourcesInCorrectOrder[2]);
+            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmFileUploadCssResourceName), resourcesInCorrectOrder[3]);
         }
 
         /// <summary>

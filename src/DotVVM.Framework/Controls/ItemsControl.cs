@@ -1,9 +1,10 @@
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Controls
 {
@@ -13,8 +14,9 @@ namespace DotVVM.Framework.Controls
     public abstract class ItemsControl : HtmlGenericControl
     {
         /// <summary>
-        /// Gets or sets the source collection that is used.
+        /// Gets or sets the source collection or a GridViewDataSet that contains data in the control.
         /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
         public object DataSource
         {
             get { return GetValue(DataSourceProperty); }
@@ -24,13 +26,11 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DataSourceProperty =
             DotvvmProperty.Register<object, ItemsControl>(t => t.DataSource, null);
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemsControl"/> class.
         /// </summary>
         public ItemsControl()
         {
-            
         }
 
         /// <summary>
@@ -38,7 +38,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public ItemsControl(string tagName) : base(tagName)
         {
-            
         }
 
         /// <summary>
@@ -49,11 +48,10 @@ namespace DotVVM.Framework.Controls
             var binding = GetValueBinding(DataSourceProperty);
             if (binding == null)
             {
-                throw new Exception(string.Format("The DataSource property of the {0} control must be set!", GetType().Name));
+                throw new DotvvmControlException(this, $"The DataSource property of the '{GetType().Name}' control must be set!");
             }
             return binding;
         }
-
 
         protected ValueBindingExpression GetItemBinding(IList items, string dataSourceJs, int index)
         {
@@ -78,7 +76,7 @@ namespace DotVVM.Framework.Controls
             {
                 return ((IGridViewDataSet)dataSource).Items;
             }
-            throw new NotSupportedException(string.Format("The object of type {0} is not supported in the DataSource property!", dataSource.GetType()));
+            throw new NotSupportedException($"The object of type '{dataSource.GetType()}' is not supported in the DataSource property!");
         }
 
         protected string WrapJavascriptDataSourceAccess(string expression)

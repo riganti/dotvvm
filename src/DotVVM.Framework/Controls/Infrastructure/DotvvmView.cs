@@ -12,18 +12,19 @@ namespace DotVVM.Framework.Controls.Infrastructure
     /// </summary>
     public class DotvvmView : DotvvmBindableControl
     {
-
         /// <summary>
         /// Gets or sets the collection of directives.
         /// </summary>
         public Dictionary<string, string> Directives { get; set; }
+
+        public Type ViewModelType { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmView"/> class.
         /// </summary>
         public DotvvmView()
         {
-            Directives = new Dictionary<string, string>();
+            Directives = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
             ResourceDependencies.Add(Constants.DotvvmResourceName);
             ResourceDependencies.Add(Constants.DotvvmValidationResourceName);

@@ -1,0 +1,51 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample1ViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style>
+        .completed {
+            color: maroon;
+            text-decoration: line-through;
+        }
+    </style>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container" class="a" data-attribute="&lt;">
+		
+        <dot:InlineScript dependencies="jquery">
+            <![CDATA[ var k = 1 < 5; ]]>
+        </dot:InlineScript>
+
+        <h1>Task List</h1>
+
+        <fieldset data-testattribute>
+            <legend>Add Task</legend>
+
+            <p>Title: <dot:TextBox text="{value: NewTaskTitle}" /></p>
+            <p><dot:Button text="Create" Click="{command: AddTask()}" /></p>
+        </fieldset>
+        <p>&nbsp;</p>
+
+        <table class="table">
+            <dot:Repeater DataSource="{value: Tasks}" WrapperTagName="tbody">
+                <tr class="{value: IsCompleted ? ' completed' : '' }">
+                    <td>{{value: Title}}</td>
+                    <td>
+                        <dot:LinkButton Text="done"
+                                        Click="{command: _parent.CompleteTask(TaskId)}"
+										<!-- Comment inside args -->
+                                        Visible="{value: !IsCompleted}" />
+                    </td>
+                </tr>
+            </dot:Repeater>
+        </table>
+    </div>
+
+	<%-- server-side comment not rendered in html --%>
+
+    <dot:RequiredResource Name="bootstrap" />
+</body>
+</html>

@@ -1,9 +1,9 @@
+using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base;
+using DotVVM.VS2015Extension.DotvvmPageWizard;
+using Microsoft.Win32;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Microsoft.Win32;
-using DotVVM.VS2015Extension.DothtmlEditorExtensions.Completions.Dothtml.Base;
-using DotVVM.VS2015Extension.DotvvmPageWizard;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
 {
@@ -24,7 +24,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
                 return GetThemeFromColorSettings();
             }
             else
-            { 
+            {
                 VisualStudioTheme theme;
                 if (Themes.TryGetValue(themeId, out theme))
                 {
@@ -33,6 +33,18 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
             }
 
             return VisualStudioTheme.Unknown;
+        }
+
+        public static string GetThemeIdFromRegistry()
+        {
+            const string CategoryName = "General";
+            const string ThemePropertyName = "CurrentTheme";
+            string keyName = string.Format(@"Software\Microsoft\VisualStudio\{0}\{1}", CompletionHelper.DTE.Version, CategoryName);
+
+            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(keyName))
+            {
+                return (string)key?.GetValue(ThemePropertyName, string.Empty);
+            }
         }
 
         private static VisualStudioTheme GetThemeFromColorSettings()
@@ -51,23 +63,6 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
                 LogService.LogError(new Exception("Cannot detect current theme!", ex));
             }
             return VisualStudioTheme.Unknown;
-        }
-
-        public static string GetThemeIdFromRegistry()
-        {
-            const string CategoryName = "General";
-            const string ThemePropertyName = "CurrentTheme";
-            string keyName = string.Format(@"Software\Microsoft\VisualStudio\{0}\{1}", CompletionHelper.DTE.Version, CategoryName);
-            
-            using (RegistryKey key = Registry.CurrentUser.OpenSubKey(keyName))
-            {
-                if (key != null)
-                {
-                    return (string)key.GetValue(ThemePropertyName, string.Empty);
-                }
-            }
-
-            return null;
         }
     }
 }

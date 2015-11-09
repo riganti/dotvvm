@@ -6,13 +6,13 @@ using DotVVM.Framework.Binding;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Contains markup that will be moved into the according <see cref="ContentPlaceHolder"/> in the master page.
+    /// Contains markup that will be placed inside the according ContentPlaceHolder in the master page.
     /// </summary>
     public class Content : DotvvmControl
     {
 
         /// <summary>
-        /// Gets or sets the ID of the <see cref="ContentPlaceHolder"/> control in the master page where the content will be placed.
+        /// Gets or sets the ID of the ContentPlaceHolder control in the master page in which the content will be placed.
         /// </summary>
         public string ContentPlaceHolderID
         {

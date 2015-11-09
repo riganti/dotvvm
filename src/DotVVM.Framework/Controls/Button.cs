@@ -3,17 +3,18 @@ using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Renders a HTML button.
+    /// Renders the HTML button which is able to trigger a postback.
     /// </summary>
     public class Button : ButtonBase
     {
         /// <summary>
-        /// Gets or sets whether the button should render as input[type=submit] or input[type=button].
-        /// The submit button has some special features, e.g. handles the Return key in HTML forms etc.
+        /// Gets or sets whether the control should render a submit button or a normal button (type="submit" or type="button").
+        /// The submit button has some special features in the browsers, e.g. handles the Return key in HTML forms etc.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool IsSubmitButton
@@ -26,8 +27,7 @@ namespace DotVVM.Framework.Controls
             = DotvvmProperty.Register<bool, Button>(c => c.IsSubmitButton, false);
 
         /// <summary>
-        /// Controls which tag would be used to render button.
-        /// (input or button)
+        /// Gets or sets whether the control should render the &lt;input&gt; or the &lt;button&gt; tag in the HTML.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public ButtonTagName ButtonTagName
@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Controls
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
-                throw new Exception("The <dot:Button> control cannot have both inner content and the Text property set!");     // TODO
+                throw new DotvvmControlException(this, "The <dot:Button> control cannot have both inner content and the Text property set!");
             }
 
             if (ButtonTagName == ButtonTagName.button)
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Controls
             var clickBinding = GetCommandBinding(ClickProperty);
             if (clickBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(clickBinding, context, this));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, context, this));
             }
 
             writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>
@@ -78,7 +78,7 @@ namespace DotVVM.Framework.Controls
                 {
                     if (ButtonTagName == ButtonTagName.input)
                     {
-                        throw new Exception("The <dot:Button> control cannot have inner content unless the 'ButtonTagName' property is set to 'button'!");     // TODO
+                        throw new DotvvmControlException(this, "The <dot:Button> control cannot have inner content unless the 'ButtonTagName' property is set to 'button'!");
                     }
                 }
 

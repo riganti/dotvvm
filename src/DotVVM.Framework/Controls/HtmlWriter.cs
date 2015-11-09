@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Controls
             { "style", ";" }
         };
 
-        public static readonly ISet<string> SelfClosingTags = new HashSet<string>
+        public static readonly ISet<string> SelfClosingTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "area", "base", "br" , "col", "command", "embed", "hr", "img", "input", "keygen", "link", "meta", "param", "source", "track", "wbr"
         };
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Controls
         {
             if (dataBindAttributes.Contains(name) && dataBindAttributes[name] is KnockoutBindingGroup)
             {
-                throw new InvalidOperationException($"The binding handler {name} already contains a KnockoutBindingGroup. The expression could not be added. Please call AddKnockoutDataBind(string, KnockoutBindingGroup) overload!");
+                throw new InvalidOperationException($"The binding handler '{name}' already contains a KnockoutBindingGroup. The expression could not be added. Please call AddKnockoutDataBind(string, KnockoutBindingGroup) overload!");
             }
 
             dataBindAttributes.Add(name, expression);
@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Controls
         {
             if (dataBindAttributes.Contains(name) && !(dataBindAttributes[name] is KnockoutBindingGroup))
             {
-                throw new InvalidOperationException($"The value of binding handler {name} cannot be combined with a KnockoutBindingGroup!");
+                throw new InvalidOperationException($"The value of binding handler '{name}' cannot be combined with a KnockoutBindingGroup!");
             }
 
             if (bindingGroup.IsEmpty)
@@ -247,7 +247,7 @@ namespace DotVVM.Framework.Controls
         {
             if (openTags.Count == 0)
             {
-                throw new InvalidOperationException(Parser_Dothtml.HtmlWriter_CannotCloseTagBecauseNoTagIsOpen);
+                throw new InvalidOperationException("The HtmlWriter cannot close the tag because no tag is open!");
             }
 
             var tag = openTags.Pop();
@@ -269,8 +269,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public void WriteText(string text)
         {
+            if (text == null && text.Length == 0) return;
             EnsureTagFullyOpen();
-            writer.Write(WebUtility.HtmlEncode(text).Replace("\"", "&quot;"));
+            WebUtility.HtmlEncode(text, writer);
         }
 
         /// <summary>
@@ -279,7 +280,7 @@ namespace DotVVM.Framework.Controls
         public void WriteUnencodedText(string text)
         {
             EnsureTagFullyOpen();
-            writer.Write(text);
+            writer.Write(text ?? "");
         }
 
     }

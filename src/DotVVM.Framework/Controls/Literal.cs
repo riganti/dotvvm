@@ -5,7 +5,6 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
-using DotVVM.Framework.Parser;
 
 namespace DotVVM.Framework.Controls
 {
@@ -37,16 +36,29 @@ namespace DotVVM.Framework.Controls
             set { SetValue(TextProperty, value); }
         }
         public static readonly DotvvmProperty TextProperty =
-            DotvvmProperty.Register<string, Literal>(t => t.Text, "");
+            DotvvmProperty.Register<object, Literal>(t => t.Text, "");
 
+
+        /// <summary>
+        /// Gets or sets the format string that will be applied to numeric or date-time values.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string FormatString
+        {
+            get { return (string)GetValue(FormatStringProperty); }
+            set { SetValue(FormatStringProperty, value); }
+        }
+        public static readonly DotvvmProperty FormatStringProperty =
+            DotvvmProperty.Register<string, Literal>(c => c.FormatString);
 
         [MarkupOptions(AllowBinding = false)]
-        public string FormatString { get; set; }
-
-        protected virtual bool AlwaysRenderSpan
+        public bool RenderSpanElement
         {
-            get { return false; }
+            get { return (bool)GetValue(RenderSpanElementProperty); }
+            set { SetValue(RenderSpanElementProperty, value); }
         }
+        public static readonly DotvvmProperty RenderSpanElementProperty =
+            DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, false);
 
 
         /// <summary>
@@ -90,14 +102,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
-            if ((bool)GetValue(Internal.IsCommentProperty))
-            {
-                writer.WriteUnencodedText("<!--");
-                writer.WriteUnencodedText(Text);
-                writer.WriteUnencodedText("-->");
-                return;
-            }
-
             var textBinding = GetValueBinding(TextProperty);
             if (textBinding != null && !RenderOnServer)
             {
@@ -114,7 +118,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                if (AlwaysRenderSpan)
+                if (RenderSpanElement)
                 {
                     AddAttributesToRender(writer, context);
                     writer.RenderBeginTag("span");
@@ -139,23 +143,11 @@ namespace DotVVM.Framework.Controls
                     writer.WriteUnencodedText(textToDisplay);
                 }
 
-                if (AlwaysRenderSpan)
+                if (RenderSpanElement)
                 {
                     writer.RenderEndTag();
                 }
             }
-        }
-
-
-        /// <summary>
-        /// Determines whether the control contains only white space.
-        /// </summary>
-        public bool HasWhiteSpaceContentOnly()
-        {
-            if ((bool)GetValue(Internal.IsCommentProperty)) return true;
-
-            var unencodedValue = HtmlEncode ? Text : WebUtility.HtmlDecode(Text);
-            return unencodedValue.All(char.IsWhiteSpace);
         }
     }
 }

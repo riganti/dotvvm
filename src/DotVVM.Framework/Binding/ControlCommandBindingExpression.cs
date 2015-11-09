@@ -2,14 +2,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
 {
-    [CommandPostbackJsCompile]
+    [CommandBindingCompilation]
     public class ControlCommandBindingExpression : CommandBindingExpression
     {
-
-        
         public ControlCommandBindingExpression()
         {
         }
@@ -19,9 +18,9 @@ namespace DotVVM.Framework.Binding
         {
         }
 
-        public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
+        public override Delegate GetCommandDelegate(DotvvmBindableControl control, DotvvmProperty property)
         {
-            return ExecDelegate(control, true, true);
+            return (Delegate)ExecDelegate(control, true, true);
         }
 
     }

@@ -101,13 +101,17 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         }
 
         [TestMethod]
-        public void BindingTokenizer_SingleEqualsToken_Invalid()
+        public void BindingTokenizer_SingleEqualsToken_Valid()
         {
-            var tokens = Tokenize("=");
+            var tokens = Tokenize("a =   b");
 
-            Assert.AreEqual(1, tokens.Count);
-            Assert.AreEqual(BindingTokenType.EqualsEqualsOperator, tokens[0].Type);
-            Assert.IsTrue(tokens[0].HasError);
+            var index = 0;
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.AssignOperator, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.WhiteSpace, tokens[index++].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[index++].Type);
+            Assert.AreEqual(index, tokens.Count);
         }
 
 

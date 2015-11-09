@@ -18,12 +18,11 @@ namespace DotVVM.Framework.Runtime
     /// </summary>
     public class DefaultControlResolver : IControlResolver
     {
-
         private readonly DotvvmConfiguration configuration;
         private readonly IControlBuilderFactory controlBuilderFactory;
 
-        private static ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>();
-        private static ConcurrentDictionary<Type, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<Type, ControlResolverMetadata>();
+        private static ConcurrentDictionary<string, ControlType> cachedTagMappings = new ConcurrentDictionary<string, ControlType>(StringComparer.OrdinalIgnoreCase);
+        private static ConcurrentDictionary<ControlType, ControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<ControlType, ControlResolverMetadata>();
 
         private static object locker = new object();
         private static bool isInitialized = false;
@@ -100,7 +99,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         public ControlResolverMetadata ResolveControl(ControlType controlType)
         {
-            return cachedMetadata.GetOrAdd(controlType.Type, _ => BuildControlMetadata(controlType));
+            return cachedMetadata.GetOrAdd(controlType, _ => BuildControlMetadata(controlType));
         }
 
         /// <summary>
@@ -111,44 +110,29 @@ namespace DotVVM.Framework.Runtime
             return ResolveControl(new ControlType(controlType));
         }
 
+        public static Dictionary<string, BindingParserOptions> BindingTypes = new Dictionary<string, BindingParserOptions>(StringComparer.OrdinalIgnoreCase)
+        {
+            { Constants.ValueBinding, BindingParserOptions.Create<ValueBindingExpression>() },
+            { Constants.CommandBinding, BindingParserOptions.Create<CommandBindingExpression>() },
+            { Constants.ControlPropertyBinding, BindingParserOptions.Create<ControlPropertyBindingExpression>("_control") },
+            { Constants.ControlCommandBinding, BindingParserOptions.Create<ControlCommandBindingExpression>("_control") },
+            { Constants.ResourceBinding, BindingParserOptions.Create<ResourceBindingExpression>() },
+            { Constants.StaticCommandBinding, BindingParserOptions.Create<StaticCommandBindingExpression>() },
+        };
+
         /// <summary>
         /// Resolves the binding type.
         /// </summary>
-        public virtual Type ResolveBinding(string bindingType, ref string bindingValue)
+        public virtual BindingParserOptions ResolveBinding(string bindingType)
         {
-            if (bindingType == Constants.ValueBinding)
+            BindingParserOptions bpo;
+            if(BindingTypes.TryGetValue(bindingType, out bpo))
             {
-                return typeof(ValueBindingExpression);
-            }
-            else if (bindingType == Constants.CommandBinding)
-            {
-                return typeof(CommandBindingExpression);
-            }
-            //else if (bindingType == Constants.ControlStateBinding)
-            //{
-            //    return typeof (ControlStateBindingExpression);
-            //}
-            else if (bindingType == Constants.ControlPropertyBinding)
-            {
-                bindingValue = "_control." + bindingValue;
-                return typeof(ControlPropertyBindingExpression);
-            }
-            else if (bindingType == Constants.ControlCommandBinding)
-            {
-                bindingValue = "_control." + bindingValue;
-                return typeof(ControlCommandBindingExpression);
-            }
-            else if (bindingType == Constants.ResourceBinding)
-            {
-                return typeof(ResourceBindingExpression);
-            }
-            else if (bindingType == Constants.StaticCommandBinding)
-            {
-                return typeof(StaticCommandBindingExpression);
+                return bpo;
             }
             else
             {
-                throw new NotSupportedException(string.Format("The binding {{{0}: ... }} is unknown!", bindingType));   // TODO: exception handling
+                throw new NotSupportedException($"The binding {{{bindingType}: ... }} is unknown!");   // TODO: exception handling
             }
         }
 
@@ -180,7 +164,7 @@ namespace DotVVM.Framework.Runtime
                 }
             }
 
-            throw new Exception(string.Format(Resources.Controls.ControlResolver_ControlNotFound, tagPrefix, tagName));
+            throw new Exception($"The control <{tagPrefix}:{tagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
         }
 
         /// <summary>
@@ -188,7 +172,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         protected virtual ControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName)
         {
-            var type = ReflectionUtils.FindType(namespaceName + "." + tagName + ", " + assemblyName);
+            var type = ReflectionUtils.FindType(namespaceName + "." + tagName + ", " + assemblyName, ignoreCase: true);
             if (type == null)
             {
                 // the control was not found
@@ -215,7 +199,7 @@ namespace DotVVM.Framework.Runtime
             var attribute = type.Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
 
             var properties = GetControlProperties(type.Type);
-            var metadata = new ControlResolverMetadata()
+            var metadata = new ControlResolverMetadata
             {
                 Name = type.Type.Name,
                 Namespace = type.Type.Namespace,
@@ -236,7 +220,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         protected virtual Dictionary<string, DotvvmProperty> GetControlProperties(Type controlType)
         {
-            return DotvvmProperty.ResolveProperties(controlType).Concat(DotvvmProperty.GetVirtualProperties(controlType)).ToDictionary(p => p.Name, p => p);
+            return DotvvmProperty.ResolveProperties(controlType).Concat(DotvvmProperty.GetVirtualProperties(controlType)).ToDictionary(p => p.Name, p => p, StringComparer.OrdinalIgnoreCase);
         }
 
     }

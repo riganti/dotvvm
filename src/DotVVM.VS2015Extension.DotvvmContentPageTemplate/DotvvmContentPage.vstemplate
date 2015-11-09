@@ -11,6 +11,6 @@
     <DefaultName>page</DefaultName>
   </TemplateData>
   <TemplateContent>
-    <ProjectItem ReplaceParameters="true" TargetFileName="$safeitemname$.dothtml">page.dothtml</ProjectItem>
+    <ProjectItem ReplaceParameters="true"  ItemType="Content"  TargetFileName="$safeitemname$.dothtml">page.dothtml</ProjectItem>
   </TemplateContent>
 </VSTemplate>
