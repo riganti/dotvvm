@@ -12,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples
         {
             if (!Context.Query.ContainsKey("time"))
             {
-                Context.Redirect("~/Redirect?time=" + DateTime.Now.Ticks);
+                Context.Redirect("~/ControlSamples/Redirect?time=" + DateTime.Now.Ticks);
             }
 
             return base.Init();
@@ -20,7 +20,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples
 
         public void RedirectTest()
         {
-            Context.Redirect("~/Redirect?time=" + DateTime.Now.Ticks);
+            Context.Redirect("~/ControlSamples/Redirect?time=" + DateTime.Now.Ticks);
 
             throw new Exception("This exception should not occur because Redirect interrupts the request execution!");
         }

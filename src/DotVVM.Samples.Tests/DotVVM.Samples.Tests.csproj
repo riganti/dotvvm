@@ -36,8 +36,8 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.4.5.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.4.5\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
+    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.4.7.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.4.7\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />

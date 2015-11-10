@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample10ViewModel, DotVVM.Samples.BasicSamples
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RedirectViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -6,12 +6,10 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-	<div class="container">
-		<h1>Redirect test</h1>
-		
-		<p><dot:Button Text="Test redirect" Click="{command: RedirectTest()}" /></p>
-	</div>
-	
-	<dot:RequiredResource Name="bootstrap" />
+    <div class="container">
+        <h1>Redirect test</h1>
+        <p><dot:Button Text="Test redirect" Click="{command: RedirectTest()}" /></p>
+    </div>
+
 </body>
 </html>

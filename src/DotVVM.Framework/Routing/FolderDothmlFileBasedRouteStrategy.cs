@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace DotVVM.Framework.Routing
 {
-    public class FolderDothmlFileBasedRouteStrategy : IRoutingStrategy
+    public class FolderBasedRouteStrategy : IRoutingStrategy
     {
         protected string VirtualViewsFolderPath { get; set; }
         protected bool TryDetermineDefaultRoute { get; set; }
@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Provides collection of routes created from file syststem.
         /// </summary>
-        public FolderDothmlFileBasedRouteStrategy(DotvvmConfiguration configuration, string virtualViewsFolderPath, bool tryDetermineDefaultRoute)
+        public FolderBasedRouteStrategy(DotvvmConfiguration configuration, string virtualViewsFolderPath, bool tryDetermineDefaultRoute)
         {
             VirtualViewsFolderPath = virtualViewsFolderPath;
             TryDetermineDefaultRoute = tryDetermineDefaultRoute;

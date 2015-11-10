@@ -19,7 +19,7 @@ namespace DotVVM.Samples.BasicSamples
 
             // use DotVVM
             DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM(applicationPhysicalPath);
-            dotvvmConfiguration.RouteTable.RegisterRoutingStrategy(new ViewsFolderDothmlFileBasedRouteStrategy(dotvvmConfiguration));
+            dotvvmConfiguration.RouteTable.RegisterRoutingStrategy(new ViewsFolderBasedRouteStrategy(dotvvmConfiguration));
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

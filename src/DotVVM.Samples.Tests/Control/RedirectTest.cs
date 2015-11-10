@@ -9,7 +9,8 @@ using System.Threading;
 
 namespace DotVVM.Samples.Tests.Control
 {
-    public abstract class RedirectTest : SeleniumTestBase
+    [TestClass]
+    public class RedirectTest : SeleniumTestBase
     {
         private const int WaitTime = 1200;
 
@@ -19,17 +20,13 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl("ControlSamples/Redirect");
-                browser.Wait(WaitTime);
 
                 var originalUrl = browser.CurrentUrl;
-                Assert.IsTrue(originalUrl.Contains("?time="));
+                browser.CheckUrl(s => s.Contains("?time="), "Current url doesn't contain query string ?time=");
 
                 // click the button
-                browser.First("input[type=button]").Click();
-                browser.Wait(WaitTime);
-
-                Assert.IsTrue(originalUrl.Contains("?time="));
-                Assert.AreNotEqual(originalUrl, browser.CurrentUrl);
+                browser.First("input[type=button]").Click().Wait();
+                browser.CheckUrl(s => !s.Equals(originalUrl, StringComparison.OrdinalIgnoreCase), "Current url is same as origional url. Current url should be different.");
             });
         }
     }

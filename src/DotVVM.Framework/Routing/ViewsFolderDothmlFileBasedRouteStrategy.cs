@@ -4,9 +4,9 @@ using System.Security.Policy;
 
 namespace DotVVM.Framework.Routing
 {
-    public class ViewsFolderDothmlFileBasedRouteStrategy : FolderDothmlFileBasedRouteStrategy
+    public class ViewsFolderBasedRouteStrategy : FolderBasedRouteStrategy
     {
-        public ViewsFolderDothmlFileBasedRouteStrategy(DotvvmConfiguration configuration, bool tryDetermineDefaultRoute = true) : base(configuration, "Views", tryDetermineDefaultRoute)
+        public ViewsFolderBasedRouteStrategy(DotvvmConfiguration configuration, bool tryDetermineDefaultRoute = true) : base(configuration, "Views", tryDetermineDefaultRoute)
         {
         }
     }
