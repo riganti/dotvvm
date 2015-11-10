@@ -10,12 +10,10 @@ using System.Threading;
 namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class RedirectTest : SeleniumTestBase
+    public class RedirectTests : SeleniumTestBase
     {
-        private const int WaitTime = 1200;
-
         [TestMethod]
-        public void Test()
+        public void RedirectTest()
         {
             RunInAllBrowsers(browser =>
             {
@@ -26,7 +24,8 @@ namespace DotVVM.Samples.Tests.Control
 
                 // click the button
                 browser.First("input[type=button]").Click().Wait();
-                browser.CheckUrl(s => !s.Equals(originalUrl, StringComparison.OrdinalIgnoreCase), "Current url is same as origional url. Current url should be different.");
+                browser.CheckUrl(s => !s.Equals(originalUrl, StringComparison.OrdinalIgnoreCase),
+                    "Current url is same as origional url. Current url should be different.");
             });
         }
     }
