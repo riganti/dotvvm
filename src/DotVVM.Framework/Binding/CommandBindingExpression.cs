@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Evaluates the binding.
         /// </summary>
-        public object Evaluate(DotvvmBindableControl control, DotvvmProperty property, params object[] args)
+        public object Evaluate(DotvvmBindableObject control, DotvvmProperty property, params object[] args)
         {
             var action = GetCommandDelegate(control, property);
             if (action is Command) return (action as Command)();
@@ -46,9 +46,9 @@ namespace DotVVM.Framework.Binding
             return action.DynamicInvoke(args);
         }
 
-        public virtual Delegate GetCommandDelegate(DotvvmBindableControl control, DotvvmProperty property)
+        public virtual Delegate GetCommandDelegate(DotvvmBindableObject control, DotvvmProperty property)
         {
-            return (Delegate)ExecDelegate(control, property != DotvvmBindableControl.DataContextProperty);
+            return (Delegate)ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty);
         }
 
         public string GetCommandJavascript()

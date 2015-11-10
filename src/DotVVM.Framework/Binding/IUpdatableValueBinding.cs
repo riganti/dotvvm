@@ -7,6 +7,6 @@ namespace DotVVM.Framework.Binding
 {
     public interface IUpdatableValueBinding
     {
-        void UpdateSource(object value, DotvvmBindableControl control, DotvvmProperty property);
+        void UpdateSource(object value, DotvvmBindableObject control, DotvvmProperty property);
     }
 }

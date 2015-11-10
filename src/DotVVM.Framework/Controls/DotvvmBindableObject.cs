@@ -1,18 +1,58 @@
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Exceptions;
-using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
-    /// <summary>
-    /// A base class for all control that support data-binding.
-    /// </summary>
-    public abstract class DotvvmBindableControl : DotvvmControl
+    public abstract class DotvvmBindableObject
     {
+
+        private static readonly ConcurrentDictionary<Type, IReadOnlyList<DotvvmProperty>> declaredProperties = new ConcurrentDictionary<Type, IReadOnlyList<DotvvmProperty>>();
+
+
+        protected internal Dictionary<DotvvmProperty, object> properties;
+
+        /// <summary>
+        /// Gets the collection of control property values.
+        /// </summary>
+        protected internal Dictionary<DotvvmProperty, object> Properties
+        {
+            get
+            {
+                if (properties == null)
+                {
+                    properties = new Dictionary<DotvvmProperty, object>();
+                }
+                return properties;
+            }
+        }
+
+        /// <summary>
+        /// Gets the parent control.
+        /// </summary>
+        [MarkupOptions(MappingMode = MappingMode.Exclude)]
+        public DotvvmControl Parent { get; set; }
+
+        /// <summary>
+        /// Gets all properties declared on this class or on any of its base classes.
+        /// </summary>
+        protected IReadOnlyList<DotvvmProperty> GetDeclaredProperties()
+        {
+            return declaredProperties.GetOrAdd(GetType(), DotvvmProperty.ResolveProperties);
+        }
+        
+        /// <summary>
+        /// Determines whether the specified property is set.
+        /// </summary>
+        public bool IsPropertySet(DotvvmProperty property, bool inherit = true)
+        {
+            return property.IsSet(this, inherit);
+        }
+
+
         /// <summary>
         /// Gets or sets the data context.
         /// </summary>
@@ -22,30 +62,23 @@ namespace DotVVM.Framework.Controls
             set { SetValue(DataContextProperty, value); }
         }
         public static readonly DotvvmProperty DataContextProperty =
-            DotvvmProperty.Register<object, DotvvmBindableControl>(c => c.DataContext, isValueInherited: true);
+            DotvvmProperty.Register<object, DotvvmBindableObject>(c => c.DataContext, isValueInherited: true);
 
-        /// <summary>
-        /// Gets or sets whether this control should be rendered on the server.
-        /// </summary>
-        protected internal virtual bool RenderOnServer
-        {
-            get { return (RenderMode)GetValue(RenderSettings.ModeProperty) == RenderMode.Server; }
-        }
 
         /// <summary>
         /// Gets the value of a specified property.
         /// </summary>
-        public override object GetValue(DotvvmProperty property, bool inherit = true)
+        public virtual object GetValue(DotvvmProperty property, bool inherit = true)
         {
             var value = GetValueRaw(property, inherit);
             if (property.IsBindingProperty) return value;
             while (value is IBinding)
             {
-                DotvvmBindableControl control = this;
-                if(inherit && !properties.ContainsKey(property))
+                DotvvmBindableObject control = this;
+                if (inherit && !properties.ContainsKey(property))
                 {
                     int n;
-                    control = (DotvvmBindableControl)GetClosestWithPropertyValue(out n, d => d is DotvvmBindableControl && d.properties != null && d.properties.ContainsKey(property));
+                    control = GetClosestWithPropertyValue(out n, d => d.properties != null && d.properties.ContainsKey(property));
                 }
                 if (value is IStaticValueBinding)
                 {
@@ -67,13 +100,13 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
         {
-            return base.GetValue(property, inherit);
+            return property.GetValue(this, inherit);
         }
 
         /// <summary>
         /// Sets the value of a specified property.
         /// </summary>
-        public override void SetValue(DotvvmProperty property, object value)
+        public virtual void SetValue(DotvvmProperty property, object value)
         {
             var originalValue = GetValueRaw(property, false);
             // TODO: really do we want to update the value binding only if it's not a binding
@@ -93,7 +126,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void SetValueRaw(DotvvmProperty property, object value)
         {
-            base.SetValue(property, value);
+            property.SetValue(this, value);
         }
 
         /// <summary>
@@ -137,43 +170,6 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        /// <summary>
-        /// Renders the control into the specified writer.
-        /// </summary>
-        public override void Render(IHtmlWriter writer, RenderContext context)
-        {
-            if (Properties.ContainsKey(PostBack.UpdateProperty))
-            {
-                // the control might be updated on postback, add the control ID
-                EnsureControlHasId();
-            }
-
-
-            // render the control directly to the output
-            base.Render(writer, context);
-        }
-
-
-        /// <summary>
-        /// Renders the control into the specified writer.
-        /// </summary>
-        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
-        {
-            // if the DataContext is set, render the "with" binding
-            var dataContextBinding = GetValueBinding(DataContextProperty, false);
-            if (dataContextBinding != null)
-            {
-                writer.WriteKnockoutWithComment(dataContextBinding.GetKnockoutBindingExpression());
-            }
-
-            base.RenderControl(writer, context);
-
-            if (dataContextBinding != null)
-            {
-                writer.WriteKnockoutDataBindEndComment();
-            }
-        }
-
 
         /// <summary>
         /// Gets the hierarchy of all DataContext bindings from the root to current control.
@@ -182,16 +178,13 @@ namespace DotVVM.Framework.Controls
         internal IEnumerable<IValueBinding> GetDataContextHierarchy()
         {
             var bindings = new List<IValueBinding>();
-            DotvvmControl current = this;
+            DotvvmBindableObject current = this;
             do
             {
-                if (current is DotvvmBindableControl)
+                var binding = current.GetValueBinding(DataContextProperty, false);
+                if (binding != null)
                 {
-                    var binding = ((DotvvmBindableControl)current).GetValueBinding(DataContextProperty, false);
-                    if (binding != null)
-                    {
-                        bindings.Add(binding);
-                    }
+                    bindings.Add(binding);
                 }
                 current = current.Parent;
             }
@@ -204,7 +197,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the closest control binding target.
         /// </summary>
-        public DotvvmControl GetClosestControlBindingTarget()
+        public DotvvmBindableObject GetClosestControlBindingTarget()
         {
             int numberOfDataContextChanges;
             return GetClosestControlBindingTarget(out numberOfDataContextChanges);
@@ -213,7 +206,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the closest control binding target and returns number of DataContext changes since the target.
         /// </summary>
-        public DotvvmControl GetClosestControlBindingTarget(out int numberOfDataContextChanges)
+        public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges)
         {
             var result = GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
             if (result == null)
@@ -226,16 +219,15 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the closest control with specified property value and returns number of DataContext changes since the target.
         /// </summary>
-        public DotvvmControl GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmControl, bool> filterFunction)
+        public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, bool> filterFunction)
         {
-            var current = (DotvvmControl)this;
+            var current = this;
             numberOfDataContextChanges = 0;
             while (current != null)
             {
-                if (current is DotvvmBindableControl && ((DotvvmBindableControl)current).GetValueBinding(DataContextProperty, false) != null)
+                if (current.GetValueBinding(DataContextProperty, false) != null)
                 {
-                    var bindable = (DotvvmBindableControl)current;
-                    if (bindable.HasBinding(DataContextProperty) || bindable.HasBinding(Internal.PathFragmentProperty))
+                    if (current.HasBinding(DataContextProperty) || current.HasBinding(Internal.PathFragmentProperty))
                     {
                         numberOfDataContextChanges++;
                     }
@@ -270,6 +262,19 @@ namespace DotVVM.Framework.Controls
         {
             return Properties.Where(p => p.Value is BindingExpression && !p.Key.IsBindingProperty)
                 .Select(p => new KeyValuePair<DotvvmProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));
+        }
+
+        /// <summary>
+        /// Gets all ancestors of this control starting with the parent.
+        /// </summary>
+        public IEnumerable<DotvvmControl> GetAllAncestors()
+        {
+            var ancestor = Parent;
+            while (ancestor != null)
+            {
+                yield return ancestor;
+                ancestor = ancestor.Parent;
+            }
         }
     }
 }

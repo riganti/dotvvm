@@ -9,6 +9,6 @@ namespace DotVVM.Framework.Binding
 {
     public interface IStaticValueBinding: IBinding
     {
-        object Evaluate(DotvvmBindableControl control, DotvvmProperty property);
+        object Evaluate(DotvvmBindableObject control, DotvvmProperty property);
     }
 }

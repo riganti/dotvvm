@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// User in <see cref="ItemsControl" /> to wrap each data item and generate its unique ID.
     /// </summary>
-    public class DataItemContainer : DotvvmBindableControl
+    public class DataItemContainer : DotvvmControl
     {
 
         /// <summary>

@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         public virtual Expression<CompiledBindingExpression.BindingDelegate> CompileToDelegate(Expression binding, DataContextStack dataContext, Type expectedType)
         {
             var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
-            var controlRootParameter = Expression.Parameter(typeof(DotvvmControl), "controlRoot");
+            var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
             var expr = ExpressionUtils.Replace(ConvertExpressionToType(binding, expectedType), BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
             expr = ExpressionUtils.ConvertToObject(expr);
             return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, viewModelsParameter, controlRootParameter);
@@ -58,7 +58,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         public virtual Expression<CompiledBindingExpression.BindingUpdateDelegate> CompileToUpdateDelegate(Expression binding, DataContextStack dataContext)
         {
             var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
-            var controlRootParameter = Expression.Parameter(typeof(DotvvmControl), "controlRoot");
+            var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var expr = ExpressionUtils.Replace(binding, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));

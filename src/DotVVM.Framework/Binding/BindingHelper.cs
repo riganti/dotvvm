@@ -9,13 +9,13 @@ namespace DotVVM.Framework.Binding
 {
     public static class BindingHelper
     {
-        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmBindableControl control, Command action, string methodUsageId)
+        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Command action, string methodUsageId)
             => RegisterExtensionCommand(control, action, methodUsageId);
 
-        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmBindableControl control, Action action, string methodUsageId)
+        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Action action, string methodUsageId)
             => RegisterExtensionCommand(control, action, methodUsageId);
 
-        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmBindableControl control, Delegate action, string methodUsageId)
+        public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Delegate action, string methodUsageId)
         {
             control.EnsureControlHasId();
             var id = control.ID + methodUsageId;
@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Binding
             return binding;
         }
 
-        public static CommandBindingExpression GetExtensionCommand(this DotvvmBindableControl control, string methodUsageId)
+        public static CommandBindingExpression GetExtensionCommand(this DotvvmControl control, string methodUsageId)
         {
             var propertyName = control.GetType().FullName + "/" + methodUsageId;
             var property = DotvvmProperty.ResolveProperty(typeof(ExtensionCommands), propertyName);

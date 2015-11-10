@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
     /// Renders a text into the page.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false)]
-    public class Literal : DotvvmBindableControl
+    public class Literal : DotvvmControl
     {
 
         /// <summary>

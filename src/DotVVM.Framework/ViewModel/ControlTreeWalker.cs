@@ -50,24 +50,21 @@ namespace DotVVM.Framework.ViewModel
         {
             // if there is a DataContext binding, locate the correct token
             var hasDataContext = false;
-            if (control is DotvvmBindableControl)
+            var pathValue = control.GetValue(Internal.PathFragmentProperty, false);
+            if (pathValue != null)
             {
-                var pathValue = ((DotvvmBindableControl)control).GetValue(Internal.PathFragmentProperty, false);
-                if (pathValue != null)
+                CurrentPath.Push(pathValue as string);
+                RefreshCurrentPathArray();
+                hasDataContext = true;
+            }
+            else
+            {
+                var binding = control.GetValueBinding(DotvvmBindableObject.DataContextProperty, false);
+                if (binding != null)
                 {
-                    CurrentPath.Push(pathValue as string);
+                    CurrentPath.Push(binding.GetKnockoutBindingExpression());
                     RefreshCurrentPathArray();
                     hasDataContext = true;
-                }
-                else
-                {
-                    var binding = ((DotvvmBindableControl)control).GetValueBinding(DotvvmBindableControl.DataContextProperty, false);
-                    if (binding != null)
-                    {
-                        CurrentPath.Push(binding.GetKnockoutBindingExpression());
-                        RefreshCurrentPathArray();
-                        hasDataContext = true;
-                    }
                 }
             }
 

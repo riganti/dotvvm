@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Binding
         public ActionFilterAttribute[] ActionFilters { get; set; }
         public Dictionary<string, object> Extensions { get; set; }
 
-        public delegate object BindingDelegate(object[] dataContextHierarchy, DotvvmControl rootControl);
-        public delegate void BindingUpdateDelegate(object[] dataContextHierarchy, DotvvmControl rootControl, object value);
+        public delegate object BindingDelegate(object[] dataContextHierarchy, DotvvmBindableObject rootControl);
+        public delegate void BindingUpdateDelegate(object[] dataContextHierarchy, DotvvmBindableObject rootControl, object value);
     }
 }

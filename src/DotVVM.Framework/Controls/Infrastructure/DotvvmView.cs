@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
     /// <summary>
     /// Represents a top-level control in the control tree.
     /// </summary>
-    public class DotvvmView : DotvvmBindableControl
+    public class DotvvmView : DotvvmControl
     {
         /// <summary>
         /// Gets or sets the collection of directives.

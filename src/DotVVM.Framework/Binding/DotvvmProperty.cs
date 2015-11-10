@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets the value of the property.
         /// </summary>
-        public virtual object GetValue(DotvvmControl control, bool inherit = true)
+        public virtual object GetValue(DotvvmBindableObject control, bool inherit = true)
         {
             object value;
             if (control.properties != null && control.properties.TryGetValue(this, out value))
@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets whether the value of the property is set
         /// </summary>
-        public virtual bool IsSet(DotvvmControl control, bool inherit = true)
+        public virtual bool IsSet(DotvvmBindableObject control, bool inherit = true)
         {
             if (control.properties != null && control.properties.ContainsKey(this))
             {
@@ -128,7 +128,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Sets the value of the property.
         /// </summary>
-        public virtual void SetValue(DotvvmControl control, object value)
+        public virtual void SetValue(DotvvmBindableObject control, object value)
         {
             control.Properties[this] = value;
         }
@@ -251,14 +251,14 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Called when a control of the property type is created and initialized.
         /// </summary>
-        protected internal virtual void OnControlInitialized(DotvvmControl dotvvmControl)
+        protected internal virtual void OnControlInitialized(DotvvmBindableObject dotvvmControl)
         {
         }
 
         /// <summary>
         /// Called right before the page is rendered.
         /// </summary>
-        public void OnControlRendering(DotvvmControl dotvvmControl)
+        public void OnControlRendering(DotvvmBindableObject dotvvmControl)
         {
         }
     }

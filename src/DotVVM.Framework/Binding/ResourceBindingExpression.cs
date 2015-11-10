@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Evaluates the binding.
         /// </summary>
-        public object Evaluate(Controls.DotvvmBindableControl control, DotvvmProperty property)
+        public object Evaluate(Controls.DotvvmBindableObject control, DotvvmProperty property)
         {
             if (Delegate != null) return ExecDelegate(control, true);
 

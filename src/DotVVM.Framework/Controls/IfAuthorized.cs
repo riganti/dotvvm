@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
     /// Renders the Template (default content) iff the user is authorized and has specified roles
     /// </summary>
     [ControlMarkupOptions(DefaultContentProperty = nameof(Template))]
-    public class IfAuthorized : DotvvmBindableControl
+    public class IfAuthorized : DotvvmControl
     {
         /// <summary>
         /// This is rendered iff user is authorized and has specified roles

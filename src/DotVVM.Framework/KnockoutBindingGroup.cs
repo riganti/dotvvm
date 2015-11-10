@@ -13,7 +13,7 @@ namespace DotVVM.Framework
         
         public bool IsEmpty => entries.Count == 0;
 
-        public void Add(string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction)
+        public void Add(string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction)
         {
             var binding = control.GetValueBinding(property);
             if (binding == null)

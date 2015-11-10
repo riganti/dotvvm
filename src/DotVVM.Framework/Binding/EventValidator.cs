@@ -42,28 +42,27 @@ namespace DotVVM.Framework.Binding
         {
             // walk the control tree and find the path
             CommandBindingExpression resultBinding = null;
-            DotvvmBindableControl resultControl = null;
+            DotvvmControl resultControl = null;
             DotvvmProperty resultProperty = null;
 
             var walker = new ControlTreeWalker(viewRootControl);
             walker.ProcessControlTree((control) =>
             {
                 // compare path
-                if (resultBinding == null && control is DotvvmBindableControl && ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
+                if (resultBinding == null && ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                 {
                     // find bindings of current control
-                    var bindableControl = (DotvvmBindableControl)control;
-                    var binding = bindableControl.GetAllBindings().Where(p => p.Value is CommandBindingExpression)
+                    var binding = control.GetAllBindings().Where(p => p.Value is CommandBindingExpression)
                         .FirstOrDefault(b => b.Value.BindingId == commandId);
                     if (binding.Key != null)
                     {
                         // we have found the binding, now get the validation path
-                        var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(bindableControl);
+                        var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control);
                         if (currentValidationTargetPath == validationTargetPath)
                         {
                             // the validation path is equal, we have found the binding
                             resultBinding = (CommandBindingExpression)binding.Value;
-                            resultControl = bindableControl;
+                            resultControl = control;
                             resultProperty = binding.Key;
                         }
                     }
@@ -84,7 +83,7 @@ namespace DotVVM.Framework.Binding
         public FindBindingResult ValidateControlCommand(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmControl targetControl, string validationTargetPath)
         {
             // find the binding
-            var result = FindControlCommandBinding(path, commandId, viewRootControl, (DotvvmBindableControl)targetControl, validationTargetPath);
+            var result = FindControlCommandBinding(path, commandId, viewRootControl, targetControl, validationTargetPath);
             if (result.Binding == null)
             {
                 throw EventValidationException();
@@ -95,36 +94,35 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
-        private FindBindingResult FindControlCommandBinding(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmBindableControl targetControl, string validationTargetPath)
+        private FindBindingResult FindControlCommandBinding(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmControl targetControl, string validationTargetPath)
         {
             // walk the control tree and find the path
             ControlCommandBindingExpression resultBinding = null;
             DotvvmProperty resultProperty = null;
-            DotvvmBindableControl resultControl = null;
+            DotvvmControl resultControl = null;
 
             var walker = new ControlTreeWalker(viewRootControl);
             walker.ProcessControlTree((control) =>
             {
                 // compare path
-                if (control is DotvvmBindableControl && ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
+                if (ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                 {
                     // find bindings of current control
-                    var bindableControl = (DotvvmBindableControl)control;
-                    var binding = bindableControl.GetAllBindings().Where(p => p.Value is ControlCommandBindingExpression)
+                    var binding = control.GetAllBindings().Where(p => p.Value is ControlCommandBindingExpression)
                         .FirstOrDefault(b => b.Value.BindingId == commandId);
                     if (binding.Key != null)
                     {
                         // verify that the target control is the control command target
-                        if (bindableControl.GetClosestControlBindingTarget() == targetControl)
+                        if (control.GetClosestControlBindingTarget() == targetControl)
                         {
                             // we have found the binding, now get the validation path
-                            var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(bindableControl);
+                            var currentValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(control);
                             if (currentValidationTargetPath == validationTargetPath)
                             {
                                 // the validation path is equal, we have found the binding
                                 resultBinding = (ControlCommandBindingExpression)binding.Value;
                                 resultProperty = binding.Key;
-                                resultControl = bindableControl;
+                                resultControl = control;
                             }
                         }
                     }
@@ -149,7 +147,7 @@ namespace DotVVM.Framework.Binding
     public class FindBindingResult
     {
         public CommandBindingExpression Binding { get; set; }
-        public DotvvmBindableControl Control { get; set; }
+        public DotvvmControl Control { get; set; }
         public DotvvmProperty Property { get; set; }
     }
 }

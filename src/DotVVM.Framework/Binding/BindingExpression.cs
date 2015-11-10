@@ -39,14 +39,14 @@ namespace DotVVM.Framework.Binding
         {
         }
 
-        protected void ExecUpdateDelegate(DotvvmBindableControl contextControl, object value, bool seeThis, bool setRootControl = false)
+        protected void ExecUpdateDelegate(DotvvmBindableObject contextControl, object value, bool seeThis, bool setRootControl = false)
         {
             var dataContexts = GetDataContexts(contextControl, seeThis);
             var control = setRootControl ? GetRootControl(contextControl) : null;
             UpdateDelegate(dataContexts, control, value);
         }
 
-        protected object ExecDelegate(DotvvmBindableControl contextControl, bool seeThis, bool setRootControl = false)
+        protected object ExecDelegate(DotvvmBindableObject contextControl, bool seeThis, bool setRootControl = false)
         {
             var dataContexts = GetDataContexts(contextControl, seeThis);
             var control = setRootControl ? GetRootControl(contextControl) : null;
@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        private DotvvmControl GetRootControl(DotvvmBindableControl control)
+        private DotvvmBindableObject GetRootControl(DotvvmBindableObject control)
         {
             return control.GetClosestControlBindingTarget();
         }
@@ -68,14 +68,14 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets all data context on the path to root
         /// </summary>
-        public static object[] GetDataContexts(DotvvmBindableControl contextControl, bool seeThis)
+        public static object[] GetDataContexts(DotvvmBindableObject contextControl, bool seeThis)
         {
-            var context = seeThis ? contextControl.GetValue(DotvvmBindableControl.DataContextProperty, false) : null;
+            var context = seeThis ? contextControl.GetValue(DotvvmBindableObject.DataContextProperty, false) : null;
             return
                 (context == null ? new object[0] : new[] { context })
-                .Concat(contextControl.GetAllAncestors().OfType<DotvvmBindableControl>()
-                .Where(c => c.properties.ContainsKey(DotvvmBindableControl.DataContextProperty))
-                .Select(c => c.GetValue(DotvvmBindableControl.DataContextProperty, false)))
+                .Concat(contextControl.GetAllAncestors().OfType<DotvvmBindableObject>()
+                .Where(c => c.properties.ContainsKey(DotvvmBindableObject.DataContextProperty))
+                .Select(c => c.GetValue(DotvvmBindableObject.DataContextProperty, false)))
                 .ToArray();
         }
 
