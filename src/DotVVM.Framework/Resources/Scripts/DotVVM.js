@@ -127,11 +127,12 @@ var DotVVM = (function () {
             window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers); }, 0);
             return;
         }
+        // apply postback handlers
         if (handlers && handlers.length > 0) {
             var handler = this.postBackHandlers[handlers[0].name];
             var options = this.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
             var handlerInstance = handler(options);
-            handlerInstance.execute(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)); });
+            handlerInstance.execute(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)); }, sender);
             return;
         }
         var viewModel = this.viewModels[viewModelName].viewModel;
@@ -934,7 +935,7 @@ var DotvvmSerialization = (function () {
 var DotvvmPostBackHandler = (function () {
     function DotvvmPostBackHandler() {
     }
-    DotvvmPostBackHandler.prototype.execute = function (callback) {
+    DotvvmPostBackHandler.prototype.execute = function (callback, sender) {
     };
     return DotvvmPostBackHandler;
 })();
@@ -944,7 +945,7 @@ var ConfirmPostBackHandler = (function (_super) {
         _super.call(this);
         this.message = message;
     }
-    ConfirmPostBackHandler.prototype.execute = function (callback) {
+    ConfirmPostBackHandler.prototype.execute = function (callback, sender) {
         if (confirm(this.message)) {
             callback();
         }
@@ -1008,4 +1009,3 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         }
     };
 })();
-//# sourceMappingURL=dotvvm.js.map

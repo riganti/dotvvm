@@ -152,11 +152,15 @@ class DotVVM {
             return;
         }
 
+        // apply postback handlers
         if (handlers && handlers.length > 0) {
             var handler = this.postBackHandlers[handlers[0].name];
             var options = this.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
             var handlerInstance = handler(options);
-            handlerInstance.execute(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)));
+            handlerInstance.execute(
+                () => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)),
+                sender
+            );
             return;
         }
 
@@ -929,7 +933,7 @@ class DotvvmSerialization {
                 var match = this.findObject(obj[p], matcher);
                 if (match) {
                     match.push(p);
-                    return match
+                    return match;
                 }
             }
         }
@@ -976,7 +980,7 @@ class DotvvmSerialization {
 
 
 class DotvvmPostBackHandler {
-    public execute(callback: () => void) {
+    public execute(callback: () => void, sender: HTMLElement) {
     }
 }
 
@@ -985,7 +989,7 @@ class ConfirmPostBackHandler extends DotvvmPostBackHandler {
         super();
     }
 
-    public execute(callback: () => void) {
+    public execute(callback: () => void, sender: HTMLElement) {
         if (confirm(this.message)) {
             callback();
         }
