@@ -27,10 +27,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Click("input[type=button]");
                 browser.Wait();
 
-                browser.First("span")
-                    .CheckIfInnerText(s => Regex.Matches(s, "Lorem ipsum").Count == 15,
-                        "Output doesn't contain expected number of values");
-                //Assert.AreEqual(14, browser.FindElements("br").Count);
+                browser.FindElements("br").ThrowIfDifferentCountThan(14);
 
                 // change number of lines and click the button
                 browser.ClearElementsContent("input[type=text]");
@@ -38,10 +35,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Click("input[type=button]");
                 browser.Wait();
 
-                browser.First("span")
-                    .CheckIfInnerText(s => Regex.Matches(s, "Lorem ipsum").Count == 5,
-                        "Output doesn't contain expected number of values");
-                //Assert.AreEqual(4, browser.FindElements("br").Count);
+                browser.FindElements("br").ThrowIfDifferentCountThan(4);
             });
         }
     }
