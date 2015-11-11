@@ -105,6 +105,7 @@
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\ComplexSamples\ServerCommentsViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button.cs" />
+    <Compile Include="ViewModels\ControlSamples\CheckBoxAndRadioButton.cs" />
     <Compile Include="ViewModels\ControlSamples\Redirect.cs" />
     <Compile Include="ViewModels\DefaultViewModel.cs" />
     <Compile Include="ViewModels\EmpltyViewModel.cs" />
@@ -134,6 +135,7 @@
     <Content Include="Views\Errors\MasterPageRequeiresDifferentViewModel.dothtml" />
     <Content Include="Views\Errors\MissingRequiredProperty2.dothtml" />
     <Content Include="Views\ControlSamples\Redirect.dothtml" />
+    <Content Include="Views\ControlSamples\CheckBoxAndRadioButton.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

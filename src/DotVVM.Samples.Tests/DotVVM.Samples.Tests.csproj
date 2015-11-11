@@ -65,6 +65,7 @@
   </Choose>
   <ItemGroup>
     <Compile Include="Control\ButtonTests.cs" />
+    <Compile Include="Control\CheckBoxAndRadioButtonTests.cs" />
     <Compile Include="Control\RedirectTests.cs" />
     <Compile Include="ErrorsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
