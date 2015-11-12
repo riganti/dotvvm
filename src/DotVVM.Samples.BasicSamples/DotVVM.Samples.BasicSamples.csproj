@@ -104,11 +104,14 @@
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\ComplexSamples\ViewModelProtection.cs" />
     <Compile Include="ViewModels\ComplexSamples\ServerCommentsViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBoxAndRadioButton.cs" />
     <Compile Include="ViewModels\ControlSamples\Redirect.cs" />
     <Compile Include="ViewModels\ControlSamples\PropertyUpdate.cs" />
+    <Compile Include="ViewModels\ControlSamples\AddTask.cs" />
+    <Compile Include="ViewModels\ControlSamples\InvoiceCalculator.cs" />
     <Compile Include="ViewModels\DefaultViewModel.cs" />
     <Compile Include="ViewModels\EmpltyViewModel.cs" />
     <Compile Include="ViewModels\InheritedViewModel.cs" />
@@ -139,6 +142,9 @@
     <Content Include="Views\ControlSamples\Redirect.dothtml" />
     <Content Include="Views\ControlSamples\CheckBoxAndRadioButton.dothtml" />
     <Content Include="Views\ControlSamples\PropertyUpdate.dothtml" />
+    <Content Include="Views\ControlSamples\AddTask.dothtml" />
+    <Content Include="Views\ControlSamples\InvoiceCalculator.dothtml" />
+    <Content Include="Views\ComplexSamples\ViewModelProtection.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

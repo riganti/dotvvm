@@ -64,6 +64,9 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Complex\ViewModelProtectionTests.cs" />
+    <Compile Include="Control\InvoiceCalculatorTests.cs" />
+    <Compile Include="Control\AddTaskTests.cs" />
     <Compile Include="Control\ButtonTests.cs" />
     <Compile Include="Control\CheckBoxAndRadioButtonTests.cs" />
     <Compile Include="Control\PropertyUpdateTests.cs" />
