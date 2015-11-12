@@ -299,7 +299,9 @@
     <Compile Include="Runtime\Compilation\Binding\CompileTimeBindingParser.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionBuildingVisitor.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionHelper.cs" />
+    <Compile Include="Runtime\Compilation\Binding\IBindingIdGenerator.cs" />
     <Compile Include="Runtime\Compilation\Binding\MethodGroupExpression.cs" />
+    <Compile Include="Runtime\Compilation\Binding\OriginalStringBidningIdGenerator.cs" />
     <Compile Include="Runtime\Compilation\Binding\StaticClassIdentifier.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeConversions.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeRegistry.cs" />

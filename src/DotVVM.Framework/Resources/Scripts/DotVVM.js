@@ -245,19 +245,19 @@ var DotVVM = (function () {
             return;
         }
         var el = elements[offset];
-        var waitForScriptLoaded = true;
+        var waitForScriptLoaded = false;
         if (el.tagName.toLowerCase() == "script") {
             // create the script element
             var script = document.createElement("script");
             if (el.src) {
                 script.src = el.src;
+                waitForScriptLoaded = true;
             }
             if (el.type) {
                 script.type = el.type;
             }
             if (el.text) {
                 script.text = el.text;
-                waitForScriptLoaded = false;
             }
             el = script;
         }
@@ -1009,4 +1009,3 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         }
     };
 })();
-//# sourceMappingURL=dotvvm.js.map

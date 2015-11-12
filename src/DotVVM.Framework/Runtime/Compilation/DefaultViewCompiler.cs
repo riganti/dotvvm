@@ -18,6 +18,7 @@ using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 using DotVVM.Framework.Styles;
+using DotVVM.Framework.Runtime.Compilation.Binding;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -52,7 +53,8 @@ namespace DotVVM.Framework.Runtime.Compilation
             resolvedView.Accept(styleVisitor);
 
             var emitter = new DefaultViewCompilerCodeEmitter();
-            var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
+            var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className,
+                b => configuration.ServiceLocator.GetService<IBindingIdGenerator>().GetId(b, fileName));
 
             resolvedView.Accept(compilingVisitor);
 

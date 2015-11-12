@@ -124,6 +124,7 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
             configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler());
             configuration.ServiceLocator.RegisterSingleton<IBindingParser>(() => new CompileTimeBindingParser());
+            configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBidningIdGenerator());
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
 

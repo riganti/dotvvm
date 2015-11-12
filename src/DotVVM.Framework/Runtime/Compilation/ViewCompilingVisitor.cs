@@ -22,13 +22,14 @@ namespace DotVVM.Framework.Runtime.Compilation
         protected string className;
         protected ControlResolverMetadata lastMetadata;
         protected string controlName;
-        protected int bindingIdCounter;
+        protected Func<ResolvedBinding, string> bindingIdGenerator;
 
-        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler, string className)
+        public ViewCompilingVisitor(DefaultViewCompilerCodeEmitter emitter, IBindingCompiler bindingCompiler, string className, Func<ResolvedBinding, string> bindingIdGenerator)
         {
             this.emitter = emitter;
             this.className = className;
             this.bindingCompiler = bindingCompiler;
+            this.bindingIdGenerator = bindingIdGenerator;
         }
 
         public override void VisitView(ResolvedTreeRoot view)
@@ -225,7 +226,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         protected ExpressionSyntax ProcessBinding(ResolvedBinding binding, Type expectedType)
         {
             //return emitter.EmitCreateObject(binding.Type, new object[] { binding.Value });
-            return emitter.CreateObjectExpression(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(emitter, binding, "__b" + bindingIdCounter++, expectedType) });
+            return emitter.CreateObjectExpression(binding.BindingType, new[] { bindingCompiler.EmitCreateBinding(emitter, binding, bindingIdGenerator(binding), expectedType) });
         }
 
         /// <summary>
