@@ -33,6 +33,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public override void Render(IHtmlWriter writer)
         {
+            if (string.IsNullOrWhiteSpace(Code)) return;
             writer.AddAttribute("type", "text/javascript");
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText(Code);

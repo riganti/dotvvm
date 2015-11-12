@@ -144,12 +144,14 @@ class DotVVM {
             });
     }
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: DotvvmPostBackHandlerConfiguration[]): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: DotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs> {
         if (this.isPostBackProhibited(sender)) return;
 
+        var promise = new DotvvmPromise<DotvvmAfterPostBackEventArgs>();
+
         if (useWindowSetTimeout) {
-            window.setTimeout(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers), 0);
-            return;
+            window.setTimeout(() => promise.chainFrom(this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers)), 0);
+            return promise;
         }
 
         // apply postback handlers
@@ -158,10 +160,10 @@ class DotVVM {
             var options = this.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
             var handlerInstance = handler(options);
             handlerInstance.execute(
-                () => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)),
+                () => promise.chainFrom(this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1))),
                 sender
             );
-            return;
+            return promise;
         }
 
         var viewModel = this.viewModels[viewModelName].viewModel;
@@ -199,6 +201,7 @@ class DotVVM {
                 var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
                 afterPostBackArgsCanceled.wasInterrupted = true;
                 this.events.afterPostback.trigger(afterPostBackArgsCanceled);
+                promise.reject("postback collision");
                 return;
             }
 
@@ -238,6 +241,7 @@ class DotVVM {
             
                 // trigger afterPostback event
                 var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+                promise.resolve(afterPostBackArgs);
                 this.events.afterPostback.trigger(afterPostBackArgs);
                 if (!isSuccess && !afterPostBackArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -249,11 +253,13 @@ class DotVVM {
 
             // execute error handlers
             var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+            promise.reject(errArgs);
             this.events.error.trigger(errArgs);
             if (!errArgs.handled) {
                 alert(xhr.responseText);
             }
-        });
+            });
+        return promise;
     }
 
     private loadResourceList(resources: RenderedResourceList, callback: () => void) {
@@ -283,7 +289,7 @@ class DotVVM {
             callback();
             return;
         }
-        var el = <any> elements[offset];
+        var el = <any>elements[offset];
         var waitForScriptLoaded = false;
         if (el.tagName.toLowerCase() == "script") {
             // create the script element
@@ -328,9 +334,9 @@ class DotVVM {
     public evaluateOnViewModel(context, expression) {
         var result;
         if (context && context.$data) {
-            result = eval("(function (c) { with(c) { with ($data) { return " + expression + "; } } })")(context);
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
         } else {
-            result = eval("(function (c) { with(c) { return " + expression + "; } })")(context);
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
         }
         if (result && result.$data) {
             result = result.$data;
@@ -1031,6 +1037,74 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
     }
 };
 
+enum DotvvmPromiseState {
+    Pending,
+    Done,
+    Failed
+}
+
+interface IDotvvmPromise<TArg> {
+    state: DotvvmPromiseState
+    done(callback: (arg: TArg) => void);
+    fail(callback: (error: any) => void);
+}
+
+class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
+    private callbacks: Array<(arg: TArg) => void> = [];
+    private errorCallbacks: Array<(error) => void> = [];
+
+
+    public state: DotvvmPromiseState = DotvvmPromiseState.Pending
+    private argument: TArg;
+    private error;
+
+    done(callback: (arg: TArg) => void, forceAsync = false) {
+        if (this.state == DotvvmPromiseState.Done) {
+            if (forceAsync) setTimeout(() => callback(this.argument), 4);
+            else callback(this.argument);
+        }
+        else if (this.state == DotvvmPromiseState.Pending) {
+            this.callbacks.push(callback);
+        }
+    }
+
+    fail(callback: (error) => void, forceAsync = false) {
+        if (this.state == DotvvmPromiseState.Failed) {
+            if (forceAsync) setTimeout(() => callback(this.error), 4);
+            else callback(this.error);
+        }
+        else if (this.state == DotvvmPromiseState.Pending) {
+            this.errorCallbacks.push(callback);
+        }
+    }
+
+    resolve(arg: TArg) {
+        if (this.state != DotvvmPromiseState.Pending) throw new Error(`Can not resolve ${ this.state } promise.`)
+        this.state = DotvvmPromiseState.Done;
+        this.argument = arg;
+        for (var c of this.callbacks) {
+            c(arg);
+        }
+        this.callbacks = null;
+        this.errorCallbacks = null;
+    }
+
+    reject(error) {
+        if (this.state != DotvvmPromiseState.Pending) throw new Error(`Can not reject ${ this.state } promise.`)
+        this.state = DotvvmPromiseState.Failed;
+        this.error = error;
+        for (var c of this.errorCallbacks) {
+            c(error);
+        }
+        this.callbacks = null;
+        this.errorCallbacks = null;
+    }
+
+    chainFrom(promise: IDotvvmPromise<TArg>) {
+        promise.done(a => this.resolve(a));
+        promise.fail(e => this.fail(e));
+    }
+}
 
 interface KnockoutBindingHandlers {
     withControlProperties: KnockoutBindingHandler;

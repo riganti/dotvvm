@@ -123,17 +123,18 @@ var DotVVM = (function () {
         var _this = this;
         if (this.isPostBackProhibited(sender))
             return;
+        var promise = new DotvvmPromise();
         if (useWindowSetTimeout) {
-            window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers); }, 0);
-            return;
+            window.setTimeout(function () { return promise.chainFrom(_this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers)); }, 0);
+            return promise;
         }
         // apply postback handlers
         if (handlers && handlers.length > 0) {
             var handler = this.postBackHandlers[handlers[0].name];
             var options = this.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
             var handlerInstance = handler(options);
-            handlerInstance.execute(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)); }, sender);
-            return;
+            handlerInstance.execute(function () { return promise.chainFrom(_this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1))); }, sender);
+            return promise;
         }
         var viewModel = this.viewModels[viewModelName].viewModel;
         // prevent double postbacks
@@ -167,6 +168,7 @@ var DotVVM = (function () {
                 var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
                 afterPostBackArgsCanceled.wasInterrupted = true;
                 _this.events.afterPostback.trigger(afterPostBackArgsCanceled);
+                promise.reject("postback collision");
                 return;
             }
             var resultObject = JSON.parse(result.responseText);
@@ -199,6 +201,7 @@ var DotVVM = (function () {
                 }
                 // trigger afterPostback event
                 var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+                promise.resolve(afterPostBackArgs);
                 _this.events.afterPostback.trigger(afterPostBackArgs);
                 if (!isSuccess && !afterPostBackArgs.isHandled) {
                     throw "Invalid response from server!";
@@ -210,11 +213,13 @@ var DotVVM = (function () {
                 return;
             // execute error handlers
             var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+            promise.reject(errArgs);
             _this.events.error.trigger(errArgs);
             if (!errArgs.handled) {
                 alert(xhr.responseText);
             }
         });
+        return promise;
     };
     DotVVM.prototype.loadResourceList = function (resources, callback) {
         var html = "";
@@ -287,10 +292,10 @@ var DotVVM = (function () {
     DotVVM.prototype.evaluateOnViewModel = function (context, expression) {
         var result;
         if (context && context.$data) {
-            result = eval("(function (c) { with(c) { with ($data) { return " + expression + "; } } })")(context);
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
         }
         else {
-            result = eval("(function (c) { with(c) { return " + expression + "; } })")(context);
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
         }
         if (result && result.$data) {
             result = result.$data;
@@ -980,6 +985,75 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         });
     }
 };
+var DotvvmPromiseState;
+(function (DotvvmPromiseState) {
+    DotvvmPromiseState[DotvvmPromiseState["Pending"] = 0] = "Pending";
+    DotvvmPromiseState[DotvvmPromiseState["Done"] = 1] = "Done";
+    DotvvmPromiseState[DotvvmPromiseState["Failed"] = 2] = "Failed";
+})(DotvvmPromiseState || (DotvvmPromiseState = {}));
+var DotvvmPromise = (function () {
+    function DotvvmPromise() {
+        this.callbacks = [];
+        this.errorCallbacks = [];
+        this.state = DotvvmPromiseState.Pending;
+    }
+    DotvvmPromise.prototype.done = function (callback, forceAsync) {
+        var _this = this;
+        if (forceAsync === void 0) { forceAsync = false; }
+        if (this.state == DotvvmPromiseState.Done) {
+            if (forceAsync)
+                setTimeout(function () { return callback(_this.argument); }, 4);
+            else
+                callback(this.argument);
+        }
+        else if (this.state == DotvvmPromiseState.Pending) {
+            this.callbacks.push(callback);
+        }
+    };
+    DotvvmPromise.prototype.fail = function (callback, forceAsync) {
+        var _this = this;
+        if (forceAsync === void 0) { forceAsync = false; }
+        if (this.state == DotvvmPromiseState.Failed) {
+            if (forceAsync)
+                setTimeout(function () { return callback(_this.error); }, 4);
+            else
+                callback(this.error);
+        }
+        else if (this.state == DotvvmPromiseState.Pending) {
+            this.errorCallbacks.push(callback);
+        }
+    };
+    DotvvmPromise.prototype.resolve = function (arg) {
+        if (this.state != DotvvmPromiseState.Pending)
+            throw new Error("Can not resolve " + this.state + " promise.");
+        this.state = DotvvmPromiseState.Done;
+        this.argument = arg;
+        for (var _i = 0, _a = this.callbacks; _i < _a.length; _i++) {
+            var c = _a[_i];
+            c(arg);
+        }
+        this.callbacks = null;
+        this.errorCallbacks = null;
+    };
+    DotvvmPromise.prototype.reject = function (error) {
+        if (this.state != DotvvmPromiseState.Pending)
+            throw new Error("Can not reject " + this.state + " promise.");
+        this.state = DotvvmPromiseState.Failed;
+        this.error = error;
+        for (var _i = 0, _a = this.errorCallbacks; _i < _a.length; _i++) {
+            var c = _a[_i];
+            c(error);
+        }
+        this.callbacks = null;
+        this.errorCallbacks = null;
+    };
+    DotvvmPromise.prototype.chainFrom = function (promise) {
+        var _this = this;
+        promise.done(function (a) { return _this.resolve(a); });
+        promise.fail(function (e) { return _this.fail(e); });
+    };
+    return DotvvmPromise;
+})();
 (function () {
     ko.virtualElements.allowedBindings["withControlProperties"] = true;
     ko.bindingHandlers.withControlProperties = {
@@ -1009,3 +1083,4 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         }
     };
 })();
+//# sourceMappingURL=dotvvm.js.map
