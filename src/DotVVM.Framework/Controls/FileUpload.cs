@@ -58,7 +58,6 @@ namespace DotVVM.Framework.Controls
 
         internal override void OnPreRenderComplete(IDotvvmRequestContext context)
         {
-            EnsureControlHasId();
             context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadResourceName);
             context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadCssResourceName);
 
@@ -87,8 +86,6 @@ namespace DotVVM.Framework.Controls
             // render iframe
             writer.AddAttribute("class", "dot-upload-iframe");
             writer.AddAttribute("src", "~/" + Constants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
-            writer.AddAttribute("id", ID + "_iframe");
-            writer.AddAttribute("data-target-control-id", ID);
             writer.RenderBeginTag("iframe");
             writer.RenderEndTag();
 
@@ -97,7 +94,7 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("visible", "!IsBusy()");
             writer.RenderBeginTag("span");
             writer.AddAttribute("href", "#");
-            writer.AddAttribute("onclick", string.Format("dotvvm.fileUpload.showUploadDialog('{0}_iframe'); return false;", ID));
+            writer.AddAttribute("onclick", "dotvvm.fileUpload.showUploadDialog(this); return false;");
             writer.RenderBeginTag("a");
             writer.WriteUnencodedText("Upload");     // TODO: localization
             writer.RenderEndTag();

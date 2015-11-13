@@ -5,15 +5,18 @@ if (!dotvvm) {
 var DotvvmFileUpload = (function () {
     function DotvvmFileUpload() {
     }
-    DotvvmFileUpload.prototype.showUploadDialog = function (iframeId) {
-        var iframe = document.getElementById(iframeId);
+    DotvvmFileUpload.prototype.showUploadDialog = function (sender) {
+        var uploadId = "upl" + new Date().getTime().toString();
+        sender.parentElement.parentElement.dataset["dotvvmUploadId"] = uploadId;
+        var iframe = sender.parentElement.previousSibling;
+        iframe.dataset["dotvvmUploadId"] = uploadId;
         // trigger the file upload dialog
         var fileUpload = iframe.contentWindow.document.getElementById('upload');
         fileUpload.click();
     };
     DotvvmFileUpload.prototype.reportProgress = function (targetControlId, isBusy, progress, result) {
         // find target control viewmodel
-        var targetControl = document.getElementById(targetControlId);
+        var targetControl = document.querySelector("div[data-dotvvm-upload-id='" + targetControlId + "']");
         var viewModel = ko.dataFor(targetControl.firstChild);
         // determine the status
         if (typeof result === "string") {
@@ -28,7 +31,7 @@ var DotvvmFileUpload = (function () {
             }
             // call the handler
             if (targetControl.dataset["uploadCompleted"]) {
-                eval("(function () {" + targetControl.dataset["uploadCompleted"] + "})").call(targetControl);
+                new Function(targetControl.dataset["uploadCompleted"]).call(targetControl);
             }
         }
         viewModel.Progress(progress);
