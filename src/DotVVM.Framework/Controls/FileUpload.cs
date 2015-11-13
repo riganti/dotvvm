@@ -56,6 +56,13 @@ namespace DotVVM.Framework.Controls
         {
         }
 
+        protected internal override void OnInit(IDotvvmRequestContext context)
+        {
+            EnsureControlHasId();
+
+            base.OnInit(context);
+        }
+
         internal override void OnPreRenderComplete(IDotvvmRequestContext context)
         {
             context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadResourceName);
