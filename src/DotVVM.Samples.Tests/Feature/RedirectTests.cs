@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 
-namespace DotVVM.Samples.Tests.Control
+namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
     public class RedirectTests : SeleniumTestBase
@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ControlSamples/Redirect");
+                browser.NavigateToUrl("FeatureSamples/Redirect");
 
                 var originalUrl = browser.CurrentUrl;
                 browser.CheckUrl(s => s.Contains("?time="), "Current url doesn't contain query string ?time=");

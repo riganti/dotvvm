@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples
+namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples
 {
     public class RedirectViewModel : DotvvmViewModelBase
     {
@@ -12,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples
         {
             if (!Context.Query.ContainsKey("time"))
             {
-                Context.Redirect("~/ControlSamples/Redirect?time=" + DateTime.Now.Ticks);
+                Context.Redirect("~/FeatureSamples/Redirect?time=" + DateTime.Now.Ticks);
             }
 
             return base.Init();
@@ -20,7 +20,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples
 
         public void RedirectTest()
         {
-            Context.Redirect("~/ControlSamples/Redirect?time=" + DateTime.Now.Ticks);
+            Context.Redirect("~/FeatureSamples/Redirect?time=" + DateTime.Now.Ticks);
 
             throw new Exception("This exception should not occur because Redirect interrupts the request execution!");
         }

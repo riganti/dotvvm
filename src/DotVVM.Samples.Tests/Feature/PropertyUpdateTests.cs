@@ -9,7 +9,7 @@ using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading;
 
-namespace DotVVM.Samples.Tests.Control
+namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
     public class PropertyUpdateTests : SeleniumTestBase
@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ControlSamples/PropertyUpdate");
+                browser.NavigateToUrl("FeatureSamples/PropertyUpdate");
 
                 // enter number of lines and click the button
                 browser.ClearElementsContent("input[type=text]");

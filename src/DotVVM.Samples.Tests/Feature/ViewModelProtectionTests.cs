@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 
-namespace DotVVM.Samples.Tests.Complex
+namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
     public class ViewModelProtectionTests : SeleniumTestBase
@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ComplexSamples/ViewModelProtection");
+                browser.NavigateToUrl("FeatureSamples/ViewModelProtection");
 
                 // get original value
                 var originalValue = browser.First("strong span").GetText();
