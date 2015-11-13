@@ -13,11 +13,11 @@ namespace DotVVM.Samples.Tests.Feature
     public class ViewModelProtectionTests : SeleniumTestBase
     {
         [TestMethod]
-        public void ViewModelProtectionTest()
+        public void Feature_ViewModelProtection()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/ViewModelProtection");
+                browser.NavigateToUrl("FeatureSamples/ViewModelProtection/ViewModelProtection");
 
                 // get original value
                 var originalValue = browser.First("strong span").GetText();

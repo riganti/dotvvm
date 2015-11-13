@@ -13,11 +13,11 @@ namespace DotVVM.Samples.Tests.Feature
     public class RedirectTests : SeleniumTestBase
     {
         [TestMethod]
-        public void RedirectTest()
+        public void Feature_Redirect()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/Redirect");
+                browser.NavigateToUrl("FeatureSamples/Redirect/Redirect");
 
                 var originalUrl = browser.CurrentUrl;
                 browser.CheckUrl(s => s.Contains("?time="), "Current url doesn't contain query string ?time=");

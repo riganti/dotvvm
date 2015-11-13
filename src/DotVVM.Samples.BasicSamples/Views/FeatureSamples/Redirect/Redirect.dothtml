@@ -1,0 +1,13 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect.RedirectViewModel, DotVVM.Samples.BasicSamples
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+        <h1>Redirect test</h1>
+        <p><dot:Button Text="Test redirect" Click="{command: RedirectTest()}" /></p>
+    </div>
+
+</body>
+</html>

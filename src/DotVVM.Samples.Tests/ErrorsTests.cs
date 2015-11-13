@@ -12,7 +12,7 @@ namespace DotVVM.Samples.Tests
     public class ErrorsTests : SeleniumTestBase
     {
         [TestMethod]
-        public void MissingViewModelTest()
+        public void Error_MissingViewModel()
         {
             RunInAllBrowsers(browser =>
             {
@@ -28,7 +28,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void InvalidViewModelTest()
+        public void Error_InvalidViewModel()
         {
             RunInAllBrowsers(browser =>
             {
@@ -43,7 +43,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void NonExistingControlTest()
+        public void Error_NonExistingControl()
         {
             RunInAllBrowsers(browser =>
             {
@@ -60,7 +60,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void NonExistingPropertyTest()
+        public void Error_NonExistingProperty()
         {
             RunInAllBrowsers(browser =>
             {
@@ -77,7 +77,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void NotAllowedHardCodedPropertyValueTest()
+        public void Error_NotAllowedHardCodedPropertyValue()
         {
             RunInAllBrowsers(browser =>
             {
@@ -94,7 +94,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void WrongPropertyValueTest()
+        public void Error_WrongPropertyValue()
         {
             RunInAllBrowsers(browser =>
             {
@@ -111,7 +111,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void MissingRequiredPropertyTest()
+        public void Error_MissingRequiredProperty()
         {
             RunInAllBrowsers(browser =>
             {
@@ -122,7 +122,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void MissingRequiredProperty2Test()
+        public void Error_MissingRequiredProperty2()
         {
             RunInAllBrowsers(browser =>
             {
@@ -134,7 +134,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void BindingInvalidPropertyTest()
+        public void Error_BindingInvalidProperty()
         {
             RunInAllBrowsers(browser =>
             {
@@ -147,7 +147,7 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void BindingInvalidCommandTest()
+        public void Error_BindingInvalidCommand()
         {
             RunInAllBrowsers(browser =>
             {
@@ -160,27 +160,27 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
-        public void MalformedBindingTest()
+        public void Error_MalformedBinding()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl("Errors/MalformedBinding");
 
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
-                browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("command") && s.Contains("something"));
+                browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("!"));
             });
         }
 
         [TestMethod]
-        public void MasterPageRequeiresDifferentViewModelTest()
+        public void Error_MasterPageRequiresDifferentViewModel()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/MalformedBinding");
+                browser.NavigateToUrl("Errors/MasterPageRequiresDifferentViewModel");
 
                 //TODO:  !!! In error page, viewModel directive should by underlined !!!
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("Master page requires viewModel"));
-                browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmpltyViewModel, DotVVM.Samples.BasicSamples"));
+                //browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.BasicSamples"));
             });
         }
     }

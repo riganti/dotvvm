@@ -13,11 +13,11 @@ namespace DotVVM.Samples.Tests.Complex
     public class CheckBoxAndRadioButtonTests : SeleniumTestBase
     {
         [TestMethod]
-        public void CheckBoxAndRadioButtonTest()
+        public void Complex_CheckBoxAndRadioButton()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ComplexSamples/CheckBoxAndRadioButton");
+                browser.NavigateToUrl("ComplexSamples/CheckBoxAndRadioButton/CheckBoxAndRadioButton");
 
                 var boxes = browser.FindElements("fieldset");
                 

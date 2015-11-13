@@ -13,11 +13,11 @@ namespace DotVVM.Samples.Tests.Complex
     public class InvoiceCalculatorTests : SeleniumTestBase
     {
         [TestMethod]
-        public void InvoiceCalculatorTest()
+        public void Complex_InvoiceCalculator()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ComplexSamples/InvoiceCalculator");
+                browser.NavigateToUrl("ComplexSamples/InvoiceCalculator/InvoiceCalculator");
                 var table = browser.First(".table");
                 var addButton = browser.ElementAt("a", 1);
                 var recalculateButton = browser.ElementAt("a", 2);

@@ -16,11 +16,11 @@ namespace DotVVM.Samples.Tests.Control
 
         [TestMethod]
         [Timeout(60000)]
-        public void FileUpload()
+        public void Control_FileUpload()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ControlSamples/FileUpload");
+                browser.NavigateToUrl("ControlSamples/FileUpload/FileUpload");
 
                 // get existing files
                 var existingFiles = browser.FindElements("li").Select(e => e.GetText()).ToList();
@@ -62,6 +62,11 @@ namespace DotVVM.Samples.Tests.Control
                 File.Delete(tempFile);
             });
         }
+
+        // TODO: RenderSettings.Mode="Server"
+        // TODO: FileUpload in Repeater
+        // TODO: FileUpload with UploadCompleted command
+
 
     }
 }

@@ -68,10 +68,10 @@
     <Compile Include="Control\FileUploadTests.cs" />
     <Compile Include="Feature\ViewModelProtectionTests.cs" />
     <Compile Include="Complex\InvoiceCalculatorTests.cs" />
-    <Compile Include="Control\AddTaskTests.cs" />
+    <Compile Include="Complex\TaskListTests.cs" />
     <Compile Include="Control\ButtonTests.cs" />
     <Compile Include="Complex\CheckBoxAndRadioButtonTests.cs" />
-    <Compile Include="Feature\PropertyUpdateTests.cs" />
+    <Compile Include="Feature\PostBackUpdateTests.cs" />
     <Compile Include="Feature\RedirectTests.cs" />
     <Compile Include="ErrorsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
