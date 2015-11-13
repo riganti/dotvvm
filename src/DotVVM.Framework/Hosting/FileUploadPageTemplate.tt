@@ -51,7 +51,7 @@ function dotvvmSubmit() {
 }
 
 function reportProgress(isBusy, percent, resultOrError) {
-	parent.window.dotvvm.fileUpload.reportProgress(window.frameElement.dataset.targetControlId, isBusy, percent, resultOrError);
+	parent.window.dotvvm.fileUpload.reportProgress(window.frameElement.dataset["dotvvmUploadId"], isBusy, percent, resultOrError);
 }
 
 <#= StartupScript ?? "" #>

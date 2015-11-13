@@ -112,9 +112,15 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
+        protected internal override void OnInit(IDotvvmRequestContext context)
         {
             EnsureControlHasId();
+
+            base.OnInit(context);
+        }
+
+        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
+        {
             context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadResourceName);
             context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadCssResourceName);
 
@@ -143,8 +149,6 @@ namespace DotVVM.Framework.Controls
             // render iframe
             writer.AddAttribute("class", "dot-upload-iframe");
             writer.AddAttribute("src", "~/" + Constants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
-            writer.AddAttribute("id", ID + "_iframe");
-            writer.AddAttribute("data-target-control-id", ID);
             writer.RenderBeginTag("iframe");
             writer.RenderEndTag();
 
@@ -153,7 +157,7 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("visible", "!IsBusy()");
             writer.RenderBeginTag("span");
             writer.AddAttribute("href", "#");
-            writer.AddAttribute("onclick", $"dotvvm.fileUpload.showUploadDialog('{ID}_iframe'); return false;");
+            writer.AddAttribute("onclick", "dotvvm.fileUpload.showUploadDialog(this); return false;");
             writer.RenderBeginTag("a");
             writer.WriteUnencodedText(UploadButtonText);
             writer.RenderEndTag();
