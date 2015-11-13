@@ -145,6 +145,8 @@
     <Content Include="Views\ControlSamples\AddTask.dothtml" />
     <Content Include="Views\ComplexSamples\InvoiceCalculator.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection.dothtml" />
+    <Content Include="Views\ControlSamples\Button_InputTypeButton_TextContentInside.dothtml" />
+    <Content Include="Views\ControlSamples\Button_InputTypeButton_HtmlContentInside.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

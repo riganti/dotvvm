@@ -64,6 +64,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Control\FileUploadTests.cs" />
     <Compile Include="Feature\ViewModelProtectionTests.cs" />
     <Compile Include="Complex\InvoiceCalculatorTests.cs" />
     <Compile Include="Control\AddTaskTests.cs" />

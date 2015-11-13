@@ -457,5 +457,14 @@ namespace DotVVM.Framework.Controls
                 }
             }
         }
+
+        /// <summary>
+        /// Verifies that the control contains only a plain text content and tries to extract it.
+        /// </summary>
+        protected bool TryGetTextContent(out string textContent)
+        {
+            textContent = string.Join(string.Empty, Children.OfType<RawLiteral>().Where(l => !l.IsWhitespace).Select(l => l.UnencodedText));
+            return Children.All(c => c is RawLiteral);
+        }
     }
 }

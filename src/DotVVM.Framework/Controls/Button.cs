@@ -3,6 +3,7 @@ using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
@@ -78,7 +79,13 @@ namespace DotVVM.Framework.Controls
                 {
                     if (ButtonTagName == ButtonTagName.input)
                     {
-                        throw new DotvvmControlException(this, "The <dot:Button> control cannot have inner content unless the 'ButtonTagName' property is set to 'button'!");
+                        // if there is only a text content, extract it into the Text property; if there is HTML, we don't support it
+                        string textContent;
+                        if (!TryGetTextContent(out textContent))
+                        {
+                            throw new DotvvmControlException(this, "The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!");
+                        }
+                        Text = textContent;
                     }
                 }
 
@@ -110,13 +117,13 @@ namespace DotVVM.Framework.Controls
                 if (!HasBinding(TextProperty))
                 {
                     // render contents inside
-                    if (!HasOnlyWhiteSpaceContent())
+                    if (IsPropertySet(TextProperty))
                     {
-                        base.RenderContents(writer, context);
+                        writer.WriteText(Text);
                     }
                     else
                     {
-                        writer.WriteText(Text);
+                        base.RenderContents(writer, context);
                     }
                 }
             }

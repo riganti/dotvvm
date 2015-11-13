@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     else text = literalNode.Value;
 
                     var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(RawLiteral)), node, dataContext);
-                    literal.ContructorParameters = new object[] { text, whitespace };
+                    literal.ContructorParameters = new object[] { text, literalNode.Value, whitespace };
                     return literal;
                 }
                 else if (node is DothtmlElementNode)
