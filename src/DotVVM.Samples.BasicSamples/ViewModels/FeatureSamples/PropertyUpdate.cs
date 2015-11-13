@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples
+namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples
 {
     public class PropertyUpdateViewModel : DotvvmViewModelBase 
     {

@@ -64,13 +64,13 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Complex\ViewModelProtectionTests.cs" />
-    <Compile Include="Control\InvoiceCalculatorTests.cs" />
+    <Compile Include="Feature\ViewModelProtectionTests.cs" />
+    <Compile Include="Complex\InvoiceCalculatorTests.cs" />
     <Compile Include="Control\AddTaskTests.cs" />
     <Compile Include="Control\ButtonTests.cs" />
-    <Compile Include="Control\CheckBoxAndRadioButtonTests.cs" />
-    <Compile Include="Control\PropertyUpdateTests.cs" />
-    <Compile Include="Control\RedirectTests.cs" />
+    <Compile Include="Complex\CheckBoxAndRadioButtonTests.cs" />
+    <Compile Include="Feature\PropertyUpdateTests.cs" />
+    <Compile Include="Feature\RedirectTests.cs" />
     <Compile Include="ErrorsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

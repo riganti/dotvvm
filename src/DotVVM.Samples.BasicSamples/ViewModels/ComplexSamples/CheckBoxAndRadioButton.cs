@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples
+namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples
 {
     public class CheckBoxAndRadioButtonViewModel
     {

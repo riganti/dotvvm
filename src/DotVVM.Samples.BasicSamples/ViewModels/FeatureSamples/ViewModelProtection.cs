@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples
+namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples
 {
     public class ViewModelProtectionViewModel : DotvvmViewModelBase
     {
