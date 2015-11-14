@@ -105,10 +105,17 @@
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\ComboBox\ComboBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
+    <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NestedValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidation.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\SimpleValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelProtection\ViewModelProtectionViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ServerComments\ServerCommentsViewModel.cs" />
@@ -156,6 +163,13 @@
     <Content Include="Views\FeatureSamples\Validation\NestedValidation.dothtml" />
     <Content Include="Views\ControlSamples\RadioButton\RadioButton.dothtml" />
     <Content Include="Views\ControlSamples\CheckBox\CheckBox.dothtml" />
+    <Content Include="Views\FeatureSamples\JavascriptEvents\JavascriptEvents.dothtml" />
+    <Content Include="Views\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.dothtml" />
+    <Content Include="Views\ComplexSamples\ChangedEvent\ChangedEvent.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\RegexValidation.dothtml" />
+    <Content Include="Views\ControlSamples\TextBox\IntBoundTextBox.dothtml" />
+    <Content Include="Views\ControlSamples\ComboBox\ComboBox.dothtml" />
+    <Content Include="Views\ControlSamples\TextBox\TextBox.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

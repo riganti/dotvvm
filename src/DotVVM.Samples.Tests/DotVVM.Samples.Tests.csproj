@@ -65,10 +65,17 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Complex\ChangedEventTests.cs" />
+    <Compile Include="Control\ComboBoxTests.cs" />
+    <Compile Include="Control\TextBoxTests.cs" />
+    <Compile Include="Control\IntBoundTextBox.cs" />
     <Compile Include="Control\CheckBoxTests.cs" />
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
+    <Compile Include="Feature\RegexValidationTests.cs" />
     <Compile Include="Feature\NestedValidationTests.cs" />
+    <Compile Include="Feature\JavascriptEventsTests.cs" />
+    <Compile Include="Feature\DoublePostBackPrevention.cs" />
     <Compile Include="Feature\SimpleValidationTests.cs" />
     <Compile Include="Feature\ViewModelProtectionTests.cs" />
     <Compile Include="Complex\InvoiceCalculatorTests.cs" />
