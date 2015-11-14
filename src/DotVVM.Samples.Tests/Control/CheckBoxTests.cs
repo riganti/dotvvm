@@ -7,17 +7,17 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 
-namespace DotVVM.Samples.Tests.Complex
+namespace DotVVM.Samples.Tests.Control
 {
     [TestClass]
-    public class CheckBoxAndRadioButtonTests : SeleniumTestBase
+    public class CheckBoxTests : SeleniumTestBase
     {
         [TestMethod]
-        public void Complex_CheckBoxAndRadioButton()
+        public void Control_CheckBox()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ComplexSamples/CheckBoxAndRadioButton/CheckBoxAndRadioButton");
+                browser.NavigateToUrl("ControlSamples/CheckBox/CheckBox");
 
                 var boxes = browser.FindElements("fieldset");
                 
@@ -46,37 +46,21 @@ namespace DotVVM.Samples.Tests.Complex
                 boxes.ElementAt(1).First("span")
                     .CheckIfInnerTextEquals("g, r");
 
-                // radion button list
-                boxes.ElementAt(2).ElementAt("input[type=radio]", 2).Click();
-                boxes.ElementAt(2).ElementAt("input[type=radio]", 3).Click();
-                boxes.ElementAt(2).First("input[type=button]").Click();
-                browser.Wait();
-
-                boxes.ElementAt(2).Last("span")
-                    .CheckIfInnerTextEquals("4");
-                
-                boxes.ElementAt(2).ElementAt("input[type=radio]", 1).Click();
-                boxes.ElementAt(2).First("input[type=button]").Click();
-                browser.Wait();
-
-                boxes.ElementAt(2).Last("span")
-                    .CheckIfInnerTextEquals("2");
-
                 // checked changed
-                boxes.ElementAt(3).ElementAt("input[type=checkbox]", 0).Click();
+                boxes.ElementAt(2).ElementAt("input[type=checkbox]", 0).Click();
                 browser.Wait();
 
-                boxes.ElementAt(3).Last("span")
+                boxes.ElementAt(2).Last("span")
                     .CheckIfInnerTextEquals("1");
-                boxes.ElementAt(3).First("input[type=checkbox]")
+                boxes.ElementAt(2).First("input[type=checkbox]")
                     .CheckIfIsChecked();
 
-                boxes.ElementAt(3).ElementAt("input[type=checkbox]", 0).Click();
+                boxes.ElementAt(2).ElementAt("input[type=checkbox]", 0).Click();
                 browser.Wait();
 
-                boxes.ElementAt(3).Last("span")
+                boxes.ElementAt(2).Last("span")
                    .CheckIfInnerTextEquals("2");
-                boxes.ElementAt(3).First("input[type=checkbox]")
+                boxes.ElementAt(2).First("input[type=checkbox]")
                     .CheckIfIsNotChecked();
             });
         }

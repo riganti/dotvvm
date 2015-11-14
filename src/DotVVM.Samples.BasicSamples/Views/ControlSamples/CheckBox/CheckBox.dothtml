@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.CheckBoxAndRadioButton.CheckBoxAndRadioButtonViewModel, DotVVM.Samples.BasicSamples
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox.CheckBoxViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -40,31 +40,6 @@
 						<dot:Button Text="Postback" Click="{command: UpdateMCB()}" />
 						&nbsp; &nbsp;
 						{{value: MCBResult}}
-					</p>
-				</fieldset>
-
-			</div>
-		</div>
-		
-
-		<h1>RadioButton test</h1>
-		
-		<div class="row">
-			<div class="col-md-6">
-
-				<fieldset>
-					<legend>Data-bound RadioButtons</legend>
-
-					<p>
-						<dot:Repeater DataSource="{value: DBRBChoices}">
-							<ItemTemplate>
-								<dot:RadioButton Text="{value: Title}" GroupName="group2" CheckedItem="{value: _parent.DBRB}" CheckedValue="{value: Id}" /> 
-								&nbsp; &nbsp;
-							</ItemTemplate>
-						</dot:Repeater>
-						<dot:Button Text="Postback" Click="{command: UpdateDBRB()}" />
-						&nbsp; &nbsp;
-						{{value: DBRBResult}}
 					</p>
 				</fieldset>
 

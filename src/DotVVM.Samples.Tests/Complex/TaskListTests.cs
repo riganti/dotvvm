@@ -7,7 +7,7 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 
-namespace DotVVM.Samples.Tests.Control
+namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
     public class AddTaskTests : SeleniumTestBase
