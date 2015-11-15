@@ -87,10 +87,10 @@
     <Compile Include="Feature\RedirectTests.cs" />
     <Compile Include="ErrorsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SamplesRoutes.cs">
+    <Compile Include="SamplesRouteUrls.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
-      <DependentUpon>SamplesRoutes.tt</DependentUpon>
+      <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -98,9 +98,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="SamplesRoutes.tt">
+    <Content Include="SamplesRouteUrls.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
-      <LastGenOutput>SamplesRoutes.cs</LastGenOutput>
+      <LastGenOutput>SamplesRouteUrls.cs</LastGenOutput>
     </Content>
   </ItemGroup>
   <ItemGroup>

@@ -14,6 +14,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
 			public const string ControlSamples_ComboBox_ComboBox = "ControlSamples/ComboBox/ComboBox";
 			public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
+			public const string ControlSamples_GridViewDataSet_GridViewDataSet = "ControlSamples/GridViewDataSet/GridViewDataSet";
 			public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
 			public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
 			public const string ControlSamples_TextBox_TextBox = "ControlSamples/TextBox/TextBox";
@@ -31,6 +32,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
 			public const string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention = "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
 			public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
+			public const string FeatureSamples_MarkupControl_MarkupControlRegistration = "FeatureSamples/MarkupControl/MarkupControlRegistration";
 			public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
 			public const string FeatureSamples_PostBackUpdate_PostbackUpdate = "FeatureSamples/PostBackUpdate/PostbackUpdate";
 			public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";

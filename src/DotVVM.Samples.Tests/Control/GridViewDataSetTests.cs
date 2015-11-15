@@ -1,4 +1,5 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Dotvvm.Samples.Tests;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.SeleniumCore;
 
 namespace DotVVM.Samples.Tests.Complex
@@ -11,9 +12,8 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ControlSamples/GridViewDataSet/GridViewDataSet");
-                var combobox = browser.First(".GridView");
-                browser.Wait();
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridViewDataSet_GridViewDataSet);
+                browser.First(".GridView");
             });
         }
     }
