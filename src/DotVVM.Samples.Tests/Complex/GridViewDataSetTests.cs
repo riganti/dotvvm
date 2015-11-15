@@ -8,11 +8,11 @@ namespace DotVVM.Samples.Tests.Complex
     public class GridViewDataSetTests : SeleniumTestBase
     {
         [TestMethod]
-        public void Control_GridViewDataSet()
+        public void Complex_GridViewDataSet()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridViewDataSet_GridViewDataSet);
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_GridViewDataSet_GridViewDataSet);
                 browser.First(".GridView");
             });
         }

@@ -65,7 +65,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
-    <Compile Include="Control\GridViewDataSetTests.cs" />
+    <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
     <Compile Include="Control\ComboBoxTests.cs" />
     <Compile Include="Control\TextBoxTests.cs" />

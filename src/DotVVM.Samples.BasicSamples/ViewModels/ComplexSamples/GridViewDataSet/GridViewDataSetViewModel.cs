@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridViewDataSet
+namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 {
     public class GridViewDataSetViewModel : DotvvmViewModelBase
     {

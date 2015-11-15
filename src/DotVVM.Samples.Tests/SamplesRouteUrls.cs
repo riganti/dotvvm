@@ -5,6 +5,7 @@ namespace Dotvvm.Samples.Tests{
 		
     		public const string Default = "Default";
 			public const string DefaultRoute = "";
+			public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
 			public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
 			public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
 			public const string ComplexSamples_TaskList_TaskList = "ComplexSamples/TaskList/TaskList";
@@ -14,7 +15,6 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
 			public const string ControlSamples_ComboBox_ComboBox = "ControlSamples/ComboBox/ComboBox";
 			public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
-			public const string ControlSamples_GridViewDataSet_GridViewDataSet = "ControlSamples/GridViewDataSet/GridViewDataSet";
 			public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
 			public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
 			public const string ControlSamples_TextBox_TextBox = "ControlSamples/TextBox/TextBox";

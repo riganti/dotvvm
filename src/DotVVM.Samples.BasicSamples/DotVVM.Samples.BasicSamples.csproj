@@ -105,7 +105,7 @@
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
-    <Compile Include="ViewModels\ControlSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ComboBox\ComboBoxViewModel.cs" />
@@ -165,7 +165,7 @@
     <Content Include="Views\FeatureSamples\Validation\NestedValidation.dothtml" />
     <Content Include="Views\ControlSamples\RadioButton\RadioButton.dothtml" />
     <Content Include="Views\ControlSamples\CheckBox\CheckBox.dothtml" />
-    <Content Include="Views\ControlSamples\GridViewDataSet\GridViewDataSet.dothtml" />
+    <Content Include="Views\ComplexSamples\GridViewDataSet\GridViewDataSet.dothtml" />
     <Content Include="Views\FeatureSamples\JavascriptEvents\JavascriptEvents.dothtml" />
     <Content Include="Views\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.dothtml" />
     <Content Include="Views\ComplexSamples\ChangedEvent\ChangedEvent.dothtml" />
