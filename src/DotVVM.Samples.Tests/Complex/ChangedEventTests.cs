@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Complex
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ComplexSamples/ChangedEvent/ChangedEvent");
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ChangedEvent_ChangedEvent);
 
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("0");
 
@@ -30,12 +31,12 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("0");
                 browser.First("*[data-id='first-textbox']").CheckIfInnerTextEquals("Valuetest");
-                
+
                 new Actions(browser.Browser).SendKeys(Keys.Tab).Perform();
                 browser.First("*[data-id='first-textbox']").CheckIfInnerTextEquals("Valuetest");
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
-                
+
                 // second textbox
                 var textBox2 = browser.FindElements("input[type=text]")[1];
                 new Actions(browser.Browser).Click(textBox2.WebElement).Perform();
@@ -45,37 +46,37 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
                 browser.First("*[data-id='second-textbox']").CheckIfInnerTextEquals("Value");
-                
+
                 new Actions(browser.Browser).SendKeys(Keys.Tab).Perform();
                 browser.First("*[data-id='second-textbox']").CheckIfInnerTextEquals("Valuetest");
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("2");
-                
+
                 // click on checkbox
                 browser.Click("input[type=checkbox]");
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("3");
-                
+
                 browser.Click("input[type=checkbox]");
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("4");
-                
+
                 // click on radio button
                 browser.ElementAt("input[type=radio]", 0).Click().Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("5");
-                
+
                 browser.ElementAt("input[type=radio]", 1).Click().Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("6");
-                
+
                 browser.ElementAt("input[type=radio]", 2).Click().Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("7");
-                
+
                 browser.ElementAt("input[type=radio]", 3).Click().Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("8");
 
                 browser.ElementAt("input[type=radio]", 4).Click().Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("9");
-                
+
                 // combo box
                 browser.First("select").Select(1).Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("10");

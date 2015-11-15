@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/ViewModelProtection/ViewModelProtection");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ViewModelProtection_ViewModelProtection);
 
                 // get original value
                 var originalValue = browser.First("strong span").GetText();

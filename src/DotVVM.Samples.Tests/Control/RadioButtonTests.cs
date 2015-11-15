@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Samples.Tests.Control
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ControlSamples/RadioButton/RadioButton");
+                browser.NavigateToUrl( SamplesRouteUrls.ControlSamples_RadioButton_RadioButton);
 
                 browser.ElementAt("input[type=radio]", 2).Click();
                 browser.ElementAt("input[type=radio]", 3).Click();

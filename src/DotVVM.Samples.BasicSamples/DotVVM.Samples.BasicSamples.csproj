@@ -114,6 +114,7 @@
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
+    <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NestedValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidation.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\SimpleValidationViewModel.cs" />
@@ -170,6 +171,11 @@
     <Content Include="Views\ControlSamples\TextBox\IntBoundTextBox.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBox.dothtml" />
     <Content Include="Views\ControlSamples\TextBox\TextBox.dothtml" />
+    <Content Include="Views\Default.dothtml" />
+    <Content Include="Views\FeatureSamples\NestedMasterPages\Content.dothtml" />
+    <Content Include="Views\FeatureSamples\NestedMasterPages\Nested.dotmaster" />
+    <Content Include="Views\FeatureSamples\NestedMasterPages\Root.dotmaster" />
+    <Content Include="Views\FeatureSamples\MarkupControl\MarkupControlRegistration.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

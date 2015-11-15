@@ -52,7 +52,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamplesOld", "DotVVM.Samples.BasicSamplesOld\DotVVM.Samples.BasicSamplesOld.csproj", "{BDF78B2F-9C1F-4481-B80A-1537139994F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.TestsOld", "DotVVM.Samples.TestsOld\DotVVM.Samples.TestsOld.csproj", "{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.Old.Tests", "DotVVM.Samples.TestsOld\DotVVM.Samples.Old.Tests.csproj", "{E8934386-9B93-429D-AE5F-4DC6C5EBEAC2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

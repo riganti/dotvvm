@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ControlSamples/TextBox/TextBox");
+                browser.NavigateToUrl( SamplesRouteUrls.ControlSamples_TextBox_TextBox);
                 
                 browser.First("#TextBox1").CheckTagName("input");
                 browser.First("#TextBox2").CheckTagName("input");

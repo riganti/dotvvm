@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/Redirect/Redirect");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Redirect_Redirect);
 
                 var originalUrl = browser.CurrentUrl;
                 browser.CheckUrl(s => s.Contains("?time="), "Current url doesn't contain query string ?time=");

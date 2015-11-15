@@ -8,6 +8,7 @@ using System.Linq;
 using System.Runtime.Remoting.Messaging;
 using System.Text.RegularExpressions;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -19,7 +20,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/PostBackUpdate/PostBackUpdate");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBackUpdate_PostbackUpdate);
 
                 // enter number of lines and click the button
                 browser.ClearElementsContent("input[type=text]");

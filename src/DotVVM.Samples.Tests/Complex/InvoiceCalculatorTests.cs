@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Complex
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ComplexSamples/InvoiceCalculator/InvoiceCalculator");
+                browser.NavigateToUrl( SamplesRouteUrls.ComplexSamples_InvoiceCalculator_InvoiceCalculator);
                 var table = browser.First(".table");
                 var addButton = browser.ElementAt("a", 1);
                 var recalculateButton = browser.ElementAt("a", 2);

@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ControlSamples/CheckBox/CheckBox");
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_CheckBox_CheckBox);
 
                 var boxes = browser.FindElements("fieldset");
                 

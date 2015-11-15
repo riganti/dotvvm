@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention);
 
                 // try the long action interrupted by the short one
                 browser.ElementAt("input[type=button]", 0).Click().Wait(2000);

@@ -6,6 +6,8 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
+using DotVVM.Framework.Routing;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -17,7 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/JavascriptEvents/JavascriptEvents");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_JavascriptEvents_JavascriptEvents);
 
                 // init alert
                 browser.Wait();

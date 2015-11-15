@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/Validation/NestedValidation");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_NestedValidation);
 
                 // ensure validators not visible
                 browser.ElementAt("span", 0).CheckIfIsNotDisplayed();

@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Feature
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/Validation/SimpleValidation");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_SimpleValidation);
 
                 // ensure validators not visible
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);

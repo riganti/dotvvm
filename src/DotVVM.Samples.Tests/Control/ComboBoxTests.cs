@@ -6,6 +6,7 @@ using System;
 using System.Globalization;
 using System.Linq;
 using System.Threading;
+using Dotvvm.Samples.Tests;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("ControlSamples/ComboBox/ComboBox");
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBox);
 
                 browser.First("select").First("option").CheckIfIsDisplayed().Wait();
                 browser.First("span").CheckIfInnerTextEquals("1");
