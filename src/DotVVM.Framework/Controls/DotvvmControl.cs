@@ -16,8 +16,6 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Represents a base class for all DotVVM controls.
     /// </summary>
-    [ContainsDotvvmProperties]
-    [ControlMarkupOptions(AllowContent = true)]
     public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
     {
         

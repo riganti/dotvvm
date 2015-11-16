@@ -19,7 +19,7 @@
 	
 	<p ID="test2">{{value: ChangedValue}}</p>
 
-	<dot:SpaContentPlaceHolder ID="MainContent" DefaultRouteName="PageA" />
+	<dot:SpaContentPlaceHolder ID="MainContent" DefaultRouteName="Sample48" />
 
 	<span ID="testResult">{{value: TestResult}}</span>
 

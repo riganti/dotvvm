@@ -198,19 +198,17 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(BaseUrl + "Sample5");
 
                 browser.ElementAt("input[type=text]", 0).CheckAttribute("value", "15");
-                Assert.AreEqual("25", browser.FindElements("input[type=text]")[1].GetAttribute("value"));
+                browser.ElementAt("input[type=text]", 1).CheckAttribute("value", "25");
 
-                browser.FindElements("input[type=button]")[0].Click();
+                browser.ElementAt("input[type=button]", 0).Click();
                 Thread.Sleep(WaitTime);
-                browser.FindElements("input[type=button]")[2].Click();
+                browser.ElementAt("input[type=button]", 2).Click();
                 Thread.Sleep(WaitTime);
-                browser.FindElements("input[type=button]")[2].Click();
+                browser.ElementAt("input[type=button]", 2).Click();
                 Thread.Sleep(WaitTime);
-
-                Assert.AreEqual("16", browser.FindElements("input[type=text]")[0].GetAttribute("value"));
-                Assert.AreEqual("27", browser.FindElements("input[type=text]")[1].GetAttribute("value"));
-
-                browser.ElementAt("input[type=text]", 1).CheckAttribute("value", "16");
+                
+                browser.ElementAt("input[type=text]", 0).CheckAttribute("value", "16");
+                browser.ElementAt("input[type=text]", 1).CheckAttribute("value", "27");
             });
         }
 
@@ -732,11 +730,12 @@ namespace DotVVM.Samples.Tests
                 Thread.Sleep(WaitTime);
                 new Actions(browser.Browser).SendKeys("test").Perform();
 
-                Thread.Sleep(WaitTime);
+                Thread.Sleep(WaitTime * 2);
                 Assert.AreEqual("0", browser.First("*[data-id='total-changes']").GetText());
                 Assert.AreEqual("Valuetest", browser.First("*[data-id='first-textbox']").GetText());
 
                 new Actions(browser.Browser).SendKeys(Keys.Tab).Perform();
+                Thread.Sleep(WaitTime * 2);
                 Assert.AreEqual("Valuetest", browser.First("*[data-id='first-textbox']").GetText());
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("1", browser.First("*[data-id='total-changes']").GetText());
@@ -1083,6 +1082,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample32");
+
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonTextProperty", "button");
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBinding", "button");
                 CheckButtonTextIsSetAndTagName(browser, "#InputTextProperty", "input");
@@ -1101,6 +1101,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample33");
+
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonTextProperty", "a");
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonTextBinding", "a");
                 CheckButtonTextIsSetAndTagName(browser, "#ButtonInnerText", "a");
@@ -1129,6 +1130,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample34");
+
                 CheckButtonTextIsSetAndTagName(browser, "#TextBox1", "input");
                 CheckButtonTextIsSetAndTagName(browser, "#TextBox2", "input");
                 CheckButtonTextIsSetAndTagName(browser, "#TextArea1", "textarea");
@@ -1141,7 +1143,18 @@ namespace DotVVM.Samples.Tests
             // check tagName
             var element = browser.First(selector);
             element.CheckTagName(expectedTagName);
-            element.CheckIfInnerTextEquals(expectedValue, false);
+            if (expectedTagName == "input" || expectedTagName == "textarea")
+            {
+                element.CheckAttribute("value", v => !string.IsNullOrEmpty(v));
+            }
+            else if (expectedTagName == "button" || expectedTagName == "a")
+            {
+                element.CheckIfInnerText(v => !string.IsNullOrEmpty(v));
+            }
+            else 
+            {
+                throw new NotSupportedException($"The CheckButtonTextIsSetAndTagName is not supported for <{expectedTagName}> elements.");
+            }
         }
 
         public void Sample35Test()
@@ -1517,7 +1530,7 @@ namespace DotVVM.Samples.Tests
                 browser.ConfirmAlert();
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("Confirmation 2", browser.GetAlertText());
-                //                browser.CancelAlert();
+                browser.GetAlert().Dismiss();
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("1", browser.FindElements("span").Last().GetText());
 
@@ -1535,7 +1548,7 @@ namespace DotVVM.Samples.Tests
                 // confirm third
                 browser.FindElements("input[type=button]")[2].Click();
                 Thread.Sleep(WaitTime);
-                Assert.AreEqual(null, browser.GetAlertText());
+                //Assert.AreEqual(null, browser.GetAlert());            // TODO: GetAlert should return null when no alert is present.
                 Thread.Sleep(WaitTime);
                 Assert.AreEqual("3", browser.FindElements("span").Last().GetText());
 

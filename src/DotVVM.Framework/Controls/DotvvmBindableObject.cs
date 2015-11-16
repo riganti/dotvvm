@@ -8,6 +8,7 @@ using DotVVM.Framework.Exceptions;
 namespace DotVVM.Framework.Controls
 {
     [ContainsDotvvmProperties]
+    [ControlMarkupOptions(AllowContent = true)]
     public abstract class DotvvmBindableObject
     {
 
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.Controls
 
 
         protected internal Dictionary<DotvvmProperty, object> properties;
-
+        
         /// <summary>
         /// Gets the collection of control property values.
         /// </summary>
