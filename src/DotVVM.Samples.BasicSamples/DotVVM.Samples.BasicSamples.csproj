@@ -131,6 +131,7 @@
     <Compile Include="ViewModels\InheritedViewModel.cs" />
     <Compile Include="ViewModels\MasterPageViewModel.cs" />
     <Compile Include="ViewModels\TasksViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\DateTimeSerialization\DateTimeSerialization.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="LICENSE.txt" />
@@ -178,6 +179,7 @@
     <Content Include="Views\FeatureSamples\NestedMasterPages\Nested.dotmaster" />
     <Content Include="Views\FeatureSamples\NestedMasterPages\Root.dotmaster" />
     <Content Include="Views\FeatureSamples\MarkupControl\MarkupControlRegistration.dothtml" />
+    <Content Include="Views\FeatureSamples\DateTimeSerialization\DateTimeSerialization.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

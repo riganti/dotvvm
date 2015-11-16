@@ -73,6 +73,7 @@
     <Compile Include="Control\CheckBoxTests.cs" />
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
+    <Compile Include="Feature\DateTimeSerializationTests.cs" />
     <Compile Include="Feature\MasterPageTests.cs" />
     <Compile Include="Feature\RegexValidationTests.cs" />
     <Compile Include="Feature\NestedValidationTests.cs" />
