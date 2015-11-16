@@ -41,6 +41,7 @@ namespace Dotvvm.Samples.Tests
         public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
         public const string Feature_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
         public const string FeatureSamples_RenderSettingsModeServerProperty = "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
+        public const string FeatureSamples_StaticCommand = "FeatureSamples/StaticCommand/StaticCommand";
         public const string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention = "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
         public const string FeatureSamples_Formatting_Formatting = "FeatureSamples/Formatting/Formatting";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
