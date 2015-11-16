@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/Formatting/Formatting");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Formatting_Formatting);
 
                 var items1 = browser.FindElements(".list1 li");
                 var items2 = browser.FindElements(".list2 li");

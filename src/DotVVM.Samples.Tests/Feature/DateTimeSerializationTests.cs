@@ -21,7 +21,7 @@ namespace DotVVM.Samples.Tests.Feature
 
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/DateTimeSerialization/DateTimeSerialization");
+                browser.NavigateToUrl(SamplesRouteUrls.Feature_DateTimeSerialization_DateTimeSerialization);
 
                 // verify the first date
                 browser.ElementAt("input[type=text]", 0).Clear().SendKeys("18.2.1988");

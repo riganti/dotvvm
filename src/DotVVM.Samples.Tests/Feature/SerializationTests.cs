@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("FeatureSamples/Serialization/Serialization");
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_Serialization);
 
                 // fill the values
                 browser.ElementAt("input[type=text]", 0).SendKeys("1");
