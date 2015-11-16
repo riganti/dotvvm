@@ -105,6 +105,7 @@
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+    <Compile Include="ViewModels\ComplexSamples\CascadeSelectors\CascadeSelectorsViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
@@ -190,6 +191,7 @@
     <Content Include="Views\ControlSamples\Button\ButtonTagName.dothtml" />
     <Content Include="Views\ControlSamples\LinkButton\LinkButton.dothtml" />
     <Content Include="Views\ControlSamples\EnabledProperty\EnabledProperty.dothtml" />
+    <Content Include="Views\ComplexSamples\CascadeSelectors\CascadeSelectors.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
