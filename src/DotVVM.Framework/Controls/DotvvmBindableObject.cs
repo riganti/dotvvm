@@ -7,6 +7,7 @@ using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
+    [ContainsDotvvmProperties]
     public abstract class DotvvmBindableObject
     {
 
