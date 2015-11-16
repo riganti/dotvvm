@@ -110,6 +110,7 @@
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ComboBox\ComboBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
@@ -188,6 +189,7 @@
     <Content Include="Views\ComplexSamples\TaskList\ServerRenderedTaskList.dothtml" />
     <Content Include="Views\ControlSamples\Button\ButtonTagName.dothtml" />
     <Content Include="Views\ControlSamples\LinkButton\LinkButton.dothtml" />
+    <Content Include="Views\ControlSamples\EnabledProperty\EnabledProperty.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
