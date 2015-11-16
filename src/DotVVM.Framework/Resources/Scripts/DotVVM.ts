@@ -25,6 +25,8 @@ class DotVVM {
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
 
+    public isSpaReady: KnockoutObservable<boolean> = ko.observable(false);
+
     public extensions: IDotvvmExtensions = {};
     public viewModels: { [name: string]: DotvvmViewModel } = {};
     private viewModelObservables: { [name: string]: KnockoutObservable<DotvvmViewModel> } = {};
@@ -75,6 +77,8 @@ class DotVVM {
             var url = spaPlaceHolder.getAttribute("data-dot-spacontentplaceholder-defaultroute");
             if (url) {
                 document.location.hash = "#!/" + url;
+            } else {
+                this.isSpaReady(true);
             }
         }
     }
@@ -417,6 +421,7 @@ class DotVVM {
                     this.viewModelObservables[viewModelName](this.viewModels[viewModelName].viewModel);
                     this.restoreUpdatedControls(resultObject, updatedControls, true);
 
+                    this.isSpaReady(true);
                     this.isViewModelUpdating = false;
                 } else if (resultObject.action === "redirect") {
                     this.handleRedirect(resultObject, viewModelName);

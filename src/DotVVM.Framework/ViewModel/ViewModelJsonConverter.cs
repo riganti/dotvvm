@@ -22,8 +22,9 @@ namespace DotVVM.Framework.ViewModel
         private static readonly ViewModelSerializationMapper viewModelSerializationMapper = new ViewModelSerializationMapper();
         private static readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
 
-        public ViewModelJsonConverter(JObject encryptedValues = null)
+        public ViewModelJsonConverter(bool isPostback, JObject encryptedValues = null)
         {
+            IsPostback = isPostback;
             EncryptedValues = encryptedValues ?? new JObject();
             evReader = EncryptedValuesReader.FromObject(EncryptedValues);
             evWriter = new EncryptedValuesWriter(EncryptedValues.CreateWriter());
@@ -35,6 +36,7 @@ namespace DotVVM.Framework.ViewModel
 
 
         public HashSet<ViewModelSerializationMap> UsedSerializationMaps { get; set; }
+        public bool IsPostback { get; private set; }
 
         /// <summary>
         /// Gets the serialization map for specified type.
@@ -81,7 +83,8 @@ namespace DotVVM.Framework.ViewModel
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.WriterFactory(writer, value, serializer, evWriter, UsedSerializationMaps, serializationMap);
+            UsedSerializationMaps.Add(serializationMap);
+            serializationMap.WriterFactory(writer, value, serializer, evWriter, IsPostback);
         }
 
         /// <summary>

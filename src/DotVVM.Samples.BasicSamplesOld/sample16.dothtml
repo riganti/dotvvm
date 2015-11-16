@@ -46,7 +46,7 @@
         <p>&nbsp;</p>
 
         <h1>GridView with null DataSource</h1>
-        <dot:GridView DataSource="{value: Null}" class="table table-bordered" RenderSettings.Mode="Server">
+        <dot:GridView DataSource="{value: Null}" class="table table-bordered">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />

@@ -1,8 +1,7 @@
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
@@ -12,6 +11,7 @@ var DotVVM = (function () {
         this.postBackCounter = 0;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
+        this.isSpaReady = ko.observable(false);
         this.extensions = {};
         this.viewModels = {};
         this.viewModelObservables = {};
@@ -58,6 +58,9 @@ var DotVVM = (function () {
             var url = spaPlaceHolder.getAttribute("data-dot-spacontentplaceholder-defaultroute");
             if (url) {
                 document.location.hash = "#!/" + url;
+            }
+            else {
+                this.isSpaReady(true);
             }
         }
     };
@@ -366,6 +369,7 @@ var DotVVM = (function () {
                     // add updated controls
                     _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);
                     _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                    _this.isSpaReady(true);
                     _this.isViewModelUpdating = false;
                 }
                 else if (resultObject.action === "redirect") {

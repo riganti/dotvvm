@@ -36,6 +36,13 @@ namespace DotVVM.Framework.ViewModel
             propertyIndex = propertyIndices.Pop();
         }
 
+        public void ClearEmptyNest()
+        {
+            if (virtualNests <= 0) throw new Exception("");
+            virtualNests--;
+            propertyIndex = propertyIndices.Pop() - 1;
+        }
+
         private void WritePropertyName(int index)
         {
             writer.WritePropertyName(index.ToString());
@@ -45,7 +52,7 @@ namespace DotVVM.Framework.ViewModel
         {
             if(virtualNests > 0)
             {
-                foreach (var p in propertyIndices.Skip(propertyIndices.Count - virtualNests))
+                foreach (var p in propertyIndices.Take(virtualNests).Reverse())
                 {
                     WritePropertyName(p - 1); // the property was not writter, -1 to write it
                     writer.WriteStartObject();
@@ -53,6 +60,8 @@ namespace DotVVM.Framework.ViewModel
                 virtualNests = 0;
             }
         }
+
+        public bool IsVirtualNest() => virtualNests > 0;
 
         public void Value(object value)
         {

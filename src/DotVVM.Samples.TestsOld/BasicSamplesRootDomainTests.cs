@@ -140,5 +140,8 @@ namespace DotVVM.Samples.Tests
 
         [TestMethod]
         public void Sample52Test_FullDomain() { Sample52Test(); }
+
+        [TestMethod]
+        public void Sample53Test_FullDomain() { Sample53Test(); }
     }
 }
