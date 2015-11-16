@@ -72,6 +72,7 @@
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
     <Compile Include="Control\ButtonTagNameTests.cs" />
     <Compile Include="Control\ComboBoxTests.cs" />
+    <Compile Include="Control\EnabledPropertyTests.cs" />
     <Compile Include="Control\LinkButtonTests.cs" />
     <Compile Include="Control\TextBoxTests.cs" />
     <Compile Include="Control\IntBoundTextBoxTests.cs" />
