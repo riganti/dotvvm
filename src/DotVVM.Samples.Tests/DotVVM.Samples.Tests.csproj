@@ -68,9 +68,12 @@
     <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
     <Compile Include="Complex\ServerRenderedTaskList.cs" />
+    <Compile Include="Control\ButtonTagNameTests.cs" />
     <Compile Include="Control\ComboBoxTests.cs" />
+    <Compile Include="Control\EnabledPropertyTests.cs" />
+    <Compile Include="Control\LinkButtonTests.cs" />
     <Compile Include="Control\TextBoxTests.cs" />
-    <Compile Include="Control\IntBoundTextBox.cs" />
+    <Compile Include="Control\IntBoundTextBoxTests.cs" />
     <Compile Include="Control\CheckBoxTests.cs" />
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />

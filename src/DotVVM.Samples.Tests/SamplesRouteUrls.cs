@@ -15,10 +15,13 @@ namespace Dotvvm.Samples.Tests{
             public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";
 			public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
 			public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
-			public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
+	        public const string ControlSamples_Button_ButtonTagName = "ControlSamples/Button/ButtonTagName";
+            public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
 			public const string ControlSamples_ComboBox_ComboBox = "ControlSamples/ComboBox/ComboBox";
-			public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
-			public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
+            public const string ControlSamples_EnabledProperty_EnabledProperty = "ControlSamples/EnabledProperty/EnabledProperty";
+            public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
+	        public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
+            public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
 			public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
 			public const string ControlSamples_TextBox_TextBox = "ControlSamples/TextBox/TextBox";
 			public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
