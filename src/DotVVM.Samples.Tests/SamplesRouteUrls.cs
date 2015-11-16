@@ -9,7 +9,8 @@ namespace Dotvvm.Samples.Tests{
 			public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
 			public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
 			public const string ComplexSamples_TaskList_TaskList = "ComplexSamples/TaskList/TaskList";
-			public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";
+            public const string ComplexSamples_TaskList_ServerRenderedTaskList = "ComplexSamples/TaskList/ServerRenderedTaskList";
+        public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";
 			public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
 			public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
 			public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";

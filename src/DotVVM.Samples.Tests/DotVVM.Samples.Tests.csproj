@@ -67,6 +67,7 @@
   <ItemGroup>
     <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
+    <Compile Include="Complex\ServerRenderedTaskList.cs" />
     <Compile Include="Control\ComboBoxTests.cs" />
     <Compile Include="Control\TextBoxTests.cs" />
     <Compile Include="Control\IntBoundTextBox.cs" />
@@ -74,6 +75,8 @@
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
+    <Compile Include="Feature\SerializationTests.cs" />
+    <Compile Include="Feature\FormattingTests.cs" />
     <Compile Include="Feature\MasterPageTests.cs" />
     <Compile Include="Feature\RegexValidationTests.cs" />
     <Compile Include="Feature\NestedValidationTests.cs" />

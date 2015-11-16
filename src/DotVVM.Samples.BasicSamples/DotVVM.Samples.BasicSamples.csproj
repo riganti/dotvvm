@@ -114,8 +114,10 @@
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Serialization\Serialization.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NestedValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidation.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\SimpleValidationViewModel.cs" />
@@ -180,6 +182,9 @@
     <Content Include="Views\FeatureSamples\NestedMasterPages\Root.dotmaster" />
     <Content Include="Views\FeatureSamples\MarkupControl\MarkupControlRegistration.dothtml" />
     <Content Include="Views\FeatureSamples\DateTimeSerialization\DateTimeSerialization.dothtml" />
+    <Content Include="Views\FeatureSamples\Formatting\Formatting.dothtml" />
+    <Content Include="Views\FeatureSamples\Serialization\Serialization.dothtml" />
+    <Content Include="Views\ComplexSamples\TaskList\ServerRenderedTaskList.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

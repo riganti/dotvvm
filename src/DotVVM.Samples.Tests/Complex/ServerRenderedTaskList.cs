@@ -11,14 +11,14 @@ using Dotvvm.Samples.Tests;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class TaskListTests : SeleniumTestBase
+    public class ServerRenderedTaskListTests : SeleniumTestBase
     {
         [TestMethod]
-        public void Complex_TaskList()
+        public void Complex_ServerRenderedTaskList()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_TaskList);
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
 
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
 
