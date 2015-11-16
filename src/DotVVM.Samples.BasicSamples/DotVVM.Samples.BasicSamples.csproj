@@ -108,6 +108,7 @@
     <Compile Include="ViewModels\ComplexSamples\CascadeSelectors\CascadeSelectorsViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ComboBox\ComboBoxViewModel.cs" />
@@ -196,6 +197,9 @@
     <Content Include="Views\ComplexSamples\CascadeSelectors\CascadeSelectors.dothtml" />
     <Content Include="Views\FeatureSamples\RenderSettingsModeServer\RenderSettingModeServerProperty.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand.dothtml" />
+    <Content Include="Views\ComplexSamples\SPAViewModelReapplication\master.dotmaster" />
+    <Content Include="Views\ComplexSamples\SPAViewModelReapplication\pageA.dothtml" />
+    <Content Include="Views\ComplexSamples\SPAViewModelReapplication\pageB.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

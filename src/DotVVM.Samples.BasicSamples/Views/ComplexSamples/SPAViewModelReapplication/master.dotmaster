@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample48ViewModel, DotVVM.Samples.BasicSamples
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPAViewModelReapplication.SPAViewModelReapplicationViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 
@@ -19,13 +19,13 @@
 	
 	<p ID="test2">{{value: ChangedValue}}</p>
 
-	<dot:SpaContentPlaceHolder ID="MainContent" DefaultRouteName="PageA" />
+	<dot:SpaContentPlaceHolder ID="MainContent" DefaultRouteName="ComplexSamples_SPAViewModelReapplication_pageA" />
 
 	<span ID="testResult">{{value: TestResult}}</span>
 
 	<ul>
-		<li><dot:RouteLink RouteName="Sample48" Text="Page A" /></li>
-		<li><dot:RouteLink RouteName="Sample48_2" Text="Page B" /></li>
+		<li><dot:RouteLink RouteName="ComplexSamples_SPAViewModelReapplication_pageA" Text="Page A" /></li>
+		<li><dot:RouteLink RouteName="ComplexSamples_SPAViewModelReapplication_pageB" Text="Page B" /></li>
 	</ul>
 
 </body>

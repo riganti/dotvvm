@@ -69,6 +69,7 @@
     <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
     <Compile Include="Complex\ServerRenderedTaskList.cs" />
+    <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
     <Compile Include="Control\ButtonTagNameTests.cs" />
     <Compile Include="Control\ComboBoxTests.cs" />
     <Compile Include="Control\LinkButtonTests.cs" />
