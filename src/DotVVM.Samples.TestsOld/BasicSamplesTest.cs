@@ -1599,7 +1599,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(BaseUrl + "Sample53");
-                var d = browser.WebDriver;
+                var d = browser.Browser;
 
                 var textBoxes = d.FindElements(By.TagName("input"));
                 textBoxes[0].SendKeys("ABC");
