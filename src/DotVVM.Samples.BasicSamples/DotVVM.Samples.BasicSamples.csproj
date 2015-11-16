@@ -120,6 +120,7 @@
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\RenderSettingsModeServer\RenderSettingsModeServerPropertyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Serialization\Serialization.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NestedValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidation.cs" />
@@ -192,6 +193,7 @@
     <Content Include="Views\ControlSamples\LinkButton\LinkButton.dothtml" />
     <Content Include="Views\ControlSamples\EnabledProperty\EnabledProperty.dothtml" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\CascadeSelectors.dothtml" />
+    <Content Include="Views\FeatureSamples\RenderSettingsModeServer\RenderSettingModeServerProperty.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
