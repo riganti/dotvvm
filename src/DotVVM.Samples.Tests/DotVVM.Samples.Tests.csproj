@@ -70,6 +70,7 @@
     <Compile Include="Complex\ChangedEventTests.cs" />
     <Compile Include="Complex\ServerRenderedTaskList.cs" />
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
+    <Compile Include="Control\RecursiveValidationSummaryTests.cs" />
     <Compile Include="Control\ButtonTagNameTests.cs" />
     <Compile Include="Control\RepeaterWrapperTagTests.cs" />
     <Compile Include="Control\ComboBoxTests.cs" />
