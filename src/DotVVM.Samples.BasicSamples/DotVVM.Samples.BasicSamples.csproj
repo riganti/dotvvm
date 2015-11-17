@@ -128,7 +128,8 @@
     <Compile Include="ViewModels\FeatureSamples\Serialization\Serialization.cs" />
     <Compile Include="ViewModels\FeatureSamples\StaticCommand\StaticCommandViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NestedValidationViewModel.cs" />
-    <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidation.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\DynamicValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\SimpleValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelProtection\ViewModelProtectionViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ServerComments\ServerCommentsViewModel.cs" />
@@ -206,6 +207,7 @@
     <Content Include="Views\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTag.dothtml" />
     <Content Include="Views\ControlSamples\ValidationSummary\RecursiveValidationSummary.dothtml" />
     <Content Include="Views\ControlSamples\Repeater\NestedRepeater.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\DynamicValidation.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

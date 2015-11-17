@@ -56,6 +56,7 @@ namespace Dotvvm.Samples.Tests
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
         public const string FeatureSamples_Validation_NestedValidation = "FeatureSamples/Validation/NestedValidation";
         public const string FeatureSamples_Validation_RegexValidation = "FeatureSamples/Validation/RegexValidation";
+        public const string FeatureSamples_Validation_DynamicValidation = "FeatureSamples/Validation/DynamicValidation";
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
         public const string FeatureSamples_Validation_SimpleValidation = "FeatureSamples/Validation/SimpleValidation";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";

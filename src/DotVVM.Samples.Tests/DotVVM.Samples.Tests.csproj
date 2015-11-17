@@ -83,6 +83,7 @@
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
+    <Compile Include="Feature\DynamicValidationTests.cs" />
     <Compile Include="Feature\RenderSettingsModeServerPropertyTest.cs" />
     <Compile Include="Feature\SerializationTests.cs" />
     <Compile Include="Feature\FormattingTests.cs" />
