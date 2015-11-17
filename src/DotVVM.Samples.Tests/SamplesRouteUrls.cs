@@ -25,6 +25,7 @@ namespace Dotvvm.Samples.Tests
         public const string ControlSamples_EnabledProperty_EnabledProperty = "ControlSamples/EnabledProperty/EnabledProperty";
         public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
+        public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
         public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
         public const string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag = "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";

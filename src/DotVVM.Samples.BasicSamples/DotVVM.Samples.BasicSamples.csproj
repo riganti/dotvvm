@@ -115,6 +115,7 @@
     <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
@@ -204,6 +205,7 @@
     <Content Include="Views\ComplexSamples\SPAViewModelReapplication\pageB.dothtml" />
     <Content Include="Views\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTag.dothtml" />
     <Content Include="Views\ControlSamples\ValidationSummary\RecursiveValidationSummary.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\NestedRepeater.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
