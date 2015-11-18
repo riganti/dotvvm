@@ -124,6 +124,7 @@
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\RenderSettingsModeServer\RenderSettingsModeServerPropertyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Serialization\Serialization.cs" />
@@ -145,6 +146,16 @@
     <Compile Include="ViewModels\MasterPageViewModel.cs" />
     <Compile Include="ViewModels\TasksViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DateTimeSerialization\DateTimeSerialization.cs" />
+    <Compile Include="Localization_Resources.cs-CZ.Designer.cs">
+      <DependentUpon>Localization_Resources.cs-CZ.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Localization_Resources.Designer.cs">
+      <DependentUpon>Localization_Resources.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="LICENSE.txt" />
@@ -211,6 +222,7 @@
     <Content Include="Views\FeatureSamples\Validation\DynamicValidation.dothtml" />
     <Content Include="Views\ControlSamples\DataPager\DataPager.dothtml" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\CascadeSelectorsServerRender.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -222,7 +234,16 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <EmbeddedResource Include="Localization_Resources.cs-CZ.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localization_Resources.cs-CZ.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Localization_Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localization_Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
