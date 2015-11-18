@@ -18,7 +18,7 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
-        [Timeout(60000)]
+        [Timeout(120000)]
         public void Control_FileUpload()
         {
             RunInAllBrowsers(browser =>

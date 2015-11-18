@@ -728,9 +728,12 @@ namespace DotVVM.Samples.Tests
                 var textBox1 = browser.FindElements("input[type=text]")[0];
                 new Actions(browser.Browser).Click(textBox1.WebElement).Perform();
                 Thread.Sleep(WaitTime);
-                new Actions(browser.Browser).SendKeys("test").Perform();
+                new Actions(browser.Browser).SendKeys("t").Perform();
+                new Actions(browser.Browser).SendKeys("e").Perform();
+                new Actions(browser.Browser).SendKeys("s").Perform();
+                new Actions(browser.Browser).SendKeys("t").Perform();
 
-                Thread.Sleep(WaitTime * 2);
+                Thread.Sleep(WaitTime * 3);
                 Assert.AreEqual("0", browser.First("*[data-id='total-changes']").GetText());
                 Assert.AreEqual("Valuetest", browser.First("*[data-id='first-textbox']").GetText());
 
