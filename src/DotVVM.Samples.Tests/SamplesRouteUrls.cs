@@ -20,6 +20,7 @@ namespace Dotvvm.Samples.Tests
         public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
         public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
         public const string ControlSamples_Button_ButtonTagName = "ControlSamples/Button/ButtonTagName";
+        public const string ControlSamples_DataPager = "ControlSamples/DataPager/DataPager";
         public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
         public const string ControlSamples_ComboBox_ComboBox = "ControlSamples/ComboBox/ComboBox";
         public const string ControlSamples_EnabledProperty_EnabledProperty = "ControlSamples/EnabledProperty/EnabledProperty";
