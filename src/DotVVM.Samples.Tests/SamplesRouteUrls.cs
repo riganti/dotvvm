@@ -14,6 +14,7 @@ namespace Dotvvm.Samples.Tests
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
         public const string ComplexSamples_TaskList_TaskList = "ComplexSamples/TaskList/TaskList";
         public const string ComplexSamples_CascadeSelectors = "ComplexSamples/CascadeSelectors/CascadeSelectors";
+        public const string ComplexSamples_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_SPAViewModelReapplication = "ComplexSamples/SPAViewModelReapplication/pageA";
         public const string ComplexSamples_TaskList_ServerRenderedTaskList = "ComplexSamples/TaskList/ServerRenderedTaskList";
         public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";

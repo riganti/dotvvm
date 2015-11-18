@@ -13,11 +13,11 @@ namespace DotVVM.Samples.Tests.Complex
     public class CascadeSelectorsTests : SeleniumTestBase
     {
         [TestMethod]
-        public void Complex_CascadeSelectors()
+        public void Complex_CascadeSelectors(string url = SamplesRouteUrls.ComplexSamples_CascadeSelectors)
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_CascadeSelectors);
+                browser.NavigateToUrl(url);
 
                 // select city
                 browser.First("select").Select(1);
@@ -45,6 +45,12 @@ namespace DotVVM.Samples.Tests.Complex
 
                 browser.First("h2").CheckIfInnerTextEquals("Hotel Prague #1");
             });
+        }
+
+        [TestMethod]
+        public void Complex_CascadeSelectorsServerRender()
+        {
+            Complex_CascadeSelectors(SamplesRouteUrls.ComplexSamples_CascadeSelectorsServerRender);
         }
     }
 }
