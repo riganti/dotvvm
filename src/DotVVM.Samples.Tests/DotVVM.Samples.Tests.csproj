@@ -97,6 +97,7 @@
     <Compile Include="Feature\DoublePostBackPrevention.cs" />
     <Compile Include="Feature\SimpleValidationTests.cs" />
     <Compile Include="Feature\StaticCommandTests.cs" />
+    <Compile Include="Feature\ValidationRulesLoadOnPostbackTests.cs" />
     <Compile Include="Feature\ViewModelProtectionTests.cs" />
     <Compile Include="Complex\InvoiceCalculatorTests.cs" />
     <Compile Include="Complex\TaskListTests.cs" />

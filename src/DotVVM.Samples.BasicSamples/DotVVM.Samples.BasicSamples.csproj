@@ -134,6 +134,7 @@
     <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\DynamicValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\SimpleValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\ValidationRulesLoadOnPostbackViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelProtection\ViewModelProtectionViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ServerComments\ServerCommentsViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonViewModel.cs" />
@@ -225,6 +226,7 @@
     <Content Include="Views\ComplexSamples\CascadeSelectors\CascadeSelectorsServerRender.dothtml" />
     <Content Include="Views\FeatureSamples\Localization\Localization.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewPagingSorting.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\ValidationRulesLoadOnPostback.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
