@@ -17,6 +17,7 @@ namespace Dotvvm.Samples.Tests
         public const string ComplexSamples_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_SPAViewModelReapplication = "ComplexSamples/SPAViewModelReapplication/pageA";
         public const string ComplexSamples_TaskList_ServerRenderedTaskList = "ComplexSamples/TaskList/ServerRenderedTaskList";
+        public const string ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView = "ComplexSamples/DataTemplate/EmptyDataTemplateRepeaterGridView";
         public const string ControlSamples_Button_Button = "ControlSamples/Button/Button";
         public const string ControlSamples_Button_InputTypeButton_HtmlContentInside = "ControlSamples/Button/InputTypeButton_HtmlContentInside";
         public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";

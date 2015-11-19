@@ -74,13 +74,13 @@ namespace DotVVM.Samples.Tests.Control
                     browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
                 };
 
-                browser.Wait(5000);
+                browser.Wait();
                 performTest();
-                browser.Wait(2000);
+                browser.Wait();
                 browser.NavigateToUrl();
                 browser.Wait();
                 browser.NavigateBack();
-                browser.Wait(5000);
+                browser.Wait();
                 performTest();
             });
         }
