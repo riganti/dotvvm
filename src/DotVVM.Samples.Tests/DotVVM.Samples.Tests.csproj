@@ -71,6 +71,7 @@
     <Compile Include="Complex\ServerRenderedTaskList.cs" />
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
+    <Compile Include="Control\GridViewTests.cs" />
     <Compile Include="Control\NestedRepeaterTests.cs" />
     <Compile Include="Control\RecursiveValidationSummaryTests.cs" />
     <Compile Include="Control\ButtonTagNameTests.cs" />

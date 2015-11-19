@@ -115,6 +115,7 @@
     <Compile Include="ViewModels\ControlSamples\DataPager\DataPagerViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
@@ -223,6 +224,7 @@
     <Content Include="Views\ControlSamples\DataPager\DataPager.dothtml" />
     <Content Include="Views\ComplexSamples\CascadeSelectors\CascadeSelectorsServerRender.dothtml" />
     <Content Include="Views\FeatureSamples\Localization\Localization.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewPagingSorting.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
