@@ -227,6 +227,7 @@
     <Content Include="Views\FeatureSamples\Localization\Localization.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewPagingSorting.dothtml" />
     <Content Include="Views\FeatureSamples\Validation\ValidationRulesLoadOnPostback.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewServerRender.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
