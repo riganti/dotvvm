@@ -128,6 +128,7 @@
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
     <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackHandlersViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\RenderSettingsModeServer\RenderSettingsModeServerPropertyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Serialization\Serialization.cs" />
     <Compile Include="ViewModels\FeatureSamples\StaticCommand\StaticCommandViewModel.cs" />
@@ -140,7 +141,7 @@
     <Compile Include="ViewModels\FeatureSamples\ServerComments\ServerCommentsViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Redirect\RedirectViewModel.cs" />
-    <Compile Include="ViewModels\FeatureSamples\PostBackUpdate\PostBackUpdateViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\TaskList\TaskListViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\InvoiceCalculator\InvoiceCalculatorViewModel.cs" />
     <Compile Include="ViewModels\DefaultViewModel.cs" />
@@ -182,7 +183,7 @@
     <Content Include="Views\Errors\MasterPageRequiresDifferentViewModel.dothtml" />
     <Content Include="Views\Errors\MissingRequiredProperty2.dothtml" />
     <Content Include="Views\FeatureSamples\Redirect\Redirect.dothtml" />
-    <Content Include="Views\FeatureSamples\PostBackUpdate\PostbackUpdate.dothtml" />
+    <Content Include="Views\FeatureSamples\PostBack\PostbackUpdate.dothtml" />
     <Content Include="Views\ComplexSamples\TaskList\TaskList.dothtml" />
     <Content Include="Views\ComplexSamples\InvoiceCalculator\InvoiceCalculator.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\ViewModelProtection.dothtml" />
@@ -230,6 +231,7 @@
     <Content Include="Views\FeatureSamples\Validation\ValidationRulesLoadOnPostback.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewServerRender.dothtml" />
     <Content Include="Views\ComplexSamples\DataTemplate\EmptyDataTemplateRepeaterGridView.dothtml" />
+    <Content Include="Views\FeatureSamples\PostBack\PostBackHandlers.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -58,7 +58,7 @@ namespace Dotvvm.Samples.Tests
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
         public const string FeatureSamples_MarkupControl_MarkupControlRegistration = "FeatureSamples/MarkupControl/MarkupControlRegistration";
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
-        public const string FeatureSamples_PostBackUpdate_PostbackUpdate = "FeatureSamples/PostBackUpdate/PostbackUpdate";
+        public const string FeatureSamples_PostBack_PostbackUpdate = "FeatureSamples/PostBack/PostbackUpdate";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
         public const string FeatureSamples_Validation_NestedValidation = "FeatureSamples/Validation/NestedValidation";
@@ -66,6 +66,7 @@ namespace Dotvvm.Samples.Tests
         public const string FeatureSamples_Validation_DynamicValidation = "FeatureSamples/Validation/DynamicValidation";
         public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
         public const string FeatureSamples_Validation_SimpleValidation = "FeatureSamples/Validation/SimpleValidation";
+        public const string FeatureSamples_PostBack_PostBackHandlers = "FeatureSamples/PostBack/PostBackHandlers";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
     }
 }

@@ -103,7 +103,7 @@
     <Compile Include="Complex\InvoiceCalculatorTests.cs" />
     <Compile Include="Complex\TaskListTests.cs" />
     <Compile Include="Control\ButtonTests.cs" />
-    <Compile Include="Feature\PostBackUpdateTests.cs" />
+    <Compile Include="Feature\PostBackTests.cs" />
     <Compile Include="Feature\RedirectTests.cs" />
     <Compile Include="ErrorsTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
