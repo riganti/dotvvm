@@ -167,6 +167,7 @@
     <Compile Include="Parser\Dothtml\DothtmlTokenizerElementsTests.cs" />
     <Compile Include="Parser\Dothtml\DothtmlTokenizerHtmlSpecialElementsTests.cs" />
     <Compile Include="Parser\Dothtml\DothtmlTokenizerTestsBase.cs" />
+    <Compile Include="Parser\Dothtml\FindNodeTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\ControlLifeCycleMock.cs" />
     <Compile Include="Runtime\DefaultViewModelSerializerTests.cs" />

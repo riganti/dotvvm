@@ -11,6 +11,10 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         public string Name { get; set; }
 
         public string Value { get; set; }
-        
+
+        public override void AddHierarchyByPosition(IList<DothtmlNode> hierarchy, int position)
+        {
+            hierarchy.Add(this);
+        }
     }
 }

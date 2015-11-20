@@ -6,10 +6,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
     public class DothtmlRootNode : DothtmlNodeWithContent
     {
-        
         public List<DothtmlDirectiveNode> Directives { get; private set; }
-
-
 
         public DothtmlRootNode()
         {
@@ -20,6 +17,5 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         {
             return base.EnumerateNodes().Concat(Directives.SelectMany(d => d.EnumerateNodes()));
         }
-        
     }
 }
