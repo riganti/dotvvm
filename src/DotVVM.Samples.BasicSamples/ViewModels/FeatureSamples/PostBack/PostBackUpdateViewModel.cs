@@ -1,7 +1,7 @@
 using System.Linq;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBackUpdate
+namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
 {
     public class PostBackUpdateViewModel : DotvvmViewModelBase 
     {

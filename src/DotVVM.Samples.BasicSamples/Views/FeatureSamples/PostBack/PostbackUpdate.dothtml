@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBackUpdate.PostBackUpdateViewModel, DotVVM.Samples.BasicSamples
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.PostBackUpdateViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
