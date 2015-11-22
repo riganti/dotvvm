@@ -193,15 +193,13 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- XTD Transformation -->
   <UsingTask TaskName="TransformXml" AssemblyFile="$(VSToolsPath)\Web\Microsoft.Web.Publishing.Tasks.dll" />
-  <Target Name="AfterBuild">
-    <Message Importance="high" Text="exists('App.$(Configuration).config')">
-    </Message>
-  </Target>
   <Target Name="AfterCompile" Condition="exists('App.$(Configuration).config')">
     <Message Importance="high" Text="Transforming config">
     </Message>
     <!-- Generates the transformed App.config in the intermediate directory -->
     <TransformXml Source="App.config" Destination="$(IntermediateOutputPath)$(TargetFileName).config" Transform="App.$(Configuration).config" />
+    <Message Importance="high" Text="Config transformed to $(IntermediateOutputPath)$(TargetFileName).config" />
+
     <!-- Forces the build process to use the transformed configuration file -->
     <ItemGroup>
       <AppConfigWithTargetPath Remove="App.config" />
