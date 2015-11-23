@@ -126,6 +126,7 @@
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
+    <Compile Include="ViewModels\FeatureSamples\IdGeneration\IdGeneration.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
     <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
@@ -234,6 +235,8 @@
     <Content Include="Views\ComplexSamples\DataTemplate\EmptyDataTemplateRepeaterGridView.dothtml" />
     <Content Include="Views\FeatureSamples\PostBack\PostBackHandlers.dothtml" />
     <Content Include="Views\ControlSamples\Repeater\RouteLink.dothtml" />
+    <Content Include="Views\FeatureSamples\IdGeneration\IdGeneration.dothtml" />
+    <Content Include="Views\FeatureSamples\IdGeneration\IdGeneration_control.dotcontrol" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
