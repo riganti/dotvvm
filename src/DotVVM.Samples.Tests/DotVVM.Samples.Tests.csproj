@@ -102,6 +102,7 @@
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
     <Compile Include="Control\GridViewTests.cs" />
+    <Compile Include="Control\RouteLinkTests.cs" />
     <Compile Include="Control\NestedRepeaterTests.cs" />
     <Compile Include="Control\RecursiveValidationSummaryTests.cs" />
     <Compile Include="Control\ButtonTagNameTests.cs" />
@@ -199,7 +200,6 @@
     <!-- Generates the transformed App.config in the intermediate directory -->
     <TransformXml Source="App.config" Destination="$(IntermediateOutputPath)$(TargetFileName).config" Transform="App.$(Configuration).config" />
     <Message Importance="high" Text="Config transformed to $(IntermediateOutputPath)$(TargetFileName).config" />
-
     <!-- Forces the build process to use the transformed configuration file -->
     <ItemGroup>
       <AppConfigWithTargetPath Remove="App.config" />

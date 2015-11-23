@@ -119,6 +119,7 @@
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
+    <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
@@ -232,6 +233,7 @@
     <Content Include="Views\ControlSamples\GridView\GridViewServerRender.dothtml" />
     <Content Include="Views\ComplexSamples\DataTemplate\EmptyDataTemplateRepeaterGridView.dothtml" />
     <Content Include="Views\FeatureSamples\PostBack\PostBackHandlers.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\RouteLink.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
