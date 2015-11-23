@@ -54,14 +54,14 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter"/>.
         /// </summary>
-        public abstract void Render(IHtmlWriter writer, string friendlyName = null);
+        public abstract void Render(IHtmlWriter writer);
 
 
 
         /// <summary>
         /// Gets the URL.
         /// </summary>
-        protected string GetUrl(string friendlyName = null)
+        protected string GetUrl()
         {
             if (IsEmbeddedResource)
             {

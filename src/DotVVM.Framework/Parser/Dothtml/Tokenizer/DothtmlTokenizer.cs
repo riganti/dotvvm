@@ -35,13 +35,16 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
         /// </summary>
         protected override void TokenizeCore()
         {
-            // read directives
-            while (ReadDirective()) { }
+            var directivesAllowed = true;
 
             // read the body
             while (Peek() != NullChar)
             {
-                if (Peek() == '<')
+                if (Peek() == '@' && directivesAllowed)
+                {
+                    ReadDirective();
+                }
+                else if (Peek() == '<')
                 {
                     if (DistanceSinceLastToken > 0)
                     {
@@ -49,7 +52,11 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                     }
 
                     // HTML element
-                    ReadElement();
+                    var elementType = ReadElement();
+                    if (elementType != ReadElementType.Comment && elementType != ReadElementType.ServerComment)
+                    {
+                        directivesAllowed = false;
+                    }
                 }
                 else if (Peek() == '{')
                 {
@@ -65,9 +72,16 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                         // it really is a binding 
                         ReadBinding(true);
                     }
+
+                    directivesAllowed = false;
                 }
                 else
                 {
+                    if (!char.IsWhiteSpace(Peek()))
+                    {
+                        directivesAllowed = false;
+                    }
+
                     // text content
                     Read();
                 }
@@ -80,55 +94,45 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             }
         }
 
-
-
-
-        /// <summary>
-        /// Reads the directive.
-        /// </summary>
-        private bool ReadDirective()
+        private void ReadDirective()
         {
-            SkipWhitespace();
-
-            if (Peek() == '@')
+            if (DistanceSinceLastToken > 0)
             {
-                // the directive started
-                Read();
-                CreateToken(DothtmlTokenType.DirectiveStart);
+                CreateToken(DothtmlTokenType.WhiteSpace);
+            }
 
-                // identifier
-                if (!ReadIdentifier(DothtmlTokenType.DirectiveName, '\r', '\n'))
-                {
-                    CreateToken(DothtmlTokenType.DirectiveName, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveNameExpected));
-                }
-                SkipWhitespace(false);
-                
-                // whitespace
-                if (LastToken.Type != DothtmlTokenType.WhiteSpace)
-                {
-                    CreateToken(DothtmlTokenType.WhiteSpace, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveValueExpected));
-                }
+            // the directive started
+            Read();
+            CreateToken(DothtmlTokenType.DirectiveStart);
 
-                // directive value
-                if (Peek() == '\r' || Peek() == '\n' || Peek() == NullChar)
-                {
-                    CreateToken(DothtmlTokenType.DirectiveValue, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveValueExpected));
-                    SkipWhitespace();
-                }
-                else
-                {
-                    ReadTextUntilNewLine(DothtmlTokenType.DirectiveValue);
-                }
+            // identifier
+            if (!ReadIdentifier(DothtmlTokenType.DirectiveName, '\r', '\n'))
+            {
+                CreateToken(DothtmlTokenType.DirectiveName, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveNameExpected));
+            }
+            SkipWhitespace(false);
 
-                return true;
+            // whitespace
+            if (LastToken.Type != DothtmlTokenType.WhiteSpace)
+            {
+                CreateToken(DothtmlTokenType.WhiteSpace, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveValueExpected));
+            }
+
+            // directive value
+            if (Peek() == '\r' || Peek() == '\n' || Peek() == NullChar)
+            {
+                CreateToken(DothtmlTokenType.DirectiveValue, errorProvider: t => CreateTokenError(t, DothtmlTokenType.DirectiveStart, DothtmlTokenizerErrors.DirectiveValueExpected));
+                SkipWhitespace();
             }
             else
             {
-                return false;
+                ReadTextUntilNewLine(DothtmlTokenType.DirectiveValue);
             }
         }
 
         
+
+
 
 
         static readonly HashSet<char> EnabledIdentifierChars = new HashSet<char>()
@@ -154,22 +158,29 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             return true;
         }
 
-
         /// <summary>
         /// Reads the element.
         /// </summary>
-        private bool ReadElement()
+        private ReadElementType ReadElement(bool wasOpenBraceRead = false)
         {
             var isClosingTag = false;
 
-            // open tag brace
-            Assert(Peek() == '<');
-            Read();
-
-            if (Peek() == '!' || Peek() == '?')
+            if (!wasOpenBraceRead)
             {
-                ReadHtmlSpecial(true);
-                return true;
+                // open tag brace
+                Assert(Peek() == '<');
+                Read();
+            }
+
+            if (Peek() == '!' || Peek() == '?' || Peek() == '%')
+            {
+                return ReadHtmlSpecial(true);
+            }
+
+            if (!char.IsLetterOrDigit(Peek()) && Peek() != '/' && Peek() != ':')
+            {
+                CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, "'<' char is not allowed in normal text"));
+                return ReadElementType.Error;
             }
 
             CreateToken(DothtmlTokenType.OpenTag);
@@ -185,9 +196,9 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             // read tag name
             if (!ReadTagOrAttributeName(isAttributeName: false))
             {
-                CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError());
-                CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.TagNameExpected));
-                return false;
+                CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.TagNameExpected));
+                CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError());
+                return ReadElementType.Error;
             }
 
             // read tag attributes
@@ -196,10 +207,31 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 while (Peek() != '/' && Peek() != '>')
                 {
+                    if (Peek() == '<')
+                    {
+                        // comment inside element
+                        Read();
+                        if (Peek() == '!' || Peek() == '%')
+                        {
+                            var c = ReadOneOf("!--", "%--");
+                            if (c == null) CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, ""));
+                            else if (c == "!--") ReadComment();
+                            else if (c == "%--") ReadServerComment();
+                            else throw new Exception();
+                            SkipWhitespace();
+                        }
+                        else
+                        {
+                            CreateToken(DothtmlTokenType.CloseTag, charsFromEndToSkip: 1, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag));
+                            ReadElement(wasOpenBraceRead: true);
+                            return ReadElementType.Error;
+                        }
+                    }
+                    else
                     if (!ReadAttribute())
                     {
-                        CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag));        
-                        return false;
+                        CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag));
+                        return ReadElementType.Error;
                     }
                 }
             }
@@ -214,72 +246,124 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 // tag is not closed
                 CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.TagNotClosed));
-                return false;
+                return ReadElementType.Error;
             }
 
             Read();
             CreateToken(DothtmlTokenType.CloseTag);
-            return true;
+            return ReadElementType.ValidTag;
         }
 
-        public void ReadHtmlSpecial(bool openBraceConsumed = false)
+        public enum ReadElementType
         {
-            var s = ReadOneOf("![CDATA[", "!--", "!DOCTYPE", "?");
-            if (s == "![CDATA[") 
+            Error,
+            ValidTag,
+            CData,
+            Comment,
+            Doctype,
+            XmlProcessingInstruction,
+            ServerComment
+        }
+
+        public ReadElementType ReadHtmlSpecial(bool openBraceConsumed = false)
+        {
+            var s = ReadOneOf("![CDATA[", "!--", "!DOCTYPE", "?", "%--");
+            if (s == "![CDATA[")
             {
-                // CDATA section
-                CreateToken(DothtmlTokenType.OpenCData);
-                if (ReadTextUntil(DothtmlTokenType.CDataBody, "]]>", false))
-                {
-                    CreateToken(DothtmlTokenType.CloseCData);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.CDataBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseCData, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenCData, DothtmlTokenizerErrors.CDataNotClosed));
-                }
+                return ReadCData();
             }
-            else if (s == "!--") 
+            else if (s == "!--")
             {
-                // comment
-                CreateToken(DothtmlTokenType.OpenComment);
-                if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->", false))
-                {
-                    CreateToken(DothtmlTokenType.CloseComment);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
-                }
+                return ReadComment();
+            }
+            else if(s == "%--")
+            {
+                return ReadServerComment();
             }
             else if (s == "!DOCTYPE")
             {
-                // DOCTYPE
-                CreateToken(DothtmlTokenType.OpenDoctype);
-                if (ReadTextUntil(DothtmlTokenType.DoctypeBody, ">", true))
-                {
-                    CreateToken(DothtmlTokenType.CloseDoctype);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.DoctypeBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseDoctype, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenDoctype, DothtmlTokenizerErrors.DoctypeNotClosed));                    
-                }
+                return ReadDoctype();
             }
             else if (s == "?")
             {
-                // XML processing instruction
-                CreateToken(DothtmlTokenType.OpenXmlProcessingInstruction);
-                if (ReadTextUntil(DothtmlTokenType.XmlProcessingInstructionBody, "?>", true))
-                {
-                    CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction);
-                }
-                else
-                {
-                    CreateToken(DothtmlTokenType.XmlProcessingInstructionBody, errorProvider: t => CreateTokenError());
-                    CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenXmlProcessingInstruction, DothtmlTokenizerErrors.XmlProcessingInstructionNotClosed));         
-                }
+                return ReadXmlPI();
+            }
+            return ReadElementType.Error;
+        }
+       
+        ReadElementType ReadCData()
+        {
+            CreateToken(DothtmlTokenType.OpenCData);
+            if (ReadTextUntil(DothtmlTokenType.CDataBody, "]]>", false))
+            {
+                CreateToken(DothtmlTokenType.CloseCData);
+                return ReadElementType.CData;
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.CDataBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseCData, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenCData, DothtmlTokenizerErrors.CDataNotClosed));
+                return ReadElementType.Error;
+            }
+        }
+        ReadElementType ReadComment()
+        {
+            CreateToken(DothtmlTokenType.OpenComment);
+            if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->", false))
+            {
+                CreateToken(DothtmlTokenType.CloseComment);
+                return ReadElementType.Comment;
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
+                return ReadElementType.Error;
+            }
+        }
+        ReadElementType ReadServerComment()
+        {
+            CreateToken(DothtmlTokenType.OpenServerComment);
+            if (ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false))
+            {
+                CreateToken(DothtmlTokenType.CloseComment);
+                return ReadElementType.ServerComment;
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
+                return ReadElementType.Error;
+            }
+        }
+        ReadElementType ReadDoctype()
+        {
+            CreateToken(DothtmlTokenType.OpenDoctype);
+            if (ReadTextUntil(DothtmlTokenType.DoctypeBody, ">", true))
+            {
+                CreateToken(DothtmlTokenType.CloseDoctype);
+                return ReadElementType.Doctype;
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.DoctypeBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseDoctype, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenDoctype, DothtmlTokenizerErrors.DoctypeNotClosed));
+                return ReadElementType.Error;
+            }
+        }
+        ReadElementType ReadXmlPI()
+        {
+            CreateToken(DothtmlTokenType.OpenXmlProcessingInstruction);
+            if (ReadTextUntil(DothtmlTokenType.XmlProcessingInstructionBody, "?>", true))
+            {
+                CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction);
+                return ReadElementType.XmlProcessingInstruction;
+            }
+            else
+            {
+                CreateToken(DothtmlTokenType.XmlProcessingInstructionBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CloseXmlProcessingInstruction, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenXmlProcessingInstruction, DothtmlTokenizerErrors.XmlProcessingInstructionNotClosed));
+                return ReadElementType.Error;
             }
         }
 
@@ -356,10 +440,16 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                 else
                 {
                     // unquoted value
-                    if (!ReadIdentifier(DothtmlTokenType.Text, '/', '>'))
+                    if (Peek() == '>' || Peek() == '<')
                     {
-                        CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.Text, DothtmlTokenizerErrors.MissingAttributeValue));        
+                        CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.Text, DothtmlTokenizerErrors.MissingAttributeValue));
+                        return false;
                     }
+                    do
+                    {
+                        if (Read() == NullChar || Peek() == '<') { CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError()); return false; }
+                    } while (!char.IsWhiteSpace(Peek()) && Peek() != '/' && Peek() != '>');
+                    CreateToken(DothtmlTokenType.Text);
                     SkipWhitespace();
                 }
             }
@@ -500,7 +590,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                 return true;
             }
             Read();
-            
+
             if (doubleCloseBrace)
             {
                 if (Peek() != '}')

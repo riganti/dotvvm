@@ -80,6 +80,20 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("Child().ConditionalRequired", results[0].PropertyPath);
         }
 
+        [TestMethod]
+        public void ViewModelValidator_CollectionOfIValidatableObjects()
+        {
+            var testViewModel = new TestViewModel6()
+            {
+                Children = new List<TestViewModel5Child>() {new TestViewModel5Child() {IsChecked = true}}
+            };
+            var validator = new ViewModelValidator();
+            var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
+
+            Assert.AreEqual(1, results.Count);
+            Assert.AreEqual("Children()[0].ConditionalRequired", results[0].PropertyPath);
+        }
+
 
         public class TestViewModel
         {
@@ -162,6 +176,13 @@ namespace DotVVM.Framework.Tests.ViewModel
                     yield return new ValidationResult("Value is required when the field is checked!", new[] { nameof(ConditionalRequired) });
                 }
             }
+        }
+
+        public class TestViewModel6
+        {
+
+            public List<TestViewModel5Child> Children { get; set; }
+
         }
     }
 

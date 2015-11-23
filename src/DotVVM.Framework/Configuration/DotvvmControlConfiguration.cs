@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         public bool IsMatch(string tagPrefix, string tagName)
         {
-            return tagPrefix == TagPrefix && (string.IsNullOrEmpty(TagName) || tagName == TagName);
+            return tagPrefix.Equals(TagPrefix, StringComparison.OrdinalIgnoreCase) && (string.IsNullOrEmpty(TagName) || tagName.Equals(TagName, StringComparison.OrdinalIgnoreCase));
         }
 
         /// <summary>

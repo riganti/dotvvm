@@ -15,15 +15,6 @@ namespace DotVVM.Framework.Controls
         public ITemplate HeaderTemplate { get; set; }
 
 
-        [MarkupOptions(AllowHardCodedValue = false)]
-        public object ValueBinding
-        {
-            get { return GetValue(ValueBindingProperty); }
-            set { SetValue(ValueBindingProperty, value); }
-        }
-        public static readonly DotvvmProperty ValueBindingProperty =
-            DotvvmProperty.Register<object, GridViewColumn>(c => c.ValueBinding);
-
 
         [MarkupOptions(AllowBinding = false)]
         public string SortExpression
@@ -60,12 +51,7 @@ namespace DotVVM.Framework.Controls
 
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);
-
-
-        private Exception ValueBindingNotSet()
-        {
-            return new DotvvmControlException(this, $"The ValueBinding property is not set on the '{GetType()}' control!");
-        }
+        
 
 
         public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell)
@@ -98,25 +84,10 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private string GetSortExpression()
+        protected virtual string GetSortExpression()
         {
             // TODO: verify that sortExpression is a single property name
-            if (string.IsNullOrEmpty(SortExpression))
-            {
-                var valueBinding = GetValueBinding(ValueBindingProperty) as ValueBindingExpression;
-                if (valueBinding != null)
-                {
-                    return valueBinding.OriginalString;
-                }
-                else
-                {
-                    throw ValueBindingNotSet();
-                }
-            }
-            else
-            {
-                return SortExpression;
-            }
+            return SortExpression;
         }
     }
 

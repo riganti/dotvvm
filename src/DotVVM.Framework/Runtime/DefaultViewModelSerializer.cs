@@ -54,9 +54,7 @@ namespace DotVVM.Framework.Runtime
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
-                bool changed;
-                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], out changed, true);
-                if (!changed) context.ViewModelJson.Remove("viewModelDiff");
+                context.ViewModelJson["viewModelDiff"] = JsonUtils.Diff((JObject)context.ReceivedViewModelJson["viewModel"], (JObject)context.ViewModelJson["viewModel"], true);
                 context.ViewModelJson.Remove("viewModel");
             }
             return context.ViewModelJson.ToString(JsonFormatting);
@@ -69,9 +67,8 @@ namespace DotVVM.Framework.Runtime
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter()
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack)
             {
-                EncryptedValues = new JArray(),
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
@@ -123,7 +120,7 @@ namespace DotVVM.Framework.Runtime
         {
             var manager = context.ResourceManager;
             var resourceObj = new JObject();
-            foreach(var resource in manager.GetNamedResourcesInOrder())
+            foreach (var resource in manager.GetNamedResourcesInOrder())
             {
                 if (predicate(resource.Name))
                 {
@@ -187,7 +184,6 @@ namespace DotVVM.Framework.Runtime
         /// <returns></returns>
         public void PopulateViewModel(DotvvmRequestContext context, string serializedPostData)
         {
-            var viewModelConverter = new ViewModelJsonConverter();
 
             // get properties
             var data = context.ReceivedViewModelJson = JObject.Parse(serializedPostData);
@@ -196,13 +192,14 @@ namespace DotVVM.Framework.Runtime
             // load CSRF token
             context.CsrfToken = viewModelToken["$csrfToken"].Value<string>();
 
+            ViewModelJsonConverter viewModelConverter;
             if (viewModelToken["$encryptedValues"] != null)
             {
                 // load encrypted values
                 var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-                viewModelConverter.EncryptedValues = JArray.Parse(viewModelProtector.Unprotect(encryptedValuesString, context));
+                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
-            else viewModelConverter.EncryptedValues = new JArray();
+            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack);
 
             // get validation path
             context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();

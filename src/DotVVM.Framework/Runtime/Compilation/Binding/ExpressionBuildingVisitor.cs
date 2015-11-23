@@ -93,11 +93,6 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             return Expression.Constant(node.Value);
         }
 
-        protected override Expression VisitSpecialProperty(SpecialPropertyBindingParserNode node)
-        {
-            return base.VisitSpecialProperty(node);
-        }
-
         protected override Expression VisitParenthesizedExpression(ParenthesizedExpressionBindingParserNode node)
         {
             // just visit content
@@ -182,6 +177,9 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                     break;
                 case BindingTokenType.OrElseOperator:
                     eop = ExpressionType.OrElse;
+                    break;
+                case BindingTokenType.AssignOperator:
+                    eop = ExpressionType.Assign;
                     break;
                 default:
                     throw new NotSupportedException($"unary operator { node.Operator } is not supported");

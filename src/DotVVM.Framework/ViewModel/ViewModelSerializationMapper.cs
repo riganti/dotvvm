@@ -39,7 +39,8 @@ namespace DotVVM.Framework.ViewModel
                     Name = property.Name,
                     ViewModelProtection = ViewModelProtectionSettings.None,
                     Type = property.PropertyType,
-                    TransferToClient = property.GetMethod != null,
+                    TransferAfterPostback = property.GetMethod != null,
+                    TransferFirstRequest = property.GetMethod != null,
                     TransferToServer = property.SetMethod != null,
                     JsonConverter = GetJsonConverter(property),
                     Populate = ViewModelJsonConverter.IsComplexType(property.PropertyType) && !ViewModelJsonConverter.IsEnumerable(property.PropertyType)
@@ -48,7 +49,8 @@ namespace DotVVM.Framework.ViewModel
                 var bindAttribute = property.GetCustomAttribute<BindAttribute>();
                 if (bindAttribute != null)
                 {
-                    propertyMap.TransferToClient = bindAttribute.Direction.HasFlag(Direction.ServerToClient);
+                    propertyMap.TransferAfterPostback = bindAttribute.Direction.HasFlag(Direction.ServerToClientPostback);
+                    propertyMap.TransferFirstRequest = bindAttribute.Direction.HasFlag(Direction.ServerToClientFirstRequest);
                     propertyMap.TransferToServer = bindAttribute.Direction.HasFlag(Direction.ClientToServerNotInPostbackPath) || bindAttribute.Direction.HasFlag(Direction.ClientToServerInPostbackPath);
                     propertyMap.TransferToServerOnlyInPath = !bindAttribute.Direction.HasFlag(Direction.ClientToServerNotInPostbackPath) && propertyMap.TransferToServer;
                 }

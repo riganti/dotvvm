@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using System.Linq.Expressions;
 using System.Collections;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 {
@@ -20,6 +21,8 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public static readonly Dictionary<MethodInfo, IJsMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJsMethodTranslator>();
         public static readonly HashSet<Type> Interfaces = new HashSet<Type>();
+
+        public bool WriteUnknownParameters { get; set; } = true;
 
         static JavascriptTranslator()
         {
@@ -115,11 +118,38 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                     return TranslateConditional((ConditionalExpression)expression);
                 case ExpressionType.Index:
                     return TranslateIndex((IndexExpression)expression);
+                case ExpressionType.Assign:
+                    return TranslateAssing((BinaryExpression)expression);
             }
             if (expression is BinaryExpression) return TranslateBinary((BinaryExpression)expression);
             else if (expression is UnaryExpression) return TranslateUnary((UnaryExpression)expression);
 
             throw new NotSupportedException($"expression type { expression.NodeType } can not be transaled to Javascript");
+        }
+
+        public string TranslateAssing(BinaryExpression expression)
+        {
+            var property = expression.Left as MemberExpression;
+            if(property != null)
+            {
+                var target = Translate(property.Expression);
+                var value = Translate(expression.Right);
+                return TryTranslateMethodCall(target, new[] { value }, ( property.Member as PropertyInfo)?.SetMethod) ??
+                    SetProperty(target, property.Member  as PropertyInfo, value);
+            }
+            throw new NotSupportedException($"can not assign expression of type {expression.Left.NodeType}");
+        }
+
+        private string SetProperty(string target, PropertyInfo property, string value)
+        {
+            if(ViewModelJsonConverter.IsPrimitiveType(property.PropertyType))
+            {
+                return target + "." + property.Name + "(" + value + ")";
+            }
+            else
+            {
+                return $"dotvvm.serialization.deserialize({ value }, { target }.{ property.Name })";
+            }
         }
 
         /// <summary>
@@ -178,7 +208,8 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 string context = string.Concat(Enumerable.Repeat("$parentContext.", c));
                 return context + "$control";
             }
-            throw new NotSupportedException();
+            if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return expression.Name;
+            else throw new NotSupportedException();
         }
 
         public string TranslateConstant(ConstantExpression expression)
@@ -288,7 +319,6 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 case ExpressionType.ExclusiveOrAssign: op = "^="; break;
                 case ExpressionType.Coalesce: op = "||"; break;
                 case ExpressionType.ArrayIndex: op = "{0}[{1}]"; break;
-
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }

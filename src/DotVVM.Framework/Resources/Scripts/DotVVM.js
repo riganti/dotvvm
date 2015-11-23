@@ -1,8 +1,7 @@
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
-    __.prototype = b.prototype;
-    d.prototype = new __();
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
 };
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
@@ -12,9 +11,12 @@ var DotVVM = (function () {
         this.postBackCounter = 0;
         this.resourceSigns = {};
         this.isViewModelUpdating = true;
+        this.isSpaReady = ko.observable(false);
         this.extensions = {};
         this.viewModels = {};
+        this.viewModelObservables = {};
         this.serialization = new DotvvmSerialization();
+        this.postBackHandlers = new DotvvmPostBackHandlers();
         this.events = {
             init: new DotvvmEvent("dotvvm.events.init", true),
             beforePostback: new DotvvmEvent("dotvvm.events.beforePostback"),
@@ -32,7 +34,8 @@ var DotVVM = (function () {
             thisVm.renderedResources.forEach(function (r) { return _this.resourceSigns[r] = true; });
         }
         var viewModel = thisVm.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
-        ko.applyBindings(viewModel, document.documentElement);
+        this.viewModelObservables[viewModelName] = ko.observable(viewModel);
+        ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
         this.isViewModelUpdating = false;
         // handle SPA
@@ -57,7 +60,7 @@ var DotVVM = (function () {
                 document.location.hash = "#!/" + url;
             }
             else {
-                this.navigateCore(viewModelName, "/");
+                this.isSpaReady(true);
             }
         }
     };
@@ -68,15 +71,8 @@ var DotVVM = (function () {
     // binding helpers
     DotVVM.prototype.postbackScript = function (bindingId) {
         var _this = this;
-        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
-            _this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget);
-        };
-    };
-    DotVVM.prototype.staticCommandPostbackScript = function (methodName, args, callback) {
-        var _this = this;
-        if (callback === void 0) { callback = function (result) { }; }
-        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) {
-            _this.staticCommandPostback(pageArea, methodName, args.map(function (a) { return a == null ? null : _this.evaluateOnContext(ko.contextFor(sender), a); }), callback);
+        return function (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget, context, handlers) {
+            _this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget, context, handlers);
         };
     };
     DotVVM.prototype.persistViewModel = function (viewModelName) {
@@ -105,19 +101,21 @@ var DotVVM = (function () {
     DotVVM.prototype.isPostBackStillActive = function (currentPostBackCounter) {
         return this.postBackCounter === currentPostBackCounter;
     };
-    DotVVM.prototype.staticCommandPostback = function (viewModeName, command, args, callback, errorCallback) {
-        // TODO: events for static command postback
+    DotVVM.prototype.staticCommandPostback = function (viewModelName, sender, command, args, callback, errorCallback) {
         var _this = this;
         if (callback === void 0) { callback = function (_) { }; }
         if (errorCallback === void 0) { errorCallback = function (xhr) { }; }
+        if (this.isPostBackProhibited(sender))
+            return;
+        // TODO: events for static command postback
         // prevent double postbacks
         var currentPostBackCounter = this.backUpPostBackConter();
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
-            "$csrfToken": this.viewModels[viewModeName].viewModel.$csrfToken
+            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
         });
-        this.postJSON(this.viewModels[viewModeName].url, "POST", ko.toJSON(data), function (response) {
+        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (response) {
             if (!_this.isPostBackStillActive(currentPostBackCounter))
                 return;
             callback(JSON.parse(response.responseText));
@@ -125,10 +123,19 @@ var DotVVM = (function () {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
     };
-    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context) {
+    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers) {
         var _this = this;
+        if (this.isPostBackProhibited(sender))
+            return;
         if (useWindowSetTimeout) {
-            window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath); }, 0);
+            window.setTimeout(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers); }, 0);
+            return;
+        }
+        if (handlers && handlers.length > 0) {
+            var handler = this.postBackHandlers[handlers[0].name];
+            var options = this.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
+            var handlerInstance = handler(options);
+            handlerInstance.execute(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)); });
             return;
         }
         var viewModel = this.viewModels[viewModelName].viewModel;
@@ -182,6 +189,8 @@ var DotVVM = (function () {
                         _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
                     }
                     isSuccess = true;
+                    // remove updated controls which were previously hidden
+                    _this.cleanUpdatedControls(resultObject, updatedControls);
                     // add updated controls
                     _this.restoreUpdatedControls(resultObject, updatedControls, true);
                     _this.isViewModelUpdating = false;
@@ -343,7 +352,6 @@ var DotVVM = (function () {
                     // remove updated controls
                     var updatedControls = _this.cleanUpdatedControls(resultObject);
                     // update the viewmodel
-                    ko.cleanNode(document.documentElement);
                     _this.viewModels[viewModelName] = {};
                     for (var p in resultObject) {
                         if (resultObject.hasOwnProperty(p)) {
@@ -353,8 +361,9 @@ var DotVVM = (function () {
                     _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
                     isSuccess = true;
                     // add updated controls
-                    _this.restoreUpdatedControls(resultObject, updatedControls, false);
-                    ko.applyBindings(_this.viewModels[viewModelName].viewModel, document.documentElement);
+                    _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);
+                    _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                    _this.isSpaReady(true);
                     _this.isViewModelUpdating = false;
                 }
                 else if (resultObject.action === "redirect") {
@@ -478,7 +487,9 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.getDataSourceItems = function (viewModel) {
         var value = ko.unwrap(viewModel);
-        return value.Items || value;
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
     };
     DotVVM.prototype.updateDynamicPathFragments = function (context, path) {
         for (var i = path.length - 1; i >= 0; i--) {
@@ -509,7 +520,6 @@ var DotVVM = (function () {
     DotVVM.prototype.getJSON = function (url, method, spaPlaceHolderUniqueId, success, error) {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
-        xhr.open("GET", url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("X-DotVVM-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
         xhr.onreadystatechange = function () {
@@ -527,15 +537,17 @@ var DotVVM = (function () {
     DotVVM.prototype.getXHR = function () {
         return XMLHttpRequest ? new XMLHttpRequest() : new ActiveXObject("Microsoft.XMLHTTP");
     };
-    DotVVM.prototype.cleanUpdatedControls = function (resultObject) {
-        var updatedControls = {};
+    DotVVM.prototype.cleanUpdatedControls = function (resultObject, updatedControls) {
+        if (updatedControls === void 0) { updatedControls = {}; }
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var control = document.getElementById(id);
-                var nextSibling = control.nextSibling;
-                var parent = control.parentNode;
-                ko.removeNode(control);
-                updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                if (control) {
+                    var nextSibling = control.nextSibling;
+                    var parent = control.parentNode;
+                    ko.removeNode(control);
+                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                }
             }
         }
         return updatedControls;
@@ -544,20 +556,24 @@ var DotVVM = (function () {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var updatedControl = updatedControls[id];
-                if (updatedControl.nextSibling) {
-                    updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                if (updatedControl) {
+                    if (updatedControl.nextSibling) {
+                        updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                    }
+                    else {
+                        updatedControl.parent.appendChild(updatedControl.control);
+                    }
+                    updatedControl.control.outerHTML = resultObject.updatedControls[id];
                 }
-                else {
-                    updatedControl.parent.appendChild(updatedControl.control);
-                }
-                updatedControl.control.outerHTML = resultObject.updatedControls[id];
             }
         }
         if (applyBindingsOnEachControl) {
             window.setTimeout(function () {
                 for (var id in resultObject.updatedControls) {
                     var updatedControl = document.getElementById(id);
-                    ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                    if (updatedControl) {
+                        ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                    }
                 }
             }, 0);
         }
@@ -573,12 +589,18 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
         return routePath.replace(/\{[^\}]+\??\}/g, function (s) {
-            var paramName = s.substring(1, s.length - 1);
+            var paramName = s.substring(1, s.length - 1).toLowerCase();
             if (paramName && paramName.length > 0 && paramName.substring(paramName.length - 1) === "?") {
                 paramName = paramName.substring(0, paramName.length - 1);
             }
             return ko.unwrap(params[paramName]) || "";
         });
+    };
+    DotVVM.prototype.isPostBackProhibited = function (element) {
+        if (element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+            return true;
+        }
+        return false;
     };
     return DotVVM;
 })();
@@ -738,7 +760,7 @@ var DotvvmSerialization = (function () {
                     continue;
                 }
                 // deserialize value
-                var deserialized = this.deserialize(value, result[prop], deserializeAll);
+                var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
                 // handle date
                 if (options && options.isDate && deserialized) {
                     deserialized = new Date(deserialized);
@@ -794,11 +816,20 @@ var DotvvmSerialization = (function () {
             return null;
         }
         if (viewModel instanceof Array) {
-            var array = [];
-            for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.serialize(viewModel[i], opt));
+            if (opt.pathOnly) {
+                var index = parseInt(opt.path.pop());
+                var array = new Array(index + 1);
+                array[index] = this.serialize(viewModel[index], opt);
+                opt.path.push(index.toString());
+                return array;
             }
-            return array;
+            else {
+                var array = [];
+                for (var i = 0; i < viewModel.length; i++) {
+                    array.push(this.serialize(viewModel[i], opt));
+                }
+                return array;
+            }
         }
         if (viewModel instanceof Date) {
             return this.serializeDate(viewModel);
@@ -807,11 +838,11 @@ var DotvvmSerialization = (function () {
         var result = {};
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop)) {
-                if (opt.pathOnly && prop != pathProp) {
+                if (opt.pathOnly && prop !== pathProp) {
                     continue;
                 }
                 var value = viewModel[prop];
-                if (opt.ignoreSpecialProperties && prop[0] == "$")
+                if (opt.ignoreSpecialProperties && prop[0] === "$")
                     continue;
                 if (!opt.serializeAll && /\$options$/.test(prop)) {
                     continue;
@@ -905,6 +936,32 @@ var DotvvmSerialization = (function () {
     };
     return DotvvmSerialization;
 })();
+var DotvvmPostBackHandler = (function () {
+    function DotvvmPostBackHandler() {
+    }
+    DotvvmPostBackHandler.prototype.execute = function (callback) {
+    };
+    return DotvvmPostBackHandler;
+})();
+var ConfirmPostBackHandler = (function (_super) {
+    __extends(ConfirmPostBackHandler, _super);
+    function ConfirmPostBackHandler(message) {
+        _super.call(this);
+        this.message = message;
+    }
+    ConfirmPostBackHandler.prototype.execute = function (callback) {
+        if (confirm(this.message)) {
+            callback();
+        }
+    };
+    return ConfirmPostBackHandler;
+})(DotvvmPostBackHandler);
+var DotvvmPostBackHandlers = (function () {
+    function DotvvmPostBackHandlers() {
+        this.confirm = function (options) { return new ConfirmPostBackHandler(options.message); };
+    }
+    return DotvvmPostBackHandlers;
+})();
 var dotvvm = new DotVVM();
 // add knockout binding handler for update progress control
 ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
@@ -940,6 +997,19 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
             var innerBindingContext = bindingContext.extend({ $control: value });
             ko.applyBindingsToDescendants(innerBindingContext, element);
             return { controlsDescendantBindings: true }; // do not apply binding again
+        }
+    };
+    ko.bindingHandlers['dotvvmEnable'] = {
+        'update': function (element, valueAccessor) {
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            if (value && element.disabled) {
+                element.disabled = false;
+                element.removeAttribute("disabled");
+            }
+            else if ((!value) && (!element.disabled)) {
+                element.disabled = true;
+                element.setAttribute("disabled", "disabled");
+            }
         }
     };
 })();

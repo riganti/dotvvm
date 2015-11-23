@@ -17,9 +17,9 @@ namespace DotVVM.Framework.Security
 
         public string Protect(string serializedData, IDotvvmRequestContext context)
         {
-            if (serializedData == null) throw new ArgumentNullException("serializedData");
-            if (string.IsNullOrWhiteSpace(serializedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "serializedData");
-            if (context == null) throw new ArgumentNullException("context");
+            if (serializedData == null) throw new ArgumentNullException(nameof(serializedData));
+            if (string.IsNullOrWhiteSpace(serializedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(serializedData));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             // Get application key helper
             var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);
@@ -32,9 +32,9 @@ namespace DotVVM.Framework.Security
 
         public string Unprotect(string protectedData, IDotvvmRequestContext context)
         {
-            if (protectedData == null) throw new ArgumentNullException("protectedData");
-            if (string.IsNullOrWhiteSpace(protectedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "protectedData");
-            if (context == null) throw new ArgumentNullException("context");
+            if (protectedData == null) throw new ArgumentNullException(nameof(protectedData));
+            if (string.IsNullOrWhiteSpace(protectedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(protectedData));
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             // Get application key helper
             var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);

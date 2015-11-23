@@ -1,0 +1,25 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample52ViewModel, DotVVM.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>DataPager HideWhenOnlyOnePage</h1>
+		
+		<dot:Repeater DataSource="{value: Data}" WrapperTagName="ul">
+			<ItemTemplate>
+				<li>{{value: Text}}</li>
+			</ItemTemplate>
+		</dot:Repeater>
+
+		<dot:DataPager DataSet="{value: Data}" HideWhenOnlyOnePage="false" ID="pager1" class="pagination" />
+		<dot:DataPager DataSet="{value: Data}" HideWhenOnlyOnePage="true" ID="pager2" class="pagination" />
+
+		<dot:Button Text="Populate with data" Click="{command: Populate()}" />
+	</div>
+	
+	<dot:RequiredResource Name="bootstrap" />
+</body>
+</html>

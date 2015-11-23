@@ -6,6 +6,7 @@ using System.Diagnostics;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Exceptions;
 using System.Net;
+using System;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
@@ -14,7 +15,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     /// </summary>
     public class DothtmlParser : ParserBase<DothtmlToken, DothtmlTokenType>
     {
-        public static readonly HashSet<string> AutomaticClosingTags = new HashSet<string>
+        public static readonly HashSet<string> AutomaticClosingTags = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
         {
             "html", "head", "body", "p", "dt", "dd", "li", "option", "thead", "th", "tbody", "tr", "td", "tfoot", "colgroup"
         };
@@ -43,20 +44,18 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             var root = new DothtmlRootNode();
             root.Tokens.AddRange(Tokens);
             ElementHierarchy.Push(root);
-            SkipWhitespace();
-
-            // read directives
-            while (Peek() != null && Peek().Type == DothtmlTokenType.DirectiveStart)
-            {
-                root.Directives.Add(ReadDirective());
-            }
-
-            SkipWhitespace();
 
             // read content
+            var doNotAppend = false;
             while (Peek() != null)
             {
-                if (Peek().Type == DothtmlTokenType.OpenTag)
+                if (Peek().Type == DothtmlTokenType.DirectiveStart)
+                {
+                    // directive
+                    root.Directives.Add(ReadDirective());
+                    doNotAppend = true;
+                }
+                else if (Peek().Type == DothtmlTokenType.OpenTag)
                 {
                     // element - check element hierarchy
                     var element = ReadElement();
@@ -78,16 +77,16 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                             // close tag
                             if (ElementHierarchy.Count <= 1)
                             {
-                                element.NodeErrors.Add(string.Format(DothtmlParserErrors.ClosingTagHasNoMatchingOpenTag, element.FullTagName));
+                                element.NodeErrors.Add($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
                                 CurrentElementContent.Add(element);
                             }
                             else
                             {
                                 var beginTag = (DothtmlElementNode)ElementHierarchy.Peek();
                                 var beginTagName = beginTag.FullTagName;
-                                if (beginTagName != element.FullTagName)
+                                if (!beginTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    element.NodeErrors.Add(string.Format(DothtmlParserErrors.ClosingTagHasNoMatchingOpenTag, beginTagName));
+                                    element.NodeErrors.Add($"The closing tag '</{beginTagName}>' doesn't have a matching opening tag!");
                                     ResolveWrongClosingTag(element);
                                     beginTag = ElementHierarchy.Peek() as DothtmlElementNode;
 
@@ -128,16 +127,22 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 {
                     CurrentElementContent.Add(ReadComment());
                 }
+                else if (Peek().Type == DothtmlTokenType.OpenServerComment)
+                {
+                    // skip server-side comment
+                    SkipComment();
+                }
                 else
                 {
                     // text
-                    if (CurrentElementContent.Count > 0 
+                    if (!doNotAppend 
+                        && CurrentElementContent.Count > 0 
                         && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof(DothtmlLiteralNode)
                         && !((DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1]).IsComment)
                     {
                         // append to the previous literal
                         var lastLiteral = (DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
-                        if (lastLiteral.Escape != false)
+                        if (lastLiteral.Escape)
                             CurrentElementContent.Add(new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
                         else
                         {
@@ -150,13 +155,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                         CurrentElementContent.Add(new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition });
                     }
                     Read();
+
+                    doNotAppend = false;
                 }
             }
 
             // check element hierarchy
             if (ElementHierarchy.Count > 1)
             {
-                root.NodeErrors.Add(string.Format(DothtmlParserErrors.UnexpectedEndOfInputTagNotClosed, ElementHierarchy.Peek()));
+                root.NodeErrors.Add($"Unexpected end of file! The tag '<{ElementHierarchy.Peek()}>' was not closed!");
             }
 
             // set lengths to all nodes
@@ -176,7 +183,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Debug.Assert(startElement != null);
             Debug.Assert(startElement.FullTagName != element.FullTagName);
 
-            while (startElement != null && startElement.FullTagName != element.FullTagName)
+            while (startElement != null && !startElement.FullTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
             {
                 ElementHierarchy.Pop();
                 if (HtmlWriter.SelfClosingTags.Contains(startElement.FullTagName))
@@ -225,7 +232,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         private DothtmlLiteralNode ReadComment()
         {
-            Assert(DothtmlTokenType.OpenComment);
             var node = new DothtmlLiteralNode()
             {
                 IsComment = true,
@@ -244,6 +250,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             return node;
         }
 
+        void SkipComment()
+        {
+            Read();
+            Assert(DothtmlTokenType.CommentBody);
+            Read();
+            Assert(DothtmlTokenType.CloseComment);
+            Read();
+        }
+
         /// <summary>
         /// Reads the element.
         /// </summary>
@@ -254,14 +269,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             Assert(DothtmlTokenType.OpenTag);
             Read();
-            SkipWhitespace();
 
             if (Peek().Type == DothtmlTokenType.Slash)
             {
                 Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
                 node.IsClosingTag = true;
             }
+
+            
 
             // element name
             Assert(DothtmlTokenType.Text);
@@ -277,34 +293,37 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 node.TagNameToken = Read();
                 node.TagName = node.TagNameToken.Text;
             }
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             // attributes
             if (!node.IsClosingTag)
             {
+                SkipWhiteSpaceOrComment();
                 while (Peek().Type == DothtmlTokenType.Text)
                 {
                     var attribute = ReadAttribute();
                     attribute.ParentElement = node;
                     node.Attributes.Add(attribute);
-                    SkipWhitespace();
+                    SkipWhiteSpaceOrComment();
                 }
 
                 if (Peek().Type == DothtmlTokenType.Slash)
                 {
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     node.IsSelfClosingTag = true;
                 }
             }
 
             Assert(DothtmlTokenType.CloseTag);
             Read();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
         }
+
+
 
         /// <summary>
         /// Reads the attribute.
@@ -328,12 +347,12 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 attribute.AttributeNameToken = Read();
                 attribute.AttributeName = attribute.AttributeNameToken.Text;
             }
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             if (Peek().Type == DothtmlTokenType.Equals)
             {
                 Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
 
                 // attribute value
                 if (Peek().Type == DothtmlTokenType.SingleQuote || Peek().Type == DothtmlTokenType.DoubleQuote)
@@ -361,7 +380,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                     attribute.Literal = new DothtmlLiteralNode() { Value = Peek().Text, Tokens = { Peek() }, StartPosition = Peek().StartPosition };
                     Read();
                 }
-                SkipWhitespace();
+                SkipWhiteSpace();
             }
 
             attribute.Tokens.AddRange(GetTokensFrom(startIndex));
@@ -378,21 +397,21 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             Assert(DothtmlTokenType.OpenBinding);
             Read();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             // binding type
             Assert(DothtmlTokenType.Text);
             binding.Name = Read().Text;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             Assert(DothtmlTokenType.Colon);
             Read();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             // expression
             Assert(DothtmlTokenType.Text);
             binding.Value = Read().Text;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             Assert(DothtmlTokenType.CloseBinding);
             Read();
@@ -412,21 +431,40 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             Assert(DothtmlTokenType.DirectiveStart);
             Read();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             Assert(DothtmlTokenType.DirectiveName);
             var directiveNameToken = Read();
             node.Name = directiveNameToken.Text.Trim();
 
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             Assert(DothtmlTokenType.DirectiveValue);
             var directiveValueToken = Read();
             node.Value = directiveValueToken.Text.Trim();
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
+        }
+
+        void SkipWhiteSpaceOrComment()
+        {
+            while(true)
+            {
+                switch (Peek().Type)
+                {
+                    case DothtmlTokenType.WhiteSpace:
+                        Read();
+                        break;
+                    case DothtmlTokenType.OpenComment:
+                    case DothtmlTokenType.OpenServerComment:
+                        SkipComment();
+                        break;
+                    default:
+                        return;
+                }
+            }
         }
 
         protected override DothtmlTokenType WhiteSpaceToken => DothtmlTokenType.WhiteSpace;

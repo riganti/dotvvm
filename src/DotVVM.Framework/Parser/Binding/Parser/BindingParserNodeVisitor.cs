@@ -43,10 +43,6 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             {
                 return VisitParenthesizedExpression((ParenthesizedExpressionBindingParserNode) node);
             }
-            else if (node is SpecialPropertyBindingParserNode)
-            {
-                return VisitSpecialProperty((SpecialPropertyBindingParserNode) node);
-            }
             else if (node is UnaryOperatorBindingParserNode)
             {
                 return VisitUnaryOperator((UnaryOperatorBindingParserNode) node);
@@ -93,11 +89,6 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         }
 
         protected virtual T VisitParenthesizedExpression(ParenthesizedExpressionBindingParserNode node)
-        {
-            return DefaultVisit(node);
-        }
-
-        protected virtual T VisitSpecialProperty(SpecialPropertyBindingParserNode node)
         {
             return DefaultVisit(node);
         }

@@ -23,6 +23,22 @@
 			</ItemTemplate>
 		</dot:Repeater>
 
+
+
+		<h3>Client rendered - lowercase</h3>
+		<dot:Repeater DataSource="{value: Pages}" RenderSettings.Mode="Client">
+			<ItemTemplate>
+				<dot:RouteLink routeName="sample22-pagedetail" Param-id="{value: Id}" text="{value: Name}" />
+			</ItemTemplate>
+		</dot:Repeater>
+
+		<h3>Server rendered - lowercase</h3>
+		<DOT:rEPEATER dATAsOURCE="{VALUE: Pages}" rENDERsETTINGS.mODE="sERVER">
+			<iTEMtEMPLATE>
+				<DOT:routeLink routeName="sample22-pagedetail" Param-id="{value: Id}" text="{value: Name}" />
+			</ItemTemplate>
+		</dot:Repeater>
+
 	</div>
 	
 	<dot:RequiredResource Name="bootstrap" />

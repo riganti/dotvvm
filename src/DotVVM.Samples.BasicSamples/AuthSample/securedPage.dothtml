@@ -4,25 +4,34 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Secured page</title>
-	<dot:RequiredResource Name="bootstrap" />
+    <dot:RequiredResource Name="bootstrap" />
 </head>
 <body>
-	<div class="container">
-		<h1>Page only for signed users</h1>
-		
-		<h3>Last message</h3>
-		<p>
-			{{value: LastMessage}}
-		</p>
+    <div class="container">
+        <h1>Page only for signed users</h1>
 
-		<fieldset>
-			<legend>Replace the message</legend>
-			<p>You have to be admin to replace message</p>
-			<p>Message: <dot:TextBox Text="{value: MessageEditor}" /></p>
-			<p><dot:Button Text="Replace" Click="{command: ReplaceMessage()}" /></p>
-		</fieldset>
+        <h3>Last message</h3>
+        <p>
+            {{value: LastMessage}}
+        </p>
 
-		<a href="~/AuthSample/Login">Login page - change your credentials</a>
-	</div>
+        <fieldset>
+            <legend>Replace the message</legend>
+            <dot:IfAuthorized Roles="admin">
+                <Template>
+					<p>You are logged as admin, so this should work well.</p>
+                </Template>
+                <ElseTemplate>
+                    <p>You have to be admin to replace message and you are not. The postback will fail</p>
+                </ElseTemplate>
+            </dot:IfAuthorized>
+            <p>Message: <dot:TextBox Text="{value: MessageEditor}" /></p>
+            <p>
+                <dot:Button Text="Replace" Click="{command: ReplaceMessage()}" />
+            </p>
+        </fieldset>
+
+        <a href="~/AuthSample/Login">Login page - change your credentials</a>
+    </div>
 </body>
 </html>

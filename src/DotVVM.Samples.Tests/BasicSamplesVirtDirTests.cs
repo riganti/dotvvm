@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Samples.Tests
@@ -106,5 +107,40 @@ namespace DotVVM.Samples.Tests
         [TestMethod]
         public void Sample36Test_VirtDir() { Sample36Test(); }
 
+        [TestMethod]
+        public void Sample40Test_VirtDir() { Sample40Test(); }
+
+        [TestMethod]
+        public void Sample42Test_VirtDir() { Sample42Test(); }
+
+        [TestMethod]
+        public void Sample43Test_VirtDir() { Sample43Test(); }
+
+        [TestMethod]
+        public void Sample44Test_VirtDir() { Sample44Test(); }
+
+        [TestMethod]
+        public void Sample45Test_VirtDir() { Sample45Test(); }
+
+        [TestMethod]
+        public void Sample46Test_VirtDir() { Sample46Test(); }
+
+        [TestMethod]
+        public void Sample47Test_VirtDir() { Sample47Test(); }
+
+        [TestMethod]
+        public void Sample48Test_VirtDir() { Sample48Test(); }
+
+        [TestMethod]
+        public void Sample49Test_VirtDir() { Sample49Test(); }
+
+        [TestMethod]
+        public void Sample51Test_VirtDir() { Sample51Test(); }
+
+        [TestMethod]
+        public void Sample52Test_VirtDir() { Sample52Test(); }
+
+        [TestMethod]
+        public void Sample53Test_VirtDir() { Sample53Test(); }
     }
 }

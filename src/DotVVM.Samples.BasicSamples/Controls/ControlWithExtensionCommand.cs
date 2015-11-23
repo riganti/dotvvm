@@ -34,7 +34,7 @@ namespace DotVVM.Samples.BasicSamples.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            var postbackScript = KnockoutHelper.GenerateClientPostBackScript(this.GetExtensionCommand("AddToList"), context, this);
+            var postbackScript = KnockoutHelper.GenerateClientPostBackScript("AddToList", this.GetExtensionCommand("AddToList"), context, this);
             writer.AddAttribute("onclick", postbackScript);
             base.AddAttributesToRender(writer, context);
         }

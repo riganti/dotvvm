@@ -13,10 +13,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public abstract class DotvvmBindableControl : DotvvmControl
     {
-        private Dictionary<string, object> controlState;
-
-
-
         /// <summary>
         /// Gets or sets the data context.
         /// </summary>
@@ -28,41 +24,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DataContextProperty =
             DotvvmProperty.Register<object, DotvvmBindableControl>(c => c.DataContext, isValueInherited: true);
 
-
-
-        private Dictionary<DotvvmProperty, BindingExpression> dataBindings = new Dictionary<DotvvmProperty, BindingExpression>();
-        /// <summary>
-        /// Gets a collection of all data-bindings set on this control.
-        /// </summary>
-        protected internal IReadOnlyDictionary<DotvvmProperty, BindingExpression> DataBindings
-        {
-            get { return dataBindings; }
-        }
-
-        /// <summary>
-        /// Gets the collection of properties used to persist control state for postbacks.
-        /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Exclude)]
-        public Dictionary<string, object> ControlState
-        {
-            get
-            {
-                if (controlState == null)
-                {
-                    controlState = new Dictionary<string, object>();
-                }
-                return controlState;
-            }
-        }
-
-        /// <summary>
-        /// Gets a value indication whether the control requires the control state.
-        /// </summary>
-        protected internal virtual bool RequiresControlState
-        {
-            get { return false; }
-        }
-
         /// <summary>
         /// Gets or sets whether this control should be rendered on the server.
         /// </summary>
@@ -72,43 +33,30 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets the value from control state.
-        /// </summary>
-        protected internal virtual T GetControlStateValue<T>(string key, T defaultValue = default(T))
-        {
-            if (!RequiresControlState) return defaultValue;
-            object value;
-            return ControlState.TryGetValue(key, out value) ? (T)value : defaultValue;
-        }
-
-        /// <summary>
-        /// Sets the value for specified control state item.
-        /// </summary>
-        protected internal virtual void SetControlStateValue(string key, object value)
-        {
-            ControlState[key] = value;
-        }
-
-
-
-        /// <summary>
         /// Gets the value of a specified property.
         /// </summary>
         public override object GetValue(DotvvmProperty property, bool inherit = true)
         {
             var value = GetValueRaw(property, inherit);
+            if (property.IsBindingProperty) return value;
             while (value is IBinding)
             {
+                DotvvmBindableControl control = this;
+                if(inherit && !properties.ContainsKey(property))
+                {
+                    int n;
+                    control = (DotvvmBindableControl)GetClosestWithPropertyValue(out n, d => d is DotvvmBindableControl && d.properties != null && d.properties.ContainsKey(property));
+                }
                 if (value is IStaticValueBinding)
                 {
                     // handle binding
                     var binding = (IStaticValueBinding)value;
-                    value = binding.Evaluate(this, property);
+                    value = binding.Evaluate(control, property);
                 }
                 else if (value is CommandBindingExpression)
                 {
                     var binding = (CommandBindingExpression)value;
-                    value = binding.GetCommandDelegate(this, property);
+                    value = binding.GetCommandDelegate(control, property);
                 }
             }
             return value;
@@ -128,6 +76,7 @@ namespace DotVVM.Framework.Controls
         public override void SetValue(DotvvmProperty property, object value)
         {
             var originalValue = GetValueRaw(property, false);
+            // TODO: really do we want to update the value binding only if it's not a binding
             if (originalValue is IUpdatableValueBinding && !(value is BindingExpression))
             {
                 // if the property contains a binding and we are not passing another binding, update the value
@@ -135,16 +84,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                // register data-bindings when they are applied to the property
-                dataBindings.Remove(property);
-                if (value is BindingExpression)
-                {
-                    dataBindings[property] = (BindingExpression)value;
-                }
-                else
-                {
-                    SetValueRaw(property, value);
-                }
+                SetValueRaw(property, value);
             }
         }
 
@@ -159,8 +99,8 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the binding set to a specified property.
         /// </summary>
-        public BindingExpression GetBinding(DotvvmProperty property, bool inherit = true)
-            => GetValueRaw(property, inherit) as BindingExpression;
+        public IBinding GetBinding(DotvvmProperty property, bool inherit = true)
+            => GetValueRaw(property, inherit) as IBinding;
 
         /// <summary>
         /// Gets the value binding set to a specified property.
@@ -170,7 +110,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is IStaticValueBinding)) // throw exception on incompatible binding types
             {
-                throw new DotvvmControlException(this, "ValueBindingExpression was expected!");        
+                throw new DotvvmControlException(this, "ValueBindingExpression was expected!");
             }
             return binding as IValueBinding;
         }
@@ -183,7 +123,7 @@ namespace DotVVM.Framework.Controls
             var binding = GetBinding(property, inherit);
             if (binding != null && !(binding is ICommandBinding))
             {
-                throw new DotvvmControlException(this, "CommandBindingExpression was expected!");        
+                throw new DotvvmControlException(this, "CommandBindingExpression was expected!");
             }
             return binding as ICommandBinding;
         }
@@ -200,7 +140,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public override sealed void Render(IHtmlWriter writer, RenderContext context)
+        public override void Render(IHtmlWriter writer, RenderContext context)
         {
             if (Properties.ContainsKey(PostBack.UpdateProperty))
             {
@@ -208,22 +148,9 @@ namespace DotVVM.Framework.Controls
                 EnsureControlHasId();
             }
 
-            if (context.RequestContext.IsInPartialRenderingMode && (bool)GetValue(PostBack.UpdateProperty) && !(writer is MultiHtmlWriter))
-            {
-                // render the control and capture the HTML
-                using (var htmlBuilder = new StringWriter())
-                {
-                    var controlWriter = new HtmlWriter(htmlBuilder, context.RequestContext);
-                    var multiWriter = new MultiHtmlWriter(writer, controlWriter);
-                    base.Render(multiWriter, context);
-                    context.RequestContext.PostBackUpdatedControls[ID] = htmlBuilder.ToString();
-                }
-            }
-            else
-            {
-                // render the control directly to the output
-                base.Render(writer, context);
-            }
+
+            // render the control directly to the output
+            base.Render(writer, context);
         }
 
 
@@ -251,6 +178,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the hierarchy of all DataContext bindings from the root to current control.
         /// </summary>
+        [Obsolete]
         internal IEnumerable<IValueBinding> GetDataContextHierarchy()
         {
             var bindings = new List<IValueBinding>();
@@ -290,7 +218,7 @@ namespace DotVVM.Framework.Controls
             var result = GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
             if (result == null)
             {
-                throw new DotvvmControlException(this, "The {controlProperty: ...} binding can be only used in a markup control."); 
+                throw new DotvvmControlException(this, "The {controlProperty: ...} binding can be only used in a markup control.");
             }
             return result;
         }
@@ -325,15 +253,22 @@ namespace DotVVM.Framework.Controls
         protected internal bool HasBinding(DotvvmProperty property)
         {
             object value;
-            return Properties.TryGetValue(property, out value) && value is BindingExpression;
+            return Properties.TryGetValue(property, out value) && value is IBinding;
+        }
+
+        protected internal bool HasBinding<TBinding>(DotvvmProperty property)
+            where TBinding : IBinding
+        {
+            object value;
+            return Properties.TryGetValue(property, out value) && value is TBinding;
         }
 
         /// <summary>
-        /// Gets all bindings set on the control.
+        /// Gets all bindings set on the control (excluding BindingProperties).
         /// </summary>
-        internal IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
+        public IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
         {
-            return Properties.Where(p => p.Value is BindingExpression)
+            return Properties.Where(p => p.Value is BindingExpression && !p.Key.IsBindingProperty)
                 .Select(p => new KeyValuePair<DotvvmProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));
         }
     }

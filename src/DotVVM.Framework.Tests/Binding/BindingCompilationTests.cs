@@ -1,4 +1,6 @@
-﻿using DotVVM.Framework.Controls;
+﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.Compilation.Binding;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -11,7 +13,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Framework.Tests.Binding
 {
     [TestClass]
-    public class BidningCompilationTests
+    public class BindingCompilationTests
     {
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control)
         {
@@ -22,7 +24,7 @@ namespace DotVVM.Framework.Tests.Binding
                 context = new DataContextStack(contexts[i].GetType(), context);
             }
             var parser = new CompileTimeBindingParser();
-            var expressionTree = parser.Parse(expression, context);
+            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>());
             return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, typeof(object)).Compile()(contexts, control);
         }
 
@@ -126,6 +128,14 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(ExecuteBinding("Collection[0].Value ? 'a' : 'b'", viewModel), "a");
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_AndAlso()
+        {
+            var viewModel = new TestViewModel() { };
+            Assert.AreEqual(false, ExecuteBinding("false && BoolMethod()", viewModel));
+            Assert.AreEqual(false, viewModel.BoolMethodExecuted);
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
@@ -155,6 +165,13 @@ namespace DotVVM.Framework.Tests.Binding
 
             public int GetCharCode(char ch)
                 => (int)ch;
+
+            public bool BoolMethodExecuted { get; set; }
+            public bool BoolMethod()
+            {
+                BoolMethodExecuted = true;
+                return false;
+            }
         }
         enum TestEnum
         {

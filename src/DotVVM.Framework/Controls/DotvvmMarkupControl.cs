@@ -46,10 +46,10 @@ namespace DotVVM.Framework.Controls
 
         private string GetJsValue(DotvvmProperty property)
         {
-            var binding = GetBinding(property);
-            if (binding?.Javascript != null)
+            var valueBinding = GetValueBinding(property);
+            if (valueBinding != null)
             {
-                return binding.Javascript;
+                return valueBinding.GetKnockoutBindingExpression();
             }
             return JsonConvert.SerializeObject(GetValue(property), Formatting.None);
         }

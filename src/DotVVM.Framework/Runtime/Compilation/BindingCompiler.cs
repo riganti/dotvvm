@@ -16,6 +16,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Runtime.Filters;
 using System.Diagnostics;
+using DotVVM.Framework.Parser.Dothtml.Parser;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -52,7 +54,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        public static T TryExecute<T>(BindingCompilationRequirementType requirement, Func<T> action)
+        public static T TryExecute<T>(DothtmlNode node, string errorMessage, BindingCompilationRequirementType requirement, Func<T> action)
         {
 #if !DEBUG
             if (requirement == BindingCompilationRequirementType.No) return default(T);
@@ -64,7 +66,8 @@ namespace DotVVM.Framework.Runtime.Compilation
             catch (Exception ex)
             {
                 if (requirement != BindingCompilationRequirementType.StronglyRequire) return default(T);
-                else throw;
+                else if (ex is DotvvmCompilationException) throw;
+                else throw new DotvvmCompilationException(errorMessage, ex, node.Tokens);
             }
         }
 
@@ -75,14 +78,14 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             var expression = new Lazy<Expression>(() => compilerAttribute.GetExpression(binding));
             var compiled = new CompiledBindingExpression();
-            compiled.Delegate = TryExecute(requirements.Delegate, () => compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType).Compile());
-            compiled.UpdateDelegate = TryExecute(requirements.UpdateDelegate, () => compilerAttribute.CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
-            compiled.OriginalString = TryExecute(requirements.OriginalString, () => binding.Value);
-            compiled.Expression = TryExecute(requirements.Expression, () => binding.GetExpression());
+            compiled.Delegate = TryExecute(binding.BindingNode, "Error while compiling binding to delegate.", requirements.Delegate, () => compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType).Compile());
+            compiled.UpdateDelegate = TryExecute(binding.BindingNode, "Error while compiling update delegate.", requirements.UpdateDelegate, () => compilerAttribute.CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
+            compiled.OriginalString = TryExecute(binding.BindingNode, "hey, no, that should not happen. Really.", requirements.OriginalString, () => binding.Value);
+            compiled.Expression = TryExecute(binding.BindingNode, "Could not get binding expression.", requirements.Expression, () => binding.GetExpression());
             compiled.Id = id;
-            compiled.ActionFilters = TryExecute(requirements.ActionFilters, () => compilerAttribute.GetActionFilters(binding.GetExpression()).ToArray());
+            compiled.ActionFilters = TryExecute(binding.BindingNode, "", requirements.ActionFilters, () => compilerAttribute.GetActionFilters(binding.GetExpression()).ToArray());
 
-            compiled.Javascript = TryExecute(requirements.Javascript, () => compilerAttribute.CompileToJs(binding, compiled));
+            compiled.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJs(binding, compiled));
 
             var index = Interlocked.Increment(ref globalBindingIndex);
             if (!GlobalBindingList.TryAdd(index, compiled))

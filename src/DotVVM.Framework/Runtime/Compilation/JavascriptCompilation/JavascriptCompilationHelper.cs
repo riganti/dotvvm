@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public static string AddIndexerToViewModel(string script, object index, bool unwrap = false)
         {
-            if (!script.EndsWith("()"))
+            if (!script.EndsWith("()", StringComparison.Ordinal))
             {
                 if (unwrap)
                 {

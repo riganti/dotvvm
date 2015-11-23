@@ -110,10 +110,16 @@ namespace DotVVM.Samples.Tests
 
         public string GetAlertText()
         {
-            var alert = browser.SwitchTo().Alert();
-            if (alert != null)
+            try
             {
-                return alert.Text;
+                var alert = browser.SwitchTo().Alert();
+                if (alert != null)
+                {
+                    return alert.Text;
+                }
+            }
+            catch (NoAlertPresentException)
+            {       
             }
             return null;
         }
@@ -121,6 +127,11 @@ namespace DotVVM.Samples.Tests
         public void ConfirmAlert()
         {
             browser.SwitchTo().Alert().Accept();
+            Thread.Sleep(500);
+        }
+        public void CancelAlert()
+        {
+            browser.SwitchTo().Alert().Dismiss();
             Thread.Sleep(500);
         }
 

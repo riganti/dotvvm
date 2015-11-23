@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -26,9 +27,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty PathFragmentProperty =
             DotvvmProperty.Register<string, Internal>("PathFragment");
 
-        public static readonly DotvvmProperty IsCommentProperty =
-            DotvvmProperty.Register<bool, Internal>("IsComment", defaultValue: false);
-
         public static readonly DotvvmProperty MarkupFileNameProperty =
             DotvvmProperty.Register<string, Internal>("MarkupFileName", isValueInherited: true);
 
@@ -36,6 +34,12 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<int, Internal>("MarkupLineNumber", defaultValue: -1, isValueInherited: false);
 
         public static readonly DotvvmProperty ClientIDFragmentProperty =
-            DotvvmProperty.Register<string, Internal>("ClientIDFragmentProperty", defaultValue: null, isValueInherited: false); 
+            DotvvmProperty.Register<string, Internal>("ClientIDFragmentProperty", defaultValue: null, isValueInherited: false);
+
+        public static DotvvmProperty IsMasterPageCompositionFinished =
+            DotvvmProperty.Register<bool, Internal>("IsMasterPageCompositionFinished", defaultValue: false, isValueInherited: false);
+
+        public static DotvvmProperty RequestContextProperty =
+            DotvvmProperty.Register<IDotvvmRequestContext, Internal>("RequestContext", defaultValue: null, isValueInherited: true);
     }
 }

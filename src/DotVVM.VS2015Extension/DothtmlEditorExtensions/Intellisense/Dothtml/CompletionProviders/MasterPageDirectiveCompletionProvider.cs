@@ -15,7 +15,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.Co
     {
         protected override IEnumerable<SimpleDothtmlCompletion> GetItemsCore(DothtmlCompletionContext context, string directiveName)
         {
-            if (directiveName == Constants.MasterPageDirective)
+            if (string.Equals(directiveName, Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 var documents = CompletionHelper.GetCurrentProjectFiles(context)
                     .Where(i => i.Name.EndsWith(".dotmaster", StringComparison.CurrentCultureIgnoreCase))

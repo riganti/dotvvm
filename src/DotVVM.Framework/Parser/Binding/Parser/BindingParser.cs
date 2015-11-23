@@ -17,13 +17,26 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         public BindingParserNode ReadExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
-            return CreateNode(ReadConditionalExpression(), startIndex);
+            SkipWhiteSpace();
+            return CreateNode(ReadAssignmentExpression(), startIndex);
         }
 
         public bool OnEnd()
         {
             return CurrentIndex >= Tokens.Count;
+        }
+
+        private BindingParserNode ReadAssignmentExpression()
+        {
+            var first = ReadConditionalExpression();
+            if (Peek() != null && Peek().Type == BindingTokenType.AssignOperator)
+            {
+                var startIndex = CurrentIndex;
+                Read();
+                var second = ReadAssignmentExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AssignOperator), startIndex);
+            }
+            else return first;
         }
 
         private BindingParserNode ReadConditionalExpression()
@@ -186,7 +199,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         private BindingParserNode ReadUnaryExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             if (Peek() != null)
             {
@@ -225,7 +238,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     {
                         if (arguments.Count > 0)
                         {
-                            SkipWhitespace();
+                            SkipWhiteSpace();
                             if (IsCurrentTokenIncorrect(BindingTokenType.Comma))
                                 arguments.Add(CreateNode(new LiteralExpressionBindingParserNode(null), CurrentIndex, "The ',' was expected"));
                             else Read();
@@ -234,7 +247,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     }
                     var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
                 }
                 else if (next.Type == BindingTokenType.OpenArrayBrace)
@@ -244,7 +257,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     var innerExpression = ReadExpression();
                     var error = IsCurrentTokenIncorrect(BindingTokenType.CloseArrayBrace);
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     expression = CreateNode(new ArrayAccessBindingParserNode(expression, innerExpression), startIndex, error ? "The ']' was expected." : null);
                 }
                 else
@@ -259,7 +272,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         private BindingParserNode ReadAtomicExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             var token = Peek();
             if (token != null && token.Type == BindingTokenType.OpenParenthesis)
@@ -269,14 +282,14 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 var innerExpression = ReadExpression();
                 var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
                 Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
                 return CreateNode(new ParenthesizedExpressionBindingParserNode(innerExpression), startIndex, error ? "The ')' was expected." : null);
             }
             else if (token != null && token.Type == BindingTokenType.StringLiteralToken)
             {
                 // string literal
                 var literal = Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
 
                 string error;
                 var node = CreateNode(new LiteralExpressionBindingParserNode(ParseStringLiteral(literal.Text, out error)), startIndex);
@@ -296,7 +309,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         private BindingParserNode ReadConstantExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             if (Peek() != null && Peek().Type == BindingTokenType.Identifier)
             {
@@ -304,13 +317,13 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 if (identifier.Text == "true" || identifier.Text == "false")
                 {
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     return CreateNode(new LiteralExpressionBindingParserNode(identifier.Text == "true"), startIndex);
                 }
                 else if (identifier.Text == "null")
                 {
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
                     return CreateNode(new LiteralExpressionBindingParserNode(null), startIndex);
                 }
                 else if (Char.IsDigit(identifier.Text[0]))
@@ -320,7 +333,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     var number = ParseNumberLiteral(identifier.Text, out error);
 
                     Read();
-                    SkipWhitespace();
+                    SkipWhiteSpace();
 
                     var node = CreateNode(new LiteralExpressionBindingParserNode(number), startIndex);
                     if (error != null)
@@ -338,12 +351,12 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         private IdentifierNameBindingParserNode ReadIdentifierNameExpression()
         {
             var startIndex = CurrentIndex;
-            SkipWhitespace();
+            SkipWhiteSpace();
 
             if (Peek() != null && Peek().Type == BindingTokenType.Identifier)
             {
                 var identifier = Read();
-                SkipWhitespace();
+                SkipWhiteSpace();
                 return CreateNode(new IdentifierNameBindingParserNode(identifier.Text), startIndex);
             }
 
@@ -363,7 +376,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                 if (lastDigit == 'm') type = NumberLiteralSuffix.Decimal;
                 else if (lastDigit == 'f') type = NumberLiteralSuffix.Float;
                 else if (lastDigit == 'd') type = NumberLiteralSuffix.Double;
-                else if (text.EndsWith("ul") || text.EndsWith("lu")) type = NumberLiteralSuffix.UnsignedLong;
+                else if (text.EndsWith("ul", StringComparison.Ordinal) || text.EndsWith("lu", StringComparison.Ordinal)) type = NumberLiteralSuffix.UnsignedLong;
                 else if (lastDigit == 'u') type = NumberLiteralSuffix.Unsigned;
                 else if (lastDigit == 'l') type = NumberLiteralSuffix.Long;
                 else
@@ -422,7 +435,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
 
             // if all are digits, or '0x' + hex digits => too large number
             if (text.All(char.IsDigit) ||
-                (text.StartsWith("0x") && text.Skip(2).All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f'))))
+                (text.StartsWith("0x", StringComparison.Ordinal) && text.Skip(2).All(c => char.IsDigit(c) || (c >= 'a' && c <= 'f'))))
                 error = $"number number {text} is too large for integral literal, try to append 'd' to real number literal";
             else error = $"could not parse {text} as numeric literal";
             return null;

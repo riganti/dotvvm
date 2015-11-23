@@ -9,6 +9,6 @@ namespace DotVVM.Framework.Runtime.Compilation
 {
     public interface IBindingParser
     {
-        Expression Parse(string expression, DataContextStack dataContexts);
+        Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options);
     }
 }

@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Hosting
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
-            return url.StartsWith("dotvvmReturnedFile") ? RenderReturnedFile(context) : Next.Invoke(context);
+            return url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal) ? RenderReturnedFile(context) : Next.Invoke(context);
         }
 
         private async Task RenderReturnedFile(IOwinContext context)

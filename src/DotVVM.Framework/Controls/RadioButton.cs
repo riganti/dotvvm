@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -40,23 +41,28 @@ namespace DotVVM.Framework.Controls
         protected override void RenderInputTag(IHtmlWriter writer)
         {
             var checkedItemBinding = GetValueBinding(CheckedItemProperty);
-            if (checkedItemBinding != null)
+            if (checkedItemBinding == null)
             {
-                // selected item mode
-                writer.AddKnockoutDataBind("checked", checkedItemBinding);
-                writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
+                writer.AddKnockoutDataBind("checked", this, CheckedProperty, () => { });
+                if (!IsPropertySet(CheckedValueProperty))
                 {
-                    var checkedValue = (CheckedValue ?? string.Empty).ToString();
-                    if (!string.IsNullOrEmpty(checkedValue))
-                    {
-                        writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
-                    }
-                });
+                    throw new DotvvmControlException(this, "The 'CheckedValue' of the RadioButton control must be set. Remember that all RadioButtons with the same GroupName have to be bound to the same property in the viewmodel.");
+                }
             }
             else
             {
-                writer.AddKnockoutDataBind("checked", this, CheckedProperty, () => { });
+                // selected item mode
+                writer.AddKnockoutDataBind("checked", checkedItemBinding);
             }
+
+            writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
+            {
+                var checkedValue = (CheckedValue ?? string.Empty).ToString();
+                if (!string.IsNullOrEmpty(checkedValue))
+                {
+                    writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
+                }
+            });
 
             // render the input tag
             writer.AddAttribute("type", "radio");

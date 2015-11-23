@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// Renders the pagination control which can be integrated with the GridViewDataSet object to provide the paging capabilities.
     /// </summary>
+    [ControlMarkupOptions(AllowContent = false)]
     public class DataPager : HtmlGenericControl
     {
         private static CommandBindingExpression GoToNextPageCommand =
@@ -101,11 +102,25 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<bool, DataPager>(c => c.RenderLinkForCurrentPage);
 
 
+        /// <summary>
+        /// Gets or sets whether the pager should hide automatically when there is only one page of results.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool HideWhenOnlyOnePage
+        {
+            get { return (bool)GetValue(HideWhenOnlyOnePageProperty); }
+            set { SetValue(HideWhenOnlyOnePageProperty, value); }
+        }
+        public static readonly DotvvmProperty HideWhenOnlyOnePageProperty
+            = DotvvmProperty.Register<bool, DataPager>(c => c.HideWhenOnlyOnePage, true);
+        
+
+
 
         private HtmlGenericControl content;
         private HtmlGenericControl firstLi;
         private HtmlGenericControl previousLi;
-        private Placeholder numbersPlaceholder; 
+        private PlaceHolder numbersPlaceHolder; 
         private HtmlGenericControl nextLi;
         private HtmlGenericControl lastLi;
 
@@ -155,8 +170,8 @@ namespace DotVVM.Framework.Controls
                 content.Children.Add(previousLi);
 
                 // number fields
-                numbersPlaceholder = new Placeholder();
-                content.Children.Add(numbersPlaceholder);
+                numbersPlaceHolder = new PlaceHolder();
+                content.Children.Add(numbersPlaceHolder);
 
                 var i = 0;
                 foreach (var number in dataSet.NearPageIndexes)
@@ -170,7 +185,7 @@ namespace DotVVM.Framework.Controls
                     var link = new LinkButton() { Text = (number + 1).ToString() };
                     link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
                     li.Children.Add(link);
-                    numbersPlaceholder.Children.Add(li);
+                    numbersPlaceHolder.Children.Add(li);
 
                     i++;
                 }
@@ -224,9 +239,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
         {
-            writer.AddKnockoutDataBind("with", this, DataSetProperty, () => { }, renderEvenInServerRenderingMode: true);
-            // this line caused some problems by overwriting visible property, I think it can be more confusing than useful
-            //writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").TotalItemsCount() > 0");
+            if (HideWhenOnlyOnePage)
+            {
+                writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").PagesCount() > 1");
+            }
+
+            writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
             writer.RenderBeginTag("ul");
         }
 
@@ -242,7 +260,7 @@ namespace DotVVM.Framework.Controls
             writer.WriteKnockoutForeachComment("NearPageIndexes");
 
             // render page number
-            numbersPlaceholder.Children.Clear();
+            numbersPlaceHolder.Children.Clear();
             HtmlGenericControl li;
             if (!RenderLinkForCurrentPage)
             {
@@ -252,7 +270,7 @@ namespace DotVVM.Framework.Controls
                 literal.SetBinding(Literal.TextProperty,
                     new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
                 li.Children.Add(literal);
-                numbersPlaceholder.Children.Add(li);
+                numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
 
                 writer.AddKnockoutDataBind("visible", "$data != $parent.PageIndex()");
@@ -265,7 +283,7 @@ namespace DotVVM.Framework.Controls
             link.SetBinding(ButtonBase.TextProperty,
                 new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
-            numbersPlaceholder.Children.Add(li);
+            numbersPlaceHolder.Children.Add(li);
             li.Render(writer, context);
 
             writer.WriteKnockoutDataBindEndComment();

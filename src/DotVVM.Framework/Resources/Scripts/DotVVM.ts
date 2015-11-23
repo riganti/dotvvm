@@ -6,7 +6,17 @@ interface RenderedResourceList {
 }
 
 interface DotvvmPostbackScriptFunction {
-    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string): void
+    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: DotvvmPostBackHandlerConfiguration[]): void
+}
+
+interface IDotvvmExtensions {
+}
+
+interface DotvvmViewModel {
+    viewModel?;
+    renderedResources?: string[];
+    url?: string;
+    virtualDirectory?: string;
 }
 
 class DotVVM {
@@ -15,10 +25,14 @@ class DotVVM {
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
 
-    public extensions: any = {};
-    public viewModels: any = {};
+    public isSpaReady: KnockoutObservable<boolean> = ko.observable(false);
+
+    public extensions: IDotvvmExtensions = {};
+    public viewModels: { [name: string]: DotvvmViewModel } = {};
+    private viewModelObservables: { [name: string]: KnockoutObservable<DotvvmViewModel> } = {};
     public culture: string;
     public serialization: DotvvmSerialization = new DotvvmSerialization();
+    public postBackHandlers = new DotvvmPostBackHandlers();
     public events = {
         init: new DotvvmEvent<DotvvmEventArgs>("dotvvm.events.init", true),
         beforePostback: new DotvvmEvent<DotvvmBeforePostBackEventArgs>("dotvvm.events.beforePostback"),
@@ -36,7 +50,9 @@ class DotVVM {
         }
         var viewModel = thisVm.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
 
-        ko.applyBindings(viewModel, document.documentElement);
+        this.viewModelObservables[viewModelName] = ko.observable(viewModel);
+        ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
+
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
         this.isViewModelUpdating = false;
 
@@ -62,7 +78,7 @@ class DotVVM {
             if (url) {
                 document.location.hash = "#!/" + url;
             } else {
-                this.navigateCore(viewModelName, "/");
+                this.isSpaReady(true);
             }
         }
     }
@@ -74,15 +90,8 @@ class DotVVM {
 
     // binding helpers
     private postbackScript(bindingId: string): DotvvmPostbackScriptFunction {
-        return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) => {
-            this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget);
-        }
-    }
-
-    private staticCommandPostbackScript(methodName: string, args: string[], callback = result => { }) {
-        return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget) => {
-            this.staticCommandPostback(pageArea, methodName, args.map(
-                a => a == null ? null : this.evaluateOnContext(ko.contextFor(sender), a)), callback);
+        return (pageArea, sender, pathFragments, controlId, useWindowSetTimeout, validationTarget, context, handlers) => {
+            this.postBack(pageArea, sender, pathFragments, bindingId, controlId, useWindowSetTimeout, validationTarget, context, handlers);
         }
     }
 
@@ -116,7 +125,9 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModeName: string, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
+        if (this.isPostBackProhibited(sender)) return;
+
         // TODO: events for static command postback
 
         // prevent double postbacks
@@ -125,10 +136,10 @@ class DotVVM {
         var data = this.serialization.serialize({
             "args": args,
             "command": command,
-            "$csrfToken": this.viewModels[viewModeName].viewModel.$csrfToken
+            "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
         });
 
-        this.postJSON(this.viewModels[viewModeName].url, "POST", ko.toJSON(data), response => {
+        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
             callback(JSON.parse(response.responseText));
         }, errorCallback,
@@ -137,9 +148,19 @@ class DotVVM {
             });
     }
 
-    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any): void {
+    public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: DotvvmPostBackHandlerConfiguration[]): void {
+        if (this.isPostBackProhibited(sender)) return;
+
         if (useWindowSetTimeout) {
-            window.setTimeout(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath), 0);
+            window.setTimeout(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers), 0);
+            return;
+        }
+
+        if (handlers && handlers.length > 0) {
+            var handler = this.postBackHandlers[handlers[0].name];
+            var options = this.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
+            var handlerInstance = handler(options);
+            handlerInstance.execute(() => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)));
             return;
         }
 
@@ -201,6 +222,9 @@ class DotVVM {
                         this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
                     }
                     isSuccess = true;
+
+                    // remove updated controls which were previously hidden
+                    this.cleanUpdatedControls(resultObject, updatedControls);
 
                     // add updated controls
                     this.restoreUpdatedControls(resultObject, updatedControls, true);
@@ -373,7 +397,6 @@ class DotVVM {
                     var updatedControls = this.cleanUpdatedControls(resultObject);
 
                     // update the viewmodel
-                    ko.cleanNode(document.documentElement);
                     this.viewModels[viewModelName] = {};
                     for (var p in resultObject) {
                         if (resultObject.hasOwnProperty(p)) {
@@ -385,9 +408,10 @@ class DotVVM {
                     isSuccess = true;
 
                     // add updated controls
-                    this.restoreUpdatedControls(resultObject, updatedControls, false);
-                    ko.applyBindings(this.viewModels[viewModelName].viewModel, document.documentElement);
+                    this.viewModelObservables[viewModelName](this.viewModels[viewModelName].viewModel);
+                    this.restoreUpdatedControls(resultObject, updatedControls, true);
 
+                    this.isSpaReady(true);
                     this.isViewModelUpdating = false;
                 } else if (resultObject.action === "redirect") {
                     this.handleRedirect(resultObject, viewModelName);
@@ -508,7 +532,8 @@ class DotVVM {
 
     public getDataSourceItems(viewModel: any) {
         var value = ko.unwrap(viewModel);
-        return value.Items || value;
+        if (typeof value === "undefined" || value == null) return [];
+        return ko.unwrap(value.Items || value);
     }
 
     private updateDynamicPathFragments(context: any, path: string[]): void {
@@ -539,7 +564,6 @@ class DotVVM {
     private getJSON(url: string, method: string, spaPlaceHolderUniqueId: string, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void) {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
-        xhr.open("GET", url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("X-DotVVM-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
         xhr.onreadystatechange = () => {
@@ -557,15 +581,16 @@ class DotVVM {
         return XMLHttpRequest ? new XMLHttpRequest() : <XMLHttpRequest>new ActiveXObject("Microsoft.XMLHTTP");
     }
 
-    private cleanUpdatedControls(resultObject: any) {
-        var updatedControls = {};
+    private cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var control = document.getElementById(id);
-                var nextSibling = control.nextSibling;
-                var parent = control.parentNode;
-                ko.removeNode(control);
-                updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                if (control) {
+                    var nextSibling = control.nextSibling;
+                    var parent = control.parentNode;
+                    ko.removeNode(control);
+                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                }
             }
         }
         return updatedControls;
@@ -575,12 +600,14 @@ class DotVVM {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var updatedControl = updatedControls[id];
-                if (updatedControl.nextSibling) {
-                    updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
-                } else {
-                    updatedControl.parent.appendChild(updatedControl.control);
+                if (updatedControl) {
+                    if (updatedControl.nextSibling) {
+                        updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                    } else {
+                        updatedControl.parent.appendChild(updatedControl.control);
+                    }
+                    updatedControl.control.outerHTML = resultObject.updatedControls[id];
                 }
-                updatedControl.control.outerHTML = resultObject.updatedControls[id];
             }
         }
 
@@ -588,7 +615,9 @@ class DotVVM {
             window.setTimeout(() => {
                 for (var id in resultObject.updatedControls) {
                     var updatedControl = document.getElementById(id);
-                    ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                    if (updatedControl) {
+                        ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                    }
                 }
             }, 0);
         }
@@ -605,12 +634,19 @@ class DotVVM {
 
     public buildRouteUrl(routePath: string, params: any): string {
         return routePath.replace(/\{[^\}]+\??\}/g, s => {
-            let paramName = s.substring(1, s.length - 1);
+            let paramName = s.substring(1, s.length - 1).toLowerCase();
             if (paramName && paramName.length > 0 && paramName.substring(paramName.length - 1) === "?") {
                 paramName = paramName.substring(0, paramName.length - 1);
             }
             return ko.unwrap(params[paramName]) || "";
         });
+    }
+
+    private isPostBackProhibited(element: HTMLElement) {
+        if (element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+            return true;
+        }
+        return false;
     }
 }
 
@@ -755,7 +791,7 @@ class DotvvmSerialization {
                 }
 
                 // deserialize value
-                var deserialized = this.deserialize(value, result[prop], deserializeAll);
+                var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
                 
                 // handle date
                 if (options && options.isDate && deserialized) {
@@ -816,11 +852,20 @@ class DotvvmSerialization {
         }
 
         if (viewModel instanceof Array) {
-            var array = [];
-            for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.serialize(viewModel[i], opt));
+            if (opt.pathOnly) {
+                var index = parseInt(opt.path.pop());
+                var array = new Array(index + 1);
+                array[index] = this.serialize(viewModel[index], opt);
+                opt.path.push(index.toString());
+                return array;
+            } else {
+
+                var array = [];
+                for (var i = 0; i < viewModel.length; i++) {
+                    array.push(this.serialize(viewModel[i], opt));
+                }
+                return array;
             }
-            return array;
         }
 
         if (viewModel instanceof Date) {
@@ -832,13 +877,13 @@ class DotvvmSerialization {
         var result = {};
         for (var prop in viewModel) {
             if (viewModel.hasOwnProperty(prop)) {
-                if (opt.pathOnly && prop != pathProp) {
+                if (opt.pathOnly && prop !== pathProp) {
                     continue;
                 }
 
                 var value = viewModel[prop];
 
-                if (opt.ignoreSpecialProperties && prop[0] == "$") continue;
+                if (opt.ignoreSpecialProperties && prop[0] === "$") continue;
                 if (!opt.serializeAll && /\$options$/.test(prop)) {
                     continue;
                 }
@@ -935,6 +980,33 @@ class DotvvmSerialization {
 }
 
 
+class DotvvmPostBackHandler {
+    public execute(callback: () => void) {
+    }
+}
+
+class ConfirmPostBackHandler extends DotvvmPostBackHandler {
+    constructor(public message: string) {
+        super();
+    }
+
+    public execute(callback: () => void) {
+        if (confirm(this.message)) {
+            callback();
+        }
+    }
+}
+
+class DotvvmPostBackHandlers {
+    public confirm = (options: any) => new ConfirmPostBackHandler(<string>options.message);
+}
+
+interface DotvvmPostBackHandlerConfiguration {
+    name: string;
+    options: () => any;
+}
+
+
 var dotvvm = new DotVVM();
 
 
@@ -959,12 +1031,14 @@ ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
         });
     }
 };
+
+
 interface KnockoutBindingHandlers {
     withControlProperties: KnockoutBindingHandler;
     withPath: KnockoutBindingHandler;
 }
 (function () {
-    ko.virtualElements.allowedBindings["withControlProperties"] = true
+    ko.virtualElements.allowedBindings["withControlProperties"] = true;
     ko.bindingHandlers.withControlProperties = {
         init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             var value = valueAccessor();
@@ -979,4 +1053,18 @@ interface KnockoutBindingHandlers {
             return { controlsDescendantBindings: true }; // do not apply binding again
         }
     };
+
+    ko.bindingHandlers['dotvvmEnable'] = {
+        'update': function (element, valueAccessor) {
+            var value = ko.utils.unwrapObservable(valueAccessor());
+            if (value && element.disabled) {
+                element.disabled = false;
+                element.removeAttribute("disabled");
+            } else if ((!value) && (!element.disabled)) {
+                element.disabled = true;
+                element.setAttribute("disabled", "disabled");
+            }
+        }
+    };
 })();
+

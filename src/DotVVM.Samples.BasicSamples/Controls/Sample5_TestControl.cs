@@ -30,12 +30,6 @@ namespace DotVVM.Samples.BasicSamples.Controls
             DotvvmProperty.Register<int, Sample5_TestControl>(c => c.Value, 0);
 
 
-        protected override bool RequiresControlState
-        {
-            get { return true; }
-        }
-
-
         public void Up()
         {
             Value++;

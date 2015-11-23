@@ -126,11 +126,10 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IBindingParser>(() => new CompileTimeBindingParser());
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
-            
+
             configuration.Markup.Controls.AddRange(new[]
             {
-                new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" },
-                new DotvvmControlConfiguration() { TagPrefix = "bootstrap", Namespace = "DotVVM.Framework.Controls.Bootstrap", Assembly = "DotVVM.Framework" },
+                new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" }
             });
 
             configuration.Resources.Register(Constants.JQueryResourceName,
@@ -171,20 +170,7 @@ namespace DotVVM.Framework.Configuration
                     EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
                     Dependencies = new[] { Constants.DotvvmResourceName, Constants.JQueryResourceName }
                 });
-            configuration.Resources.Register(Constants.BootstrapResourceName,
-                new ScriptResource()
-                {
-                    Url = "~/Scripts/bootstrap.min.js",
-                    CdnUrl = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.1/js/bootstrap.min.js",
-                    GlobalObjectName = "typeof $().emulateTransitionEnd == 'function'",
-                    Dependencies = new[] { Constants.BootstrapCssResourceName, Constants.JQueryResourceName }
-                });
-            configuration.Resources.Register(Constants.BootstrapCssResourceName,
-                new StylesheetResource()
-                {
-                    Url = "~/Content/bootstrap.min.css"
-                });
-
+            
             configuration.Resources.Register(Constants.DotvvmFileUploadResourceName, 
                 new ScriptResource()
                 {

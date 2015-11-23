@@ -29,6 +29,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
         OpenComment,
         CommentBody,
         CloseComment,
+        OpenServerComment,
 
         OpenDoctype,
         DoctypeBody,
@@ -40,6 +41,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
         
         DirectiveStart,
         DirectiveName,
-        DirectiveValue
+        DirectiveValue,
     }
 }

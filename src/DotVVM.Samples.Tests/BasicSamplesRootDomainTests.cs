@@ -1,3 +1,4 @@
+using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Samples.Tests
@@ -105,5 +106,42 @@ namespace DotVVM.Samples.Tests
 
         [TestMethod]
         public void Sample36Test_FullDomain() { Sample36Test(); }
+
+        [TestMethod]
+        public void Sample40Test_FullDomain() { Sample40Test(); }
+
+        [TestMethod]
+        public void Sample42Test_FullDomain() { Sample42Test(); }
+
+        [TestMethod]
+        public void Sample43Test_FullDomain() { Sample43Test(); }
+
+        [TestMethod]
+        public void Sample44Test_FullDomain() { Sample44Test(); }
+
+        [TestMethod]
+        public void Sample45Test_FullDomain() { Sample45Test(); }
+
+        [TestMethod]
+        public void Sample46Test_FullDomain() { Sample46Test(); }
+
+        [TestMethod]
+        public void Sample47Test_FullDomain() { Sample47Test(); }
+
+        [TestMethod]
+        public void Sample48Test_FullDomain() { Sample48Test(); }
+
+        [TestMethod]
+        public void Sample49Test_FullDomain() { Sample49Test(); }
+
+
+        [TestMethod]
+        public void Sample51Test_FullDomain() { Sample51Test(); }
+
+        [TestMethod]
+        public void Sample52Test_FullDomain() { Sample52Test(); }
+
+        [TestMethod]
+        public void Sample53Test_FullDomain() { Sample53Test(); }
     }
 }
