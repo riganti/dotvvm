@@ -119,12 +119,14 @@
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
+    <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
+    <Compile Include="ViewModels\FeatureSamples\IdGeneration\IdGeneration.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
     <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
@@ -232,6 +234,9 @@
     <Content Include="Views\ControlSamples\GridView\GridViewServerRender.dothtml" />
     <Content Include="Views\ComplexSamples\DataTemplate\EmptyDataTemplateRepeaterGridView.dothtml" />
     <Content Include="Views\FeatureSamples\PostBack\PostBackHandlers.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\RouteLink.dothtml" />
+    <Content Include="Views\FeatureSamples\IdGeneration\IdGeneration.dothtml" />
+    <Content Include="Views\FeatureSamples\IdGeneration\IdGeneration_control.dotcontrol" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -12,9 +12,22 @@ namespace DotVVM.Samples.Tests.Control
     [TestClass]
     public class GridViewTests : SeleniumTestBase
     {
+
+
         [TestMethod]
-        public void Control_GridViewPagingSorting(string path = SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting)
+        public void Control_GridViewPagingSorting()
         {
+            Control_GridViewPagingSortingBase( SamplesRouteUrls.ControlSamples_GridView_GridViewPagingSorting);
+
+        }
+        [TestMethod]
+        public void Control_GridViewServerRender()
+        {
+            Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_ServerRender);
+        }
+
+        public void Control_GridViewPagingSortingBase(string path) { 
+
             
             RunInAllBrowsers(browser =>
             {
@@ -85,10 +98,6 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-        [TestMethod]
-        public void Control_GridViewServerRender()
-        {
-            Control_GridViewPagingSorting(SamplesRouteUrls.ControlSamples_GridView_ServerRender);
-        }
+      
     }
 }

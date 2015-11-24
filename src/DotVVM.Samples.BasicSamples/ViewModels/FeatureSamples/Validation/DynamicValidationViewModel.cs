@@ -31,7 +31,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 
 
 
-
         public class CustomerData
         {
             [Required]

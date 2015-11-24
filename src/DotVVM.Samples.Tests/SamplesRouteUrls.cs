@@ -31,6 +31,7 @@ namespace Dotvvm.Samples.Tests
         public const string ControlSamples_GridView_ServerRender = "ControlSamples/GridView/GridViewServerRender";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
         public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
+        public const string ControlSamples_Repeater_RouteLink = "ControlSamples/Repeater/RouteLink";
         public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
         public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
         public const string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag = "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
@@ -53,6 +54,7 @@ namespace Dotvvm.Samples.Tests
         public const string FeatureSamples_StaticCommand = "FeatureSamples/StaticCommand/StaticCommand";
         public const string FeatureSamples_Validation_ValidationRulesLoadOnPostback = "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
         public const string FeatureSamples_Localization = "FeatureSamples/Localization/Localization";
+        public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
         public const string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention = "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
         public const string FeatureSamples_Formatting_Formatting = "FeatureSamples/Formatting/Formatting";
         public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";

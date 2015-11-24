@@ -24,6 +24,8 @@ namespace DotVVM.Samples.BasicSamples
             DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM(applicationPhysicalPath);
             dotvvmConfiguration.RouteTable.RegisterRoutingStrategy(new ViewsFolderBasedRouteStrategy(dotvvmConfiguration));
 
+            dotvvmConfiguration.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
+
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
 

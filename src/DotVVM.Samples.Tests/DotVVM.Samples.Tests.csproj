@@ -21,7 +21,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -30,14 +30,14 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestIE|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -46,7 +46,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestChrome|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -55,7 +55,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestFirefox|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\</OutputPath>
+    <OutputPath>bin\debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -102,6 +102,7 @@
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
     <Compile Include="Control\GridViewTests.cs" />
+    <Compile Include="Control\RouteLinkTests.cs" />
     <Compile Include="Control\NestedRepeaterTests.cs" />
     <Compile Include="Control\RecursiveValidationSummaryTests.cs" />
     <Compile Include="Control\ButtonTagNameTests.cs" />
@@ -115,6 +116,7 @@
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
+    <Compile Include="Feature\IdGenerationTests.cs" />
     <Compile Include="Feature\DynamicValidationTests.cs" />
     <Compile Include="Feature\LocalizationTests.cs" />
     <Compile Include="Feature\RenderSettingsModeServerPropertyTest.cs" />
@@ -193,15 +195,12 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- XTD Transformation -->
   <UsingTask TaskName="TransformXml" AssemblyFile="$(VSToolsPath)\Web\Microsoft.Web.Publishing.Tasks.dll" />
-  <Target Name="AfterBuild">
-    <Message Importance="high" Text="exists('App.$(Configuration).config')" ></Message>
-  </Target>
-           
-    <Target Name="AfterCompile" Condition="exists('App.$(Configuration).config')">
-
-      <Message Importance="high" Text="Transforming config" ></Message>
-      <!-- Generates the transformed App.config in the intermediate directory -->
+  <Target Name="AfterCompile" Condition="exists('App.$(Configuration).config')">
+    <Message Importance="high" Text="Transforming config">
+    </Message>
+    <!-- Generates the transformed App.config in the intermediate directory -->
     <TransformXml Source="App.config" Destination="$(IntermediateOutputPath)$(TargetFileName).config" Transform="App.$(Configuration).config" />
+    <Message Importance="high" Text="Config transformed to $(IntermediateOutputPath)$(TargetFileName).config" />
     <!-- Forces the build process to use the transformed configuration file -->
     <ItemGroup>
       <AppConfigWithTargetPath Remove="App.config" />
@@ -210,6 +209,10 @@
       </AppConfigWithTargetPath>
     </ItemGroup>
   </Target>
+  <PropertyGroup>
+    <PreBuildEvent>echo "Deleting all files from $(ProjectDir)bin\*" 
+del "$(ProjectDir)bin\*" /q /f /s</PreBuildEvent>
+  </PropertyGroup>
   <!-- XTD Transformation -->
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
