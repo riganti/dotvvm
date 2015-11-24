@@ -20,26 +20,24 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         }
         #endregion
 
-        public string TagName { get; set; }
-
-        public List<DothtmlAttributeNode> Attributes { get; set; }
-
-        public bool IsClosingTag { get; set; }
-
-        public bool IsSelfClosingTag { get; set; }
-
-        public string TagPrefix { get; set; }
-
-        public string FullTagName 
+        public string TagName => TagNameNode.Text;
+        public string TagPrefix => TagPrefixNode?.Text;
+        public string FullTagName
         {
             get { return string.IsNullOrEmpty(TagPrefix) ? TagName : (TagPrefix + ":" + TagName); }
         }
 
-        public DothtmlElementNode ParentElement { get; set; }
+        public bool IsClosingTag { get; set; }
 
-        public DothtmlToken TagPrefixToken { get; set; }
+        public bool IsSelfClosingTag { get; set; } 
 
-        public DothtmlToken TagNameToken { get; set; }
+        public DothtmlNameNode TagPrefixNode { get; set; }
+        public DothtmlNameNode TagNameNode { get; set; }
+        public List<DothtmlAttributeNode> Attributes { get; set; }
+
+        public DothtmlToken PrefixSeparator { get; set; }
+
+        public List<DothtmlToken> AttributeSeparators { get; set; }
 
         public DothtmlElementNode CorrespondingEndTag { get; internal set; }
 
@@ -50,18 +48,14 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public override IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            return base.EnumerateNodes().Concat(Attributes.SelectMany(a => a.EnumerateNodes()));
-        }
+            var enumaration = base.EnumerateNodes();
 
-        public override void AddHierarchyByPosition(IList<DothtmlNode> hierarchy, int position)
-        {
-            var attr = Attributes.FirstOrDefault(a => a.StartPosition <= position && a.StartPosition + a.Length > position);
-            if (attr != null)
+            if(TagPrefixNode != null)
             {
-                hierarchy.Add(this);
-                attr.AddHierarchyByPosition(hierarchy, position);
+                enumaration = enumaration.Concat(TagPrefixNode.EnumerateNodes() );
             }
-            else base.AddHierarchyByPosition(hierarchy, position);
+
+            return enumaration.Concat(TagNameNode.EnumerateNodes()).Concat(Attributes.SelectMany(a => a.EnumerateNodes()));
         }
     }
 }

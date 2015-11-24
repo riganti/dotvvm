@@ -23,13 +23,13 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base
             var node = context.CurrentNode as DothtmlElementNode;
             if (node == null && context.CurrentNode is DothtmlAttributeNode)
             {
-                node = ((DothtmlAttributeNode)context.CurrentNode).ParentElement;
+                node = context.CurrentNode.ParentNode as DothtmlElementNode;
             }
 
             while (node != null)
             {
                 hierarchy.Add(node.FullTagName);
-                node = node.ParentElement;
+                node = node.ParentNode as DothtmlElementNode;
             }
 
             hierarchy.Reverse();

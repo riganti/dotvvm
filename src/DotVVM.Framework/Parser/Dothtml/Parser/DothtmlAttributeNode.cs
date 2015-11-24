@@ -16,36 +16,39 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             get
             {
                 return (string.IsNullOrWhiteSpace(AttributePrefix) ? "" : AttributePrefix + ":") + AttributeName
-                    + ( Literal == null ? "" : "=" );
+                    + ( ValueNode == null ? "" : "=" );
             }
         }
         #endregion
-        public string AttributePrefix { get; set; }
+        public string AttributePrefix => AttributePrefixNode?.Text;
 
-        public string AttributeName { get; set; }
+        public string AttributeName => AttributeNameNode.Text;
 
-        public DothtmlLiteralNode Literal { get; set; }
+        public DothtmlValueNode ValueNode { get; set; }
 
-        public DothtmlElementNode ParentElement { get; set; }
+        public DothtmlNameNode AttributePrefixNode { get; set; }
 
-        public DothtmlToken AttributePrefixToken { get; set; }
+        public DothtmlNameNode AttributeNameNode { get; set; }
 
-        public DothtmlToken AttributeNameToken { get; set; }
+
+        public DothtmlToken PrefixSeparatorToken { get; set; }
+        public DothtmlToken ValueSeparatorToken { get; set; }
+        public List<DothtmlToken> ValueStartTokens { get; set; } = new List<DothtmlToken>();
+        public List<DothtmlToken> ValueEndTokens { get; set; } = new List<DothtmlToken>();
 
         public override IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            if (Literal != null)
-                return base.EnumerateNodes().Concat(Literal.EnumerateNodes());
-            else return base.EnumerateNodes();
-        }
-
-        public override void AddHierarchyByPosition(IList<DothtmlNode> hierarchy, int position)
-        {
-            hierarchy.Add(this);
-            if (position > Literal.StartPosition)
+            var enumeration = base.EnumerateNodes();
+            if (AttributePrefixNode != null)
             {
-                Literal.AddHierarchyByPosition(hierarchy, position);
+                enumeration = enumeration.Concat(AttributePrefixNode.EnumerateNodes());
             }
+            enumeration = enumeration.Concat(AttributeNameNode.EnumerateNodes());
+            if (ValueNode != null)
+            {
+                enumeration = enumeration.Concat(ValueNode.EnumerateNodes());
+            }
+            return enumeration;
         }
     }
 }

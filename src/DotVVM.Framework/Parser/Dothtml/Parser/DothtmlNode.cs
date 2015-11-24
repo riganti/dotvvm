@@ -38,14 +38,5 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         {
             return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.StartPosition + n.Length);
         }
-
-        public IList<DothtmlNode> FindHierarchyByPosition(int position)
-        {
-            var list = new List<DothtmlNode>();
-            AddHierarchyByPosition(list, position);
-            return list;
-        }
-
-        public abstract void AddHierarchyByPosition(IList<DothtmlNode> hierarchy, int position);
     }
 }

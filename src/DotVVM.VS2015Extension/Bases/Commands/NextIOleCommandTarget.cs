@@ -26,7 +26,7 @@ namespace DotVVM.VS2015Extension.Bases.Commands
             {
                 return nextCommandTarget.Exec(pguidCmdGroup, nCmdId, nCmdexecopt, pvaIn, pvaOut);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return 0;
             }

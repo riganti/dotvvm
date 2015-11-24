@@ -7,14 +7,22 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
     public class DothtmlDirectiveNode : DothtmlNode
     {
+        public string Name => NameNode.Text;
+        public string Value => (ValueNode!=null) ? ValueNode.Text : string.Empty;
+        public DothtmlToken DirectiveStartToken { get; set; }
 
-        public string Name { get; set; }
+        public DothtmlNameNode NameNode { get; set; }
 
-        public string Value { get; set; }
+        public DothtmlValueTextNode ValueNode { get; set; }
 
-        public override void AddHierarchyByPosition(IList<DothtmlNode> hierarchy, int position)
+        public override IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            hierarchy.Add(this);
+            var enumeration = base.EnumerateNodes().Concat(NameNode.EnumerateNodes());
+            if (ValueNode != null)
+            {
+                enumeration = enumeration.Concat(ValueNode.EnumerateNodes());
+            }
+            return enumeration;
         }
     }
 }

@@ -88,13 +88,13 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense
                 if (metadata.FullTagName != element.FullTagName)
                 {
                     // the used name differs from the correct, fix the tag name
-                    edit.SetRange(element.TagPrefixToken.StartPosition, element.TagPrefixToken.Length, metadata.TagPrefix);
-                    edit.SetRange(element.TagNameToken.StartPosition, element.TagNameToken.Length, metadata.TagName);
+                    edit.SetRange(element.TagPrefixNode.StartPosition, element.TagPrefixNode.Length, metadata.TagPrefix);
+                    edit.SetRange(element.TagNameNode.StartPosition, element.TagNameNode.Length, metadata.TagName);
 
                     if (element.CorrespondingEndTag != null)
                     {
-                        edit.SetRange(element.CorrespondingEndTag.TagPrefixToken.StartPosition, element.CorrespondingEndTag.TagPrefixToken.Length, metadata.TagPrefix);
-                        edit.SetRange(element.CorrespondingEndTag.TagNameToken.StartPosition, element.CorrespondingEndTag.TagNameToken.Length, metadata.TagName);
+                        edit.SetRange(element.CorrespondingEndTag.TagPrefixNode.StartPosition, element.CorrespondingEndTag.TagPrefixNode.Length, metadata.TagPrefix);
+                        edit.SetRange(element.CorrespondingEndTag.TagNameNode.StartPosition, element.CorrespondingEndTag.TagNameNode.Length, metadata.TagName);
                     }
                 }
 
@@ -105,7 +105,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense
                     if (property != null && property.Name != attribute.AttributeName)
                     {
                         // the used name differs from the correct, fix the tag name
-                        edit.SetRange(attribute.AttributeNameToken.StartPosition, attribute.AttributeNameToken.Length, property.Name);
+                        edit.SetRange(attribute.AttributeNameNode.StartPosition, attribute.AttributeNameNode.Length, property.Name);
                     }
                 }
 
@@ -116,10 +116,10 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense
                     if (property != null && property.IsElement && property.Name != child.FullTagName)
                     {
                         // the used name differs from the correct, fix the tag name
-                        edit.SetRange(child.TagNameToken.StartPosition, child.TagNameToken.Length, property.Name);
+                        edit.SetRange(child.TagPrefixNode.StartPosition, child.TagPrefixNode.Length, property.Name);
                         if (child.CorrespondingEndTag != null)
                         {
-                            edit.SetRange(child.CorrespondingEndTag.TagNameToken.StartPosition, child.CorrespondingEndTag.TagNameToken.Length, property.Name);
+                            edit.SetRange(child.CorrespondingEndTag.TagNameNode.StartPosition, child.CorrespondingEndTag.TagNameNode.Length, property.Name);
                         }
                     }
                 }

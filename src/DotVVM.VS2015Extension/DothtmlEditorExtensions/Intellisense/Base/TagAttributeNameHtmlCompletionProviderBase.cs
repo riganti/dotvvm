@@ -20,7 +20,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base
                 var tagNameHierarchy = GetTagHierarchy(context);
 
                 // if the tag has already some attributes, don't show them in the IntelliSense
-                var tag = context.CurrentNode as DothtmlElementNode ?? ((DothtmlAttributeNode)context.CurrentNode).ParentElement;
+                var tag = ((DothtmlElementNode) context.CurrentNode) ?? (DothtmlElementNode) context.CurrentNode.ParentNode;
                 var existingAttributeNames = tag.Attributes.Select(a => a.AttributeName).ToList();
 
                 return GetItemsCore(context, tagNameHierarchy)

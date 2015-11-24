@@ -67,7 +67,8 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(1, innerElement.Attributes.Count);
             Assert.AreEqual("href", innerElement.Attributes[0].AttributeName);
             Assert.IsNull(innerElement.Attributes[0].AttributePrefix);
-            Assert.AreEqual("test of a test", innerElement.Attributes[0].Literal.Value);
+
+            Assert.AreEqual("test of a test", (innerElement.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
         }
 
 
@@ -81,7 +82,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(1, innerElement.Attributes.Count);
             Assert.AreEqual("href", innerElement.Attributes[0].AttributeName);
             Assert.IsNull(innerElement.Attributes[0].AttributePrefix);
-            Assert.AreEqual("test of a test", innerElement.Attributes[0].Literal.Value);
+            Assert.AreEqual("test of a test", (innerElement.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
         }
 
 
@@ -99,7 +100,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             Assert.AreEqual("checked", innerElement.Attributes[1].AttributeName);
             Assert.IsNull(innerElement.Attributes[1].AttributePrefix);
-            Assert.IsNull(innerElement.Attributes[1].Literal);
+            Assert.IsNull(innerElement.Attributes[1].ValueNode);
         }
 
         [TestMethod]
@@ -112,7 +113,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(1, innerElement.Attributes.Count);
             Assert.AreEqual("href", innerElement.Attributes[0].AttributeName);
             Assert.IsNull(innerElement.Attributes[0].AttributePrefix);
-            Assert.AreEqual("test", innerElement.Attributes[0].Literal.Value);
+            Assert.AreEqual("test", (innerElement.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
         }
 
 
@@ -156,9 +157,9 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual("a", ((DothtmlElementNode)nodes[1]).FullTagName);
             Assert.AreEqual(0, ((DothtmlElementNode)nodes[1]).Content.Count);
 
-            Assert.AreEqual("href", ((DothtmlElementNode)nodes[1]).Attributes[0].AttributeName);
-            Assert.AreEqual("value", ((DothtmlBindingNode)((DothtmlElementNode)nodes[1]).Attributes[0].Literal).Name);
-            Assert.AreEqual("test", ((DothtmlElementNode)nodes[1]).Attributes[0].Literal.Value);
+            Assert.AreEqual("href", (nodes[1] as DothtmlElementNode).Attributes[0].AttributeName);
+            Assert.AreEqual("value", ((nodes[1] as DothtmlElementNode).Attributes[0].ValueNode as DothtmlValueBindingNode).BindingNode.Name);
+            Assert.AreEqual("test", ((nodes[1] as DothtmlElementNode).Attributes[0].ValueNode as DothtmlValueBindingNode).BindingNode.Value);
         }
 
         [TestMethod]
@@ -177,8 +178,8 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(0, ((DothtmlElementNode)nodes[1]).Content.Count);
 
             Assert.AreEqual("href", ((DothtmlElementNode)nodes[1]).Attributes[0].AttributeName);
-            Assert.AreEqual("value", ((DothtmlBindingNode)((DothtmlElementNode)nodes[1]).Attributes[0].Literal).Name);
-            Assert.AreEqual("test", ((DothtmlElementNode)nodes[1]).Attributes[0].Literal.Value);
+            Assert.AreEqual("value", (((DothtmlElementNode)nodes[1]).Attributes[0].ValueNode as DothtmlValueBindingNode).BindingNode.Name);
+            Assert.AreEqual("test", (((DothtmlElementNode)nodes[1]).Attributes[0].ValueNode as DothtmlValueBindingNode).BindingNode.Value);
         }
 
         [TestMethod]
@@ -231,10 +232,10 @@ test";
             Assert.AreEqual(3, nodes.Count);
 
             Assert.AreEqual("Holder", ((DothtmlElementNode)nodes[0]).Attributes[0].AttributeName);
-            Assert.AreEqual(null, ((DothtmlElementNode)nodes[0]).Attributes[0].Literal);
+            Assert.AreEqual(null, ((DothtmlElementNode)nodes[0]).Attributes[0].ValueNode);
 
             Assert.AreEqual("DataContext", ((DothtmlElementNode)nodes[0]).Attributes[1].AttributeName);
-            Assert.AreEqual("sdads", ((DothtmlLiteralNode)((DothtmlElementNode)nodes[0]).Attributes[1].Literal).Value);
+            Assert.AreEqual("sdads", (((DothtmlElementNode)nodes[0]).Attributes[1].ValueNode as DothtmlValueTextNode).Text);
 
             Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
             Assert.AreEqual("", ((DothtmlElementNode)nodes[1]).FullTagName);
@@ -267,7 +268,7 @@ test";
             Assert.AreEqual("a", ael.FullTagName);
             Assert.AreEqual(1, ael.Attributes.Count);
             Assert.AreEqual("href", ael.Attributes[0].AttributeName);
-            Assert.AreEqual("/", ael.Attributes[0].Literal.Value);
+            Assert.AreEqual("/", (ael.Attributes[0].ValueNode as DothtmlValueTextNode).Text);
         }
 
         [TestMethod]
@@ -354,10 +355,9 @@ test";
             Assert.AreEqual("test ", ((DothtmlLiteralNode)nodes[0]).Value);
             Assert.IsFalse(((DothtmlLiteralNode)nodes[0]).IsComment);
 
-            Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
-            Assert.AreEqual(@"<a href=""test1"">test2</a>", ((DothtmlLiteralNode)nodes[1]).Value);
-            Assert.IsTrue(((DothtmlLiteralNode)nodes[1]).IsComment);
-
+            Assert.IsInstanceOfType(nodes[1], typeof(DotHtmlCommentNode));
+            Assert.AreEqual(@"<a href=""test1"">test2</a>", ((DotHtmlCommentNode)nodes[1]).Value);
+           
             Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
             Assert.AreEqual(" test3 ", ((DothtmlLiteralNode)nodes[2]).Value);
             Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
@@ -401,9 +401,8 @@ test";
 
             Assert.AreEqual(3, nodes.Count);
 
-            Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual(" my comment ", ((DothtmlLiteralNode)nodes[0]).Value);
-            Assert.IsTrue(((DothtmlLiteralNode)nodes[0]).IsComment);
+            Assert.IsInstanceOfType(nodes[0], typeof(DotHtmlCommentNode));
+            Assert.AreEqual(" my comment ", ((DotHtmlCommentNode)nodes[0]).Value);
 
             Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
             Assert.AreEqual(@" ", ((DothtmlLiteralNode)nodes[1]).Value);
@@ -427,9 +426,8 @@ test";
 
             Assert.AreEqual(3, nodes.Count);
 
-            Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
-            Assert.AreEqual(" my comment ", ((DothtmlLiteralNode)nodes[0]).Value);
-            Assert.IsTrue(((DothtmlLiteralNode)nodes[0]).IsComment);
+            Assert.IsInstanceOfType(nodes[0], typeof(DotHtmlCommentNode));
+            Assert.AreEqual(" my comment ", ((DotHtmlCommentNode)nodes[0]).Value);
 
             Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
             Assert.AreEqual(@" ", ((DothtmlLiteralNode)nodes[1]).Value);
@@ -454,7 +452,7 @@ test";
             Assert.AreEqual("a", (node.FullTagName));
             Assert.IsInstanceOfType(node.Content[0], typeof(DothtmlBindingNode));
             var content = node.Content[0] as DothtmlBindingNode;
-            
+
         }
 
         public static DothtmlRootNode ParseMarkup(string markup)
