@@ -22,6 +22,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.SendKeys("input[type=text]", "user");
                 browser.First("input[type=button]").Click();
                 browser.Wait();
+                browser.Refresh();
                  //browser.FindElements("a").ThrowIfDifferentCountThan(2);
                 browser.Wait();
                 browser.Last("a").Click();
@@ -29,7 +30,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.SendKeys("input[type=text]", "message");
                 browser.ElementAt("input[type=button]", 0).Click();
 
-                browser.First("h1")
+                browser.ElementAt("h1",1)
                     .CheckIfInnerText(
                         s =>
                             s.Contains("DotVVM Debugger: Error 401: Unauthorized")
@@ -37,7 +38,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_Auth_Login);
 
-                browser.SendKeys("input[type=text]", "user");
+                //browser.SendKeys("input[type=text]", "user");
                 browser.First("input#adminRole").Click();
                 browser.Wait();
                 browser.First("input[type=button]").Click();
