@@ -42,6 +42,8 @@
                 </tr>
             </dot:Repeater>
         </table>
+
+		<dot:Button Click="{command: SaveDataAsync()}" Text="Save to db" />
     </div>
 
 	<%-- server-side comment not rendered in html --%>

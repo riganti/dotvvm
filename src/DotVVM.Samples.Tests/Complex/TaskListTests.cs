@@ -23,8 +23,8 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
 
                 //add task
-                browser.SendKeys("input[type=text]", "DotVVM rocks!");
-                browser.Click("input[type=button]");
+                browser.SendKeys("input[type=text]", "DotVVM");
+                browser.ElementAt("input[type=button]",0).Click();
                 browser.Wait();
 
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
@@ -35,6 +35,9 @@ namespace DotVVM.Samples.Tests.Complex
 
                 browser.Last(".table tr").CheckClassAttribute(a => a.Contains("completed"),
                     "Last task is not marked as completed.");
+
+                browser.ElementAt("input[type=button]", 1).Click();
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(5);
             });
         }
     }
