@@ -12,7 +12,7 @@ namespace Dotvvm.Samples.Tests
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
-        public const string ComplexSamples_TaskList_TaskList = "ComplexSamples/TaskList/TaskList";
+        public const string ComplexSamples_TaskList_TaskList = "ComplexSamples/TaskList/TaskListAsyncStaticCommands";
         public const string ComplexSamples_CascadeSelectors = "ComplexSamples/CascadeSelectors/CascadeSelectors";
         public const string ComplexSamples_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_SPAViewModelReapplication = "ComplexSamples/SPAViewModelReapplication/pageA";

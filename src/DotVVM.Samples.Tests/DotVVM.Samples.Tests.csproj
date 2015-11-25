@@ -98,7 +98,6 @@
     <Compile Include="Complex\DataTemplateTests.cs" />
     <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
-    <Compile Include="Complex\ServerRenderedTaskList.cs" />
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
     <Compile Include="Control\GridViewTests.cs" />

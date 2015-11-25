@@ -187,7 +187,7 @@
     <Content Include="Views\Errors\MissingRequiredProperty2.dothtml" />
     <Content Include="Views\FeatureSamples\Redirect\Redirect.dothtml" />
     <Content Include="Views\FeatureSamples\PostBack\PostbackUpdate.dothtml" />
-    <Content Include="Views\ComplexSamples\TaskList\TaskList.dothtml" />
+    <Content Include="Views\ComplexSamples\TaskList\TaskListAsyncStaticCommands.dothtml" />
     <Content Include="Views\ComplexSamples\InvoiceCalculator\InvoiceCalculator.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\ViewModelProtection.dothtml" />
     <Content Include="Views\ControlSamples\Button\InputTypeButton_TextContentInside.dothtml" />
