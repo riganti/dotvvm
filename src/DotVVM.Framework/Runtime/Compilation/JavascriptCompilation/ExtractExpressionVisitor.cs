@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             node = base.Visit(node);
             if (Predicate(node))
             {
-                var par = Expression.Parameter(node.Type, "r_" + Replaced.Count);
+                var par = node.Type == typeof(void) ? Expression.Parameter(typeof(object), ""): Expression.Parameter(node.Type, "r_" + Replaced.Count);
                 Replaced.Add(par, node);
                 ParameterOrder.Add(par);
                 return par;
