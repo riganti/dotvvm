@@ -94,6 +94,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Complex\AuthTests.cs" />
     <Compile Include="Complex\CascadeSelectorsTests.cs" />
     <Compile Include="Complex\DataTemplateTests.cs" />
     <Compile Include="Complex\GridViewDataSetTests.cs" />

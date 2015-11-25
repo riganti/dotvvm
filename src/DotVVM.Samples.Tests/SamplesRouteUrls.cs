@@ -9,6 +9,8 @@ namespace Dotvvm.Samples.Tests
 
         public const string Default = "Default";
         public const string DefaultRoute = "";
+        public const string ComplexSamples_Auth_Login = "ComplexSamples/Auth/Login";
+        public const string ComplexSamples_Auth_SecuredPage = "ComplexSamples/Auth/SecuredPage";
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
