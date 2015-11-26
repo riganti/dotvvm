@@ -65,6 +65,7 @@ namespace Dotvvm.Samples.Tests
         public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
         public const string FeatureSamples_PostBack_PostbackUpdate = "FeatureSamples/PostBack/PostbackUpdate";
         public const string FeatureSamples_Redirect_Redirect = "FeatureSamples/Redirect/Redirect";
+        public const string FeatureSamples_HtmlTag_NonPairHtmlTag = "FeatureSamples/HtmlTag/NonPairHtmlTag";
         public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
         public const string FeatureSamples_Validation_NestedValidation = "FeatureSamples/Validation/NestedValidation";
         public const string FeatureSamples_Validation_RegexValidation = "FeatureSamples/Validation/RegexValidation";
