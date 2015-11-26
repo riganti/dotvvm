@@ -27,6 +27,9 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("input[type=text]").GetAttribute("value").Contains("Hello");
                 browser.Last("input[type=text]").GetAttribute("value").Contains("1");
                 browser.First("#test2").CheckIfInnerTextEquals("A");
+                
+                //check url
+                browser.CheckUrl(s => s.Contains("SPAViewModelReapplication/pageA#!/ComplexSamples/SPAViewModelReapplication/pageA"));
 
                 // try the postback
                 browser.First("input[type=button]").Click();
@@ -45,6 +48,9 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Last("input[type=text]").GetAttribute("value").Contains("2");
                 browser.First("#test2").CheckIfInnerTextEquals("B");
 
+                //check url
+                browser.CheckUrl(s => s.Contains("SPAViewModelReapplication/pageA#!/ComplexSamples/SPAViewModelReapplication/pageB"));
+
                 // try the postback
                 browser.First("input[type=button]").Click();
                 browser.Wait();
@@ -61,6 +67,9 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("input[type=text]").GetAttribute("value").Contains("Hello");
                 browser.Last("input[type=text]").GetAttribute("value").Contains("1");
                 browser.First("#test2").CheckIfInnerTextEquals("A");
+
+                //check url
+                browser.CheckUrl(s => s.Contains("SPAViewModelReapplication/pageA#!/ComplexSamples/SPAViewModelReapplication/pageA"));
             });
         }
     }

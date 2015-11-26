@@ -9,10 +9,12 @@ namespace Dotvvm.Samples.Tests
 
         public const string Default = "Default";
         public const string DefaultRoute = "";
+        public const string ComplexSamples_Auth_Login = "ComplexSamples/Auth/Login";
+        public const string ComplexSamples_Auth_SecuredPage = "ComplexSamples/Auth/SecuredPage";
         public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
         public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
         public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
-        public const string ComplexSamples_TaskList_TaskList = "ComplexSamples/TaskList/TaskList";
+        public const string ComplexSamples_TaskList_TaskList = "ComplexSamples/TaskList/TaskListAsyncCommands";
         public const string ComplexSamples_CascadeSelectors = "ComplexSamples/CascadeSelectors/CascadeSelectors";
         public const string ComplexSamples_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
         public const string ComplexSamples_SPAViewModelReapplication = "ComplexSamples/SPAViewModelReapplication/pageA";
@@ -29,6 +31,7 @@ namespace Dotvvm.Samples.Tests
         public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
         public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
         public const string ControlSamples_GridView_ServerRender = "ControlSamples/GridView/GridViewServerRender";
+        public const string ControlSamples_GridView_StaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
         public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
         public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
         public const string ControlSamples_Repeater_RouteLink = "ControlSamples/Repeater/RouteLink";
@@ -70,5 +73,6 @@ namespace Dotvvm.Samples.Tests
         public const string FeatureSamples_Validation_SimpleValidation = "FeatureSamples/Validation/SimpleValidation";
         public const string FeatureSamples_PostBack_PostBackHandlers = "FeatureSamples/PostBack/PostBackHandlers";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
+        public const string FeatureSamples_ViewModelDeserialization_DoesNotDropObject = "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
     }
 }

@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Binding;
+using System.Diagnostics;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList
 {
@@ -11,6 +13,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList
         public string NewTaskTitle { get; set; }
 
         public List<TaskViewModel> Tasks { get; set; }
+
+        public string NewTaskName { get; set; }
 
         public TaskListViewModel()
         {
@@ -48,6 +52,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList
         {
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
+
     }
 
     public class TaskViewModel

@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Complex
     public class TaskListTests : SeleniumTestBase
     {
         [TestMethod]
-        public void Complex_TaskList()
+        public void Complex_TaskListAsyncCommands()
         {
             RunInAllBrowsers(browser =>
             {
@@ -23,7 +23,35 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
 
                 //add task
-                browser.SendKeys("input[type=text]", "DotVVM rocks!");
+                browser.SendKeys("input[type=text]", "DotVVM");
+                browser.ElementAt("input[type=button]",0).Click();
+                browser.Wait();
+
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(4);
+
+                //mark last task as completed
+                browser.Last("a").Click();
+                browser.Wait();
+
+                browser.Last(".table tr").CheckClassAttribute(a => a.Contains("completed"),
+                    "Last task is not marked as completed.");
+
+                browser.ElementAt("input[type=button]", 1).Click();
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(5);
+            });
+        }
+
+        [TestMethod]
+        public void Complex_ServerRenderedTaskList()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_ServerRenderedTaskList);
+
+                browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
+
+                //add task
+                browser.SendKeys("input[type=text]", "DotVVM");
                 browser.Click("input[type=button]");
                 browser.Wait();
 
