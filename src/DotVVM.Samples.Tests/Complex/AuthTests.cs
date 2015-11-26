@@ -28,7 +28,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Last("a").Click();
 
                 browser.SendKeys("input[type=text]", "message");
-                browser.ElementAt("input[type=button]", 0).Click();
+                browser.First("input[type=button]").Click();
 
                 browser.ElementAt("h1",1)
                     .CheckIfInnerText(
@@ -46,7 +46,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Last("a").Click();
 
                 browser.SendKeys("input[type=text]", "message");
-                browser.ElementAt("input[type=button]", 0).Click();
+                browser.First("input[type=button]");
                 browser.Wait();
                 browser.First("span").CheckIfInnerText(s => s.Contains("user: message"));
 
