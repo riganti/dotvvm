@@ -14,10 +14,7 @@
 </head>
 <body>
     <div class="container" class="a" data-attribute="&lt;">
-		
-        <dot:InlineScript dependencies="jquery">
-            <![CDATA[ var k = 1 < 5; ]]>
-        </dot:InlineScript>
+
 
         <h1>Task List</h1>
 
@@ -36,8 +33,7 @@
                     <td>
                         <dot:LinkButton Text="done"
                                         Click="{command: _parent.CompleteTask(TaskId)}"
-										<!-- Comment inside args -->
-                                        Visible="{value: !IsCompleted}" />
+                                        Visible="{value: !IsCompleted}" ></dot:LinkButton>
                     </td>
                 </tr>
             </dot:Repeater>
@@ -45,6 +41,7 @@
 
 		<dot:Button Click="{command: SaveDataAsync()}" Text="Save to db" />
     </div>
+	
 
 	<%-- server-side comment not rendered in html --%>
 </body>

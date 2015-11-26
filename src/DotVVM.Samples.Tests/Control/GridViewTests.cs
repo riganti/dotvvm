@@ -26,6 +26,25 @@ namespace DotVVM.Samples.Tests.Control
             Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_ServerRender);
         }
 
+        [TestMethod]
+        public void Control_GridViewStaticCommand()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_StaticCommand);
+                //check rows
+                browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(5);
+                //check first row Id
+                browser.First("table tbody tr td span").CheckIfInnerTextEquals("1");
+                //cal static command for delete row
+                browser.First("table tbody tr input[type=button]").Click();
+                //check rows again
+                browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(4);
+                //check first row Id
+                browser.First("table tbody tr td span").CheckIfInnerTextEquals("2");
+            });
+        }
+
         public void Control_GridViewPagingSortingBase(string path) { 
 
             

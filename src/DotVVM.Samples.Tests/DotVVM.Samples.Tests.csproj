@@ -94,11 +94,11 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Complex\AuthTests.cs" />
     <Compile Include="Complex\CascadeSelectorsTests.cs" />
     <Compile Include="Complex\DataTemplateTests.cs" />
     <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
-    <Compile Include="Complex\ServerRenderedTaskList.cs" />
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
     <Compile Include="Control\GridViewTests.cs" />
@@ -116,6 +116,7 @@
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
+    <Compile Include="Feature\HtmlTagTests.cs" />
     <Compile Include="Feature\IdGenerationTests.cs" />
     <Compile Include="Feature\DynamicValidationTests.cs" />
     <Compile Include="Feature\LocalizationTests.cs" />
