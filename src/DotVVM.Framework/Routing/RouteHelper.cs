@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Routing
             else yield return pureName;
         }
 
-        [Obsolete("Use IRoutingStrategy.")]
+        [Obsolete("Use IRoutingStrategy.")] // TODO: make this a helper for IRoutingStrategy
         public static void AutoRegisterRoutes(this DotvvmConfiguration config, string path = "", string pattern = "*.dothtml")
             => AutoRegisterRoutes(config, GetRoutesForFile, path, pattern);
 

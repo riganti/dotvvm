@@ -424,7 +424,7 @@ class DotVVM {
                     this.isSpaReady(true);
                     this.isViewModelUpdating = false;
                 } else if (resultObject.action === "redirect") {
-                    this.handleRedirect(resultObject, viewModelName);
+                    this.handleRedirect(resultObject, viewModelName, true);
                     return;
                 } 
             
@@ -448,15 +448,19 @@ class DotVVM {
         });
     }
 
-    private handleRedirect(resultObject: any, viewModelName: string) {
+    private handleRedirect(resultObject: any, viewModelName: string, replace?: boolean) {
+        if (resultObject.replace != null) replace = resultObject.replace;
+        var url;
         // redirect
         if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
             // relative URL - keep in SPA mode, but remove the virtual directory
-            document.location.href = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
+            url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
         } else {
             // absolute URL - load the URL
-            document.location.href = resultObject.url;
+            url = resultObject.url;
         }
+        if (replace) location.replace(url);
+        else location.href = url;
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
