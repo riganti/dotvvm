@@ -121,8 +121,8 @@
     <Compile Include="ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\CascadeSelectors\CascadeSelectorsViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\DataTemplate\EmptyDataTemplateRepeaterGridViewViewModel.cs" />
-    <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
@@ -131,6 +131,7 @@
     <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
@@ -201,7 +202,7 @@
     <Content Include="Views\Errors\MissingRequiredProperty2.dothtml" />
     <Content Include="Views\FeatureSamples\Redirect\Redirect.dothtml" />
     <Content Include="Views\FeatureSamples\PostBack\PostbackUpdate.dothtml" />
-    <Content Include="Views\ComplexSamples\TaskList\TaskListAsyncStaticCommands.dothtml" />
+    <Content Include="Views\ComplexSamples\TaskList\TaskListAsyncCommands.dothtml" />
     <Content Include="Views\ComplexSamples\InvoiceCalculator\InvoiceCalculator.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelProtection\ViewModelProtection.dothtml" />
     <Content Include="Views\ControlSamples\Button\InputTypeButton_TextContentInside.dothtml" />
@@ -255,6 +256,7 @@
     <Content Include="Views\FeatureSamples\ViewModelDeserialization\DoesNotDropObject.dothtml" />
     <Content Include="Views\ComplexSamples\Auth\Login.dothtml" />
     <Content Include="Views\ComplexSamples\Auth\SecuredPage.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewStaticCommand.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -282,7 +284,9 @@
       <Name>DotVVM.Framework</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="ViewModels\ComplexSamples\GridView\" />
+  </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>

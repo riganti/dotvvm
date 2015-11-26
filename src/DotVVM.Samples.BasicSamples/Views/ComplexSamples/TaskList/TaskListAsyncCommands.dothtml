@@ -41,9 +41,7 @@
 
 		<dot:Button Click="{command: SaveDataAsync()}" Text="Save to db" />
     </div>
-	<dot:Button Click="{staticCommand: NewTaskName = CoolAction(NewTaskTitle)}" Text="Test static command" />
-
-		<span>{{value: NewTaskName}}</span>
+	
 
 	<%-- server-side comment not rendered in html --%>
 </body>

@@ -14,7 +14,7 @@ namespace DotVVM.Samples.Tests.Complex
     public class TaskListTests : SeleniumTestBase
     {
         [TestMethod]
-        public void Complex_TaskListAsyncStaticCommands()
+        public void Complex_TaskListAsyncCommands()
         {
             RunInAllBrowsers(browser =>
             {
@@ -24,11 +24,6 @@ namespace DotVVM.Samples.Tests.Complex
 
                 //add task
                 browser.SendKeys("input[type=text]", "DotVVM");
-                //click staticCommand button
-                browser.ElementAt("input[type=button]", 2).Click();
-                browser.Wait();
-                browser.Last("span").CheckIfInnerTextEquals("DotVVM");
-
                 browser.ElementAt("input[type=button]",0).Click();
                 browser.Wait();
 

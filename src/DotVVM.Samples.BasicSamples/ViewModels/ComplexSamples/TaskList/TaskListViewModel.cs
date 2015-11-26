@@ -53,11 +53,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.TaskList
             Tasks.Single(t => t.TaskId == id).IsCompleted = true;
         }
 
-        [StaticCommandCallable]
-        public string CoolAction(string newTaskTitle)
-        {
-            return newTaskTitle;
-        }
     }
 
     public class TaskViewModel
