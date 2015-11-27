@@ -15,13 +15,13 @@ namespace DotVVM.Samples.Tests.Complex
         [TestMethod]
         public void Complex_CascadeSelectorsServerRender()
         {
-            Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectorsServerRender);
+            Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender);
         }
 
         [TestMethod]
         public void Complex_CascadeSelectors()
         {
-            Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors);
+            Complex_CascadeSelectorsBase(SamplesRouteUrls.ComplexSamples_CascadeSelectors_CascadeSelectors);
         }
 
         public void Complex_CascadeSelectorsBase(string url)

@@ -736,7 +736,7 @@ var DotvvmSerialization = (function () {
         if (viewModel instanceof Array) {
             var array = [];
             for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.deserialize(viewModel[i], {}, deserializeAll));
+                array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
             }
             if (ko.isObservable(target)) {
                 if (!target.removeAll) {
@@ -810,6 +810,11 @@ var DotvvmSerialization = (function () {
             }
         }
         return target;
+    };
+    DotvvmSerialization.prototype.wrapObservable = function (obj) {
+        if (!ko.isObservable(obj))
+            return ko.observable(obj);
+        return obj;
     };
     DotvvmSerialization.prototype.serialize = function (viewModel, opt) {
         if (opt === void 0) { opt = {}; }

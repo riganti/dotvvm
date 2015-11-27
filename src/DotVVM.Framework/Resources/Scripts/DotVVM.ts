@@ -766,7 +766,7 @@ class DotvvmSerialization {
         if (viewModel instanceof Array) {
             var array = [];
             for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.deserialize(viewModel[i], {}, deserializeAll));
+                array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
             }
 
             if (ko.isObservable(target)) {
@@ -843,6 +843,10 @@ class DotvvmSerialization {
         return target;
     }
 
+    private wrapObservable(obj: any) {
+        if (!ko.isObservable(obj)) return ko.observable(obj);
+        return obj;
+    }
 
     public serialize(viewModel: any, opt: SerializationOptions = {}): any {
         opt = ko.utils.extend({}, opt);

@@ -18,7 +18,7 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_TaskList);
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_TaskList_TaskListAsyncCommands);
 
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(3);
 

@@ -74,11 +74,24 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack);
 
-            if (javascript.StartsWith("$data.", StringComparison.Ordinal)) javascript = javascript.Substring("$data.".Length);
+            if (javascript.StartsWith("$data.", StringComparison.Ordinal))
+            {
+                javascript = javascript.Substring("$data.".Length);
+            }
+            if (javascript.StartsWith("$rawData.", StringComparison.Ordinal))
+            {
+                javascript = javascript.Substring("$rawData.".Length);
+            }
+
             // do not produce try/eval on single properties
             if (javascript.Contains(".") || javascript.Contains("("))
+            {
                 return "dotvvm.tryEval(function(){return " + javascript + "})";
-            else return javascript;
+            }
+            else
+            {
+                return javascript;
+            }
         }
     }
 }

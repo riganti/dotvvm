@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Binding
         #region Helpers
 
         public static readonly ValueBindingExpression ThisBinding
-             = new ValueBindingExpression(vm => vm[0], "$data");
+             = new ValueBindingExpression(vm => vm[0], "$rawData");
 
         public ValueBindingExpression MakeListIndexer(int index)
         {

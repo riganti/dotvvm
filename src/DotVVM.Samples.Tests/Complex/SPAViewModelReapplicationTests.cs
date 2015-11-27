@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPAViewModelReapplication);
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPAViewModelReapplication_pageA);
                 browser.Wait();
 
                 // verify items count
