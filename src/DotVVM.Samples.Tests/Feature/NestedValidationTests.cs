@@ -31,7 +31,6 @@ namespace DotVVM.Samples.Tests.Feature
                 
                 // leave textbox empty and submit the form
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // ensure validators visible
                 browser.ElementAt("span", 0).CheckIfIsDisplayed();
@@ -44,7 +43,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // submit once again and test the validation summary still holds one error
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // ensure validators visible
                 browser.ElementAt("span", 0).CheckIfIsDisplayed();
@@ -59,7 +57,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.SendKeys("input[type=text]", "test");
                 browser.Wait();
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // ensure validators
                 browser.ElementAt("span", 0).CheckIfIsNotDisplayed();

@@ -30,7 +30,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // leave textbox empty and submit the form
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // ensure validators visible
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
@@ -42,14 +41,12 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // submit once again and test the validation summary still holds one error
                 browser.Click("input[type=button]");
-                browser.Wait();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
 
                 // fill invalid value in the task title
                 browser.SendKeys("input[type=text]", "test");
                 browser.Wait();
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // ensure validators visible
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
@@ -64,7 +61,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.SendKeys("input[type=text]", "test@mail.com");
                 browser.Wait();
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // ensure validators not visible
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);

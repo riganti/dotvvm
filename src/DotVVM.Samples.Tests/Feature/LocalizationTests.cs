@@ -19,14 +19,10 @@ namespace DotVVM.Samples.Tests.Feature
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization);
 
-                //Assert.AreEqual("This comes from resource file!", browser.First("p").GetText().Trim());
-                browser.First("p").CheckIfInnerTextEquals("This comes from resource file!");
+                browser.First("p").CheckIfInnerTextEquals("This comes from resource file!", false, true);
                 // change language
-                browser.FindElements("a").Last().Click();
-                browser.Wait();
-
-                //Assert.AreEqual("Tohle pochází z resource souboru!", browser.First("p").GetText().Trim());
-                browser.First("p").CheckIfInnerTextEquals("Tohle pochází z resource souboru!");
+                browser.Last("a").Click();
+                browser.First("p").CheckIfInnerTextEquals("Tohle pochází z resource souboru!", false, true);
             });
         }
     }

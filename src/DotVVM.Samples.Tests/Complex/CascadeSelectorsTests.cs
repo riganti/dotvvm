@@ -33,26 +33,22 @@ namespace DotVVM.Samples.Tests.Complex
                 // select city
                 browser.First("select").Select(1);
                 browser.First("input[type=button]").Click();
-                browser.Wait();
 
                 // select hotel
                 browser.Last("select").Select(1);
                 browser.Last("input[type=button]").Click();
-                browser.Wait();
 
                 browser.First("h2").CheckIfInnerTextEquals("Hotel Seattle #2");
 
                 // select city
                 browser.First("select").Select(0);
                 browser.First("input[type=button]").Click();
-                browser.Wait();
 
                 // select hotel
                 browser.Last("select")
                     .First("option").Click();
 
                 browser.Last("input[type=button]").Click();
-                browser.Wait();
 
                 browser.First("h2").CheckIfInnerTextEquals("Hotel Prague #1");
             });

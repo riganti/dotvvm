@@ -26,7 +26,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "15");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 browser.FindElements("br").ThrowIfDifferentCountThan(14);
 
@@ -34,7 +33,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "5");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 browser.FindElements("br").ThrowIfDifferentCountThan(4);
             });
@@ -50,55 +48,50 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // confirm first
                 browser.ElementAt("input[type=button]", 0).Click();
-                browser.Wait();
-                browser.GetAlertText().Contains("Confirmation 1");
+                browser.CheckIfAlertTextEquals("Confirmation 1");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.FindElements("span").Last().CheckIfInnerTextEquals("1");
+                browser.Last("span").CheckIfInnerTextEquals("1");
 
                 // cancel second
                 browser.ElementAt("input[type=button]", 1).Click();
-                browser.Wait();
-                browser.GetAlertText().Contains("Confirmation 1");
+                browser.CheckIfAlertTextEquals("Confirmation 1");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.GetAlertText().Contains("Confirmation 2");
+
+                browser.CheckIfAlertTextEquals("Confirmation 2");
                 browser.GetAlert().Dismiss();
                 browser.Wait();
                 browser.FindElements("span").Last().CheckIfInnerTextEquals("1");
                 // confirm second
                 browser.ElementAt("input[type=button]", 1).Click();
-                browser.Wait();
-                browser.GetAlertText().Contains("Confirmation 1");
+                browser.CheckIfAlertTextEquals("Confirmation 1");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.GetAlertText().Contains("Confirmation 2");
+                browser.CheckIfAlertTextEquals("Confirmation 2");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.FindElements("span").Last().CheckIfInnerTextEquals("2");
+                browser.Last("span").CheckIfInnerTextEquals("2");
 
                 // confirm third
                 browser.ElementAt("input[type=button]", 2).Click();
-                browser.Wait();
                 //Assert.AreEqual(null, browser.GetAlert());            // TODO: GetAlert should return null when no alert is present.
                 browser.Wait();
-                browser.FindElements("span").Last().CheckIfInnerTextEquals("3");
+                browser.Last("span").CheckIfInnerTextEquals("3");
 
                 // confirm fourth
                 browser.ElementAt("input[type=button]", 3).Click();
-                browser.Wait();
-                browser.GetAlertText().Contains("Generated 1");
+                browser.CheckIfAlertTextEquals("Generated 1");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.FindElements("span").Last().CheckIfInnerTextEquals("4");
+                browser.Last("span").CheckIfInnerTextEquals("4");
 
                 // confirm fifth
                 browser.ElementAt("input[type=button]", 4).Click();
-                browser.Wait();
-                browser.GetAlertText().Contains("Generated 2");
+                browser.CheckIfAlertTextEquals("Generated 2");
                 browser.ConfirmAlert();
                 browser.Wait();
-                browser.FindElements("span").Last().CheckIfInnerTextEquals("5");
+                browser.Last("span").CheckIfInnerTextEquals("5");
             });
         }
     }

@@ -38,7 +38,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
 
                 // second textbox
-                var textBox2 = browser.FindElements("input[type=text]")[1];
+                var textBox2 = browser.ElementAt("input[type=text]", 1);
                 new Actions(browser.Browser).Click(textBox2.WebElement).Perform();
                 browser.Wait();
                 new Actions(browser.Browser).SendKeys("test").Perform();
@@ -62,19 +62,19 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("4");
 
                 // click on radio button
-                browser.ElementAt("input[type=radio]", 0).Click().Wait();
+                browser.ElementAt("input[type=radio]", 0).Click();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("5");
 
-                browser.ElementAt("input[type=radio]", 1).Click().Wait();
+                browser.ElementAt("input[type=radio]", 1).Click();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("6");
 
-                browser.ElementAt("input[type=radio]", 2).Click().Wait();
+                browser.ElementAt("input[type=radio]", 2).Click();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("7");
 
-                browser.ElementAt("input[type=radio]", 3).Click().Wait();
+                browser.ElementAt("input[type=radio]", 3).Click();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("8");
 
-                browser.ElementAt("input[type=radio]", 4).Click().Wait();
+                browser.ElementAt("input[type=radio]", 4).Click();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("9");
 
                 // combo box

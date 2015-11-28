@@ -21,8 +21,9 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention);
 
                 // try the long action interrupted by the short one
-                browser.ElementAt("input[type=button]", 0).Click().Wait(2000);
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
+                browser.Wait(2000);
+                browser.ElementAt("input[type=button]", 1).Click();
 
                 // the postback index should be 1 now (because of short action)
                 browser.ElementAt("span", 0).CheckIfInnerTextEquals("1");
@@ -36,7 +37,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // test update progress control
                 browser.CheckIfIsNotDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");
-                browser.ElementAt("input[type=button]", 2).Click().Wait();
+                browser.ElementAt("input[type=button]", 2).Click();
                 browser.CheckIfIsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");
                 browser.Wait(6000);
                 browser.CheckIfIsNotDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");

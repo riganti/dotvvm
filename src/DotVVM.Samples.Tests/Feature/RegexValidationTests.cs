@@ -22,14 +22,14 @@ namespace DotVVM.Samples.Tests.Feature
 
                 browser.ElementAt("input", 0).SendKeys("25");
                 browser.Wait();
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
 
                 browser.ElementAt("span", 0).CheckIfIsNotDisplayed();
                 browser.ElementAt("span", 1).CheckIfInnerTextEquals("25");
 
                 browser.ElementAt("input", 0).SendKeys("a");
                 browser.Wait();
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
 
                 browser.ElementAt("span", 0).CheckIfIsDisplayed();
                 browser.ElementAt("span", 1).CheckIfInnerTextEquals("25");
