@@ -15,9 +15,27 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         public DothtmlToken EndToken { get; set; }
         public DothtmlValueTextNode ValueNode { get; set; }
 
+        public override IEnumerable<DothtmlNode> EnumerateChildNodes()
+        {
+            if (ValueNode != null)
+            {
+                yield return ValueNode;
+            }
+        }
+
+        public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+
+            foreach (var node in EnumerateChildNodes())
+            {
+                node.Accept(visitor);
+            }
+        }
+
         public override IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            return base.EnumerateNodes().Concat(ValueNode.EnumerateNodes());
+            return base.EnumerateNodes().Concat(EnumerateChildNodes().SelectMany( node => node.EnumerateNodes()));
         }
     }
 }

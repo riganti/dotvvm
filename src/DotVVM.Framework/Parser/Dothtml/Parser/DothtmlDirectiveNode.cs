@@ -10,19 +10,31 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         public string Name => NameNode.Text;
         public string Value => (ValueNode!=null) ? ValueNode.Text : string.Empty;
         public DothtmlToken DirectiveStartToken { get; set; }
-
         public DothtmlNameNode NameNode { get; set; }
-
         public DothtmlValueTextNode ValueNode { get; set; }
+
+        public override IEnumerable<DothtmlNode> EnumerateChildNodes()
+        {
+            yield return NameNode;
+            if (ValueNode != null)
+            {
+                yield return ValueNode;
+            }
+        }
+
+        public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+
+            foreach (var node in EnumerateChildNodes())
+            {
+                node.Accept(visitor);
+            }
+        }
 
         public override IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            var enumeration = base.EnumerateNodes().Concat(NameNode.EnumerateNodes());
-            if (ValueNode != null)
-            {
-                enumeration = enumeration.Concat(ValueNode.EnumerateNodes());
-            }
-            return enumeration;
+            return base.EnumerateNodes().Concat( EnumerateChildNodes().SelectMany(node => node.EnumerateNodes() ) );
         }
     }
 }

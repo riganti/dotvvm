@@ -10,5 +10,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     {
         public Tokenizer.DothtmlToken ValueToken { get; set; }
         public string Text => ValueToken.Text;
+
+        public override IEnumerable<DothtmlNode> EnumerateChildNodes()
+        {
+            return new List<DothtmlNode>();
+        }
+
+        public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

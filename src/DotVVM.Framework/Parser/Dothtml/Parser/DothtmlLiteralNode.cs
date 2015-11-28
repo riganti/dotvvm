@@ -10,6 +10,14 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     {
         public string Value => string.Join(string.Empty, Tokens.Select(token => token.Text));
         public bool Escape { get; set; } = false;
-        public bool IsComment { get; set; }
+
+        public override IEnumerable<DothtmlNode> EnumerateChildNodes()
+        {
+            return new List<DothtmlNode>();
+        }
+        public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

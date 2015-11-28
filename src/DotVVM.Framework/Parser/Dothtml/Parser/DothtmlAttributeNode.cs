@@ -6,7 +6,7 @@ using System.Diagnostics;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
-    [DebuggerDisplay("{debuggerDisplay,nq}{Literal}")]
+    [DebuggerDisplay("{debuggerDisplay,nq}{ValueNode}")]
     public class DothtmlAttributeNode : DothtmlNode
     {
         #region debbuger display
@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             get
             {
                 return (string.IsNullOrWhiteSpace(AttributePrefix) ? "" : AttributePrefix + ":") + AttributeName
-                    + ( ValueNode == null ? "" : "=" );
+                    + (ValueNode == null ? "" : "=");
             }
         }
         #endregion
@@ -30,25 +30,37 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public DothtmlNameNode AttributeNameNode { get; set; }
 
-
         public DothtmlToken PrefixSeparatorToken { get; set; }
         public DothtmlToken ValueSeparatorToken { get; set; }
         public List<DothtmlToken> ValueStartTokens { get; set; } = new List<DothtmlToken>();
         public List<DothtmlToken> ValueEndTokens { get; set; } = new List<DothtmlToken>();
 
-        public override IEnumerable<DothtmlNode> EnumerateNodes()
+        public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
-            var enumeration = base.EnumerateNodes();
             if (AttributePrefixNode != null)
             {
-                enumeration = enumeration.Concat(AttributePrefixNode.EnumerateNodes());
+                yield return AttributePrefixNode;
             }
-            enumeration = enumeration.Concat(AttributeNameNode.EnumerateNodes());
+            yield return AttributeNameNode;
             if (ValueNode != null)
             {
-                enumeration = enumeration.Concat(ValueNode.EnumerateNodes());
+                yield return ValueNode;
             }
-            return enumeration;
+        }
+
+        public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+
+            foreach (var node in EnumerateChildNodes())
+            {
+                node.Accept(visitor);
+            }
+        }
+
+        public override IEnumerable<DothtmlNode> EnumerateNodes()
+        {
+            return base.EnumerateNodes().Concat(EnumerateChildNodes().SelectMany(node => node.EnumerateNodes()));
         }
     }
 }

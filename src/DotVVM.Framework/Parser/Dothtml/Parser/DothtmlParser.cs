@@ -135,10 +135,10 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 else
                 {
                     // text
-                    if (!doNotAppend 
-                        && CurrentElementContent.Count > 0 
+                    if (!doNotAppend
+                        && CurrentElementContent.Count > 0
                         && CurrentElementContent[CurrentElementContent.Count - 1].GetType() == typeof(DothtmlLiteralNode)
-                        && !((DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1]).IsComment)
+                        && !(CurrentElementContent[CurrentElementContent.Count - 1] is DotHtmlCommentNode))
                     {
                         // append to the previous literal
                         var lastLiteral = (DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
@@ -171,8 +171,16 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 node.Length = node.Tokens.Select(t => t.Length).DefaultIfEmpty(0).Sum();
             }
 
+            ResolveParents(root);
+
             Root = root;
             return root;
+        }
+
+        private void ResolveParents(DothtmlRootNode root)
+        {
+            var parentResolver = new ParentResolvingVisitor();
+            root.Accept(parentResolver);
         }
 
         private void ResolveWrongClosingTag(DothtmlElementNode element)
@@ -294,12 +302,13 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             // attributes
             if (!node.IsClosingTag)
             {
-                SkipWhiteSpaceOrComment();
+                ReadWhiteSpaceOrComment(node);
                 while (Peek().Type == DothtmlTokenType.Text)
                 {
                     var attribute = ReadAttribute();
                     node.Attributes.Add(attribute);
-                    SkipWhiteSpaceOrComment();
+
+                    ReadWhiteSpaceOrComment(node);
                 }
 
                 if (Peek().Type == DothtmlTokenType.Slash)
@@ -316,8 +325,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             node.Tokens.AddRange(GetTokensFrom(startIndex));
             return node;
         }
-
-
 
         /// <summary>
         /// Reads the attribute.
@@ -433,7 +440,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             return node;
         }
 
-        private DothtmlNameNode ReadName( bool whitespacesBefore, bool whiteSpacesAfter, DothtmlTokenType nameTokenType)
+        private DothtmlNameNode ReadName(bool whitespacesBefore, bool whiteSpacesAfter, DothtmlTokenType nameTokenType)
         {
             var startIndex = CurrentIndex;
 
@@ -447,7 +454,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Assert(nameTokenType);
             node.NameToken = Read();
 
-            if (whiteSpacesAfter) {
+            if (whiteSpacesAfter)
+            {
                 node.WhitespacesAfter = SkipWhiteSpace();
             }
 
@@ -502,18 +510,20 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             return node;
         }
 
-        void SkipWhiteSpaceOrComment()
+        private void ReadWhiteSpaceOrComment(DothtmlElementNode node)
         {
-            while(true)
+            while (true)
             {
                 switch (Peek().Type)
                 {
                     case DothtmlTokenType.WhiteSpace:
-                        Read();
+                        node.AttributeSeparators.Add(Read());
                         break;
                     case DothtmlTokenType.OpenComment:
+                        node.InnerComments.Add(ReadComment());
+                        break;
                     case DothtmlTokenType.OpenServerComment:
-                        ReadServerComment();
+                        node.InnerComments.Add(ReadServerComment());
                         break;
                     default:
                         return;

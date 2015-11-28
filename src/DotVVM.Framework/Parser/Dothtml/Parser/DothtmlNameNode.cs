@@ -14,5 +14,14 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         public IList<DothtmlToken> WhitespacesAfter { get; set; }
 
         public string Text => NameToken.Text;
+
+        public override IEnumerable<DothtmlNode> EnumerateChildNodes()
+        {
+            return new List<DothtmlNode>();
+        }
+        public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+        }
     }
 }

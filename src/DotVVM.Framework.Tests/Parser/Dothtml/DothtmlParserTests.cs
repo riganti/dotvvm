@@ -353,14 +353,12 @@ test";
 
             Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
             Assert.AreEqual("test ", ((DothtmlLiteralNode)nodes[0]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[0]).IsComment);
 
             Assert.IsInstanceOfType(nodes[1], typeof(DotHtmlCommentNode));
             Assert.AreEqual(@"<a href=""test1"">test2</a>", ((DotHtmlCommentNode)nodes[1]).Value);
            
             Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
             Assert.AreEqual(" test3 ", ((DothtmlLiteralNode)nodes[2]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
 
             Assert.IsInstanceOfType(nodes[3], typeof(DothtmlElementNode));
             Assert.AreEqual("img", ((DothtmlElementNode)nodes[3]).TagName);
@@ -377,15 +375,12 @@ test";
 
             Assert.IsInstanceOfType(nodes[0], typeof(DothtmlLiteralNode));
             Assert.AreEqual("test ", ((DothtmlLiteralNode)nodes[0]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[0]).IsComment);
 
             Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
             Assert.AreEqual(@"<![CDATA[<a href=""test1"">test2</a>]]>", ((DothtmlLiteralNode)nodes[1]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[1]).IsComment);
 
             Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
             Assert.AreEqual(" test3 ", ((DothtmlLiteralNode)nodes[2]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
 
             Assert.IsInstanceOfType(nodes[3], typeof(DothtmlElementNode));
             Assert.AreEqual("img", ((DothtmlElementNode)nodes[3]).TagName);
@@ -406,11 +401,9 @@ test";
 
             Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
             Assert.AreEqual(@" ", ((DothtmlLiteralNode)nodes[1]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[1]).IsComment);
 
             Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
             Assert.AreEqual(@"Test", ((DothtmlLiteralNode)nodes[2]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
 
             Assert.AreEqual(1, root.Directives.Count);
             Assert.AreEqual("viewModel", root.Directives[0].Name);
@@ -431,11 +424,9 @@ test";
 
             Assert.IsInstanceOfType(nodes[1], typeof(DothtmlLiteralNode));
             Assert.AreEqual(@" ", ((DothtmlLiteralNode)nodes[1]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[1]).IsComment);
 
             Assert.IsInstanceOfType(nodes[2], typeof(DothtmlLiteralNode));
             Assert.AreEqual(@"Test", ((DothtmlLiteralNode)nodes[2]).Value);
-            Assert.IsFalse(((DothtmlLiteralNode)nodes[2]).IsComment);
 
             Assert.AreEqual(2, root.Directives.Count);
             Assert.AreEqual("masterPage", root.Directives[0].Name);

@@ -90,17 +90,26 @@ namespace DotVVM.Framework.Runtime.Compilation
                     literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding, dataContext)));
                     return literal;
                 }
+                else if(node is DotHtmlCommentNode)
+                {
+                    var commentNode = node as DotHtmlCommentNode;
+                    var whitespace = string.IsNullOrWhiteSpace(commentNode.Value);
+
+                    string text = commentNode.IsServerSide ?  "" : "<!--" + commentNode.Value + "-->";
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(RawLiteral)), node, dataContext);
+                    literal.ContructorParameters = new object[] { text, commentNode.Value, whitespace };
+                    return literal;
+                }
                 else if (node is DothtmlLiteralNode)
                 {
                     var literalNode = ((DothtmlLiteralNode)node);
                     // text content
-                    var whitespace = literalNode.IsComment || string.IsNullOrWhiteSpace(literalNode.Value);
+                    var whitespace = string.IsNullOrWhiteSpace(literalNode.Value);
                     if (!whitespace) EnsureContentAllowed(parentMetadata);
 
                     string text;
-                    if (literalNode.IsComment)
-                        text = "<!--" + literalNode.Value + "-->";
-                    else if (literalNode.Escape)
+                    
+                    if (literalNode.Escape)
                         text = WebUtility.HtmlEncode(literalNode.Value);
                     else text = literalNode.Value;
 
@@ -410,7 +419,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 }
                 else if (child.IsNotEmpty())
                 {
-                    throw new DotvvmCompilationException($"Content is not allowed inside the property '{property.Name}'!");
+                    throw new DotvvmCompilationException($"Content is not allowed inside the property '{property.Name}'! (Conflicting node: Node {child.GetType().Name})");
                 }
             }
         }

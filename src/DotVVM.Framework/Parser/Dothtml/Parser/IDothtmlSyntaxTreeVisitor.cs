@@ -8,10 +8,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
     public interface IDothtmlSyntaxTreeVisitor
     {
+        void Visit(DothtmlRootNode root);
+        void Visit(DothtmlElementNode element);
         void Visit(DothtmlAttributeNode attribute);
+        void Visit(DothtmlValueTextNode textValue);
+        void Visit(DothtmlValueBindingNode bindingValue);
+        void Visit(DothtmlNameNode name);
+        void Visit(DotHtmlCommentNode comment);
         void Visit(DothtmlBindingNode binding);
         void Visit(DothtmlDirectiveNode directive);
-        void Visit(DothtmlElementNode element);
         void Visit(DothtmlLiteralNode literal);
     }
 }

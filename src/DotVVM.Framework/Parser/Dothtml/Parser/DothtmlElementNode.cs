@@ -33,29 +33,41 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public DothtmlNameNode TagPrefixNode { get; set; }
         public DothtmlNameNode TagNameNode { get; set; }
-        public List<DothtmlAttributeNode> Attributes { get; set; }
+        public List<DothtmlAttributeNode> Attributes { get; set; } = new List<DothtmlAttributeNode>();
+        public List<DotHtmlCommentNode> InnerComments { get; set; } = new List<DotHtmlCommentNode>();
 
         public DothtmlToken PrefixSeparator { get; set; }
-
-        public List<DothtmlToken> AttributeSeparators { get; set; }
-
+        public List<DothtmlToken> AttributeSeparators { get; set; } = new List<DothtmlToken>();
         public DothtmlElementNode CorrespondingEndTag { get; internal set; }
 
-        public DothtmlElementNode()
+        public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
-            Attributes = new List<DothtmlAttributeNode>();
+            var enumetarion = new List<DothtmlNode>();
+
+            if (TagPrefixNode != null)
+            {
+                enumetarion.Add(TagPrefixNode);
+            }
+            enumetarion.Add(TagNameNode);
+            enumetarion.AddRange(Attributes);
+            enumetarion.AddRange(InnerComments);
+            enumetarion.AddRange(base.EnumerateChildNodes());
+
+            return enumetarion;
         }
 
+        public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+
+            foreach (var node in EnumerateChildNodes() )
+            {
+                node.Accept(visitor);
+            }
+        }
         public override IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            var enumaration = base.EnumerateNodes();
-
-            if(TagPrefixNode != null)
-            {
-                enumaration = enumaration.Concat(TagPrefixNode.EnumerateNodes() );
-            }
-
-            return enumaration.Concat(TagNameNode.EnumerateNodes()).Concat(Attributes.SelectMany(a => a.EnumerateNodes()));
+            return base.EnumerateNodes().Concat(EnumerateChildNodes().SelectMany(node => node.EnumerateNodes()));
         }
     }
 }
