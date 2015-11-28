@@ -156,14 +156,6 @@ namespace DotVVM.Framework.Configuration
                     GlobalObjectName = "dotvvm",
                     Dependencies = new[] { Constants.KnockoutJSResourceName }
                 });
-            configuration.Resources.Register(Constants.DotvvmValidationResourceName,
-                new ScriptResource()
-                {
-                    Url = "DotVVM.Framework.Resources.Scripts.DotVVM.Validation.js",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
-                    GlobalObjectName = "dotvvm.validation",
-                    Dependencies = new[] { Constants.DotvvmResourceName }
-                });
             configuration.Resources.Register(Constants.DotvvmDebugResourceName,
                 new ScriptResource()
                 {
@@ -172,19 +164,11 @@ namespace DotVVM.Framework.Configuration
                     Dependencies = new[] { Constants.DotvvmResourceName, Constants.JQueryResourceName }
                 });
             
-            configuration.Resources.Register(Constants.DotvvmFileUploadResourceName, 
-                new ScriptResource()
-                {
-                    Url = "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.js",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
-                    Dependencies = new[] { Constants.DotvvmResourceName }
-                });
             configuration.Resources.Register(Constants.DotvvmFileUploadCssResourceName,
                 new StylesheetResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
-                    Dependencies = new[] { Constants.DotvvmFileUploadResourceName }
+                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name
                 });
 
             RegisterGlobalizeResources(configuration);

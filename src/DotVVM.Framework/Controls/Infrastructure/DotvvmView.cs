@@ -27,7 +27,6 @@ namespace DotVVM.Framework.Controls.Infrastructure
             Directives = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
 
             ResourceDependencies.Add(Constants.DotvvmResourceName);
-            ResourceDependencies.Add(Constants.DotvvmValidationResourceName);
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)

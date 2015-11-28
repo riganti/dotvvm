@@ -450,7 +450,7 @@ namespace DotVVM.Framework.Controls
                         }
                     }
                     var group = new KnockoutBindingGroup();
-                    group.Add("id", $"dotvvm.buildClientId(this, [{sb.ToString()}])");
+                    group.Add("id", $"dotvvm.evaluator.buildClientId(this, [{sb.ToString()}])");
                     writer.AddKnockoutDataBind("attr", group);
                 }
             }

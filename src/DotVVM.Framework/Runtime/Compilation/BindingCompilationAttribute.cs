@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             // do not produce try/eval on single properties
             if (javascript.Contains(".") || javascript.Contains("("))
             {
-                return "dotvvm.tryEval(function(){return " + javascript + "})";
+                return "dotvvm.evaluator.tryEval(function(){return " + javascript + "})";
             }
             else
             {

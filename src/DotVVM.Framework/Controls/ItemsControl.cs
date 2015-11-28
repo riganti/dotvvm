@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Controls
 
         protected string WrapJavascriptDataSourceAccess(string expression)
         {
-            return "dotvvm.getDataSourceItems(" + expression + ")";
+            return "dotvvm.evaluator.getDataSourceItems(" + expression + ")";
         }
 
         protected string GetForeachDataBindJavascriptExpression()

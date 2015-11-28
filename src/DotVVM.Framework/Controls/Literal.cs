@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Controls
                 var expression = textBinding.GetKnockoutBindingExpression();
                 if (!string.IsNullOrEmpty(FormatString))
                 {
-                    expression = "dotvvm.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
+                    expression = "dotvvm.globalize.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
                 }
 
                 writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", expression);

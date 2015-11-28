@@ -36,7 +36,14 @@ namespace DotVVM.Framework.Controls.Infrastructure
 
             // init on load
             writer.RenderBeginTag("script");
-            writer.WriteUnencodedText(string.Format("dotvvm.onDocumentReady(function () {{ dotvvm.init('{0}', '{1}'); }});", context.CurrentPageArea, Thread.CurrentThread.CurrentUICulture.Name));
+            writer.WriteUnencodedText($@"
+if (window.dotvvm) {{
+    throw 'DotVVM is already loaded!';
+}}
+window.dotvvm = new DotVVM(); 
+window.dotvvm.domUtils.onDocumentReady(function () {{ 
+    window.dotvvm.init('{context.CurrentPageArea}', '{Thread.CurrentThread.CurrentUICulture.Name}'); 
+}});");
             writer.RenderEndTag();
         }
     }
