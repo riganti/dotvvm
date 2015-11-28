@@ -204,7 +204,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string TranslateParameter(ParameterExpression expression)
         {
-            if (expression.Name == "_this") return "$rawData";
+            if (expression.Name == "_this") return "$data";
             if (expression.Name == "_parent") return "$parent";
             if (expression.Name == "_root") return "$root";
             if (expression.Name.StartsWith("_parent", StringComparison.Ordinal)) return $"$parents[{ int.Parse(expression.Name.Substring("_parent".Length)) }]";
