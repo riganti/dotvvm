@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization);
 
                 //Assert.AreEqual("This comes from resource file!", browser.First("p").GetText().Trim());
                 browser.First("p").CheckIfInnerTextEquals("This comes from resource file!");

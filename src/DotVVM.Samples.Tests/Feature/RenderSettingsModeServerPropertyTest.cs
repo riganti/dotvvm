@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_RenderSettingsModeServerProperty);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty);
 
                 // ensure month names are rendered on the server
                 browser.First("table tr td").FindElements("span").ThrowIfDifferentCountThan(0);

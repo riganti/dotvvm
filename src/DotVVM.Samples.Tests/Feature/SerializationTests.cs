@@ -33,5 +33,46 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Last("span").CheckIfInnerTextEquals(",2");
             });
         }
+
+
+        [TestMethod]
+        public void Feature_Serialization_ObservableCollectionShouldContainObservables()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_ObservableCollectionShouldContainObservables);
+                
+                // verify that the values are selected
+                browser.ElementAt("select", 0).Select(0);
+                browser.ElementAt("select", 1).Select(1);
+                browser.ElementAt("select", 2).Select(2);
+
+                // click the button
+                browser.Click("input[type=button]");
+                browser.Wait();
+
+                // verify that the values are correct
+                browser.First("p.result").CheckIfInnerTextEquals("1,2,3");
+                browser.ElementAt("select", 0).CheckAttribute("value", "1");
+                browser.ElementAt("select", 1).CheckAttribute("value", "2");
+                browser.ElementAt("select", 2).CheckAttribute("value", "3");
+                browser.Wait();
+
+                // change the values
+                browser.ElementAt("select", 0).Select(1);
+                browser.ElementAt("select", 1).Select(2);
+                browser.ElementAt("select", 2).Select(1);
+
+                // click the button
+                browser.Click("input[type=button]");
+                browser.Wait();
+
+                // verify that the values are correct
+                browser.First("p.result").CheckIfInnerTextEquals("2,3,2");
+                browser.ElementAt("select", 0).CheckAttribute("value", "2");
+                browser.ElementAt("select", 1).CheckAttribute("value", "3");
+                browser.ElementAt("select", 2).CheckAttribute("value", "2");
+            });
+        }
     }
 }

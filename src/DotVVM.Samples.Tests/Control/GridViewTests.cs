@@ -23,7 +23,7 @@ namespace DotVVM.Samples.Tests.Control
         [TestMethod]
         public void Control_GridViewServerRender()
         {
-            Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_ServerRender);
+            Control_GridViewPagingSortingBase(SamplesRouteUrls.ControlSamples_GridView_GridViewServerRender);
         }
 
         [TestMethod]
@@ -31,7 +31,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_StaticCommand);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
                 //check rows
                 browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(5);
                 //check first row Id

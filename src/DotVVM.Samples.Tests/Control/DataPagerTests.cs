@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager);
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_DataPager_DataPager);
                 browser.Wait();
 
                 // verify the second pager is hidden

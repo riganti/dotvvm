@@ -141,6 +141,7 @@
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
+    <Compile Include="ViewModels\FeatureSamples\HtmlTag\NonPairHtmlTagViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\IdGeneration\IdGeneration.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
     <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationViewModel.cs" />
@@ -148,6 +149,7 @@
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackHandlersViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\RenderSettingsModeServer\RenderSettingsModeServerPropertyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Serialization\Serialization.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Serialization\ObservableCollectionShouldContainObservablesViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\StaticCommand\StaticCommandViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NestedValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidationViewModel.cs" />
@@ -257,6 +259,8 @@
     <Content Include="Views\ComplexSamples\Auth\Login.dothtml" />
     <Content Include="Views\ComplexSamples\Auth\SecuredPage.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewStaticCommand.dothtml" />
+    <Content Include="Views\FeatureSamples\HtmlTag\NonPairHtmlTag.dothtml" />
+    <Content Include="Views\FeatureSamples\Serialization\ObservableCollectionShouldContainObservables.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

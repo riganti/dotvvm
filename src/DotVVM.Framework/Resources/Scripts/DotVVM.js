@@ -373,7 +373,7 @@ var DotVVM = (function () {
                     _this.isViewModelUpdating = false;
                 }
                 else if (resultObject.action === "redirect") {
-                    _this.handleRedirect(resultObject, viewModelName);
+                    _this.handleRedirect(resultObject, viewModelName, true);
                     return;
                 }
                 // trigger spaNavigated event
@@ -395,16 +395,23 @@ var DotVVM = (function () {
             }
         });
     };
-    DotVVM.prototype.handleRedirect = function (resultObject, viewModelName) {
+    DotVVM.prototype.handleRedirect = function (resultObject, viewModelName, replace) {
+        if (resultObject.replace != null)
+            replace = resultObject.replace;
+        var url;
         // redirect
         if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
             // relative URL - keep in SPA mode, but remove the virtual directory
-            document.location.href = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
+            url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
         }
         else {
             // absolute URL - load the URL
-            document.location.href = resultObject.url;
+            url = resultObject.url;
         }
+        if (replace)
+            location.replace(url);
+        else
+            location.href = url;
     };
     DotVVM.prototype.removeVirtualDirectoryFromUrl = function (url, viewModelName) {
         var virtualDirectory = "/" + this.viewModels[viewModelName].virtualDirectory;
@@ -729,7 +736,7 @@ var DotvvmSerialization = (function () {
         if (viewModel instanceof Array) {
             var array = [];
             for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.deserialize(viewModel[i], {}, deserializeAll));
+                array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
             }
             if (ko.isObservable(target)) {
                 if (!target.removeAll) {
@@ -803,6 +810,11 @@ var DotvvmSerialization = (function () {
             }
         }
         return target;
+    };
+    DotvvmSerialization.prototype.wrapObservable = function (obj) {
+        if (!ko.isObservable(obj))
+            return ko.observable(obj);
+        return obj;
     };
     DotvvmSerialization.prototype.serialize = function (viewModel, opt) {
         if (opt === void 0) { opt = {}; }
