@@ -51,6 +51,7 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(path);
+                browser.ActionWaitTime = 500;
 
                 Action performTest = () =>
                 {
