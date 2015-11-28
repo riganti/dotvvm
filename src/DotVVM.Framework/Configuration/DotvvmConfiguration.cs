@@ -144,7 +144,7 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(Constants.KnockoutJSResourceName,
                 new ScriptResource()
                 {
-                    Url = "DotVVM.Framework.Resources.Scripts.knockout-3.2.0.js",
+                    Url = "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
                     EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko"
                 });

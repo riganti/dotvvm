@@ -527,7 +527,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
-    <EmbeddedResource Include="Resources\Scripts\knockout-3.2.0.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Validation.js" />
   </ItemGroup>
@@ -550,6 +549,8 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
