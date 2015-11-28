@@ -45,9 +45,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("input[type=button]").Click();
 
                 // select hotel
-                browser.Last("select")
-                    .First("option").Click();
-
+                browser.Last("select").Select(0);
                 browser.Last("input[type=button]").Click();
 
                 browser.First("h2").CheckIfInnerTextEquals("Hotel Prague #1");

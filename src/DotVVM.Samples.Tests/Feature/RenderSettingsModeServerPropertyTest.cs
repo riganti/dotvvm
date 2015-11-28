@@ -25,7 +25,6 @@ namespace DotVVM.Samples.Tests.Feature
                 // fill textboxes
                 browser.SendKeys("input[type=text]", "1");
 
-                //browser.FindElements("input[type=text]").
                 browser.Click("input[type=button]");
 
                 // validate result

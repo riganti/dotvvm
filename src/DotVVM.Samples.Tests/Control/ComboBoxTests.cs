@@ -20,7 +20,7 @@ namespace DotVVM.Samples.Tests.Control
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBox);
 
-                browser.First("select").First("option").CheckIfIsDisplayed().Wait();
+                browser.First("select").Select(0).CheckIfIsDisplayed().Wait();
                 browser.First("span").CheckIfInnerTextEquals("1");
 
                 // select second option from combobox
