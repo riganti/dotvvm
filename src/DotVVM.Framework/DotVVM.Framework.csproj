@@ -532,7 +532,7 @@
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.DomUtils.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.Events.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.FileUpload.ts" />
-    <Content Include="Resources\Scripts\DotVVM.Debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.Globalize.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.PostBackHandlers.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.Promise.ts" />

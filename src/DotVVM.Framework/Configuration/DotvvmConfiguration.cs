@@ -148,7 +148,8 @@ namespace DotVVM.Framework.Configuration
                     EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
                     GlobalObjectName = "ko"
                 });
-            configuration.Resources.Register(Constants.DotvvmResourceName,
+
+            configuration.Resources.Register(Constants.DotvvmResourceName + ".internal",
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.js",
@@ -156,6 +157,13 @@ namespace DotVVM.Framework.Configuration
                     GlobalObjectName = "dotvvm",
                     Dependencies = new[] { Constants.KnockoutJSResourceName }
                 });
+            configuration.Resources.Register(Constants.DotvvmResourceName,
+                new InlineScriptResource()
+                {
+                    Code = @"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();",
+                    Dependencies = new[] { Constants.DotvvmResourceName + ".internal" }
+                });
+
             configuration.Resources.Register(Constants.DotvvmDebugResourceName,
                 new ScriptResource()
                 {

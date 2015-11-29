@@ -37,10 +37,6 @@ namespace DotVVM.Framework.Controls.Infrastructure
             // init on load
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText($@"
-if (window.dotvvm) {{
-    throw 'DotVVM is already loaded!';
-}}
-window.dotvvm = new DotVVM(); 
 window.dotvvm.domUtils.onDocumentReady(function () {{ 
     window.dotvvm.init('{context.CurrentPageArea}', '{Thread.CurrentThread.CurrentUICulture.Name}'); 
 }});");

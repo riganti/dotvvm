@@ -1347,7 +1347,6 @@ var DotvvmValidation = (function () {
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
-                var _this = this;
                 var observableProperty = valueAccessor();
                 if (ko.isObservable(observableProperty)) {
                     // try to get the options

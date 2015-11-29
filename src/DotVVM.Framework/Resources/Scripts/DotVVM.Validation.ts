@@ -160,7 +160,7 @@ class DotvvmValidation
 
         // add knockout binding handler
         ko.bindingHandlers["dotvvmValidation"] = {
-            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+            init: (element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) => {
                 var observableProperty = valueAccessor();
                 if (ko.isObservable(observableProperty)) {
                     // try to get the options
