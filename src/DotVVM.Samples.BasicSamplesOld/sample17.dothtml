@@ -1,6 +1,0 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample17ViewModel, DotVVM.Samples.BasicSamples
-@masterPage sample17_master.dothtml
-
-<dot:Content ContentPlaceHolderID="MainContent">
-	Real bullshit
-</dot:Content>
