@@ -51,11 +51,11 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("options", this, DataSourceProperty, renderEvenInServerRenderingMode: true);
             if (!string.IsNullOrEmpty(DisplayMember))
             {
-                writer.AddKnockoutDataBind("optionsText", KnockoutHelper.MakeStringLiteral(DisplayMember));
+                writer.AddKnockoutDataBind("optionsText", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(DisplayMember) + "]; }");
             }
             if (!string.IsNullOrEmpty(ValueMember))
             {
-                writer.AddKnockoutDataBind("optionsValue", KnockoutHelper.MakeStringLiteral(ValueMember));
+                writer.AddKnockoutDataBind("optionsValue", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(ValueMember) + "]; }");
             }
 
 			// changed event

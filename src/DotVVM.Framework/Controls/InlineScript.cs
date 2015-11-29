@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(DependenciesProperty, value); }
         }
         public static readonly DotvvmProperty DependenciesProperty =
-            DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies);
+            DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies, Constants.DotvvmResourceName);
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         public string Script

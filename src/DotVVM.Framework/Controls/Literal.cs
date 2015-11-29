@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
     /// Renders a text into the page.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false)]
-    public class Literal : DotvvmBindableControl
+    public class Literal : DotvvmControl
     {
 
         /// <summary>
@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Controls
                 var expression = textBinding.GetKnockoutBindingExpression();
                 if (!string.IsNullOrEmpty(FormatString))
                 {
-                    expression = "dotvvm.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
+                    expression = "dotvvm.globalize.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
                 }
 
                 writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", expression);

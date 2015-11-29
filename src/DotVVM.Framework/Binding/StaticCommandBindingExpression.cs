@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Binding
             : base(expression)
         { }
 
-        public override Delegate GetCommandDelegate(DotvvmBindableControl control, DotvvmProperty property)
+        public override Delegate GetCommandDelegate(DotvvmBindableObject control, DotvvmProperty property)
         {
             throw new NotImplementedException();
         }

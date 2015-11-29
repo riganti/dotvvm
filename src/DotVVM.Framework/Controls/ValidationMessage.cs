@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Controls
 
         private static void AddValidatedValue(IHtmlWriter writer, RenderContext context, object value, DotvvmControl control)
         {
-            writer.AddKnockoutDataBind("dotvvmValidation", (DotvvmBindableControl)control, ValidatedValueProperty);
+            writer.AddKnockoutDataBind("dotvvmValidation", control, ValidatedValueProperty);
 
             // render options
             var bindingGroup = new KnockoutBindingGroup();

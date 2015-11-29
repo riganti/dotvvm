@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     else text = literalNode.Value;
 
                     var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(RawLiteral)), node, dataContext);
-                    literal.ContructorParameters = new object[] { text, whitespace };
+                    literal.ContructorParameters = new object[] { text, literalNode.Value, whitespace };
                     return literal;
                 }
                 else if (node is DothtmlElementNode)
@@ -156,10 +156,10 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 ProcessAttribute(dataContextAttribute, control, dataContext);
             }
-            if (control.Properties.ContainsKey(DotvvmBindableControl.DataContextProperty) && control.Properties[DotvvmBindableControl.DataContextProperty] is ResolvedPropertyBinding)
+            if (control.Properties.ContainsKey(DotvvmBindableObject.DataContextProperty) && control.Properties[DotvvmBindableObject.DataContextProperty] is ResolvedPropertyBinding)
             {
                 dataContext = new DataContextStack(
-                    ((ResolvedPropertyBinding)control.Properties[DotvvmBindableControl.DataContextProperty]).Binding.GetExpression().Type,
+                    ((ResolvedPropertyBinding)control.Properties[DotvvmBindableObject.DataContextProperty]).Binding.GetExpression().Type,
                     dataContext);
                 control.DataContextTypeStack = dataContext;
             }

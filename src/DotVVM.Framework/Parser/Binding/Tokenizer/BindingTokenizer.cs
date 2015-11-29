@@ -1,5 +1,7 @@
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Security;
 
 namespace DotVVM.Framework.Parser.Binding.Tokenizer
 {
@@ -9,6 +11,7 @@ namespace DotVVM.Framework.Parser.Binding.Tokenizer
 
         protected override BindingTokenType WhiteSpaceTokenType => BindingTokenType.WhiteSpace;
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         protected override void TokenizeCore()
         {
             while (Peek() != NullChar)

@@ -1,10 +1,10 @@
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
-using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Controls
 {
@@ -26,13 +26,11 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DataSourceProperty =
             DotvvmProperty.Register<object, ItemsControl>(t => t.DataSource, null);
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="ItemsControl"/> class.
         /// </summary>
         public ItemsControl()
         {
-            
         }
 
         /// <summary>
@@ -40,7 +38,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public ItemsControl(string tagName) : base(tagName)
         {
-            
         }
 
         /// <summary>
@@ -55,7 +52,6 @@ namespace DotVVM.Framework.Controls
             }
             return binding;
         }
-
 
         protected ValueBindingExpression GetItemBinding(IList items, string dataSourceJs, int index)
         {
@@ -85,7 +81,7 @@ namespace DotVVM.Framework.Controls
 
         protected string WrapJavascriptDataSourceAccess(string expression)
         {
-            return "dotvvm.getDataSourceItems(" + expression + ")";
+            return "dotvvm.evaluator.getDataSourceItems(" + expression + ")";
         }
 
         protected string GetForeachDataBindJavascriptExpression()

@@ -43,6 +43,7 @@ namespace DotVVM.Framework.Controls
             {
                 // collection mode
                 writer.AddKnockoutDataBind("checked", checkedItemsBinding);
+                writer.AddKnockoutDataBind("checkedArrayContainsObservables", "true");
                 writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
                 {
                     var checkedValue = (CheckedValue ?? string.Empty).ToString();

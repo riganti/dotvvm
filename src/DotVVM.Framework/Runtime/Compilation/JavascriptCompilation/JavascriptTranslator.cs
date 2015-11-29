@@ -1,10 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Linq.Expressions;
+﻿using DotVVM.Framework.ViewModel;
+using System;
 using System.Collections;
-using DotVVM.Framework.ViewModel;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 {
@@ -103,21 +104,26 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
         public string Translate(Expression expression)
         {
-
             switch (expression.NodeType)
             {
                 case ExpressionType.Constant:
                     return TranslateConstant((ConstantExpression)expression);
+
                 case ExpressionType.Call:
                     return TranslateMethodCall((MethodCallExpression)expression);
+
                 case ExpressionType.MemberAccess:
                     return TranslateMemberAccess((MemberExpression)expression);
+
                 case ExpressionType.Parameter:
                     return TranslateParameter((ParameterExpression)expression);
+
                 case ExpressionType.Conditional:
                     return TranslateConditional((ConditionalExpression)expression);
+
                 case ExpressionType.Index:
                     return TranslateIndex((IndexExpression)expression);
+
                 case ExpressionType.Assign:
                     return TranslateAssing((BinaryExpression)expression);
             }
@@ -130,19 +136,19 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
         public string TranslateAssing(BinaryExpression expression)
         {
             var property = expression.Left as MemberExpression;
-            if(property != null)
+            if (property != null)
             {
                 var target = Translate(property.Expression);
                 var value = Translate(expression.Right);
-                return TryTranslateMethodCall(target, new[] { value }, ( property.Member as PropertyInfo)?.SetMethod) ??
-                    SetProperty(target, property.Member  as PropertyInfo, value);
+                return TryTranslateMethodCall(target, new[] { value }, (property.Member as PropertyInfo)?.SetMethod) ??
+                    SetProperty(target, property.Member as PropertyInfo, value);
             }
             throw new NotSupportedException($"can not assign expression of type {expression.Left.NodeType}");
         }
 
         private string SetProperty(string target, PropertyInfo property, string value)
         {
-            if(ViewModelJsonConverter.IsPrimitiveType(property.PropertyType))
+            if (ViewModelJsonConverter.IsPrimitiveType(property.PropertyType))
             {
                 return target + "." + property.Name + "(" + value + ")";
             }
@@ -227,7 +233,6 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             return result;
         }
 
-
         protected string TryTranslateMethodCall(string context, string[] args, MethodInfo method)
         {
             if (method == null) return null;
@@ -270,6 +275,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             else return null;
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public string TranslateBinary(BinaryExpression expression)
         {
             var left = ParenthesizedTranslate(expression, expression.Left);
@@ -342,9 +348,11 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 case ExpressionType.Negate:
                     op = "-{0}";
                     break;
+
                 case ExpressionType.UnaryPlus:
                     op = "+{0}";
                     break;
+
                 case ExpressionType.Not:
                     if (expression.Operand.Type == typeof(bool))
                         op = "!{0}";
@@ -362,6 +370,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
                 case ExpressionType.TypeAs:
                     // convert does not make sense in Javascript
                     return operand;
+
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }

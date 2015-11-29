@@ -22,9 +22,9 @@ namespace DotVVM.Framework.Binding
 
 
 
-        public override object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
+        public override object Evaluate(DotvvmBindableObject control, DotvvmProperty property)
         {
-            return ExecDelegate(control, property != DotvvmBindableControl.DataContextProperty, setRootControl: true);
+            return ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty, setRootControl: true);
         }
     }
 }

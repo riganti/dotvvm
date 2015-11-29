@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// A base class for implementations of a postback handler mechanism which can e.g. add an alert before the postback is done.
     /// </summary>
-    public abstract class PostBackHandler : DotvvmBindableControl
+    public abstract class PostBackHandler : DotvvmBindableObject
     {
 
         /// <summary>

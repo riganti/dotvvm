@@ -1,0 +1,29 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet.GridViewDataSetViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+</head>
+<body>
+    <div>
+        <dot:GridView class="GridView" DataSource="{value: GridData}">
+            <Columns>
+            <dot:GridViewTextColumn ValueBinding="{value: DataId}" HeaderText="Id" Width="40px" />
+            <dot:GridViewTextColumn ValueBinding="{value: Value}" HeaderText="Name" Width="150px" />
+            </Columns>
+        </dot:GridView>
+
+        <dot:DataPager DataSet="{value: GridData}" class="pagination" RenderLinkForCurrentPage="true">
+            <FirstPageTemplate>
+            <button>First</button>
+            </FirstPageTemplate>
+            <LastPageTemplate>
+            <button>Last</button>
+            </LastPageTemplate>
+            <NextPageTemplate>Next</NextPageTemplate>
+            <PreviousPageTemplate>Previous</PreviousPageTemplate>
+        </dot:DataPager>
+    </div>
+</body>
+</html>

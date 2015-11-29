@@ -14,6 +14,15 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public string Url { get; private set; }
 
+
+        /// <summary>
+        /// Gets key of route.
+        /// </summary>
+        public string RouteName { get; internal set; }
+
+
+
+
         /// <summary>
         /// Gets the default values of the optional parameters.
         /// </summary>
@@ -80,10 +89,10 @@ namespace DotVVM.Framework.Routing
             var values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
             AddOrUpdateParameterCollection(values, currentRouteValues);
             AddOrUpdateParameterCollection(values, newRouteValues);
-            
+
             return BuildUrlCore(values);
         }
-        
+
         /// <summary>
         /// Builds the URL.
         /// </summary>

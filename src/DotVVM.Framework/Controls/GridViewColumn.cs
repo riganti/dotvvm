@@ -5,7 +5,7 @@ using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
-    public abstract class GridViewColumn : DotvvmBindableControl
+    public abstract class GridViewColumn : DotvvmBindableObject
     {
 
         [MarkupOptions(AllowBinding = false)]

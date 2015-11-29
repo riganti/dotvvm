@@ -36,7 +36,8 @@ namespace DotVVM.Framework.Tests.Runtime
             manager.AddRequiredResource(Constants.DotvvmResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
             Assert.AreEqual(configuration.Resources.FindResource(Constants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmResourceName), resourcesInCorrectOrder[1]);
+            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[1]);
+            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmResourceName), resourcesInCorrectOrder[2]);
         }
 
 
@@ -48,10 +49,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
             manager.AddRequiredResource(Constants.DotvvmFileUploadCssResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmResourceName), resourcesInCorrectOrder[1]);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmFileUploadResourceName), resourcesInCorrectOrder[2]);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmFileUploadCssResourceName), resourcesInCorrectOrder[3]);
+            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmFileUploadCssResourceName), resourcesInCorrectOrder[0]);
         }
 
         /// <summary>

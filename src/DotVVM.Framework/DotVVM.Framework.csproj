@@ -13,23 +13,25 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <DocumentationFile>bin\Debug\DotVVM.Framework.XML</DocumentationFile>
     <NoWarn>CS1591</NoWarn>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\Relese\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -39,6 +41,42 @@
   </PropertyGroup>
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestIE|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\debug\</OutputPath>
+    <DefineConstants>CODE_ANALYSIS;DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\DotVVM.Framework.XML</DocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestChrome|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\debug\</OutputPath>
+    <DefineConstants>CODE_ANALYSIS;DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\DotVVM.Framework.XML</DocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestFirefox|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\debug\</OutputPath>
+    <DefineConstants>CODE_ANALYSIS;DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\DotVVM.Framework.XML</DocumentationFile>
+    <NoWarn>CS1591</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -118,6 +156,7 @@
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DataPager.cs" />
     <Compile Include="Controls\Decorator.cs" />
+    <Compile Include="Controls\DotvvmBindableObject.cs" />
     <Compile Include="Controls\EmptyData.cs" />
     <Compile Include="Controls\Events.cs" />
     <Compile Include="Controls\FileUpload.cs" />
@@ -266,7 +305,6 @@
     <Compile Include="Controls\RadioButton.cs" />
     <Compile Include="Controls\Internal.cs" />
     <Compile Include="Controls\DotvvmMarkupControl.cs" />
-    <Compile Include="Controls\DotvvmBindableControl.cs" />
     <Compile Include="Controls\DotvvmControl.cs" />
     <Compile Include="Controls\DotvvmControlCollection.cs" />
     <Compile Include="Controls\Placeholder.cs" />
@@ -281,9 +319,15 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
+    <Compile Include="Routing\DotvvmRouteException.cs" />
+    <Compile Include="Routing\DotvvmRouteStrategyException.cs" />
+    <Compile Include="Routing\FolderDothmlFileBasedRouteStrategy.cs" />
     <Compile Include="Routing\GenericRouteParameterType.cs" />
     <Compile Include="Routing\IRouteParameterType.cs" />
+    <Compile Include="Routing\IRoutingStrategy.cs" />
     <Compile Include="Routing\RouteHelper.cs" />
+    <Compile Include="Routing\RouteInfo.cs" />
+    <Compile Include="Routing\ViewsFolderDothmlFileBasedRouteStrategy.cs" />
     <Compile Include="Runtime\BindingParserOptions.cs" />
     <Compile Include="Runtime\Compilation\BidningParserException.cs" />
     <Compile Include="Runtime\Compilation\BindingCompilationAttribute.cs" />
@@ -291,7 +335,9 @@
     <Compile Include="Runtime\Compilation\Binding\CompileTimeBindingParser.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionBuildingVisitor.cs" />
     <Compile Include="Runtime\Compilation\Binding\ExpressionHelper.cs" />
+    <Compile Include="Runtime\Compilation\Binding\IBindingIdGenerator.cs" />
     <Compile Include="Runtime\Compilation\Binding\MethodGroupExpression.cs" />
+    <Compile Include="Runtime\Compilation\Binding\OriginalStringBidningIdGenerator.cs" />
     <Compile Include="Runtime\Compilation\Binding\StaticClassIdentifier.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeConversions.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeRegistry.cs" />
@@ -461,16 +507,16 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
     <None Include="dotvvmwizard.snk" />
     <None Include="Hosting\ErrorPages\ErrorPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ErrorPageTemplate1.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
-    <None Include="Resources\Scripts\DotVVM.Debug.js.map" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.js.map" />
-    <None Include="Resources\Scripts\DotVVM.js.map" />
-    <None Include="Resources\Scripts\DotVVM.Validation.js.map" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\DothtmlTokenizerErrors.resx">
@@ -481,15 +527,19 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
-    <EmbeddedResource Include="Resources\Scripts\knockout-3.2.0.js" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.Validation.js" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.DomUtils.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Events.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.FileUpload.ts" />
-    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Debug.ts" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Globalize.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.PostBackHandlers.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Promise.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Serialization.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.Validation.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Evaluator.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
@@ -504,15 +554,31 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.js" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile>Resources\Scripts\DotVVM.js</TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

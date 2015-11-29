@@ -199,6 +199,11 @@ label.nav {
 
 	private void WriteErrorLine(int lineNumber, string line, int errorColumn, int errorLength)
 	{
+		if (errorColumn >= line.Length) 
+		{
+			errorColumn = line.Length - 1;
+			errorLength = 0;
+		}
 		Write("<pre>");
 		Write("<span class='lineNumber'>");
 		Write(lineNumber + ": ");

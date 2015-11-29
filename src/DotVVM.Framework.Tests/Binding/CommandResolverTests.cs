@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Tests.Binding
             viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression(vm => vm.Last(), "$root"));
 
             var placeholder = new HtmlGenericControl("div");
-            placeholder.SetBinding(DotvvmBindableControl.DataContextProperty, path[0]);
+            placeholder.SetBinding(DotvvmBindableObject.DataContextProperty, path[0]);
             viewRoot.Children.Add(placeholder);
 
             var button = new Button();
@@ -48,26 +48,6 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
         }
-
-        //[TestMethod]
-        //[ExpectedException(typeof(UnauthorizedAccessException))]
-        //public void CommandResolver_CannotCallSetter()
-        //{
-        //    var testObject = new TestA()
-        //    {
-        //        StringToPass = "a"
-        //    };
-        //    var viewRoot = new DotvvmView() { DataContext = testObject };
-        //    viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression("_root"));
-        //    viewRoot.SetBinding(DotvvmProperty.Register<Action, DotvvmView>("Test"), new CommandBindingExpression("set_StringToPass(StringToPass)"));
-
-        //    var path = new string[] { };
-        //    var command = "set_StringToPass(StringToPass)";
-
-        //    var resolver = new CommandResolver();
-        //    var context = new DotvvmRequestContext() { ViewModel = testObject };
-        //    resolver.GetFunction(viewRoot, context, path, command).GetAction()();
-        //}
 
         public class TestA
         {

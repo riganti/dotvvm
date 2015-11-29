@@ -1,12 +1,12 @@
+using DotVVM.Framework.Parser.Binding.Tokenizer;
+using DotVVM.Framework.Parser.Dothtml.Parser;
+using DotVVM.Framework.Runtime.Compilation;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
-using DotVVM.Framework.Parser.Binding.Tokenizer;
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Parser.Binding.Parser
 {
@@ -269,6 +269,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             }
             return expression;
         }
+
         private BindingParserNode ReadAtomicExpression()
         {
             var startIndex = CurrentIndex;
@@ -347,7 +348,6 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             return CreateNode(ReadIdentifierNameExpression(), startIndex);
         }
 
-
         private IdentifierNameBindingParserNode ReadIdentifierNameExpression()
         {
             var startIndex = CurrentIndex;
@@ -370,42 +370,12 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             error = null;
             NumberLiteralSuffix type = NumberLiteralSuffix.None;
             var lastDigit = text[text.Length - 1];
-            if (char.IsLetter(lastDigit))
-            {
-                // number type suffix
-                if (lastDigit == 'm') type = NumberLiteralSuffix.Decimal;
-                else if (lastDigit == 'f') type = NumberLiteralSuffix.Float;
-                else if (lastDigit == 'd') type = NumberLiteralSuffix.Double;
-                else if (text.EndsWith("ul", StringComparison.Ordinal) || text.EndsWith("lu", StringComparison.Ordinal)) type = NumberLiteralSuffix.UnsignedLong;
-                else if (lastDigit == 'u') type = NumberLiteralSuffix.Unsigned;
-                else if (lastDigit == 'l') type = NumberLiteralSuffix.Long;
-                else
-                {
-                    error = "number literal type suffix not known";
-                    return null;
-                }
 
-                if (type == NumberLiteralSuffix.UnsignedLong) text = text.Remove(text.Length - 2); // remove 2 last chars
-                else text = text.Remove(text.Length - 1); // remove last char
-            }
-            if (text.Contains(".") || text.Contains("e") || type == NumberLiteralSuffix.Float || type == NumberLiteralSuffix.Double)
-            {
-                const NumberStyles decimalStyle = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
-                // real number
-                switch (type)
-                {
-                    case NumberLiteralSuffix.None: // double is defualt
-                    case NumberLiteralSuffix.Double:
-                        return TryParse<double>(double.TryParse, text, out error, decimalStyle);
-                    case NumberLiteralSuffix.Float:
-                        return TryParse<float>(float.TryParse, text, out error, decimalStyle);
-                    case NumberLiteralSuffix.Decimal:
-                        return TryParse<decimal>(decimal.TryParse, text, out error, decimalStyle);
-                    default:
-                        error = $"could not parse real number of type { type }";
-                        return null;
-                }
-            }
+            if (ParseNumberLiteralSuffix(ref text, ref error, lastDigit, ref type)) return null;
+
+            object numberLiteral;
+            if (ParseNumberLiteralDoubleFloat(text, ref error, type, out numberLiteral)) return numberLiteral;
+
             const NumberStyles integerStyle = NumberStyles.AllowLeadingSign;
             // try parse integral constant
             object result = null;
@@ -441,7 +411,72 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             return null;
         }
 
-        delegate bool TryParseDelegate<T>(string text, NumberStyles styles, IFormatProvider format, out T result);
+        private static bool ParseNumberLiteralDoubleFloat(string text, ref string error, NumberLiteralSuffix type,
+            out object numberLiteral)
+        {
+            numberLiteral = null;
+            if (text.Contains(".") || text.Contains("e") || type == NumberLiteralSuffix.Float ||
+                type == NumberLiteralSuffix.Double)
+            {
+                const NumberStyles decimalStyle = NumberStyles.AllowLeadingSign | NumberStyles.AllowDecimalPoint;
+                // real number
+                switch (type)
+                {
+                    case NumberLiteralSuffix.None: // double is defualt
+                    case NumberLiteralSuffix.Double:
+                        {
+                            numberLiteral = TryParse<double>(double.TryParse, text, out error, decimalStyle);
+                            return true;
+                        }
+
+                    case NumberLiteralSuffix.Float:
+                        {
+                            numberLiteral = TryParse<float>(float.TryParse, text, out error, decimalStyle);
+                            return true;
+                        }
+
+                    case NumberLiteralSuffix.Decimal:
+                        {
+                            numberLiteral = TryParse<decimal>(decimal.TryParse, text, out error, decimalStyle);
+                            return true;
+                        }
+
+                    default:
+                        error = $"could not parse real number of type {type}";
+                        {
+                            return true;
+                        }
+                }
+            }
+            return false;
+        }
+
+        private static bool ParseNumberLiteralSuffix(ref string text, ref string error, char lastDigit, ref NumberLiteralSuffix type)
+        {
+            if (char.IsLetter(lastDigit))
+            {
+                // number type suffix
+                if (lastDigit == 'm') type = NumberLiteralSuffix.Decimal;
+                else if (lastDigit == 'f') type = NumberLiteralSuffix.Float;
+                else if (lastDigit == 'd') type = NumberLiteralSuffix.Double;
+                else if (text.EndsWith("ul", StringComparison.Ordinal) || text.EndsWith("lu", StringComparison.Ordinal))
+                    type = NumberLiteralSuffix.UnsignedLong;
+                else if (lastDigit == 'u') type = NumberLiteralSuffix.Unsigned;
+                else if (lastDigit == 'l') type = NumberLiteralSuffix.Long;
+                else
+                {
+                    error = "number literal type suffix not known";
+                    return true;
+                }
+
+                if (type == NumberLiteralSuffix.UnsignedLong) text = text.Remove(text.Length - 2); // remove 2 last chars
+                else text = text.Remove(text.Length - 1); // remove last char
+            }
+            return false;
+        }
+
+        private delegate bool TryParseDelegate<T>(string text, NumberStyles styles, IFormatProvider format, out T result);
+
         private static object TryParse<T>(TryParseDelegate<T> method, string text, out string error, NumberStyles styles)
         {
             error = null;

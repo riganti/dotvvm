@@ -1,13 +1,12 @@
 /// <reference path="dotvvm.ts" />
-
-if (!dotvvm) {
-    throw "DotVVM.js is not loaded!";
-}
-
 class DotvvmFileUpload {
 
-    public showUploadDialog(iframeId: string) {
-        var iframe = <HTMLIFrameElement>document.getElementById(iframeId);
+    public showUploadDialog(sender: HTMLElement) {
+        var uploadId = "upl" + new Date().getTime().toString();
+        sender.parentElement.parentElement.dataset["dotvvmUploadId"] = uploadId;
+
+        var iframe = <HTMLIFrameElement>sender.parentElement.previousSibling;
+        iframe.dataset["dotvvmUploadId"] = uploadId;
         
         // trigger the file upload dialog
         var fileUpload = <HTMLInputElement>iframe.contentWindow.document.getElementById('upload');
@@ -16,7 +15,7 @@ class DotvvmFileUpload {
 
     public reportProgress(targetControlId: string, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string) {
         // find target control viewmodel
-        var targetControl = document.getElementById(targetControlId);
+        var targetControl = <HTMLDivElement>document.querySelector("div[data-dotvvm-upload-id='" + targetControlId + "']");
         var viewModel = <DotvvmFileUploadCollection>ko.dataFor(targetControl.firstChild);
 
         // determine the status
@@ -32,7 +31,7 @@ class DotvvmFileUpload {
 
             // call the handler
             if (targetControl.dataset["uploadCompleted"]) {
-                eval("(function () {" + targetControl.dataset["uploadCompleted"] + "})").call(targetControl);
+                new Function(targetControl.dataset["uploadCompleted"]).call(targetControl);
             }
         }
         viewModel.Progress(progress);
@@ -50,5 +49,3 @@ class DotvvmFileUploadData {
     public FileId = ko.observable<string>();
     public FileName = ko.observable<string>();
 }
-
-(<any>dotvvm).fileUpload = (<any>dotvvm).fileUpload || new DotvvmFileUpload();

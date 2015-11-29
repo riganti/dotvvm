@@ -35,6 +35,33 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestIE|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestChrome|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestFirefox|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
@@ -54,17 +81,18 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>bin\debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CopyVsixExtensionFiles>False</CopyVsixExtensionFiles>
     <PlatformTarget>x86</PlatformTarget>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>bin\release\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -356,7 +384,7 @@
     <Content Include="Packages\Antlr.3.5.0.2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.0.8.6.7-pre.nupkg">
+    <Content Include="Packages\DotVVM.0.8.6.9-pre.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />
@@ -520,9 +548,7 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
-    <PreBuildEvent>
-
-      copy "$(SolutionDir)packages\Newtonsoft.Json.7.0.1\Newtonsoft.Json.7.0.1.nupkg" "$(ProjectDir)Packages"
+    <PreBuildEvent>copy "$(SolutionDir)packages\Newtonsoft.Json.7.0.1\Newtonsoft.Json.7.0.1.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Owin.1.0\Owin.1.0.nupkg" "$(ProjectDir)Packages\Owin.1.0.0.nupkg"
       copy "$(SolutionDir)packages\Microsoft.Owin.3.0.1\Microsoft.Owin.3.0.1.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.Owin.FileSystems.3.0.1\Microsoft.Owin.FileSystems.3.0.1.nupkg" "$(ProjectDir)Packages"
@@ -535,12 +561,16 @@
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\ExpressionEvaluator.2.0.3.0\ExpressionEvaluator.2.0.3.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Antlr.3.5.0.2\Antlr.3.5.0.2.nupkg" "$(ProjectDir)Packages"
-
-del "$(ProjectDir)Packages\DotVVM.*.nupkg" -y
-"$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
+      
+      if exist "$(ProjectDir)Packages\DotVVM.*.nupkg" (
+     del "$(ProjectDir)Packages\DotVVM.*.nupkg" /q 
+      )
+      
+  "$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.
+     del "$(ProjectDir)Packages\DotVVM.*.nupkg" -y
   -->
   <Target Name="BeforeBuild">
     <Message Text="$(ProjectDir)" />

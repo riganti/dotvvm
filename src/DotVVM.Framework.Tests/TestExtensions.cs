@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Tests
     public static class TestExtensions
     {
 
-        public static DotvvmBindableControl WithBinding(this DotvvmBindableControl control, DotvvmProperty property, BindingExpression expression)
+        public static DotvvmControl WithBinding(this DotvvmControl control, DotvvmProperty property, BindingExpression expression)
         {
             control.SetBinding(property, expression);
             return control;

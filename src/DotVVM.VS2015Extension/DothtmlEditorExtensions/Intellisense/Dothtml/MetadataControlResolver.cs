@@ -168,7 +168,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml
             // get all possible control symbols
             var allClasses = ReloadAllClasses(context);
             var controlClasses = allClasses
-                .Where(c => CompletionHelper.GetBaseTypes(c).Any(t => CheckType(t, typeof(DotvvmControl))))
+                .Where(c => CompletionHelper.GetBaseTypes(c).Any(t => CheckType(t, typeof(DotvvmBindableObject))))
                 .ToList();
 
             var result = new List<CompletionData>();

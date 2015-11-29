@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Exceptions
         public int? LineNumber { get; set; }
         public string FileName { get; set; }
 
-        public DotvvmControlException(DotvvmControl control, string message, Exception innerException = null)
+        public DotvvmControlException(DotvvmBindableObject control, string message, Exception innerException = null)
             : base(message, innerException)
         {
             ControlType = control.GetType();

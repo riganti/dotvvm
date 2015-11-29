@@ -1,0 +1,18 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand.StaticCommandViewModel, DotVVM.Samples.BasicSamples
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <div class="container">
+		<h2>Static command returning value</h2>
+		<p>Name: <dot:TextBox Text="{value:  Name}" /></p>
+		<dot:Button Text="Compute greeting using static command" Click="{staticCommand: Greeting = ViewModel.GetGreeting(Name)}" />
+		<dot:Button Text="Compute greeting pure js function" Click="{staticCommand: Greeting = 'Hello ' + Name + '!'}" />
+		<p>
+			{{value: Greeting}}
+		</p>
+    </div>
+</body>
+</html>

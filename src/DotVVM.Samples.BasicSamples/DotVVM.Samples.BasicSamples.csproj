@@ -1,15 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.Default.props')" />
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>
-    </ProductVersion>
+    <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{BDF78B2F-9C1F-4481-B80A-1537139994F4}</ProjectGuid>
-    <ProjectTypeGuids>{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
+    <ProjectGuid>{E8AC4B04-1064-4AFD-8CE6-2387AC7FE856}</ProjectGuid>
+    <ProjectTypeGuids>{94EE71E2-EE2A-480B-8704-AF46D2E58D94};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>DotVVM.Samples.BasicSamples</RootNamespace>
@@ -21,7 +18,6 @@
     <IISExpressWindowsAuthentication />
     <IISExpressUseClassicPipelineMode />
     <TargetFrameworkProfile />
-    <TypeScriptToolsVersion>1.6</TypeScriptToolsVersion>
     <UseGlobalApplicationHostFile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -32,8 +28,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <DocumentationFile>
-    </DocumentationFile>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -44,17 +40,28 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.1.0\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+    <Reference Include="Antlr3.Runtime, Version=3.5.0.2, Culture=neutral, PublicKeyToken=eb42632606e9261f, processorArchitecture=MSIL">
+      <HintPath>..\packages\Antlr.3.5.0.2\lib\Antlr3.Runtime.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="ExpressionEvaluator, Version=2.0.3.0, Culture=neutral, PublicKeyToken=90d9f15d622e2348, processorArchitecture=MSIL">
+      <HintPath>..\packages\ExpressionEvaluator.2.0.3.0\lib\net40\ExpressionEvaluator.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.AspNet.Identity.Core, Version=2.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.AspNet.Identity.Core.2.2.1\lib\net45\Microsoft.AspNet.Identity.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.Common.1.0.0\lib\net45\Microsoft.CodeAnalysis.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Microsoft.CodeAnalysis.CSharp, Version=1.0.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.CodeAnalysis.CSharp.1.0.0\lib\net45\Microsoft.CodeAnalysis.CSharp.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.Owin, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Microsoft.Owin.Diagnostics, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Owin.Diagnostics.3.0.1\lib\net45\Microsoft.Owin.Diagnostics.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Microsoft.Owin.FileSystems, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
@@ -78,208 +85,182 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
-      <HintPath>..\packages\Owin.1.0.0\lib\net40\Owin.dll</HintPath>
+      <HintPath>..\packages\Owin.1.0\lib\net40\Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="System.Collections.Immutable, Version=1.1.37.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-      <HintPath>..\packages\System.Collections.Immutable.1.1.37\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
+    <Reference Include="System" />
+    <Reference Include="System.Collections.Immutable, Version=1.1.36.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Collections.Immutable.1.1.36\lib\portable-net45+win8+wp8+wpa81\System.Collections.Immutable.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Reflection.Metadata, Version=1.0.21.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Reflection.Metadata.1.0.21\lib\portable-net45+win8\System.Reflection.Metadata.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="System.Web.ApplicationServices" />
     <Reference Include="System.Web.DynamicData" />
     <Reference Include="System.Web.Entity" />
-    <Reference Include="System.Web.ApplicationServices" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System" />
+    <Reference Include="System.Web.Extensions" />
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.Web" />
     <Reference Include="System.Xml" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Web.Services" />
-    <Reference Include="System.EnterpriseServices" />
+    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\bootstrap-theme.css" />
-    <Content Include="Content\bootstrap-theme.min.css" />
-    <Content Include="Content\bootstrap.css" />
-    <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\testResource.css" />
-    <Content Include="fonts\glyphicons-halflings-regular.svg" />
-    <Content Include="index.html" />
-    <Content Include="sample2.dothtml" />
-    <Content Include="sample3.dothtml" />
-    <Content Include="sample4.dothtml" />
-    <Content Include="sample4_parent.dothtml" />
-    <Content Include="sample4_root.dothtml" />
-    <Content Include="dotvvm.json" />
-    <Content Include="sample5.dothtml" />
-    <Content Include="sample5_control.dothtml" />
-    <Content Include="sample6.dothtml" />
-    <Content Include="sample8.dothtml" />
-    <Content Include="sample9.dothtml" />
-    <Content Include="sample10.dothtml" />
-    <Content Include="sample11.dothtml" />
-    <Content Include="AuthSample\login.dothtml" />
-    <Content Include="AuthSample\securedPage.dothtml" />
-    <Content Include="sample11.dothtml" />
-    <Content Include="sample12.dothtml" />
-    <Content Include="sample13.dothtml" />
-    <Content Include="sample14.dothtml" />
-    <Content Include="packages.config" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
-    <Content Include="fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="Content\bootstrap-theme.css.map" />
-    <Content Include="Content\bootstrap.css.map" />
-    <Content Include="error2.dothtml" />
-    <Content Include="error3.dothtml" />
-    <Content Include="error4.dothtml" />
-    <Content Include="error5.dothtml" />
-    <Content Include="error6.dothtml" />
-    <Content Include="error7.dothtml" />
-    <Content Include="error8.dothtml" />
-    <Content Include="error9.dothtml" />
-    <Content Include="error10.dothtml" />
-    <Content Include="error11.dothtml" />
-    <Content Include="error11.dotmaster" />
-    <Content Include="error12.dothtml" />
-    <Content Include="error13.dothtml" />
-    <None Include="Properties\PublishProfiles\CI.pubxml" />
-    <Content Include="sample15.dothtml" />
-    <Content Include="sample16.dothtml" />
-    <Content Include="sample17_a.dothtml" />
-    <Content Include="sample17_b.dothtml" />
-    <Content Include="sample17_master.dothtml" />
-    <Content Include="sample18.dothtml" />
-    <Content Include="sample19.dothtml" />
-    <Content Include="sample17.dothtml" />
-    <Content Include="ReturnFileSample\Index.dothtml" />
-    <Content Include="ReturnFileSample\excel-file.xlsx" />
-    <Content Include="ReturnFileSample\word-file.docx" />
-    <Content Include="sample20.dothtml" />
-    <Content Include="sample22.dothtml" />
-    <Content Include="sample23.dothtml" />
-    <Content Include="sample24.dothtml" />
-    <Content Include="sample25.dothtml" />
-    <Content Include="sample26.dothtml" />
-    <Content Include="sample27.dothtml" />
-    <Content Include="sample28.dothtml" />
-    <Content Include="sample29.dothtml" />
-    <Content Include="sample30.dothtml" />
-    <Content Include="sample31.dothtml" />
-    <Content Include="sample32.dothtml" />
-    <Content Include="sample33.dothtml" />
-    <Content Include="sample34.dothtml" />
-    <Content Include="sample35.dothtml" />
-    <Content Include="sample36.dothtml" />
-    <Content Include="sample36_control.dotcontrol" />
-    <Content Include="sample37.dothtml" />
-    <Content Include="sample38.dothtml" />
-    <Content Include="sample21.dothtml" />
-    <Content Include="error1.dothtml" />
-    <Content Include="sample39.dothtml" />
-    <Content Include="sample40.dothtml" />
-    <Content Include="sample41.dothtml" />
-    <Content Include="sample42.dothtml" />
-    <Content Include="sample43.dothtml" />
-    <Content Include="sample44.dothtml" />
-    <Content Include="sample45.dothtml" />
-    <Content Include="sample46.dothtml" />
-    <Content Include="sample47.dothtml" />
-    <Content Include="sample48.dothtml" />
-    <Content Include="sample48_2.dothtml" />
-    <Content Include="sample48_master.dotmaster" />
-    <Content Include="sample49.dothtml" />
-    <Content Include="sample50.dothtml" />
-    <Content Include="sample51.dothtml" />
-    <Content Include="sample52.dothtml" />
-    <Content Include="sample53.dothtml" />
-    <None Include="Scripts\jquery-1.9.1.intellisense.js" />
-    <Content Include="Scripts\bootstrap.js" />
-    <Content Include="Scripts\bootstrap.min.js" />
-    <Content Include="Scripts\jquery-1.9.1.js" />
-    <Content Include="Scripts\jquery-1.9.1.min.js" />
-    <Content Include="Scripts\testResource.js" />
-    <Content Include="Scripts\testResource2.js" />
-    <Content Include="Scripts\testResourceBundle.js" />
-    <Content Include="Web.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="AuthSample\LoginViewModel.cs" />
-    <Compile Include="AuthSample\SecuredPageViewModel.cs" />
-    <Compile Include="Controls\ControlWithExtensionCommand.cs" />
-    <Compile Include="Controls\Sample5_TestControl.cs" />
     <Compile Include="Controls\ServerRenderedLabel.cs" />
-    <Compile Include="DotvvmStartup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="ReturnFileSample\SampleViewModel.cs" />
-    <Compile Include="Sample9_Resources.cs-CZ.Designer.cs">
-      <DependentUpon>Sample9_Resources.cs-CZ.resx</DependentUpon>
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-    </Compile>
-    <Compile Include="Sample9_Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Sample9_Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Startup.cs" />
-    <Compile Include="ViewModels\Sample11ViewModel.cs" />
-    <Compile Include="ViewModels\Sample12ViewModel.cs" />
-    <Compile Include="ViewModels\Sample15ViewModel.cs" />
-    <Compile Include="ViewModels\Sample14ViewModel.cs" />
-    <Compile Include="ViewModels\Sample13ViewModel.cs" />
-    <Compile Include="ViewModels\Sample41ViewModel.cs" />
-    <Compile Include="ViewModels\Sample16ViewModel.cs" />
-    <Compile Include="ViewModels\Sample17ViewModel.cs" />
-    <Compile Include="ViewModels\Sample17ViewModel_A.cs" />
-    <Compile Include="ViewModels\Sample17ViewModel_B.cs" />
-    <Compile Include="ViewModels\Sample21ViewModel.cs" />
-    <Compile Include="ViewModels\Sample39ViewModel.cs" />
-    <Compile Include="ViewModels\Sample38ViewModel.cs" />
-    <Compile Include="ViewModels\Sample27ViewModel.cs" />
-    <Compile Include="ViewModels\Sample26ViewModel.cs" />
-    <Compile Include="ViewModels\Sample19ViewModel.cs" />
-    <Compile Include="ViewModels\Sample18ViewModel.cs" />
-    <Compile Include="ViewModels\Sample24ViewModel.cs" />
-    <Compile Include="ViewModels\Sample23ViewModel.cs" />
-    <Compile Include="ViewModels\Sample22ViewModel.cs" />
-    <Compile Include="ViewModels\Sample20ViewModel.cs" />
-    <Compile Include="ViewModels\Sample25ViewModel.cs" />
-    <Compile Include="ViewModels\Sample32ViewModel.cs" />
-    <Compile Include="ViewModels\Sample31ViewModel.cs" />
-    <Compile Include="ViewModels\Sample34ViewModel.cs" />
-    <Compile Include="ViewModels\Sample36ViewModel.cs" />
-    <Compile Include="ViewModels\Sample35ViewModel.cs" />
-    <Compile Include="ViewModels\Sample40ViewModel.cs" />
-    <Compile Include="ViewModels\Sample42ViewModel.cs" />
-    <Compile Include="ViewModels\Sample45ViewModel.cs" />
-    <Compile Include="ViewModels\Sample44ViewModel.cs" />
-    <Compile Include="ViewModels\Sample43ViewModel.cs" />
-    <Compile Include="ViewModels\Sample49ViewModel.cs" />
-    <Compile Include="ViewModels\Sample48ViewModel.cs" />
-    <Compile Include="ViewModels\Sample47ViewModel.cs" />
-    <Compile Include="ViewModels\Sample46ViewModel.cs" />
-    <Compile Include="ViewModels\Sample52ViewModel.cs" />
-    <Compile Include="ViewModels\Sample50ViewModel.cs" />
-    <Compile Include="ViewModels\Sample53ViewModel.cs" />
-    <Compile Include="ViewModels\Sample6ViewModel.cs" />
-    <Compile Include="ViewModels\Sample1ViewModel.cs" />
-    <Compile Include="ViewModels\Sample2ViewModel.cs" />
-    <Compile Include="ViewModels\Sample5ViewModel.cs" />
-    <Compile Include="ViewModels\Sample3ViewModel.cs" />
-    <Compile Include="ViewModels\Sample10ViewModel.cs" />
-    <Compile Include="ViewModels\Sample9ViewModel.cs" />
-    <Compile Include="ViewModels\Sample8ViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\Auth\LoginViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\CascadeSelectors\CascadeSelectorsViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\DataTemplate\EmptyDataTemplateRepeaterGridViewViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\ComboBox\ComboBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\DataPager\DataPagerViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
+    <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
+    <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
+    <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
+    <Compile Include="ViewModels\FeatureSamples\HtmlTag\NonPairHtmlTagViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\IdGeneration\IdGeneration.cs" />
+    <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackHandlersViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\RenderSettingsModeServer\RenderSettingsModeServerPropertyViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Serialization\Serialization.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Serialization\ObservableCollectionShouldContainObservablesViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\StaticCommand\StaticCommandViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\NestedValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\RegexValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\DynamicValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\SimpleValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\ValidationRulesLoadOnPostbackViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ViewModelDeserialization\DoesNotDropObjectViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ViewModelProtection\ViewModelProtectionViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ServerComments\ServerCommentsViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\Button\ButtonViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Redirect\RedirectViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\TaskList\TaskListViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\InvoiceCalculator\InvoiceCalculatorViewModel.cs" />
+    <Compile Include="ViewModels\DefaultViewModel.cs" />
+    <Compile Include="ViewModels\EmptyViewModel.cs" />
+    <Compile Include="ViewModels\InheritedViewModel.cs" />
+    <Compile Include="ViewModels\MasterPageViewModel.cs" />
+    <Compile Include="ViewModels\TasksViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\DateTimeSerialization\DateTimeSerialization.cs" />
+    <Compile Include="Localization_Resources.cs-CZ.Designer.cs">
+      <DependentUpon>Localization_Resources.cs-CZ.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Localization_Resources.Designer.cs">
+      <DependentUpon>Localization_Resources.resx</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="sample1.dothtml" />
-    <Content Include="Scripts\jquery-1.9.1.min.map" />
+    <Content Include="LICENSE.txt" />
+    <Content Include="Web.config" />
+    <Content Include="packages.config" />
+    <Content Include="dotvvm.json" />
+    <Content Include="Views\ControlSamples\Button\Button.dothtml" />
+    <Content Include="Views\FeatureSamples\ServerComments\ServerComments.dothtml" />
+    <Content Include="Views\Errors\MissingViewModel.dothtml" />
+    <Content Include="Views\Errors\InvalidViewModel.dothtml" />
+    <Content Include="Views\Errors\NonExistingControl.dothtml" />
+    <Content Include="Views\Errors\NonExistingProperty.dothtml" />
+    <Content Include="Views\Errors\NotAllowedHardCodedPropertyValue.dothtml" />
+    <Content Include="Views\Errors\WrongPropertyValue.dothtml" />
+    <Content Include="Views\Errors\MissingRequiredProperty.dothtml" />
+    <Content Include="Views\Errors\BindingInvalidProperty.dothtml" />
+    <Content Include="Views\Errors\BindingInvalidCommand.dothtml" />
+    <Content Include="Views\Errors\MalformedBinding.dothtml" />
+    <None Include="Properties\PublishProfiles\CI.pubxml" />
+    <Content Include="Views\Errors\Master.dotmaster" />
+    <Content Include="Views\Errors\MasterPageRequiresDifferentViewModel.dothtml" />
+    <Content Include="Views\Errors\MissingRequiredProperty2.dothtml" />
+    <Content Include="Views\FeatureSamples\Redirect\Redirect.dothtml" />
+    <Content Include="Views\FeatureSamples\PostBack\PostbackUpdate.dothtml" />
+    <Content Include="Views\ComplexSamples\TaskList\TaskListAsyncCommands.dothtml" />
+    <Content Include="Views\ComplexSamples\InvoiceCalculator\InvoiceCalculator.dothtml" />
+    <Content Include="Views\FeatureSamples\ViewModelProtection\ViewModelProtection.dothtml" />
+    <Content Include="Views\ControlSamples\Button\InputTypeButton_TextContentInside.dothtml" />
+    <Content Include="Views\ControlSamples\Button\InputTypeButton_HtmlContentInside.dothtml" />
+    <Content Include="Views\ControlSamples\FileUpload\FileUpload.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\SimpleValidation.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\NestedValidation.dothtml" />
+    <Content Include="Views\ControlSamples\RadioButton\RadioButton.dothtml" />
+    <Content Include="Views\ControlSamples\CheckBox\CheckBox.dothtml" />
+    <Content Include="Views\ComplexSamples\GridViewDataSet\GridViewDataSet.dothtml" />
+    <Content Include="Views\FeatureSamples\JavascriptEvents\JavascriptEvents.dothtml" />
+    <Content Include="Views\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.dothtml" />
+    <Content Include="Views\ComplexSamples\ChangedEvent\ChangedEvent.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\RegexValidation.dothtml" />
+    <Content Include="Views\ControlSamples\TextBox\IntBoundTextBox.dothtml" />
+    <Content Include="Views\ControlSamples\ComboBox\ComboBox.dothtml" />
+    <Content Include="Views\ControlSamples\TextBox\TextBox.dothtml" />
+    <Content Include="Views\Default.dothtml" />
+    <Content Include="Views\FeatureSamples\NestedMasterPages\Content.dothtml" />
+    <Content Include="Views\FeatureSamples\NestedMasterPages\Nested.dotmaster" />
+    <Content Include="Views\FeatureSamples\NestedMasterPages\Root.dotmaster" />
+    <Content Include="Views\FeatureSamples\MarkupControl\MarkupControlRegistration.dothtml" />
+    <Content Include="Views\FeatureSamples\DateTimeSerialization\DateTimeSerialization.dothtml" />
+    <Content Include="Views\FeatureSamples\Formatting\Formatting.dothtml" />
+    <Content Include="Views\FeatureSamples\Serialization\Serialization.dothtml" />
+    <Content Include="Views\ComplexSamples\TaskList\ServerRenderedTaskList.dothtml" />
+    <Content Include="Views\ControlSamples\Button\ButtonTagName.dothtml" />
+    <Content Include="Views\ControlSamples\LinkButton\LinkButton.dothtml" />
+    <Content Include="Views\ControlSamples\EnabledProperty\EnabledProperty.dothtml" />
+    <Content Include="Views\ComplexSamples\CascadeSelectors\CascadeSelectors.dothtml" />
+    <Content Include="Views\FeatureSamples\RenderSettingsModeServer\RenderSettingModeServerProperty.dothtml" />
+    <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand.dothtml" />
+    <Content Include="Views\ComplexSamples\SPAViewModelReapplication\master.dotmaster" />
+    <Content Include="Views\ComplexSamples\SPAViewModelReapplication\pageA.dothtml" />
+    <Content Include="Views\ComplexSamples\SPAViewModelReapplication\pageB.dothtml" />
+    <Content Include="Views\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTag.dothtml" />
+    <Content Include="Views\ControlSamples\ValidationSummary\RecursiveValidationSummary.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\NestedRepeater.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\DynamicValidation.dothtml" />
+    <Content Include="Views\ControlSamples\DataPager\DataPager.dothtml" />
+    <Content Include="Views\ComplexSamples\CascadeSelectors\CascadeSelectorsServerRender.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewPagingSorting.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\ValidationRulesLoadOnPostback.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewServerRender.dothtml" />
+    <Content Include="Views\ComplexSamples\DataTemplate\EmptyDataTemplateRepeaterGridView.dothtml" />
+    <Content Include="Views\FeatureSamples\PostBack\PostBackHandlers.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\RouteLink.dothtml" />
+    <Content Include="Views\FeatureSamples\IdGeneration\IdGeneration.dothtml" />
+    <Content Include="Views\FeatureSamples\IdGeneration\IdGeneration_control.dotcontrol" />
+    <Content Include="Views\FeatureSamples\ViewModelDeserialization\DoesNotDropObject.dothtml" />
+    <Content Include="Views\ComplexSamples\Auth\Login.dothtml" />
+    <Content Include="Views\ComplexSamples\Auth\SecuredPage.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewStaticCommand.dothtml" />
+    <Content Include="Views\FeatureSamples\HtmlTag\NonPairHtmlTag.dothtml" />
+    <Content Include="Views\FeatureSamples\Serialization\ObservableCollectionShouldContainObservables.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -288,39 +269,74 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
+    <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Localization_Resources.cs-CZ.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localization_Resources.cs-CZ.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Localization_Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localization_Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
       <Name>DotVVM.Framework</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Sample9_Resources.cs-CZ.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Sample9_Resources.cs-CZ.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Sample9_Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Sample9_Resources.Designer.cs</LastGenOutput>
-    </EmbeddedResource>
+    <Folder Include="ViewModels\ComplexSamples\GridView\" />
   </ItemGroup>
-  <ItemGroup />
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
     <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
   </PropertyGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestIE|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>CODE_ANALYSIS;DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestChrome|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>CODE_ANALYSIS;DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestFirefox|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\</OutputPath>
+    <DefineConstants>CODE_ANALYSIS;DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\WebApplications\Microsoft.WebApplication.targets" Condition="'$(VSToolsPath)' != ''" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v10.0\WebApplications\Microsoft.WebApplication.targets" Condition="false" />
   <ProjectExtensions>
     <VisualStudio>
       <FlavorProperties GUID="{349c5851-65df-11da-9384-00065b846f21}">
         <WebProjectProperties>
-          <UseIIS>False</UseIIS>
+          <UseIIS>True</UseIIS>
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>8628</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:8628/</IISUrl>
+          <IISUrl>http://localhost:60320/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
@@ -328,12 +344,23 @@
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
       </FlavorProperties>
+      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="Debug|Any CPU">
+        <DotvvmPropertyPageProjectFlavorCfg />
+      </FlavorProperties>
+      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="Release|Any CPU">
+        <DotvvmPropertyPageProjectFlavorCfg />
+      </FlavorProperties>
+      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="TestIE|Any CPU">
+        <DotvvmPropertyPageProjectFlavorCfg />
+      </FlavorProperties>
+      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="TestChrome|Any CPU">
+        <DotvvmPropertyPageProjectFlavorCfg />
+      </FlavorProperties>
+      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="TestFirefox|Any CPU">
+        <DotvvmPropertyPageProjectFlavorCfg />
+      </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>
-  <PropertyGroup>
-    <PostBuildEvent>
-    </PostBuildEvent>
-  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

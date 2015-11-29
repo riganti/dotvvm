@@ -14,8 +14,8 @@ namespace DotVVM.Framework
 {
     public static class KnockoutHelper
     {
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableControl control, DotvvmProperty property, Action nullBindingAction = null,
-                                                                    string valueUpdate = null, bool renderEvenInServerRenderingMode = false, bool setValueBack = false)
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction = null,
+            string valueUpdate = null, bool renderEvenInServerRenderingMode = false, bool setValueBack = false)
         {
             var expression = control.GetValueBinding(property);
             if (expression != null && (!control.RenderOnServer || renderEvenInServerRenderingMode))
@@ -38,8 +38,7 @@ namespace DotVVM.Framework
             writer.AddKnockoutDataBind(name, valueBinding.GetKnockoutBindingExpression());
         }
 
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions,
-                                                                                                    DotvvmBindableControl control, DotvvmProperty property)
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, IEnumerable<KeyValuePair<string, IValueBinding>> expressions, DotvvmControl control, DotvvmProperty property)
         {
             writer.AddAttribute("data-bind", name + ": {" + String.Join(",", expressions.Select(e => "'" + e.Key + "': " + e.Value.GetKnockoutBindingExpression())) + "}", true, ", ");
         }
@@ -69,13 +68,13 @@ namespace DotVVM.Framework
             writer.AddKnockoutDataBind("foreach", expression);
         }
 
-        public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, RenderContext context, DotvvmBindableControl control,
-                                                                                    bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
+        public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, RenderContext context, DotvvmControl control,
+            bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
         {
             var uniqueControlId = "";
             if (expression is ControlCommandBindingExpression)
             {
-                var target = control.GetClosestControlBindingTarget();
+                var target = (DotvvmControl)control.GetClosestControlBindingTarget();
                 target.EnsureControlHasId();
                 uniqueControlId = target.ID;
             }
@@ -103,7 +102,7 @@ namespace DotVVM.Framework
         /// <summary>
         /// Generates a list of postback update handlers.
         /// </summary>
-        private static string GetPostBackHandlersScript(DotvvmBindableControl control, string eventName)
+        private static string GetPostBackHandlersScript(DotvvmControl control, string eventName)
         {
             var handlers = (List<PostBackHandler>)control.GetValue(PostBack.HandlersProperty);
             if (handlers == null) return "null";
@@ -136,20 +135,17 @@ namespace DotVVM.Framework
         {
             while (control != null)
             {
-                if (control is DotvvmBindableControl)
+                var pathFragment = control.GetValue(Internal.PathFragmentProperty, false) as string;
+                if (pathFragment != null)
                 {
-                    var pathFragment = ((DotvvmBindableControl)control).GetValue(Internal.PathFragmentProperty, false) as string;
-                    if (pathFragment != null)
+                    yield return pathFragment;
+                }
+                else
+                {
+                    var dataContextBinding = control.GetBinding(DotvvmBindableObject.DataContextProperty, false) as IValueBinding;
+                    if (dataContextBinding != null)
                     {
-                        yield return pathFragment;
-                    }
-                    else
-                    {
-                        var dataContextBinding = ((DotvvmBindableControl)control).GetBinding(DotvvmBindableControl.DataContextProperty, false) as IValueBinding;
-                        if (dataContextBinding != null)
-                        {
-                            yield return dataContextBinding.GetKnockoutBindingExpression();
-                        }
+                        yield return dataContextBinding.GetKnockoutBindingExpression();
                     }
                 }
                 control = control.Parent;
@@ -159,7 +155,7 @@ namespace DotVVM.Framework
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        public static string GetValidationTargetExpression(DotvvmBindableControl control)
+        public static string GetValidationTargetExpression(DotvvmControl control)
         {
             if (!(bool)control.GetValue(Validate.EnabledProperty))
             {
@@ -168,9 +164,7 @@ namespace DotVVM.Framework
 
             // find the closest control
             int dataSourceChanges;
-            var validationTargetControl = (DotvvmBindableControl)control.GetClosestWithPropertyValue(
-                out dataSourceChanges,
-                c => c is DotvvmBindableControl && ((DotvvmBindableControl)c).GetValueBinding(Validate.TargetProperty) != null);
+            var validationTargetControl = control.GetClosestWithPropertyValue(out dataSourceChanges, c => c.GetValueBinding(Validate.TargetProperty) != null);
             if (validationTargetControl == null)
             {
                 return "$root";
@@ -180,7 +174,7 @@ namespace DotVVM.Framework
             // FIXME: This does not work:
             var validationBindingExpression = validationTargetControl.GetValueBinding(Validate.TargetProperty);
             string validationExpression = validationBindingExpression.GetKnockoutBindingExpression();
-            validationExpression = String.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
+            validationExpression = string.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
 
             return validationExpression;
         }

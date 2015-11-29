@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Controls
     /// <summary>
     /// A control that represents plain HTML tag.
     /// </summary>
-    public class HtmlGenericControl : DotvvmBindableControl, IControlWithHtmlAttributes
+    public class HtmlGenericControl : DotvvmControl, IControlWithHtmlAttributes
     {
         /// <summary>
         /// Gets the tag name.

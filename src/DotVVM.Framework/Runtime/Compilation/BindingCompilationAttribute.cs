@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         public virtual Expression<CompiledBindingExpression.BindingDelegate> CompileToDelegate(Expression binding, DataContextStack dataContext, Type expectedType)
         {
             var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
-            var controlRootParameter = Expression.Parameter(typeof(DotvvmControl), "controlRoot");
+            var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
             var expr = ExpressionUtils.Replace(ConvertExpressionToType(binding, expectedType), BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
             expr = ExpressionUtils.ConvertToObject(expr);
             return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, viewModelsParameter, controlRootParameter);
@@ -58,7 +58,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         public virtual Expression<CompiledBindingExpression.BindingUpdateDelegate> CompileToUpdateDelegate(Expression binding, DataContextStack dataContext)
         {
             var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
-            var controlRootParameter = Expression.Parameter(typeof(DotvvmControl), "controlRoot");
+            var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var expr = ExpressionUtils.Replace(binding, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
@@ -74,11 +74,24 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack);
 
-            if (javascript.StartsWith("$data.", StringComparison.Ordinal)) javascript = javascript.Substring("$data.".Length);
+            if (javascript == "$data")
+            {
+                javascript = "$rawData";
+            }
+            else if (javascript.StartsWith("$data.", StringComparison.Ordinal))
+            {
+                javascript = javascript.Substring("$data.".Length);
+            }
+
             // do not produce try/eval on single properties
             if (javascript.Contains(".") || javascript.Contains("("))
-                return "dotvvm.tryEval(function(){return " + javascript + "})";
-            else return javascript;
+            {
+                return "dotvvm.evaluator.tryEval(function(){return " + javascript + "})";
+            }
+            else
+            {
+                return javascript;
+            }
         }
     }
 }

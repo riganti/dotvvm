@@ -1,8 +1,9 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using DotVVM.Framework.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Resources;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Linq;
 
 namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
 {
@@ -11,7 +12,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
     /// </summary>
     public class DothtmlTokenizer : TokenizerBase<DothtmlToken, DothtmlTokenType>
     {
-
         /// <summary>
         /// Gets the type of the text token.
         /// </summary>
@@ -27,8 +27,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
         {
             get { return DothtmlTokenType.WhiteSpace; }
         }
-
-
 
         /// <summary>
         /// Tokenizes the input.
@@ -69,7 +67,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                             CreateToken(DothtmlTokenType.Text, 1);
                         }
 
-                        // it really is a binding 
+                        // it really is a binding
                         ReadBinding(true);
                     }
 
@@ -130,12 +128,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             }
         }
 
-        
-
-
-
-
-        static readonly HashSet<char> EnabledIdentifierChars = new HashSet<char>()
+        private static readonly HashSet<char> EnabledIdentifierChars = new HashSet<char>()
         {
             ':', '_', '-', '.'
         };
@@ -161,6 +154,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
         /// <summary>
         /// Reads the element.
         /// </summary>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         private ReadElementType ReadElement(bool wasOpenBraceRead = false)
         {
             var isClosingTag = false;
@@ -276,7 +270,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             {
                 return ReadComment();
             }
-            else if(s == "%--")
+            else if (s == "%--")
             {
                 return ReadServerComment();
             }
@@ -290,8 +284,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             }
             return ReadElementType.Error;
         }
-       
-        ReadElementType ReadCData()
+
+        private ReadElementType ReadCData()
         {
             CreateToken(DothtmlTokenType.OpenCData);
             if (ReadTextUntil(DothtmlTokenType.CDataBody, "]]>", false))
@@ -306,7 +300,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                 return ReadElementType.Error;
             }
         }
-        ReadElementType ReadComment()
+
+        private ReadElementType ReadComment()
         {
             CreateToken(DothtmlTokenType.OpenComment);
             if (ReadTextUntil(DothtmlTokenType.CommentBody, "-->", false))
@@ -321,7 +316,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                 return ReadElementType.Error;
             }
         }
-        ReadElementType ReadServerComment()
+
+        private ReadElementType ReadServerComment()
         {
             CreateToken(DothtmlTokenType.OpenServerComment);
             if (ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false))
@@ -336,7 +332,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                 return ReadElementType.Error;
             }
         }
-        ReadElementType ReadDoctype()
+
+        private ReadElementType ReadDoctype()
         {
             CreateToken(DothtmlTokenType.OpenDoctype);
             if (ReadTextUntil(DothtmlTokenType.DoctypeBody, ">", true))
@@ -351,7 +348,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                 return ReadElementType.Error;
             }
         }
-        ReadElementType ReadXmlPI()
+
+        private ReadElementType ReadXmlPI()
         {
             CreateToken(DothtmlTokenType.OpenXmlProcessingInstruction);
             if (ReadTextUntil(DothtmlTokenType.XmlProcessingInstructionBody, "?>", true))
@@ -485,7 +483,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             }
             else
             {
-                // read text 
+                // read text
                 while (Peek() != quotes)
                 {
                     var ch = Peek();
@@ -513,7 +511,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             }
             return true;
         }
-
 
         /// <summary>
         /// Reads the binding.

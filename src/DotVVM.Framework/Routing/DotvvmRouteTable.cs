@@ -18,7 +18,6 @@ namespace DotVVM.Framework.Routing
         
         private List<KeyValuePair<string, RouteBase>> list = new List<KeyValuePair<string, RouteBase>>();
 
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRouteTable"/> class.
         /// </summary>
@@ -62,7 +61,8 @@ namespace DotVVM.Framework.Routing
             {
                 throw new InvalidOperationException($"The route with name '{routeName}' has already been registered!");
             }
-
+            // internal assign routename 
+            route.RouteName = routeName;
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));
         }
 

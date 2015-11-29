@@ -52,17 +52,17 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Evaluates the binding.
         /// </summary>
-        public virtual object Evaluate(DotvvmBindableControl control, DotvvmProperty property)
+        public virtual object Evaluate(DotvvmBindableObject control, DotvvmProperty property)
         {
-            return ExecDelegate(control, property != DotvvmBindableControl.DataContextProperty);
+            return ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty);
         }
 
         /// <summary>
         /// Updates the viewModel with the new value.
         /// </summary>
-        public virtual void UpdateSource(object value, DotvvmBindableControl control, DotvvmProperty property)
+        public virtual void UpdateSource(object value, DotvvmBindableObject control, DotvvmProperty property)
         {
-            ExecUpdateDelegate(control, value, property != DotvvmBindableControl.DataContextProperty);
+            ExecUpdateDelegate(control, value, property != DotvvmBindableObject.DataContextProperty);
         }
         public string GetKnockoutBindingExpression()
         {
@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Binding
         #region Helpers
 
         public static readonly ValueBindingExpression ThisBinding
-             = new ValueBindingExpression(vm => vm[0], "$data");
+             = new ValueBindingExpression(vm => vm[0], "$rawData");
 
         public ValueBindingExpression MakeListIndexer(int index)
         {

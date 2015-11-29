@@ -10,10 +10,12 @@ namespace DotVVM.Framework.Controls.Infrastructure
     public class RawLiteral: DotvvmControl
     {
         public string EncodedText { get; }
+        public string UnencodedText { get; }
         public bool IsWhitespace { get; }
-        public RawLiteral(string text, bool isWhitespace = false)
+        public RawLiteral(string text, string unencodedText, bool isWhitespace = false)
         {
             EncodedText = text;
+            UnencodedText = unencodedText;
             IsWhitespace = isWhitespace;
         }
 
