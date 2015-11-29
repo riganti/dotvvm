@@ -4,7 +4,6 @@
 	"private": true,
 	"devDependencies": {
 		"karma": "^0.12.22",
-		"karma-cli": "^0.1.1",
 		"karma-chrome-launcher": "^0.2.1",
 		"karma-teamcity-reporter": "^0.2.1",
 		"karma-jasmine": "^0.3.6"
