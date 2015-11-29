@@ -49,7 +49,6 @@
   <ItemGroup />
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\typings\jasmine\jasmine.d.ts" />
-    <TypeScriptCompile Include="Scripts\typings\knockout\knockout.d.ts" />
     <TypeScriptCompile Include="tests\DotVVM.Serialization.Tests.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
