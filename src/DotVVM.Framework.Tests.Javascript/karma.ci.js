@@ -16,7 +16,7 @@ module.exports = function(config) {
 	  'knockout-latest.js',
       'jquery-2.1.1.min.js',
 	  'dotvvm.js',
-      'tests/**/*Spec.js'
+      'tests/**/*.Tests.js'
     ],
 
 
