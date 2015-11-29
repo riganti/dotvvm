@@ -49,11 +49,11 @@
   <ItemGroup />
   <ItemGroup>
     <TypeScriptCompile Include="Scripts\typings\jasmine\jasmine.d.ts" />
+    <TypeScriptCompile Include="Scripts\typings\knockout\knockout.d.ts" />
     <TypeScriptCompile Include="tests\DotVVM.Serialization.Tests.ts" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
-
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -573,15 +573,9 @@
     <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
     <TypeScriptOutFile>Resources\Scripts\DotVVM.js</TypeScriptOutFile>
     <TypeScriptOutDir />
-    <TypeScriptGeneratesDeclarations>False</TypeScriptGeneratesDeclarations>
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
     <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
     <TypeScriptSourceMap>True</TypeScriptSourceMap>
-    <TypeScriptMapRoot />
-    <TypeScriptSourceRoot />
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <TypeScriptOutDir />
-    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
     <TypeScriptMapRoot />
     <TypeScriptSourceRoot />
   </PropertyGroup>
