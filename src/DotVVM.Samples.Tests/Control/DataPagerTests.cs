@@ -26,7 +26,6 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("ul").FindElements("li").ThrowIfDifferentCountThan(2);
                 // verify the second pager appears
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // verify the second pager appears
                 browser.First(".pagination").CheckIfIsDisplayed();
@@ -35,7 +34,6 @@ namespace DotVVM.Samples.Tests.Control
 
                 // switch to another page
                 browser.First(".pagination").ElementAt("li a", 4).Click();
-                browser.Wait();
 
                 // verify the second pager is still visible
                 browser.First(".pagination").CheckIfIsDisplayed();

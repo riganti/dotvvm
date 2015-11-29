@@ -20,15 +20,12 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty);
 
                 // ensure month names are rendered on the server
-                browser.First("table tr td").FindElements("span").ThrowIfDifferentCountThan(0);
+                browser.FindElements("table tr td span").ThrowIfDifferentCountThan(0);
                 
                 // fill textboxes
                 browser.SendKeys("input[type=text]", "1");
 
-                //browser.FindElements("input[type=text]").
                 browser.Click("input[type=button]");
-                browser.Wait();
-
 
                 // validate result
                 browser.Last("span").CheckIfInnerTextEquals("12", false, true);

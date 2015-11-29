@@ -1,9 +1,0 @@
-@baseType DotVVM.Samples.BasicSamples.Controls.Sample5_TestControl, DotVVM.Samples.BasicSamples
-@viewModel System.Object, mscorlib
-
-<h2>{{controlProperty: Name}}</h2>
-<p>
-	<dot:TextBox Text="{controlProperty: Value}" />
-	<dot:Button Text="Up" Click="{controlCommand: Up()}" />
-	<dot:Button Text="Down" Click="{controlCommand: Down()}" />
-</p>

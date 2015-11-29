@@ -25,7 +25,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ElementAt("input[type=text]", 0).SendKeys("1");
                 browser.ElementAt("input[type=text]", 1).SendKeys("2");
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // verify the results
                 browser.ElementAt("input[type=text]", 0).CheckAttribute("value", s => s.Equals(""));
@@ -49,7 +48,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // click the button
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // verify that the values are correct
                 browser.First("p.result").CheckIfInnerTextEquals("1,2,3");
@@ -65,7 +63,6 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // click the button
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // verify that the values are correct
                 browser.First("p.result").CheckIfInnerTextEquals("2,3,2");

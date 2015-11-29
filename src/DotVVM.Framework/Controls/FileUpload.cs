@@ -121,7 +121,6 @@ namespace DotVVM.Framework.Controls
 
         internal override void OnPreRenderComplete(IDotvvmRequestContext context)
         {
-            context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadResourceName);
             context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadCssResourceName);
 
             base.OnPreRenderComplete(context);
@@ -165,7 +164,7 @@ namespace DotVVM.Framework.Controls
 
             // render upload files
             writer.AddAttribute("class", "dot-upload-files");
-            writer.AddKnockoutDataBind("html", $"dotvvm.format({JsonConvert.SerializeObject(NumberOfFilesIndicatorText)}, Files().length)");
+            writer.AddKnockoutDataBind("html", $"dotvvm.globalize.format({JsonConvert.SerializeObject(NumberOfFilesIndicatorText)}, Files().length)");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
 

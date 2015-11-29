@@ -1,9 +1,4 @@
 /// <reference path="dotvvm.ts" />
-
-if (!dotvvm) {
-    throw "DotVVM.js is not loaded!";
-}
-
 class DotvvmFileUpload {
 
     public showUploadDialog(sender: HTMLElement) {
@@ -54,5 +49,3 @@ class DotvvmFileUploadData {
     public FileId = ko.observable<string>();
     public FileName = ko.observable<string>();
 }
-
-(<any>dotvvm).fileUpload = (<any>dotvvm).fileUpload || new DotvvmFileUpload();

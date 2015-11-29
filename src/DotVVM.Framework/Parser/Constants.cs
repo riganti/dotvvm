@@ -27,7 +27,6 @@ namespace DotVVM.Framework.Parser
         public const string JQueryResourceName = "jquery";
         public const string KnockoutJSResourceName = "knockout";
         public const string DotvvmResourceName = "dotvvm";
-        public const string DotvvmValidationResourceName = "dotvvm.validation";
         public const string DotvvmDebugResourceName = "dotvvm.debug";
         public const string GlobalizeResourceName = "globalize";
         public const string GlobalizeCultureResourceName = "globalize:{0}";
@@ -44,7 +43,6 @@ namespace DotVVM.Framework.Parser
         public const string SpaContentPlaceHolderID = "__dot_SpaContentPlaceHolder";
         public const string SpaContentPlaceHolderDefaultRouteDataAttributeName = "data-dot-spacontentplaceholder-defaultroute";
         
-        public const string DotvvmFileUploadResourceName = "dotvvm.fileUpload";
         public const string DotvvmFileUploadCssResourceName = "dotvvm.fileUpload-css";
         public const string DotvvmFileUploadAsyncHeaderName = "X-DotvvmAsyncUpload";
     }

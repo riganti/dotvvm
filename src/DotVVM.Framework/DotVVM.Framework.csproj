@@ -515,16 +515,16 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="compilerconfig.json" />
+    <None Include="compilerconfig.json.defaults">
+      <DependentUpon>compilerconfig.json</DependentUpon>
+    </None>
     <None Include="dotvvmwizard.snk" />
     <None Include="Hosting\ErrorPages\ErrorPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>ErrorPageTemplate1.cs</LastGenOutput>
     </None>
     <None Include="packages.config" />
-    <None Include="Resources\Scripts\DotVVM.Debug.js.map" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.js.map" />
-    <None Include="Resources\Scripts\DotVVM.js.map" />
-    <None Include="Resources\Scripts\DotVVM.Validation.js.map" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\DothtmlTokenizerErrors.resx">
@@ -535,15 +535,19 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
-    <EmbeddedResource Include="Resources\Scripts\knockout-3.2.0.js" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.Validation.js" />
   </ItemGroup>
   <ItemGroup>
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.DomUtils.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Events.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.FileUpload.ts" />
-    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Debug.ts" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Globalize.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.PostBackHandlers.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Promise.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Serialization.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.ts" />
     <TypeScriptCompile Include="Resources\Scripts\DotVVM.Validation.ts" />
+    <TypeScriptCompile Include="Resources\Scripts\DotVVM.Evaluator.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\jquery\jquery.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
     <TypeScriptCompile Include="Resources\Scripts\typings\knockout\knockout.d.ts" />
@@ -558,15 +562,31 @@
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>JQueryGlobalizeRegisterTemplate.cs</LastGenOutput>
     </Content>
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.js" />
-    <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <TypeScriptTarget>ES5</TypeScriptTarget>
+    <TypeScriptJSXEmit>None</TypeScriptJSXEmit>
+    <TypeScriptCompileOnSaveEnabled>True</TypeScriptCompileOnSaveEnabled>
+    <TypeScriptNoImplicitAny>False</TypeScriptNoImplicitAny>
+    <TypeScriptModuleKind>None</TypeScriptModuleKind>
+    <TypeScriptRemoveComments>False</TypeScriptRemoveComments>
+    <TypeScriptOutFile>Resources\Scripts\DotVVM.js</TypeScriptOutFile>
+    <TypeScriptOutDir />
+    <TypeScriptGeneratesDeclarations>True</TypeScriptGeneratesDeclarations>
+    <TypeScriptNoEmitOnError>True</TypeScriptNoEmitOnError>
+    <TypeScriptSourceMap>True</TypeScriptSourceMap>
+    <TypeScriptMapRoot />
+    <TypeScriptSourceRoot />
+  </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets" Condition="Exists('$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\TypeScript\Microsoft.TypeScript.targets')" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

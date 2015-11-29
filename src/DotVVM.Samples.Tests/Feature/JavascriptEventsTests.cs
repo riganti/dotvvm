@@ -23,13 +23,11 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // init alert
                 browser.Wait();
-
                 browser.CheckIfAlertTextEquals("init");
-                Assert.AreEqual("init", browser.GetAlertText());
                 browser.ConfirmAlert();
 
                 // postback alerts
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
 
                 browser.CheckIfAlertTextEquals("beforePostback");
                 browser.ConfirmAlert();
@@ -39,7 +37,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ConfirmAlert();
 
                 // error alerts
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
 
                 browser.CheckIfAlertTextEquals("beforePostback");
                 browser.ConfirmAlert();

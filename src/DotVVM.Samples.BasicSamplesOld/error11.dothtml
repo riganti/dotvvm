@@ -1,6 +1,0 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.Sample2ViewModel, DotVVM.Samples.BasicSamples
-@masterPage error11.dotmaster
-
-<dot:Content ContentPlaceHolderID="pl1">
-	something went wrong, this should be an error
-</dot:Content>

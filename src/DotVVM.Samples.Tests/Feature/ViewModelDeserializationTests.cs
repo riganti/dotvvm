@@ -24,7 +24,6 @@ namespace DotVVM.Samples.Tests.Feature
                 //value++
                 browser.ElementAt("input[type=button]",2).Click();
                 browser.ElementAt("input[type=button]", 2).Click();
-                browser.Wait();
                 //check value
                 browser.First("span").CheckIfInnerTextEquals("2");
                 //hide span

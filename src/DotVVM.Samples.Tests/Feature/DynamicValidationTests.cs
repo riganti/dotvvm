@@ -21,7 +21,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_DynamicValidation);
 
                 // click the validate button
-                browser.Last("input[type=button]").Click().Wait();
+                browser.Last("input[type=button]").Click();
 
                 // ensure validators are hidden
                 browser.Last("span").CheckIfInnerTextEquals("true");
@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait();
 
                 // try to validate
-                browser.Last("input[type=button]").Click().Wait();
+                browser.Last("input[type=button]").Click();
 
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
                 browser.First("li").CheckIfInnerText(s => s.Contains("Email"));
@@ -40,7 +40,7 @@ namespace DotVVM.Samples.Tests.Feature
                 // fix the e-mail address
                 browser.Last("input[type=text]").Clear();
                 browser.Last("input[type=text]").SendKeys("test@mail.com");
-                browser.Last("input[type=button]").Click().Wait();
+                browser.Last("input[type=button]").Click();
 
                 // try to validate
                 browser.Last("span").CheckIfInnerTextEquals("true");

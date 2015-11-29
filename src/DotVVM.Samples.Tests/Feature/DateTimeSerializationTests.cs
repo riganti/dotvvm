@@ -25,28 +25,28 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // verify the first date
                 browser.ElementAt("input[type=text]", 0).Clear().SendKeys("18.2.1988");
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
 
                 browser.ElementAt("span", 0).CheckIfInnerText(s => DateTime.Parse(s).Equals(new DateTime(1988, 2, 18)));
                 browser.ElementAt("input[type=text]", 0).Clear().SendKeys("test");
-                browser.ElementAt("input[type=button]", 1).Click().Wait();
+                browser.ElementAt("input[type=button]", 1).Click();
 
                 browser.ElementAt("span", 0).CheckIfInnerText(s => DateTime.Parse(s).Equals(DateTime.MinValue));
                 
                 // verify the second date
                 browser.ElementAt("input[type=text]", 1).Clear().SendKeys("2011-03-19 16:48:17");
-                browser.ElementAt("input[type=button]", 3).Click().Wait();
+                browser.ElementAt("input[type=button]", 3).Click();
 
                 browser.ElementAt("span", 1).CheckIfInnerText(s => DateTime.Parse(s).Equals(new DateTime(2011, 3, 19, 16, 48, 0)));
                 
                 browser.ElementAt("input[type=text]", 1).Clear().SendKeys("test");
-                browser.ElementAt("input[type=button]", 3).Click().Wait();
+                browser.ElementAt("input[type=button]", 3).Click();
 
                 browser.ElementAt("span", 1).CheckIfInnerTextEquals("null");
 
                 // try to set dates from server
-                browser.ElementAt("input[type=button]", 0).Click().Wait();
-                browser.ElementAt("input[type=button]", 2).Click().Wait();
+                browser.ElementAt("input[type=button]", 0).Click();
+                browser.ElementAt("input[type=button]", 2).Click();
 
                 // there is no time in the field
                 browser.ElementAt("input[type=text]", 0)

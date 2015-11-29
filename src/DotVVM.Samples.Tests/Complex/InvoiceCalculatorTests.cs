@@ -58,7 +58,7 @@ namespace DotVVM.Samples.Tests.Complex
                 // verify line totals
                 browser.First("input[type=text]").Click();
 
-                table.ElementAt("tr", 2).ElementAt("td" ,5).CheckIfInnerTextEquals("126");
+                table.ElementAt("tr", 2).ElementAt("td", 5).CheckIfInnerTextEquals("126");
                 table.ElementAt("tr", 3).ElementAt("td", 5).CheckIfInnerTextEquals("5.5");
                 table.ElementAt("tr", 4).ElementAt("td", 5).CheckIfInnerTextEquals("180");
 

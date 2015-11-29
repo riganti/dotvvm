@@ -13,6 +13,7 @@ namespace DotVVM.Samples.Tests.Feature
     public class ValidationRulesLoadOnPostbackTests : SeleniumTestBase
     {
         [TestMethod]
+        [Timeout(120000)]
         public void Feature_ValidationRulesLoadOnPostback()
         {
             RunInAllBrowsers(browser =>
@@ -20,33 +21,27 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationRulesLoadOnPostback);
 
                 // click the validate button
-                browser.FindElements("input[type=button]").Last().Click();
+                browser.Last("input[type=button]").Click();
                 browser.Wait();
 
                 // ensure validators are hidden
-                Assert.AreEqual("true", browser.FindElements("span").Last().GetText());
-                Assert.AreEqual(0, browser.FindElements("li").Count());
-
+                browser.Last("span").CheckIfInnerTextEquals("true");
+                browser.FindElements("li").ThrowIfDifferentCountThan(0);
                 // load the customer
                 browser.Click("input[type=button]");
-                browser.Wait();
 
                 // try to validate
-                browser.FindElements("input[type=button]").Last().Click();
-                browser.Wait();
-                //(Assert.AreEqual(1, browser.FindElements("li").Count());
+                browser.Last("input[type=button]").Click();
                 browser.FindElements("li").ThrowIfDifferentCountThan(1);
-                //Assert.IsTrue(browser.First("li").GetText().Contains("Email"));
                 browser.First("li").CheckIfInnerText(s => s.Contains("Email"));
 
                 // fix the e-mail address
-                browser.FindElements("input[type=text]").Last().Clear();
-                browser.FindElements("input[type=text]").Last().SendKeys("test@mail.com");
-                browser.FindElements("input[type=button]").Last().Click();
-                browser.Wait();
+                browser.Last("input[type=text]").Clear();
+                browser.Last("input[type=text]").SendKeys("test@mail.com");
+                browser.Last("input[type=button]").Click();
 
                 // try to validate
-                browser.FindElements("span").Last().CheckIfInnerTextEquals("true");
+                browser.Last("span").CheckIfInnerTextEquals("true");
                 browser.FindElements("li").ThrowIfDifferentCountThan(0);
             });
         }
