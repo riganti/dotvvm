@@ -93,11 +93,10 @@ namespace DotVVM.Framework.Runtime.Compilation
                 else if(node is DotHtmlCommentNode)
                 {
                     var commentNode = node as DotHtmlCommentNode;
-                    var whitespace = string.IsNullOrWhiteSpace(commentNode.Value);
 
                     string text = commentNode.IsServerSide ?  "" : "<!--" + commentNode.Value + "-->";
                     var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(RawLiteral)), node, dataContext);
-                    literal.ContructorParameters = new object[] { text, commentNode.Value, whitespace };
+                    literal.ContructorParameters = new object[] { text, commentNode.Value, true };
                     return literal;
                 }
                 else if (node is DothtmlLiteralNode)

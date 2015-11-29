@@ -54,7 +54,10 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             foreach (var node in EnumerateChildNodes())
             {
-                node.Accept(visitor);
+                if (visitor.Condition(node))
+                {
+                    node.Accept(visitor);
+                }
             }
         }
 

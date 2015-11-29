@@ -18,5 +18,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         void Visit(DothtmlBindingNode binding);
         void Visit(DothtmlDirectiveNode directive);
         void Visit(DothtmlLiteralNode literal);
+        bool Condition(DothtmlNode node);
     }
 }

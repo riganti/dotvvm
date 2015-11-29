@@ -240,12 +240,9 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             var startIndex = CurrentIndex;
             var node = new DotHtmlCommentNode() { StartPosition = Peek().StartPosition, IsServerSide = false };
 
-            node.Tokens.Add(Peek());
             node.StartToken = Read();
             node.ValueNode = ReadTextValue(false, false, DothtmlTokenType.CommentBody);
-            node.Tokens.Add(Peek());
             Assert(DothtmlTokenType.CloseComment);
-            node.Tokens.Add(Peek());
             node.EndToken = Read();
 
             node.Tokens.AddRange(GetTokensFrom(startIndex));

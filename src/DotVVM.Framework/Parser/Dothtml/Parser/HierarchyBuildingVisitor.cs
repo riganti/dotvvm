@@ -6,68 +6,80 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
-    public class ParentResolvingVisitor : IDothtmlSyntaxTreeVisitor
+    public class HierarchyBuildingVisitor : IDothtmlSyntaxTreeVisitor
     {
+        public int CursorPosition { get; set; }
+
+        public DothtmlNode LastFoundNode { get; set; }
+
+
         public bool Condition(DothtmlNode node)
         {
-            return true;
+            return node.StartPosition <= CursorPosition && CursorPosition < node.StartPosition + node.Length; 
         }
 
         public void Visit(DothtmlAttributeNode attribute)
         {
-            ResolveFromParent(attribute);
+            LastFoundNode = attribute;
         }
 
         public void Visit(DothtmlValueBindingNode bindingValue)
         {
-            ResolveFromParent(bindingValue);
+            LastFoundNode = bindingValue;
         }
 
         public void Visit(DotHtmlCommentNode comment)
         {
-            ResolveFromParent(comment);
+            LastFoundNode = comment;
         }
 
         public void Visit(DothtmlDirectiveNode directive)
         {
-            ResolveFromParent(directive);
+            LastFoundNode = directive;
         }
 
         public void Visit(DothtmlLiteralNode literal)
         {
-            ResolveFromParent(literal);
+            LastFoundNode = literal;
         }
 
         public void Visit(DothtmlBindingNode binding)
         {
-            ResolveFromParent(binding);
+            LastFoundNode = binding;
         }
 
         public void Visit(DothtmlNameNode name)
         {
-            ResolveFromParent(name);
+            LastFoundNode = name;
         }
 
         public void Visit(DothtmlValueTextNode textValue)
         {
-            ResolveFromParent(textValue);
+            LastFoundNode = textValue;
         }
 
         public void Visit(DothtmlElementNode element)
         {
-            ResolveFromParent(element);
+            LastFoundNode = element;
         }
 
         public void Visit(DothtmlRootNode root)
         {
-            ResolveFromParent(root);
+            LastFoundNode = root;
         }
 
-        private void ResolveFromParent(DothtmlNode parentNode)
+        public List<DothtmlNode> GetHierarchy()
         {
-            foreach (var childNode in parentNode.EnumerateChildNodes() )
+            return GetHierarchyPrivate().ToList();
+        }
+
+        private IEnumerable<DothtmlNode> GetHierarchyPrivate()
+        {
+            DothtmlNode currentNode = LastFoundNode;
+            while (currentNode != null)
             {
-                childNode.ParentNode = parentNode;
+                yield return currentNode;
+                currentNode = currentNode.ParentNode;
             }
         }
     }
