@@ -3,7 +3,7 @@
 
 var dotvvm = new DotVVM();
 
-describe("DotVVM.Serialization", () => {
+describe("DotVVM.Serialization - deserialize", () => {
     
     it("Deserialize scalar number value", () => {
         expect(dotvvm.serialization.deserialize(10)).toBe(10);
@@ -155,5 +155,99 @@ describe("DotVVM.Serialization", () => {
         expect(ko.isObservable(obj)).toBeFalsy();
         expect(ko.isObservable(obj.a)).toBeTruthy();
         expect(obj["a$options"].myCustomOption).toBe(1);
+    });
+});
+
+
+describe("DotVVM.Serialization - serialize", () => {
+
+    it("Serialize scalar number value", () => {
+        var obj = ko.observable(10);
+        expect(dotvvm.serialization.serialize(obj)).toBe(10);
+    });
+
+    it("Serialize scalar string value", () => {
+        var obj = ko.observable("aaa");
+        expect(dotvvm.serialization.serialize(obj)).toBe("aaa");
+    });
+
+    it("Serialize scalar boolean value", () => {
+        var obj = ko.observable(true);
+        expect(dotvvm.serialization.serialize(obj)).toBe(true);
+    });
+
+    it("Deserialize null value", () => {
+        var obj = ko.observable(null);
+        expect(dotvvm.serialization.serialize(obj)).toBe(null);
+    });
+
+    it("Serialize object with one property", () => {
+        var obj = dotvvm.serialization.serialize({
+            a: ko.observable("aaa")
+        });
+        expect(obj.a).toBe("aaa");
+    });
+
+    it("Serialize object with doNotPost option", () => {
+        var obj = dotvvm.serialization.serialize({
+            a: ko.observable("aaa"),
+            "a$options": { doNotPost: true }
+        });
+        expect(obj.a).toBeUndefined();
+        expect(obj["a$options"]).toBeUndefined();
+    });
+
+    it("Serialize object with Date property", () => {
+        var obj = dotvvm.serialization.serialize({
+            a: ko.observable(new Date(Date.UTC(2015, 7, 1, 13, 56, 42))),
+            "a$options": { isDate: true }
+        });
+        expect(new Date(obj.a).getTime()).toBe(Date.UTC(2015, 7, 1, 13, 56, 42));
+        expect(obj["a$options"]).toBeUndefined();
+    });
+
+    it("Serialize object with array", () => {
+        var obj = dotvvm.serialization.serialize({
+            a: ko.observableArray([
+                ko.observable("aaa"),
+                ko.observable("bbb"),
+                ko.observable("ccc")
+            ])
+        });
+        expect(obj.a instanceof Array).toBeTruthy();
+        expect(obj.a.length).toBe(3);
+        expect(obj.a[0]).toBe("aaa");
+        expect(obj.a[1]).toBe("bbb");
+        expect(obj.a[2]).toBe("ccc");
+    });
+
+    it("Serialize object with arrays and subobjects", () => {
+        var obj = dotvvm.serialization.serialize({
+            a: ko.observableArray([
+                ko.observable({
+                    b: ko.observable(1),
+                    c: ko.observableArray([
+                        ko.observable(0),
+                        ko.observable(1)
+                    ])
+                })
+            ])
+        });
+        expect(obj.a instanceof Array).toBeTruthy();
+        expect(obj.a.length).toBe(1);
+        expect(obj.a[0].b).toBe(1);
+        expect(obj.a[0].c instanceof Array).toBeTruthy();
+        expect(obj.a[0].c[0]).toBe(0);
+        expect(obj.a[0].c[1]).toBe(1);
+    });
+    
+    it("Serialize - doNotPost is ignored in the serializeAll mode", () => {
+        var obj = dotvvm.serialization.serialize({
+            a: ko.observable("bbb"),
+            "a$options": { doNotPost: true }
+        }, { serializeAll: true });
+
+        expect(obj.a).toBe("bbb");
+        expect(obj["a$options"].doNotPost).toBeTruthy();
     });
 });
