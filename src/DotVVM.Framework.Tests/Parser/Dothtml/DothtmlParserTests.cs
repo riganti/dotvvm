@@ -446,6 +446,139 @@ test";
 
         }
 
+        [TestMethod]
+        public void DothtmlParser_HierarchyBuildingVisitor_Element_InvalidTag()
+        {
+            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li><ul><a href='lol'>link</a></div></div>";
+            var root = ParseMarkup(markup);
+
+            var visitor = new HierarchyBuildingVisitor {
+                CursorPosition = 62
+            };
+
+            root.Accept(visitor);
+
+            var cursorNode = visitor.LastFoundNode;
+            var hierarchyList = visitor.GetHierarchy();
+
+            Assert.AreEqual(6, hierarchyList.Count);
+
+            Assert.IsInstanceOfType(cursorNode, typeof(DothtmlNameNode));
+            var cursorName = cursorNode as DothtmlNameNode;
+
+            var parentNode = cursorNode.ParentNode;
+            Assert.IsInstanceOfType(parentNode, typeof(DothtmlElementNode));
+
+            var parentElement = parentNode as DothtmlElementNode;
+            Assert.AreEqual(parentElement.TagName, cursorName.Text);
+            Assert.AreEqual(parentElement.TagName, "li");
+
+        }
+
+        [TestMethod]
+        public void DothtmlParser_HierarchyBuildingVisitor_Element_Valid()
+        {
+            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li></ul><a href='lol'>link</a></div></div>";
+            var root = ParseMarkup(markup);
+
+            var visitor = new HierarchyBuildingVisitor
+            {
+                CursorPosition = 62
+            };
+
+            root.Accept(visitor);
+
+            var cursorNode = visitor.LastFoundNode;
+            var hierarchyList = visitor.GetHierarchy();
+
+            Assert.AreEqual(6, hierarchyList.Count);
+
+            Assert.IsInstanceOfType(cursorNode, typeof(DothtmlNameNode));
+            var cursorName = cursorNode as DothtmlNameNode;
+
+            var parentNode = cursorNode.ParentNode;
+            Assert.IsInstanceOfType(parentNode, typeof(DothtmlElementNode));
+
+            var parentElement = parentNode as DothtmlElementNode;
+            Assert.AreEqual(parentElement.TagName, cursorName.Text);
+            Assert.AreEqual(parentElement.TagName, "li");
+
+        }
+
+        [TestMethod]
+        public void DothtmlParser_HierarchyBuildingVisitor_Attribute_TextValue()
+        {
+            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li></ul><a href='lol'>link</a></div></div>";
+            var root = ParseMarkup(markup);
+
+            var visitor = new HierarchyBuildingVisitor
+            {
+                CursorPosition = 87
+            };
+
+            root.Accept(visitor);
+
+            var cursorNode = visitor.LastFoundNode;
+            var hierarchyList = visitor.GetHierarchy();
+
+            Assert.AreEqual(6, hierarchyList.Count);
+
+            Assert.IsInstanceOfType(cursorNode, typeof(DothtmlValueTextNode));
+            var cursorValue = cursorNode as DothtmlValueTextNode;
+
+            var parentNode = cursorNode.ParentNode;
+            Assert.IsInstanceOfType(parentNode, typeof(DothtmlAttributeNode));
+            var parentAttribute = parentNode as DothtmlAttributeNode;
+            Assert.AreEqual(parentAttribute.AttributeName, "href");
+
+            var parentParentNode = parentAttribute.ParentNode;
+            Assert.IsInstanceOfType(parentParentNode, typeof(DothtmlElementNode));
+            var parentElement = parentParentNode as DothtmlElementNode;
+            Assert.AreEqual(parentElement.TagName, "a");
+        }
+
+        [TestMethod]
+        public void DothtmlParser_HierarchyBuildingVisitor_Attribute_BindingValue()
+        {
+            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li></ul><a href='{value: lol}'>link</a></div></div>";
+            var root = ParseMarkup(markup);
+
+            var visitor = new HierarchyBuildingVisitor
+            {
+                CursorPosition = 95
+            };
+
+            root.Accept(visitor);
+
+            var cursorNode = visitor.LastFoundNode;
+            var hierarchyList = visitor.GetHierarchy();
+
+            Assert.AreEqual(8, hierarchyList.Count);
+
+            Assert.IsInstanceOfType(cursorNode, typeof(DothtmlValueTextNode));
+            var bindingValue = cursorNode as DothtmlValueTextNode;
+            Assert.AreEqual(bindingValue.Text, "lol");
+            Assert.AreEqual(bindingValue.WhitespacesBefore.Count, 1);
+            Assert.AreEqual(bindingValue.WhitespacesAfter.Count, 0);
+
+            Assert.IsInstanceOfType(bindingValue.ParentNode, typeof(DothtmlBindingNode));
+            var binding = bindingValue.ParentNode as DothtmlBindingNode;
+            Assert.AreEqual(binding.Name, "value");
+            Assert.AreEqual(binding.Value, bindingValue.Text);
+
+            Assert.IsInstanceOfType(binding.ParentNode, typeof(DothtmlValueBindingNode));
+            var cursorValue = binding.ParentNode as DothtmlValueBindingNode;
+
+            Assert.IsInstanceOfType(cursorValue.ParentNode, typeof(DothtmlAttributeNode));
+            var parentAttribute = cursorValue.ParentNode as DothtmlAttributeNode;
+            Assert.AreEqual(parentAttribute.AttributeName, "href");
+
+            var parentParentNode = parentAttribute.ParentNode;
+            Assert.IsInstanceOfType(parentParentNode, typeof(DothtmlElementNode));
+            var parentElement = parentParentNode as DothtmlElementNode;
+            Assert.AreEqual(parentElement.TagName, "a");
+        }
+
         public static DothtmlRootNode ParseMarkup(string markup)
         {
             var tokenizer = new DothtmlTokenizer();

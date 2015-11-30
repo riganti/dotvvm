@@ -15,7 +15,23 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public bool Condition(DothtmlNode node)
         {
-            return node.StartPosition <= CursorPosition && CursorPosition < node.StartPosition + node.Length; 
+            int tagEnd = node.StartPosition + node.Length;
+
+            if(node is DothtmlElementNode)
+            {
+                var element = node as DothtmlElementNode;
+                
+                if(element.CorrespondingEndTag != null)
+                {
+                    var closingTag = element.CorrespondingEndTag;
+                    tagEnd = closingTag.StartPosition + closingTag.Length;
+                }
+                else if( element.Content.Any() )
+                {
+                    tagEnd = int.MaxValue;
+                }
+            }
+            return node.StartPosition <= CursorPosition && CursorPosition < tagEnd; 
         }
 
         public void Visit(DothtmlAttributeNode attribute)
