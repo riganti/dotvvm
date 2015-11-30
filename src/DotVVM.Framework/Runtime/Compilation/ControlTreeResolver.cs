@@ -90,17 +90,25 @@ namespace DotVVM.Framework.Runtime.Compilation
                     literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding, dataContext)));
                     return literal;
                 }
+                else if(node is DotHtmlCommentNode)
+                {
+                    var commentNode = node as DotHtmlCommentNode;
+
+                    string text = commentNode.IsServerSide ?  "" : "<!--" + commentNode.Value + "-->";
+                    var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(RawLiteral)), node, dataContext);
+                    literal.ContructorParameters = new object[] { text, commentNode.Value, true };
+                    return literal;
+                }
                 else if (node is DothtmlLiteralNode)
                 {
                     var literalNode = ((DothtmlLiteralNode)node);
                     // text content
-                    var whitespace = literalNode.IsComment || string.IsNullOrWhiteSpace(literalNode.Value);
+                    var whitespace = string.IsNullOrWhiteSpace(literalNode.Value);
                     if (!whitespace) EnsureContentAllowed(parentMetadata);
 
                     string text;
-                    if (literalNode.IsComment)
-                        text = "<!--" + literalNode.Value + "-->";
-                    else if (literalNode.Escape)
+                    
+                    if (literalNode.Escape)
                         text = WebUtility.HtmlEncode(literalNode.Value);
                     else text = literalNode.Value;
 
@@ -225,7 +233,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             if (attribute.AttributePrefix == "html")
             {
                 if (!control.Metadata.HasHtmlAttributesCollection) throw new DotvvmCompilationException($"control { control.Metadata.Name } does not have html attribute collection", attribute.Tokens);
-                control.SetHtmlAttribute(attribute.AttributeName, ProcessLiteral(attribute.Literal, dataContext));
+                control.SetHtmlAttribute(attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
                 return;
             }
 
@@ -250,14 +258,14 @@ namespace DotVVM.Framework.Runtime.Compilation
                 if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute)) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot be used as attribute", attribute.Tokens);
 
                 // set the property
-                if (attribute.Literal == null)
+                if (attribute.ValueNode == null)
                 {
                     throw new DotvvmCompilationException($"The attribute '{property.Name}' on the control '{control.Metadata.Name}' must have a value!", attribute.Tokens);
                 }
-                else if (attribute.Literal is DothtmlBindingNode)
+                else if (attribute.ValueNode is DothtmlValueBindingNode)
                 {
                     // binding
-                    var bindingNode = (DothtmlBindingNode)attribute.Literal;
+                    var bindingNode = (attribute.ValueNode as DothtmlValueBindingNode).BindingNode;
                     if (!property.MarkupOptions.AllowBinding) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot contain binding.", bindingNode.Tokens);
                     var resolvedBinding = ProcessBinding(bindingNode, dataContext);
                     control.SetProperty(new ResolvedPropertyBinding(property, resolvedBinding));
@@ -265,16 +273,18 @@ namespace DotVVM.Framework.Runtime.Compilation
                 else
                 {
                     // hard-coded value in markup
-                    if (!property.MarkupOptions.AllowHardCodedValue) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot contain hard coded value.", attribute.Literal.Tokens);
-                    // TODO: smarter conversions
-                    var value = ReflectionUtils.ConvertValue(attribute.Literal.Value, property.PropertyType);
+                    if (!property.MarkupOptions.AllowHardCodedValue) throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot contain hard coded value.", attribute.ValueNode.Tokens);
+
+                    var textValue = attribute.ValueNode as DothtmlValueTextNode;
+
+                    var value = ReflectionUtils.ConvertValue(textValue.Text, property.PropertyType);
                     control.SetPropertyValue(property, value);
                 }
             }
             else if (control.Metadata.HasHtmlAttributesCollection)
             {
                 // if the property is not found, add it as an HTML attribute
-                control.SetHtmlAttribute(attribute.AttributeName, ProcessLiteral(attribute.Literal, dataContext));
+                control.SetHtmlAttribute(attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
             }
             else
             {
@@ -282,11 +292,11 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        private object ProcessLiteral(DothtmlLiteralNode literal, DataContextStack dataContext)
+        private object ProcessAttributeValue(DothtmlValueNode valueNode, DataContextStack dataContext)
         {
-            return (literal is DothtmlBindingNode)
-                    ? (object)ProcessBinding((DothtmlBindingNode)literal, dataContext)
-                    : literal?.Value;
+            return (valueNode is DothtmlValueBindingNode)
+                    ? (object)ProcessBinding((valueNode as DothtmlValueBindingNode).BindingNode, dataContext)
+                    : (valueNode as DothtmlValueTextNode)?.Text;
         }
 
 
@@ -408,7 +418,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 }
                 else if (child.IsNotEmpty())
                 {
-                    throw new DotvvmCompilationException($"Content is not allowed inside the property '{property.Name}'!");
+                    throw new DotvvmCompilationException($"Content is not allowed inside the property '{property.Name}'! (Conflicting node: Node {child.GetType().Name})");
                 }
             }
         }

@@ -1,31 +1,29 @@
+﻿using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
-    public class DothtmlDirectiveNode : DothtmlNode
+    public class DothtmlValueBindingNode : DothtmlValueNode
     {
-        public string Name => NameNode.Text;
-        public string Value => (ValueNode!=null) ? ValueNode.Text : string.Empty;
-        public DothtmlToken DirectiveStartToken { get; set; }
-        public DothtmlNameNode NameNode { get; set; }
-        public DothtmlValueTextNode ValueNode { get; set; }
+        public DothtmlBindingNode BindingNode { get; set; }
+
+        public List<DothtmlToken> ValueTokens { get; set; } = new List<DothtmlToken>();
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
-            yield return NameNode;
-            if (ValueNode != null)
+            if(BindingNode != null)
             {
-                yield return ValueNode;
+                yield return BindingNode;
             }
         }
-
         public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
         {
             visitor.Visit(this);
-
+            
             foreach (var node in EnumerateChildNodes())
             {
                 if (visitor.Condition(node))
@@ -34,10 +32,9 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 }
             }
         }
-
         public override IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            return base.EnumerateNodes().Concat( EnumerateChildNodes().SelectMany(node => node.EnumerateNodes() ) );
+            return base.EnumerateNodes().Concat(EnumerateChildNodes().SelectMany(n=> n.EnumerateNodes()));
         }
     }
 }

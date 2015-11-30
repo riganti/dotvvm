@@ -250,6 +250,14 @@
     <Compile Include="Parser\Binding\Tokenizer\BindingToken.cs" />
     <Compile Include="Parser\Binding\Tokenizer\BindingTokenizer.cs" />
     <Compile Include="Parser\Binding\Tokenizer\BindingTokenType.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DotHtmlCommentNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlValueTextNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlValueBindingNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlNameNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\DothtmlValueNode.cs" />
+    <Compile Include="Parser\Dothtml\Parser\HierarchyBuildingVisitor.cs" />
+    <Compile Include="Parser\Dothtml\Parser\IDothtmlSyntaxTreeVisitor.cs" />
+    <Compile Include="Parser\Dothtml\Parser\ParentResolvingVisitor.cs" />
     <Compile Include="Parser\Dothtml\Parser\ParserBase.cs" />
     <Compile Include="Parser\NullTokenError.cs" />
     <Compile Include="Parser\Dothtml\Parser\DothtmlNodeHelper.cs" />

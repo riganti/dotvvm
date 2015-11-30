@@ -132,8 +132,11 @@ namespace DotVVM.Framework.Parser
         /// </summary>
         protected void ReadTextUntilNewLine(TTokenType tokenType, params char[] stopChars)
         {
+            int lastNonwhitespaceDistance = 0;
+
             while (Peek() != '\r' && Peek() != '\n' && !stopChars.Contains(Peek()))
             {
+                lastNonwhitespaceDistance = char.IsWhiteSpace(Peek()) ? lastNonwhitespaceDistance + 1 : 0;
                 if (Read() == NullChar)
                 {
                     break;
@@ -141,7 +144,7 @@ namespace DotVVM.Framework.Parser
             }
             if (DistanceSinceLastToken > 0)
             {
-                CreateToken(tokenType);
+                CreateToken(tokenType, lastNonwhitespaceDistance);
             }
 
             if (Peek() == '\r')

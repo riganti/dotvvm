@@ -20,48 +20,57 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         }
         #endregion
 
-        public string TagName { get; set; }
-
-        public List<DothtmlAttributeNode> Attributes { get; set; }
-
-        public bool IsClosingTag { get; set; }
-
-        public bool IsSelfClosingTag { get; set; }
-
-        public string TagPrefix { get; set; }
-
-        public string FullTagName 
+        public string TagName => TagNameNode.Text;
+        public string TagPrefix => TagPrefixNode?.Text;
+        public string FullTagName
         {
             get { return string.IsNullOrEmpty(TagPrefix) ? TagName : (TagPrefix + ":" + TagName); }
         }
 
-        public DothtmlElementNode ParentElement { get; set; }
+        public bool IsClosingTag { get; set; }
 
-        public DothtmlToken TagPrefixToken { get; set; }
+        public bool IsSelfClosingTag { get; set; } 
 
-        public DothtmlToken TagNameToken { get; set; }
+        public DothtmlNameNode TagPrefixNode { get; set; }
+        public DothtmlNameNode TagNameNode { get; set; }
+        public List<DothtmlAttributeNode> Attributes { get; set; } = new List<DothtmlAttributeNode>();
+        public List<DotHtmlCommentNode> InnerComments { get; set; } = new List<DotHtmlCommentNode>();
 
+        public DothtmlToken PrefixSeparator { get; set; }
+        public List<DothtmlToken> AttributeSeparators { get; set; } = new List<DothtmlToken>();
         public DothtmlElementNode CorrespondingEndTag { get; internal set; }
 
-        public DothtmlElementNode()
+        public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
-            Attributes = new List<DothtmlAttributeNode>();
+            var enumetarion = new List<DothtmlNode>();
+
+            if (TagPrefixNode != null)
+            {
+                enumetarion.Add(TagPrefixNode);
+            }
+            enumetarion.Add(TagNameNode);
+            enumetarion.AddRange(Attributes);
+            enumetarion.AddRange(InnerComments);
+            enumetarion.AddRange(base.EnumerateChildNodes());
+
+            return enumetarion;
         }
 
+        public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
+        {
+            visitor.Visit(this);
+
+            foreach (var node in EnumerateChildNodes() )
+            {
+                if (visitor.Condition(node))
+                {
+                    node.Accept(visitor);
+                }
+            }
+        }
         public override IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            return base.EnumerateNodes().Concat(Attributes.SelectMany(a => a.EnumerateNodes()));
-        }
-
-        public override void AddHierarchyByPosition(IList<DothtmlNode> hierarchy, int position)
-        {
-            var attr = Attributes.FirstOrDefault(a => a.StartPosition <= position && a.StartPosition + a.Length > position);
-            if (attr != null)
-            {
-                hierarchy.Add(this);
-                attr.AddHierarchyByPosition(hierarchy, position);
-            }
-            else base.AddHierarchyByPosition(hierarchy, position);
+            return base.EnumerateNodes().Concat(EnumerateChildNodes().SelectMany(node => node.EnumerateNodes()));
         }
     }
 }

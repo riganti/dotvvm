@@ -1,20 +1,21 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
-    [DebuggerDisplay("{Value}")]
-    public class DothtmlLiteralNode : DothtmlNode
+    public class DothtmlValueTextNode : DothtmlValueNode
     {
-        public string Value => string.Join(string.Empty, Tokens.Select(token => token.Text));
-        public bool Escape { get; set; } = false;
+        public Tokenizer.DothtmlToken ValueToken { get; set; }
+        public string Text => ValueToken.Text;
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
             return new List<DothtmlNode>();
         }
+
         public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
         {
             visitor.Visit(this);

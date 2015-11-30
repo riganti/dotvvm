@@ -11,41 +11,29 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public int Length { get; internal set; }
 
-        public List<DothtmlToken> Tokens { get; private set; }
+        public List<DothtmlToken> Tokens { get; private set; } = new List<DothtmlToken>();
 
         public DothtmlNode ParentNode { get; set; }
 
-        public List<string> NodeErrors { get; private set; }
+        public List<string> NodeErrors { get; private set; } = new List<string>();
 
         public bool HasNodeErrors
         {
             get { return NodeErrors.Any(); }
         }
 
-        public DothtmlNode()
-        {
-            Tokens = new List<DothtmlToken>();
-            NodeErrors = new List<string>();
-        }
+        public abstract void Accept(IDothtmlSyntaxTreeVisitor visitor);
 
-
-        public virtual IEnumerable<DothtmlNode> EnumerateNodes()
-        {
-            yield return this;
-        }
+        public abstract IEnumerable<DothtmlNode> EnumerateChildNodes();
 
         public DothtmlNode FindNodeByPosition(int position)
         {
             return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.StartPosition + n.Length);
         }
 
-        public IList<DothtmlNode> FindHierarchyByPosition(int position)
+        public virtual IEnumerable<DothtmlNode> EnumerateNodes()
         {
-            var list = new List<DothtmlNode>();
-            AddHierarchyByPosition(list, position);
-            return list;
+            yield return this;
         }
-
-        public abstract void AddHierarchyByPosition(IList<DothtmlNode> hierarchy, int position);
     }
 }
