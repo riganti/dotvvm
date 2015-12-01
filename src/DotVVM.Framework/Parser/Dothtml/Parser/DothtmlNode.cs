@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     {
         public int StartPosition { get; internal set; }
 
-        public int Length { get; internal set; }
+        public int Length => Tokens.Select(t => t.Length).DefaultIfEmpty(0).Sum();
 
         public List<DothtmlToken> Tokens { get; private set; } = new List<DothtmlToken>();
 

@@ -165,12 +165,6 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 root.NodeErrors.Add($"Unexpected end of file! The tag '<{ElementHierarchy.Peek()}>' was not closed!");
             }
 
-            // set lengths to all nodes
-            foreach (var node in root.EnumerateNodes())
-            {
-                node.Length = node.Tokens.Select(t => t.Length).DefaultIfEmpty(0).Sum();
-            }
-
             ResolveParents(root);
 
             Root = root;
