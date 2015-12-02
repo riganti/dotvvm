@@ -20,17 +20,11 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             if(node is DothtmlElementNode)
             {
                 var element = node as DothtmlElementNode;
-                
-                if(element.CorrespondingEndTag != null)
-                {
-                    var closingTag = element.CorrespondingEndTag;
-                    tagEnd = closingTag.StartPosition + closingTag.Length;
-                }
-                else if( element.Content.Any() )
-                {
-                    tagEnd = int.MaxValue;
-                }
+
+                tagEnd = element.GetContentEndPosition() + (element.CorrespondingEndTag?.Length ?? 0);
             }
+
+            //This is also enough for RootNode
             return node.StartPosition <= CursorPosition && CursorPosition < tagEnd; 
         }
 

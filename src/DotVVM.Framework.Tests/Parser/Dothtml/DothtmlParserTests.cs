@@ -476,6 +476,42 @@ test";
         }
 
         [TestMethod]
+        public void DothtmlParser_HierarchyBuildingVisitor_Element_UnclosedTagContent()
+        {
+            var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>\r\n\t\t\t\t<a href='lol'></a></li></ul>\r\n</div></div>";
+            var root = ParseMarkup(markup);
+
+            var visitor = new HierarchyBuildingVisitor
+            {
+                CursorPosition = 84
+            };
+
+            root.Accept(visitor);
+
+            var hierarchyList = visitor.GetHierarchy();
+            var lastElement = hierarchyList.Where( node => node is DothtmlElementNode).First() as DothtmlElementNode;
+
+            Assert.AreEqual(6, hierarchyList.Count);
+
+            Assert.AreEqual(lastElement.FullTagName, "a");
+
+            Assert.IsInstanceOfType(lastElement.ParentNode, typeof(DothtmlElementNode));
+            var parentLiElement = lastElement.ParentNode as DothtmlElementNode;
+            Assert.AreEqual(parentLiElement.FullTagName, "li");
+
+            Assert.IsInstanceOfType(parentLiElement.ParentNode, typeof(DothtmlElementNode));
+            var parentUlElement = parentLiElement.ParentNode as DothtmlElementNode;
+            Assert.AreEqual(parentUlElement.FullTagName, "ul");
+
+            Assert.AreEqual((hierarchyList[0] as DothtmlElementNode)?.FullTagName,"a");
+            Assert.AreEqual((hierarchyList[1] as DothtmlElementNode)?.FullTagName, "li");
+            Assert.AreEqual((hierarchyList[2] as DothtmlElementNode)?.FullTagName, "ul");
+            Assert.AreEqual((hierarchyList[3] as DothtmlElementNode)?.FullTagName, "div");
+            Assert.AreEqual((hierarchyList[4] as DothtmlElementNode)?.FullTagName, "div");
+            Assert.IsInstanceOfType(hierarchyList[5], typeof(DothtmlRootNode));
+        }
+
+        [TestMethod]
         public void DothtmlParser_HierarchyBuildingVisitor_Element_Valid()
         {
             var markup = "<!-- my comment --> @viewModel TestDirective\r\n<div><div><ul><li>item</li></ul><a href='lol'>link</a></div></div>";
