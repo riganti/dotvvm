@@ -148,7 +148,7 @@ namespace DotVVM.VS2015Extension.ProjectExtensions.PropertyPageBase
 		{
             if ((pRect == null) || (pRect.Length == 0))
             {
-                throw new ArgumentNullException("pRect");
+                throw new ArgumentNullException(nameof(pRect));
             }
             Control parentControl = Control.FromHandle(hWndParent);
             RECT rect = pRect[0];
@@ -177,7 +177,7 @@ namespace DotVVM.VS2015Extension.ProjectExtensions.PropertyPageBase
             PROPPAGEINFO proppageinfo;
             if ((pPageInfo == null) || (pPageInfo.Length == 0))
             {
-                throw new ArgumentNullException("pPageInfo");
+                throw new ArgumentNullException(nameof(pPageInfo));
             }
             proppageinfo.cb = (uint)Marshal.SizeOf(typeof(PROPPAGEINFO));
             proppageinfo.dwHelpContext = 0;

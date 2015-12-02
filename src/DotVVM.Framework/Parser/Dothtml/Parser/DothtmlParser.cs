@@ -340,7 +340,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
                 attribute.AttributePrefixNode = nameOrPrefix;
 
-                attribute.AttributeNameNode = ReadName(false, false, DothtmlTokenType.Text); ;
+                attribute.AttributeNameNode = ReadName(false, false, DothtmlTokenType.Text);
             }
             else
             {

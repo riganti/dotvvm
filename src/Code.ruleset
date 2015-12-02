@@ -70,4 +70,8 @@
     <Rule Id="CS0114" Action="Error" />
     <Rule Id="CS0809" Action="Error" />
   </Rules>
+  <Rules AnalyzerId="RefactoringEssentials" RuleNamespace="RefactoringEssentials">
+    <Rule Id="RECS0123" Action="Warning" />
+    <Rule Id="RECS0136" Action="Info" />
+  </Rules>
 </RuleSet>

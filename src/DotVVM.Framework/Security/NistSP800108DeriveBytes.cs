@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Security {
         /// <param name="cb">Number of bytes to generate</param>
         /// <returns>Returns pseudo-random key bytes.</returns>
         public override byte[] GetBytes(int cb) {
-            if (cb < 1) throw new ArgumentOutOfRangeException("cb");
+            if (cb < 1) throw new ArgumentOutOfRangeException(nameof(cb));
             var cbBits = (uint)cb * 8;
 
             checked {

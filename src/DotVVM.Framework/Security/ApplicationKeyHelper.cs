@@ -25,9 +25,9 @@ namespace DotVVM.Framework.Security {
         }
 
         public string ProtectString(string s, string label, params string[] context) {
-            if (s == null) throw new ArgumentNullException("s");
-            if (label == null) throw new ArgumentNullException("label");
-            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "label");
+            if (s == null) throw new ArgumentNullException(nameof(s));
+            if (label == null) throw new ArgumentNullException(nameof(label));
+            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(label));
 
             var data = Encoding.UTF8.GetBytes(s);
             data = this.ProtectData(data, label, context);
@@ -36,10 +36,10 @@ namespace DotVVM.Framework.Security {
 
         public byte[] ProtectData(byte[] data, string label, params string[] context) {
             // Validate arguments
-            if (data == null) throw new ArgumentNullException("data");
-            if (data.Length == 0) throw new ArgumentException("Value cannot me empty.", "data");
-            if (label == null) throw new ArgumentNullException("label");
-            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "label");
+            if (data == null) throw new ArgumentNullException(nameof(data));
+            if (data.Length == 0) throw new ArgumentException("Value cannot me empty.", nameof(data));
+            if (label == null) throw new ArgumentNullException(nameof(label));
+            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(label));
 
             // Get derived keys
             byte[] derivedEncKey, derivedSigKey;
@@ -150,8 +150,8 @@ namespace DotVVM.Framework.Security {
         }
 
         private void GetDerivedKeys(string label, string[] context, out byte[] encryptionKey, out byte[] signingKey) {
-            if (label == null) throw new ArgumentNullException("label");
-            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Value cannot be empty or whitespace only string.", "label");
+            if (label == null) throw new ArgumentNullException(nameof(label));
+            if (string.IsNullOrWhiteSpace(label)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(label));
 
             // Derive 256-bit AES encryption key
             using (var kdf = new NistSP800108DeriveBytes(this.config.EncryptionKey, label, context)) {

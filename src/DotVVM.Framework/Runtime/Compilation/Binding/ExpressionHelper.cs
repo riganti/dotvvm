@@ -1,6 +1,7 @@
 ﻿using Microsoft.CSharp.RuntimeBinder;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
@@ -14,6 +15,8 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
     {
         public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true)
         {
+            Contract.Requires(target != null);
+
             if (target is MethodGroupExpression)
                 throw new Exception("can not access member on method group");
 

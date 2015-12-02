@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Security
 
         public string GenerateToken(IDotvvmRequestContext context)
         {
-            if (context == null) throw new ArgumentNullException("context");
+            if (context == null) throw new ArgumentNullException(nameof(context));
 
             // Get SID
             var sid = this.GetOrCreateSessionId(context);
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Security
 
         public void VerifyToken(IDotvvmRequestContext context, string token)
         {
-            if (context == null) throw new ArgumentNullException("context");
+            if (context == null) throw new ArgumentNullException(nameof(context));
             if (string.IsNullOrWhiteSpace(token)) throw new SecurityException("CSRF protection token is missing.");
 
             // Get application key helper
@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Security
 
         private byte[] GetOrCreateSessionId(IDotvvmRequestContext context)
         {
-            if (context == null) throw new ArgumentNullException("context");
+            if (context == null) throw new ArgumentNullException(nameof(context));
             var sessionIdCookieName = GetSessionIdCookieName(context);
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
 
