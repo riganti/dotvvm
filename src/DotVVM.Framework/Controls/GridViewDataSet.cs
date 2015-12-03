@@ -24,6 +24,10 @@ namespace DotVVM.Framework.Controls
 
         public IList<T> Items { get; set; }
 
+        public string PrimaryKeyPropertyName { get; set; }
+
+        public object EditRowId { get; set; }
+
         public IList<int> NearPageIndexes
         {
             get { return Enumerable.Range(0, PagesCount).Where(n => Math.Abs(n - PageIndex) <= 5).ToList(); }

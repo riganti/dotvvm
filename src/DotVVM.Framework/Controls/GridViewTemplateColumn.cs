@@ -9,6 +9,7 @@ using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
+
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(ContentTemplate))]
     public class GridViewTemplateColumn : GridViewColumn
     {
@@ -16,11 +17,18 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
         public ITemplate ContentTemplate { get; set; }
 
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
+        public ITemplate EditTemplate { get; set; }
+
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             ContentTemplate.BuildContent(context, container);
         }
 
+        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
+        {
+            EditTemplate.BuildContent(context, container);
+        }
     }
 
     

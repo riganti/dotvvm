@@ -8,6 +8,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System.Collections;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -92,7 +93,14 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ShowHeaderWhenNoDataProperty =
             DotvvmProperty.Register<bool, GridView>(t => t.ShowHeaderWhenNoData, false);
 
+        public bool InlineEditing
+        {
+            get { return (bool)GetValue(InlineEditingProperty); }
+            set { SetValue(InlineEditingProperty, value); }
+        }
 
+        public static readonly DotvvmProperty InlineEditingProperty =
+            DotvvmProperty.Register<bool, GridView>(t => t.InlineEditing, false);
 
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
@@ -108,6 +116,55 @@ namespace DotVVM.Framework.Controls
             {
                 DataBind(context);     // TODO: support for observable collection
             }
+           /* else
+            {
+                if (InlineEditing == true)
+                {
+                    // if gridviewdataset is missing throw exception
+                    if (!(DataSource is IGridViewDataSet))
+                    {
+                        throw new ArgumentException("You have to use GridViewDataSet with InlineEditing enabled.");
+                    }
+
+                    // normal templates
+                    var koNormalTemplates = new Literal();
+                    koNormalTemplates.HtmlEncode = false;
+                    koNormalTemplates.Text = "<!-- ko if: ko.unwrap($parent.EditRowId) !== ko.unwrap(PrimaryKeyPropertyName) -->";
+                    Children.Add(koNormalTemplates);
+
+                    foreach (var column in Columns)
+                    {
+                        var placeHolder = new PlaceHolder();
+                        column.CreateControls(context, placeHolder);
+                        Children.Add(placeHolder);
+                    }
+
+                    var koNormalTemplatesEnd = new Literal();
+                    koNormalTemplatesEnd.HtmlEncode = false;
+                    koNormalTemplatesEnd.Text = "<!-- /ko -->";
+                    Children.Add(koNormalTemplatesEnd);
+
+                    // edit templates 
+                    var koEditTemplates = new Literal();
+                    koEditTemplates.HtmlEncode = false;
+                    koEditTemplates.Text = "<!-- ko if: ko.unwrap($parent.EditRowId) === ko.unwrap(PrimaryKeyPropertyName) -->";
+                    Children.Add(koEditTemplates);
+
+                    foreach (var column in Columns)
+                    {
+                        var placeHolder = new PlaceHolder();
+                        column.CreateEditControls(context, placeHolder);
+                        Children.Add(placeHolder);
+                    }
+
+                    var koEditTemplatesEnd = new Literal();
+                    koEditTemplatesEnd.HtmlEncode = false;
+                    koEditTemplatesEnd.Text = "<!-- /ko -->";
+                    Children.Add(koEditTemplatesEnd);
+
+
+                }
+            }*/
             base.OnPreRender(context);
         }
 
@@ -132,7 +189,7 @@ namespace DotVVM.Framework.Controls
             }
 
             // WORKAROUND: DataSource is null => don't throw exception
-            if(sortCommand == null && dataSource == null)
+            if (sortCommand == null && dataSource == null)
             {
                 sortCommand = s => { throw new Exception("can't sort null data source"); };
             }
@@ -243,14 +300,52 @@ namespace DotVVM.Framework.Controls
             }
             placeholder.Children.Add(container);
 
+            var isEdit = false;
+            if (InlineEditing == true)
+            {
+                // if gridviewdataset is missing throw exception
+                if (!(DataSource is IGridViewDataSet))
+                {
+                    throw new ArgumentException("You have to use GridViewDataSet with InlineEditing enabled.");
+                }
+                //checks if row is being edited
+                isEdit = IsEditedRow(placeholder);
+
+            }
+
             // create cells
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
                 SetCellAttributes(column, cell, false);
                 row.Children.Add(cell);
-                column.CreateControls(context, cell);
+
+                if (isEdit)
+                {
+                    column.CreateEditControls(context, cell);
+
+                }
+                else
+                {
+                    column.CreateControls(context, cell);
+                }
+
             }
+        }
+
+        private bool IsEditedRow(DataItemContainer placeholder)
+        {
+            var value = ReflectionUtils.GetObjectProperty(placeholder.DataContext, ((IGridViewDataSet)DataSource).PrimaryKeyPropertyName);
+
+            if (value != null)
+            {
+                if (value.Equals(((IGridViewDataSet)DataSource).EditRowId))
+                {
+                    return true;
+                }
+            }
+
+            return false;
         }
 
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
@@ -259,11 +354,25 @@ namespace DotVVM.Framework.Controls
             head?.Render(writer, context);
 
             // render body
-            if (!RenderOnServer)
+            if (!RenderOnServer && !InlineEditing)
             {
                 writer.AddKnockoutForeachDataBind(GetForeachDataBindJavascriptExpression());
+
             }
+
             writer.RenderBeginTag("tbody");
+
+            // dotvvm foreach for inline
+            if (InlineEditing && !RenderOnServer)
+            {
+                writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) !== ko.unwrap(PrimaryKeyPropertyName)");
+                // generate normal templates
+                writer.WriteKnockoutDataBindEndComment();
+
+                writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) === ko.unwrap(PrimaryKeyPropertyName)");
+                // generate edit templates
+                writer.WriteKnockoutDataBindEndComment();
+            }
 
             // render contents
             if (RenderOnServer)

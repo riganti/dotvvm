@@ -57,6 +57,15 @@ namespace DotVVM.Framework.Controls
 
             container.Children.Add(literal);
         }
+
+        public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
+        {
+            var textBox = new TextBox();
+            textBox.SetBinding(TextBox.TextProperty, GetValueBinding(ValueBindingProperty));
+
+            container.Children.Add(textBox);
+        }
+
     }
 
     

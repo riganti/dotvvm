@@ -51,8 +51,8 @@ namespace DotVVM.Framework.Controls
 
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);
-        
 
+        public abstract void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container);
 
         public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell)
         {
