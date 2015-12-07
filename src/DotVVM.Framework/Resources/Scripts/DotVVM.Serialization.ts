@@ -239,7 +239,7 @@ class DotvvmSerialization {
         return value;
     }
 
-    private serializeDate(date: Date): string {
+    public serializeDate(date: Date): string {
         var y = this.pad(date.getFullYear().toString(), 4);
         var m = this.pad((date.getMonth() + 1).toString(), 2);
         var d = this.pad(date.getDate().toString(), 2);
