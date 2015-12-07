@@ -132,6 +132,7 @@
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\Literal\LiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
@@ -261,6 +262,7 @@
     <Content Include="Views\ControlSamples\GridView\GridViewStaticCommand.dothtml" />
     <Content Include="Views\FeatureSamples\HtmlTag\NonPairHtmlTag.dothtml" />
     <Content Include="Views\FeatureSamples\Serialization\ObservableCollectionShouldContainObservables.dothtml" />
+    <Content Include="Views\ControlSamples\Literal\Literal.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -1,0 +1,138 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Literal.LiteralViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+	<table>
+		<tr>
+			<td>
+
+				<fieldset>
+					<legend>Literal Text=value, HtmlEncode=true, FormatString=null, RenderOnServer=false, RenderSpanElement=true</legend>
+					<dot:Literal Text="Hardcoded value" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=true, FormatString=null, RenderOnServer=false, RenderSpanElement=true</legend>
+					<dot:Literal Text="{value: Text}" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=value, HtmlEncode=false, FormatString=null, RenderOnServer=false, RenderSpanElement=true</legend>
+					<dot:Literal Text="Hardcoded&lt;b&gt;value&lt;/b&gt;" HtmlEncode="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=false, FormatString=null, RenderOnServer=false, RenderSpanElement=true</legend>
+					<dot:Literal Text="{value: Html}" HtmlEncode="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=true, FormatString=d, RenderOnServer=false, RenderSpanElement=true</legend>
+					<dot:Literal Text="{value: CurrentDate}" FormatString="d" />
+				</fieldset>
+
+
+			</td>
+			<td RenderSettings.Mode="Server">
+
+				<fieldset>
+					<legend>Literal Text=value, HtmlEncode=true, FormatString=null, RenderOnServer=true, RenderSpanElement=true</legend>
+					<dot:Literal Text="Hardcoded value" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=true, FormatString=null, RenderOnServer=true, RenderSpanElement=true</legend>
+					<dot:Literal Text="{value: Text}" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=value, HtmlEncode=false, FormatString=null, RenderOnServer=true, RenderSpanElement=true</legend>
+					<dot:Literal Text="Hardcoded&lt;b&gt;value&lt;/b&gt;" HtmlEncode="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=false, FormatString=null, RenderOnServer=true, RenderSpanElement=true</legend>
+					<dot:Literal Text="{value: Html}" HtmlEncode="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=true, FormatString=d, RenderOnServer=true, RenderSpanElement=true</legend>
+					<dot:Literal Text="{value: CurrentDate}" FormatString="d" />
+				</fieldset>
+
+			</td>
+		</tr>
+	</table>
+	
+
+	<table>
+		<tr>
+			<td>
+
+				<fieldset>
+					<legend>Literal Text=value, HtmlEncode=true, FormatString=null, RenderOnServer=false, RenderSpanElement=false</legend>
+					<dot:Literal Text="Hardcoded value" RenderSpanElement="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=true, FormatString=null, RenderOnServer=false, RenderSpanElement=false</legend>
+					<dot:Literal Text="{value: Text}" RenderSpanElement="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=value, HtmlEncode=false, FormatString=null, RenderOnServer=false, RenderSpanElement=false</legend>
+					<dot:Literal Text="Hardcoded&lt;b&gt;value&lt;/b&gt;" HtmlEncode="false" RenderSpanElement="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=false, FormatString=null, RenderOnServer=false, RenderSpanElement=false</legend>
+					<dot:Literal Text="{value: Html}" HtmlEncode="false" RenderSpanElement="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=true, FormatString=d, RenderOnServer=false, RenderSpanElement=false</legend>
+					<dot:Literal Text="{value: CurrentDate}" FormatString="d" RenderSpanElement="false" />
+				</fieldset>
+
+
+			</td>
+			<td RenderSettings.Mode="Server">
+
+				<fieldset>
+					<legend>Literal Text=value, HtmlEncode=true, FormatString=null, RenderOnServer=true, RenderSpanElement=false</legend>
+					<dot:Literal Text="Hardcoded value" RenderSpanElement="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=true, FormatString=null, RenderOnServer=true, RenderSpanElement=false</legend>
+					<dot:Literal Text="{value: Text}" RenderSpanElement="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=value, HtmlEncode=false, FormatString=null, RenderOnServer=true, RenderSpanElement=false</legend>
+					<dot:Literal Text="Hardcoded&lt;b&gt;value&lt;/b&gt;" HtmlEncode="false" RenderSpanElement="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=false, FormatString=null, RenderOnServer=true, RenderSpanElement=false</legend>
+					<dot:Literal Text="{value: Html}" HtmlEncode="false" RenderSpanElement="false" />
+				</fieldset>
+
+				<fieldset>
+					<legend>Literal Text=binding, HtmlEncode=true, FormatString=d, RenderOnServer=true, RenderSpanElement=false</legend>
+					<dot:Literal Text="{value: CurrentDate}" FormatString="d" RenderSpanElement="false" />
+				</fieldset>
+
+			</td>
+		</tr>
+	</table>
+
+</body>
+</html>
