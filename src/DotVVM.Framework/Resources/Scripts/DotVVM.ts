@@ -568,7 +568,9 @@ class DotVVM {
         }
     }
 
-
+    public unwrapArrayExtension(array: any): any {
+        return ko.unwrap(ko.unwrap(array));
+    }
     public buildRouteUrl(routePath: string, params: any): string {
         return routePath.replace(/\{[^\}]+\??\}/g, s => {
             let paramName = s.substring(1, s.length - 1).toLowerCase();

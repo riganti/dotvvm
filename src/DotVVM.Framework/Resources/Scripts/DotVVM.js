@@ -694,6 +694,9 @@ var DotVVM = (function () {
             }, 0);
         }
     };
+    DotVVM.prototype.unwrapArrayExtension = function (array) {
+        return ko.unwrap(ko.unwrap(array));
+    };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
         return routePath.replace(/\{[^\}]+\??\}/g, function (s) {
             var paramName = s.substring(1, s.length - 1).toLowerCase();
