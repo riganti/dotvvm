@@ -22,6 +22,8 @@ namespace DotVVM.Framework.Controls
         private int numberOfRows;
         private HtmlGenericControl head;
 
+        private List<PlaceHolder> templates, editTemplates;
+
         public GridView() : base("table")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
@@ -116,55 +118,7 @@ namespace DotVVM.Framework.Controls
             {
                 DataBind(context);     // TODO: support for observable collection
             }
-           /* else
-            {
-                if (InlineEditing == true)
-                {
-                    // if gridviewdataset is missing throw exception
-                    if (!(DataSource is IGridViewDataSet))
-                    {
-                        throw new ArgumentException("You have to use GridViewDataSet with InlineEditing enabled.");
-                    }
-
-                    // normal templates
-                    var koNormalTemplates = new Literal();
-                    koNormalTemplates.HtmlEncode = false;
-                    koNormalTemplates.Text = "<!-- ko if: ko.unwrap($parent.EditRowId) !== ko.unwrap(PrimaryKeyPropertyName) -->";
-                    Children.Add(koNormalTemplates);
-
-                    foreach (var column in Columns)
-                    {
-                        var placeHolder = new PlaceHolder();
-                        column.CreateControls(context, placeHolder);
-                        Children.Add(placeHolder);
-                    }
-
-                    var koNormalTemplatesEnd = new Literal();
-                    koNormalTemplatesEnd.HtmlEncode = false;
-                    koNormalTemplatesEnd.Text = "<!-- /ko -->";
-                    Children.Add(koNormalTemplatesEnd);
-
-                    // edit templates 
-                    var koEditTemplates = new Literal();
-                    koEditTemplates.HtmlEncode = false;
-                    koEditTemplates.Text = "<!-- ko if: ko.unwrap($parent.EditRowId) === ko.unwrap(PrimaryKeyPropertyName) -->";
-                    Children.Add(koEditTemplates);
-
-                    foreach (var column in Columns)
-                    {
-                        var placeHolder = new PlaceHolder();
-                        column.CreateEditControls(context, placeHolder);
-                        Children.Add(placeHolder);
-                    }
-
-                    var koEditTemplatesEnd = new Literal();
-                    koEditTemplatesEnd.HtmlEncode = false;
-                    koEditTemplatesEnd.Text = "<!-- /ko -->";
-                    Children.Add(koEditTemplatesEnd);
-
-
-                }
-            }*/
+           
             base.OnPreRender(context);
         }
 
@@ -235,7 +189,8 @@ namespace DotVVM.Framework.Controls
         {
             head = new HtmlGenericControl("thead");
             var dsBinding = GetValueBinding(DataSourceProperty);
-            head.SetBinding(VisibleProperty, new ValueBindingExpression(h => dsBinding.Evaluate(this, DataSourceProperty) != null, dsBinding.GetKnockoutBindingExpression()));
+            //head.SetBinding(VisibleProperty, new ValueBindingExpression(h => dsBinding.Evaluate(this, DataSourceProperty) != null, dsBinding.GetKnockoutBindingExpression()));
+            head.Attributes["data-bind"] = "visible: $data";
             Children.Add(head);
 
             var headerRow = new HtmlGenericControl("tr");
@@ -348,32 +303,45 @@ namespace DotVVM.Framework.Controls
             return false;
         }
 
+        private void CreateTemplates(IDotvvmRequestContext context, DataItemContainer placeholder, bool createEditTemplates = false)
+        {
+            var row = new HtmlGenericControl("tr");
+
+            DotvvmControl container = row;
+            placeholder.Children.Add(container);
+
+
+            // create cells
+            foreach (var column in Columns)
+            {
+                var cell = new HtmlGenericControl("td");
+                row.Children.Add(cell);
+                if(createEditTemplates)
+                {
+                    column.CreateEditControls(context, cell);
+                }
+                else
+                {
+                    column.CreateControls(context, cell);
+                }
+                
+            }
+        }
+
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
             // render the header
             head?.Render(writer, context);
 
             // render body
-            if (!RenderOnServer && !InlineEditing)
+            if (!RenderOnServer)
             {
-                writer.AddKnockoutForeachDataBind(GetForeachDataBindJavascriptExpression());
+                writer.AddKnockoutForeachDataBind("dotvvm.evaluator.getDataSourceItems($data)");
 
             }
-
             writer.RenderBeginTag("tbody");
-
-            // dotvvm foreach for inline
-            if (InlineEditing && !RenderOnServer)
-            {
-                writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) !== ko.unwrap(PrimaryKeyPropertyName)");
-                // generate normal templates
-                writer.WriteKnockoutDataBindEndComment();
-
-                writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) === ko.unwrap(PrimaryKeyPropertyName)");
-                // generate edit templates
-                writer.WriteKnockoutDataBindEndComment();
-            }
-
+           
+        
             // render contents
             if (RenderOnServer)
             {
@@ -388,13 +356,32 @@ namespace DotVVM.Framework.Controls
             else
             {
                 // render on client
-                var placeholder = new DataItemContainer { DataContext = null };
-                placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
-                placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
-                CreateRow(context.RequestContext, placeholder);
-                Children.Add(placeholder);
+                if (InlineEditing)
+                {    
+                    var placeholder = new DataItemContainer { DataContext = null };
+                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) !== ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
+                    CreateTemplates(context.RequestContext, placeholder);
+                    Children.Add(placeholder);
+                    placeholder.Render(writer, context);
+                    writer.WriteKnockoutDataBindEndComment();
 
-                placeholder.Render(writer, context);
+                    var placeholderEdit = new DataItemContainer { DataContext = null };
+                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) === ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
+                    CreateTemplates(context.RequestContext, placeholderEdit, true);
+                    Children.Add(placeholderEdit);
+                    placeholderEdit.Render(writer, context);
+                    writer.WriteKnockoutDataBindEndComment();
+                }
+                else
+                {
+                    var placeholder = new DataItemContainer { DataContext = null };
+                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
+                    CreateRow(context.RequestContext, placeholder);
+                    Children.Add(placeholder);
+                    placeholder.Render(writer, context);
+
+                }
             }
 
             writer.RenderEndTag();
@@ -428,6 +415,9 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddStyleAttribute("display", "none");
                 }
+
+                // with databind
+                writer.AddKnockoutDataBind("with", GetDataSourceBinding());
             }
 
             base.AddAttributesToRender(writer, context);
