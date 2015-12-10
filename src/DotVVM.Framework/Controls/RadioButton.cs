@@ -40,6 +40,48 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderInputTag(IHtmlWriter writer)
         {
+            RenderCheckedAttribute(writer);
+            RenderCheckedValueAttribute(writer);
+            RenderTypeAttribute(writer);
+            RenderGroupNameAttribute(writer);
+
+            writer.RenderSelfClosingTag("input");
+        }
+
+        protected virtual void RenderGroupNameAttribute(IHtmlWriter writer)
+        {
+            var groupNameBinding = GetValueBinding(GroupNameProperty);
+            if (groupNameBinding != null)
+            {
+                // TODO: do not overwrite existing attribute bindings
+                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, IValueBinding>("name", groupNameBinding) }, this, GroupNameProperty);
+            }
+            else
+            {
+                writer.AddAttribute("name", GroupName);
+            }
+        }
+
+        protected virtual void RenderTypeAttribute(IHtmlWriter writer)
+        {
+            // render the input tag
+            writer.AddAttribute("type", "radio");
+        }
+
+        protected virtual void RenderCheckedValueAttribute(IHtmlWriter writer)
+        {
+            writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
+            {
+                var checkedValue = (CheckedValue ?? string.Empty).ToString();
+                if (!string.IsNullOrEmpty(checkedValue))
+                {
+                    writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
+                }
+            });
+        }
+
+        protected virtual void RenderCheckedAttribute(IHtmlWriter writer)
+        {
             var checkedItemBinding = GetValueBinding(CheckedItemProperty);
             if (checkedItemBinding == null)
             {
@@ -54,31 +96,6 @@ namespace DotVVM.Framework.Controls
                 // selected item mode
                 writer.AddKnockoutDataBind("checked", checkedItemBinding);
             }
-
-            writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
-            {
-                var checkedValue = (CheckedValue ?? string.Empty).ToString();
-                if (!string.IsNullOrEmpty(checkedValue))
-                {
-                    writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
-                }
-            });
-
-            // render the input tag
-            writer.AddAttribute("type", "radio");
-
-            var groupNameBinding = GetValueBinding(GroupNameProperty);
-            if (groupNameBinding != null)
-            {
-                // TODO: do not overwrite existing attribute bindings
-                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, IValueBinding>("name", groupNameBinding) }, this, GroupNameProperty);
-            }
-            else
-            {
-                writer.AddAttribute("name", GroupName);
-            }
-
-            writer.RenderSelfClosingTag("input");
         }
     }
 }

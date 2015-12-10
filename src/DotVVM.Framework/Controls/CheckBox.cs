@@ -30,37 +30,51 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderInputTag(IHtmlWriter writer)
         {
-            var checkedBinding = GetValueBinding(CheckedProperty);
-            var checkedItemsBinding = GetValueBinding(CheckedItemsProperty);
-
-            if (checkedBinding != null && checkedItemsBinding == null)
+            if (HasBinding(CheckedProperty) && !HasBinding(CheckedItemsProperty))
             {
                 // boolean mode
-                writer.AddKnockoutDataBind("checked", checkedBinding);
-                writer.AddKnockoutDataBind("checkedValue", "true");
+                RenderCheckedProperty(writer);
             }
-            else if (checkedBinding == null && checkedItemsBinding != null)
+            else if (!HasBinding(CheckedProperty) && HasBinding(CheckedItemsProperty))
             {
                 // collection mode
-                writer.AddKnockoutDataBind("checked", checkedItemsBinding);
-                writer.AddKnockoutDataBind("checkedArrayContainsObservables", "true");
-                writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
-                {
-                    var checkedValue = (CheckedValue ?? string.Empty).ToString();
-                    if (!string.IsNullOrEmpty(checkedValue))
-                    {
-                        writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
-                    }
-                });
+                RenderCheckedItemsProperty(writer);
             }
             else
             {
                 throw new DotvvmControlException(this, "Either the Checked or the CheckedItems binding of a CheckBox must be set.");
             }
 
+            RenderTypeAttribute(writer);
+            writer.RenderSelfClosingTag("input");
+        }
+
+        protected virtual void RenderTypeAttribute(IHtmlWriter writer)
+        {
             // render the input tag
             writer.AddAttribute("type", "checkbox");
-            writer.RenderSelfClosingTag("input");
+        }
+
+        protected virtual void RenderCheckedItemsProperty(IHtmlWriter writer)
+        {
+            var checkedItemsBinding = GetValueBinding(CheckedItemsProperty);
+            writer.AddKnockoutDataBind("checked", checkedItemsBinding);
+            writer.AddKnockoutDataBind("checkedArrayContainsObservables", "true");
+            writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
+            {
+                var checkedValue = (CheckedValue ?? string.Empty).ToString();
+                if (!string.IsNullOrEmpty(checkedValue))
+                {
+                    writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
+                }
+            });
+        }
+
+        protected virtual void RenderCheckedProperty(IHtmlWriter writer)
+        {
+            var checkedBinding = GetValueBinding(CheckedProperty);
+            writer.AddKnockoutDataBind("checked", checkedBinding);
+            writer.AddKnockoutDataBind("checkedValue", "true");
         }
     }
 }
