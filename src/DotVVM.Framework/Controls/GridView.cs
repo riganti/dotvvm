@@ -359,6 +359,8 @@ namespace DotVVM.Framework.Controls
                 if (InlineEditing)
                 {    
                     var placeholder = new DataItemContainer { DataContext = null };
+                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) !== ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
                     CreateTemplates(context.RequestContext, placeholder);
                     Children.Add(placeholder);
@@ -366,6 +368,8 @@ namespace DotVVM.Framework.Controls
                     writer.WriteKnockoutDataBindEndComment();
 
                     var placeholderEdit = new DataItemContainer { DataContext = null };
+                    placeholderEdit.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) === ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
                     CreateTemplates(context.RequestContext, placeholderEdit, true);
                     Children.Add(placeholderEdit);

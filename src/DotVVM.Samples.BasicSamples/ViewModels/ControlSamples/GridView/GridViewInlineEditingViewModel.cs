@@ -45,7 +45,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public bool EditMode { get; set; } = true;
 
-        public int EditRowId { get; set; } = 2;
+        public int EditRowId { get; set; } = 1;
 
         public GridViewInlineEditingViewModel()
         {
