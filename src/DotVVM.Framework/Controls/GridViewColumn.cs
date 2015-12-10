@@ -37,6 +37,17 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty CssClassProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.CssClass);
 
+        [MarkupOptions(AllowBinding = false)]
+        public bool IsEditable
+        {
+            get { return (bool)GetValue(IsEditableProperty); }
+            set { SetValue(IsEditableProperty, value); }
+        }
+
+        public static readonly DotvvmProperty IsEditableProperty =
+            DotvvmProperty.Register<bool, GridViewColumn>(t => t.IsEditable, true);
+
+
 
         public string HeaderCssClass
         {

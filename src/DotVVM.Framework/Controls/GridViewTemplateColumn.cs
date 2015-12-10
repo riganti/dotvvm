@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
         public ITemplate ContentTemplate { get; set; }
 
-        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate EditTemplate { get; set; }
 
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
