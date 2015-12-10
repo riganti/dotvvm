@@ -275,7 +275,7 @@ namespace DotVVM.Framework.Controls
                 SetCellAttributes(column, cell, false);
                 row.Children.Add(cell);
 
-                if (isEdit)
+                if (isEdit && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);
 
@@ -316,7 +316,7 @@ namespace DotVVM.Framework.Controls
             {
                 var cell = new HtmlGenericControl("td");
                 row.Children.Add(cell);
-                if(createEditTemplates)
+                if(createEditTemplates && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);
                 }
@@ -359,6 +359,8 @@ namespace DotVVM.Framework.Controls
                 if (InlineEditing)
                 {    
                     var placeholder = new DataItemContainer { DataContext = null };
+                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) !== ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
                     CreateTemplates(context.RequestContext, placeholder);
                     Children.Add(placeholder);
@@ -366,6 +368,8 @@ namespace DotVVM.Framework.Controls
                     writer.WriteKnockoutDataBindEndComment();
 
                     var placeholderEdit = new DataItemContainer { DataContext = null };
+                    placeholderEdit.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) === ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
                     CreateTemplates(context.RequestContext, placeholderEdit, true);
                     Children.Add(placeholderEdit);

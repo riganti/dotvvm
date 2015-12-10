@@ -29,6 +29,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
 			public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
 			public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
+            public const string ControlSamples_GridView_GridViewInlineEditing = "ControlSamples/GridView/GridViewInlineEditing";
 			public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
 			public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
 			public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";

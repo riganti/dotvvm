@@ -45,6 +45,46 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [TestMethod]
+        public void Control_GridViewInlineEditingServer()
+        {
+            Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
+        }
+
+        [TestMethod]
+        public void Control_GridViewInlineEditingClient()
+        {
+            Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
+        }
+
+        public void Control_GridViewInlineEditing(string path, int tableID)
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(path);
+                // get table
+                var table = browser.ElementAt("table", tableID);
+                
+                //check rows
+                table.FindElements("tbody tr").ThrowIfDifferentCountThan(10);
+                // check initial edit row
+                var firstRow = table.First("tbody tr");
+                firstRow.First("td").CheckIfInnerTextEquals("1");
+                firstRow.ElementAt("td", 1).Single("input").CheckIfIsDisplayed();
+
+                // check if right number of testboxs are displayed => IsEditable works
+                table.FindElements("tbody tr td input").ThrowIfDifferentCountThan(2);
+
+                //click on button 6
+                var desiredRow = table.ElementAt("tbody tr", 3);
+                desiredRow.ElementAt("td", 3).First("button").Click();
+                //check if edit row changed
+                table = browser.ElementAt("table", tableID);
+                desiredRow = table.ElementAt("tbody tr", 3);
+                desiredRow.First("input").CheckIfIsDisplayed();
+
+            });
+        }
         public void Control_GridViewPagingSortingBase(string path) { 
 
             
