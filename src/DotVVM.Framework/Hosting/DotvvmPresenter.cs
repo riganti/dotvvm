@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Hosting
             page.SetValue(Internal.RequestContextProperty, context);
 
             // run the preinit phase in the page
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit, context);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit);
 
             // locate and create the view model
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Hosting
             }
 
             // run the init phase in the page
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init, context);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
 
             if (!isPostBack)
             {
@@ -147,7 +147,7 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // run the load phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
             }
             else
             {
@@ -171,7 +171,7 @@ namespace DotVVM.Framework.Hosting
                 CsrfProtector.VerifyToken(context, context.CsrfToken);
 
                 // run the load phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load, context);
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
 
                 // invoke the postback command
                 ActionInfo actionInfo;
@@ -227,10 +227,10 @@ namespace DotVVM.Framework.Hosting
             }
 
             // run the prerender phase in the page
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender, context);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender);
 
             // run the prerender complete phase in the page
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete, context);
+            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete);
 
             // generate CSRF token if required
             if (string.IsNullOrEmpty(context.CsrfToken))

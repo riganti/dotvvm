@@ -141,7 +141,7 @@ namespace DotVVM.Framework.Controls
             SetParent(item);
             controls.Insert(index, item);
 
-            InvokeMissedPageLifeCycleEvents(item);
+            item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent);
         }
 
 
@@ -170,7 +170,7 @@ namespace DotVVM.Framework.Controls
                 SetParent(value);
                 controls[index] = value;
 
-                InvokeMissedPageLifeCycleEvents(value);
+                controls[index].Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent);
             }
         }
 
@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(parent, "The control cannot be added to the collection because it already has a different parent! Remove it from the original collection first.");
             }
             item.Parent = parent;
-            if(item.GetValue(Internal.UniqueIDProperty) == null)
+            if (item.GetValue(Internal.UniqueIDProperty) == null)
             {
                 item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + Count);
             }
@@ -193,26 +193,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Invokes missed page life cycle events on the control.
         /// </summary>
-        private void InvokeMissedPageLifeCycleEvents(DotvvmControl control)
+        private void InvokeMissedPageLifeCycleEvents(LifeCycleEventType targetEventType)
         {
-            for (var i = LifeCycleEventType.PreInit; i <= lastLifeCycleEvent; i++)
-            {
-                InvokeMissedPageLifeCycleEvent(control, i);
-            }
-        }
-
-        private void InvokeMissedPageLifeCycleEvent(DotvvmControl control, LifeCycleEventType eventType)
-        {
-            var context = (IDotvvmRequestContext)control.GetValue(Internal.RequestContextProperty);
-            DotvvmControl lastChild = control;
+            var context = (IDotvvmRequestContext)parent.GetValue(Internal.RequestContextProperty);
+            DotvvmControl lastProcessedControl = parent;
             try
             {
-                var action = GetPageLifeCycleEventAction(eventType, context);
-                foreach (var child in control.GetThisAndAllDescendants())
-                {
-                    lastChild = child;
-                    action(child);
-                }
+                InvokeMissedPageLifeCycleEvent(context, targetEventType, ref lastProcessedControl);
             }
             catch (DotvvmInterruptRequestExecutionException)
             {
@@ -220,7 +207,23 @@ namespace DotVVM.Framework.Controls
             }
             catch (Exception ex)
             {
-                throw new DotvvmControlException(lastChild, "Unhandled exception occured while executing page lifecycle event.", ex);
+                throw new DotvvmControlException(lastProcessedControl, "Unhandled exception occured while executing page lifecycle event.", ex);
+            }
+        }
+
+        private void InvokeMissedPageLifeCycleEvent(IDotvvmRequestContext context, LifeCycleEventType targetEventType, ref DotvvmControl lastProcessedControl)
+        {
+            for (var eventType = lastLifeCycleEvent + 1; eventType <= targetEventType; eventType++)
+            {
+                var action = GetPageLifeCycleEventAction(eventType, context);
+                lastProcessedControl = parent;
+                action(parent);
+
+                foreach (var child in controls)
+                {
+                    child.Children.InvokeMissedPageLifeCycleEvent(context, eventType, ref lastProcessedControl);
+                }
+                lastLifeCycleEvent = eventType;
             }
         }
 
@@ -256,29 +259,9 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Invokes the specified method on all controls in the page control tree.
         /// </summary>
-        internal static void InvokePageLifeCycleEventRecursive(DotvvmControl rootControl, LifeCycleEventType eventType, IDotvvmRequestContext context)
+        internal static void InvokePageLifeCycleEventRecursive(DotvvmControl rootControl, LifeCycleEventType eventType)
         {
-            var action = GetPageLifeCycleEventAction(eventType, context);
-
-            DotvvmControl lastChild = rootControl;
-            try
-            {
-                foreach (var child in rootControl.GetThisAndAllDescendants())
-                {
-                    lastChild = child;
-                    action(child);
-
-                    child.Children.SetLastLifeCycleEvent(eventType);
-                }
-            }
-            catch (DotvvmInterruptRequestExecutionException)
-            {
-                throw;
-            }
-            catch (Exception ex)
-            {
-                throw new DotvvmControlException(lastChild, $"Unhandled exception occured while executing { eventType } event.", ex);
-            }
+            rootControl.Children.InvokeMissedPageLifeCycleEvents(eventType);
         }
     }
 }
