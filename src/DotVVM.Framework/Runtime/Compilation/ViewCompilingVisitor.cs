@@ -42,8 +42,8 @@ namespace DotVVM.Framework.Runtime.Compilation
             // build the statements
             emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName);
             var pageName = emitter.EmitCreateObject(wrapperClassName);
-            emitter.EmitSetAttachedProperty(pageName, typeof(Internal), Internal.UniqueIDProperty.Name, pageName);
-            emitter.EmitSetAttachedProperty(pageName, typeof(Internal), Internal.MarkupFileNameProperty.Name, view.Metadata.VirtualPath);
+            emitter.EmitSetAttachedProperty(pageName, Internal.UniqueIDProperty, pageName);
+            emitter.EmitSetAttachedProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
             if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type))
                 emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType), emitter.EmitValue(view.DataContextTypeStack.DataContextType));
             if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)))
@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
             else
             {
-                emitter.EmitSetValue(controlName, property.DescriptorFullName, value);
+                emitter.EmitSetValue(controlName, property, value);
             }
         }
 
@@ -205,12 +205,12 @@ namespace DotVVM.Framework.Runtime.Compilation
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
             // set unique id
-            emitter.EmitSetAttachedProperty(name, typeof(Internal), Internal.UniqueIDProperty.Name, name);
+            emitter.EmitSetAttachedProperty(name, Internal.UniqueIDProperty, name);
 
             if (control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
             {
                 // set line number
-                emitter.EmitSetAttachedProperty(name, typeof(Internal), Internal.MarkupLineNumberProperty.Name, control.DothtmlNode.Tokens.First().LineNumber);
+                emitter.EmitSetAttachedProperty(name, Internal.MarkupLineNumberProperty, control.DothtmlNode.Tokens.First().LineNumber);
             }
 
             if (control.HtmlAttributes != null && control.Metadata.HasHtmlAttributesCollection)

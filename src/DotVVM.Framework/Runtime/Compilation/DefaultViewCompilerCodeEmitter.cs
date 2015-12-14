@@ -297,17 +297,11 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Emits the set DotvvmProperty statement.
         /// </summary>
-        public void EmitSetValue(string controlName, string propertyName, string variableName)
+        public void EmitSetValue(string controlName, DotvvmProperty property, ExpressionSyntax valueSyntax)
         {
-            var valueSyntax = SyntaxFactory.IdentifierName(variableName);
-            EmitSetValue(controlName, propertyName, valueSyntax);
-        }
+            UsedAssemblies.Add(property.DeclaringType.Assembly);
+            UsedAssemblies.Add(property.PropertyType.Assembly);
 
-        /// <summary>
-        /// Emits the set DotvvmProperty statement.
-        /// </summary>
-        public void EmitSetValue(string controlName, string propertyName, ExpressionSyntax valueSyntax)
-        {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
                     SyntaxFactory.InvocationExpression(
@@ -319,7 +313,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                         SyntaxFactory.ArgumentList(
                             SyntaxFactory.SeparatedList(new[]
                             {
-                                SyntaxFactory.Argument(SyntaxFactory.ParseName(propertyName)),
+                                SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName)),
                                 SyntaxFactory.Argument(valueSyntax)
                             })
                         )
@@ -355,8 +349,11 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Emits the set attached property.
         /// </summary>
-        public void EmitSetAttachedProperty(string controlName, Type propertyType, string propertyName, object value)
+        public void EmitSetAttachedProperty(string controlName, DotvvmProperty property, object value)
         {
+            UsedAssemblies.Add(property.DeclaringType.Assembly);
+            UsedAssemblies.Add(property.PropertyType.Assembly);
+
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
                     SyntaxFactory.InvocationExpression(
@@ -371,8 +368,8 @@ namespace DotVVM.Framework.Runtime.Compilation
                                     SyntaxFactory.Argument(
                                         SyntaxFactory.MemberAccessExpression(
                                             SyntaxKind.SimpleMemberAccessExpression,
-                                            ParseTypeName(propertyType),
-                                            SyntaxFactory.IdentifierName(propertyName + "Property")
+                                            ParseTypeName(property.DeclaringType),
+                                            SyntaxFactory.IdentifierName(property.Name + "Property")
                                         )
                                     ),
                                     SyntaxFactory.Argument(
@@ -516,6 +513,8 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public string EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
         {
+            UsedAssemblies.Add(property.PropertyType.Assembly);
+
             if (property.IsVirtual)
             {
                 StatementSyntax initializer;
@@ -678,8 +677,8 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// </summary>
         public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
-            
             UsedAssemblies.Add(BuilderDataContextType.Assembly);
+
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(
                     SyntaxFactory.List<MemberDeclarationSyntax>(
