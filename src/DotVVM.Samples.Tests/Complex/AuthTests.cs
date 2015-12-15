@@ -22,8 +22,9 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.SendKeys("input[type=text]", "user");
                 browser.First("input[type=button]").Click();
                 browser.Refresh();
-                browser.Wait();
+                browser.Wait(2000);
                 browser.Last("a").Click();
+                browser.Wait(2000);
 
                 browser.SendKeys("input[type=text]", "message");
                 browser.First("input[type=button]").Click();
