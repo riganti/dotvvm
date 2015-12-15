@@ -19,7 +19,11 @@ namespace DotVVM.Framework.Styles
             get
             {
                 var c = Parent;
-                while(c != null) yield return c = c.Parent;
+                while (c != null)
+                {
+                    yield return c;
+                    c = c.Parent;
+                }
             }
         }
 
