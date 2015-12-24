@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Runtime
         {
             var s = new JsonSerializer()
             {
-                DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind
+                DateTimeZoneHandling = DateTimeZoneHandling.Local
             };
             //s.Converters.Add(new StringEnumConverter());
             return s;
