@@ -66,15 +66,12 @@ class DotvvmSerialization {
                 // deserialize value
                 var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
                 
-                // handle date
-                if (options && options.isDate && deserialized) {
-                    deserialized = new Date(deserialized);
-                }
-
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     if (ko.isObservable(result[prop])) {
-                        if (deserialized() != result[prop]()) result[prop](deserialized());
+                        if (deserialized() !== result[prop]()) {
+                            result[prop](deserialized());
+                        }
                     } else {
                         result[prop] = deserialized;
                     }
@@ -240,18 +237,16 @@ class DotvvmSerialization {
     }
 
     public serializeDate(date: Date): string {
-        var y = this.pad(date.getFullYear().toString(), 4);
-        var m = this.pad((date.getMonth() + 1).toString(), 2);
-        var d = this.pad(date.getDate().toString(), 2);
-        var h = this.pad(date.getHours().toString(), 2);
-        var mi = this.pad(date.getMinutes().toString(), 2);
-        var s = this.pad(date.getSeconds().toString(), 2);
-        var ms = this.pad(date.getMilliseconds().toString(), 3);
-
-        var sign = date.getTimezoneOffset() <= 0 ? "+" : "-";
-        var offsetHour = this.pad((Math.abs(date.getTimezoneOffset() / 60) | 0).toString(), 2);
-        var offsetMinute = this.pad(Math.abs(date.getTimezoneOffset() % 60).toString(), 2);
-
-        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + sign + offsetHour + ":" + offsetMinute;
+        var date2 = new Date(date.getTime());
+        date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        
+        var y = this.pad(date2.getFullYear().toString(), 4);
+        var m = this.pad((date2.getMonth() + 1).toString(), 2);
+        var d = this.pad(date2.getDate().toString(), 2);
+        var h = this.pad(date2.getHours().toString(), 2);
+        var mi = this.pad(date2.getMinutes().toString(), 2);
+        var s = this.pad(date2.getSeconds().toString(), 2);
+        var ms = this.pad(date2.getMilliseconds().toString(), 3);
+        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + "000";
     }
 }

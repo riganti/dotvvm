@@ -387,6 +387,7 @@
     <Compile Include="Runtime\DefaultOutputRenderer.cs" />
     <Compile Include="Runtime\DefaultDotvvmViewBuilder.cs" />
     <Compile Include="Runtime\DefaultViewModelLoader.cs" />
+    <Compile Include="Runtime\DotvvmDateTimeConverter.cs" />
     <Compile Include="Runtime\Filters\ActionFilterAttribute.cs" />
     <Compile Include="Runtime\Filters\ActionInfo.cs" />
     <Compile Include="Runtime\Filters\ActionParameterInfo.cs" />

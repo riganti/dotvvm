@@ -16,6 +16,60 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 })();
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
+    }
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        }
+        else {
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
+    };
+    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
+        var id = "";
+        for (var i = 0; i < fragments.length; i++) {
+            if (id.length > 0) {
+                id += "_";
+            }
+            id += ko.unwrap(fragments[i]);
+        }
+        return id;
+    };
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
+})();
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -951,15 +1005,12 @@ var DotvvmSerialization = (function () {
                 }
                 // deserialize value
                 var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
-                // handle date
-                if (options && options.isDate && deserialized) {
-                    deserialized = new Date(deserialized);
-                }
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     if (ko.isObservable(result[prop])) {
-                        if (deserialized() != result[prop]())
+                        if (deserialized() !== result[prop]()) {
                             result[prop](deserialized());
+                        }
                     }
                     else {
                         result[prop] = deserialized;
@@ -1117,17 +1168,16 @@ var DotvvmSerialization = (function () {
         return value;
     };
     DotvvmSerialization.prototype.serializeDate = function (date) {
-        var y = this.pad(date.getFullYear().toString(), 4);
-        var m = this.pad((date.getMonth() + 1).toString(), 2);
-        var d = this.pad(date.getDate().toString(), 2);
-        var h = this.pad(date.getHours().toString(), 2);
-        var mi = this.pad(date.getMinutes().toString(), 2);
-        var s = this.pad(date.getSeconds().toString(), 2);
-        var ms = this.pad(date.getMilliseconds().toString(), 3);
-        var sign = date.getTimezoneOffset() <= 0 ? "+" : "-";
-        var offsetHour = this.pad((Math.abs(date.getTimezoneOffset() / 60) | 0).toString(), 2);
-        var offsetMinute = this.pad(Math.abs(date.getTimezoneOffset() % 60).toString(), 2);
-        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + sign + offsetHour + ":" + offsetMinute;
+        var date2 = new Date(date.getTime());
+        date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        var y = this.pad(date2.getFullYear().toString(), 4);
+        var m = this.pad((date2.getMonth() + 1).toString(), 2);
+        var d = this.pad(date2.getDate().toString(), 2);
+        var h = this.pad(date2.getHours().toString(), 2);
+        var mi = this.pad(date2.getMinutes().toString(), 2);
+        var s = this.pad(date2.getSeconds().toString(), 2);
+        var ms = this.pad(date2.getMilliseconds().toString(), 3);
+        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + "000";
     };
     return DotvvmSerialization;
 })();
@@ -1486,58 +1536,4 @@ var DotvvmValidation = (function () {
     return DotvvmValidation;
 })();
 ;
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
-    }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
-        }
-        else {
-            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
-            }
-        }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
-        var id = "";
-        for (var i = 0; i < fragments.length; i++) {
-            if (id.length > 0) {
-                id += "_";
-            }
-            id += ko.unwrap(fragments[i]);
-        }
-        return id;
-    };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
-})();
 //# sourceMappingURL=DotVVM.js.map
