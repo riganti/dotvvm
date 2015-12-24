@@ -247,6 +247,6 @@ class DotvvmSerialization {
         var mi = this.pad(date2.getMinutes().toString(), 2);
         var s = this.pad(date2.getSeconds().toString(), 2);
         var ms = this.pad(date2.getMilliseconds().toString(), 3);
-        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + "000";
+        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + "0000";
     }
 }

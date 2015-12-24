@@ -846,7 +846,7 @@ var DotvvmGlobalize = (function () {
         else if (format === "G") {
             return this.formatString("d", value) + " " + this.formatString("T", value);
         }
-        if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?$")) {
+        if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,7})?$")) {
             // JSON date in string
             value = new Date(value);
         }
@@ -1177,7 +1177,7 @@ var DotvvmSerialization = (function () {
         var mi = this.pad(date2.getMinutes().toString(), 2);
         var s = this.pad(date2.getSeconds().toString(), 2);
         var ms = this.pad(date2.getMilliseconds().toString(), 3);
-        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + "000";
+        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + "0000";
     };
     return DotvvmSerialization;
 })();
