@@ -75,25 +75,19 @@ namespace DotVVM.Framework.Controls
 
 
         protected override bool RendersHtmlTag => RenderSpanElement;
-
-
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+         
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
+            base.AddAttributesToRender(writer, context);
+
             isFormattingRequired = !string.IsNullOrEmpty(FormatString) || GetValue(TextProperty) is DateTime;
             if (isFormattingRequired)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
             }
 
-            base.OnPreRender(context);
-        }
-
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
-        {
-            base.AddAttributesToRender(writer, context);
-
             // render Knockout data-bind
-            renderAsKnockoutBinding = HasBinding(TextProperty) && !RenderOnServer;
+            renderAsKnockoutBinding = HasBinding<IValueBinding>(TextProperty) && !RenderOnServer;
             if (renderAsKnockoutBinding)
             {
                 var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression();

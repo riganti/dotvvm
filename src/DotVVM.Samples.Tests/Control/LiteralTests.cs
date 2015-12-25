@@ -24,14 +24,14 @@ namespace DotVVM.Samples.Tests.Control
                 {
                     column.ElementAt("fieldset", 0).Single("span").CheckIfInnerTextEquals("Hardcoded value");
                     column.ElementAt("fieldset", 1).Single("span").CheckIfInnerTextEquals("Hello");
-                    column.ElementAt("fieldset", 2).Single("span").CheckIfInnerTextEquals("01.01.2000");
+                    column.ElementAt("fieldset", 2).Single("span").CheckIfInnerTextEquals("1/1/2000");
 
                     column.ElementAt("fieldset", 3).FindElements("span").ThrowIfDifferentCountThan(0);
                     column.ElementAt("fieldset", 3).CheckIfInnerText(t => t.Contains("Hardcoded value"));
                     column.ElementAt("fieldset", 4).FindElements("span").ThrowIfDifferentCountThan(0);
                     column.ElementAt("fieldset", 4).CheckIfInnerText(t => t.Contains("Hello"));
                     column.ElementAt("fieldset", 5).FindElements("span").ThrowIfDifferentCountThan(0);
-                    column.ElementAt("fieldset", 5).CheckIfInnerText(t => t.Contains("01.01.2000"));
+                    column.ElementAt("fieldset", 5).CheckIfInnerText(t => t.Contains("1/1/2000"));
                 }
             });
         }
