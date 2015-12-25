@@ -12,20 +12,8 @@ namespace DotVVM.Framework.Controls
     /// Renders a text into the page.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false)]
-    public class Literal : DotvvmControl
+    public class Literal : HtmlGenericControl
     {
-
-        /// <summary>
-        /// Gets or sets a whether the control content should be HTML encoded.
-        /// </summary>
-        public bool HtmlEncode
-        {
-            get { return (bool)GetValue(HtmlEncodeProperty); }
-            set { SetValue(HtmlEncodeProperty, value); }
-        }
-        public static readonly DotvvmProperty HtmlEncodeProperty =
-            DotvvmProperty.Register<bool, Literal>(t => t.HtmlEncode, true);
-
 
         /// <summary>
         /// Gets or sets the text displayed in the control.
@@ -52,7 +40,9 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, Literal>(c => c.FormatString, "");
 
 
-
+        /// <summary>
+        /// Gets or sets whether the literal should render the wrapper span HTML element.
+        /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool RenderSpanElement
         {
@@ -60,72 +50,82 @@ namespace DotVVM.Framework.Controls
             set { SetValue(RenderSpanElementProperty, value); }
         }
         public static readonly DotvvmProperty RenderSpanElementProperty =
-            DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, false);
+            DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, true);
+
+
+        private bool renderAsKnockoutBinding;
+        private string knockoutBindingExpression;
+        private bool isFormattingRequired;
 
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
-        public Literal()
+        public Literal() : base("span")
         {
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
         /// </summary>
-        public Literal(string text)
-        {
-            Text = text;
-            HtmlEncode = false;
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Literal"/> class.
-        /// </summary>
-        public Literal(string text, bool encode)
+        public Literal(string text) : base("span")
         {
             Text = text;
-            HtmlEncode = encode;
         }
+
+
+        protected override bool RendersHtmlTag => RenderSpanElement;
 
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            if (!string.IsNullOrEmpty(FormatString))
+            isFormattingRequired = !string.IsNullOrEmpty(FormatString) || GetValue(TextProperty) is DateTime;
+            if (isFormattingRequired)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
             }
+
             base.OnPreRender(context);
         }
 
-
-        /// <summary>
-        /// Renders the control into the specified writer.
-        /// </summary>
-        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
-            var textBinding = GetValueBinding(TextProperty);
-            if (textBinding != null && !RenderOnServer)
+            base.AddAttributesToRender(writer, context);
+
+            // render Knockout data-bind
+            renderAsKnockoutBinding = HasBinding(TextProperty) && !RenderOnServer;
+            if (renderAsKnockoutBinding)
             {
-                var expression = textBinding.GetKnockoutBindingExpression();
-                if (!string.IsNullOrEmpty(FormatString) || GetValue(TextProperty) is DateTime)
+                var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression();
+                if (isFormattingRequired)
                 {
                     expression = "dotvvm.globalize.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
                 }
+                knockoutBindingExpression = expression;
 
-                writer.AddKnockoutDataBind(HtmlEncode ? "text" : "html", expression);
-                AddAttributesToRender(writer, context);
-                writer.RenderBeginTag("span");
-                writer.RenderEndTag();
-            }
-            else
-            {
                 if (RenderSpanElement)
                 {
-                    AddAttributesToRender(writer, context);
-                    writer.RenderBeginTag("span");
+                    writer.AddKnockoutDataBind("text", expression);
                 }
+            }
+        }
 
+        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        {
+            if (RenderSpanElement)
+            {
+                base.RenderBeginTag(writer, context);
+            }
+            else if (renderAsKnockoutBinding)
+            {
+                writer.WriteKnockoutDataBindComment("text", knockoutBindingExpression);
+            }
+        }
+
+        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        {
+            if (!renderAsKnockoutBinding)
+            {
                 var textToDisplay = "";
                 if (!string.IsNullOrEmpty(FormatString))
                 {
@@ -136,19 +136,19 @@ namespace DotVVM.Framework.Controls
                     textToDisplay = GetValue(TextProperty)?.ToString() ?? "";
                 }
 
-                if (HtmlEncode)
-                {
-                    writer.WriteText(textToDisplay);
-                }
-                else
-                {
-                    writer.WriteUnencodedText(textToDisplay);
-                }
+                writer.WriteText(textToDisplay);
+            }
+        }
 
-                if (RenderSpanElement)
-                {
-                    writer.RenderEndTag();
-                }
+        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        {
+            if (RenderSpanElement)
+            {
+                base.RenderEndTag(writer, context);
+            }
+            else if (renderAsKnockoutBinding)
+            {
+                writer.WriteKnockoutDataBindEndComment();
             }
         }
     }

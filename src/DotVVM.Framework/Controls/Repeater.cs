@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the template for each Repeater item.
         /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.InnerElement, Required = true)]
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
         [ControlPropertyBindingDataContextChange("DataSource")]
         [CollectionElementDataContextChange(1)]
         public ITemplate ItemTemplate
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the template which will be displayed when the DataSource is empty.
         /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         public ITemplate EmptyDataTemplate
         {
             get { return (ITemplate)GetValue(EmptyDataTemplateProperty); }
@@ -50,6 +50,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the name of the tag that wraps the Repeater.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string WrapperTagName
         {
             get { return (string)GetValue(WrapperTagNameProperty); }
@@ -61,6 +62,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets whether the control should render a wrapper element.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public bool RenderWrapperTag
         {
             get { return (bool) GetValue(RenderWrapperTagProperty); }

@@ -133,6 +133,7 @@
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\HtmlLiteral\HtmlLiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Literal\LiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
@@ -265,6 +266,7 @@
     <Content Include="Views\FeatureSamples\Serialization\ObservableCollectionShouldContainObservables.dothtml" />
     <Content Include="Views\ControlSamples\Literal\Literal.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditing.dothtml" />
+    <Content Include="Views\ControlSamples\HtmlLiteral\HtmlLiteral.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

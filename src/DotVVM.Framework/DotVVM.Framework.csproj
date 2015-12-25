@@ -164,6 +164,7 @@
     <Compile Include="Controls\GridViewColumn.cs" />
     <Compile Include="Controls\GridViewTemplateColumn.cs" />
     <Compile Include="Controls\GridViewTextColumn.cs" />
+    <Compile Include="Controls\HtmlLiteral.cs" />
     <Compile Include="Controls\IDotvvmControl.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
     <Compile Include="Controls\GridViewDataSet.cs" />
