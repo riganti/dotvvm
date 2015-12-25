@@ -34,7 +34,7 @@
 			<div class="col-xs-6">
 
 				<p>Format on server</p>
-				<ol class="list2" RenderSettings.Mode="Server">
+				<ol class="list2" RenderSettings.Mode="Server" PostBack.Update="true">
 					<li><dot:Literal Text="{value: Number}" /></li>
 					<li><dot:Literal Text="{value: Number}" FormatString="c2" /></li>
 					<li><dot:Literal Text="{value: Number}" FormatString="n2" /></li>
@@ -53,6 +53,9 @@
 
 			</div>
 		</div>
+
+		<!-- verify that the formatting works after postback -->
+		<dot:Button Text="Do Postback" Click="{command: PostBack()}" />
 	</div>
 	
 </body>

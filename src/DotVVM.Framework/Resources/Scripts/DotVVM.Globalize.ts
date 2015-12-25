@@ -15,17 +15,30 @@
         value = ko.unwrap(value);
         if (value == null) return "";
 
+        if (typeof value === "string") {
+            // JSON date in string
+            value = this.parseDotvvmDate(value);
+            if (format === "") {
+                format = "G";
+            }
+        }
+
         if (format === "g") {
             return this.formatString("d", value) + " " + this.formatString("t", value);
         } else if (format === "G") {
             return this.formatString("d", value) + " " + this.formatString("T", value);
         }
-
-        if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,7})?$")) {
-            // JSON date in string
-            value = new Date(value);
-        }
+        
         return Globalize.format(value, format, dotvvm.culture);
+    }
+
+    public parseDotvvmDate(value: string): Date {
+        var match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})$");
+        if (match) {
+            return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]),
+                parseInt(match[4]), parseInt(match[5]), parseInt(match[6]), match.length > 7 ? parseInt(match[7].substring(1, 4)) : 0);
+        }
+        return null;
     }
 
 }

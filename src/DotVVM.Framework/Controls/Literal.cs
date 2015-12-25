@@ -49,7 +49,9 @@ namespace DotVVM.Framework.Controls
             set { SetValue(FormatStringProperty, value); }
         }
         public static readonly DotvvmProperty FormatStringProperty =
-            DotvvmProperty.Register<string, Literal>(c => c.FormatString);
+            DotvvmProperty.Register<string, Literal>(c => c.FormatString, "");
+
+
 
         [MarkupOptions(AllowBinding = false)]
         public bool RenderSpanElement
@@ -106,7 +108,7 @@ namespace DotVVM.Framework.Controls
             if (textBinding != null && !RenderOnServer)
             {
                 var expression = textBinding.GetKnockoutBindingExpression();
-                if (!string.IsNullOrEmpty(FormatString))
+                if (!string.IsNullOrEmpty(FormatString) || GetValue(TextProperty) is DateTime)
                 {
                     expression = "dotvvm.globalize.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";
                 }
