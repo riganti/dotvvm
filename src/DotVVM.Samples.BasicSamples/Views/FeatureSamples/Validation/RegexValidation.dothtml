@@ -10,7 +10,7 @@
 	<dot:TextBox Text="{value: Number}" />
 	<dot:ValidationMessage ValidatedValue="{value: Number}">Numbers only!</dot:ValidationMessage>
 	<dot:Button Text="Send" Click="{command: Add()}" /> <br>
-	Sum: {{value: Sum}}
+	Sum: <span>{{value: Sum}}</span>
 </div>
 
 </body>

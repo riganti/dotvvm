@@ -29,7 +29,7 @@
 			<dot:Button Text="Test" Click="{command: Test()}" />
 		</p>
 
-		<p>{{value: Results}}</p>
+		<p><span>{{value: Results}}</span></p>
 
     </div>
 

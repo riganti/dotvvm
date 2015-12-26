@@ -45,6 +45,6 @@
 		</ItemTemplate>
 	</dot:Repeater>
 
-	<p>{{value: LastCommandValue}}</p>
+	<p><span>{{value: LastCommandValue}}</span></p>
 </body>
 </html>

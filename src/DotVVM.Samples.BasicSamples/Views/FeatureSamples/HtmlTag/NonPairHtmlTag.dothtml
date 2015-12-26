@@ -13,7 +13,7 @@
 		<div DataContext="{value: Child2}">
 			<hr>
 			<div DataContext="{value: Child3}">
-				{{value: Test}}
+			<span>{{value: Test}}</span>	
 			</div>
 		</div>
 	</div>
