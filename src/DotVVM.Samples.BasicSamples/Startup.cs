@@ -47,6 +47,7 @@ namespace DotVVM.Samples.BasicSamples
             // use DotVVM
             DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM(applicationPhysicalPath);
             dotvvmConfiguration.DefaultCulture = "en-US";
+            dotvvmConfiguration.Debug = true;
             dotvvmConfiguration.RouteTable.RegisterRoutingStrategy(new ViewsFolderBasedRouteStrategy(dotvvmConfiguration));
 
             dotvvmConfiguration.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");

@@ -1,4 +1,5 @@
 @viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.LocalizationViewModel, DotVVM.Samples.BasicSamples
+@resourceType DotVVM.Samples.BasicSamples.Localization_Resources, DotVVM.Samples.BasicSamples
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -8,7 +9,7 @@
 	<div class="container">
 		<h1>Localization test</h1>
 		
-		<p>{{resource: DotVVM.Samples.BasicSamples.Localization_Resources.LocalizedString1}}</p>
+		<p>{{resource: LocalizedString1}}</p>
 		<p>&nbsp;</p>
 
 		<h3>Switch Language</h3>

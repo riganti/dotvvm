@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
 
         DotvvmControl GetNamingContainer();
 
-        DotvvmControl GetRoot();
+        DotvvmBindableObject GetRoot();
 
         IEnumerable<DotvvmControl> GetThisAndAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null);
 

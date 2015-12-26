@@ -309,15 +309,6 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets the root of the control tree.
-        /// </summary>
-        public DotvvmControl GetRoot()
-        {
-            if (Parent == null) return this;
-            return GetAllAncestors().Last();
-        }
-
-        /// <summary>
         /// Occurs after the viewmodel tree is complete.
         /// </summary>
         internal virtual void OnPreInit(IDotvvmRequestContext context)

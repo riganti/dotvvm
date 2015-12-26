@@ -267,6 +267,9 @@
     <Content Include="Views\ControlSamples\Literal\Literal.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditing.dothtml" />
     <Content Include="Views\ControlSamples\HtmlLiteral\HtmlLiteral.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_ResourceNamespaceDirective.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_ResourceTypeDirective.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_ResourceTypeAndNamespaceDirectives.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
