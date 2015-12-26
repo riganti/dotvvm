@@ -1,4 +1,5 @@
 <#@ template language="C#" #>
+<#@ import namespace="DotVVM.Framework.Hosting.ErrorPages" #>
 <#@ import namespace="System" #>
 <#@ import namespace="System.IO" #>
 <#@ import namespace="System.Linq" #>
@@ -199,16 +200,21 @@ label.nav {
 
 	private void WriteErrorLine(int lineNumber, string line, int errorColumn, int errorLength)
 	{
+
 		if (errorColumn >= line.Length) 
 		{
 			errorColumn = line.Length - 1;
 			errorLength = 0;
+		    if (errorColumn < 0)
+		    {
+		        errorColumn = 0;
+		    }
 		}
 		Write("<pre>");
 		Write("<span class='lineNumber'>");
 		Write(lineNumber + ": ");
 		Write("</span><span class='codeLine'>");
-		Write(WebUtility.HtmlEncode(line.Remove(errorColumn)));
+		Write(WebUtility.HtmlEncode(errorColumn == 0 ? "" : line.Remove(errorColumn)));
 		Write("<span class='errorUnderline'>");
 		Write(WebUtility.HtmlEncode(line.Substring(errorColumn, Math.Min(line.Length - errorColumn, errorLength))));
 		Write("</span>");

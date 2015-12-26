@@ -2,6 +2,7 @@ using DotVVM.Framework.Runtime.Compilation;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
@@ -41,9 +42,10 @@ namespace DotVVM.Framework.Binding
             }
 
             // parse expression
-            var lastDotPosition = OriginalString.LastIndexOf(".", StringComparison.Ordinal);
-            var resourceType = OriginalString.Substring(0, lastDotPosition);
-            var resourceKey = OriginalString.Substring(lastDotPosition + 1);
+            var expressionText = OriginalString.Trim();
+            var lastDotPosition = expressionText.LastIndexOf(".", StringComparison.Ordinal);
+            var resourceType = expressionText.Substring(0, lastDotPosition);
+            var resourceKey = expressionText.Substring(lastDotPosition + 1);
 
             // find the resource manager
             var resourceManager = cachedResourceManagers.GetOrAdd(resourceType, GetResourceManager);
@@ -57,19 +59,39 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         private ResourceManager GetResourceManager(string resourceType)
         {
+
+            if (string.IsNullOrWhiteSpace(resourceType))
+            {
+                throw new Exception("Invalid resource name!");
+            }
             var typeName = resourceType;
-            var type = AppDomain.CurrentDomain.GetAssemblies()
+            var types = AppDomain.CurrentDomain.GetAssemblies()
                 .SelectMany(assembly => new[] {
                     assembly.GetType(typeName),     // the binding can contain full type name
                     assembly.GetType(assembly.GetName().Name + "." + resourceType)      // or the default namespace (which is typically same as assembly name) is omitted
-                })
-                .FirstOrDefault(t => t != null);
+                }).Where(t => t != null).ToList();
 
-            if (type == null) 
+            // debug
+            if (types.Count > 1)
             {
-                throw new Exception(string.Format("The resource file '{0}' was not found!", resourceType));
+                Debug.Indent();
+                Debug.Assert(types.Count >1, $"Resource binding contains value ('{OriginalString}') with resource name that is used in more then one assembly.");
+                Debug.Unindent();
+                Debug.Flush();
             }
-            return (ResourceManager)type.GetProperty("ResourceManager", BindingFlags.Static | BindingFlags.NonPublic).GetValue(null);
+
+            var type = types.FirstOrDefault();
+
+            if (type == null)
+            {
+                throw new Exception($"The resource file '{resourceType}' was not found! Make sure that your resource file has Access Modifier setted to Public or Internal.");
+            }
+            var resourceMananger = (ResourceManager)type.GetProperty("ResourceManager").GetValue(null);
+            if (resourceMananger == null)
+                throw new Exception($"Resource Manager of type {resourceType} was not found.");
+            return resourceMananger;
         }
+
+
     }
 }
