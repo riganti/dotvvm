@@ -88,6 +88,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     var binding = (DothtmlBindingNode)node;
                     var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(Literal)), node, dataContext);
                     literal.SetProperty(new ResolvedPropertyBinding(Literal.TextProperty, ProcessBinding(binding, dataContext)));
+                    literal.SetProperty(new ResolvedPropertyValue(Literal.RenderSpanElementProperty, false));
                     return literal;
                 }
                 else if(node is DotHtmlCommentNode)
