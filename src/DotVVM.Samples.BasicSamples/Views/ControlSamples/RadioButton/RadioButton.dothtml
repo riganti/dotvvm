@@ -24,7 +24,7 @@
 						</dot:Repeater>
 						<dot:Button Text="Postback" Click="{command: UpdateDBRB()}" />
 						&nbsp; &nbsp;
-						{{value: DBRBResult}}
+						<span>{{value: DBRBResult}}</span>
 					</p>
 				</fieldset>
 
