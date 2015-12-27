@@ -114,11 +114,7 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            if (RenderOnServer)
-            {
-                DataBind(context);     // TODO: support for observable collection
-            }
-           
+            DataBind(context);     // TODO: support for observable collection
             base.OnPreRender(context);
         }
 

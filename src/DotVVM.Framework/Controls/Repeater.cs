@@ -93,10 +93,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            if (RenderOnServer)
-            {
-                DataBind(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
-            }
+            DataBind(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
             base.OnPreRender(context);
         }
 

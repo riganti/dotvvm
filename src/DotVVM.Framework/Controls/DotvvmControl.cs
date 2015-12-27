@@ -19,10 +19,6 @@ namespace DotVVM.Framework.Controls
     public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
     {
         
-
-        public List<string> ResourceDependencies { get; } = new List<string>();
-
-
         /// <summary>
         /// Gets the child controls.
         /// </summary>
@@ -324,12 +320,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         internal virtual void OnPreRenderComplete(IDotvvmRequestContext context)
         {
-            // add resource dependencies to manager
-            foreach (var resource in ResourceDependencies)
-            {
-                context.ResourceManager.AddRequiredResource(resource);
-            }
-
             // events on properties
             foreach (var property in GetDeclaredProperties())
             {
