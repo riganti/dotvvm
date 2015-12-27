@@ -120,19 +120,12 @@ namespace DotVVM.Framework.Runtime
                 placeHolder.Children.Clear();
                 placeHolder.Children.Add(content);
                 content.SetValue(Internal.IsMasterPageCompositionFinished, true);
+                content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
             }
 
 
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;
-            foreach (var directive in childPage.Directives)
-            {
-                if (string.Equals(directive.Key, Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    continue;
-                }
-                masterPage.Directives[directive.Key] = directive.Value;
-            }
         }
 
         /// <summary>

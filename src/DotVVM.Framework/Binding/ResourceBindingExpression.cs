@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Binding
             }
             else if (!string.IsNullOrWhiteSpace(ResourceNamespaceDirectiveValue))
             {
-                if (!ResourceTypeDirectiveValue.Contains(","))
+                if (ResourceNamespaceDirectiveValue.Contains(","))
                 {
                     throw new Exception($"@resourceNamespace contains unexpected charachter ','");
                 }
@@ -126,18 +126,16 @@ namespace DotVVM.Framework.Binding
 
         private void GetDirectives(Controls.DotvvmBindableObject control)
         {
+            var directives = (Dictionary<string, string>)control.GetValue(DotvvmView.DirectivesProperty);
 
-            //get type directive
+            // get type directive
             string resourceTypeDirectiveValue;
-            ((DotvvmView)control.GetRoot()).Directives.TryGetValue(Constants.ResourceTypeDirective,
-                 out resourceTypeDirectiveValue);
+            directives.TryGetValue(Constants.ResourceTypeDirective, out resourceTypeDirectiveValue);
             ResourceTypeDirectiveValue = (resourceTypeDirectiveValue ?? "").Trim();
 
-
-            //get namespace directive
+            // get namespace directive
             string resourceNamespaceDirectiveValue;
-            ((DotvvmView)control.GetRoot()).Directives.TryGetValue(Constants.ResourceNamespaceDirective,
-                out resourceNamespaceDirectiveValue);
+            directives.TryGetValue(Constants.ResourceNamespaceDirective, out resourceNamespaceDirectiveValue);
             ResourceNamespaceDirectiveValue = (resourceNamespaceDirectiveValue ?? "").Trim();
         }
 

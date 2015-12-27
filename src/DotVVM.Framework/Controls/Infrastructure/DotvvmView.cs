@@ -4,6 +4,7 @@ using System.Linq;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -15,7 +16,15 @@ namespace DotVVM.Framework.Controls.Infrastructure
         /// <summary>
         /// Gets or sets the collection of directives.
         /// </summary>
-        public Dictionary<string, string> Directives { get; set; }
+        public Dictionary<string, string> Directives
+        {
+            get { return (Dictionary<string, string>)GetValue(DirectivesProperty); }
+            set { SetValue(DirectivesProperty, value); }
+        }
+        public static readonly DotvvmProperty DirectivesProperty
+            = DotvvmProperty.Register<Dictionary<string, string>, DotvvmView>(c => c.Directives, null, isValueInherited: true);
+
+
 
         public Type ViewModelType { get; set; }
 
