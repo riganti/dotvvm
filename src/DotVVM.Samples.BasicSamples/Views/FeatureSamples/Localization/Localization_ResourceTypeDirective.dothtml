@@ -14,8 +14,8 @@
 
 		<h3>Switch Language</h3>
 		<ul>
-			<li><a href="Localization">English</a></li>
-			<li><a href="Localization?lang=cs-CZ">Czech</a></li>
+			<li><a href="Localization_ResourceTypeDirective">English</a></li>
+			<li><a href="Localization_ResourceTypeDirective?lang=cs-CZ">Czech</a></li>
 		</ul>
 	</div>
 </body>

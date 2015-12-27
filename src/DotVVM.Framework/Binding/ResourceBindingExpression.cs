@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Binding
         {
         }
 
-        public string AssemblyName { get; set; }
+        public string FullResourceManagerTypeName { get; set; }
         public string ResourceTypeDirectiveValue { get; set; }
         public string ResourceNamespaceDirectiveValue { get; set; }
 
@@ -53,18 +53,14 @@ namespace DotVVM.Framework.Binding
 
             GetDirectives(control);
 
-
             // check directives combination
             if (!string.IsNullOrWhiteSpace(ResourceTypeDirectiveValue) && !string.IsNullOrWhiteSpace(ResourceNamespaceDirectiveValue))
             { throw new Exception("@resourceType and @resourceNamespace directives cannot be used in the same time!"); }
-
-
 
             // check type directive
             string resourceKey = "";
             if (!string.IsNullOrWhiteSpace(ResourceTypeDirectiveValue))
             {
-
                 if (!ResourceTypeDirectiveValue.Contains(","))
                 {
                     throw new Exception($"Assembly of resource type '{expressionText}' was not recognized. Specify make sure the directive value is in format: Assembly, Namespace.ResourceType");
@@ -74,22 +70,28 @@ namespace DotVVM.Framework.Binding
                     throw new Exception($"Resource {expressionText} was not found. Specify make sure the directive value is in format: Assembly, Namespace.ResourceType");
                 }
 
-                var splittedDirective = ResourceTypeDirectiveValue.Split(',').Select(s => s.Trim()).ToList();
-                AssemblyName = splittedDirective[1];
-                resourceType = splittedDirective[0];
-                resourceKey = expressionText;
+                if (!expressionText.Contains("."))
+                {
+                    resourceType = ResourceTypeDirectiveValue;
+                    resourceKey = expressionText;
+                }
+                else
+                {
+                    var lastDotPosition = expressionText.LastIndexOf(".", StringComparison.Ordinal);
+                    resourceType = expressionText.Substring(0, lastDotPosition);
+                    resourceKey = expressionText.Substring(lastDotPosition + 1);
+                }
             }
             else if (!string.IsNullOrWhiteSpace(ResourceNamespaceDirectiveValue))
             {
                 if (ResourceNamespaceDirectiveValue.Contains(","))
                 {
-                    throw new Exception($"@resourceNamespace contains unexpected charachter ','");
+                    throw new Exception($"@resourceNamespace {ResourceNamespaceDirectiveValue} contains unexpected charachter ','");
                 }
                 if (expressionText.Contains("."))
                 {
-
                     var lastDotPosition = expressionText.LastIndexOf(".", StringComparison.Ordinal);
-                    resourceType = ResourceNamespaceDirectiveValue + "." + expressionText.Substring(0, lastDotPosition);
+                    resourceType = expressionText.Substring(0, lastDotPosition);
                     resourceKey = expressionText.Substring(lastDotPosition + 1);
                 }
                 else
@@ -110,10 +112,16 @@ namespace DotVVM.Framework.Binding
                     throw new Exception($"Resource '{expressionText}' does not specify resource class or resource key. Make sure that format of expression is: Namespace.ResourceType.ResourceKey");
                 }
             }
-
-
             // find the resource manager
             var resourceManager = cachedResourceManagers.GetOrAdd(resourceType, GetResourceManager);
+            if (resourceManager == null)
+            {
+                resourceManager = cachedResourceManagers.GetOrAdd(ResourceNamespaceDirectiveValue + "." + resourceType, GetResourceManager);
+            }
+            if (resourceManager == null)
+            {
+                throw new Exception($"The resource file '{resourceType}' was not found! Make sure that your resource file has Access Modifier setted to Public or Internal.");
+            }
 
             // return the value
             var value = resourceManager.GetString(resourceKey);
@@ -139,60 +147,43 @@ namespace DotVVM.Framework.Binding
             ResourceNamespaceDirectiveValue = (resourceNamespaceDirectiveValue ?? "").Trim();
         }
 
-
         /// <summary>
         /// Gets the resource manager with the specified type name.
         /// </summary>
         private ResourceManager GetResourceManager(string resourceType)
         {
-            if (string.IsNullOrWhiteSpace(resourceType))
-            {
-                throw new Exception($"Invalid resource type '{resourceType}'!");
-            }
-            var typeName = resourceType;
+            Type type;
             List<Type> types;
-            if (string.IsNullOrWhiteSpace(AssemblyName))
+            if (!string.IsNullOrWhiteSpace(ResourceTypeDirectiveValue) && resourceType == ResourceTypeDirectiveValue)
             {
-                types = AppDomain.CurrentDomain.GetAssemblies()
-                    .SelectMany(assembly => new[] {
-                            assembly.GetType(typeName)     // the binding can contain full type name
-                        }).Where(t => t != null).ToList();
+                type = Type.GetType(ResourceTypeDirectiveValue);
+                if (type == null)
+                {
+                    throw new Exception($"@resourceType '{resourceType}' directive could not be resolved! Make sure that your resource file has Access Modifier setted to Public or Internal.");
+                }
             }
             else
             {
-                var foundAssembly = AppDomain.CurrentDomain.GetAssemblies()
-                    .FirstOrDefault(assembly => assembly.GetName().Name == AssemblyName);
-                if (foundAssembly == null)
+                if (string.IsNullOrWhiteSpace(resourceType))
                 {
-                    throw new Exception($"Assembly '{AssemblyName}' specified in @resourceType directive was not found.");
+                    throw new Exception($"Invalid resource type '{resourceType}'!");
                 }
-                types = new[]
+                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                types = assemblies.Select(assembly => assembly.GetType(resourceType)).Where(s => s != null).ToList();
+
+                // debug
+                if (types.Count > 1)
                 {
-                    foundAssembly.GetType(typeName), // the binding can contain full type name
-                    foundAssembly.GetType(AssemblyName + "." + resourceType)
-                    // or the default namespace (which is typically same as assembly name) is omitted
-                }.Where(t => t != null).ToList();
+                    throw new Exception("Ambiguous resource specified in the binding expression. Include the full namespace or use the @resourceType directive to specify correct resource entry.");
+                }
+                type = types.FirstOrDefault();
             }
-
-            // debug
-            if (types.Count > 1)
-            {
-                throw new Exception("Ambiguous resource specified in the binding expression. Include the full namespace or use the @resourceType directive to specify correct resource entry.");
-            }
-
-            var type = types.FirstOrDefault();
-
-            if (type == null)
-            {
-                throw new Exception($"The resource file '{resourceType}' was not found! Make sure that your resource file has Access Modifier setted to Public or Internal.");
-            }
+            if (type == null) return null;
 
             var manager = type.GetProperty("ResourceManager") ??
                           type.GetProperty("ResourceManager", BindingFlags.NonPublic | BindingFlags.Static);
 
             var resourceMananger = (ResourceManager)manager.GetValue(null);
-            if (resourceMananger == null)
-                throw new Exception($"Resource Manager of type {resourceType} was not found.");
             return resourceMananger;
         }
     }

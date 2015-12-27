@@ -59,6 +59,9 @@ namespace Dotvvm.Samples.Tests{
 			public const string FeatureSamples_IdGeneration_IdGeneration = "FeatureSamples/IdGeneration/IdGeneration";
 			public const string FeatureSamples_JavascriptEvents_JavascriptEvents = "FeatureSamples/JavascriptEvents/JavascriptEvents";
 			public const string FeatureSamples_Localization_Localization = "FeatureSamples/Localization/Localization";
+			public const string FeatureSamples_Localization_Localization_NestedPage_Full_Full = "FeatureSamples/Localization/Localization_NestedPage_Full_Full";
+			public const string FeatureSamples_Localization_Localization_NestedPage_Namespace = "FeatureSamples/Localization/Localization_NestedPage_Namespace";
+			public const string FeatureSamples_Localization_Localization_NestedPage_Type = "FeatureSamples/Localization/Localization_NestedPage_Type";
 			public const string FeatureSamples_Localization_Localization_ResourceNamespaceDirective = "FeatureSamples/Localization/Localization_ResourceNamespaceDirective";
 			public const string FeatureSamples_Localization_Localization_ResourceTypeAndNamespaceDirectives = "FeatureSamples/Localization/Localization_ResourceTypeAndNamespaceDirectives";
 			public const string FeatureSamples_Localization_Localization_ResourceTypeDirective = "FeatureSamples/Localization/Localization_ResourceTypeDirective";

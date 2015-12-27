@@ -1,5 +1,5 @@
 @viewModel DotVVM.Samples.BasicSamples.ViewModels.MasterPageViewModel, DotVVM.Samples.BasicSamples
-@resourceType DotVVM.Samples.BasicSamples.Localization_Resources, DotVVM.Samples.BasicSamples
+@resourceNamespace DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 
@@ -10,10 +10,13 @@
 </head>
 <body>
     <p ID="masterPage">
-        {{resource: MasterPage}}
+
+        {{resource: Localization_Resources.MasterPage}}
     </p>
     <div style="padding-left:30px;">
         <dot:ContentPlaceHolder ID="MainContent" />
     </div>
+
+    
 </body>
 </html>

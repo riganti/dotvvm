@@ -116,6 +116,11 @@
   <ItemGroup>
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\ComplexSamples\Auth\LoginViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
@@ -277,7 +282,14 @@
     <Content Include="Views\FeatureSamples\Localization\Localization_ResourceTypeDirective.dothtml" />
     <Content Include="Views\FeatureSamples\Localization\Localization_ResourceTypeAndNamespaceDirectives.dothtml" />
     <Content Include="Views\FeatureSamples\Localization\Master_ResourceType.dotmaster" />
-    <Content Include="Views\FeatureSamples\Localization\Localization_NestedPage.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_NestedPage_Namespace.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Master_ResourceNamespace.dotmaster" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_NestedPage_Type.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Master_Resource.dotmaster" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_NestedPage_Full_Full.dothtml" />
+    <EmbeddedResource Include="Resources\Resource.cs-CZ.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -297,6 +309,10 @@
     <EmbeddedResource Include="Localization_Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Localization_Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\FeatureSamples\Localization\Localization2.resx">
       <Generator>PublicResXFileCodeGenerator</Generator>
