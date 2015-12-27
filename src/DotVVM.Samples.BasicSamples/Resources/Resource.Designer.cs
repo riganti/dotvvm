@@ -59,5 +59,14 @@ namespace DotVVM.Samples.BasicSamples.Resources {
                 resourceCulture = value;
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Default from configuration.
+        /// </summary>
+        internal static string DefaultDirectiveLocalization {
+            get {
+                return ResourceManager.GetString("DefaultDirectiveLocalization", resourceCulture);
+            }
+        }
     }
 }

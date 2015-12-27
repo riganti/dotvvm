@@ -1,5 +1,6 @@
 @viewModel DotVVM.Samples.BasicSamples.ViewModels.MasterPageViewModel, DotVVM.Samples.BasicSamples
 @resourceNamespace DotVVM.Samples.BasicSamples
+@resourceType 
 
 <!DOCTYPE html>
 

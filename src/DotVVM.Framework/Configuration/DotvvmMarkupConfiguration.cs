@@ -26,6 +26,12 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonProperty("htmlAttributeTransforms")]
         public Dictionary<HtmlTagAttributePair, HtmlAttributeTransformConfiguration> HtmlAttributeTransforms { get; private set; }
+     
+        /// <summary>
+        /// Gets a list of HTML attribute transforms.
+        /// </summary>
+        [JsonProperty("defaultDirectives")]
+        public Dictionary<string, string> DefaultDirectives { get; private set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.
@@ -34,6 +40,7 @@ namespace DotVVM.Framework.Configuration
         {
             Controls = new List<DotvvmControlConfiguration>();
             Assemblies = new List<string>();
+            DefaultDirectives = new Dictionary<string, string>();
             HtmlAttributeTransforms = new Dictionary<HtmlTagAttributePair, HtmlAttributeTransformConfiguration>()
             {
                 {

@@ -116,5 +116,19 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First("#fromLocalizationFile1").CheckIfInnerTextEquals("Nested page title", false);
             });
         }
+        [TestMethod]
+        public void Feature_Localization_NestedPage_DefaultDirective()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_DefaultDirective);
+
+                browser.First("#localized-text").CheckIfInnerTextEquals("Default from configuration", false);
+
+                // change language
+                browser.Last("a").Click();
+                browser.First("#localized-text").CheckIfInnerTextEquals("Defaultní nastavení z konfigurace", false);
+            });
+        }
     }
 }

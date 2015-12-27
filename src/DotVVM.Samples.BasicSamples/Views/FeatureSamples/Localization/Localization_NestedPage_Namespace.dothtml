@@ -1,7 +1,7 @@
 @viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.LocalizationNestedViewModel, DotVVM.Samples.BasicSamples
 @masterPage Views/FeatureSamples/Localization/Master_ResourceNamespace.dotmaster
 @resourceNamespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization
-
+@resourceType 
 
 <dot:Content ContentPlaceHolderID="MainContent">
 

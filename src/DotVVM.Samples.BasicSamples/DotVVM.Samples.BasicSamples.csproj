@@ -290,6 +290,7 @@
     <EmbeddedResource Include="Resources\Resource.cs-CZ.resx">
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <Content Include="Views\FeatureSamples\Localization\Localization_DefaultDirective.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
