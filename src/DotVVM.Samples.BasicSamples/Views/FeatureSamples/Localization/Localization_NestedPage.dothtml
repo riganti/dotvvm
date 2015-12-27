@@ -1,0 +1,15 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.LocalizationNestedViewModel, DotVVM.Samples.BasicSamples
+@masterPage Views/FeatureSamples/Localization/Master_ResourceType.dotmaster
+@resourceNamespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization
+
+
+<dot:Content ContentPlaceHolderID="MainContent">
+
+        <p>{{resource: DotVVM.Samples.BasicSamples.Localization_Resources.LocalizedString1}}</p>
+        <p>{{resource: Localization2.NestedPageTitle }}</p>
+
+</dot:Content>
+
+
+
+     

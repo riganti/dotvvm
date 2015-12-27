@@ -1,0 +1,17 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.MasterPageViewModel, DotVVM.Samples.BasicSamples
+@resourceType DotVVM.Samples.BasicSamples.Localization_Resources, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+	<p ID="masterPage">
+	{{resource: MasterPage}}
+	</p>
+	<dot:ContentPlaceHolder ID="MainContent" />
+</body>
+</html>

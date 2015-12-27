@@ -147,6 +147,7 @@
     <Compile Include="ViewModels\FeatureSamples\HtmlTag\NonPairHtmlTagViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\IdGeneration\IdGeneration.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationNestedViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackHandlersViewModel.cs" />
@@ -182,6 +183,11 @@
       <DependentUpon>Localization_Resources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\FeatureSamples\Localization\Localization2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Localization2.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -270,6 +276,8 @@
     <Content Include="Views\FeatureSamples\Localization\Localization_ResourceNamespaceDirective.dothtml" />
     <Content Include="Views\FeatureSamples\Localization\Localization_ResourceTypeDirective.dothtml" />
     <Content Include="Views\FeatureSamples\Localization\Localization_ResourceTypeAndNamespaceDirectives.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Master_ResourceType.dotmaster" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_NestedPage.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -289,6 +297,10 @@
     <EmbeddedResource Include="Localization_Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Localization_Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FeatureSamples\Localization\Localization2.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localization2.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

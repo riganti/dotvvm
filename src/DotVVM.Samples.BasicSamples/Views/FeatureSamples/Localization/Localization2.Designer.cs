@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DotVVM.Samples.BasicSamples {
+namespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization {
     using System;
     
     
@@ -22,24 +22,24 @@ namespace DotVVM.Samples.BasicSamples {
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("System.Resources.Tools.StronglyTypedResourceBuilder", "4.0.0.0")]
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
-    internal class Localization_Resources {
+    public class Localization2 {
         
         private static global::System.Resources.ResourceManager resourceMan;
         
         private static global::System.Globalization.CultureInfo resourceCulture;
         
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
-        internal Localization_Resources() {
+        internal Localization2() {
         }
         
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Resources.ResourceManager ResourceManager {
+        public static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DotVVM.Samples.BasicSamples.Localization_Resources", typeof(Localization_Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization.Localization2", typeof(Localization2).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -51,7 +51,7 @@ namespace DotVVM.Samples.BasicSamples {
         ///   resource lookups using this strongly typed resource class.
         /// </summary>
         [global::System.ComponentModel.EditorBrowsableAttribute(global::System.ComponentModel.EditorBrowsableState.Advanced)]
-        internal static global::System.Globalization.CultureInfo Culture {
+        public static global::System.Globalization.CultureInfo Culture {
             get {
                 return resourceCulture;
             }
@@ -61,20 +61,11 @@ namespace DotVVM.Samples.BasicSamples {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to This comes from resource file!.
+        ///   Looks up a localized string similar to Nested page title.
         /// </summary>
-        internal static string LocalizedString1 {
+        public static string NestedPageTitle {
             get {
-                return ResourceManager.GetString("LocalizedString1", resourceCulture);
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized string similar to Master page.
-        /// </summary>
-        internal static string MasterPage {
-            get {
-                return ResourceManager.GetString("MasterPage", resourceCulture);
+                return ResourceManager.GetString("NestedPageTitle", resourceCulture);
             }
         }
     }
