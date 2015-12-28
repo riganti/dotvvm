@@ -17,5 +17,4 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
             Result = string.Join("<br />", Enumerable.Range(0, Value).Select(i => "Lorem ipsum"));
         }
     }
-
 }
