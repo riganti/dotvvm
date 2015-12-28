@@ -296,6 +296,7 @@
     <Content Include="Views\FeatureSamples\Localization\Localization_DefaultDirective.dothtml" />
     <Content Include="Views\ControlSamples\TextBox\TextBox_Format.dothtml" />
     <Content Include="Views\FeatureSamples\PostBack\PostbackUpdateRepeater.dothtml" />
+    <Content Include="Views\ControlSamples\Literal\Literal_FormatString.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
