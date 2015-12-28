@@ -34,14 +34,15 @@ namespace DotVVM.Framework.Controls.Infrastructure
         public DotvvmView()
         {
             Directives = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
-
-            ResourceDependencies.Add(Constants.DotvvmResourceName);
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
+            context.ResourceManager.AddRequiredResource(Constants.DotvvmResourceName);
             if (context.Configuration.Debug)
-                ResourceDependencies.Add(Constants.DotvvmDebugResourceName);
+            {
+                context.ResourceManager.AddRequiredResource(Constants.DotvvmDebugResourceName);
+            }
             base.OnPreRender(context);
         }
     }

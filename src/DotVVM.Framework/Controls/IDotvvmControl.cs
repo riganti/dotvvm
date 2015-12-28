@@ -11,7 +11,6 @@ namespace DotVVM.Framework.Controls
         ClientIDMode ClientIDMode { get; set; }
         string ID { get; set; }
         DotvvmControl Parent { get; set; }
-        List<string> ResourceDependencies { get; }
 
         void EnsureControlHasId(bool autoGenerate = true);
 
