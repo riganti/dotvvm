@@ -148,6 +148,7 @@
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxFormatViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
@@ -294,6 +295,7 @@
     </EmbeddedResource>
     <Content Include="Views\FeatureSamples\Localization\Localization_DefaultDirective.dothtml" />
     <Content Include="Views\ControlSamples\TextBox\TextBox_Format.dothtml" />
+    <Content Include="Views\FeatureSamples\PostBack\PostbackUpdateRepeater.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
