@@ -102,7 +102,15 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ChangedProperty =
             DotvvmProperty.Register<Command, TextBox>(t => t.Changed, null);
 
-
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        {
+            var isFormattingRequired = !string.IsNullOrEmpty(FormatString) || GetValue(TextProperty) is DateTime;
+            if (isFormattingRequired)
+            {
+                context.ResourceManager.AddCurrentCultureGlobalizationResource();
+            }
+            base.OnPreRender(context);
+        }
 
 
         /// <summary>
@@ -194,11 +202,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var isFormattingRequired = !string.IsNullOrEmpty(FormatString) || GetValue(TextProperty) is DateTime;
-                if (isFormattingRequired)
-                {
-                    context.ResourceManager.AddCurrentCultureGlobalizationResource();
-                }
+                
                 // if format is set then use different value binding  which supports the format
                 writer.AddKnockoutDataBind("dotvvm-textbox-text", this, TextProperty, () =>
                 {
