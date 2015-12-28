@@ -231,7 +231,7 @@ namespace DotVVM.Framework.Runtime
                 // find the command target
                 if (!string.IsNullOrEmpty(controlUniqueId))
                 {
-                    var target = view.FindControl(controlUniqueId);
+                    var target = view.FindControlByUniqueId(controlUniqueId);
                     if (target == null)
                     {
                         throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));

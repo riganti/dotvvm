@@ -11,6 +11,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender = "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
 			public const string ComplexSamples_ChangedEvent_ChangedEvent = "ComplexSamples/ChangedEvent/ChangedEvent";
 			public const string ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView = "ComplexSamples/DataTemplate/EmptyDataTemplateRepeaterGridView";
+			public const string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater = "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
 			public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
 			public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
 			public const string ComplexSamples_SPAViewModelReapplication_pageA = "ComplexSamples/SPAViewModelReapplication/pageA";

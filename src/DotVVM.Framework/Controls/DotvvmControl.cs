@@ -279,6 +279,24 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Finds the control by its unique ID.
+        /// </summary>
+        public DotvvmControl FindControlByUniqueId(string controlUniqueId)
+        {
+            var parts = controlUniqueId.Split('_');
+            DotvvmControl result = this;
+            for (var i = 0; i < parts.Length; i++)
+            {
+                result = result.FindControl(parts[i]);
+                if (result == null)
+                {
+                    return null;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Gets the naming container of the current control.
         /// </summary>
         public DotvvmControl GetNamingContainer()
