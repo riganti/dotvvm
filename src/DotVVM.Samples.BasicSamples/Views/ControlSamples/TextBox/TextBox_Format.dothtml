@@ -15,7 +15,6 @@
 
     <p ID="numberformat">
         Number: <br>
-
         <dot:textbox iD="numberTextbox" ClientIDMode="Static" Text="{value: NumberValue }" style="height: 20px; width: 200px;" FormatString="N4" />
         <dot:Literal ID="numberValueText" ClientIDMode="Static" Text="{value: NumberValue }"></dot:Literal>
     </p>

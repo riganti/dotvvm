@@ -33,6 +33,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
 			public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
 			public const string ControlSamples_Literal_Literal = "ControlSamples/Literal/Literal";
+			public const string ControlSamples_Literal_Literal_FormatString = "ControlSamples/Literal/Literal_FormatString";
 			public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
 			public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
 			public const string ControlSamples_Repeater_RouteLink = "ControlSamples/Repeater/RouteLink";
