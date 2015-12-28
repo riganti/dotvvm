@@ -120,7 +120,7 @@ namespace DotVVM.Framework.Binding
             }
             if (resourceManager == null)
             {
-                throw new Exception($"The resource file '{resourceType}' was not found! Make sure that your resource file has Access Modifier setted to Public or Internal.");
+                throw new Exception($"The resource file '{resourceType}' was not found! Make sure that your resource file has Access Modifier set to Public or Internal.");
             }
 
             // return the value
@@ -159,7 +159,7 @@ namespace DotVVM.Framework.Binding
                 type = Type.GetType(ResourceTypeDirectiveValue);
                 if (type == null)
                 {
-                    throw new Exception($"@resourceType '{resourceType}' directive could not be resolved! Make sure that your resource file has Access Modifier setted to Public or Internal.");
+                    throw new Exception($"@resourceType '{resourceType}' directive could not be resolved! Make sure that your resource file has Access Modifier set to Public or Internal.");
                 }
             }
             else

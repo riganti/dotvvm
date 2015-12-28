@@ -39,6 +39,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag = "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
 			public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
 			public const string ControlSamples_TextBox_TextBox = "ControlSamples/TextBox/TextBox";
+			public const string ControlSamples_TextBox_TextBox_Format = "ControlSamples/TextBox/TextBox_Format";
 			public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
 			public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
 			public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";

@@ -236,10 +236,14 @@ class DotvvmSerialization {
         return value;
     }
 
-    public serializeDate(date: Date): string {
+    public serializeDate(date: Date, convertToUtc: boolean = true): string {
         var date2 = new Date(date.getTime());
-        date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
-        
+        if (convertToUtc) {
+            date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        } else {
+            date2 = date;
+        }
+
         var y = this.pad(date2.getFullYear().toString(), 4);
         var m = this.pad((date2.getMonth() + 1).toString(), 2);
         var d = this.pad(date2.getDate().toString(), 2);

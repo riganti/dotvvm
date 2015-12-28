@@ -145,8 +145,10 @@
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxFormatViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
     <Compile Include="ViewModels\FeatureSamples\HtmlTag\NonPairHtmlTagViewModel.cs" />
@@ -291,6 +293,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <Content Include="Views\FeatureSamples\Localization\Localization_DefaultDirective.dothtml" />
+    <Content Include="Views\ControlSamples\TextBox\TextBox_Format.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

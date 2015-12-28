@@ -1,5 +1,5 @@
 ﻿class DotvvmGlobalize {
-    
+
     public format(format: string, ...values: string[]) {
         return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, (match, group0, group1) => {
             var value = values[parseInt(group0)];
@@ -28,7 +28,7 @@
         } else if (format === "G") {
             return this.formatString("d", value) + " " + this.formatString("T", value);
         }
-        
+
         return Globalize.format(value, format, dotvvm.culture);
     }
 
@@ -41,4 +41,11 @@
         return null;
     }
 
+    public parseNumber(value: string): number {
+        return Globalize.parseFloat(value,10, dotvvm.culture);
+    }
+
+    public parseDate(value: string, format: string) {
+        return Globalize.parseDate(value, format, dotvvm.culture);
+    }
 }

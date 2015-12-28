@@ -706,6 +706,62 @@ var DotVVM = (function () {
                 });
             }
         };
+        ko.bindingHandlers['dotvvm-textbox-text'] = {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                dotvvm.domUtils.attachEvent(element, "blur", function () {
+                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                    var obs = valueAccessor();
+                    if ((element.attributes["data-dotvvm-value-type"] || { value: "" }).value === "datetime") {
+                        var result = dotvvm.globalize.parseDate(element.value, format);
+                        if (!result) {
+                            element.attributes["data-dotvvm-value-type-valid"] = false;
+                        }
+                        else {
+                            element.attributes["data-dotvvm-value-type-valid"] = true;
+                        }
+                        if (result) {
+                            obs(dotvvm.serialization.serializeDate(result, false));
+                        }
+                        else {
+                            obs(null);
+                        }
+                    }
+                    else {
+                        var newValue = dotvvm.globalize.parseNumber(element.value);
+                        if (!isNaN(newValue)) {
+                            element.attributes["data-dotvvm-value-type-valid"] = true;
+                            if (obs() === newValue) {
+                                if (obs.valueHasMutated) {
+                                    obs.valueHasMutated();
+                                }
+                                else {
+                                    obs.notifySubscribers();
+                                }
+                            }
+                            else {
+                                obs(newValue);
+                            }
+                        }
+                        else {
+                            element.attributes["data-dotvvm-value-type-valid"] = false;
+                            obs(null);
+                        }
+                    }
+                });
+            },
+            update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var value = ko.unwrap(valueAccessor());
+                if (element.attributes["data-dotvvm-value-type-valid"] != false) {
+                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                    if (format) {
+                        element.value = dotvvm.globalize.formatString(format, value);
+                    }
+                    else {
+                        element.value = value;
+                    }
+                }
+            }
+        };
     };
     return DotVVM;
 })();
@@ -807,6 +863,12 @@ var DotvvmGlobalize = (function () {
             return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]), parseInt(match[4]), parseInt(match[5]), parseInt(match[6]), match.length > 7 ? parseInt(match[7].substring(1, 4)) : 0);
         }
         return null;
+    };
+    DotvvmGlobalize.prototype.parseNumber = function (value) {
+        return Globalize.parseFloat(value, 10, dotvvm.culture);
+    };
+    DotvvmGlobalize.prototype.parseDate = function (value, format) {
+        return Globalize.parseDate(value, format, dotvvm.culture);
     };
     return DotvvmGlobalize;
 })();
@@ -1123,9 +1185,15 @@ var DotvvmSerialization = (function () {
         }
         return value;
     };
-    DotvvmSerialization.prototype.serializeDate = function (date) {
+    DotvvmSerialization.prototype.serializeDate = function (date, convertToUtc) {
+        if (convertToUtc === void 0) { convertToUtc = true; }
         var date2 = new Date(date.getTime());
-        date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        if (convertToUtc) {
+            date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        }
+        else {
+            date2 = date;
+        }
         var y = this.pad(date2.getFullYear().toString(), 4);
         var m = this.pad((date2.getMonth() + 1).toString(), 2);
         var d = this.pad(date2.getDate().toString(), 2);

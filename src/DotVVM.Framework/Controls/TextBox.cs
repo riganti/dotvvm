@@ -26,6 +26,16 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, TextBox>(t => t.Text, "");
 
+        /// <summary>
+        /// Determinates whatever binded value is 
+        /// </summary>
+        public BindedValueType ValueType
+        {
+            get { return (BindedValueType)GetValue(ValueTypeProperty); }
+            set { SetValue(ValueTypeProperty, value); }
+        }
+        public static readonly DotvvmProperty ValueTypeProperty =
+            DotvvmProperty.Register<BindedValueType, TextBox>(t => t.ValueType);
 
 
         /// <summary>
@@ -38,6 +48,19 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmProperty.Register<bool, TextBox>(t => t.Enabled, true);
+
+
+
+        /// <summary>
+        /// Gets or sets a format of presentation of value to client.
+        /// </summary>
+        public string FormatString
+        {
+            get { return (string)GetValue(FormatStringProperty); }
+            set { SetValue(FormatStringProperty, value); }
+        }
+        public static readonly DotvvmProperty FormatStringProperty =
+            DotvvmProperty.Register<string, TextBox>(t => t.FormatString);
 
 
 
@@ -95,13 +118,7 @@ namespace DotVVM.Framework.Controls
                 }
             });
 
-            writer.AddKnockoutDataBind("value", this, TextProperty, () =>
-            {
-                if (Type != TextBoxType.MultiLine)
-                {
-                    writer.AddAttribute("value", Text);
-                }
-            }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
+            AddValueAndFormatBindingAttribute(writer, context);
 
             if (Type == TextBoxType.MultiLine)
             {
@@ -160,6 +177,42 @@ namespace DotVVM.Framework.Controls
             }
 
             base.AddAttributesToRender(writer, context);
+        }
+
+        private void AddValueAndFormatBindingAttribute(IHtmlWriter writer, RenderContext context)
+        {
+            if (string.IsNullOrWhiteSpace(FormatString))
+            {
+                //use standard value binding 
+                writer.AddKnockoutDataBind("value", this, TextProperty, () =>
+                {
+                    if (Type != TextBoxType.MultiLine)
+                    {
+                        writer.AddAttribute("value", Text);
+                    }
+                }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
+            }
+            else
+            {
+                var isFormattingRequired = !string.IsNullOrEmpty(FormatString) || GetValue(TextProperty) is DateTime;
+                if (isFormattingRequired)
+                {
+                    context.ResourceManager.AddCurrentCultureGlobalizationResource();
+                }
+                // if format is set then use different value binding  which supports the format
+                writer.AddKnockoutDataBind("dotvvm-textbox-text", this, TextProperty, () =>
+                {
+                    if (Type != TextBoxType.MultiLine)
+                    {
+                        writer.AddAttribute("value", Text);
+                    }
+                }, UpdateTextAfterKeydown ? "afterkeydown" : null, renderEvenInServerRenderingMode: true);
+                writer.AddAttribute("data-dotvvm-format", FormatString);
+                writer.AddAttribute("data-dotvvm-value-type", ValueType.ToString().ToLowerInvariant());
+            }
+
+
+
         }
 
 

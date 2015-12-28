@@ -130,6 +130,21 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
+        /// Changes the current UI culture of this HTTP request.
+        /// </summary>
+        public CultureInfo GetCurrentUICulture()
+        {
+            return Thread.CurrentThread.CurrentUICulture;
+        }
+
+        /// <summary>
+        /// Changes the current culture of this HTTP request.
+        /// </summary>
+        public CultureInfo GetCurrentCulture()
+        {
+            return Thread.CurrentThread.CurrentCulture;
+        }
+        /// <summary>
         /// Interrupts the execution of the current request.
         /// </summary>
         [DebuggerHidden]
