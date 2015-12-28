@@ -1,6 +1,6 @@
 namespace DotVVM.Framework.Controls
 {
-    public enum BindedValueType
+    public enum FormatValueType
     {
         Text = 0,
         DateTime = 1,

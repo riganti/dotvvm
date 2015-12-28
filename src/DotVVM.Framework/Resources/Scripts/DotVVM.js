@@ -845,15 +845,9 @@ var DotvvmGlobalize = (function () {
         if (typeof value === "string") {
             // JSON date in string
             value = this.parseDotvvmDate(value);
-            if (format === "") {
-                format = "G";
-            }
         }
-        if (format === "g") {
-            return this.formatString("d", value) + " " + this.formatString("t", value);
-        }
-        else if (format === "G") {
-            return this.formatString("d", value) + " " + this.formatString("T", value);
+        if (format === "" || format === null) {
+            format = "G";
         }
         return Globalize.format(value, format, dotvvm.culture);
     };

@@ -39,6 +39,17 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty FormatStringProperty =
             DotvvmProperty.Register<string, Literal>(c => c.FormatString, "");
 
+        /// <summary>
+        /// Gets or sets the type of value being formatted - Number or DateTime.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public FormatValueType ValueType
+        {
+            get { return (FormatValueType)GetValue(ValueTypeProperty); }
+            set { SetValue(ValueTypeProperty, value); }
+        }
+        public static readonly DotvvmProperty ValueTypeProperty =
+            DotvvmProperty.Register<FormatValueType, Literal>(t => t.ValueType);
 
         /// <summary>
         /// Gets or sets whether the literal should render the wrapper span HTML element.
@@ -80,7 +91,7 @@ namespace DotVVM.Framework.Controls
         {
             base.AddAttributesToRender(writer, context);
 
-            isFormattingRequired = !string.IsNullOrEmpty(FormatString) || GetValue(TextProperty) is DateTime;
+            isFormattingRequired = !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text;
             if (isFormattingRequired)
             {
                 context.ResourceManager.AddCurrentCultureGlobalizationResource();
@@ -121,9 +132,14 @@ namespace DotVVM.Framework.Controls
             if (!renderAsKnockoutBinding)
             {
                 var textToDisplay = "";
-                if (!string.IsNullOrEmpty(FormatString))
+                if (isFormattingRequired)
                 {
-                    textToDisplay = string.Format("{0:" + FormatString + "}", GetValue(TextProperty));
+                    var formatString = FormatString;
+                    if (string.IsNullOrEmpty(formatString))
+                    {
+                        formatString = "G";
+                    }
+                    textToDisplay = string.Format("{0:" + formatString + "}", GetValue(TextProperty));
                 }
                 else
                 {

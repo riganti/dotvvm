@@ -170,6 +170,8 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
                     F = di.LongDatePattern + " " + di.LongTimePattern,
                     M = di.MonthDayPattern,
                     Y = di.YearMonthPattern,
+                    g = di.ShortDatePattern + " " + di.ShortTimePattern,
+                    G = di.ShortDatePattern + " " + di.LongTimePattern
                 }
             };
             var jobj = JObject.FromObject(obj);

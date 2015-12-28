@@ -42,7 +42,7 @@ namespace DotVVM.Samples.Tests.Control
         {
             RunInAllBrowsers(browser =>
             {
-               Action<string> checkFormat = (string format) =>
+                Action<string> checkFormat = (string format) =>
                 {
                     //check format d
                     var text = browser.First("#results-" + format).GetText();
