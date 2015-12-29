@@ -129,9 +129,10 @@ namespace DotVVM.Framework.Controls
             var dataSource = DataSource;
 
             Action<string> sortCommand = null;
-            if (dataSource is IGridViewDataSet)
+            var set = dataSource as IGridViewDataSet;
+            if (set != null)
             {
-                sortCommand = ((IGridViewDataSet)dataSource).SetSortExpression;
+                sortCommand = set.SetSortExpression;
             }
             else
             {
@@ -199,8 +200,8 @@ namespace DotVVM.Framework.Controls
                 var cell = new HtmlGenericControl("th");
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
-
-                column.CreateHeaderControls(context, this, sortCommand, cell);
+                
+                column.CreateHeaderControls(context, this, sortCommand, cell, DataSource as IGridViewDataSet);
             }
 
         }
