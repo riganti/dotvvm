@@ -267,6 +267,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
+                literal.DataContext = 0;
                 literal.SetBinding(Literal.TextProperty,
                     new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
                 li.Children.Add(literal);

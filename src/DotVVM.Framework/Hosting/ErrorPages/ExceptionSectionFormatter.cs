@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 w.Write("<span class='docLinks'>");
                 foreach (var icon in frame.MoreInfo)
                 {
-                    w.Write("<a href='" + icon.Link + "'>");
+                    w.Write("<a target=\"_blank\" href='" + icon.Link + "'>");
                     w.Write(icon.ContentHtml);
                     w.Write("</a>");
                 }

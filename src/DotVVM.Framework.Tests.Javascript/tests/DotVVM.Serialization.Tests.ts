@@ -40,7 +40,8 @@ describe("DotVVM.Serialization - deserialize", () => {
         var obj = dotvvm.serialization.deserialize({ a: "2015-08-01T13:56:42.000", "a$options": { isDate: true } });
         expect(ko.isObservable(obj)).toBeFalsy();
         expect(ko.isObservable(obj.a)).toBeTruthy();
-        expect(obj.a().getTime()).toBe(Date.UTC(2015, 7, 1, 13, 56, 42));
+        expect(typeof obj.a()).toBe("string");
+        expect(new Date(obj.a()).getTime()).toBe(Date.UTC(2015, 7, 1, 13, 56, 42));
     });
 
     it("Deserialize object with array", () => {

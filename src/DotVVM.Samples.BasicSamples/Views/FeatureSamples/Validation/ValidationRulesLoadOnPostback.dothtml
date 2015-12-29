@@ -30,7 +30,7 @@
 		</div>
 
 		<p><dot:Button Text="Validate" Click="{command: Validate()}" Validate.Target="{value: Customer}" /></p>
-		<p>{{value: IsValid}}</p>
+		<p><span>{{value: IsValid}}</span></p>
 
 	</div>
 	

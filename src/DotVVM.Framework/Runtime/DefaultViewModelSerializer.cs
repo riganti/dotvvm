@@ -110,9 +110,9 @@ namespace DotVVM.Framework.Runtime
         {
             var s = new JsonSerializer()
             {
-                DateTimeZoneHandling = DateTimeZoneHandling.RoundtripKind
+                DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
             };
-            //s.Converters.Add(new StringEnumConverter());
+            s.Converters.Add(new DotvvmDateTimeConverter());
             return s;
         }
 
@@ -231,7 +231,7 @@ namespace DotVVM.Framework.Runtime
                 // find the command target
                 if (!string.IsNullOrEmpty(controlUniqueId))
                 {
-                    var target = view.FindControl(controlUniqueId);
+                    var target = view.FindControlByUniqueId(controlUniqueId);
                     if (target == null)
                     {
                         throw new Exception(string.Format("The control with ID '{0}' was not found!", controlUniqueId));

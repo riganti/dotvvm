@@ -9,7 +9,9 @@ namespace DotVVM.Framework.Parser
         public const string ViewModelDirectiveName = "viewModel";
         public const string MasterPageDirective = "masterPage";
         public const string BaseTypeDirective = "baseType";
-        
+        public const string ResourceTypeDirective = "resourceType";
+        public const string ResourceNamespaceDirective = "resourceNamespace";
+
         public const string ValueBinding = "value";
         public const string CommandBinding = "command";
         public const string ControlStateBinding = "controlState";

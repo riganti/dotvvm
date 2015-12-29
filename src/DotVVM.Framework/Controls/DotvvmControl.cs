@@ -19,10 +19,6 @@ namespace DotVVM.Framework.Controls
     public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
     {
         
-
-        public List<string> ResourceDependencies { get; } = new List<string>();
-
-
         /// <summary>
         /// Gets the child controls.
         /// </summary>
@@ -283,6 +279,24 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Finds the control by its unique ID.
+        /// </summary>
+        public DotvvmControl FindControlByUniqueId(string controlUniqueId)
+        {
+            var parts = controlUniqueId.Split('_');
+            DotvvmControl result = this;
+            for (var i = 0; i < parts.Length; i++)
+            {
+                result = result.FindControl(parts[i]);
+                if (result == null)
+                {
+                    return null;
+                }
+            }
+            return result;
+        }
+
+        /// <summary>
         /// Gets the naming container of the current control.
         /// </summary>
         public DotvvmControl GetNamingContainer()
@@ -309,15 +323,6 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Gets the root of the control tree.
-        /// </summary>
-        public DotvvmControl GetRoot()
-        {
-            if (Parent == null) return this;
-            return GetAllAncestors().Last();
-        }
-
-        /// <summary>
         /// Occurs after the viewmodel tree is complete.
         /// </summary>
         internal virtual void OnPreInit(IDotvvmRequestContext context)
@@ -333,12 +338,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         internal virtual void OnPreRenderComplete(IDotvvmRequestContext context)
         {
-            // add resource dependencies to manager
-            foreach (var resource in ResourceDependencies)
-            {
-                context.ResourceManager.AddRequiredResource(resource);
-            }
-
             // events on properties
             foreach (var property in GetDeclaredProperties())
             {
@@ -368,6 +367,39 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Gets the client ID of the control. Returns null if the ID cannot be calculated.
+        /// </summary>
+        public string GetClientId()
+        {
+            if (!string.IsNullOrEmpty(ID))
+            {
+                // build the client ID
+                var fragments = GetClientIdFragments();
+                if (fragments.Any(f => f.IsExpression))
+                {
+                    return null;
+                }
+
+                return ComposeStaticClientId(fragments);
+            }
+            return null;
+        }
+
+        private static string ComposeStaticClientId(List<ClientIDFragment> fragments)
+        {
+            var sb = new StringBuilder();
+            for (int i = fragments.Count - 1; i >= 0; i--)
+            {
+                if (sb.Length > 0)
+                {
+                    sb.Append("_");
+                }
+                sb.Append(fragments[i].Value);
+            }
+            return sb.ToString();
+        }
+
+        /// <summary>
         /// Adds the corresponding attribute for the Id property.
         /// </summary>
         protected virtual void RenderClientId(IHtmlWriter writer)
@@ -375,57 +407,11 @@ namespace DotVVM.Framework.Controls
             if (!string.IsNullOrEmpty(ID))
             {
                 // build the client ID
-                var dataContextChanges = 0;
-                var hasExpressions = false;
-                var fragments = new List<ClientIDFragment>();
-                foreach (var ancestor in new[] { this }.Concat(GetAllAncestors()))
-                {
-                    if (ancestor.HasBinding(DataContextProperty))
-                    {
-                        dataContextChanges++;
-                    }
-
-                    if (this == ancestor || IsNamingContainer(ancestor))
-                    {
-                        var clientIdExpression = (string)ancestor.GetValue(Internal.ClientIDFragmentProperty);
-                        if (clientIdExpression != null)
-                        {
-                            // generate the expression
-                            var expression = new StringBuilder();
-                            for (int i = 0; i < dataContextChanges; i++)
-                            {
-                                expression.Append("$parentContext.");
-                            }
-                            expression.Append(clientIdExpression);
-                            fragments.Add(new ClientIDFragment() { Value = expression.ToString(), IsExpression = true });
-                            hasExpressions = true;
-                        }
-                        else if (!string.IsNullOrEmpty(ancestor.ID))
-                        {
-                            // add the ID fragment
-                            fragments.Add(new ClientIDFragment() { Value = ancestor.ID });
-                        }
-                    }
-
-                    if (ancestor.ClientIDMode == ClientIDMode.Static)
-                    {
-                        break;
-                    }
-                }
-
-                if (!hasExpressions)
+                var fragments = GetClientIdFragments();
+                if (!fragments.Any(f => f.IsExpression))
                 {
                     // generate ID attribute
-                    var sb = new StringBuilder();
-                    for (int i = fragments.Count - 1; i >= 0; i--)
-                    {
-                        if (sb.Length > 0)
-                        {
-                            sb.Append("_");
-                        }
-                        sb.Append(fragments[i].Value);
-                    }
-                    writer.AddAttribute("id", sb.ToString());
+                    writer.AddAttribute("id", ComposeStaticClientId(fragments));
                 }
                 else
                 {
@@ -456,6 +442,46 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        private List<ClientIDFragment> GetClientIdFragments()
+        {
+            var dataContextChanges = 0;
+            var fragments = new List<ClientIDFragment>();
+            foreach (var ancestor in new[] { this }.Concat(GetAllAncestors()))
+            {
+                if (ancestor.HasBinding(DataContextProperty))
+                {
+                    dataContextChanges++;
+                }
+
+                if (this == ancestor || IsNamingContainer(ancestor))
+                {
+                    var clientIdExpression = (string) ancestor.GetValue(Internal.ClientIDFragmentProperty);
+                    if (clientIdExpression != null)
+                    {
+                        // generate the expression
+                        var expression = new StringBuilder();
+                        for (int i = 0; i < dataContextChanges; i++)
+                        {
+                            expression.Append("$parentContext.");
+                        }
+                        expression.Append(clientIdExpression);
+                        fragments.Add(new ClientIDFragment() { Value = expression.ToString(), IsExpression = true });
+                    }
+                    else if (!string.IsNullOrEmpty(ancestor.ID))
+                    {
+                        // add the ID fragment
+                        fragments.Add(new ClientIDFragment() { Value = ancestor.ID });
+                    }
+                }
+
+                if (ancestor.ClientIDMode == ClientIDMode.Static)
+                {
+                    break;
+                }
+            }
+            return fragments;
+        }
+
         /// <summary>
         /// Verifies that the control contains only a plain text content and tries to extract it.
         /// </summary>
@@ -464,5 +490,6 @@ namespace DotVVM.Framework.Controls
             textContent = string.Join(string.Empty, Children.OfType<RawLiteral>().Where(l => !l.IsWhitespace).Select(l => l.UnencodedText));
             return Children.All(c => c is RawLiteral);
         }
+
     }
 }

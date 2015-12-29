@@ -28,7 +28,7 @@
 		<p>
 			<dot:LinkButton ID="EnabledLinkButton" Enabled="{value: Enabled}" Click="{command: Switch()}">Enable Disable</dot:LinkButton>
 			<dot:CheckBox Checked="{value: Enabled}" />
-			{{value: Counter}}
+			<span>{{value: Counter}}</span>
         </p>
     </div>
 </body>

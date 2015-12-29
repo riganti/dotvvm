@@ -21,7 +21,7 @@
 			<dot:SelectorItem Text="AAA" Value="3"/>
 			<dot:SelectorItem Text="AAAA" Value="4"/>
 		</dot:ComboBox>
-		{{value: SelectedValue}}
+		<span>{{value: SelectedValue}}</span>
     </div>
 
 </body>

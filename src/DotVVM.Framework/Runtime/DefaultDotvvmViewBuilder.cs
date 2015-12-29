@@ -39,10 +39,13 @@ namespace DotVVM.Framework.Runtime
         {
             // get the page markup
             var markup = markupFileLoader.GetMarkupFileVirtualPath(context);
+            
 
             // build the page
             var pageBuilder = controlBuilderFactory.GetControlBuilder(markup);
             var contentPage = pageBuilder.BuildControl(controlBuilderFactory) as DotvvmView;
+
+            FillsDefaultDirectives(contentPage, context.Configuration);
 
             // check for master page and perform composition recursively
             while (IsNestedInMasterPage(contentPage))
@@ -51,7 +54,9 @@ namespace DotVVM.Framework.Runtime
                 var masterPageFile = contentPage.Directives[Constants.MasterPageDirective];
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).BuildControl(controlBuilderFactory);
 
+                FillsDefaultDirectives(masterPage, context.Configuration);
                 PerformMasterPageComposition(contentPage, masterPage);
+
                 masterPage.ViewModelType = contentPage.ViewModelType;
                 contentPage = masterPage;
             }
@@ -90,6 +95,20 @@ namespace DotVVM.Framework.Runtime
         {
             return page.Directives.ContainsKey(Constants.MasterPageDirective);
         }
+        /// <summary>
+        /// Fills default directives if specific directives are not set
+        /// </summary>
+        private void FillsDefaultDirectives(DotvvmView page, DotvvmConfiguration configuration)
+        {
+            foreach (var key in configuration.Markup.DefaultDirectives.Keys)
+            {
+                if (!page.Directives.Keys.Contains(key))
+                {
+                    page.Directives[key] = configuration.Markup.DefaultDirectives[key];
+                }
+            }
+        }
+
 
         /// <summary>
         /// Performs the master page nesting.
@@ -120,19 +139,12 @@ namespace DotVVM.Framework.Runtime
                 placeHolder.Children.Clear();
                 placeHolder.Children.Add(content);
                 content.SetValue(Internal.IsMasterPageCompositionFinished, true);
+                content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
             }
 
 
             // copy the directives from content page to the master page (except the @masterpage)
             masterPage.ViewModelType = childPage.ViewModelType;
-            foreach (var directive in childPage.Directives)
-            {
-                if (string.Equals(directive.Key, Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
-                {
-                    continue;
-                }
-                masterPage.Directives[directive.Key] = directive.Value;
-            }
         }
 
         /// <summary>

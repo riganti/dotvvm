@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -73,6 +74,18 @@ namespace DotVVM.Framework.Hosting
         /// Changes the current culture of this HTTP request.
         /// </summary>
         void ChangeCurrentCulture(string cultureName);
+
+        /// <summary>
+        /// Returns current UI culture of this HTTP request.
+        /// </summary>
+
+        // ReSharper disable once InconsistentNaming
+        CultureInfo GetCurrentUICulture();
+        /// <summary>
+        /// Returns current culture of this HTTP request.
+        /// </summary>
+
+        CultureInfo GetCurrentCulture();
 
         /// <summary>
         /// Interrupts the execution of the current request.

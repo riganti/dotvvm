@@ -235,7 +235,11 @@ Globalize.cultures[ "default" ] = {
 				// month/year pattern
 				Y: "yyyy MMMM",
 				// S is a sortable format that does not vary by culture
-				S: "yyyy\u0027-\u0027MM\u0027-\u0027dd\u0027T\u0027HH\u0027:\u0027mm\u0027:\u0027ss"
+				S: "yyyy\u0027-\u0027MM\u0027-\u0027dd\u0027T\u0027HH\u0027:\u0027mm\u0027:\u0027ss",
+			    // g is a combination of the short date ("d") and short time ("t") patterns, separated by a space
+				g: "M/d/yyyy h:mm tt",
+			    // G is a combination of the short date ("d") and short time ("T") patterns, separated by a space
+				G: "M/d/yyyy h:mm:ss tt"
 			}
 			// optional fields for each calendar:
 			/*
@@ -445,7 +449,7 @@ expandFormat = function( cal, format ) {
 	return format;
 };
 
-formatDate = function( value, format, culture ) {
+formatDate = function (value, format, culture) {
 	var cal = culture.calendar,
 		convert = cal.convert;
 
@@ -688,8 +692,8 @@ formatDate = function( value, format, culture ) {
 (function() {
 	var expandNumber;
 
-	expandNumber = function( number, precision, formatInfo ) {
-		var groupSizes = formatInfo.groupSizes,
+	expandNumber = function( number, precision, formatInfo, overrideGroupSizes ) {
+	    var groupSizes = overrideGroupSizes || formatInfo.groupSizes,
 			curSize = groupSizes[ 0 ],
 			curGroupIndex = 1,
 			factor = Math.pow( 10, precision ),
@@ -773,7 +777,8 @@ formatDate = function( value, format, culture ) {
 		if ( format.length > 1 ) precision = parseInt( format.slice(1), 10 );
 
 		var current = format.charAt( 0 ).toUpperCase(),
-			formatInfo;
+			formatInfo,
+		    overrideGroupSizes;
 
 		switch ( current ) {
 			case "D":
@@ -784,17 +789,26 @@ formatDate = function( value, format, culture ) {
 				}
 				if ( value < 0 ) number = "-" + number;
 				break;
+		    case "G":
+		        overrideGroupSizes = [0];
+		        var numberAsString = number.toString();
+                if (numberAsString.indexOf(".") >= 0) {
+                    precision = numberAsString.length - numberAsString.indexOf(".") - 1;
+                } else {
+                    precision = 0;
+                }
+                // fall through
 			case "N":
 				formatInfo = nf;
 				// fall through
 			case "C":
 				formatInfo = formatInfo || nf.currency;
-				// fall through
+			    // fall through
 			case "P":
 				formatInfo = formatInfo || nf.percent;
 				pattern = value < 0 ? formatInfo.pattern[ 0 ] : ( formatInfo.pattern[1] || "n" );
 				if ( precision === -1 ) precision = formatInfo.decimals;
-				number = expandNumber( number * (current === "P" ? 100 : 1), precision, formatInfo );
+				number = expandNumber(number * (current === "P" ? 100 : 1), precision, formatInfo, overrideGroupSizes);
 				break;
 			default:
 				throw "Bad number format specifier: " + current;

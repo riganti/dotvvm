@@ -278,5 +278,14 @@ namespace DotVVM.Framework.Controls
                 ancestor = ancestor.Parent;
             }
         }
+
+        /// <summary>
+        /// Gets the root of the control tree.
+        /// </summary>
+        public DotvvmBindableObject GetRoot()
+        {
+            if (Parent == null) return this;
+            return GetAllAncestors().Last();
+        }
     }
 }

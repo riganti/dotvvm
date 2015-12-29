@@ -120,4 +120,7 @@
   <data name="LocalizedString1" xml:space="preserve">
     <value>This comes from resource file!</value>
   </data>
+  <data name="MasterPage" xml:space="preserve">
+    <value>Master page</value>
+  </data>
 </root>

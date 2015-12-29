@@ -34,12 +34,13 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<int, Internal>("MarkupLineNumber", defaultValue: -1, isValueInherited: false);
 
         public static readonly DotvvmProperty ClientIDFragmentProperty =
-            DotvvmProperty.Register<string, Internal>("ClientIDFragmentProperty", defaultValue: null, isValueInherited: false);
-
+            DotvvmProperty.Register<string, Internal>("ClientIDFragment", defaultValue: null, isValueInherited: false);
+        
         public static DotvvmProperty IsMasterPageCompositionFinished =
             DotvvmProperty.Register<bool, Internal>("IsMasterPageCompositionFinished", defaultValue: false, isValueInherited: false);
 
         public static DotvvmProperty RequestContextProperty =
             DotvvmProperty.Register<IDotvvmRequestContext, Internal>("RequestContext", defaultValue: null, isValueInherited: true);
+
     }
 }

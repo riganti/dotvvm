@@ -706,6 +706,62 @@ var DotVVM = (function () {
                 });
             }
         };
+        ko.bindingHandlers['dotvvm-textbox-text'] = {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                dotvvm.domUtils.attachEvent(element, "blur", function () {
+                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                    var obs = valueAccessor();
+                    if ((element.attributes["data-dotvvm-value-type"] || { value: "" }).value === "datetime") {
+                        var result = dotvvm.globalize.parseDate(element.value, format);
+                        if (!result) {
+                            element.attributes["data-dotvvm-value-type-valid"] = false;
+                        }
+                        else {
+                            element.attributes["data-dotvvm-value-type-valid"] = true;
+                        }
+                        if (result) {
+                            obs(dotvvm.serialization.serializeDate(result, false));
+                        }
+                        else {
+                            obs(null);
+                        }
+                    }
+                    else {
+                        var newValue = dotvvm.globalize.parseNumber(element.value);
+                        if (!isNaN(newValue)) {
+                            element.attributes["data-dotvvm-value-type-valid"] = true;
+                            if (obs() === newValue) {
+                                if (obs.valueHasMutated) {
+                                    obs.valueHasMutated();
+                                }
+                                else {
+                                    obs.notifySubscribers();
+                                }
+                            }
+                            else {
+                                obs(newValue);
+                            }
+                        }
+                        else {
+                            element.attributes["data-dotvvm-value-type-valid"] = false;
+                            obs(null);
+                        }
+                    }
+                });
+            },
+            update: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var value = ko.unwrap(valueAccessor());
+                if (element.attributes["data-dotvvm-value-type-valid"] != false) {
+                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                    if (format) {
+                        element.value = dotvvm.globalize.formatString(format, value);
+                    }
+                    else {
+                        element.value = value;
+                    }
+                }
+            }
+        };
     };
     return DotVVM;
 })();
@@ -786,17 +842,27 @@ var DotvvmGlobalize = (function () {
         value = ko.unwrap(value);
         if (value == null)
             return "";
-        if (format === "g") {
-            return this.formatString("d", value) + " " + this.formatString("t", value);
-        }
-        else if (format === "G") {
-            return this.formatString("d", value) + " " + this.formatString("T", value);
-        }
-        if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?$")) {
+        if (typeof value === "string") {
             // JSON date in string
-            value = new Date(value);
+            value = this.parseDotvvmDate(value);
+        }
+        if (format === "" || format === null) {
+            format = "G";
         }
         return Globalize.format(value, format, dotvvm.culture);
+    };
+    DotvvmGlobalize.prototype.parseDotvvmDate = function (value) {
+        var match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})$");
+        if (match) {
+            return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]), parseInt(match[4]), parseInt(match[5]), parseInt(match[6]), match.length > 7 ? parseInt(match[7].substring(1, 4)) : 0);
+        }
+        return null;
+    };
+    DotvvmGlobalize.prototype.parseNumber = function (value) {
+        return Globalize.parseFloat(value, 10, dotvvm.culture);
+    };
+    DotvvmGlobalize.prototype.parseDate = function (value, format) {
+        return Globalize.parseDate(value, format, dotvvm.culture);
     };
     return DotvvmGlobalize;
 })();
@@ -951,15 +1017,12 @@ var DotvvmSerialization = (function () {
                 }
                 // deserialize value
                 var deserialized = ko.isObservable(value) ? value : this.deserialize(value, result[prop], deserializeAll);
-                // handle date
-                if (options && options.isDate && deserialized) {
-                    deserialized = new Date(deserialized);
-                }
                 // update the property
                 if (ko.isObservable(deserialized)) {
                     if (ko.isObservable(result[prop])) {
-                        if (deserialized() != result[prop]())
+                        if (deserialized() !== result[prop]()) {
                             result[prop](deserialized());
+                        }
                     }
                     else {
                         result[prop] = deserialized;
@@ -1116,18 +1179,23 @@ var DotvvmSerialization = (function () {
         }
         return value;
     };
-    DotvvmSerialization.prototype.serializeDate = function (date) {
-        var y = this.pad(date.getFullYear().toString(), 4);
-        var m = this.pad((date.getMonth() + 1).toString(), 2);
-        var d = this.pad(date.getDate().toString(), 2);
-        var h = this.pad(date.getHours().toString(), 2);
-        var mi = this.pad(date.getMinutes().toString(), 2);
-        var s = this.pad(date.getSeconds().toString(), 2);
-        var ms = this.pad(date.getMilliseconds().toString(), 3);
-        var sign = date.getTimezoneOffset() <= 0 ? "+" : "-";
-        var offsetHour = this.pad((Math.abs(date.getTimezoneOffset() / 60) | 0).toString(), 2);
-        var offsetMinute = this.pad(Math.abs(date.getTimezoneOffset() % 60).toString(), 2);
-        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + sign + offsetHour + ":" + offsetMinute;
+    DotvvmSerialization.prototype.serializeDate = function (date, convertToUtc) {
+        if (convertToUtc === void 0) { convertToUtc = true; }
+        var date2 = new Date(date.getTime());
+        if (convertToUtc) {
+            date2.setMinutes(date.getMinutes() + date.getTimezoneOffset());
+        }
+        else {
+            date2 = date;
+        }
+        var y = this.pad(date2.getFullYear().toString(), 4);
+        var m = this.pad((date2.getMonth() + 1).toString(), 2);
+        var d = this.pad(date2.getDate().toString(), 2);
+        var h = this.pad(date2.getHours().toString(), 2);
+        var mi = this.pad(date2.getMinutes().toString(), 2);
+        var s = this.pad(date2.getSeconds().toString(), 2);
+        var ms = this.pad(date2.getMilliseconds().toString(), 3);
+        return y + "-" + m + "-" + d + "T" + h + ":" + mi + ":" + s + "." + ms + "0000";
     };
     return DotvvmSerialization;
 })();

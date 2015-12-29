@@ -116,12 +116,18 @@
   <ItemGroup>
     <Compile Include="Controls\ServerRenderedLabel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Resources\Resource.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resource.resx</DependentUpon>
+    </Compile>
     <Compile Include="Startup.cs" />
     <Compile Include="ViewModels\ComplexSamples\Auth\LoginViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\CascadeSelectors\CascadeSelectorsViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\DataTemplate\EmptyDataTemplateRepeaterGridViewViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\FileUploadInRepeater\FileUploadInRepeaterViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
@@ -133,19 +139,24 @@
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\HtmlLiteral\HtmlLiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Literal\LiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxFormatViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
+    <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
     <Compile Include="ViewModels\FeatureSamples\HtmlTag\NonPairHtmlTagViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\IdGeneration\IdGeneration.cs" />
     <Compile Include="ViewModels\FeatureSamples\JavascriptEvents\JavascriptEvents.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationNestedViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Localization\LocalizationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\MarkupControlRegistrationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackHandlersViewModel.cs" />
@@ -181,6 +192,12 @@
       <DependentUpon>Localization_Resources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
+    </Compile>
+    <Compile Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.cs" />
+    <Compile Include="Views\FeatureSamples\Localization\Localization2.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Localization2.resx</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -265,6 +282,25 @@
     <Content Include="Views\FeatureSamples\Serialization\ObservableCollectionShouldContainObservables.dothtml" />
     <Content Include="Views\ControlSamples\Literal\Literal.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditing.dothtml" />
+    <Content Include="Views\ControlSamples\HtmlLiteral\HtmlLiteral.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_ResourceNamespaceDirective.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_ResourceTypeDirective.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_ResourceTypeAndNamespaceDirectives.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Master_ResourceType.dotmaster" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_NestedPage_Namespace.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Master_ResourceNamespace.dotmaster" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_NestedPage_Type.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Master_Resource.dotmaster" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_NestedPage_Full_Full.dothtml" />
+    <EmbeddedResource Include="Resources\Resource.cs-CZ.resx">
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <Content Include="Views\FeatureSamples\Localization\Localization_DefaultDirective.dothtml" />
+    <Content Include="Views\ControlSamples\TextBox\TextBox_Format.dothtml" />
+    <Content Include="Views\FeatureSamples\PostBack\PostbackUpdateRepeater.dothtml" />
+    <Content Include="Views\ControlSamples\Literal\Literal_FormatString.dothtml" />
+    <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadInRepeater.dothtml" />
+    <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.dotcontrol" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -284,6 +320,14 @@
     <EmbeddedResource Include="Localization_Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Localization_Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Resources\Resource.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resource.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Views\FeatureSamples\Localization\Localization2.resx">
+      <Generator>PublicResXFileCodeGenerator</Generator>
+      <LastGenOutput>Localization2.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>

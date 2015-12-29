@@ -40,7 +40,7 @@
 		</table>
 
 		<p>&nbsp;</p>
-		<p>Protected data in viewmodel: <strong>{{value: ReadOnlyData}}</strong></p>
+		<p>Protected data in viewmodel: <strong><span>{{value: ReadOnlyData}}</span></strong></p>
 		<a href="#" onclick="dotvvm.viewModels.root.viewModel.ReadOnlyData('hello');return false;">Modify protected data using javascript</a>
 	</div>
 

@@ -1,5 +1,5 @@
 ﻿class DotvvmGlobalize {
-    
+
     public format(format: string, ...values: string[]) {
         return format.replace(/\{([1-9]?[0-9]+)(:[^}])?\}/g, (match, group0, group1) => {
             var value = values[parseInt(group0)];
@@ -15,17 +15,32 @@
         value = ko.unwrap(value);
         if (value == null) return "";
 
-        if (format === "g") {
-            return this.formatString("d", value) + " " + this.formatString("t", value);
-        } else if (format === "G") {
-            return this.formatString("d", value) + " " + this.formatString("T", value);
+        if (typeof value === "string") {
+            // JSON date in string
+            value = this.parseDotvvmDate(value);
         }
 
-        if (typeof value === "string" && value.match("^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}(\\.[0-9]{1,3})?$")) {
-            // JSON date in string
-            value = new Date(value);
+        if (format === "" || format === null) {
+            format = "G";
         }
+
         return Globalize.format(value, format, dotvvm.culture);
     }
 
+    public parseDotvvmDate(value: string): Date {
+        var match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})$");
+        if (match) {
+            return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]),
+                parseInt(match[4]), parseInt(match[5]), parseInt(match[6]), match.length > 7 ? parseInt(match[7].substring(1, 4)) : 0);
+        }
+        return null;
+    }
+
+    public parseNumber(value: string): number {
+        return Globalize.parseFloat(value,10, dotvvm.culture);
+    }
+
+    public parseDate(value: string, format: string) {
+        return Globalize.parseDate(value, format, dotvvm.culture);
+    }
 }

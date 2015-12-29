@@ -1,0 +1,33 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.TextBoxFormatViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p ID="dateformat">
+        DATE: <br>
+        <dot:textbox iD="dateTextbox" ClientIDMode="Static" Text="{value: DateValue }" style="height: 20px; width: 200px;" FormatString="d" ValueType="DateTime" />
+        <dot:Literal ID="DateValueText" ClientIDMode="Static" Text="{value: DateValue}" ValueType="DateTime"></dot:Literal>
+		<span ID="date-result1">{{value: DateResult1}}</span>
+		<span ID="date-result2">{{value: DateResult2}}</span>
+		<span ID="date-result3">{{value: DateResult3}}</span>
+    </p>
+
+    <p ID="numberformat">
+        Number: <br>
+        <dot:textbox iD="numberTextbox" ClientIDMode="Static" Text="{value: NumberValue }" style="height: 20px; width: 200px;" FormatString="N4" />
+        <dot:Literal ID="numberValueText" ClientIDMode="Static" Text="{value: NumberValue }" ValueType="Number"></dot:Literal>
+    </p>
+    <div>
+        <h3>Switch language</h3>
+		<p>
+			<span>Current: {{value: CurrentCulture}}</span><br />
+			<a id="english" href="?">English</a><br />
+			<a ID="czech" href="?lang=cs-CZ">Czech</a>
+		</p>
+    </div>
+</body>
+</html>

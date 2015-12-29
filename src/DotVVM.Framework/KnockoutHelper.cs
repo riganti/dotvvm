@@ -58,6 +58,11 @@ namespace DotVVM.Framework
             writer.WriteUnencodedText($"<!-- ko { name }: { expression } -->");
         }
 
+        public static void WriteKnockoutDataBindComment(this IHtmlWriter writer, string name, DotvvmControl control, DotvvmProperty property)
+        {
+            writer.WriteUnencodedText($"<!-- ko { name }: { control.GetValueBinding(property).GetKnockoutBindingExpression() } -->");
+        }
+
         public static void WriteKnockoutDataBindEndComment(this IHtmlWriter writer)
         {
             writer.WriteUnencodedText("<!-- /ko -->");
@@ -76,7 +81,7 @@ namespace DotVVM.Framework
             {
                 var target = (DotvvmControl)control.GetClosestControlBindingTarget();
                 target.EnsureControlHasId();
-                uniqueControlId = target.ID;
+                uniqueControlId = target.GetClientId();
             }
 
             var arguments = new List<string>()

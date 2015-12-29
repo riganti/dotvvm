@@ -11,7 +11,6 @@ namespace DotVVM.Framework.Controls
         ClientIDMode ClientIDMode { get; set; }
         string ID { get; set; }
         DotvvmControl Parent { get; set; }
-        List<string> ResourceDependencies { get; }
 
         void EnsureControlHasId(bool autoGenerate = true);
 
@@ -27,7 +26,7 @@ namespace DotVVM.Framework.Controls
 
         DotvvmControl GetNamingContainer();
 
-        DotvvmControl GetRoot();
+        DotvvmBindableObject GetRoot();
 
         IEnumerable<DotvvmControl> GetThisAndAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null);
 

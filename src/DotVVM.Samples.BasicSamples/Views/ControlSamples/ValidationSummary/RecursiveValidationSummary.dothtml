@@ -23,7 +23,7 @@
 			<dot:Button Validate.Target="{value: Child2}" Text="Test 2" Click="{command: Validate()}" />
 		</div>
 
-		<div ID="result">{{value: Validated}}</div>
+		<div ID="result"><span>{{value: Validated}}</span></div>
 
     </div>
 

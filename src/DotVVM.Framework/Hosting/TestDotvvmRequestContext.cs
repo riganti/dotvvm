@@ -30,6 +30,16 @@ namespace DotVVM.Framework.Hosting
             Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
         }
 
+        public CultureInfo GetCurrentUICulture()
+        {
+            return Thread.CurrentThread.CurrentUICulture;
+        }
+
+        public CultureInfo GetCurrentCulture()
+        {
+            return Thread.CurrentThread.CurrentCulture;
+        }
+
         public void InterruptRequest()
         {
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.Interrupt);

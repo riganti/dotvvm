@@ -25,7 +25,6 @@ interface IDotvvmViewModels {
 }
 
 class DotVVM {
-
     private postBackCounter = 0;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
@@ -46,10 +45,9 @@ class DotVVM {
     public validation: DotvvmValidation;
     public extensions: IDotvvmExtensions = {};
 
-
     public init(viewModelName: string, culture: string): void {
         this.addKnockoutBindingHandlers();
-        
+
         // load the viewmodel
         var thisViewModel = this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value);
         if (thisViewModel.renderedResources) {
@@ -235,13 +233,12 @@ class DotVVM {
                     // add updated controls
                     this.restoreUpdatedControls(resultObject, updatedControls, true);
                     this.isViewModelUpdating = false;
-
                 } else if (resultObject.action === "redirect") {
                     // redirect
                     this.handleRedirect(resultObject, viewModelName);
                     return;
-                } 
-            
+                }
+
                 // trigger afterPostback event
                 var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
                 promise.resolve(afterPostBackArgs);
@@ -261,7 +258,7 @@ class DotVVM {
             if (!errArgs.handled) {
                 alert(xhr.responseText);
             }
-            });
+        });
         return promise;
     }
 
@@ -357,14 +354,14 @@ class DotVVM {
 
         // add virtual directory prefix
         var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
-        
+
         // find SPA placeholder
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (!spaPlaceHolder) {
             document.location.href = fullUrl;
             return;
         }
-        
+
         // send the request
         var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dot-spacontentplaceholder"].value;
         this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
@@ -400,8 +397,8 @@ class DotVVM {
                 } else if (resultObject.action === "redirect") {
                     this.handleRedirect(resultObject, viewModelName, true);
                     return;
-                } 
-            
+                }
+
                 // trigger spaNavigated event
                 var spaNavigatedArgs = new DotvvmSpaNavigatedEventArgs(viewModel, viewModelName, resultObject);
                 this.events.spaNavigated.trigger(spaNavigatedArgs);
@@ -478,8 +475,6 @@ class DotVVM {
 
         return source;
     }
-
-    
 
     private updateDynamicPathFragments(context: any, path: string[]): void {
         for (var i = path.length - 1; i >= 0; i--) {
@@ -636,6 +631,56 @@ class DotVVM {
                 dotvvm.events.error.subscribe(e => {
                     element.style.display = "none";
                 });
+            }
+        };
+        ko.bindingHandlers['dotvvm-textbox-text'] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                dotvvm.domUtils.attachEvent(element, "blur", () => {
+                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                    var obs = valueAccessor();
+                    if ((element.attributes["data-dotvvm-value-type"] || { value: "" }).value === "datetime") {
+                        var result = dotvvm.globalize.parseDate(element.value, format);
+                        if (!result) {
+                            element.attributes["data-dotvvm-value-type-valid"] = false;
+                        } else {
+                            element.attributes["data-dotvvm-value-type-valid"] = true;
+                        }
+                        if (result) {
+                            obs(dotvvm.serialization.serializeDate(result, false));
+                        }
+                        else {
+                            obs(null);
+                        }
+                    } else {
+                        var newValue = dotvvm.globalize.parseNumber(element.value);
+                        if (!isNaN(newValue)) {
+                            element.attributes["data-dotvvm-value-type-valid"] = true;
+                            if (obs() === newValue) {
+                                if ((<KnockoutObservable<number>>obs).valueHasMutated) {
+                                    (<KnockoutObservable<number>>obs).valueHasMutated();
+                                } else {
+                                    (<KnockoutObservable<number>>obs).notifySubscribers();
+                                }
+                            } else {
+                                obs(newValue);
+                            }
+                        } else {
+                            element.attributes["data-dotvvm-value-type-valid"] = false;
+                            obs(null);
+                        }
+                    }
+                });
+            },
+            update(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                var value = ko.unwrap(valueAccessor());
+                if (element.attributes["data-dotvvm-value-type-valid"] != false) {
+                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                    if (format) {
+                        element.value = dotvvm.globalize.formatString(format, value);
+                    } else {
+                        element.value = value;
+                    }
+                }
             }
         };
     }

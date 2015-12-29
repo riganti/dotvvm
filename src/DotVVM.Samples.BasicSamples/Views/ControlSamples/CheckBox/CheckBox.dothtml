@@ -6,55 +6,55 @@
     <title>Hello from DotVVM!</title>
 </head>
 <body>
-	<div class="container">
-		<h1>CheckBox test</h1>
-		
-		<div class="row">
-			<div class="col-md-6">
+    <div class="container">
+        <h1>CheckBox test</h1>
 
-				<fieldset>
-					<legend>Single CheckBox</legend>
+        <div class="row">
+            <div class="col-md-6">
 
-					<p>
-						<dot:CheckBox Text="Simple Test" Checked="{value: SCB}" /> 
-						&nbsp; &nbsp;
-						<dot:Button Text="Postback" Click="{command: UpdateSCB()}" />
-						&nbsp; &nbsp;
-						{{value: SCBResult}}
-					</p>
-				</fieldset>
+                <fieldset>
+                    <legend>Single CheckBox</legend>
 
-			</div>
-			<div class="col-md-6">
+                    <p>
+                        <dot:CheckBox Text="Simple Test" Checked="{value: SCB}" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Postback" Click="{command: UpdateSCB()}" />
+                        &nbsp; &nbsp;
+                        <span>{{value: SCBResult}}</span>
+                    </p>
+                </fieldset>
 
-				<fieldset>
-					<legend>Multiple CheckBoxes</legend>
+            </div>
+            <div class="col-md-6">
 
-					<p>
-						<dot:CheckBox Text="Red" CheckedItems="{value: MCB}" CheckedValue="r" /> 
-						&nbsp; &nbsp;
-						<dot:CheckBox Text="Green" CheckedItems="{value: MCB}" CheckedValue="g" /> 
-						&nbsp; &nbsp;
-						<dot:CheckBox Text="Blue" CheckedItems="{value: MCB}" CheckedValue="b" /> 
-						&nbsp; &nbsp;
-						<dot:Button Text="Postback" Click="{command: UpdateMCB()}" />
-						&nbsp; &nbsp;
-						{{value: MCBResult}}
-					</p>
-				</fieldset>
+                <fieldset>
+                    <legend>Multiple CheckBoxes</legend>
 
-			</div>
+                    <p>
+                        <dot:CheckBox Text="Red" CheckedItems="{value: MCB}" CheckedValue="r" />
+                        &nbsp; &nbsp;
+                        <dot:CheckBox Text="Green" CheckedItems="{value: MCB}" CheckedValue="g" />
+                        &nbsp; &nbsp;
+                        <dot:CheckBox Text="Blue" CheckedItems="{value: MCB}" CheckedValue="b" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Postback" Click="{command: UpdateMCB()}" />
+                        &nbsp; &nbsp;
+                        <span>	{{value: MCBResult}}</span>
+                    </p>
+                </fieldset>
 
-			<div class="col-md-6">
+            </div>
 
-				<fieldset>
-					<legend>Changed event</legend>
-					<dot:CheckBox Checked="{value: ChangedValue}" Changed="{command: OnChanged()}" />
-					{{value: NumberOfChanges}}
-				</fieldset>
-			</div>
-		</div>
-	</div>
+            <div class="col-md-6">
+
+                <fieldset>
+                    <legend>Changed event</legend>
+                    <dot:CheckBox Checked="{value: ChangedValue}" Changed="{command: OnChanged()}" />
+                    <span>	{{value: NumberOfChanges}}</span>
+                </fieldset>
+            </div>
+        </div>
+    </div>
 
 </body>
 </html>

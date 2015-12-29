@@ -39,6 +39,30 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
+        public void Feature_PostBackUpdateRepeater()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_PostBack_PostbackUpdateRepeater);
+
+                // enter the text and click the button
+                browser.ClearElementsContent("input[type=text]");
+                browser.SendKeys("input[type=text]", "test");
+                browser.Click("input[type=button]");
+
+                // check the inner text of generated items
+                browser.FindElements("p.item").ThrowIfDifferentCountThan(5).ForEach(e => e.CheckIfInnerTextEquals("test"));
+                
+                // change the text and client the button
+                browser.ClearElementsContent("input[type=text]");
+                browser.SendKeys("input[type=text]", "xxx");
+                browser.Click("input[type=button]");
+
+                browser.FindElements("p.item").ThrowIfDifferentCountThan(5).ForEach(e => e.CheckIfInnerTextEquals("xxx"));
+            });
+        }
+
+        [TestMethod]
         public void Feature_PostBackHandlers()
         {
             RunInAllBrowsers(browser =>

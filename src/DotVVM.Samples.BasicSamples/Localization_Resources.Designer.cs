@@ -68,5 +68,14 @@ namespace DotVVM.Samples.BasicSamples {
                 return ResourceManager.GetString("LocalizedString1", resourceCulture);
             }
         }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Master page.
+        /// </summary>
+        internal static string MasterPage {
+            get {
+                return ResourceManager.GetString("MasterPage", resourceCulture);
+            }
+        }
     }
 }

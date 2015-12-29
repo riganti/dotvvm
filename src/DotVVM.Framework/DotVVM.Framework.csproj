@@ -164,6 +164,7 @@
     <Compile Include="Controls\GridViewColumn.cs" />
     <Compile Include="Controls\GridViewTemplateColumn.cs" />
     <Compile Include="Controls\GridViewTextColumn.cs" />
+    <Compile Include="Controls\HtmlLiteral.cs" />
     <Compile Include="Controls\IDotvvmControl.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
     <Compile Include="Controls\GridViewDataSet.cs" />
@@ -184,6 +185,7 @@
     <Compile Include="Controls\SelectorItem.cs" />
     <Compile Include="Controls\SpaContentPlaceHolder.cs" />
     <Compile Include="Controls\TextBoxType.cs" />
+    <Compile Include="Controls\TextboxValueType.cs" />
     <Compile Include="Controls\TranslateVirtualPathHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\UpdateProgress.cs" />
     <Compile Include="Controls\UploadedFilesCollection.cs" />
@@ -387,6 +389,7 @@
     <Compile Include="Runtime\DefaultOutputRenderer.cs" />
     <Compile Include="Runtime\DefaultDotvvmViewBuilder.cs" />
     <Compile Include="Runtime\DefaultViewModelLoader.cs" />
+    <Compile Include="Runtime\DotvvmDateTimeConverter.cs" />
     <Compile Include="Runtime\Filters\ActionFilterAttribute.cs" />
     <Compile Include="Runtime\Filters\ActionInfo.cs" />
     <Compile Include="Runtime\Filters\ActionParameterInfo.cs" />

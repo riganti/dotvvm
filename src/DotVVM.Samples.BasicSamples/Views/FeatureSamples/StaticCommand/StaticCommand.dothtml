@@ -11,7 +11,7 @@
 		<dot:Button Text="Compute greeting using static command" Click="{staticCommand: Greeting = ViewModel.GetGreeting(Name)}" />
 		<dot:Button Text="Compute greeting pure js function" Click="{staticCommand: Greeting = 'Hello ' + Name + '!'}" />
 		<p>
-			{{value: Greeting}}
+		<span InnerText="{value: Greeting}"></span>	
 		</p>
     </div>
 </body>

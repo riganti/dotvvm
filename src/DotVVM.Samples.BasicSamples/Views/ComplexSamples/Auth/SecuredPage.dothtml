@@ -11,7 +11,7 @@
 
         <h3>Last message</h3>
         <p>
-            {{value: LastMessage}}
+        <span>{{value: LastMessage}}</span>    
         </p>
 
         <fieldset>
