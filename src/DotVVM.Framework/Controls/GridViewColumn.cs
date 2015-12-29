@@ -13,9 +13,7 @@ namespace DotVVM.Framework.Controls
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         public ITemplate HeaderTemplate { get; set; }
-
-
-
+        
         [MarkupOptions(AllowBinding = false)]
         public string SortExpression
         {
@@ -26,6 +24,25 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, GridViewColumn>(c => c.SortExpression);
 
 
+        [MarkupOptions(AllowBinding = false)]
+        public string SortUpCssClass
+        {
+            get { return (string)GetValue(SortUpCssClassProperty); }
+            set { SetValue(SortUpCssClassProperty, value); }
+        }
+        public static readonly DotvvmProperty SortUpCssClassProperty =
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortUpCssClass, "SortedUp");
+
+
+        [MarkupOptions(AllowBinding = false)]
+        public string SortDownCssClass
+        {
+            get { return (string)GetValue(SortDownCssClassProperty); }
+            set { SetValue(SortDownCssClassProperty, value); }
+        }
+        public static readonly DotvvmProperty SortDownCssClassProperty =
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortDownCssClass, "SortedDown");
+        
         [MarkupOptions(AllowBinding = false)]
         public bool AllowSorting { get; set; }
 
@@ -83,6 +100,8 @@ namespace DotVVM.Framework.Controls
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
                 var binding = new CommandBindingExpression(h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
+                
+                cell.Attributes["data-bind"] = $"css: {{ {SortDownCssClass}: ko.unwrap($parent.SortExpression) == '{HeaderText}' && $parent.SortDescending(), {SortUpCssClass}: ko.unwrap($parent.SortExpression) == '{HeaderText}' && !$parent.SortDescending()}}";
             }
             else
             {
