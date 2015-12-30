@@ -138,6 +138,7 @@
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewRowDecoratorsViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\HtmlLiteral\HtmlLiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Literal\LiteralViewModel.cs" />
@@ -305,6 +306,7 @@
     <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.dotcontrol" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
+    <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

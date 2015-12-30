@@ -99,6 +99,7 @@ namespace DotVVM.Framework
             // return the script
             var condition = isOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
             var returnStatement = returnValue != null ? string.Format(";return {0};", returnValue.ToString().ToLower()) : "";
+
             // call the function returned from binding js with runtime arguments
             var postBackCall = String.Format("{0}({1})", expression.GetCommandJavascript(), String.Join(", ", arguments));
             return condition + postBackCall + returnStatement;
