@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Controls
 
 
         /// <summary>
-        /// Gets or sets the data context.
+        /// Gets or sets a data context for the control and its children. All value and command bindings are evaluated in context of this value.
         /// </summary>
         public object DataContext
         {
