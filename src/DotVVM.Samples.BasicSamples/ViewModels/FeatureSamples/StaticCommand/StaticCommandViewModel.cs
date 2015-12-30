@@ -12,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.StaticCommand
         public string Name { get; set; } = "Deep Thought";
         public string Greeting { get; set; }
 
-        [StaticCommandCallable]
+        [AllowStaticCommand]
         public static string GetGreeting(string name)
         {
             return "Hello " + name + "!";

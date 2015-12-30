@@ -141,7 +141,7 @@
     <Compile Include="Binding\DotvvmProperty.cs" />
     <Compile Include="Binding\ResourceBindingExpression.cs" />
     <Compile Include="Binding\StaticCommandBindingExpression.cs" />
-    <Compile Include="Binding\StaticCommandCallableAttribute.cs" />
+    <Compile Include="Binding\AllowStaticCommandAttribute.cs" />
     <Compile Include="Binding\ValueBindingExpression.cs" />
     <Compile Include="Binding\ViewModelPathComparer.cs" />
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />

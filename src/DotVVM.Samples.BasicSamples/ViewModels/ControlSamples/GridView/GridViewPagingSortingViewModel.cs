@@ -81,7 +81,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             SelectedSortColumn = column;
         }
 
-        [StaticCommandCallable]
+        [AllowStaticCommand]
         public List<CustomerData> GetDataList()
         {
             return GetData().ToList();

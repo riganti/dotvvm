@@ -283,7 +283,7 @@ namespace DotVVM.Framework.Hosting
             var methodName = command.Substring(lastDot + 1);
             var methodInfo = Type.GetType(typeName).GetMethod(methodName);
 
-            if (!Attribute.IsDefined(methodInfo, typeof(StaticCommandCallableAttribute)))
+            if (!Attribute.IsDefined(methodInfo, typeof(AllowStaticCommandAttribute)))
             {
                 throw new DotvvmHttpException("method validation failed");
             }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Binding
 {
-    public class StaticCommandCallableAttribute: Attribute
+    public class AllowStaticCommandAttribute: Attribute
     {
     }
 }
