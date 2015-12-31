@@ -423,5 +423,10 @@ namespace DotVVM.Framework.Controls
 
             base.AddAttributesToRender(writer, context);
         }
+
+        public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
+        {
+            return base.GetLogicalChildren().Concat(Columns).Concat(RowDecorators);
+        }
     }
 }

@@ -271,7 +271,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public IEnumerable<KeyValuePair<DotvvmProperty, BindingExpression>> GetAllBindings()
         {
-            return Properties.Where(p => p.Value is BindingExpression && !p.Key.IsBindingProperty)
+            return Properties.Where(p => p.Value is BindingExpression) // && !p.Key.IsBindingProperty)
                 .Select(p => new KeyValuePair<DotvvmProperty, BindingExpression>(p.Key, (BindingExpression)p.Value));
         }
 
@@ -295,6 +295,14 @@ namespace DotVVM.Framework.Controls
         {
             if (Parent == null) return this;
             return GetAllAncestors().Last();
+        }
+
+        /// <summary>
+        /// Gets the logical children of this control (including controls that are not in the visual tree but which can contain command bindings).
+        /// </summary>
+        public virtual IEnumerable<DotvvmBindableObject> GetLogicalChildren()
+        {
+            return Enumerable.Empty<DotvvmBindableObject>();
         }
     }
 }

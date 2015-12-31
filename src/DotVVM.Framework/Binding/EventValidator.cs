@@ -38,11 +38,11 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
-        private FindBindingResult FindCommandBinding(string[] path, string commandId, DotvvmControl viewRootControl, string validationTargetPath)
+        private FindBindingResult FindCommandBinding(string[] path, string commandId, DotvvmBindableObject viewRootControl, string validationTargetPath)
         {
             // walk the control tree and find the path
             CommandBindingExpression resultBinding = null;
-            DotvvmControl resultControl = null;
+            DotvvmBindableObject resultControl = null;
             DotvvmProperty resultProperty = null;
 
             var walker = new ControlTreeWalker(viewRootControl);
@@ -94,12 +94,12 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Finds the binding of the specified type on the specified viewmodel path.
         /// </summary>
-        private FindBindingResult FindControlCommandBinding(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmControl targetControl, string validationTargetPath)
+        private FindBindingResult FindControlCommandBinding(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmBindableObject targetControl, string validationTargetPath)
         {
             // walk the control tree and find the path
             ControlCommandBindingExpression resultBinding = null;
             DotvvmProperty resultProperty = null;
-            DotvvmControl resultControl = null;
+            DotvvmBindableObject resultControl = null;
 
             var walker = new ControlTreeWalker(viewRootControl);
             walker.ProcessControlTree((control) =>
@@ -147,7 +147,7 @@ namespace DotVVM.Framework.Binding
     public class FindBindingResult
     {
         public CommandBindingExpression Binding { get; set; }
-        public DotvvmControl Control { get; set; }
+        public DotvvmBindableObject Control { get; set; }
         public DotvvmProperty Property { get; set; }
     }
 }

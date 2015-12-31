@@ -9,7 +9,7 @@ namespace DotVVM.Framework.ViewModel
     public class ControlTreeWalker
     {
 
-        private DotvvmControl root;
+        private DotvvmBindableObject root;
 
         public Stack<string> CurrentPath { get; private set; }
 
@@ -18,7 +18,7 @@ namespace DotVVM.Framework.ViewModel
         /// <summary>
         /// Initializes a new instance of the <see cref="ControlTreeWalker"/> class.
         /// </summary>
-        public ControlTreeWalker(DotvvmControl root)
+        public ControlTreeWalker(DotvvmBindableObject root)
         {
             this.root = root;
         }
@@ -27,7 +27,7 @@ namespace DotVVM.Framework.ViewModel
         /// <summary>
         /// Processes the control tree.
         /// </summary>
-        public void ProcessControlTree(Action<DotvvmControl> action)
+        public void ProcessControlTree(Action<DotvvmBindableObject> action)
         {
             CurrentPath = new Stack<string>();
             RefreshCurrentPathArray();
@@ -46,7 +46,7 @@ namespace DotVVM.Framework.ViewModel
         /// <summary>
         /// Processes the control tree.
         /// </summary>
-        private void ProcessControlTreeCore(DotvvmControl control, Action<DotvvmControl> action)
+        private void ProcessControlTreeCore(DotvvmBindableObject control, Action<DotvvmBindableObject> action)
         {
             // if there is a DataContext binding, locate the correct token
             var hasDataContext = false;
@@ -71,7 +71,7 @@ namespace DotVVM.Framework.ViewModel
             action(control);
 
             // go through all children
-            foreach (var child in control.GetChildren())
+            foreach (var child in control.GetLogicalChildren())
             {
                 ProcessControlTreeCore(child, action);
             }

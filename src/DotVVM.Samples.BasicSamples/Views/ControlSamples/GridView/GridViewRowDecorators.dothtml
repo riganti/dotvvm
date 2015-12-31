@@ -5,7 +5,7 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-	<style>
+	<style type="text/css">
 		table tr {
 			cursor: hand;
 		}

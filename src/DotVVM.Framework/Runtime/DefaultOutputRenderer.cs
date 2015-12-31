@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Runtime
                 }
                 else
                 {
-                    foreach (var child in control.GetChildren())
+                    foreach (var child in control.Children)
                     {
                         stack.Push(child);
                     }

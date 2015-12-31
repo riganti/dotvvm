@@ -306,11 +306,6 @@ namespace DotVVM.Framework.Controls
             return (bool)control.GetValue(Internal.IsNamingContainerProperty);
         }
 
-        public virtual IEnumerable<DotvvmControl> GetChildren()
-        {
-            return Children;
-        }
-
         /// <summary>
         /// Occurs after the viewmodel tree is complete.
         /// </summary>
@@ -480,5 +475,9 @@ namespace DotVVM.Framework.Controls
             return Children.All(c => c is RawLiteral);
         }
 
+        public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
+        {
+            return Children;
+        }
     }
 }

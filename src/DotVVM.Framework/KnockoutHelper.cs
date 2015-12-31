@@ -161,7 +161,7 @@ namespace DotVVM.Framework
         /// <summary>
         /// Gets the validation target expression.
         /// </summary>
-        public static string GetValidationTargetExpression(DotvvmControl control)
+        public static string GetValidationTargetExpression(DotvvmBindableObject control)
         {
             if (!(bool)control.GetValue(Validate.EnabledProperty))
             {

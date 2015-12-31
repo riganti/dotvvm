@@ -160,6 +160,28 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-      
+        [TestMethod]
+        public void Control_GridViewRowDecorators()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+
+                browser.FindElements("tr").ThrowIfDifferentCountThan(6);
+
+                browser.ElementAt("tr", 3).Click();
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                }
+
+                browser.ElementAt("tr", 2).Click();
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
+                }
+            });
+        }
+
     }
 }

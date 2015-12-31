@@ -29,6 +29,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
 			public const string ControlSamples_GridView_GridViewInlineEditing = "ControlSamples/GridView/GridViewInlineEditing";
 			public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
+			public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
 			public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
 			public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
 			public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
@@ -69,6 +70,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string FeatureSamples_Localization_Localization_ResourceNamespaceDirective = "FeatureSamples/Localization/Localization_ResourceNamespaceDirective";
 			public const string FeatureSamples_Localization_Localization_ResourceTypeAndNamespaceDirectives = "FeatureSamples/Localization/Localization_ResourceTypeAndNamespaceDirectives";
 			public const string FeatureSamples_Localization_Localization_ResourceTypeDirective = "FeatureSamples/Localization/Localization_ResourceTypeDirective";
+			public const string FeatureSamples_MarkupControl_ControlPropertyUpdating = "FeatureSamples/MarkupControl/ControlPropertyUpdating";
 			public const string FeatureSamples_MarkupControl_MarkupControlRegistration = "FeatureSamples/MarkupControl/MarkupControlRegistration";
 			public const string FeatureSamples_NestedMasterPages_Content = "FeatureSamples/NestedMasterPages/Content";
 			public const string FeatureSamples_PostBack_PostBackHandlers = "FeatureSamples/PostBack/PostBackHandlers";
