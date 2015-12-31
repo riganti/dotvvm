@@ -28,7 +28,7 @@
 
 		<IdGeneration:Control ID="ctl2" ClientIDMode="Static" />
 
-		<dot:Repeater DataSource="{value: Items}" data-id="repeater1">
+		<dot:Repeater DataSource="{value: Items}" data-id="repeater1" ID="rep1">
 			<ItemTemplate>
 				<div ID="repeater1" data-id="repeater1_marker">
 					<section>
@@ -38,7 +38,7 @@
 			</ItemTemplate>
 		</dot:Repeater>
 
-		<dot:Repeater DataSource="{value: Items}" RenderSettings.Mode="Server" data-id="repeater2">
+		<dot:Repeater DataSource="{value: Items}" RenderSettings.Mode="Server" data-id="repeater2" ID="rep2">
 			<ItemTemplate>
 				<div ID="repeater1server" data-id="repeater1server_marker">
 					<section>
