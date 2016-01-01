@@ -9,15 +9,34 @@ using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Controls
 {
+    /// <summary>
+    /// A GridView column which renders a text value (with formatting support) and can edit it in the TextBox control.
+    /// </summary>
     [ControlMarkupOptions(AllowContent = false)]
     public class GridViewTextColumn : GridViewColumn
     {
 
-
+        /// <summary>
+        /// Gets or sets the format string that will be applied to numeric or date-time values.
+        /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public string FormatString { get; set; }
 
+        /// <summary>
+        /// Gets or sets the type of value being formatted - Number or DateTime.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public FormatValueType ValueType
+        {
+            get { return (FormatValueType)GetValue(ValueTypeProperty); }
+            set { SetValue(ValueTypeProperty, value); }
+        }
+        public static readonly DotvvmProperty ValueTypeProperty =
+            DotvvmProperty.Register<FormatValueType, GridViewTextColumn>(t => t.ValueType);
 
+        /// <summary>
+        /// Gets or sets a binding which retrieves the value to display from the current data item.
+        /// </summary>
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
         public object ValueBinding
         {
@@ -53,6 +72,7 @@ namespace DotVVM.Framework.Controls
         {
             var literal = new Literal();
             literal.FormatString = FormatString;
+            literal.ValueType = ValueType;
             literal.SetBinding(Literal.TextProperty, GetValueBinding(ValueBindingProperty));
 
             container.Children.Add(literal);
@@ -61,12 +81,12 @@ namespace DotVVM.Framework.Controls
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
             var textBox = new TextBox();
+            textBox.FormatString = FormatString;
+            textBox.ValueType = ValueType;
             textBox.SetBinding(TextBox.TextProperty, GetValueBinding(ValueBindingProperty));
 
             container.Children.Add(textBox);
         }
-
     }
-
     
 }

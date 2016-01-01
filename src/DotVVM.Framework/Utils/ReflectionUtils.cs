@@ -6,6 +6,7 @@ using System.ComponentModel;
 using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DotVVM.Framework.Utils
 {
@@ -30,12 +31,13 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Gets the specified property of a given object.
         /// </summary>
-        public static object GetObjectProperty(object item, string propertyName)
+        public static object GetObjectPropertyValue(object item, string propertyName, out PropertyInfo prop)
         {
+            prop = null;
             if (item == null) return null;
 
             var type = item.GetType();
-            var prop = type.GetProperty(propertyName);
+            prop = type.GetProperty(propertyName);
             if (prop == null)
             {
                 throw new Exception(String.Format("The object of type {0} does not have a property named {1}!", type, propertyName));     // TODO: exception handling
@@ -51,9 +53,10 @@ namespace DotVVM.Framework.Utils
         {
             if (!string.IsNullOrEmpty(propertyName))
             {
-                item = GetObjectProperty(item, propertyName);
+                PropertyInfo prop;
+                item = GetObjectPropertyValue(item, propertyName, out prop);
             }
-            return item != null ? item.ToString() : "";
+            return item?.ToString() ?? "";
         }
 
         /// <summary>
