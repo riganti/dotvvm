@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (item.Key is ActiveDotvvmProperty)
                 {
-                    ((ActiveDotvvmProperty)item.Key).AddAttributesToRender(writer, context, GetValue(item.Key), this);
+                    ((ActiveDotvvmProperty)item.Key).AddAttributesToRender(writer, context, this);
                 }
             }
 
