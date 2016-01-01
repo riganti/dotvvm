@@ -384,7 +384,7 @@
     <Content Include="Packages\Antlr.3.5.0.2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.0.8.6.16-pre.nupkg">
+    <Content Include="Packages\DotVVM.0.9.0.0.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />
