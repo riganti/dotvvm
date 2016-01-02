@@ -32,32 +32,26 @@ namespace DotVVM.Framework.ViewModel
 
         public void Nest()
         {
-            if (HasProperty(propertyIndex))
-            {
+            if (virtualNests == 0 && HasProperty(propertyIndex)) {
                 json.Read();
                 Debug.Assert(json.TokenType == JsonToken.StartObject);
                 json.Read();
-                propertyIndices.Push(propertyIndex + 1);
-                propertyIndex = 0;
-            }
-            else
-            {
+            } else {
                 virtualNests++;
             }
+            propertyIndices.Push(propertyIndex + 1);
+            propertyIndex = 0;
         }
 
         public void AssertEnd()
         {
-            if (virtualNests > 0)
-            {
+            if (virtualNests > 0) {
                 virtualNests--;
-            }
-            else if(json.TokenType == JsonToken.EndObject)
-            {
+                propertyIndex = propertyIndices.Pop();
+            } else if (json.TokenType == JsonToken.EndObject) {
                 json.Read();
                 propertyIndex = propertyIndices.Pop();
-            }
-            else throw SecurityError();
+            } else throw SecurityError();
         }
 
         public JToken ReadValue()
