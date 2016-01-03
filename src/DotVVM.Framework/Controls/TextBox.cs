@@ -166,6 +166,9 @@ namespace DotVVM.Framework.Controls
                     case TextBoxType.Search:
                         type = "search";
                         break;
+                    case TextBoxType.Number:
+                        type = "number";
+                        break;
                     default:
                         throw new NotSupportedException($"TextBox Type '{ Type }' not supported");
                 }
