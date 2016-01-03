@@ -10,19 +10,19 @@ namespace DotVVM.Framework.Binding
 {
     public class DelegateActionProperty<TValue>: ActiveDotvvmProperty
     {
-        private Action<IHtmlWriter, RenderContext, TValue, DotvvmControl> func;
+        private Action<IHtmlWriter, RenderContext, DotvvmProperty, DotvvmControl> func;
 
-        public DelegateActionProperty(Action<IHtmlWriter, RenderContext, TValue, DotvvmControl> func)
+        public DelegateActionProperty(Action<IHtmlWriter, RenderContext, DotvvmProperty, DotvvmControl> func)
         {
             this.func = func;
         }
 
-        public override void AddAttributesToRender(IHtmlWriter writer, RenderContext context, object value, DotvvmControl control)
+        public override void AddAttributesToRender(IHtmlWriter writer, RenderContext context, DotvvmControl control)
         {
-            if(func != null) func(writer, context, (TValue)value, control);
+            if(func != null) func(writer, context, this, control);
         }
 
-        public static DelegateActionProperty<TValue> Register<TDeclaringType>(string name, Action<IHtmlWriter, RenderContext, TValue, DotvvmControl> func, TValue defaultValue = default(TValue))
+        public static DelegateActionProperty<TValue> Register<TDeclaringType>(string name, Action<IHtmlWriter, RenderContext, DotvvmProperty, DotvvmControl> func, TValue defaultValue = default(TValue))
         {
             return DotvvmProperty.Register<TValue, TDeclaringType>(name, defaultValue, false, new DelegateActionProperty<TValue>(func)) as DelegateActionProperty<TValue>;
         }

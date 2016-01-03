@@ -18,7 +18,7 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl( SamplesRouteUrls.ComplexSamples_InvoiceCalculator_InvoiceCalculator);
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_InvoiceCalculator_InvoiceCalculator);
                 var table = browser.First(".table");
                 var addButton = browser.ElementAt("a", 1);
                 var recalculateButton = browser.ElementAt("a", 2);
@@ -34,7 +34,7 @@ namespace DotVVM.Samples.Tests.Complex
                 // fill second line
                 var cells = table.ElementAt("tr", 2).FindElements("td");
                 cells.ElementAt(0).First("input").Clear().SendKeys("111");
-                cells.ElementAt(1).First("select").Select(1);
+                cells.ElementAt(1).First("select").Select(1).Wait();
                 cells.ElementAt(2).First("input").Clear().SendKeys("Bread");
                 cells.ElementAt(3).First("input").Clear().SendKeys("12");
                 cells.ElementAt(4).First("input").Clear().SendKeys("10");
@@ -42,7 +42,7 @@ namespace DotVVM.Samples.Tests.Complex
                 // fill third line
                 cells = table.ElementAt("tr", 3).FindElements("td");
                 cells.ElementAt(0).First("input").Clear().SendKeys("222");
-                cells.ElementAt(1).First("select").Select(2);
+                cells.ElementAt(1).First("select").Select(2).Wait();
                 cells.ElementAt(2).First("input").Clear().SendKeys("Ham");
                 cells.ElementAt(3).First("input").Clear().SendKeys("1");
                 cells.ElementAt(4).First("input").Clear().SendKeys("5");
@@ -50,7 +50,7 @@ namespace DotVVM.Samples.Tests.Complex
                 // fill fourth line
                 cells = table.ElementAt("tr", 4).FindElements("td");
                 cells.ElementAt(0).First("input").Clear().SendKeys("333");
-                cells.ElementAt(1).First("select").Select(3);
+                cells.ElementAt(1).First("select").Select(3).Wait();
                 cells.ElementAt(2).First("input").Clear().SendKeys("Cheese");
                 cells.ElementAt(3).First("input").Clear().SendKeys("10");
                 cells.ElementAt(4).First("input").Clear().SendKeys("15");

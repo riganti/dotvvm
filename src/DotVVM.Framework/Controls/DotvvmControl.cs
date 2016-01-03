@@ -136,7 +136,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (item.Key is ActiveDotvvmProperty)
                 {
-                    ((ActiveDotvvmProperty)item.Key).AddAttributesToRender(writer, context, GetValue(item.Key), this);
+                    ((ActiveDotvvmProperty)item.Key).AddAttributesToRender(writer, context, this);
                 }
             }
 
@@ -304,11 +304,6 @@ namespace DotVVM.Framework.Controls
         public static bool IsNamingContainer(DotvvmControl control)
         {
             return (bool)control.GetValue(Internal.IsNamingContainerProperty);
-        }
-
-        public virtual IEnumerable<DotvvmControl> GetChildren()
-        {
-            return Children;
         }
 
         /// <summary>
@@ -480,5 +475,9 @@ namespace DotVVM.Framework.Controls
             return Children.All(c => c is RawLiteral);
         }
 
+        public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
+        {
+            return Children;
+        }
     }
 }

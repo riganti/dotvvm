@@ -82,8 +82,6 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected internal override void OnLoad(IDotvvmRequestContext context)
         {
-            EnsureControlHasId();
-
             DataBind(context);
             base.OnLoad(context);
         }

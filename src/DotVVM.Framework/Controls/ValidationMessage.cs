@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Controls
 
 
 
-        private static void AddValidatedValue(IHtmlWriter writer, RenderContext context, object value, DotvvmControl control)
+        private static void AddValidatedValue(IHtmlWriter writer, RenderContext context, DotvvmProperty prop, DotvvmControl control)
         {
             writer.AddKnockoutDataBind("dotvvmValidation", control, ValidatedValueProperty);
 

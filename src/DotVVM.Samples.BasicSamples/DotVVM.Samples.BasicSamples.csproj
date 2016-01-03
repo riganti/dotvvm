@@ -138,6 +138,7 @@
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewRowDecoratorsViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\HtmlLiteral\HtmlLiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Literal\LiteralViewModel.cs" />
@@ -149,6 +150,7 @@
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxFormatViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
@@ -199,6 +201,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Localization2.resx</DependentUpon>
     </Compile>
+    <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="LICENSE.txt" />
@@ -301,6 +304,9 @@
     <Content Include="Views\ControlSamples\Literal\Literal_FormatString.dothtml" />
     <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadInRepeater.dothtml" />
     <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.dotcontrol" />
+    <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
+    <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
+    <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

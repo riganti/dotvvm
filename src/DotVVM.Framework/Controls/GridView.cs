@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System.Collections;
+using System.Reflection;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using DotVVM.Framework.Utils;
 
@@ -260,9 +261,9 @@ namespace DotVVM.Framework.Controls
                 {
                     throw new ArgumentException("You have to use GridViewDataSet with InlineEditing enabled.");
                 }
+
                 //checks if row is being edited
                 isEdit = IsEditedRow(placeholder);
-
             }
 
             // create cells
@@ -275,7 +276,6 @@ namespace DotVVM.Framework.Controls
                 if (isEdit && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);
-
                 }
                 else
                 {
@@ -287,11 +287,13 @@ namespace DotVVM.Framework.Controls
 
         private bool IsEditedRow(DataItemContainer placeholder)
         {
-            var value = ReflectionUtils.GetObjectProperty(placeholder.DataContext, ((IGridViewDataSet)DataSource).PrimaryKeyPropertyName);
+            PropertyInfo prop;
+            var value = ReflectionUtils.GetObjectPropertyValue(placeholder.DataContext, ((IGridViewDataSet)DataSource).PrimaryKeyPropertyName, out prop);
 
             if (value != null)
             {
-                if (value.Equals(((IGridViewDataSet)DataSource).EditRowId))
+                var editRowId = ((IGridViewDataSet)DataSource).EditRowId;
+                if (editRowId != null && value.Equals(ReflectionUtils.ConvertValue(editRowId, prop.PropertyType)))
                 {
                     return true;
                 }
@@ -422,6 +424,11 @@ namespace DotVVM.Framework.Controls
             }
 
             base.AddAttributesToRender(writer, context);
+        }
+
+        public override IEnumerable<DotvvmBindableObject> GetLogicalChildren()
+        {
+            return base.GetLogicalChildren().Concat(Columns).Concat(RowDecorators);
         }
     }
 }

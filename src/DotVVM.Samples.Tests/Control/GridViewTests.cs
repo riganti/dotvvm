@@ -62,27 +62,36 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(path);
+
                 // get table
                 var table = browser.ElementAt("table", tableID);
                 
                 //check rows
                 table.FindElements("tbody tr").ThrowIfDifferentCountThan(10);
-                // check initial edit row
+
+                // check whether the first row is in edit mode
                 var firstRow = table.First("tbody tr");
                 firstRow.First("td").CheckIfInnerTextEquals("1");
                 firstRow.ElementAt("td", 1).Single("input").CheckIfIsDisplayed();
+                firstRow.ElementAt("td", 2).Single("input").CheckIfIsDisplayed();
+                firstRow.ElementAt("td", 3).FindElements("button").ThrowIfDifferentCountThan(2);
 
                 // check if right number of testboxs are displayed => IsEditable works
                 table.FindElements("tbody tr td input").ThrowIfDifferentCountThan(2);
 
-                //click on button 6
+                // click on Cancel button
+                firstRow.ElementAt("td", 3).ElementAt("button", 1).Click();
+
+                // click the Edit button on another row
+                table = browser.ElementAt("table", tableID);
                 var desiredRow = table.ElementAt("tbody tr", 3);
-                desiredRow.ElementAt("td", 3).First("button").Click();
-                //check if edit row changed
+                desiredRow.ElementAt("td", 3).Single("button").Click();
+
+                // check if edit row changed
                 table = browser.ElementAt("table", tableID);
                 desiredRow = table.ElementAt("tbody tr", 3);
                 desiredRow.First("input").CheckIfIsDisplayed();
-
+                desiredRow.FindElements("button").ThrowIfDifferentCountThan(2);
             });
         }
         public void Control_GridViewPagingSortingBase(string path) { 
@@ -160,6 +169,28 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
-      
+        [TestMethod]
+        public void Control_GridViewRowDecorators()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+
+                browser.FindElements("tr").ThrowIfDifferentCountThan(6);
+
+                browser.ElementAt("tr", 3).Click();
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                }
+
+                browser.ElementAt("tr", 2).Click();
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
+                }
+            });
+        }
+
     }
 }

@@ -30,6 +30,4 @@ namespace DotVVM.Framework.Controls
             EditTemplate.BuildContent(context, container);
         }
     }
-
-    
 }

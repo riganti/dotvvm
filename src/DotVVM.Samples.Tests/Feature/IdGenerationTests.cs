@@ -19,7 +19,8 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_IdGeneration_IdGeneration);
-            
+                browser.Wait();
+
                 browser.Single("*[data-id=test1_marker]").CheckAttribute("id", s => s.Equals("test1"),
                     "Wrong ID");
                 browser.Single("*[data-id=test2_marker]").CheckAttribute("id", s => s.Equals("test2"),
@@ -46,7 +47,7 @@ namespace DotVVM.Samples.Tests.Feature
                 for (int i = 0; i < 4; i++)
                 {
                     repeater1.ElementAt("*[data-id=repeater1_marker]", i).CheckAttribute("id",
-                        s => s.Equals(repeater1.GetAttribute("id") + "_i" + i + "_repeater1"),"Wrong ID");
+                        s => s.Equals(repeater1.GetAttribute("id") + "_i" + i + "_repeater1"), "Wrong ID");
                     repeater1.ElementAt("*[data-id=repeater2_marker]", i).CheckAttribute("id",
                         s => s.Equals(repeater1.GetAttribute("id") + "_i" + i + "_repeater2"), "Wrong ID");
                 }

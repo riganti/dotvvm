@@ -10,14 +10,14 @@ namespace DotVVM.Framework.Binding
 {
     public abstract class ActiveDotvvmProperty: DotvvmProperty
     {
-        public abstract void AddAttributesToRender(IHtmlWriter writer, RenderContext context, object value, DotvvmControl control);
+        public abstract void AddAttributesToRender(IHtmlWriter writer, RenderContext context, DotvvmControl control);
 
 
         public static ActiveDotvvmProperty RegisterCommandToAttribute<TDeclaringType>(string name, string attributeName)
         {
-            return DelegateActionProperty<object>.Register<TDeclaringType>(name, (writer, context, value, control) =>
+            return DelegateActionProperty<ICommandBinding>.Register<TDeclaringType>(name, (writer, context, property, control) =>
             {
-                var binding = value as ICommandBinding;
+                var binding = control.GetCommandBinding(property);
                 var script = KnockoutHelper.GenerateClientPostBackScript(name, binding, context, control);
                 writer.AddAttribute(attributeName, script);
             });
