@@ -161,6 +161,7 @@
     <Compile Include="Controls\Events.cs" />
     <Compile Include="Controls\FileUpload.cs" />
     <Compile Include="Controls\GridView.cs" />
+    <Compile Include="Controls\GridViewCheckBoxColumn.cs" />
     <Compile Include="Controls\GridViewColumn.cs" />
     <Compile Include="Controls\GridViewTemplateColumn.cs" />
     <Compile Include="Controls\GridViewTextColumn.cs" />

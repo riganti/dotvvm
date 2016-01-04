@@ -23,6 +23,7 @@
 						<dot:Button Click="{command: _root.TestCommand()}" Text="Button" />
 					</HeaderTemplate>
                 </dot:GridViewTextColumn>
+				<dot:GridViewCheckBoxColumn HeaderText="Message received" ValueBinding="{value: MessageReceived}" AllowSorting="True"></dot:GridViewCheckBoxColumn>
             </Columns>
             <!-- comment inside control -->
         </dot:GridView>
