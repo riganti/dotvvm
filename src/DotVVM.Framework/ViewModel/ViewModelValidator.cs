@@ -41,7 +41,7 @@ namespace DotVVM.Framework.ViewModel
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, pathPrefix + "()[" + index + "]", alreadyValidated))
+                    foreach (var error in ValidateViewModel(item, pathPrefix + "()[" + index + "]()", alreadyValidated))
                     {
                         yield return error;
                     }
@@ -128,7 +128,7 @@ namespace DotVVM.Framework.ViewModel
             {
                 return path;
             }
-            else if (!prefix.EndsWith("]", StringComparison.Ordinal))
+            else if (!prefix.EndsWith("()", StringComparison.Ordinal))
             {
                 return prefix + "()." + path;
             }

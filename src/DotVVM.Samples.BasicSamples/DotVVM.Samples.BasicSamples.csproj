@@ -136,6 +136,7 @@
     <Compile Include="ViewModels\ControlSamples\DataPager\DataPagerViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingValidationViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewRowDecoratorsViewModel.cs" />
@@ -307,6 +308,7 @@
     <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.dotcontrol" />
     <Content Include="Views\Errors\ControlUsageValidation.dothtml" />
     <Content Include="Views\ControlSamples\RouteLink\RouteLinkEnabled.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingValidation.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
