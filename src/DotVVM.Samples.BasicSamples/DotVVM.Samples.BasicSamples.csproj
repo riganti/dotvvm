@@ -136,6 +136,9 @@
     <Compile Include="ViewModels\ControlSamples\DataPager\DataPagerViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
+    <Content Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyGuidViewModel.cs" />
+    <Content Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyStringViewModel.cs" />
+    <Content Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingValidationViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewRowDecoratorsViewModel.cs" />
@@ -304,6 +307,9 @@
     <Content Include="Views\ControlSamples\Literal\Literal_FormatString.dothtml" />
     <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadInRepeater.dothtml" />
     <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.dotcontrol" />
+    <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingValidation.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyGuid.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyString.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

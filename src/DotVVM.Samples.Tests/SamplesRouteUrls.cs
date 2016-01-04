@@ -28,7 +28,10 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_EnabledProperty_EnabledProperty = "ControlSamples/EnabledProperty/EnabledProperty";
 			public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
 			public const string ControlSamples_GridView_GridViewInlineEditing = "ControlSamples/GridView/GridViewInlineEditing";
-			public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
+            public const string ControlSamples_GridView_GridViewInlineEditingValidation = "ControlSamples/GridView/GridViewInlineEditingValidation";
+            public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyGuid";
+            public const string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString = "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyString";
+            public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
 			public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
 			public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
 			public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
