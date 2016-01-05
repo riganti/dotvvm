@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding
@@ -149,6 +150,11 @@ namespace DotVVM.Framework.Binding
         {
             var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
             var field = typeof (TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public);
+
+            if (registeredProperties.ContainsKey(fullName))
+            {
+                throw new DotvvmCompilationException($"Property is already registered: {fullName}");
+            }
 
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
