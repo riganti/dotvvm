@@ -63,8 +63,8 @@
     <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.5.9.2, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.5.9.2\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
+    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.5.9.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.5.9.3\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
