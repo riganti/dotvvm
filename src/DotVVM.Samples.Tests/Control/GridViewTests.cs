@@ -94,6 +94,35 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        public void Control_GridViewInlineEditingFormat()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
+                
+                //Get rows
+                var rows = browser.First("table tbody");
+                rows.FindElements("tr").ThrowIfDifferentCountThan(3);
+
+                var firstRow = rows.ElementAt("tr", 0);
+                var dateDisplay = firstRow.ElementAt("td", 2).First("span").GetText();
+                var moneyDisplay = firstRow.ElementAt("td", 4).First("span").GetText();
+
+                //Edit
+                firstRow.ElementAt("td", 5).First("button").Click();
+
+                //init again
+                rows = browser.First("table tbody");
+                firstRow = rows.ElementAt("tr", 0);
+
+                //check format
+                firstRow.ElementAt("td", 2).First("input").CheckIfTextEquals(dateDisplay);
+                firstRow.ElementAt("td", 4).First("input").CheckIfTextEquals(moneyDisplay);
+
+            });
+        }
+
+        [TestMethod]
         public void Control_GridViewInlineEditingPrimaryKeyGuid()
         {
             RunInAllBrowsers(browser =>
@@ -108,7 +137,7 @@ namespace DotVVM.Samples.Tests.Control
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
 
-                //init againg
+                //init again
                 rows = browser.First("table tbody");
                 firstRow = rows.ElementAt("tr", 0);
 
@@ -127,7 +156,7 @@ namespace DotVVM.Samples.Tests.Control
                 //update
                 firstRow.ElementAt("td", 4).First("button").Click();
 
-                //init againg
+                //init again
                 rows = browser.First("table tbody");
                 firstRow = rows.ElementAt("tr", 0);
 
@@ -153,7 +182,7 @@ namespace DotVVM.Samples.Tests.Control
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
 
-                //init againg
+                //init again
                 rows = browser.First("table tbody");
                 firstRow = rows.ElementAt("tr", 0);
 
@@ -172,7 +201,7 @@ namespace DotVVM.Samples.Tests.Control
                 //update
                 firstRow.ElementAt("td", 4).First("button").Click();
 
-                //init againg
+                //init again
                 rows = browser.First("table tbody");
                 firstRow = rows.ElementAt("tr", 0);
 
