@@ -136,9 +136,9 @@
     <Compile Include="ViewModels\ControlSamples\DataPager\DataPagerViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
-    <Content Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyGuidViewModel.cs" />
-    <Content Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyStringViewModel.cs" />
-    <Content Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingValidationViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyGuidViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyStringViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingValidationViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewInlineEditingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewRowDecoratorsViewModel.cs" />
