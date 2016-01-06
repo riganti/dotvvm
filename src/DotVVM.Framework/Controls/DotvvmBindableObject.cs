@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the value or a binding object for a specified property.
         /// </summary>
-        protected virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
+        protected internal virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
         {
             return property.GetValue(this, inherit);
         }
