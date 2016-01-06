@@ -1,5 +1,6 @@
 ﻿using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.Compilation.Binding;
@@ -67,6 +68,19 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestViewModel { StringProp = "abc" };
             Assert.AreEqual(ExecuteBinding("SetStringProp('hulabula', 13)", viewModel), "abc");
             Assert.AreEqual(viewModel.StringProp, "hulabula13");
+        }
+
+        class MoqComponent
+        {
+            public object Property { get; set; }
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(DotvvmCompilationException))]
+        public void BindingCompiler_PropertyRegisteredTwiceThrowException()
+        {
+            DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
+            DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
         }
 
         [TestMethod]
