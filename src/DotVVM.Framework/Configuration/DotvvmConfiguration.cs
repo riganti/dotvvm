@@ -110,6 +110,72 @@ namespace DotVVM.Framework.Configuration
         {
             var configuration = new DotvvmConfiguration();
 
+            InitDefaultServices(configuration);
+
+            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
+            configuration.Markup.Controls.AddRange(new[]
+            {
+                new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" }
+            });
+
+            RegisterResources(configuration);
+
+            return configuration;
+        }
+
+        private static void RegisterResources(DotvvmConfiguration configuration)
+        {
+            configuration.Resources.Register(Constants.JQueryResourceName,
+                new ScriptResource()
+                {
+                    CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
+                    Url = "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js",
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    GlobalObjectName = "$"
+                });
+            configuration.Resources.Register(Constants.KnockoutJSResourceName,
+                new ScriptResource()
+                {
+                    Url = "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    GlobalObjectName = "ko"
+                });
+
+            configuration.Resources.Register(Constants.DotvvmResourceName + ".internal",
+                new ScriptResource()
+                {
+                    Url = "DotVVM.Framework.Resources.Scripts.DotVVM.js",
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    GlobalObjectName = "dotvvm",
+                    Dependencies = new[] { Constants.KnockoutJSResourceName }
+                });
+            configuration.Resources.Register(Constants.DotvvmResourceName,
+                new InlineScriptResource()
+                {
+                    Code = @"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();",
+                    Dependencies = new[] { Constants.DotvvmResourceName + ".internal" }
+                });
+
+            configuration.Resources.Register(Constants.DotvvmDebugResourceName,
+                new ScriptResource()
+                {
+                    Url = "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js",
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    Dependencies = new[] { Constants.DotvvmResourceName, Constants.JQueryResourceName }
+                });
+
+            configuration.Resources.Register(Constants.DotvvmFileUploadCssResourceName,
+                new StylesheetResource()
+                {
+                    Url = "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css",
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name
+                });
+
+            RegisterGlobalizeResources(configuration);
+        }
+
+        private static void InitDefaultServices(DotvvmConfiguration configuration)
+        {
             configuration.ServiceLocator = new ServiceLocator();
             configuration.ServiceLocator.RegisterSingleton<IViewModelProtector>(() => new DefaultViewModelProtector());
             configuration.ServiceLocator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector());
@@ -127,63 +193,6 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler());
             configuration.ServiceLocator.RegisterSingleton<IBindingParser>(() => new CompileTimeBindingParser());
             configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBidningIdGenerator());
-
-            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
-
-            configuration.Markup.Controls.AddRange(new[]
-            {
-                new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" }
-            });
-
-            configuration.Resources.Register(Constants.JQueryResourceName,
-                new ScriptResource()
-                {
-                    CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
-                    Url = "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
-                    GlobalObjectName = "$"
-                });
-            configuration.Resources.Register(Constants.KnockoutJSResourceName,
-                new ScriptResource()
-                {
-                    Url = "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
-                    GlobalObjectName = "ko"
-                });
-
-            configuration.Resources.Register(Constants.DotvvmResourceName + ".internal",
-                new ScriptResource()
-                {
-                    Url = "DotVVM.Framework.Resources.Scripts.DotVVM.js",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
-                    GlobalObjectName = "dotvvm",
-                    Dependencies = new[] { Constants.KnockoutJSResourceName }
-                });
-            configuration.Resources.Register(Constants.DotvvmResourceName,
-                new InlineScriptResource()
-                {
-                    Code = @"if (window.dotvvm) { throw 'DotVVM is already loaded!'; } window.dotvvm = new DotVVM();",
-                    Dependencies = new[] { Constants.DotvvmResourceName + ".internal" }
-                });
-
-            configuration.Resources.Register(Constants.DotvvmDebugResourceName,
-                new ScriptResource()
-                {
-                    Url = "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name,
-                    Dependencies = new[] { Constants.DotvvmResourceName, Constants.JQueryResourceName }
-                });
-            
-            configuration.Resources.Register(Constants.DotvvmFileUploadCssResourceName,
-                new StylesheetResource()
-                {
-                    Url = "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css",
-                    EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name
-                });
-
-            RegisterGlobalizeResources(configuration);
-
-            return configuration;
         }
 
 
