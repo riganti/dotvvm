@@ -77,7 +77,21 @@ namespace DotVVM.Framework.ResourceManagement
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            throw new NotImplementedException("resource configuration serialization not supported");
+            writer.WriteStartObject();
+            var resources = value as DotvvmResourceRepository;
+            if (resources == null) throw new NotSupportedException();
+            foreach(var group in resources.Resources.GroupBy(k => k.Value.GetType())) {
+                var name = ResourceTypeNames.First(k => k.Value == group.Key).Key;
+                writer.WritePropertyName(name);
+                writer.WriteStartObject();
+                foreach (var resource in group) {
+                    writer.WritePropertyName(resource.Key);
+                    serializer.Serialize(writer, resource.Value);
+                }
+                writer.WriteEndObject();
+            }
+            writer.WriteEndObject();
         }
+
     }
 }
