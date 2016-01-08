@@ -16,6 +16,7 @@ using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using DotVVM.Framework.Styles;
 using DotVVM.Framework.Runtime.Compilation.Binding;
 using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -121,6 +122,7 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
             configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
             configuration.ServiceLocator.RegisterSingleton<IControlTreeResolver>(() => new DefaultControlTreeResolver(configuration));
+            configuration.ServiceLocator.RegisterSingleton<IAbstractTreeBuilder>(() => new ResolvedTreeBuilder());
             configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
             configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler());
             configuration.ServiceLocator.RegisterSingleton<IBindingParser>(() => new CompileTimeBindingParser());
