@@ -28,6 +28,7 @@ namespace DotVVM.Framework
         public static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootDirectory, bool errorPages = true)
         {
             var configuration = CreateConfiguration(applicationRootDirectory);
+
             // add middlewares
             if (errorPages)
                 app.Use<DotvvmErrorPageMiddleware>();

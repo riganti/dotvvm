@@ -6,6 +6,7 @@ using Microsoft.Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Concurrent;
+using System.Threading;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -26,12 +27,15 @@ namespace DotVVM.Framework.Hosting
         {
             Configuration = configuration;
         }
-
+        private int configurationSaved = 0;
         /// <summary>
         /// Process an individual request.
         /// </summary>
         public override Task Invoke(IOwinContext context)
         {
+            if (Interlocked.Exchange(ref configurationSaved, 1) == 0) {
+                VisualStudioHelper.SaveConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
+            }
             // create the context
             var dotvvmContext = new DotvvmRequestContext()
             {

@@ -37,7 +37,6 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets the route table.
         /// </summary>
-        [JsonIgnore]
         public DotvvmRouteTable RouteTable { get; private set; }
 
         /// <summary>

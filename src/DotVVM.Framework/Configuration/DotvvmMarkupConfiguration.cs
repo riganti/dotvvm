@@ -24,7 +24,8 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets a list of HTML attribute transforms.
         /// </summary>
-        [JsonProperty("htmlAttributeTransforms")]
+        //[JsonProperty("htmlAttributeTransforms")]
+        [JsonIgnore]
         public Dictionary<HtmlTagAttributePair, HtmlAttributeTransformConfiguration> HtmlAttributeTransforms { get; private set; }
      
         /// <summary>
