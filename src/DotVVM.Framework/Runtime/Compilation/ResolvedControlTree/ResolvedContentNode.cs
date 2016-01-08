@@ -5,15 +5,17 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Runtime.Compilation.AbstractControlTree;
 
 namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
 {
-    public abstract class ResolvedContentNode: IResolvedTreeNode
+    public abstract class ResolvedContentNode : IResolvedTreeNode, IAbstractContentNode 
     {
         public DothtmlNode DothtmlNode { get; set; }
         public List<ResolvedControl> Content { get; set; }
         public ControlResolverMetadata Metadata { get; set; }
         public DataContextStack DataContextTypeStack { get; set; }
+
 
         public ResolvedContentNode(ControlResolverMetadata metadata, DothtmlNode node, List<ResolvedControl> content, DataContextStack dataContext)
         {
@@ -36,5 +38,12 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
                 item.Accept(visitor);
             }
         }
+
+
+        IEnumerable<IAbstractControl> IAbstractContentNode.Content => Content;
+
+        IControlResolverMetadata IAbstractContentNode.Metadata => Metadata;
+
+        IDataContextStack IAbstractContentNode.DataContextTypeStack => DataContextTypeStack;
     }
 }

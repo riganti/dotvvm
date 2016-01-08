@@ -6,14 +6,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Collections;
+using DotVVM.Framework.Runtime.Compilation.AbstractControlTree;
 
 namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
 {
-    public class ResolvedControl : ResolvedContentNode
+    public class ResolvedControl : ResolvedContentNode, IAbstractControl
     {
         public Dictionary<DotvvmProperty, ResolvedPropertySetter> Properties { get; set; } = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
+        
         public Dictionary<string, object> HtmlAttributes { get; set; }
-        public object[] ContructorParameters { get; set; }
+
+        public object[] ConstructorParameters { get; set; }
 
         public ResolvedControl(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
             : base(metadata, node, dataContext)
@@ -55,5 +58,22 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
             }
             base.AcceptChildren(visitor);
         }
+
+
+        IEnumerable<IPropertyDescriptor> IAbstractControl.PropertyNames => Properties.Keys;
+
+        public bool TryGetProperty(IPropertyDescriptor property, out IAbstractPropertySetter value)
+        {
+            ResolvedPropertySetter result;
+            value = null;
+            if (!Properties.TryGetValue((DotvvmProperty)property, out result)) return false;
+            value = result;
+            return true;
+        }
+
+
+        IEnumerable<object> IAbstractControl.ContructorParameters => ConstructorParameters;
+
+        IReadOnlyDictionary<string, object> IAbstractControl.HtmlAttributes => HtmlAttributes;
     }
 }

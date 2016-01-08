@@ -8,6 +8,8 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
 using DotVVM.Framework.Runtime.Compilation;
+using DotVVM.Framework.Runtime.Compilation.AbstractControlTree;
+using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 
 namespace DotVVM.Framework.Binding
 {
@@ -15,13 +17,17 @@ namespace DotVVM.Framework.Binding
     /// Represents a property of DotVVM controls.
     /// </summary>
     [DebuggerDisplay("{FullName}")]
-    public class DotvvmProperty
+    public class DotvvmProperty : IPropertyDescriptor
     {
 
         /// <summary>
         /// Gets or sets the name of the property.
         /// </summary>
         public string Name { get; private set; }
+
+        ITypeDescriptor IPropertyDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
+
+        ITypeDescriptor IPropertyDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
 
         /// <summary>
         /// Gets the default value of the property.

@@ -7,11 +7,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Runtime.Compilation.AbstractControlTree;
 
 namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
 {
     [DebuggerDisplay("{Type.Name}: {Value}")]
-    public class ResolvedBinding
+    public class ResolvedBinding : IAbstractBinding
     {
         public DothtmlBindingNode BindingNode { get; set; }
         public Type BindingType { get; set; }
@@ -28,5 +29,9 @@ namespace DotVVM.Framework.Runtime.Compilation.ResolvedControlTree
             }
             return Expression;
         }
+
+
+        IDataContextStack IAbstractBinding.DataContextTypeStack => DataContextTypeStack;
+        public ITypeDescriptor ResultType => new ResolvedTypeDescriptor(Expression.Type);
     }
 }

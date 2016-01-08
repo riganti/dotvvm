@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
                     string text = commentNode.IsServerSide ?  "" : "<!--" + commentNode.Value + "-->";
                     var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(RawLiteral)), node, dataContext);
-                    literal.ContructorParameters = new object[] { text, commentNode.Value, true };
+                    literal.ConstructorParameters = new object[] { text, commentNode.Value, true };
                     return literal;
                 }
                 else if (node is DothtmlLiteralNode)
@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                     else text = literalNode.Value;
 
                     var literal = new ResolvedControl(controlResolver.ResolveControl(typeof(RawLiteral)), node, dataContext);
-                    literal.ContructorParameters = new object[] { text, literalNode.Value, whitespace };
+                    literal.ConstructorParameters = new object[] { text, literalNode.Value, whitespace };
                     return literal;
                 }
                 else if (node is DothtmlElementNode)
@@ -157,7 +157,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
             var control = new ResolvedControl(controlMetadata, element, dataContext)
             {
-                ContructorParameters = constructorParameters
+                ConstructorParameters = constructorParameters
             };
 
             var dataContextAttribute = element.Attributes.FirstOrDefault(a => a.AttributeName == "DataContext");

@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Styles
 
         public StyleBuilder<HtmlGenericControl> Register(string tagName)
         {
-            return Register<HtmlGenericControl>(m => (string)m.Control.ContructorParameters[0] == tagName, false);
+            return Register<HtmlGenericControl>(m => (string)m.Control.ConstructorParameters[0] == tagName, false);
         }
     }
 }

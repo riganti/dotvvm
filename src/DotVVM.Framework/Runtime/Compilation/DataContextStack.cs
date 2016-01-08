@@ -4,15 +4,15 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Runtime.Compilation.AbstractControlTree;
+using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
-    public class DataContextStack
+    public class DataContextStack : IDataContextStack
     {
         public DataContextStack Parent { get; set; }
         public Type DataContextType { get; set; }
-        //public Expression ReplaceExpression { get; set; }
-        //public List<Type> Parameters { get; set; }
         public Type RootControlType { get; set; }
 
         public DataContextStack(Type type, DataContextStack parent = null)
@@ -20,16 +20,8 @@ namespace DotVVM.Framework.Runtime.Compilation
             Parent = parent;
             DataContextType = type;
             RootControlType = parent?.RootControlType;
-            //if (parent == null) Parameters = new List<Type>();
-            //else Parameters = parent.Parameters;
         }
-
-        //public DataContextStack(Expression expression, DataContextStack parent = null)
-        //    : this(expression.Type, parent)
-        //{
-        //    ReplaceExpression = expression;
-        //}
-
+        
         public IEnumerable<Type> Enumerable()
         {
             var c = this;
@@ -50,11 +42,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
-        //public ParameterExpression GetNextParameter(Type type)
-        //{
-        //    var i = Parameters.Count;
-        //    Parameters.Add(type);
-        //    return Expression.Parameter(type, "param_" + i);
-        //}
+        ITypeDescriptor IDataContextStack.DataContextType => new ResolvedTypeDescriptor(DataContextType);
+        IDataContextStack IDataContextStack.Parent => Parent;
     }
 }

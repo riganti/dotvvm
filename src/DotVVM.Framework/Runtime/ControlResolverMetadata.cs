@@ -2,10 +2,12 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Runtime.Compilation.AbstractControlTree;
+using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 
 namespace DotVVM.Framework.Runtime
 {
-    public class ControlResolverMetadata
+    public class ControlResolverMetadata : IControlResolverMetadata
     {
 
         public string Namespace { get; set; }
@@ -25,7 +27,9 @@ namespace DotVVM.Framework.Runtime
         public DotvvmProperty DefaultContentProperty { get; set; }
 
         public string VirtualPath { get; internal set; }
+
         public Type DataContextConstraint { get; set; }
+
 
 
 
@@ -37,5 +41,24 @@ namespace DotVVM.Framework.Runtime
             DotvvmProperty result;
             return Properties.TryGetValue(name, out result) ? result : null;
         }
+
+
+
+        ITypeDescriptor IControlResolverMetadata.Type => new ResolvedTypeDescriptor(Type);
+
+        IEnumerable<string> IControlResolverMetadata.PropertyNames => Properties.Keys;
+
+        bool IControlResolverMetadata.TryGetProperty(string name, out IPropertyDescriptor value)
+        {
+            DotvvmProperty result;
+            value = null;
+            if (!Properties.TryGetValue(name, out result)) return false;
+            value = result;
+            return true;
+        }
+
+        IPropertyDescriptor IControlResolverMetadata.DefaultContentProperty => DefaultContentProperty;
+
+        ITypeDescriptor IControlResolverMetadata.DataContextConstraint => new ResolvedTypeDescriptor(DataContextConstraint);
     }
 }

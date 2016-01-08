@@ -133,13 +133,13 @@ namespace DotVVM.Samples.Tests.Control
                     // try sorting in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("a", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).CheckClassAttribute("sort-up");
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).CheckClassAttribute("sort-asc");
                     browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("4");
 
                     //// sort descending in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("a", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).CheckClassAttribute("sort-down");
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).CheckClassAttribute("sort-desc");
                     browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("9");
 
                     //// sort by different column in the first grid

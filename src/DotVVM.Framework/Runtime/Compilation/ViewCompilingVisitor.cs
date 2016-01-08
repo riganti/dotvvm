@@ -197,7 +197,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             if (control.Metadata.ControlBuilderType == null)
             {
                 // compiled control
-                name = emitter.EmitCreateObject(control.Metadata.Type, control.ContructorParameters);
+                name = emitter.EmitCreateObject(control.Metadata.Type, control.ConstructorParameters);
             }
             else
             {
