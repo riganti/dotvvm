@@ -174,6 +174,7 @@ namespace DotVVM.Framework.Configuration
             RegisterGlobalizeResources(configuration);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         private static void InitDefaultServices(DotvvmConfiguration configuration)
         {
             configuration.ServiceLocator = new ServiceLocator();
