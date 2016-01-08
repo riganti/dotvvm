@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 using System.Collections.Concurrent;
 using DotVVM.Framework.Binding;
 using System.Reflection;
@@ -18,6 +17,7 @@ using DotVVM.Framework.Runtime.Filters;
 using System.Diagnostics;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {

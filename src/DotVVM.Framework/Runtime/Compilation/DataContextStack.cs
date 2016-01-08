@@ -4,8 +4,8 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Runtime.Compilation.AbstractControlTree;
-using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
+using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {

@@ -16,9 +16,10 @@ using DotVVM.Framework.Parser;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 using DotVVM.Framework.Styles;
 using DotVVM.Framework.Runtime.Compilation.Binding;
+using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -47,7 +48,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             var parser = new DothtmlParser();
             var node = parser.Parse(tokenizer.Tokens);
 
-            var resolvedView = controlTreeResolver.ResolveTree(node, fileName);
+            var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, fileName);
 
             var styleVisitor = new StylingVisitor(configuration.Styles);
             resolvedView.Accept(styleVisitor);

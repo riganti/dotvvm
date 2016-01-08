@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime.ControlTree;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -11,22 +12,22 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Resolves the metadata for specified element.
         /// </summary>
-        ControlResolverMetadata ResolveControl(string tagPrefix, string tagName, out object[] activationParameters);
+        IControlResolverMetadata ResolveControl(string tagPrefix, string tagName, out object[] activationParameters);
 
         /// <summary>
         /// Resolves the control metadata for specified type.
         /// </summary>
-        ControlResolverMetadata ResolveControl(ControlType type);
+        IControlResolverMetadata ResolveControl(IControlType type);
 
         /// <summary>
         /// Builds the control metadata.
         /// </summary>
-        ControlResolverMetadata BuildControlMetadata(ControlType type);
+        IControlResolverMetadata BuildControlMetadata(IControlType type);
 
         /// <summary>
         /// Resolves the control metadata for specified type.
         /// </summary>
-        ControlResolverMetadata ResolveControl(Type controlType);
+        IControlResolverMetadata ResolveControl(ITypeDescriptor controlType);
 
         /// <summary>
         /// Resolves the binding type.

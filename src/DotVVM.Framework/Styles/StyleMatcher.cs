@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Parser.Dothtml;
 using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Styles
 {

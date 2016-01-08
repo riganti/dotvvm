@@ -1,12 +1,12 @@
 ﻿using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Styles

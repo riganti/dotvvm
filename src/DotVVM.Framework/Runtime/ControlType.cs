@@ -2,15 +2,26 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Runtime
 {
-    public class ControlType
+    public class ControlType : IControlType
     {
         public Type Type { get; private set; }
+
         public Type ControlBuilderType { get; private set; }
+
         public string VirtualPath { get; private set; }
+
         public Type DataContextRequirement { get; private set; }
+
+        ITypeDescriptor IControlType.Type => new ResolvedTypeDescriptor(Type);
+
+        ITypeDescriptor IControlType.ControlBuilderType => new ResolvedTypeDescriptor(ControlBuilderType);
+
+        ITypeDescriptor IControlType.DataContextRequirement => new ResolvedTypeDescriptor(DataContextRequirement);
 
 
         /// <summary>
