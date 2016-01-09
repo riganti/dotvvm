@@ -35,14 +35,16 @@ namespace DotVVM.Framework.Runtime.Compilation
             DataContextStack parent = null;
             if (parentDataContextStack != null)
             {
-                parent = (DataContextStack) CreateDataContextTypeStack(parentDataContextStack.DataContextType, parentDataContextStack: parentDataContextStack.Parent);
-            } 
+                parent = (DataContextStack) CreateDataContextTypeStack(parentDataContextStack.DataContextType,  
+                    parentDataContextStack: parentDataContextStack.Parent);
+            }
 
-            return new DataContextStack(ResolvedTypeDescriptor.ToSystemType(viewModelType))
+            var dataContextTypeStack = new DataContextStack(ResolvedTypeDescriptor.ToSystemType(viewModelType), parent);
+            if (wrapperType != null)
             {
-                RootControlType = ResolvedTypeDescriptor.ToSystemType(wrapperType),
-                Parent = parent
-            };
+                dataContextTypeStack.RootControlType = ResolvedTypeDescriptor.ToSystemType(wrapperType);
+            }
+            return dataContextTypeStack;
         }
 
         protected override IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context)
@@ -68,7 +70,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         protected override ITypeDescriptor GetDataContextChange(IDataContextStack dataContext, IAbstractControl control, IPropertyDescriptor property)
         {
             var type = DataContextChangeAttribute.GetDataContextExpression((DataContextStack)dataContext, (ResolvedControl)control, (DotvvmProperty)property);
-            return new ResolvedTypeDescriptor(type);
+            return type != null ? new ResolvedTypeDescriptor(type) : null;
         }
 
         protected override ITypeDescriptor FindType(string fullTypeNameWithAssembly)

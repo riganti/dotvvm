@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 
         public void AddChildControl(IAbstractContentNode control, IAbstractControl child)
         {
-            ((ResolvedControl)control).Content.Add((ResolvedControl)child);
+            ((ResolvedContentNode)control).Content.Add((ResolvedControl)child);
         }
 
         public IAbstractPropertyTemplate BuildPropertyTemplate(IPropertyDescriptor property, IEnumerable<IAbstractControl> templateControls)

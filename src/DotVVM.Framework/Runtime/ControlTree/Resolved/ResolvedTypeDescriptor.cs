@@ -4,7 +4,7 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 {
-    public struct ResolvedTypeDescriptor : ITypeDescriptor
+    public class ResolvedTypeDescriptor : ITypeDescriptor
     {
         public Type Type { get; }
 

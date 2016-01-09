@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Runtime
             this.controlType = controlType;
             this.attribute = controlType.Type.GetControlMarkupOptionsAttribute();
 
-            this.properties = new Dictionary<string, IPropertyDescriptor>(properties, StringComparer.CurrentCultureIgnoreCase);
+            this.properties = new Dictionary<string, IPropertyDescriptor>(StringComparer.CurrentCultureIgnoreCase);
         }
     }
 }
