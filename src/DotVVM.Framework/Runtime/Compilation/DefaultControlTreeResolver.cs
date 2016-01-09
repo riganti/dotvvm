@@ -32,14 +32,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         protected override IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, ITypeDescriptor wrapperType = null, IDataContextStack parentDataContextStack = null)
         {
-            DataContextStack parent = null;
-            if (parentDataContextStack != null)
-            {
-                parent = (DataContextStack) CreateDataContextTypeStack(parentDataContextStack.DataContextType,  
-                    parentDataContextStack: parentDataContextStack.Parent);
-            }
-
-            var dataContextTypeStack = new DataContextStack(ResolvedTypeDescriptor.ToSystemType(viewModelType), parent);
+            var dataContextTypeStack = new DataContextStack(ResolvedTypeDescriptor.ToSystemType(viewModelType), parentDataContextStack as DataContextStack);
             if (wrapperType != null)
             {
                 dataContextTypeStack.RootControlType = ResolvedTypeDescriptor.ToSystemType(wrapperType);
