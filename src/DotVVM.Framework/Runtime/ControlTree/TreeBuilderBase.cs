@@ -25,6 +25,6 @@ namespace DotVVM.Framework.Runtime.ControlTree
             return view;
         }
 
-        protected abstract ResolvedTreeRoot BuildRootCore(IControlResolverMetadata viewMetadata, DothtmlRootNode root);
+        protected abstract IAbstractTreeRoot BuildRootCore(IControlResolverMetadata viewMetadata, DothtmlRootNode root);
     }
 }

@@ -1,6 +1,12 @@
 ﻿using System;
+using System.Collections;
+using System.Collections.Generic;
+using System.Linq;
 using System.Reflection;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
+using Microsoft.CodeAnalysis;
 
 namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 {
@@ -37,6 +43,50 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
         {
             return Name == other.Name && Namespace == other.Namespace && Assembly == other.Assembly;
         }
+
+        public ITypeDescriptor TryGetArrayElementOrIEnumerableType()
+        {
+            // handle array
+            if (Type.IsArray)
+            {
+                return new ResolvedTypeDescriptor(Type.GetElementType());
+            }
+
+            // handle iEnumerables
+            Type iEnumerable;
+            if (Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            {
+                iEnumerable = Type;
+            }
+            else
+            {
+                iEnumerable = Type.GetInterfaces()
+                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+            }
+            if (iEnumerable != null)
+            {
+                return new ResolvedTypeDescriptor(iEnumerable.GetGenericArguments()[0]);
+            }
+
+            if (typeof(IEnumerable).IsAssignableFrom(Type))
+            {
+                return new ResolvedTypeDescriptor(typeof(object));
+            }
+
+            return null;
+        }
+
+        public ITypeDescriptor TryGetPropertyType(string propertyName)
+        {
+            var propertyType = Type.GetProperty(propertyName)?.PropertyType;
+            if (propertyType != null)
+            {
+                return new ResolvedTypeDescriptor(propertyType);
+            }
+            return null;
+        }
+        
+        public override string ToString() => Type.ToString();
 
 
         public static Type ToSystemType(ITypeDescriptor typeDescriptor)

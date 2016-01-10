@@ -417,6 +417,7 @@
     <Compile Include="Runtime\ControlTree\Resolved\ResolvedTreeRoot.cs" />
     <Compile Include="Runtime\ControlTree\Resolved\ResolvedTypeDescriptor.cs" />
     <Compile Include="Runtime\ControlTree\TreeBuilderBase.cs" />
+    <Compile Include="Runtime\ControlTree\TypeDescriptorUtils.cs" />
     <Compile Include="Runtime\DefaultControlBuilderFactory.cs" />
     <Compile Include="Runtime\DefaultControlResolver.cs" />
     <Compile Include="Runtime\DefaultOutputRenderer.cs" />

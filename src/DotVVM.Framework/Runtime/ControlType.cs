@@ -18,9 +18,7 @@ namespace DotVVM.Framework.Runtime
         public Type DataContextRequirement { get; private set; }
 
         ITypeDescriptor IControlType.Type => new ResolvedTypeDescriptor(Type);
-
-        ITypeDescriptor IControlType.ControlBuilderType => new ResolvedTypeDescriptor(ControlBuilderType);
-
+        
         ITypeDescriptor IControlType.DataContextRequirement => DataContextRequirement != null ? new ResolvedTypeDescriptor(DataContextRequirement) : null;
 
 

@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
@@ -59,13 +60,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             return ReflectionUtils.ConvertValue(value, ((ResolvedTypeDescriptor)propertyType).Type);
         }
-
-        protected override ITypeDescriptor GetDataContextChange(IDataContextStack dataContext, IAbstractControl control, IPropertyDescriptor property)
-        {
-            var type = DataContextChangeAttribute.GetDataContextExpression((DataContextStack)dataContext, (ResolvedControl)control, (DotvvmProperty)property);
-            return type != null ? new ResolvedTypeDescriptor(type) : null;
-        }
-
+        
         protected override ITypeDescriptor FindType(string fullTypeNameWithAssembly)
         {
             var type = ReflectionUtils.FindType(fullTypeNameWithAssembly);

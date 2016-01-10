@@ -6,63 +6,50 @@ namespace DotVVM.Framework.Runtime.ControlTree.DesignTime
 {
     public abstract class DesignTimeContentNode : IAbstractContentNode
     {
-        private readonly DesignTimeControlResolver resolver;
-
-
+        
         public DothtmlNode DothtmlNode { get; }
+
 
         private List<DesignTimeControl> content;
         public IEnumerable<IAbstractControl> Content
         {
             get
             {
-                EnsureContentResolved();
+                if (content == null)
+                {
+                    ResolveContentAction();
+                }
                 return content;
             }
         }
 
-        private IControlResolverMetadata metadata;
-
-        public IControlResolverMetadata Metadata
-        {
-            get
-            {
-                EnsureMetadataResolved();
-                return metadata;
-            }
-        }
+        public IControlResolverMetadata Metadata { get; private set; }
 
         public IDataContextStack DataContextTypeStack { get; set; }
 
-        private void EnsureContentResolved()
-        {
-            if (content != null) return;
-            ResolveContent();
-        }
-
-        private void ResolveContent()
-        {
-            throw new NotImplementedException();
-        }
-
-        private void EnsureMetadataResolved()
-        {
-            if (metadata != null) return;
-            ResolveMetadata();
-        }
-
-        private void ResolveMetadata()
-        {
-            throw new NotImplementedException();
-        }
-
-
-        public DesignTimeContentNode(DothtmlNode node, DesignTimeControlResolver resolver)
-        {
-            this.resolver = resolver;
-            DothtmlNode = node;
-        }
-
+        public Action ResolveContentAction { get; set; }
         
+
+        public DesignTimeContentNode(DothtmlNode node, IControlResolverMetadata metadata)
+        {
+            DothtmlNode = node;
+            Metadata = metadata;
+        }
+
+
+
+        public void AddChildControl(DesignTimeControl child)
+        {
+            if (content == null)
+            {
+                content = new List<DesignTimeControl>();
+            }
+            else
+            {
+                throw new InvalidOperationException("Cannot add children into a resolved tree node!");
+            }
+
+            content.Add(child);
+        }
     }
 }

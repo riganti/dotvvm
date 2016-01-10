@@ -349,12 +349,20 @@ namespace DotVVM.Framework.Runtime.Compilation
                 }
                 else
                 {
-                    foreach (var node in content)
-                    {
-                        // TODO: data context from parent
-                        treeBuilder.AddChildControl(control, ProcessNode(node, control.Metadata, control.DataContextTypeStack));
-                    }
+                    ResolveControlContentImmediately(control, content);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Resolves the content of the control immediately during the parsing.
+        /// Override this method if you need lazy loading of tree node contents.
+        /// </summary>
+        protected virtual void ResolveControlContentImmediately(IAbstractControl control, List<DothtmlNode> content)
+        {
+            foreach (var node in content)
+            {
+                treeBuilder.AddChildControl(control, ProcessNode(node, control.Metadata, control.DataContextTypeStack));
             }
         }
 
@@ -531,6 +539,22 @@ namespace DotVVM.Framework.Runtime.Compilation
         }
 
 
+        /// <summary>
+        /// Gets the data context change behavior for the specified control property.
+        /// </summary>
+        protected virtual ITypeDescriptor GetDataContextChange(IDataContextStack dataContext, IAbstractControl control, IPropertyDescriptor property)
+        {
+            var attributes = property != null ? property.DataContextChangeAttributes : control.Metadata.DataContextChangeAttributes;
+            if (attributes == null || attributes.Length == 0) return null;
+
+            var type = dataContext.DataContextType;
+            foreach (var attribute in attributes.OrderBy(a => a.Order))
+            {
+                type = attribute.GetChildDataContextType(type, dataContext, control, property);
+            }
+            return type;
+        }
+
 
         /// <summary>
         /// Creates the IControlType identification of the control.
@@ -546,12 +570,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// Converts the value to the property type.
         /// </summary>
         protected abstract object ConvertValue(string value, ITypeDescriptor propertyType);
-
-        /// <summary>
-        /// Gets the data context change behavior for the specified control property.
-        /// </summary>
-        protected abstract ITypeDescriptor GetDataContextChange(IDataContextStack dataContext, IAbstractControl control, IPropertyDescriptor property);
-
+        
         /// <summary>
         /// Finds the type descriptor for full type name.
         /// </summary>

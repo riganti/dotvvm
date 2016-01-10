@@ -1,3 +1,4 @@
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Runtime.ControlTree
@@ -20,5 +21,10 @@ namespace DotVVM.Framework.Runtime.ControlTree
         ControlMarkupOptionsAttribute GetControlMarkupOptionsAttribute();
 
         bool IsEqualTo(ITypeDescriptor other);
+
+        ITypeDescriptor TryGetArrayElementOrIEnumerableType();
+
+        ITypeDescriptor TryGetPropertyType(string propertyName);
+        
     }
 }

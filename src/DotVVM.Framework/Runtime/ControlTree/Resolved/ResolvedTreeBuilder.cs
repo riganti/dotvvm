@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 {
     public class ResolvedTreeBuilder : TreeBuilderBase, IAbstractTreeBuilder
     {
-        protected override ResolvedTreeRoot BuildRootCore(IControlResolverMetadata viewMetadata, DothtmlRootNode root)
+        protected override IAbstractTreeRoot BuildRootCore(IControlResolverMetadata viewMetadata, DothtmlRootNode root)
         {
             return new ResolvedTreeRoot((ControlResolverMetadata)viewMetadata, root, null);
         }

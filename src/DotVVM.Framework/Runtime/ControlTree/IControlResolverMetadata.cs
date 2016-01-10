@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Runtime.ControlTree
 {
@@ -21,5 +22,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
         ITypeDescriptor DataContextConstraint { get; }
 
         IEnumerable<IPropertyDescriptor> AllProperties { get; }
+
+        DataContextChangeAttribute[] DataContextChangeAttributes { get; }
     }
 }
