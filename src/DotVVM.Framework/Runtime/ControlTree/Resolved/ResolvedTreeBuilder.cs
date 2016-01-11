@@ -35,16 +35,17 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
             ((ResolvedControl) control).SetHtmlAttribute(attributeName, value);
         }
 
-        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, Expression expression, IDataContextStack context, Exception parsingError)
+        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, IDataContextStack context, Exception parsingError, ITypeDescriptor resultType, object customData)
         {
             return new ResolvedBinding()
             {
                 BindingType = bindingOptions.BindingType,
                 Value = node.Value,
-                Expression = expression,
+                Expression = (Expression)customData,
                 DataContextTypeStack = (DataContextStack)context,
                 ParsingError = parsingError,
-                BindingNode = node
+                BindingNode = node,
+                ResultType = resultType
             };
         }
 

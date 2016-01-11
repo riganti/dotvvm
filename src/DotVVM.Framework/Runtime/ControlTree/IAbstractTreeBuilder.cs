@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
 
         IAbstractControl BuildResolvedControl(IControlResolverMetadata resolveControl, DothtmlNode node, IDataContextStack dataContext);
 
-        IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, Expression expression, IDataContextStack context, Exception parsingError);
+        IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, IDataContextStack context, Exception parsingError, ITypeDescriptor resultType, object customData);
 
         IAbstractPropertyTemplate BuildPropertyTemplate(IPropertyDescriptor property, IEnumerable<IAbstractControl> templateControls);
 

@@ -28,6 +28,6 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 
 
         IDataContextStack IAbstractBinding.DataContextTypeStack => DataContextTypeStack;
-        public ITypeDescriptor ResultType => new ResolvedTypeDescriptor(Expression.Type);
+        public ITypeDescriptor ResultType { get; set; }
     }
 }

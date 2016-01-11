@@ -45,15 +45,17 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             Expression expression = null;
             Exception parsingError = null;
+            ITypeDescriptor resultType = null;
             try
             {
                 expression = bindingParser.Parse(node.Value, (DataContextStack)context, bindingOptions);
+                resultType = new ResolvedTypeDescriptor(expression.Type);
             }
             catch (Exception exception)
             {
                 parsingError = exception;
             }
-            return treeBuilder.BuildBinding(bindingOptions, node, expression, context, parsingError);
+            return treeBuilder.BuildBinding(bindingOptions, node, context, parsingError, resultType, expression);
         }
 
         protected override object ConvertValue(string value, ITypeDescriptor propertyType)
