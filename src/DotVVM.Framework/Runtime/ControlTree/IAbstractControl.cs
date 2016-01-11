@@ -12,5 +12,6 @@ namespace DotVVM.Framework.Runtime.ControlTree
         IReadOnlyDictionary<string, object> HtmlAttributes { get; }
 
         object[] ConstructorParameters { get; set; }
+        
     }
 }

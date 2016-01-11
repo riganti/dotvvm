@@ -8,10 +8,10 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
     {
         public ResolvedBinding Binding { get; set; }
 
-        public ResolvedPropertyBinding(DotvvmProperty property, ResolvedBinding binding)
-            :base(property)
+        public ResolvedPropertyBinding(DotvvmProperty property, ResolvedBinding binding) : base(property)
         {
             Binding = binding;
+            binding.Parent = this;
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

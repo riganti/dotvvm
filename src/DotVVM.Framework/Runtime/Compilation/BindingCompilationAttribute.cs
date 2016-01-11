@@ -12,6 +12,7 @@ using System.Collections.Concurrent;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using DotVVM.Framework.Runtime.Compilation.Binding;
+using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Runtime.Compilation

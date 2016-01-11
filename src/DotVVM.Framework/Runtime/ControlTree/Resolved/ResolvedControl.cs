@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 {
@@ -14,6 +13,10 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 
         public object[] ConstructorParameters { get; set; }
 
+        IEnumerable<IPropertyDescriptor> IAbstractControl.PropertyNames => Properties.Keys;
+
+        IReadOnlyDictionary<string, object> IAbstractControl.HtmlAttributes => HtmlAttributes;
+
         public ResolvedControl(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
             : base(metadata, node, dataContext)
         {
@@ -22,13 +25,9 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
         public void SetProperty(ResolvedPropertySetter value)
         {
             Properties[value.Property] = value;
+            value.Parent = this;
         }
-
-        public void SetPropertyValue(DotvvmProperty property, object value)
-        {
-            Properties[property] = new ResolvedPropertyValue(property, value);
-        }
-
+        
         public void SetHtmlAttribute(string attributeName, object value)
         {
             if (HtmlAttributes == null) HtmlAttributes = new Dictionary<string, object>();
@@ -56,8 +55,6 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
         }
 
 
-        IEnumerable<IPropertyDescriptor> IAbstractControl.PropertyNames => Properties.Keys;
-
         public bool TryGetProperty(IPropertyDescriptor property, out IAbstractPropertySetter value)
         {
             ResolvedPropertySetter result;
@@ -66,7 +63,5 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
             value = result;
             return true;
         }
-        
-        IReadOnlyDictionary<string, object> IAbstractControl.HtmlAttributes => HtmlAttributes;
     }
 }

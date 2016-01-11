@@ -9,10 +9,10 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 
         IEnumerable<IAbstractControl> IAbstractPropertyTemplate.Content => Content;
 
-        public ResolvedPropertyTemplate(DotvvmProperty property, List<ResolvedControl> content)
-            : base(property)
+        public ResolvedPropertyTemplate(DotvvmProperty property, List<ResolvedControl> content) : base(property)
         {
             Content = content;
+            content.ForEach(c => c.Parent = this);
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

@@ -1,14 +1,13 @@
 using System;
-using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Runtime.Compilation
+namespace DotVVM.Framework.Runtime.ControlTree
 {
     /// <summary>
     /// A runtime implementation of the control tree resolver.

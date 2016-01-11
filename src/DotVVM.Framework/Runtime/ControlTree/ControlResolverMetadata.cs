@@ -3,10 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Controls;
-using DotVVM.Framework.Runtime.ControlTree;
 
-namespace DotVVM.Framework.Runtime
+namespace DotVVM.Framework.Runtime.ControlTree
 {
     public class ControlResolverMetadata : ControlResolverMetadataBase
     {

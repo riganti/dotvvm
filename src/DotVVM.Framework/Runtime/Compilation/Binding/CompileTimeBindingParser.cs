@@ -6,6 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime.Compilation.Binding

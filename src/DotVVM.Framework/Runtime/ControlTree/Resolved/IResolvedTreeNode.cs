@@ -3,6 +3,7 @@
     public interface IResolvedTreeNode
     {
         void Accept(IResolvedControlTreeVisitor visitor);
+
         void AcceptChildren(IResolvedControlTreeVisitor visitor);
     }
 }

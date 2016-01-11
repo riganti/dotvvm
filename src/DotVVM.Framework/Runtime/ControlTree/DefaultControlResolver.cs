@@ -5,11 +5,10 @@ using System.Runtime.CompilerServices;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Runtime
+namespace DotVVM.Framework.Runtime.ControlTree
 {
     public class DefaultControlResolver : ControlResolverBase
     {
