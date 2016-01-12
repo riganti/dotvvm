@@ -77,7 +77,7 @@ class DotvvmSerialization {
                     }
                 } else {
                     if (ko.isObservable(result[prop])) {
-                        if (deserialized !== result[prop]) result[prop](deserialized);
+                        if (deserialized !== result[prop]()) result[prop](deserialized);
                     } else {
                         result[prop] = ko.observable(deserialized);
                     }
