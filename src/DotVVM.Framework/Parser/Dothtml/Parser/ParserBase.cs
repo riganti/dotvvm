@@ -11,9 +11,9 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         /// <summary>
         /// Gets the tokens from.
         /// </summary>
-        protected IEnumerable<TToken> GetTokensFrom(int startIndex)
+        protected AggregateList<TToken>.Part GetTokensFrom(int startIndex)
         {
-            return Enumerable.Skip<TToken>(Tokens, startIndex).Take(CurrentIndex - startIndex);
+            return new AggregateList<TToken>.Part { list = Tokens, from = startIndex, len = CurrentIndex - startIndex }; // Enumerable.Skip<TToken>(Tokens, startIndex).Take(CurrentIndex - startIndex);
         }
 
         protected abstract TTokenType WhiteSpaceToken { get; }
@@ -40,6 +40,11 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 return Tokens[CurrentIndex];
             }
             return null;
+        }
+
+        protected AggregateList<TToken>.Part PeekPart()
+        {
+            return new AggregateList<TToken>.Part() { list = Tokens, from = CurrentIndex, len = (CurrentIndex < Tokens.Count) ? 1: 0 };
         }
 
         /// <summary>

@@ -13,7 +13,7 @@ namespace DotVVM.Framework.PerfTests
         {
             var t = new ParserTests();
             t.DownloadData("https://news.ycombinator.com/");
-            TestForever(t.Tokenize);
+            TestForever(t.TokenizeAndParse);
         }
 
         public static void TestForever(Action testMethod, int repeat = 10)

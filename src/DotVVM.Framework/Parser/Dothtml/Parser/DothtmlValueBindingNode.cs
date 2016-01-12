@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
     {
         public DothtmlBindingNode BindingNode { get; set; }
 
-        public List<DothtmlToken> ValueTokens { get; set; } = new List<DothtmlToken>();
+        public IReadOnlyList<DothtmlToken> ValueTokens { get; set; } = new List<DothtmlToken>();
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {

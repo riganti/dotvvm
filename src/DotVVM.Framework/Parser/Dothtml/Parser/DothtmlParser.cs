@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
             // read file
             var root = new DothtmlRootNode();
-            root.Tokens.AddRange(Tokens);
+            root.Tokens.Add(Tokens);
             ElementHierarchy.Push(root);
 
             // read content
@@ -143,15 +143,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                         // append to the previous literal
                         var lastLiteral = (DothtmlLiteralNode)CurrentElementContent[CurrentElementContent.Count - 1];
                         if (lastLiteral.Escape)
-                            CurrentElementContent.Add(new DothtmlLiteralNode() { Tokens = { Peek() }, StartPosition = Peek().StartPosition });
+                            CurrentElementContent.Add(new DothtmlLiteralNode() { Tokens = { PeekPart() }, StartPosition = Peek().StartPosition });
                         else
                         {
-                            lastLiteral.Tokens.Add(Peek());
+                            lastLiteral.Tokens.Add(PeekPart());
                         }
                     }
                     else
                     {
-                        CurrentElementContent.Add(new DothtmlLiteralNode() { Tokens = { Peek() }, StartPosition = Peek().StartPosition });
+                        CurrentElementContent.Add(new DothtmlLiteralNode() { Tokens = { PeekPart() }, StartPosition = Peek().StartPosition });
                     }
                     Read();
 
@@ -217,14 +217,14 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             {
                 StartPosition = Peek().StartPosition
             };
-            node.Tokens.Add(Peek());
+            node.Tokens.Add(PeekPart());
             Read();
             Assert(DothtmlTokenType.CDataBody);
-            node.Tokens.Add(Peek());
+            node.Tokens.Add(PeekPart());
             node.Escape = true;
             Read();
             Assert(DothtmlTokenType.CloseCData);
-            node.Tokens.Add(Peek());
+            node.Tokens.Add(PeekPart());
             Read();
             return node;
         }
@@ -239,7 +239,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Assert(DothtmlTokenType.CloseComment);
             node.EndToken = Read();
 
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Add(GetTokensFrom(startIndex));
             return node;
         }
 
@@ -254,7 +254,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Assert(DothtmlTokenType.CloseComment);
             node.EndToken = Read();
 
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Add(GetTokensFrom(startIndex));
             return node;
         }
 
@@ -313,7 +313,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Assert(DothtmlTokenType.CloseTag);
             Read();
 
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Add(GetTokensFrom(startIndex));
             return node;
         }
 
@@ -380,7 +380,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 attribute.ValueEndTokens.AddRange(SkipWhiteSpace());
             }
 
-            attribute.Tokens.AddRange(GetTokensFrom(startIndex));
+            attribute.Tokens.Add(GetTokensFrom(startIndex));
             return attribute;
         }
 
@@ -405,7 +405,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             Assert(DothtmlTokenType.CloseBinding);
             binding.EndToken = Read();
 
-            binding.Tokens.AddRange(GetTokensFrom(startIndex));
+            binding.Tokens.Add(GetTokensFrom(startIndex));
             return binding;
         }
 
@@ -427,7 +427,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             //consume only whitespaces after
             node.ValueNode = ReadTextValue(false, true, DothtmlTokenType.DirectiveValue);
 
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Add(GetTokensFrom(startIndex));
             return node;
         }
 
@@ -450,7 +450,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 node.WhitespacesAfter = SkipWhiteSpace();
             }
 
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Add(GetTokensFrom(startIndex));
             return node;
         }
 
@@ -473,7 +473,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 node.WhitespacesAfter = SkipWhiteSpace();
             }
 
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Add(GetTokensFrom(startIndex));
             return node;
         }
 
@@ -497,7 +497,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 node.WhitespacesAfter = SkipWhiteSpace();
             }
 
-            node.Tokens.AddRange(GetTokensFrom(startIndex));
+            node.Tokens.Add(GetTokensFrom(startIndex));
             return node;
         }
 

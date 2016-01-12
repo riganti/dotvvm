@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public int Length => Tokens.Select(t => t.Length).DefaultIfEmpty(0).Sum();
 
-        public List<DothtmlToken> Tokens { get; private set; } = new List<DothtmlToken>();
+        public AggregateList<DothtmlToken> Tokens { get; private set; } = new AggregateList<DothtmlToken>();
 
         public DothtmlNode ParentNode { get; set; }
 

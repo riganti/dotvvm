@@ -235,6 +235,7 @@
     <Compile Include="Hosting\TestDotvvmRequestContext.cs" />
     <Compile Include="KnockoutBindingGroup.cs" />
     <Compile Include="Hosting\DotvvmReturnedFileMiddleware.cs" />
+    <Compile Include="Parser\AggregateList.cs" />
     <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
     <Compile Include="Parser\Binding\Parser\ArrayAccessBindingParserNode.cs" />
     <Compile Include="Parser\Binding\Parser\BinaryOperatorBindingParserNode.cs" />
