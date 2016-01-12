@@ -85,6 +85,7 @@ namespace DotVVM.Framework.Binding
             get { return DeclaringType.Name + "." + Name; }
         }
 
+        public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
 
         /// <summary>
         /// Prevents a default instance of the <see cref="DotvvmProperty"/> class from being created.
@@ -154,7 +155,7 @@ namespace DotVVM.Framework.Binding
         public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false, DotvvmProperty property = null)
         {
             var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
-            var field = typeof (TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public);
+            var field = typeof (TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
 
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
@@ -180,6 +181,7 @@ namespace DotVVM.Framework.Binding
                 property.PropertyType = typeof(TPropertyType);
                 property.IsValueInherited = isValueInherited;
                 property.PropertyInfo = propertyInfo;
+                property.DataContextChangeAttributes = (propertyInfo != null ? propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) : field.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
                 property.MarkupOptions = markupOptions;
                 property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
                 return property;

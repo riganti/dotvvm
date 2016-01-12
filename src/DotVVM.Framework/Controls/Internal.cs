@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<bool, Internal>("IsControlBindingTarget", defaultValue: false, isValueInherited: false);
 
         public static readonly DotvvmProperty IsSpaPageProperty =
-            DotvvmProperty.Register<bool, Internal>("IsSpaPageProperty", defaultValue: false, isValueInherited: true);
+            DotvvmProperty.Register<bool, Internal>("IsSpaPage", defaultValue: false, isValueInherited: true);
 
         public static readonly DotvvmProperty PathFragmentProperty =
             DotvvmProperty.Register<string, Internal>("PathFragment");
@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ClientIDFragmentProperty =
             DotvvmProperty.Register<string, Internal>("ClientIDFragment", defaultValue: null, isValueInherited: false);
         
-        public static DotvvmProperty IsMasterPageCompositionFinished =
+        public static DotvvmProperty IsMasterPageCompositionFinishedProperty =
             DotvvmProperty.Register<bool, Internal>("IsMasterPageCompositionFinished", defaultValue: false, isValueInherited: false);
 
         public static DotvvmProperty RequestContextProperty =

@@ -8,8 +8,7 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
     {
         public object Value { get; set; }
 
-        public ResolvedPropertyValue(DotvvmProperty property, object value)
-            : base(property)
+        public ResolvedPropertyValue(DotvvmProperty property, object value) : base(property)
         {
             this.Value = value;
         }

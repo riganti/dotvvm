@@ -2,7 +2,7 @@
 
 namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 {
-    public abstract class ResolvedPropertySetter : IResolvedTreeNode, IAbstractPropertySetter
+    public abstract class ResolvedPropertySetter : ResolvedTreeNode, IAbstractPropertySetter
     {
         public DotvvmProperty Property { get; set; }
 
@@ -12,9 +12,6 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
         {
             Property = property;
         }
-
-        public abstract void Accept(IResolvedControlTreeVisitor visitor);
-
-        public abstract void AcceptChildren(IResolvedControlTreeVisitor visitor);
+        
     }
 }

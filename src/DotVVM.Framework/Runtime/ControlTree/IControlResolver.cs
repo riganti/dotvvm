@@ -1,10 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Runtime.ControlTree;
-
-namespace DotVVM.Framework.Runtime
+namespace DotVVM.Framework.Runtime.ControlTree
 {
     public interface IControlResolver
     {

@@ -6,9 +6,7 @@ namespace DotVVM.Framework.Runtime
     {
 
         ITypeDescriptor Type { get; }
-
-        ITypeDescriptor ControlBuilderType { get; }
-
+        
         string VirtualPath { get; }
 
         ITypeDescriptor DataContextRequirement { get; }

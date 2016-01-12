@@ -7,6 +7,8 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Utils
 {
@@ -145,42 +147,9 @@ namespace DotVVM.Framework.Utils
 
         public static Type GetEnumerableType(Type collectionType)
         {
-            // handle array
-            if (collectionType.IsArray)
-            {
-                return collectionType.GetElementType();
-            }
-
-            // handle iEnumerables
-            Type iEnumerable;
-            if (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
-                iEnumerable = collectionType;
-            }
-            else
-            {
-                iEnumerable = collectionType.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-            }
-            if (iEnumerable != null)
-            {
-                return iEnumerable.GetGenericArguments()[0];
-            }
-
-            // handle GridViewDataSet
-            if (typeof(IGridViewDataSet).IsAssignableFrom(collectionType))
-            {
-                var itemsType = collectionType.GetProperty(nameof(IGridViewDataSet.Items)).PropertyType;
-                return GetEnumerableType(itemsType);
-            }
-
-            // handle object collections
-            if (typeof(IEnumerable).IsAssignableFrom(collectionType))
-            {
-                return typeof(object);
-            }
-
-            throw new NotSupportedException();      // TODO
+            var result = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(collectionType));
+            if (result == null) return null;
+            return ResolvedTypeDescriptor.ToSystemType(result);
         }
 
         private static readonly List<Type> NumericTypes = new List<Type>()

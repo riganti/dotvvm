@@ -6,6 +6,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Runtime.ControlTree;
 
 namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 {

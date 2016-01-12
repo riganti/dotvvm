@@ -1,10 +1,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Controls;
 
-namespace DotVVM.Framework.Runtime
+namespace DotVVM.Framework.Runtime.ControlTree
 {
     public class ControlResolverMetadata : ControlResolverMetadataBase
     {
@@ -13,9 +13,7 @@ namespace DotVVM.Framework.Runtime
         public new Type Type => controlType.Type;
 
         public Type ControlBuilderType => controlType.ControlBuilderType;
-
-        public Dictionary<string, DotvvmProperty> Properties { get; set; }
-
+        
         public new DotvvmProperty DefaultContentProperty => (DotvvmProperty) base.DefaultContentProperty;
 
         public new Type DataContextConstraint => controlType.DataContextRequirement;
@@ -24,25 +22,27 @@ namespace DotVVM.Framework.Runtime
         public ControlResolverMetadata(ControlType controlType) : base(controlType)
         {
             this.controlType = controlType;
-            LoadProperties();
+
+            DataContextChangeAttributes = Type.GetCustomAttributes<DataContextChangeAttribute>(true).ToArray();
         }
 
-        private void LoadProperties()
+        public override DataContextChangeAttribute[] DataContextChangeAttributes { get; }
+
+        protected override void LoadProperties(Dictionary<string, IPropertyDescriptor> result)
         {
             foreach (var property in DotvvmProperty.ResolveProperties(controlType.Type).Concat(DotvvmProperty.GetVirtualProperties(controlType.Type)))
             {
-                properties.Add(property.Name, property);
+                result.Add(property.Name, property);
             }
         }
-
-
+        
         /// <summary>
         /// Finds the property.
         /// </summary>
         public DotvvmProperty FindProperty(string name)
         {
-            DotvvmProperty result;
-            return Properties.TryGetValue(name, out result) ? result : null;
+            IPropertyDescriptor result;
+            return Properties.TryGetValue(name, out result) ? (DotvvmProperty)result : null;
         }
 
     }

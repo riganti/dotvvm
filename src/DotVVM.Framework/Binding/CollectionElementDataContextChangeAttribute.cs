@@ -7,6 +7,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Runtime.Compilation;
 using System.Linq.Expressions;
+using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Binding
@@ -19,10 +20,10 @@ namespace DotVVM.Framework.Binding
         {
             Order = order;
         }
-
-        public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control, DotvvmProperty property = null)
+        
+        public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
         {
-            return ReflectionUtils.GetEnumerableType(dataContext);
+            return TypeDescriptorUtils.GetCollectionItemType(dataContext);
         }
     }
 }

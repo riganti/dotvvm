@@ -1,19 +1,16 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Controls;
-using DotVVM.Framework.Parser;
-using System.Collections;
-using DotVVM.Framework.Exceptions;
 using System.Net;
-using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Parser;
+using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
-namespace DotVVM.Framework.Runtime.Compilation
+namespace DotVVM.Framework.Runtime.ControlTree
 {
     /// <summary>
     /// An abstract base class for control tree resolver.
@@ -45,8 +42,17 @@ namespace DotVVM.Framework.Runtime.Compilation
             var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, fileName));
             
             // build the root node
-            var view = treeBuilder.BuildRoot(this, viewMetadata, root);
-            view.DataContextTypeStack = ResolveViewModel(fileName, view, wrapperType);
+            var dataContextTypeStack = ResolveViewModel(fileName, root, wrapperType);
+            var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack);
+
+            foreach (var directive in root.Directives)
+            {
+                if (!string.Equals(directive.Name, Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
+                {
+                    view.Directives.Add(directive.Name, directive.Value);
+                }
+            }
+
             ResolveRootContent(root, view, viewMetadata);
 
             return view;
@@ -59,26 +65,27 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             foreach (var node in root.Content)
             {
-                treeBuilder.AddChildControl(view, ProcessNode(node, viewMetadata, view.DataContextTypeStack));
+                var child = ProcessNode(view, node, viewMetadata, view.DataContextTypeStack);
+                treeBuilder.AddChildControl(view, child);
             }
         }
 
         /// <summary>
         /// Resolves the view model for the root node.
         /// </summary>
-        protected virtual IDataContextStack ResolveViewModel(string fileName, IAbstractTreeRoot view, ITypeDescriptor wrapperType)
+        protected virtual IDataContextStack ResolveViewModel(string fileName, DothtmlRootNode root, ITypeDescriptor wrapperType)
         {
-            if (!view.Directives.ContainsKey(Constants.ViewModelDirectiveName))
+            var viewModelDirective = root.GetDirectiveValue(Constants.ViewModelDirectiveName);
+            if (string.IsNullOrEmpty(viewModelDirective))
             {
-                throw new DotvvmCompilationException($"The @viewModel directive is missing in the page '{fileName}'!", view.DothtmlNode.Tokens.Take(1));
+                throw new DotvvmCompilationException($"The @viewModel directive is missing in the page '{fileName}'!", root.Tokens.Take(1));
             }
 
-            var viewModelTypeName = view.Directives[Constants.ViewModelDirectiveName];
-            var viewModelType = FindType(viewModelTypeName);
+            var viewModelType = FindType(viewModelDirective);
             if (viewModelType == null)
             {
-                throw new DotvvmCompilationException($"The type '{viewModelTypeName}' required in the @viewModel directive in was not found!",
-                    (view.DothtmlNode as DothtmlRootNode)?.Directives?.FirstOrDefault(d => string.Equals(d.Name, Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase))?.Tokens);
+                throw new DotvvmCompilationException($"The type '{viewModelDirective}' required in the @viewModel directive in was not found!",
+                    root.Directives?.FirstOrDefault(d => string.Equals(d.Name, Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase))?.Tokens);
             }
             return CreateDataContextTypeStack(viewModelType, wrapperType);
         }
@@ -86,59 +93,33 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Processes the parser node and builds a control.
         /// </summary>
-        public IAbstractControl ProcessNode(DothtmlNode node, IControlResolverMetadata parentMetadata, IDataContextStack dataContext)
+        public IAbstractControl ProcessNode(IAbstractTreeNode parent, DothtmlNode node, IControlResolverMetadata parentMetadata, IDataContextStack dataContext)
         {
             try
             {
                 if (node is DothtmlBindingNode)
                 {
-                    EnsureContentAllowed(parentMetadata);
-
                     // binding in text
-                    var binding = (DothtmlBindingNode)node;
-                    var literal = treeBuilder.BuildResolvedControl(controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(Literal))), node, dataContext);
-                    treeBuilder.SetPropertyBinding(literal, Literal.TextProperty, ProcessBinding(binding, dataContext));
-                    treeBuilder.SetPropertyValue(literal, Literal.RenderSpanElementProperty, false);
-                    return literal;
+                    EnsureContentAllowed(parentMetadata);
+                    return ProcessBindingInText(node, dataContext);
                 }
                 else if (node is DotHtmlCommentNode)
                 {
-                    var commentNode = node as DotHtmlCommentNode;
-
                     // HTML comment
-                    var text = commentNode.IsServerSide ? "" : "<!--" + commentNode.Value + "-->";
-                    var literal = treeBuilder.BuildResolvedControl(controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RawLiteral))), node, dataContext);
-                    literal.ConstructorParameters = new object[] { text, commentNode.Value, true };
-                    return literal;
+                    var commentNode = node as DotHtmlCommentNode;
+                    return ProcessHtmlComment(node, dataContext, commentNode);
                 }
                 else if (node is DothtmlLiteralNode)
                 {
-                    var literalNode = (DothtmlLiteralNode)node;
                     // text content
-                    var whitespace = string.IsNullOrWhiteSpace(literalNode.Value);
-                    if (!whitespace) EnsureContentAllowed(parentMetadata);
-
-                    string text;
-                    if (literalNode.Escape)
-                    {
-                        text = WebUtility.HtmlEncode(literalNode.Value);
-                    }
-                    else
-                    {
-                        text = literalNode.Value;
-                    }
-
-                    var literal = treeBuilder.BuildResolvedControl(controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(RawLiteral))), node, dataContext);
-                    literal.ConstructorParameters = new object[] { text, literalNode.Value, whitespace };
-                    return literal;
+                    var literalNode = (DothtmlLiteralNode)node;
+                    return ProcessText(node, parentMetadata, dataContext, literalNode);
                 }
                 else if (node is DothtmlElementNode)
                 {
                     // HTML element
-                    var element = (DothtmlElementNode)node;
                     EnsureContentAllowed(parentMetadata);
-
-                    // the element is the content
+                    var element = (DothtmlElementNode)node;
                     return ProcessObjectElement(element, dataContext);
                 }
                 else
@@ -162,6 +143,53 @@ namespace DotVVM.Framework.Runtime.Compilation
             }
         }
 
+        private IAbstractControl ProcessText(DothtmlNode node, IControlResolverMetadata parentMetadata, IDataContextStack dataContext, DothtmlLiteralNode literalNode)
+        {
+            var whitespace = string.IsNullOrWhiteSpace(literalNode.Value);
+            if (!whitespace) EnsureContentAllowed(parentMetadata);
+
+            string text;
+            if (literalNode.Escape)
+            {
+                text = WebUtility.HtmlEncode(literalNode.Value);
+            }
+            else
+            {
+                text = literalNode.Value;
+            }
+
+            var rawLiteralMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof (RawLiteral)));
+            var literal = treeBuilder.BuildControl(rawLiteralMetadata, node, dataContext);
+            literal.ConstructorParameters = new object[] { text, literalNode.Value, whitespace };
+            return literal;
+        }
+
+        private IAbstractControl ProcessHtmlComment(DothtmlNode node, IDataContextStack dataContext, DotHtmlCommentNode commentNode)
+        {
+            var text = commentNode.IsServerSide ? "" : "<!--" + commentNode.Value + "-->";
+
+            var rawLiteralMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof (RawLiteral)));
+            var literal = treeBuilder.BuildControl(rawLiteralMetadata, node, dataContext);
+            literal.ConstructorParameters = new object[] { text, commentNode.Value, true };
+            return literal;
+        }
+
+        private IAbstractControl ProcessBindingInText(DothtmlNode node, IDataContextStack dataContext)
+        {
+            var bindingNode = (DothtmlBindingNode) node;
+            var literalMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof (Literal)));
+            var literal = treeBuilder.BuildControl(literalMetadata, node, dataContext);
+
+            var textBinding = ProcessBinding(bindingNode, dataContext);
+            var textProperty = treeBuilder.BuildPropertyBinding(Literal.TextProperty, textBinding);
+            treeBuilder.SetProperty(literal, textProperty);
+
+            var renderSpanElement = treeBuilder.BuildPropertyValue(Literal.RenderSpanElementProperty, false);
+            treeBuilder.SetProperty(literal, renderSpanElement);
+
+            return literal;
+        }
+
         /// <summary>
         /// Processes the HTML element that represents a new object.
         /// </summary>
@@ -171,7 +199,7 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             // build control
             var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
-            var control = treeBuilder.BuildResolvedControl(controlMetadata, element, dataContext);
+            var control = treeBuilder.BuildControl(controlMetadata, element, dataContext);
             control.ConstructorParameters = constructorParameters;
 
             // resolve data context
@@ -180,6 +208,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 ProcessAttribute(dataContextAttribute, control, dataContext);
             }
+
             IAbstractPropertySetter dataContextProperty;
             if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out dataContextProperty) && dataContextProperty is IAbstractPropertyBinding)
             {
@@ -270,8 +299,9 @@ namespace DotVVM.Framework.Runtime.Compilation
                     {
                         throw new DotvvmCompilationException($"The property '{ property.FullName }' cannot contain binding.", bindingNode.Tokens);
                     }
-                    var resolvedBinding = ProcessBinding(bindingNode, dataContext);
-                    treeBuilder.SetPropertyBinding(control, property, resolvedBinding);
+                    var binding = ProcessBinding(bindingNode, dataContext);
+                    var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding);
+                    treeBuilder.SetProperty(control, bindingProperty);
                 }
                 else
                 {
@@ -283,7 +313,8 @@ namespace DotVVM.Framework.Runtime.Compilation
 
                     var textValue = attribute.ValueNode as DothtmlValueTextNode;
                     var value = ConvertValue(textValue.Text, property.PropertyType);
-                    treeBuilder.SetPropertyValue(control, property, value);
+                    var propertyValue = treeBuilder.BuildPropertyValue(property, value);
+                    treeBuilder.SetProperty(control, propertyValue);
                 }
             }
             else if (control.Metadata.HasHtmlAttributesCollection)
@@ -349,12 +380,21 @@ namespace DotVVM.Framework.Runtime.Compilation
                 }
                 else
                 {
-                    foreach (var node in content)
-                    {
-                        // TODO: data context from parent
-                        treeBuilder.AddChildControl(control, ProcessNode(node, control.Metadata, control.DataContextTypeStack));
-                    }
+                    ResolveControlContentImmediately(control, content);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Resolves the content of the control immediately during the parsing.
+        /// Override this method if you need lazy loading of tree node contents.
+        /// </summary>
+        protected virtual void ResolveControlContentImmediately(IAbstractControl control, List<DothtmlNode> content)
+        {
+            foreach (var node in content)
+            {
+                var child = ProcessNode(control, node, control.Metadata, control.DataContextTypeStack);
+                treeBuilder.AddChildControl(control, child);
             }
         }
 
@@ -375,7 +415,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             if (IsTemplateProperty(property))
             {
                 // template
-                return treeBuilder.BuildPropertyTemplate(property, ProcessTemplate(elementContent, dataContext));
+                return treeBuilder.BuildPropertyTemplate(property, ProcessTemplate(control, elementContent, dataContext));
             }
             else if (IsCollectionProperty(property))
             {
@@ -417,10 +457,10 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// <summary>
         /// Processes the template contents.
         /// </summary>
-        private List<IAbstractControl> ProcessTemplate(IEnumerable<DothtmlNode> elementContent, IDataContextStack dataContext)
+        private List<IAbstractControl> ProcessTemplate(IAbstractTreeNode parent, IEnumerable<DothtmlNode> elementContent, IDataContextStack dataContext)
         {
             var placeholderMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder)));
-            var content = elementContent.Select(e => ProcessNode(e, placeholderMetadata, dataContext));
+            var content = elementContent.Select(e => ProcessNode(parent, e, placeholderMetadata, dataContext));
             return content.ToList();
         }
 
@@ -531,6 +571,22 @@ namespace DotVVM.Framework.Runtime.Compilation
         }
 
 
+        /// <summary>
+        /// Gets the data context change behavior for the specified control property.
+        /// </summary>
+        protected virtual ITypeDescriptor GetDataContextChange(IDataContextStack dataContext, IAbstractControl control, IPropertyDescriptor property)
+        {
+            var attributes = property != null ? property.DataContextChangeAttributes : control.Metadata.DataContextChangeAttributes;
+            if (attributes == null || attributes.Length == 0) return null;
+
+            var type = dataContext.DataContextType;
+            foreach (var attribute in attributes.OrderBy(a => a.Order))
+            {
+                type = attribute.GetChildDataContextType(type, dataContext, control, property);
+            }
+            return type;
+        }
+
 
         /// <summary>
         /// Creates the IControlType identification of the control.
@@ -546,12 +602,7 @@ namespace DotVVM.Framework.Runtime.Compilation
         /// Converts the value to the property type.
         /// </summary>
         protected abstract object ConvertValue(string value, ITypeDescriptor propertyType);
-
-        /// <summary>
-        /// Gets the data context change behavior for the specified control property.
-        /// </summary>
-        protected abstract ITypeDescriptor GetDataContextChange(IDataContextStack dataContext, IAbstractControl control, IPropertyDescriptor property);
-
+        
         /// <summary>
         /// Finds the type descriptor for full type name.
         /// </summary>

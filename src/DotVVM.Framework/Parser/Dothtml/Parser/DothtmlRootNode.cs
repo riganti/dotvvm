@@ -35,5 +35,13 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         {
             return base.EnumerateNodes().Concat(EnumerateChildNodes().SelectMany(d => d.EnumerateNodes()));
         }
+
+
+        public string GetDirectiveValue(string directiveName)
+        {
+            return Directives.Where(d => string.Equals(d.Name, directiveName, StringComparison.InvariantCultureIgnoreCase))
+                .Select(d => d.Value)
+                .FirstOrDefault();
+        }
     }
 }

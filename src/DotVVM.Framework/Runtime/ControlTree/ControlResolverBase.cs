@@ -5,12 +5,10 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
-using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
-namespace DotVVM.Framework.Runtime
+namespace DotVVM.Framework.Runtime.ControlTree
 {
     /// <summary>
     /// Default DotVVM control resolver.

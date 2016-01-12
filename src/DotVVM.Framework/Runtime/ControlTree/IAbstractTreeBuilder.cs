@@ -7,23 +7,21 @@ namespace DotVVM.Framework.Runtime.ControlTree
 {
     public interface IAbstractTreeBuilder
     {
-        IAbstractTreeRoot BuildRoot(IControlTreeResolver resolver, IControlResolverMetadata viewMetadata, DothtmlRootNode root);
+        IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext);
 
-        IAbstractControl BuildResolvedControl(IControlResolverMetadata resolveControl, DothtmlNode node, IDataContextStack dataContext);
+        IAbstractControl BuildControl(IControlResolverMetadata metadata, DothtmlNode node, IDataContextStack dataContext);
 
-        IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, Expression expression, IDataContextStack context, Exception parsingError);
+        IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, IDataContextStack dataContext, Exception parsingError, ITypeDescriptor resultType, object customData);
 
-        IAbstractPropertyTemplate BuildPropertyTemplate(IPropertyDescriptor property, IEnumerable<IAbstractControl> templateControls);
-
-        IAbstractPropertyControlCollection BuildPropertyControlCollection(IPropertyDescriptor property, IEnumerable<IAbstractControl> controls);
-
-        IAbstractPropertyValue BuildPropertyValue(IPropertyDescriptor property, object value);
+        IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding);
 
         IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl control);
 
-        void SetPropertyBinding(IAbstractControl control, IPropertyDescriptor property, IAbstractBinding binding);
+        IAbstractPropertyControlCollection BuildPropertyControlCollection(IPropertyDescriptor property, IEnumerable<IAbstractControl> controls);
 
-        void SetPropertyValue(IAbstractControl control, IPropertyDescriptor property, object value);
+        IAbstractPropertyTemplate BuildPropertyTemplate(IPropertyDescriptor property, IEnumerable<IAbstractControl> templateControls);
+
+        IAbstractPropertyValue BuildPropertyValue(IPropertyDescriptor property, object value);
 
         void SetHtmlAttribute(IAbstractControl control, string attributeName, object value);
 

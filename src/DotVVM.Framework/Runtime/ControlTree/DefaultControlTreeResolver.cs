@@ -3,11 +3,11 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 
-namespace DotVVM.Framework.Runtime.Compilation
+namespace DotVVM.Framework.Runtime.ControlTree
 {
     /// <summary>
     /// A runtime implementation of the control tree resolver.
@@ -44,28 +44,24 @@ namespace DotVVM.Framework.Runtime.Compilation
         {
             Expression expression = null;
             Exception parsingError = null;
+            ITypeDescriptor resultType = null;
             try
             {
                 expression = bindingParser.Parse(node.Value, (DataContextStack)context, bindingOptions);
+                resultType = new ResolvedTypeDescriptor(expression.Type);
             }
             catch (Exception exception)
             {
                 parsingError = exception;
             }
-            return treeBuilder.BuildBinding(bindingOptions, node, expression, context, parsingError);
+            return treeBuilder.BuildBinding(bindingOptions, node, context, parsingError, resultType, expression);
         }
 
         protected override object ConvertValue(string value, ITypeDescriptor propertyType)
         {
             return ReflectionUtils.ConvertValue(value, ((ResolvedTypeDescriptor)propertyType).Type);
         }
-
-        protected override ITypeDescriptor GetDataContextChange(IDataContextStack dataContext, IAbstractControl control, IPropertyDescriptor property)
-        {
-            var type = DataContextChangeAttribute.GetDataContextExpression((DataContextStack)dataContext, (ResolvedControl)control, (DotvvmProperty)property);
-            return type != null ? new ResolvedTypeDescriptor(type) : null;
-        }
-
+        
         protected override ITypeDescriptor FindType(string fullTypeNameWithAssembly)
         {
             var type = ReflectionUtils.FindType(fullTypeNameWithAssembly);

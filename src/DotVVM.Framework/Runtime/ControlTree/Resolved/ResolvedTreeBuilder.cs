@@ -4,48 +4,64 @@ using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 {
-    public class ResolvedTreeBuilder : TreeBuilderBase, IAbstractTreeBuilder
+    public class ResolvedTreeBuilder : IAbstractTreeBuilder
     {
-        protected override ResolvedTreeRoot BuildRootCore(IControlResolverMetadata viewMetadata, DothtmlRootNode root)
+
+        public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext)
         {
-            return new ResolvedTreeRoot((ControlResolverMetadata)viewMetadata, root, null);
+            return new ResolvedTreeRoot((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext);
         }
 
-        public IAbstractControl BuildResolvedControl(IControlResolverMetadata metadata, DothtmlNode node, IDataContextStack dataContext)
+        public IAbstractControl BuildControl(IControlResolverMetadata metadata, DothtmlNode node, IDataContextStack dataContext)
         {
             return new ResolvedControl((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext);
         }
 
-        public void SetPropertyBinding(IAbstractControl control, IPropertyDescriptor property, IAbstractBinding binding)
-        {
-            ((ResolvedControl)control).SetProperty(new ResolvedPropertyBinding((DotvvmProperty)property, (ResolvedBinding)binding));
-        }
-
-        public void SetPropertyValue(IAbstractControl control, IPropertyDescriptor property, object value)
-        {
-            ((ResolvedControl)control).SetProperty((ResolvedPropertyValue)BuildPropertyValue(property, value));
-        }
-
-        public void SetHtmlAttribute(IAbstractControl control, string attributeName, object value)
-        {
-            ((ResolvedControl) control).SetHtmlAttribute(attributeName, value);
-        }
-
-        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, Expression expression, IDataContextStack context, Exception parsingError)
+        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, IDataContextStack dataContext, Exception parsingError, ITypeDescriptor resultType, object customData)
         {
             return new ResolvedBinding()
             {
                 BindingType = bindingOptions.BindingType,
                 Value = node.Value,
-                Expression = expression,
-                DataContextTypeStack = (DataContextStack)context,
+                Expression = (Expression)customData,
+                DataContextTypeStack = (DataContextStack)dataContext,
                 ParsingError = parsingError,
-                BindingNode = node
+                BindingNode = node,
+                ResultType = resultType
             };
+        }
+
+        public IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding)
+        {
+            return new ResolvedPropertyBinding((DotvvmProperty)property, (ResolvedBinding)binding);
+        }
+
+        public IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl control)
+        {
+            return new ResolvedPropertyControl((DotvvmProperty)property, (ResolvedControl)control);
+        }
+
+        public IAbstractPropertyControlCollection BuildPropertyControlCollection(IPropertyDescriptor property, IEnumerable<IAbstractControl> controls)
+        {
+            return new ResolvedPropertyControlCollection((DotvvmProperty)property, controls.Cast<ResolvedControl>().ToList());
+        }
+
+        public IAbstractPropertyTemplate BuildPropertyTemplate(IPropertyDescriptor property, IEnumerable<IAbstractControl> templateControls)
+        {
+            return new ResolvedPropertyTemplate((DotvvmProperty)property, templateControls.Cast<ResolvedControl>().ToList());
+        }
+
+        public IAbstractPropertyValue BuildPropertyValue(IPropertyDescriptor property, object value)
+        {
+            return new ResolvedPropertyValue((DotvvmProperty)property, value);
+        }
+
+        public void SetHtmlAttribute(IAbstractControl control, string attributeName, object value)
+        {
+            ((ResolvedControl) control).SetHtmlAttribute(attributeName, value);
         }
 
         public void SetProperty(IAbstractControl control, IAbstractPropertySetter setter)
@@ -55,27 +71,7 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 
         public void AddChildControl(IAbstractContentNode control, IAbstractControl child)
         {
-            ((ResolvedContentNode)control).Content.Add((ResolvedControl)child);
-        }
-
-        public IAbstractPropertyTemplate BuildPropertyTemplate(IPropertyDescriptor property, IEnumerable<IAbstractControl> templateControls)
-        {
-            return new ResolvedPropertyTemplate((DotvvmProperty) property, templateControls.Cast<ResolvedControl>().ToList());
-        }
-
-        public IAbstractPropertyControlCollection BuildPropertyControlCollection(IPropertyDescriptor property, IEnumerable<IAbstractControl> controls)
-        {
-            return new ResolvedPropertyControlCollection((DotvvmProperty)property, controls.Cast<ResolvedControl>().ToList());
-        }
-
-        public IAbstractPropertyValue BuildPropertyValue(IPropertyDescriptor property, object value)
-        {
-            return new ResolvedPropertyValue((DotvvmProperty) property, value);
-        }
-
-        public IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl control)
-        {
-            return new ResolvedPropertyControl((DotvvmProperty)property, (ResolvedControl)control);
+            ((ResolvedContentNode)control).AddChild((ResolvedControl)child);
         }
     }
 }

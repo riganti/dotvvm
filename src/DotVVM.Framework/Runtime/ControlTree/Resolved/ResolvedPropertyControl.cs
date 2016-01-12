@@ -8,10 +8,10 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 
         IAbstractControl IAbstractPropertyControl.Control => Control;
 
-        public ResolvedPropertyControl(DotvvmProperty property, ResolvedControl control)
-            : base(property)
+        public ResolvedPropertyControl(DotvvmProperty property, ResolvedControl control) : base(property)
         {
             Control = control;
+            control.Parent = this;
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)
