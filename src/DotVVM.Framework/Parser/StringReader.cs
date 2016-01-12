@@ -37,12 +37,11 @@ namespace DotVVM.Framework.Parser
         /// </summary>
         public char Read()
         {
-            var currentChar = Peek();
-            if (currentChar != DothtmlTokenizer.NullChar)
+            if (Position < text.Length)
             {
-                Position++;
+                return text[Position++];
             }
-            return currentChar;
+            return DothtmlTokenizer.NullChar;
         }
 
 

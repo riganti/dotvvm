@@ -381,7 +381,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             if (Peek() != ':')
             {
                 // read the identifier
-                if (!ReadIdentifier(DothtmlTokenType.Text, '=', ':', '/', '>'))
+                if (!ReadIdentifier(DothtmlTokenType.Text, ':'))
                 {
                     return false;
                 }
@@ -397,7 +397,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
                 Read();
                 CreateToken(DothtmlTokenType.Colon);
 
-                if (!ReadIdentifier(DothtmlTokenType.Text, '=', '/', '>'))
+                if (!ReadIdentifier(DothtmlTokenType.Text))
                 {
                     CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.MissingTagName));
                     return true;
@@ -599,6 +599,11 @@ namespace DotVVM.Framework.Parser.Dothtml.Tokenizer
             }
             CreateToken(DothtmlTokenType.CloseBinding);
             return true;
+        }
+
+        protected override DothtmlToken NewToken()
+        {
+            return new DothtmlToken();
         }
     }
 }

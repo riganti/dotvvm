@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace DotVVM.Framework.Parser
@@ -43,12 +44,14 @@ namespace DotVVM.Framework.Parser
         /// </summary>
         protected TToken LastToken { get; private set; }
 
+        private int position = -1;
         /// <summary>
         /// Gets the distance since last token.
         /// </summary>
         protected int DistanceSinceLastToken
         {
-            get { return reader.Position - LastTokenPosition; }
+            [MethodImpl(MethodImplOptions.AggressiveInlining)]
+            get { return position - LastTokenPosition; }
         }
 
         /// <summary>
@@ -86,6 +89,7 @@ namespace DotVVM.Framework.Parser
 
             try
             {
+                Read();
                 CurrentLine = 1;
                 PositionOnLine = 0;
                 LastToken = null;
@@ -208,32 +212,32 @@ namespace DotVVM.Framework.Parser
             return strings.FirstOrDefault(s => s.Length == index);
         }
 
+        protected abstract TToken NewToken();
+
         /// <summary>
         /// Creates the token.
         /// </summary>
         protected TToken CreateToken(TTokenType type, int charsFromEndToSkip = 0, Func<TToken, TokenError> errorProvider = null)
         {
-            LastToken = new TToken()
-            {
-                LineNumber = CurrentLine,
-                ColumnNumber = Math.Max(0, PositionOnLine - DistanceSinceLastToken - 1),
-                StartPosition = LastTokenPosition,
-                Length = DistanceSinceLastToken - charsFromEndToSkip,
-                Type = type,
-                Text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip)
-            };
-            Tokens.Add(LastToken);
+            var t = NewToken();
+            t.LineNumber = CurrentLine;
+            t.ColumnNumber = Math.Max(0, PositionOnLine - DistanceSinceLastToken - 1);
+            t.StartPosition = LastTokenPosition;
+            t.Length = DistanceSinceLastToken - charsFromEndToSkip;
+            t.Type = type;
+            t.Text = CurrentTokenChars.ToString().Substring(0, DistanceSinceLastToken - charsFromEndToSkip);
+            Tokens.Add(t);
             if (errorProvider != null)
             {
-                LastToken.Error = errorProvider(LastToken);
+                t.Error = errorProvider(t);
             }
 
-            CurrentTokenChars.Remove(0, LastToken.Length);
-            LastTokenPosition = reader.Position - charsFromEndToSkip;
+            CurrentTokenChars.Remove(0, t.Length);
+            LastTokenPosition = position - charsFromEndToSkip;
 
-            OnTokenFound(LastToken);
+            OnTokenFound(t);
 
-            return LastToken;
+            return LastToken = t;
         }
 
         protected TokenError CreateTokenError()
@@ -253,6 +257,7 @@ namespace DotVVM.Framework.Parser
         /// <summary>
         /// Called when a token is found.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         protected virtual void OnTokenFound(TToken token)
         {
             var handler = TokenFound;
@@ -262,26 +267,25 @@ namespace DotVVM.Framework.Parser
             }
         }
 
-
+        private char peek;
         /// <summary>
         /// Peeks the current char.
         /// </summary>
-        protected char Peek()
-        {
-            return reader.Peek();
-        }
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        protected char Peek() => peek;
 
         /// <summary>
         /// Returns the current char and advances to the next one.
         /// </summary>
         protected char Read()
         {
-            var ch = reader.Read();
+            var ch = peek;
+            peek = reader.Read();
             if (ch != NullChar)
             {
                 CurrentTokenChars.Append(ch);
 
-                if (ch == '\r' && Peek() != '\n')
+                if (ch == '\r' && reader.Peek() != '\n')
                 {
                     CurrentLine++;
                     PositionOnLine = 0;
@@ -294,7 +298,8 @@ namespace DotVVM.Framework.Parser
             }
 
             PositionOnLine++;
-            return ch;
+            position++;
+            return peek;
         }
     }
 }

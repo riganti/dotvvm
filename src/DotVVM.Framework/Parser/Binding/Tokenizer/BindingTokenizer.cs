@@ -231,6 +231,11 @@ namespace DotVVM.Framework.Parser.Binding.Tokenizer
             FinishIncompleteIdentifier();
         }
 
+        protected override BindingToken NewToken()
+        {
+            return new BindingToken();
+        }
+
         private void FinishIncompleteIdentifier()
         {
             if (DistanceSinceLastToken > 0)
