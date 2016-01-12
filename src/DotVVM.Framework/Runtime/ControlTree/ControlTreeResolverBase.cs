@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
         {
             this.controlResolver = controlResolver;
             this.treeBuilder = treeBuilder;
-        }
+        } 
 
         /// <summary>
         /// Resolves the control tree.
@@ -75,17 +75,18 @@ namespace DotVVM.Framework.Runtime.ControlTree
         /// </summary>
         protected virtual IDataContextStack ResolveViewModel(string fileName, DothtmlRootNode root, ITypeDescriptor wrapperType)
         {
-            var viewModelDirective = root.GetDirectiveValue(Constants.ViewModelDirectiveName);
-            if (string.IsNullOrEmpty(viewModelDirective))
+            var viewModelDirective = root.Directives.FirstOrDefault(d => d.Name == Constants.ViewModelDirectiveName);
+            if (viewModelDirective == null)
             {
-                throw new DotvvmCompilationException($"The @viewModel directive is missing in the page '{fileName}'!", root.Tokens.Take(1));
+                root.NodeErrors.Add($"The @viewModel directive is missing in the page '{fileName}'!");
+                return null;
             }
 
-            var viewModelType = FindType(viewModelDirective);
+            var viewModelType = FindType(viewModelDirective.Value);
             if (viewModelType == null)
             {
-                throw new DotvvmCompilationException($"The type '{viewModelDirective}' required in the @viewModel directive in was not found!",
-                    root.Directives?.FirstOrDefault(d => string.Equals(d.Name, Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase))?.Tokens);
+                viewModelDirective.NodeErrors.Add($"The type '{viewModelDirective}' required in the @viewModel directive in was not found!");
+                return null;
             }
             return CreateDataContextTypeStack(viewModelType, wrapperType);
         }
@@ -198,7 +199,17 @@ namespace DotVVM.Framework.Runtime.ControlTree
             object[] constructorParameters;
 
             // build control
-            var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
+            IControlResolverMetadata controlMetadata;
+            try
+            {
+                controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
+            }
+            catch (Exception ex)
+            {
+                controlMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof (HtmlGenericControl)));
+                constructorParameters = new[] { element.FullTagName };
+                element.NodeErrors.Add(ex.Message);
+            }
             var control = treeBuilder.BuildControl(controlMetadata, element, dataContext);
             control.ConstructorParameters = constructorParameters;
 
@@ -576,13 +587,16 @@ namespace DotVVM.Framework.Runtime.ControlTree
         /// </summary>
         protected virtual ITypeDescriptor GetDataContextChange(IDataContextStack dataContext, IAbstractControl control, IPropertyDescriptor property)
         {
+            if (dataContext == null) return null;
+
             var attributes = property != null ? property.DataContextChangeAttributes : control.Metadata.DataContextChangeAttributes;
             if (attributes == null || attributes.Length == 0) return null;
-
+            
             var type = dataContext.DataContextType;
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
                 type = attribute.GetChildDataContextType(type, dataContext, control, property);
+                if (type == null) return null;
             }
             return type;
         }

@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Parser.Dothtml.Parser;
+﻿using System.Collections.Generic;
+using DotVVM.Framework.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Runtime.ControlTree
 {

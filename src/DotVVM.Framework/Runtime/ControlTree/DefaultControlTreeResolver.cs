@@ -2,6 +2,7 @@ using System;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
@@ -45,14 +46,22 @@ namespace DotVVM.Framework.Runtime.ControlTree
             Expression expression = null;
             Exception parsingError = null;
             ITypeDescriptor resultType = null;
-            try
+
+            if (context == null)
             {
-                expression = bindingParser.Parse(node.Value, (DataContextStack)context, bindingOptions);
-                resultType = new ResolvedTypeDescriptor(expression.Type);
+                parsingError = new DotvvmCompilationException("The DataContext couldn't be evaluated because of the errors above.", node.Tokens);
             }
-            catch (Exception exception)
+            else
             {
-                parsingError = exception;
+                try
+                {
+                    expression = bindingParser.Parse(node.Value, (DataContextStack) context, bindingOptions);
+                    resultType = new ResolvedTypeDescriptor(expression.Type);
+                }
+                catch (Exception exception)
+                {
+                    parsingError = exception;
+                }
             }
             return treeBuilder.BuildBinding(bindingOptions, node, context, parsingError, resultType, expression);
         }
