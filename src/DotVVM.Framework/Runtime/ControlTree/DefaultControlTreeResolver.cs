@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultControlTreeResolver"/> class.
         /// </summary>
-        public DefaultControlTreeResolver(DotvvmConfiguration configuration) 
+        public DefaultControlTreeResolver(DotvvmConfiguration configuration)
             : base(configuration.ServiceLocator.GetService<IControlResolver>(), configuration.ServiceLocator.GetService<IAbstractTreeBuilder>())
         {
             this.bindingParser = configuration.ServiceLocator.GetService<IBindingParser>();
@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
             {
                 try
                 {
-                    expression = bindingParser.Parse(node.Value, (DataContextStack) context, bindingOptions);
+                    expression = bindingParser.Parse(node.Value, (DataContextStack)context, bindingOptions);
                     resultType = new ResolvedTypeDescriptor(expression.Type);
                 }
                 catch (Exception exception)
@@ -63,6 +63,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                     parsingError = exception;
                 }
             }
+            if (parsingError != null) node.NodeErrors.Add("Binding could not be compiled: " + parsingError.Message);
             return treeBuilder.BuildBinding(bindingOptions, node, context, parsingError, resultType, expression);
         }
 
@@ -70,7 +71,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
         {
             return ReflectionUtils.ConvertValue(value, ((ResolvedTypeDescriptor)propertyType).Type);
         }
-        
+
         protected override ITypeDescriptor FindType(string fullTypeNameWithAssembly)
         {
             var type = ReflectionUtils.FindType(fullTypeNameWithAssembly);

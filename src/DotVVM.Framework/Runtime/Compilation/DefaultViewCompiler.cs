@@ -19,6 +19,7 @@ using DotVVM.Framework.Styles;
 using DotVVM.Framework.Runtime.Compilation.Binding;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
+using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -51,6 +52,14 @@ namespace DotVVM.Framework.Runtime.Compilation
 
             var errorCheckingVisitor = new ErrorCheckingVisitor();
             resolvedView.Accept(errorCheckingVisitor);
+
+            foreach (var n in node.EnumerateNodes())
+            {
+                if (n.HasNodeErrors)
+                {
+                    throw new DotvvmCompilationException(string.Join(", ", n.NodeErrors), n.Tokens);
+                }
+            }
 
             var styleVisitor = new StylingVisitor(configuration.Styles);
             resolvedView.Accept(styleVisitor);

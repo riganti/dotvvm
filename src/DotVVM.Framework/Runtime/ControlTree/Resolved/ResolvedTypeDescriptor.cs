@@ -91,7 +91,8 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 
         public static Type ToSystemType(ITypeDescriptor typeDescriptor)
         {
-            if (typeDescriptor is ResolvedTypeDescriptor)
+            if (typeDescriptor == null) return null;
+            else if (typeDescriptor is ResolvedTypeDescriptor)
             {
                 return ((ResolvedTypeDescriptor) typeDescriptor).Type;
             }

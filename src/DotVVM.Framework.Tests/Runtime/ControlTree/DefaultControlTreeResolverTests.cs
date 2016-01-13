@@ -277,6 +277,82 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(text, text.Binding.Parent);
         }
 
+        [TestMethod]
+        public void ResolvedTree_AttachedProperty()
+        {
+            var root = ParseSource(@"
+@viewModel System.Object
+
+<div Events.Click='{command: GetHashCode()}' />
+");
+            var control = root.Content.First(c => c.Metadata.Name == nameof(HtmlGenericControl));
+            ResolvedPropertySetter clickProp;
+            Assert.IsTrue(control.Properties.TryGetValue(Events.ClickProperty, out clickProp));
+            Assert.IsInstanceOfType(clickProp, typeof(ResolvedPropertyBinding));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_GridViewColumns_InvalidItem()
+        {
+            var root = ParseSource(@"
+@viewModel System.Collections.IEnumerable
+
+<dot:GridView DataSource='{value: _this}'>
+    <Columns>
+        <span data-hh='error' />
+    </Columns>
+</dot:GridView>
+");
+            var gridView = root.Content.First(r => r.Metadata.Name == "GridView");
+            IAbstractPropertySetter colsProp;
+            Assert.IsTrue(gridView.TryGetProperty(GridView.ColumnsProperty, out colsProp));
+            var cols = ((ResolvedPropertyControlCollection)colsProp).Controls;
+            Assert.AreEqual(0, cols.Count); // span should not be added
+            Assert.IsTrue(gridView.DothtmlNode.EnumerateNodes().Any(n => n.HasNodeErrors));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ControlContent_Invalid()
+        {
+            var root = ParseSource(@"
+@viewModel System.Collections.IEnumerable
+
+<dot:ValidationSummary>
+    <span />
+</dot:ValidationSummary>
+");
+            var control = root.Content.First(r => r.Metadata.Name == nameof(ValidationSummary));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.IsTrue(control.DothtmlNode.EnumerateNodes().Any(n => n.HasNodeErrors));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_HtmlAttributes_Invalid()
+        {
+            var root = ParseSource(@"
+@viewModel System.Collections.IEnumerable
+
+<dot:RequiredResource Name='ggg11' html:class='jshfsjhfkj'>
+");
+            var control = root.Content.First(r => r.Metadata.Name == nameof(RequiredResource));
+            Assert.AreEqual(0, control.HtmlAttributes?.Count ?? 0);
+            Assert.IsTrue(((DothtmlElementNode)control.DothtmlNode).Attributes.Any(a => a.HasNodeErrors));
+        }
+
+        [TestMethod]
+        public void ResolvedTree_BindingHierarchy_Invalid()
+        {
+            var root = ParseSource(@"
+@viewModel System.Object
+<div DataContext='{value: Property123}'>
+    {{value: AnotherProperty}}
+</div>
+");
+            var div = root.Content.First(r => r.Metadata.Name == nameof(HtmlGenericControl));
+            Assert.IsTrue(((DothtmlElementNode)div.DothtmlNode).Attributes.SelectMany(a => a.EnumerateNodes()).Any(a => a.HasNodeErrors));
+
+        }
+
         private ResolvedTreeRoot ParseSource(string markup)
         {
             var tokenizer = new DothtmlTokenizer();
@@ -287,7 +363,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             return (ResolvedTreeRoot)controlTreeResolver.ResolveTree(tree, "default.dothtml");
         }
-        
+
     }
 
     public class DefaultControlResolverTestViewModel
