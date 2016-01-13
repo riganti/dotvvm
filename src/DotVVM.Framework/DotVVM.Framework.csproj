@@ -358,6 +358,7 @@
     <Compile Include="Runtime\Compilation\DefaultViewCompiler.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompilerCodeEmitter.cs" />
     <Compile Include="Runtime\Compilation\EmitterMethodInfo.cs" />
+    <Compile Include="Runtime\Compilation\ErrorCheckingVisitor.cs" />
     <Compile Include="Runtime\Compilation\IBindingCompiler.cs" />
     <Compile Include="Runtime\Compilation\IBindingParser.cs" />
     <Compile Include="Runtime\Compilation\IViewCompiler.cs" />

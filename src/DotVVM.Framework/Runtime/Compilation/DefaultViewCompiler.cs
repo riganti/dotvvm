@@ -11,7 +11,6 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;
@@ -49,6 +48,9 @@ namespace DotVVM.Framework.Runtime.Compilation
             var node = parser.Parse(tokenizer.Tokens);
 
             var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, fileName);
+
+            var errorCheckingVisitor = new ErrorCheckingVisitor();
+            resolvedView.Accept(errorCheckingVisitor);
 
             var styleVisitor = new StylingVisitor(configuration.Styles);
             resolvedView.Accept(styleVisitor);

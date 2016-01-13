@@ -38,6 +38,11 @@ namespace DotVVM.Framework.Runtime.ControlTree.Resolved
                 HtmlAttributes[attributeName] = Controls.HtmlWriter.JoinAttributeValues(attributeName, (string)currentValue, (string)value);
             }
             else HtmlAttributes[attributeName] = value;
+
+            if (value is ResolvedBinding)
+            {
+                ((ResolvedBinding) value).Parent = this;
+            }
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)
