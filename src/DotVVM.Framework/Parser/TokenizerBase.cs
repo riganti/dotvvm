@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Parser
         /// </summary>
         protected TToken LastToken { get; private set; }
 
-        private int position = -1;
+        private int position;
         /// <summary>
         /// Gets the distance since last token.
         /// </summary>
@@ -295,11 +295,11 @@ namespace DotVVM.Framework.Parser
                     CurrentLine++;
                     PositionOnLine = 0;
                 }
+                PositionOnLine++;
+                position++;
             }
 
-            PositionOnLine++;
-            position++;
-            return peek;
+            return ch;
         }
     }
 }
