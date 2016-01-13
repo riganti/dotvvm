@@ -142,6 +142,65 @@ describe("DotVVM.Serialization - deserialize", () => {
         expect(existing.a()[1]()).toBe("ccc");
     });
 
+    it("Deserialize into an existing instance - updating the observable array with same number of elements - the array itself must not change", () => {
+        var obj = { a: ["bbb", "ccc"] };
+        var existing = {
+            a: ko.observableArray([ko.observable("aaa"), ko.observable("aaa2")])
+        };
+
+        var numberOfUpdates = 0;
+        existing.a.subscribe(() => numberOfUpdates++);
+
+        dotvvm.serialization.deserialize(obj, existing);
+
+        expect(numberOfUpdates).toBe(0);
+        expect(existing.a().length).toBe(2);
+
+        expect(ko.isObservable(existing.a()[0])).toBeTruthy();
+        expect(existing.a()[0]()).toBe("bbb");
+
+        expect(ko.isObservable(existing.a()[1])).toBeTruthy();
+        expect(existing.a()[1]()).toBe("ccc");
+    });
+
+    it("Deserialize into an existing instance - updating the observable array of objects - one element is the same as before", () => {
+        var obj = { a: [ { b: 1 }, { b: 2 } ] };
+        var existing = {
+            a: ko.observableArray([
+                ko.observable({ b: ko.observable(2) }),
+                ko.observable({ b: ko.observable(2) })
+            ])
+        };
+
+        var numberOfUpdates = 0;
+        var numberOfUpdates_obj1 = 0;
+        var numberOfUpdates_obj2 = 0;
+        var numberOfUpdates_obj1_b = 0;
+        var numberOfUpdates_obj2_b = 0;
+        existing.a.subscribe(() => numberOfUpdates++);
+        existing.a()[0].subscribe(() => numberOfUpdates_obj1++);
+        existing.a()[1].subscribe(() => numberOfUpdates_obj2++);
+        existing.a()[0]().b.subscribe(() => numberOfUpdates_obj1_b++);
+        existing.a()[1]().b.subscribe(() => numberOfUpdates_obj2_b++);
+
+        dotvvm.serialization.deserialize(obj, existing);
+
+        expect(numberOfUpdates).toBe(0);
+        expect(numberOfUpdates_obj1).toBe(0);
+        expect(numberOfUpdates_obj2).toBe(0);
+        expect(numberOfUpdates_obj1_b).toBe(1);
+        expect(numberOfUpdates_obj2_b).toBe(0);     // second element is not changed, so no update should occur
+        expect(existing.a().length).toBe(2);
+
+        expect(ko.isObservable(existing.a()[0])).toBeTruthy();
+        expect(ko.isObservable(existing.a()[0]().b)).toBeTruthy();
+        expect(existing.a()[0]().b()).toBe(1);
+
+        expect(ko.isObservable(existing.a()[1])).toBeTruthy();
+        expect(ko.isObservable(existing.a()[1]().b)).toBeTruthy();
+        expect(existing.a()[1]().b()).toBe(2);
+    });
+
     it("Deserialize into an existing instance - doNotUpdate is ignored in the deserializeAll mode", () => {
         var obj = { a: "bbb", "a$options": { doNotUpdate: true } };
         var existing = {

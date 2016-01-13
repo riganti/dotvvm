@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 
             var result = TryTranslateMethodCall(target, args, method);
             if (result != null) return result;
-            return target + "[" + args.Single() + "]";
+            return target + "[" + args.Single() + "]()";
         }
 
         public string TranslateParameter(ParameterExpression expression)
