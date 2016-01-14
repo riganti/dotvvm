@@ -17,6 +17,7 @@ using DotVVM.Framework.Styles;
 using DotVVM.Framework.Runtime.Compilation.Binding;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
+using DotVVM.Framework.Runtime.Compilation.Validation;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -194,6 +195,7 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler());
             configuration.ServiceLocator.RegisterSingleton<IBindingParser>(() => new CompileTimeBindingParser());
             configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBidningIdGenerator());
+            configuration.ServiceLocator.RegisterSingleton<IControlUsageValidator>(() => new DefaultControlUsageValidator());
         }
 
 

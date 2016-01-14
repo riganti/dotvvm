@@ -371,6 +371,11 @@
     <Compile Include="Runtime\Compilation\JavascriptCompilation\StringJsMethodCompiler.cs" />
     <Compile Include="Runtime\Compilation\RoslynExtensionMethods.cs" />
     <Compile Include="Runtime\Compilation\StaticCommandBindingCompilationAttribute.cs" />
+    <Compile Include="Runtime\Compilation\Validation\ControlUsageError.cs" />
+    <Compile Include="Runtime\Compilation\Validation\ControlUsageValidationVisitor.cs" />
+    <Compile Include="Runtime\Compilation\Validation\ControlUsageValidatorAttribute.cs" />
+    <Compile Include="Runtime\Compilation\Validation\DefaultControlUsageValidator.cs" />
+    <Compile Include="Runtime\Compilation\Validation\IControlUsageValidator.cs" />
     <Compile Include="Runtime\Compilation\ViewCompilingVisitor.cs" />
     <Compile Include="Runtime\ControlTree\ControlResolverBase.cs" />
     <Compile Include="Runtime\ControlTree\ControlResolverMetadata.cs" />

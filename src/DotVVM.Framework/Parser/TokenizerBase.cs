@@ -285,7 +285,7 @@ namespace DotVVM.Framework.Parser
             {
                 CurrentTokenChars.Append(ch);
 
-                if (ch == '\r' && reader.Peek() != '\n')
+                if (ch == '\r' && peek != '\n')
                 {
                     CurrentLine++;
                     PositionOnLine = 0;

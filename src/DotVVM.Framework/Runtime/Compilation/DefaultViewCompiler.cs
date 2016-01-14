@@ -64,6 +64,14 @@ namespace DotVVM.Framework.Runtime.Compilation
             var styleVisitor = new StylingVisitor(configuration.Styles);
             resolvedView.Accept(styleVisitor);
 
+            var validationVisitor = new Validation.ControlUsageValidationVisitor(configuration);
+            resolvedView.Accept(validationVisitor);
+            if (validationVisitor.Errors.Any())
+            {
+                var controlUsageError = validationVisitor.Errors.First();
+                throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
+            }
+
             var emitter = new DefaultViewCompilerCodeEmitter();
             var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className,
                 b => configuration.ServiceLocator.GetService<IBindingIdGenerator>().GetId(b, fileName));

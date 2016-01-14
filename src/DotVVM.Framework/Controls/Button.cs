@@ -5,6 +5,9 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Runtime.Compilation.Validation;
+using DotVVM.Framework.Runtime.ControlTree.Resolved;
+using DotVVM.Framework.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Controls
 {
@@ -135,6 +138,22 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderEndTag(writer, context);
             }
+        }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            if(control.Properties.ContainsKey(TextProperty) && control.Content.Any(n => n.DothtmlNode.IsNotEmpty()))
+            {
+                yield return new ControlUsageError("The <dot:Button> control cannot have both inner content and the Text property set!", control.DothtmlNode);
+            }
+            ResolvedPropertySetter buttonType;
+            bool allowcontent = false;
+            if(control.Properties.TryGetValue(ButtonTagNameProperty, out buttonType))
+            {
+                allowcontent = ButtonTagName.button.Equals((buttonType as ResolvedPropertyValue)?.Value);
+            }
+            if (!allowcontent) yield return new ControlUsageError("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!", control.DothtmlNode);
         }
     }
 }
