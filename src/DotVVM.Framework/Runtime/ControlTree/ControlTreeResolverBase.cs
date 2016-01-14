@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 if (node is DothtmlBindingNode)
                 {
                     // binding in text
-                    EnsureContentAllowed(parentMetadata);
+                    EnsureContentAllowed(parentMetadata, node);
                     return ProcessBindingInText(node, dataContext);
                 }
                 else if (node is DotHtmlCommentNode)
@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 else if (node is DothtmlElementNode)
                 {
                     // HTML element
-                    EnsureContentAllowed(parentMetadata);
+                    EnsureContentAllowed(parentMetadata, node);
                     var element = (DothtmlElementNode)node;
                     return ProcessObjectElement(element, dataContext);
                 }
@@ -147,7 +147,10 @@ namespace DotVVM.Framework.Runtime.ControlTree
         private IAbstractControl ProcessText(DothtmlNode node, IControlResolverMetadata parentMetadata, IDataContextStack dataContext, DothtmlLiteralNode literalNode)
         {
             var whitespace = string.IsNullOrWhiteSpace(literalNode.Value);
-            if (!whitespace) EnsureContentAllowed(parentMetadata);
+            if (!whitespace)
+            {
+                EnsureContentAllowed(parentMetadata, node);
+            }
 
             string text;
             if (literalNode.Escape)
@@ -599,11 +602,11 @@ namespace DotVVM.Framework.Runtime.ControlTree
         /// <summary>
         /// Checks that the element can have inner contents.
         /// </summary>
-        private void EnsureContentAllowed(IControlResolverMetadata controlMetadata)
+        private void EnsureContentAllowed(IControlResolverMetadata controlMetadata, DothtmlNode node)
         {
             if (!controlMetadata.IsContentAllowed)
             {
-                throw new DotvvmCompilationException($"The content is not allowed inside the control '{controlMetadata.Type.FullName}'!");
+                node.NodeErrors.Add($"The content is not allowed inside the control '{controlMetadata.Type.FullName}'!");
             }
         }
 

@@ -322,7 +322,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 </dot:ValidationSummary>
 ");
             var control = root.Content.First(r => r.Metadata.Name == nameof(ValidationSummary));
-            Assert.AreEqual(0, control.Content.Count);
+            Assert.AreEqual(1, control.Content.Count);
             Assert.IsTrue(control.DothtmlNode.EnumerateNodes().Any(n => n.HasNodeErrors));
         }
 
