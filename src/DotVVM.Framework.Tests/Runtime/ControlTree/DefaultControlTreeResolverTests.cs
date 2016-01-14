@@ -76,7 +76,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var root = ParseSource(@"<dot:Button Text='{value: Test}' />");
 
             var control = root.Content.First();
-            var textBinding = (ResolvedPropertyBinding) control.Properties[ButtonBase.TextProperty];
+            var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
             Assert.IsNotNull(textBinding.Binding.ParsingError);
             Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("couldn't be evaluated"));
 
@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             Assert.AreEqual("active", control.HtmlAttributes["class"]);
-            
+
             Assert.AreEqual(root, control.Parent);
         }
 
@@ -167,7 +167,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var control = root.Content.First();
             var textValue = (ResolvedPropertyValue)control.Properties[Button.ButtonTagNameProperty];
             Assert.AreEqual(ButtonTagName.input, textValue.Value);
-            
+
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textValue.Parent);
         }
@@ -205,7 +205,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsNull(dataSource.Binding.ParsingError);
 
             var itemTemplate = (ResolvedPropertyTemplate)control.Properties[Repeater.ItemTemplateProperty];
-            var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof (Button));
+            var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
             Assert.IsNull(text.Binding.ParsingError);
@@ -353,7 +353,17 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
         }
 
-        private ResolvedTreeRoot ParseSource(string markup)
+        [TestMethod]
+        public void ResolvedTree_BaseType_Invalid()
+        {
+            var root = ParseSource(@"
+@baseType someBullshitttt
+<span />
+");
+            Assert.IsTrue(((DothtmlRootNode)root.DothtmlNode).Directives.First().HasNodeErrors);
+        }
+
+        private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
             tokenizer.Tokenize(new StringReader(markup));
@@ -361,7 +371,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var parser = new DothtmlParser();
             var tree = parser.Parse(tokenizer.Tokens);
 
-            return (ResolvedTreeRoot)controlTreeResolver.ResolveTree(tree, "default.dothtml");
+            return (ResolvedTreeRoot)controlTreeResolver.ResolveTree(tree, fileName);
         }
 
     }

@@ -544,14 +544,19 @@ namespace DotVVM.Framework.Runtime.ControlTree
             var baseControlDirective = node.Directives.SingleOrDefault(d => string.Equals(d.Name, Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase));
             if (baseControlDirective != null)
             {
-                wrapperType = FindType(baseControlDirective.Value);
-                if (wrapperType == null)
+                var baseType = FindType(baseControlDirective.Value);
+                if (baseType == null)
                 {
                     baseControlDirective.NodeErrors.Add($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
                 }
-                if (!wrapperType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))))
+                else if (!baseType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))))
                 {
                     baseControlDirective.NodeErrors.Add("Markup controls must derive from DotvvmMarkupControl class!");
+                    wrapperType = baseType;
+                }
+                else
+                {
+                    wrapperType = baseType;
                 }
             }
 
