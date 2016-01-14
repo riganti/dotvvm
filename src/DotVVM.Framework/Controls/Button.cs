@@ -153,7 +153,7 @@ namespace DotVVM.Framework.Controls
             {
                 allowcontent = ButtonTagName.button.Equals((buttonType as ResolvedPropertyValue)?.Value);
             }
-            if (!allowcontent) yield return new ControlUsageError("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!", control.DothtmlNode);
+            if (!allowcontent && control.Content.Any(n => n.DothtmlNode.IsNotEmpty())) yield return new ControlUsageError("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!", control.DothtmlNode);
         }
     }
 }
