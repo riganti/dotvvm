@@ -23,20 +23,35 @@ class DotvvmSerialization {
 
         // handle arrays
         if (viewModel instanceof Array) {
-            var array = [];
-            for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
-            }
-
-            if (ko.isObservable(target)) {
-                if (!target.removeAll) {
-                    // if the previous value was null, the property is not an observable array - make it
-                    ko.utils.extend(target, ko.observableArray['fn']);
-                    target = target.extend({ 'trackArrayChanges': true });
+            if (ko.isObservable(target) && target.removeAll && target().length === viewModel.length) {
+                // the array has the same number of items, update it
+                var targetArray = target();
+                for (var i = 0; i < viewModel.length; i++) {
+                    var targetItem = targetArray[i]();
+                    var deserialized = this.deserialize(viewModel[i], targetItem, deserializeAll);
+                    if (targetItem !== deserialized) {
+                        // update the observable only if the item has changed
+                        targetArray[i](deserialized);
+                    }
                 }
-                target(array);
+
             } else {
-                target = ko.observableArray(array);
+                // rebuild the array because it is different
+                var array = [];
+                for (var i = 0; i < viewModel.length; i++) {
+                    array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
+                }
+
+                if (ko.isObservable(target)) {
+                    if (!target.removeAll) {
+                        // if the previous value was null, the property is not an observable array - make it
+                        ko.utils.extend(target, ko.observableArray['fn']);
+                        target = target.extend({ 'trackArrayChanges': true });
+                    }
+                    target(array);
+                } else {
+                    target = ko.observableArray(array);
+                }
             }
             return target;
         }
