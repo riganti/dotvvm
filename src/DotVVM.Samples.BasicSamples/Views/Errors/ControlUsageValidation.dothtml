@@ -7,7 +7,7 @@
 </head>
 <body>
 
-    <dot:Button Click="{command: 5}" ButtonTagName="input">
+    <dot:Button Click="{command: 5}" Text="ahojahoj" >
 		ahojahoja
 	</dot:Button>
 </body>

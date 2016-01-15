@@ -147,13 +147,13 @@ namespace DotVVM.Framework.Controls
             {
                 yield return new ControlUsageError("The <dot:Button> control cannot have both inner content and the Text property set!", control.DothtmlNode);
             }
-            ResolvedPropertySetter buttonType;
-            bool allowcontent = false;
-            if(control.Properties.TryGetValue(ButtonTagNameProperty, out buttonType))
-            {
-                allowcontent = ButtonTagName.button.Equals((buttonType as ResolvedPropertyValue)?.Value);
-            }
-            if (!allowcontent && control.Content.Any(n => n.DothtmlNode.IsNotEmpty())) yield return new ControlUsageError("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!", control.DothtmlNode);
+            //ResolvedPropertySetter buttonType;
+            //bool allowcontent = false;
+            //if(control.Properties.TryGetValue(ButtonTagNameProperty, out buttonType))
+            //{
+            //    allowcontent = ButtonTagName.button.Equals((buttonType as ResolvedPropertyValue)?.Value);
+            //}
+            //if (!allowcontent && control.Content.Any(n => n.DothtmlNode.IsNotEmpty())) yield return new ControlUsageError("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!", control.DothtmlNode);
         }
     }
 }

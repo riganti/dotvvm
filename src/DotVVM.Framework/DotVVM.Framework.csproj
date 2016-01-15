@@ -380,6 +380,7 @@
     <Compile Include="Runtime\ControlTree\ControlResolverBase.cs" />
     <Compile Include="Runtime\ControlTree\ControlResolverMetadata.cs" />
     <Compile Include="Runtime\ControlTree\ControlResolverMetadataBase.cs" />
+    <Compile Include="Runtime\ControlTree\ControlTreeHelper.cs" />
     <Compile Include="Runtime\ControlTree\ControlTreeResolverBase.cs" />
     <Compile Include="Runtime\ControlTree\DataContextStack.cs" />
     <Compile Include="Runtime\ControlTree\DefaultControlResolver.cs" />
