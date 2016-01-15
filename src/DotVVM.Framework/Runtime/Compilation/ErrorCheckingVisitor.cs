@@ -15,15 +15,6 @@ namespace DotVVM.Framework.Runtime.Compilation
             base.VisitControl(control);
         }
 
-        public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
-        {
-            if(propertyBinding.Binding.ParsingError != null)
-            {
-                throw new DotvvmCompilationException("Binding compilation failed", propertyBinding.Binding.ParsingError, propertyBinding.Binding.BindingNode.Tokens);
-            }
-            base.VisitPropertyBinding(propertyBinding);
-        }
-
         public override void VisitView(ResolvedTreeRoot view)
         {
             if (view.DothtmlNode.HasNodeErrors)

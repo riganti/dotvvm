@@ -63,7 +63,6 @@ namespace DotVVM.Framework.Runtime.ControlTree
                     parsingError = exception;
                 }
             }
-            if (parsingError != null) node.NodeErrors.Add("Binding could not be compiled: " + parsingError.Message);
             return treeBuilder.BuildBinding(bindingOptions, node, context, parsingError, resultType, expression);
         }
 
