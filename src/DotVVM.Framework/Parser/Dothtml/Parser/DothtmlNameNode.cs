@@ -9,15 +9,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
     public class DothtmlNameNode :DothtmlNode
     {
-        public IList<DothtmlToken> WhitespacesBefore { get; set; }
+        public IEnumerable<DothtmlToken> WhitespacesBefore { get; set; }
         public DothtmlToken NameToken { get; set; }
-        public IList<DothtmlToken> WhitespacesAfter { get; set; }
+        public IEnumerable<DothtmlToken> WhitespacesAfter { get; set; }
 
         public string Text => NameToken.Text;
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
-            return new List<DothtmlNode>();
+            return Enumerable.Empty<DothtmlNode>();
         }
         public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
         {

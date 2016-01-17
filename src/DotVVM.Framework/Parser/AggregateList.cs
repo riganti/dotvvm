@@ -16,13 +16,13 @@ namespace DotVVM.Framework.Parser
 
         public void Add(Part p)
         {
-            var l = (parts == null ? firstPart : parts[parts.Count - 1]);
+            var last = (parts == null ? firstPart : parts[parts.Count - 1]);
             if (firstPart.len == 0) firstPart = p;
-            else if (l.list == p.list && l.from + l.len == p.from) {
+            else if (last.list == p.list && last.from + last.len == p.from) {
                 if (parts == null) firstPart.len += p.len;
                 else {
-                    l.len += p.len;
-                    parts[parts.Count - 1] = l;
+                    last.len += p.len;
+                    parts[parts.Count - 1] = last;
                 }
             }
             else {
@@ -54,6 +54,11 @@ namespace DotVVM.Framework.Parser
                 }
                 return r;
             }
+        }
+
+        public T First()
+        {
+            return firstPart.list[firstPart.from];
         }
 
         public Enumerator GetEnumerator()
@@ -117,7 +122,7 @@ namespace DotVVM.Framework.Parser
             public int from;
             public int len;
 
-            public IEnumerator<T> GetEnumerator() => list.Skip(from).Take(len).GetEnumerator();
+            public IEnumerator<T> GetEnumerator() => new AggregateList<T>.Enumerator(this, null);
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
         }

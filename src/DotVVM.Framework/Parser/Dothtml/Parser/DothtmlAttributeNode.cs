@@ -32,8 +32,8 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public DothtmlToken PrefixSeparatorToken { get; set; }
         public DothtmlToken ValueSeparatorToken { get; set; }
-        public List<DothtmlToken> ValueStartTokens { get; set; } = new List<DothtmlToken>();
-        public List<DothtmlToken> ValueEndTokens { get; set; } = new List<DothtmlToken>();
+        public IEnumerable<DothtmlToken> ValueStartTokens { get; set; }
+        public IEnumerable<DothtmlToken> ValueEndTokens { get; set; }
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {

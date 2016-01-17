@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
     public abstract class DothtmlValueNode: DothtmlNode
     {
-        public IList<DothtmlToken> WhitespacesBefore { get; set; }
-        public IList<DothtmlToken> WhitespacesAfter { get; set; }
+        public IEnumerable<DothtmlToken> WhitespacesBefore { get; set; }
+        public IEnumerable<DothtmlToken> WhitespacesAfter { get; set; }
     }
 }

@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
 {
     public class BindingParser : ParserBase<BindingToken, BindingTokenType>
     {
-        protected override BindingTokenType WhiteSpaceToken => BindingTokenType.WhiteSpace;
+        protected override bool IsWhiteSpace(BindingToken t) => t.Type == BindingTokenType.WhiteSpace;
 
         public BindingParserNode ReadExpression()
         {

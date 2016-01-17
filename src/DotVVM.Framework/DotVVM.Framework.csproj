@@ -263,6 +263,7 @@
     <Compile Include="Parser\Dothtml\Parser\IDothtmlSyntaxTreeVisitor.cs" />
     <Compile Include="Parser\Dothtml\Parser\ParentResolvingVisitor.cs" />
     <Compile Include="Parser\Dothtml\Parser\ParserBase.cs" />
+    <Compile Include="Parser\LazyList.cs" />
     <Compile Include="Parser\NullTokenError.cs" />
     <Compile Include="Parser\Dothtml\Parser\DothtmlNodeHelper.cs" />
     <Compile Include="Parser\SimpleTokenError.cs" />

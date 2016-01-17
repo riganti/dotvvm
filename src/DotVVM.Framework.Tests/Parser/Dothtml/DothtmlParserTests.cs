@@ -594,8 +594,8 @@ test";
             Assert.IsInstanceOfType(cursorNode, typeof(DothtmlValueTextNode));
             var bindingValue = cursorNode as DothtmlValueTextNode;
             Assert.AreEqual(bindingValue.Text, "lol");
-            Assert.AreEqual(bindingValue.WhitespacesBefore.Count, 1);
-            Assert.AreEqual(bindingValue.WhitespacesAfter.Count, 0);
+            Assert.AreEqual(bindingValue.WhitespacesBefore.Count(), 1);
+            Assert.AreEqual(bindingValue.WhitespacesAfter.Count(), 0);
 
             Assert.IsInstanceOfType(bindingValue.ParentNode, typeof(DothtmlBindingNode));
             var binding = bindingValue.ParentNode as DothtmlBindingNode;

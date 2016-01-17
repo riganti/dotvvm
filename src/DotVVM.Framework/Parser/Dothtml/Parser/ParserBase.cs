@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             return new AggregateList<TToken>.Part { list = Tokens, from = startIndex, len = CurrentIndex - startIndex }; // Enumerable.Skip<TToken>(Tokens, startIndex).Take(CurrentIndex - startIndex);
         }
 
-        protected abstract TTokenType WhiteSpaceToken { get; }
+        protected abstract bool IsWhiteSpace(TToken token);
 
         internal IList<TToken> Tokens { get; set; }
         protected int CurrentIndex { get; set; }
@@ -25,9 +25,14 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         /// <summary>
         /// Skips the whitespace.
         /// </summary>
-        protected List<TToken> SkipWhiteSpace()
+        protected AggregateList<TToken>.Part SkipWhiteSpace()
         {
-            return Enumerable.ToList<TToken>(ReadMultiple(t => t.Type.Equals(WhiteSpaceToken)));
+            var start = CurrentIndex;
+            while(CurrentIndex < Tokens.Count && IsWhiteSpace(Tokens[CurrentIndex]))
+            {
+                Read();
+            }
+            return new AggregateList<TToken>.Part { from = start, len = CurrentIndex - start, list = Tokens };
         }
 
         /// <summary>

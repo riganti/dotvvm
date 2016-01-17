@@ -7,19 +7,24 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 {
     public abstract class DothtmlNode
     {
-        public int StartPosition { get; internal set; }
+        public int StartPosition => Tokens.First().StartPosition;
 
-        public int Length => Tokens.Select(t => t.Length).DefaultIfEmpty(0).Sum();
+        public int Length => Tokens.Select(t => t.Length).Sum();
 
         public AggregateList<DothtmlToken> Tokens { get; private set; } = new AggregateList<DothtmlToken>();
 
         public DothtmlNode ParentNode { get; set; }
 
-        public List<string> NodeErrors { get; private set; } = new List<string>();
-
+        private List<string> nodeErrors;
+        public IEnumerable<string> NodeErrors => nodeErrors ?? Enumerable.Empty<string>();
+        public void AddError(string error)
+        {
+            if (nodeErrors == null) nodeErrors = new List<string>();
+            nodeErrors.Add(error);
+        }
         public bool HasNodeErrors
         {
-            get { return NodeErrors.Any(); }
+            get { return nodeErrors != null && nodeErrors.Count > 0; }
         }
 
         public abstract void Accept(IDothtmlSyntaxTreeVisitor visitor);

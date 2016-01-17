@@ -78,14 +78,14 @@ namespace DotVVM.Framework.Runtime.ControlTree
             var viewModelDirective = root.Directives.FirstOrDefault(d => d.Name == Constants.ViewModelDirectiveName);
             if (viewModelDirective == null)
             {
-                root.NodeErrors.Add($"The @viewModel directive is missing in the page '{fileName}'!");
+                root.AddError($"The @viewModel directive is missing in the page '{fileName}'!");
                 return null;
             }
 
             var viewModelType = FindType(viewModelDirective.Value);
             if (viewModelType == null)
             {
-                viewModelDirective.NodeErrors.Add($"The type '{viewModelDirective}' required in the @viewModel directive in was not found!");
+                viewModelDirective.AddError($"The type '{viewModelDirective}' required in the @viewModel directive in was not found!");
                 return null;
             }
             return CreateDataContextTypeStack(viewModelType, wrapperType);
@@ -211,7 +211,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
             {
                 controlMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(HtmlGenericControl)));
                 constructorParameters = new[] { element.FullTagName };
-                element.NodeErrors.Add(ex.Message);
+                element.AddError(ex.Message);
             }
             var control = treeBuilder.BuildControl(controlMetadata, element, dataContext);
             control.ConstructorParameters = constructorParameters;
@@ -239,8 +239,8 @@ namespace DotVVM.Framework.Runtime.ControlTree
             }
             if (controlMetadata.DataContextConstraint != null && dataContext != null && !controlMetadata.DataContextConstraint.IsAssignableFrom(dataContext.DataContextType))
             {
-                ((DothtmlNode)dataContextAttribute ?? element).NodeErrors
-                   .Add($"The control '{controlMetadata.Type.Name}' requires a DataContext of type '{controlMetadata.DataContextConstraint.FullName}'!");
+                ((DothtmlNode)dataContextAttribute ?? element)
+                   .AddError($"The control '{controlMetadata.Type.Name}' requires a DataContext of type '{controlMetadata.DataContextConstraint.FullName}'!");
             }
 
             // set properties from attributes
@@ -257,7 +257,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
             var missingProperties = control.Metadata.AllProperties.Where(p => p.MarkupOptions.Required && !control.TryGetProperty(p, out missingProperty)).ToList();
             if (missingProperties.Any())
             {
-                element.NodeErrors.Add($"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.");
+                element.AddError($"The control '{ control.Metadata.Type.FullName }' is missing required properties: { string.Join(", ", missingProperties.Select(p => "'" + p.Name + "'")) }.");
             }
             return control;
         }
@@ -280,7 +280,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
             {
                 if (!control.Metadata.HasHtmlAttributesCollection)
                 {
-                    attribute.NodeErrors.Add($"The control '{control.Metadata.Type.FullName}' cannot use HTML attributes!");
+                    attribute.AddError($"The control '{control.Metadata.Type.FullName}' cannot use HTML attributes!");
                 }
                 else treeBuilder.SetHtmlAttribute(control, attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
                 return;
@@ -288,7 +288,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
 
             if (!string.IsNullOrEmpty(attribute.AttributePrefix))
             {
-                attribute.NodeErrors.Add("Attributes with XML namespaces are not supported!");
+                attribute.AddError("Attributes with XML namespaces are not supported!");
                 return;
             }
 
@@ -307,14 +307,14 @@ namespace DotVVM.Framework.Runtime.ControlTree
 
                 if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute))
                 {
-                    attribute.NodeErrors.Add($"The property '{property.FullName}' cannot be used as a control attribute!");
+                    attribute.AddError($"The property '{property.FullName}' cannot be used as a control attribute!");
                     return;
                 }
 
                 // set the property
                 if (attribute.ValueNode == null)
                 {
-                    attribute.NodeErrors.Add($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
+                    attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
                 }
                 else if (attribute.ValueNode is DothtmlValueBindingNode)
                 {
@@ -322,7 +322,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                     var bindingNode = (attribute.ValueNode as DothtmlValueBindingNode).BindingNode;
                     if (!property.MarkupOptions.AllowBinding)
                     {
-                        attribute.ValueNode.NodeErrors.Add($"The property '{ property.FullName }' cannot contain binding.");
+                        attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain binding.");
                         return;
                     }
                     var binding = ProcessBinding(bindingNode, dataContext);
@@ -334,7 +334,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                     // hard-coded value in markup
                     if (!property.MarkupOptions.AllowHardCodedValue)
                     {
-                        attribute.ValueNode.NodeErrors.Add($"The property '{ property.FullName }' cannot contain hard coded value.");
+                        attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain hard coded value.");
                         return;
                     }
 
@@ -351,7 +351,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
             }
             else
             {
-                attribute.NodeErrors.Add($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not allow HTML attributes!");
+                attribute.AddError($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not allow HTML attributes!");
             }
         }
 
@@ -400,7 +400,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                     {
                         if (node.IsNotEmpty())
                         {
-                            node.NodeErrors.Add($"Content not allowed inside {control.Metadata.Type.FullName}");
+                            node.AddError($"Content not allowed inside {control.Metadata.Type.FullName}");
                         }
                     }
                     else
@@ -463,7 +463,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 {
                     collection = FilterOrError(collection,
                         c => c.Metadata.Type.IsAssignableTo(collectionType),
-                        c => c.DothtmlNode.NodeErrors.Add($"Control type {c.Metadata.Type.FullName} can't be used in collection of type {collectionType.FullName}."));
+                        c => c.DothtmlNode.AddError($"Control type {c.Metadata.Type.FullName} can't be used in collection of type {collectionType.FullName}."));
                 }
 
                 return treeBuilder.BuildPropertyControlCollection(property, collection.ToArray());
@@ -481,7 +481,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 var children = FilterNodes<DothtmlElementNode>(elementContent, property).ToList();
                 if (children.Count > 1)
                 {
-                    foreach (var c in children.Skip(1)) c.NodeErrors.Add($"The property '{property.MarkupOptions.Name}' can have only one child element!");
+                    foreach (var c in children.Skip(1)) c.AddError($"The property '{property.MarkupOptions.Name}' can have only one child element!");
                     children = children.Take(1).ToList();
                 }
                 if (children.Count == 1)
@@ -495,7 +495,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
             }
             else
             {
-                control.DothtmlNode.NodeErrors.Add($"The property '{property.FullName}' is not supported!");
+                control.DothtmlNode.AddError($"The property '{property.FullName}' is not supported!");
                 return treeBuilder.BuildPropertyValue(property, null);
             }
         }
@@ -532,7 +532,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 }
                 else if (child.IsNotEmpty())
                 {
-                    child.NodeErrors.Add($"Content is not allowed inside the property '{property.FullName}'! (Conflicting node: Node {child.GetType().Name})");
+                    child.AddError($"Content is not allowed inside the property '{property.FullName}'! (Conflicting node: Node {child.GetType().Name})");
                 }
             }
         }
@@ -550,11 +550,11 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 var baseType = FindType(baseControlDirective.Value);
                 if (baseType == null)
                 {
-                    baseControlDirective.NodeErrors.Add($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
+                    baseControlDirective.AddError($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
                 }
                 else if (!baseType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))))
                 {
-                    baseControlDirective.NodeErrors.Add("Markup controls must derive from DotvvmMarkupControl class!");
+                    baseControlDirective.AddError("Markup controls must derive from DotvvmMarkupControl class!");
                     wrapperType = baseType;
                 }
                 else
@@ -611,7 +611,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
         {
             if (!controlMetadata.IsContentAllowed)
             {
-                node.NodeErrors.Add($"The content is not allowed inside the control '{controlMetadata.Type.FullName}'!");
+                node.AddError($"The content is not allowed inside the control '{controlMetadata.Type.FullName}'!");
             }
         }
 

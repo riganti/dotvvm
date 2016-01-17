@@ -349,7 +349,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 </div>
 ");
             var div = root.Content.First(r => r.Metadata.Name == nameof(HtmlGenericControl));
-            Assert.IsTrue(((DothtmlElementNode)div.DothtmlNode).Attributes.SelectMany(a => a.EnumerateNodes()).Any(a => a.HasNodeErrors));
+            Assert.IsTrue((div.Properties[DotvvmBindableObject.DataContextProperty] as ResolvedPropertyBinding).Binding.ParsingError != null);
 
         }
 

@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         {
             get
             {
-                return "<" + (IsClosingTag ? "/" : "") + FullTagName + ( Attributes.Any() ? " ..." : "" ) + (IsSelfClosingTag ? " /" : "") +  ">";
+                return "<" + (IsClosingTag ? "/" : "") + FullTagName + (Attributes.Any() ? " ..." : "") + (IsSelfClosingTag ? " /" : "") + ">";
             }
         }
         #endregion
@@ -29,15 +29,15 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public bool IsClosingTag { get; set; }
 
-        public bool IsSelfClosingTag { get; set; } 
+        public bool IsSelfClosingTag { get; set; }
 
         public DothtmlNameNode TagPrefixNode { get; set; }
         public DothtmlNameNode TagNameNode { get; set; }
         public List<DothtmlAttributeNode> Attributes { get; set; } = new List<DothtmlAttributeNode>();
-        public List<DotHtmlCommentNode> InnerComments { get; set; } = new List<DotHtmlCommentNode>();
+        public List<DotHtmlCommentNode> InnerComments { get; set; }
 
         public DothtmlToken PrefixSeparator { get; set; }
-        public List<DothtmlToken> AttributeSeparators { get; set; } = new List<DothtmlToken>();
+        public List<DothtmlToken> AttributeSeparators { get; set; }
         public DothtmlElementNode CorrespondingEndTag { get; internal set; }
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
@@ -48,9 +48,10 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             {
                 enumetarion.Add(TagPrefixNode);
             }
+
             enumetarion.Add(TagNameNode);
             enumetarion.AddRange(Attributes);
-            enumetarion.AddRange(InnerComments);
+            if (InnerComments != null) enumetarion.AddRange(InnerComments);
             enumetarion.AddRange(base.EnumerateChildNodes());
 
             return enumetarion;
