@@ -12,10 +12,11 @@ namespace DotVVM.Framework.Parser
         Part firstPart;
         List<Part> parts;
 
-        public void Add(IList<T> list, int len = -1, int from = 0) => Add(new Part() { list = list, from = from, len = len < 0 ? list.Count : len });
+        public void Add(IReadOnlyList<T> list, int len = -1, int from = 0) => Add(new Part() { list = list, from = from, len = len < 0 ? list.Count : len });
 
         public void Add(Part p)
         {
+            if (p.len == 0) return;
             var last = (parts == null ? firstPart : parts[parts.Count - 1]);
             if (firstPart.len == 0) firstPart = p;
             else if (last.list == p.list && last.from + last.len == p.from) {
@@ -118,7 +119,7 @@ namespace DotVVM.Framework.Parser
         }
         public struct Part: IEnumerable<T>
         {
-            public IList<T> list;
+            public IReadOnlyList<T> list;
             public int from;
             public int len;
 

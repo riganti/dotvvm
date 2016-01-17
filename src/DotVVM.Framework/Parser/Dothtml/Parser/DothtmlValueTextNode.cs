@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
-            return new List<DothtmlNode>();
+            return Enumerable.Empty<DothtmlNode>();
         }
 
         public override void Accept(IDothtmlSyntaxTreeVisitor visitor)

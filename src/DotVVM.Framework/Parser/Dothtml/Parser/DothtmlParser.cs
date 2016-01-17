@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         /// <summary>
         /// Parses the token stream and gets the node.
         /// </summary>
-        public DothtmlRootNode Parse(IList<DothtmlToken> tokens)
+        public DothtmlRootNode Parse(List<DothtmlToken> tokens)
         {
             Root = null;
             Tokens = tokens;

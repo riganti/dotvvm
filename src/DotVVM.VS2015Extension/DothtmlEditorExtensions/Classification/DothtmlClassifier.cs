@@ -57,7 +57,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
             remove { }
         }
 
-        public IList<DothtmlToken> Tokens
+        public List<DothtmlToken> Tokens
         {
             get { return tokenizer.Tokens; }
         }

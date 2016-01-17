@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         protected abstract bool IsWhiteSpace(TToken token);
 
-        internal IList<TToken> Tokens { get; set; }
+        internal List<TToken> Tokens { get; set; }
         protected int CurrentIndex { get; set; }
 
         

@@ -42,26 +42,26 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()
         {
-            var enumetarion = new List<DothtmlNode>();
+            var result = new List<DothtmlNode>();
 
             if (TagPrefixNode != null)
             {
-                enumetarion.Add(TagPrefixNode);
+                result.Add(TagPrefixNode);
             }
 
-            enumetarion.Add(TagNameNode);
-            enumetarion.AddRange(Attributes);
-            if (InnerComments != null) enumetarion.AddRange(InnerComments);
-            enumetarion.AddRange(base.EnumerateChildNodes());
+            result.Add(TagNameNode);
+            result.AddRange(Attributes);
+            if (InnerComments != null) result.AddRange(InnerComments);
+            result.AddRange(Content);
 
-            return enumetarion;
+            return result;
         }
 
         public override void Accept(IDothtmlSyntaxTreeVisitor visitor)
         {
             visitor.Visit(this);
 
-            foreach (var node in EnumerateChildNodes() )
+            foreach (var node in EnumerateChildNodes())
             {
                 if (visitor.Condition(node))
                 {
