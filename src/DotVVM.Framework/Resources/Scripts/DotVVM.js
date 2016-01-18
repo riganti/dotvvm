@@ -791,7 +791,7 @@ var DotvvmFileUpload = (function () {
             // files were uploaded successfully
             viewModel.Error("");
             for (var i = 0; i < result.length; i++) {
-                viewModel.Files.push(dotvvm.serialization.deserialize(result[i]));
+                viewModel.Files.push(dotvvm.serialization.wrapObservable(dotvvm.serialization.deserialize(result[i])));
             }
             // call the handler
             if (targetControl.dataset["uploadCompleted"]) {

@@ -114,9 +114,9 @@ class DotvvmSerialization {
         return target;
     }
 
-    private wrapObservable(obj: any) {
+    public wrapObservable<T>(obj: T): KnockoutObservable<T> {
         if (!ko.isObservable(obj)) return ko.observable(obj);
-        return obj;
+        return <KnockoutObservable<T>><any>obj;
     }
 
     public serialize(viewModel: any, opt: ISerializationOptions = {}): any {

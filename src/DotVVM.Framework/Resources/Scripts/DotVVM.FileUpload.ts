@@ -26,7 +26,7 @@ class DotvvmFileUpload {
             // files were uploaded successfully
             viewModel.Error("");
             for (var i = 0; i < result.length; i++) {
-                viewModel.Files.push(dotvvm.serialization.deserialize(result[i]));
+                viewModel.Files.push(dotvvm.serialization.wrapObservable(dotvvm.serialization.deserialize(result[i])));
             }
 
             // call the handler
@@ -40,7 +40,7 @@ class DotvvmFileUpload {
 }
 
 class DotvvmFileUploadCollection {
-    public Files = ko.observableArray<DotvvmFileUpload>();
+    public Files = ko.observableArray<KnockoutObservable<DotvvmFileUpload>>();
     public Progress = ko.observable<number>(0);
     public Error = ko.observable<string>();
     public IsBusy = ko.observable<boolean>();
