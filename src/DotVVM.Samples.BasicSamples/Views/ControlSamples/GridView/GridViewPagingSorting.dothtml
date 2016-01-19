@@ -20,7 +20,7 @@
                 <dot:GridViewTextColumn ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True">
                     <HeaderTemplate>
 						<span class="class123">Birth date</span>
-						<dot:Button Click="{command: _root.TestCommand()}" Text="Button" />
+						<dot:Button Click="{command: _root.TestCommand()}" Text="Sort Button" ButtonTagName="button" />
 					</HeaderTemplate>
                 </dot:GridViewTextColumn>
 				<dot:GridViewCheckBoxColumn HeaderText="Message received" ValueBinding="{value: MessageReceived}" AllowSorting="True"></dot:GridViewCheckBoxColumn>

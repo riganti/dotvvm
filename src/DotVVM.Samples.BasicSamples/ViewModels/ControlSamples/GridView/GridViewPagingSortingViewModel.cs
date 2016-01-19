@@ -70,6 +70,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public void TestCommand()
         {
+            CustomersDataSet.SetSortExpression("BirthDate");
         }
 
         public void SortCustomers(string column)

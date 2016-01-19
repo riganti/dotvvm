@@ -131,31 +131,28 @@ namespace DotVVM.Samples.Tests.Control
                     browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("11");
 
                     // try sorting in the first grid
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("a", 0).Click();
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("button", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).CheckClassAttribute("sort-asc");
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("4");
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
+                    browser.Wait();
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).CheckClassAttribute("sort-asc");
+
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
+                    browser.Wait();
+                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
 
                     //// sort descending in the first grid
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("a", 0).Click();
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).CheckClassAttribute("sort-desc");
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("9");
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).CheckClassAttribute("sort-desc");
+                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("16");
 
                     //// sort by different column in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
                     browser.Wait();
                     browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
 
-                    //// try sorting in the first grid
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("a", 0).Click();
-                    browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("4");
-
-                    //// sort by different column in the first grid
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
-                    browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
                 };
 
                 browser.Wait();
