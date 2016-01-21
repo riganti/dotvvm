@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -59,6 +60,11 @@ namespace DotVVM.Framework.Hosting
         /// This property is typically set from the exception filter.
         /// </summary>
         bool IsCommandExceptionHandled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the exception that occured when the command was executed.
+        /// </summary>
+        Exception CommandException { get; }
 
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.

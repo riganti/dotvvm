@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
@@ -21,6 +22,7 @@ namespace DotVVM.Framework.Hosting
         public ModelState ModelState { get; set; }
         public IDictionary<string, object> Query { get; set; }
         public bool IsCommandExceptionHandled { get; set; }
+        public Exception CommandException { get; set; }
         public bool IsSpaRequest { get; set; }
         public bool IsInPartialRenderingMode { get; set; }
         public string ApplicationHostPath { get; set; }
