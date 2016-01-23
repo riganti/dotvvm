@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -21,5 +22,8 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     .Concat(TargetExpression.EnumerateNodes())
                     .Concat(ArgumentExpressions.SelectMany(a => a.EnumerateNodes()));
         }
+
+        public override IEnumerable<BindingParserNode> EnumerateChildNodes()
+            => new[] { TargetExpression }.Concat(ArgumentExpressions);
     }
 }

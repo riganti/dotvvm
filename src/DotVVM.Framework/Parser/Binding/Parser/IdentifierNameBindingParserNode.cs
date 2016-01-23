@@ -1,3 +1,7 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
 namespace DotVVM.Framework.Parser.Binding.Parser
 {
     public class IdentifierNameBindingParserNode : BindingParserNode
@@ -8,5 +12,8 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         {
             Name = name;
         }
+
+        public override IEnumerable<BindingParserNode> EnumerateChildNodes()
+            => Enumerable.Empty<BindingParserNode>();
     }
 }

@@ -42,5 +42,7 @@ namespace DotVVM.Framework.Parser.Binding.Parser
             return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.StartPosition + n.Length);
         }
 
+        public abstract IEnumerable<BindingParserNode> EnumerateChildNodes();
+
     }
 }

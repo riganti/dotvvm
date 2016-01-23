@@ -90,6 +90,7 @@ namespace DotVVM.Framework.Parser
             try
             {
                 Read();
+                position = 0;
                 CurrentLine = 1;
                 PositionOnLine = 0;
                 LastToken = null;

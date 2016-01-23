@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Parser.Binding.Tokenizer;
@@ -21,5 +22,8 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         {
             return base.EnumerateNodes().Concat(FirstExpression.EnumerateNodes()).Concat(SecondExpression.EnumerateNodes());
         }
+
+        public override IEnumerable<BindingParserNode> EnumerateChildNodes()
+            => new[] { FirstExpression, SecondExpression };
     }
 }

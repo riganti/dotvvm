@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -18,5 +19,8 @@ namespace DotVVM.Framework.Parser.Binding.Parser
         {
             return base.EnumerateNodes().Concat(TargetExpression.EnumerateNodes()).Concat(ArrayIndexExpression.EnumerateNodes());
         }
+
+        public override IEnumerable<BindingParserNode> EnumerateChildNodes()
+            => new[] { TargetExpression, ArrayIndexExpression };
     }
 }

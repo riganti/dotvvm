@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -24,5 +25,8 @@ namespace DotVVM.Framework.Parser.Binding.Parser
                     .Concat(TrueExpression.EnumerateNodes())
                     .Concat(FalseExpression.EnumerateNodes());
         }
+
+        public override IEnumerable<BindingParserNode> EnumerateChildNodes()
+            => new[] { ConditionExpression, TrueExpression, FalseExpression };
     }
 }
