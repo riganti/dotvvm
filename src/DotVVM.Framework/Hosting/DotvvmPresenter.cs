@@ -188,12 +188,14 @@ namespace DotVVM.Framework.Hosting
                     {
                         filter.OnCommandExecuting(context, actionInfo);
                     }
-
-                    Exception commandException = null;
+                    
                     try
                     {
                         var result = actionInfo.Action();
-                        if (result is Task) await (Task)result;
+                        if (result is Task)
+                        {
+                            await (Task)result;
+                        }
                     }
                     catch (Exception ex)
                     {
@@ -205,18 +207,18 @@ namespace DotVVM.Framework.Hosting
                         {
                             throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
                         }
-                        commandException = ex;
+                        context.CommandException = ex;
                     }
 
                     // run OnCommandExecuted on action filters
-                    foreach (var filter in methodFilters)
+                    foreach (var filter in methodFilters.Reverse())
                     {
-                        filter.OnCommandExecuted(context, actionInfo, commandException);
+                        filter.OnCommandExecuted(context, actionInfo, context.CommandException);
                     }
 
-                    if (commandException != null && !context.IsCommandExceptionHandled)
+                    if (context.CommandException != null && !context.IsCommandExceptionHandled)
                     {
-                        throw new Exception("Unhandled exception occured in the command!", commandException);
+                        throw new Exception("Unhandled exception occured in the command!", context.CommandException);
                     }
                 }
             }

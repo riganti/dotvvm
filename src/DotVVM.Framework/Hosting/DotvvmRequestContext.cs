@@ -87,6 +87,11 @@ namespace DotVVM.Framework.Hosting
         public bool IsCommandExceptionHandled { get; set; }
 
         /// <summary>
+        /// Gets or sets the exception that occured when the command was executed.
+        /// </summary>
+        public Exception CommandException { get; internal set; }
+
+        /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
         /// </summary>
         public bool IsSpaRequest
@@ -101,7 +106,6 @@ namespace DotVVM.Framework.Hosting
         {
             get { return DotvvmPresenter.DeterminePartialRendering(OwinContext); }
         }
-
 
 
         /// <summary>
