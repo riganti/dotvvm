@@ -18,7 +18,12 @@
 				<!-- comment inside columns collection -->
 				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" />
 				<dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
-				<dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+				<dot:GridViewTextColumn ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True">
+                    <HeaderTemplate>
+						<span class="class123">Birth date</span>
+						<dot:Button Click="{command: _root.TestCommand()}" Text="Sort Button" ButtonTagName="button" />
+					</HeaderTemplate>
+                </dot:GridViewTextColumn>
 				<dot:GridViewCheckBoxColumn HeaderText="Message received" ValueBinding="{value: MessageReceived}" AllowSorting="True"></dot:GridViewCheckBoxColumn>
 			</Columns>
 			<!-- comment inside control -->
