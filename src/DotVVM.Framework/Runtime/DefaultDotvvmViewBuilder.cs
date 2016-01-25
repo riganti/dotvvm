@@ -140,6 +140,7 @@ namespace DotVVM.Framework.Runtime
                 placeHolder.Children.Add(content);
                 content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
                 content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
+                content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
             }
 
 

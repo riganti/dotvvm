@@ -182,6 +182,9 @@ label.nav {
 				</div>
 			</label>
 		</div>
+		<#+ if (!string.IsNullOrEmpty(source.FileName)) { #>
+		<p class="source file">Source File: <strong><#+ Write(source.FileName); #></p>
+		<#+ } #>
 	<#+}
 
     private void WriteSourceLines(int startLine, params string[] lines)
