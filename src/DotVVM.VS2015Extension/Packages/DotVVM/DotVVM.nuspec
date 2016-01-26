@@ -23,6 +23,7 @@
     </metadata>
     <files>
         <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.dll" target="lib\net451\DotVVM.Framework.dll" />
+	<file src="..\..\..\DotVVM.Compiler\bin\Debug\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />
         <file src="init.ps1" target="tools\init.ps1" />
         <file src="install.ps1" target="tools\install.ps1" />
         <file src="DotvvmModule.psm1" target="tools\DotvvmModule.psm1" />
