@@ -18,6 +18,9 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework", "DotVVM.Framework\DotVVM.Framework.csproj", "{2865B545-E469-417A-B14F-E2CCDD4B6267}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests", "DotVVM.Framework.Tests\DotVVM.Framework.Tests.csproj", "{7C2EABF3-F594-4FCB-8DD9-EDA1E4DF1C24}"
+	ProjectSection(ProjectDependencies) = postProject
+		{9A3886CD-CC85-4363-B2BC-5176AFE795CF} = {9A3886CD-CC85-4363-B2BC-5176AFE795CF}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.VS2015Extension", "DotVVM.VS2015Extension\DotVVM.VS2015Extension.csproj", "{772E47BF-A251-44F7-92C4-157D9F083A6F}"
 	ProjectSection(ProjectDependencies) = postProject
