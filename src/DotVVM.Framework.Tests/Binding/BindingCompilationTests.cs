@@ -137,12 +137,20 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(false, viewModel.BoolMethodExecuted);
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_NullCoallescence()
+        {
+            var viewModel = new TestViewModel() { StringProp = "AHOJ 12" };
+            Assert.AreEqual("AHOJ 12", ExecuteBinding("StringProp2 ?? (StringProp ?? 'HUHHHHE')", viewModel));
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
 
             public TestViewModel2 TestViewModel2 { get; set; }
             public TestEnum EnumProperty { get; set; }
+            public string StringProp2 { get; set; }
 
             public string SetStringProp(string a, int b)
             {
