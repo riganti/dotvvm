@@ -559,7 +559,6 @@
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\Microsoft.CodeAnalysis.Analyzers.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0\Microsoft.CodeAnalysis.Common.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" "$(ProjectDir)Packages"
-      copy "$(SolutionDir)packages\ExpressionEvaluator.2.0.3.0\ExpressionEvaluator.2.0.3.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Antlr.3.5.0.2\Antlr.3.5.0.2.nupkg" "$(ProjectDir)Packages"
       
       if exist "$(ProjectDir)Packages\DotVVM.*.nupkg" (
