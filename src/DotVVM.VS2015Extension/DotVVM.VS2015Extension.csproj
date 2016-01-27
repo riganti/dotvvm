@@ -384,7 +384,7 @@
     <Content Include="Packages\Antlr.3.5.0.2.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.0.9.1.3-pre.nupkg">
+    <Content Include="Packages\DotVVM.0.9.1.4-pre.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />
@@ -440,6 +440,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Compiler\DotVVM.Compiler.csproj">
+      <Project>{9a3886cd-cc85-4363-b2bc-5176afe795cf}</Project>
+      <Name>DotVVM.Compiler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
       <Name>DotVVM.Framework</Name>
@@ -559,7 +563,6 @@
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\Microsoft.CodeAnalysis.Analyzers.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0\Microsoft.CodeAnalysis.Common.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" "$(ProjectDir)Packages"
-      copy "$(SolutionDir)packages\ExpressionEvaluator.2.0.3.0\ExpressionEvaluator.2.0.3.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Antlr.3.5.0.2\Antlr.3.5.0.2.nupkg" "$(ProjectDir)Packages"
       
       if exist "$(ProjectDir)Packages\DotVVM.*.nupkg" (

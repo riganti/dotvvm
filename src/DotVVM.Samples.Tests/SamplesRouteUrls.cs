@@ -28,6 +28,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_EnabledProperty_EnabledProperty = "ControlSamples/EnabledProperty/EnabledProperty";
 			public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
 			public const string ControlSamples_GridView_GridViewInlineEditing = "ControlSamples/GridView/GridViewInlineEditing";
+			public const string ControlSamples_GridView_GridViewInlineEditingValidation = "ControlSamples/GridView/GridViewInlineEditingValidation";
 			public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
 			public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
 			public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
@@ -40,12 +41,14 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
 			public const string ControlSamples_Repeater_RouteLink = "ControlSamples/Repeater/RouteLink";
 			public const string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag = "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
+			public const string ControlSamples_RouteLink_RouteLinkEnabled = "ControlSamples/RouteLink/RouteLinkEnabled";
 			public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";
 			public const string ControlSamples_TextBox_TextBox = "ControlSamples/TextBox/TextBox";
 			public const string ControlSamples_TextBox_TextBox_Format = "ControlSamples/TextBox/TextBox_Format";
 			public const string ControlSamples_ValidationSummary_RecursiveValidationSummary = "ControlSamples/ValidationSummary/RecursiveValidationSummary";
 			public const string Errors_BindingInvalidCommand = "Errors/BindingInvalidCommand";
 			public const string Errors_BindingInvalidProperty = "Errors/BindingInvalidProperty";
+			public const string Errors_ControlUsageValidation = "Errors/ControlUsageValidation";
 			public const string Errors_InvalidViewModel = "Errors/InvalidViewModel";
 			public const string Errors_MalformedBinding = "Errors/MalformedBinding";
 			public const string Errors_MasterPageRequiresDifferentViewModel = "Errors/MasterPageRequiresDifferentViewModel";

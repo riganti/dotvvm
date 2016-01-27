@@ -46,6 +46,54 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        public void Control_GridViewInlineEditingValidation()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
+                //Get rows
+                var rows = browser.First("table tbody");
+                var firstRow = rows.ElementAt("tr", 0);
+
+                //Edit
+                firstRow.ElementAt("td", 5).First("button").Click();
+
+                rows = browser.First("table tbody");
+                firstRow = rows.ElementAt("tr", 0);
+
+                //Check type
+                firstRow.ElementAt("td", 1).First("input").CheckAttribute("type", "text");
+                firstRow.ElementAt("td", 2).First("input").CheckAttribute("type", "text");
+                firstRow.ElementAt("td", 3).First("input").CheckAttribute("type", "text");
+                firstRow.ElementAt("td", 4).First("input").CheckAttribute("type", "text");
+
+                //clear name
+                firstRow.ElementAt("td", 1).First("input").Clear();
+
+                //update buttons
+                firstRow.ElementAt("td", 5).FindElements("button").ThrowIfDifferentCountThan(2);
+
+                //update
+                firstRow.ElementAt("td", 5).First("button").Click();
+
+
+                var validationResult = browser.ElementAt(".validation", 0);
+                validationResult.CheckIfInnerTextEquals("The Name field is required.");
+
+                //change name
+                firstRow.ElementAt("td", 1).First("input").SendKeys("Test");
+
+                //clear email
+                firstRow.ElementAt("td", 3).First("input").Clear();
+                //update
+                firstRow.ElementAt("td", 5).First("button").Click();
+
+                //check validation
+                validationResult.CheckIfInnerTextEquals("The Email field is not a valid e-mail address.");
+            });
+        }
+
+        [TestMethod]
         public void Control_GridViewInlineEditingServer()
         {
             Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
