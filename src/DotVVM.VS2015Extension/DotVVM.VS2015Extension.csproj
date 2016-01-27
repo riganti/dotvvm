@@ -440,6 +440,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Compiler\DotVVM.Compiler.csproj">
+      <Project>{9a3886cd-cc85-4363-b2bc-5176afe795cf}</Project>
+      <Name>DotVVM.Compiler</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
       <Name>DotVVM.Framework</Name>
