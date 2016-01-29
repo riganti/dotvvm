@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Utils
                 Patch((JObject)target, (JObject)diff, removeOnNull);
                 return target;
             } else if (target.Type == JTokenType.Array && diff.Type == JTokenType.Array) {
-                return new JArray(((JArray)target).Zip((JArray)diff, (t, d) => PatchItem(t, d, removeOnNull)));
+                return new JArray(((JArray)target).ZipOverhang((JArray)diff, (t, d) => PatchItem(t, d, removeOnNull)).ToArray());
             } else {
                 return diff;
             }
@@ -103,6 +103,20 @@ namespace DotVVM.Framework.Utils
                 if (val == null) target[prop.Key] = prop.Value;
                 else if (prop.Value.Type == JTokenType.Null && removeOnNull || (prop.Value as JConstructor)?.Name == "$rm") target.Remove(prop.Key);
                 else target[prop.Key] = PatchItem(val, prop.Value, removeOnNull);
+            }
+        }
+
+        public static IEnumerable<T> ZipOverhang<T>(this IEnumerable<T> a, IEnumerable<T> b, Func<T, T, T> combine)
+        {
+            bool am, bm;
+            using (var ae = a.GetEnumerator()) using (var be = b.GetEnumerator())
+            {
+                while((am = ae.MoveNext()) & (bm = be.MoveNext()))
+                {
+                    yield return combine(ae.Current, be.Current);
+                }
+                while (am) { yield return ae.Current; am = ae.MoveNext(); }
+                while (bm) { yield return be.Current; bm = be.MoveNext(); }
             }
         }
     }

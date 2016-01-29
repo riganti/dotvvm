@@ -40,6 +40,8 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets the route table.
         /// </summary>
+        [JsonProperty("routes")]
+        [JsonConverter(typeof(RouteTableJsonConverter))]
         public DotvvmRouteTable RouteTable { get; private set; }
 
         /// <summary>

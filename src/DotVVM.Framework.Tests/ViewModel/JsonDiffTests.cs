@@ -40,6 +40,21 @@ namespace DotVVM.Framework.Tests.ViewModel
             Assert.AreEqual("dotvvm", (config.Resources.FindResource("resource-3") as ScriptResource).Dependencies.Single());
         }
 
+        [TestMethod]
+        public void JsonDiff_Configuration_AddingRoute()
+        {
+            var config = ApplyPatches(
+                CreateDiff(c => c.RouteTable.Add("Route1", "Path1", "View1.dothtml")),
+                CreateDiff(c => c.RouteTable.Add("Route2", "Path2", "View2.dothtml")),
+                CreateDiff(c => c.RouteTable.Add("Route3", "Path3/{Name}", "View3.dothtml", new { Name = "defaultname" }))
+                );
+            Assert.IsTrue(config.RouteTable.Any(r => r.RouteName == "Route1"));
+            Assert.IsTrue(config.RouteTable.Any(r => r.RouteName == "Route2"));
+            Assert.IsTrue(config.RouteTable.Any(r => r.RouteName == "Route3"));
+            Assert.AreEqual("View1.dothtml", config.RouteTable.Single(r => r.RouteName == "Route1").VirtualPath);
+            Assert.AreEqual("defaultname", config.RouteTable.Single(r => r.RouteName == "Route3").DefaultValues["Name"]);
+        }
+
         private JObject CreateDiff(Action<DotvvmConfiguration> fn)
         {
             var config = DotvvmConfiguration.CreateDefault();

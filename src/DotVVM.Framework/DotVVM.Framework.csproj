@@ -340,6 +340,7 @@
     <Compile Include="Routing\IRoutingStrategy.cs" />
     <Compile Include="Routing\RouteHelper.cs" />
     <Compile Include="Routing\RouteInfo.cs" />
+    <Compile Include="Routing\RouteTableJsonConverter.cs" />
     <Compile Include="Routing\ViewsFolderDothmlFileBasedRouteStrategy.cs" />
     <Compile Include="Runtime\BindingParserOptions.cs" />
     <Compile Include="Runtime\Compilation\BindingParserException.cs" />
