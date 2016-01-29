@@ -100,7 +100,8 @@ namespace DotVVM.Framework.Utils
         {
             foreach (var prop in diff) {
                 var val = target[prop.Key];
-                if (prop.Value.Type == JTokenType.Null && removeOnNull) target.Remove(prop.Key);
+                if (val == null) target[prop.Key] = prop.Value;
+                else if (prop.Value.Type == JTokenType.Null && removeOnNull || (prop.Value as JConstructor)?.Name == "$rm") target.Remove(prop.Key);
                 else target[prop.Key] = PatchItem(val, prop.Value, removeOnNull);
             }
         }
