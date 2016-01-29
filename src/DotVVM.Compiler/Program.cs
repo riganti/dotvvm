@@ -6,6 +6,8 @@ using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Diagnostics;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Compiler
 {
@@ -16,7 +18,7 @@ namespace DotVVM.Compiler
         {
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             if (args.Length == 0) while (true) DoCompileFromStdin();
-            if(args[0] == "--json")
+            if (args[0] == "--json")
             {
                 var opt = string.Join(" ", args.Skip(1));
                 if (!DoCompile(opt))
@@ -33,11 +35,29 @@ namespace DotVVM.Compiler
                 }
             }
         }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static Assembly GetDotvvmAssembly() => typeof(Framework.KnockoutHelper).Assembly;
 
         private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
+            var r = LoadFromAlternativeFolder(args.Name);
+            if (r != null) return r;
             WriteInfo($"Assembly `{ args.Name }` resolve failed");
-            if (args.Name.StartsWith(typeof(DotVVM.Framework.KnockoutHelper).Assembly.GetName().Name + ",", StringComparison.Ordinal)) return typeof(Framework.KnockoutHelper).Assembly;
+            if (args.Name.StartsWith("DotVVM.Framework,", StringComparison.OrdinalIgnoreCase)) return GetDotvvmAssembly();
+
+            return null;
+        }
+        
+        static Assembly LoadFromAlternativeFolder(string name)
+        {
+            var paths = Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',');
+            if (paths == null) return null;
+            foreach (var path in paths)
+            {
+                string assemblyPath = Path.Combine(path, new AssemblyName(name).Name + ".dll");
+                if (!File.Exists(assemblyPath)) continue;
+                return Assembly.LoadFrom(assemblyPath);
+            }
             return null;
         }
 
