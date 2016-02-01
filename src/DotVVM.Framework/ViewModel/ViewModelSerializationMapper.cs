@@ -60,9 +60,15 @@ namespace DotVVM.Framework.ViewModel
                 {
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
+                else if(property.Name.EndsWith("CProt", StringComparison.Ordinal) && typeof(Interface123).IsAssignableFrom(type))
+                {
+                    propertyMap.ConditionalProtection = o => ((Interface123)o).GetPropertyProtection();
+                }
 
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
                 propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();
+
+                
 
                 yield return propertyMap;
             }
@@ -84,5 +90,11 @@ namespace DotVVM.Framework.ViewModel
                 throw new JsonException(string.Format("Cannot create an instance of {0} converter! Please check that this class have a public parameterless constructor.", converterType), ex);
             }
         }
+    }
+
+
+    public interface Interface123
+    {
+        ViewModelProtectionSettings GetPropertyProtection();
     }
 }

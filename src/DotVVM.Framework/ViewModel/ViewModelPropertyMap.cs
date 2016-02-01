@@ -15,6 +15,8 @@ namespace DotVVM.Framework.ViewModel
 
         public ViewModelProtectionSettings ViewModelProtection { get; set; }
 
+        public Func<object, ViewModelProtectionSettings> ConditionalProtection { get; set; }
+
         public Type Type { get; set; }
 
         public bool TransferToServer { get; set; }

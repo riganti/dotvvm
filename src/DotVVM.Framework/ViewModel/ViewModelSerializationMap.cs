@@ -89,6 +89,13 @@ namespace DotVVM.Framework.ViewModel
             // go through all properties that should be read
             foreach (var property in Properties.Where(p => p.TransferToServer))
             {
+                if(property.ConditionalProtection != null)
+                {
+                    // var ip = encrypted.read<bool>();
+                    // if(ip) vm.{property} = encrypted.read<..>();
+                    // else vm.{property} = json.readProperty("{property.Name}");
+                }
+
                 if (property.ViewModelProtection == ViewModelProtectionSettings.EnryptData || property.ViewModelProtection == ViewModelProtectionSettings.SignData)
                 {
                     // encryptedValues[(int)jobj["{p.Name}"]]
@@ -231,6 +238,18 @@ namespace DotVVM.Framework.ViewModel
                 var options = new Dictionary<string, object>();
                 if (property.TransferToClient)
                 {
+                    if (property.ConditionalProtection != null)
+                    {
+                        // var ps = delegate(this);
+                        // if(ps != None) {
+                        //     encrypted.write(true);
+                        //     encrypted.write(p);
+                        // } else encrypted.write(false);
+                        // if (ps != EncryptData) {
+                        //     jsonWriter.WriteObject(p);
+                        // }
+                    }
+
                     if (property.TransferFirstRequest != property.TransferAfterPostback)
                     {
                         if (property.ViewModelProtection != ViewModelProtectionSettings.None) throw new Exception("Property sent only on selected requests can use viewModel protection.");
