@@ -39,7 +39,5 @@
     <Asset d:Source="File" Type="Microsoft.CodeAnalysis.Common.1.0.0.nupkg" Path="Packages\Microsoft.CodeAnalysis.Common.1.0.0.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" Path="Packages\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="DotVVM.0.9.1.5-pre.nupkg" Path="Packages\DotVVM.0.9.1.5-pre.nupkg" d:VsixSubPath="Packages" />
-    <Asset d:Source="File" Type="ExpressionEvaluator.2.0.3.0.nupkg" Path="Packages\ExpressionEvaluator.2.0.3.0.nupkg" d:VsixSubPath="Packages" />
-    <Asset d:Source="File" Type="Antlr.3.5.0.2.nupkg" Path="Packages\Antlr.3.5.0.2.nupkg" d:VsixSubPath="Packages" />
   </Assets>
 </PackageManifest>

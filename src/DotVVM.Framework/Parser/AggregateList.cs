@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Parser
         Part firstPart;
         List<Part> parts;
 
-        public void Add(IReadOnlyList<T> list, int len = -1, int from = 0) => Add(new Part() { list = list, from = from, len = len < 0 ? list.Count : len });
+        public void Add(IReadOnlyList<T> list, int len = -1, int from = 0) => Add(new Part(list, from, len < 0 ? list.Count : len ));
 
         public void Add(Part p)
         {
@@ -20,10 +20,9 @@ namespace DotVVM.Framework.Parser
             var last = (parts == null ? firstPart : parts[parts.Count - 1]);
             if (firstPart.len == 0) firstPart = p;
             else if (last.list == p.list && last.from + last.len == p.from) {
-                if (parts == null) firstPart.len += p.len;
+                if (parts == null) firstPart = firstPart.AddLen(p.len);
                 else {
-                    last.len += p.len;
-                    parts[parts.Count - 1] = last;
+                    parts[parts.Count - 1] = last.AddLen(p.len);
                 }
             }
             else {
@@ -119,9 +118,19 @@ namespace DotVVM.Framework.Parser
         }
         public struct Part: IEnumerable<T>
         {
-            public IReadOnlyList<T> list;
-            public int from;
-            public int len;
+            public readonly IReadOnlyList<T> list;
+            public readonly int from;
+            public readonly int len;
+
+            public Part(IReadOnlyList<T> list, int from, int len)
+            {
+                this.list = list;
+                this.from = from;
+                this.len = len;
+            }
+
+            public Part WithLen(int newLen) => new Part(list, from, newLen);
+            public Part AddLen(int addLen) => new Part(list, from, len + addLen);
 
             public IEnumerator<T> GetEnumerator() => new AggregateList<T>.Enumerator(this, null);
 

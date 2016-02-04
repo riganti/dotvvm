@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         /// </summary>
         protected AggregateList<TToken>.Part GetTokensFrom(int startIndex)
         {
-            return new AggregateList<TToken>.Part { list = Tokens, from = startIndex, len = CurrentIndex - startIndex }; // Enumerable.Skip<TToken>(Tokens, startIndex).Take(CurrentIndex - startIndex);
+            return new AggregateList<TToken>.Part(Tokens, startIndex, CurrentIndex - startIndex); // Enumerable.Skip<TToken>(Tokens, startIndex).Take(CurrentIndex - startIndex);
         }
 
         protected abstract bool IsWhiteSpace(TToken token);
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             {
                 Read();
             }
-            return new AggregateList<TToken>.Part { from = start, len = CurrentIndex - start, list = Tokens };
+            return new AggregateList<TToken>.Part (Tokens, start, CurrentIndex - start);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
 
         protected AggregateList<TToken>.Part PeekPart()
         {
-            return new AggregateList<TToken>.Part() { list = Tokens, from = CurrentIndex, len = (CurrentIndex < Tokens.Count) ? 1: 0 };
+            return new AggregateList<TToken>.Part(Tokens, CurrentIndex, (CurrentIndex < Tokens.Count) ? 1: 0);
         }
 
         /// <summary>

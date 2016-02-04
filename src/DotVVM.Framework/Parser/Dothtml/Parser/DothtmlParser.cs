@@ -352,7 +352,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
                 {
                     var quote = Peek().Type;
                     Read();
-                    valueStartTokens.len++;
+                    valueStartTokens = valueStartTokens.AddLen(1);
 
                     var startingWhitespaces = SkipWhiteSpace();
 
