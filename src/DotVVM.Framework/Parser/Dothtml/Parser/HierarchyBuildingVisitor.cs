@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
             }
 
             //This is also enough for RootNode
-            return node.StartPosition <= CursorPosition && CursorPosition < tagEnd; 
+            return node.StartPosition <= CursorPosition && (CursorPosition < tagEnd || (node.Tokens.Last().Length == 0 && node.Tokens.Last().StartPosition == tagEnd)); 
         }
 
         public void Visit(DothtmlAttributeNode attribute)

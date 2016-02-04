@@ -392,9 +392,6 @@
     <None Include="Packages\DotVVM\init.ps1" />
     <None Include="Packages\DotVVM\install.ps1" />
     <None Include="Packages\DotVVM\DotvvmModule.psm1" />
-    <Content Include="Packages\ExpressionEvaluator.2.0.3.0.nupkg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="Packages\Microsoft.CodeAnalysis.Analyzers.1.0.0.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
