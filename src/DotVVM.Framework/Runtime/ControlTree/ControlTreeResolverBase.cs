@@ -49,7 +49,9 @@ namespace DotVVM.Framework.Runtime.ControlTree
             {
                 if (!string.Equals(directive.Name, Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    view.Directives.Add(directive.Name, directive.Value);
+                    if (view.Directives.ContainsKey(directive.Name))
+                        directive.AddError($"Directive '{directive.Name}' already exists.");
+                    view.Directives[directive.Name] = directive.Value;
                 }
             }
 

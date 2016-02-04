@@ -216,12 +216,12 @@ namespace DotVVM.Framework.Parser.Binding.Parser
 
         private BindingParserNode ReadIdentifierExpression()
         {
+            var startIndex = CurrentIndex;
             BindingParserNode expression = ReadAtomicExpression();
 
             var next = Peek();
             while (next != null)
             {
-                var startIndex = CurrentIndex;
                 if (next.Type == BindingTokenType.Dot)
                 {
                     // member access
