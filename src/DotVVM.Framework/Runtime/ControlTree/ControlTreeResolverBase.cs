@@ -284,7 +284,18 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 {
                     attribute.AddError($"The control '{control.Metadata.Type.FullName}' cannot use HTML attributes!");
                 }
-                else treeBuilder.SetHtmlAttribute(control, attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
+                else
+                {
+                    try
+                    {
+                        treeBuilder.SetHtmlAttribute(control, attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
+                    }
+                    catch (NotSupportedException ex)
+                    {
+                        if (ex.InnerException == null) throw;
+                        else attribute.AddError(ex.Message);
+                    }
+                }
                 return;
             }
 
@@ -298,6 +309,8 @@ namespace DotVVM.Framework.Runtime.ControlTree
             var property = FindProperty(control.Metadata, attribute.AttributeName);
             if (property != null)
             {
+                if (control.HasProperty(property)) attribute.AttributeNameNode.AddError($"control '{ ((DothtmlElementNode)control.DothtmlNode).FullTagName }' already has property '{ attribute.AttributeName }'.");
+
                 if (property.IsBindingProperty)
                 {
                     var newDataContextType = GetDataContextChange(dataContext, control, property);
@@ -349,7 +362,15 @@ namespace DotVVM.Framework.Runtime.ControlTree
             else if (control.Metadata.HasHtmlAttributesCollection)
             {
                 // if the property is not found, add it as an HTML attribute
-                treeBuilder.SetHtmlAttribute(control, attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
+                try
+                {
+                    treeBuilder.SetHtmlAttribute(control, attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
+                }
+                catch (NotSupportedException ex)
+                {
+                    if (ex.InnerException == null) throw;
+                    else attribute.AddError(ex.Message);
+                }
             }
             else
             {
