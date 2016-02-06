@@ -186,6 +186,7 @@
   <ItemGroup>
     <Compile Include="Binding\BindingCompilationTests.cs" />
     <Compile Include="Binding\CommandResolverTests.cs" />
+    <Compile Include="Binding\JavascriptCompilationTests.cs" />
     <Compile Include="Parser\Binding\BindingParserTests.cs" />
     <Compile Include="Parser\Binding\BindingTokenizerTests.cs" />
     <Compile Include="Parser\Dothtml\DothtmlParserTests.cs" />

@@ -23,8 +23,6 @@ namespace DotVVM.Framework.Controls
         private int numberOfRows;
         private HtmlGenericControl head;
 
-        private List<PlaceHolder> templates, editTemplates;
-
         public GridView() : base("table")
         {
             SetValue(Internal.IsNamingContainerProperty, true);

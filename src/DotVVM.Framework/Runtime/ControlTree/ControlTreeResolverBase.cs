@@ -270,6 +270,11 @@ namespace DotVVM.Framework.Runtime.ControlTree
         public IAbstractBinding ProcessBinding(DothtmlBindingNode node, IDataContextStack context)
         {
             var bindingOptions = controlResolver.ResolveBinding(node.Name);
+            if (bindingOptions == null)
+            {
+                node.NameNode.AddError($"Binding {node.Name} could not be resolved.");
+                bindingOptions = controlResolver.ResolveBinding("value"); // just try it as with value binding
+            }
             return CompileBinding(node, bindingOptions, context);
         }
 

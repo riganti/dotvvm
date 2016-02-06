@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
             }
             else
             {
-                throw new NotSupportedException($"The binding {{{bindingType}: ... }} is unknown!");   // TODO: exception handling
+                return null;
             }
         }
 
