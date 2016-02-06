@@ -183,7 +183,7 @@ label.nav {
 			</label>
 		</div>
 		<#+ if (!string.IsNullOrEmpty(source.FileName)) { #>
-		<p class="source file">Source File: <strong><#+ Write(source.FileName); #></p>
+		<p class="source file">Source File: <strong><#+ Write(source.FileName); #></strong></p>
 		<#+ } #>
 	<#+}
 
