@@ -430,8 +430,16 @@ class DotVVM {
             // absolute URL - load the URL
             url = resultObject.url;
         }
-        if (replace) location.replace(url);
-        else location.href = url;
+
+        // trigger redirect event
+        var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
+        this.events.redirect.trigger(redirectArgs);
+        
+        if (replace) {
+            location.replace(url);
+        } else {
+            location.href = url;
+        }
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
@@ -613,7 +621,7 @@ class DotVVM {
             }
         };
 
-        ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
+        ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 element.style.display = "none";
                 dotvvm.events.beforePostback.subscribe(e => {
@@ -623,6 +631,9 @@ class DotVVM {
                     element.style.display = "";
                 });
                 dotvvm.events.afterPostback.subscribe(e => {
+                    element.style.display = "none";
+                });
+                dotvvm.events.redirect.subscribe(e => {
                     element.style.display = "none";
                 });
                 dotvvm.events.spaNavigated.subscribe(e => {

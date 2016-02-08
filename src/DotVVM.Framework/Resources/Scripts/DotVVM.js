@@ -29,6 +29,7 @@ var DotvvmEvents = (function () {
         this.error = new DotvvmEvent("dotvvm.events.error");
         this.spaNavigating = new DotvvmEvent("dotvvm.events.spaNavigating");
         this.spaNavigated = new DotvvmEvent("dotvvm.events.spaNavigated");
+        this.redirect = new DotvvmEvent("dotvvm.events.redirect");
     }
     return DotvvmEvents;
 })();
@@ -132,6 +133,18 @@ var DotvvmSpaNavigatedEventArgs = (function (_super) {
         this.isHandled = false;
     }
     return DotvvmSpaNavigatedEventArgs;
+})(DotvvmEventArgs);
+var DotvvmRedirectEventArgs = (function (_super) {
+    __extends(DotvvmRedirectEventArgs, _super);
+    function DotvvmRedirectEventArgs(viewModel, viewModelName, url, replace) {
+        _super.call(this, viewModel);
+        this.viewModel = viewModel;
+        this.viewModelName = viewModelName;
+        this.url = url;
+        this.replace = replace;
+        this.isHandled = false;
+    }
+    return DotvvmRedirectEventArgs;
 })(DotvvmEventArgs);
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
@@ -504,10 +517,15 @@ var DotVVM = (function () {
             // absolute URL - load the URL
             url = resultObject.url;
         }
-        if (replace)
+        // trigger redirect event
+        var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
+        this.events.redirect.trigger(redirectArgs);
+        if (replace) {
             location.replace(url);
-        else
+        }
+        else {
             location.href = url;
+        }
     };
     DotVVM.prototype.removeVirtualDirectoryFromUrl = function (url, viewModelName) {
         var virtualDirectory = "/" + this.viewModels[viewModelName].virtualDirectory;
@@ -686,7 +704,7 @@ var DotVVM = (function () {
                 }
             }
         };
-        ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
+        ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 element.style.display = "none";
                 dotvvm.events.beforePostback.subscribe(function (e) {
@@ -696,6 +714,9 @@ var DotVVM = (function () {
                     element.style.display = "";
                 });
                 dotvvm.events.afterPostback.subscribe(function (e) {
+                    element.style.display = "none";
+                });
+                dotvvm.events.redirect.subscribe(function (e) {
                     element.style.display = "none";
                 });
                 dotvvm.events.spaNavigated.subscribe(function (e) {
