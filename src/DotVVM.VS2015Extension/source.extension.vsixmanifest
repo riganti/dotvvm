@@ -38,6 +38,6 @@
     <Asset d:Source="File" Type="Microsoft.CodeAnalysis.Analyzers.1.0.0.nupkg" Path="Packages\Microsoft.CodeAnalysis.Analyzers.1.0.0.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Microsoft.CodeAnalysis.Common.1.0.0.nupkg" Path="Packages\Microsoft.CodeAnalysis.Common.1.0.0.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" Path="Packages\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" d:VsixSubPath="Packages" />
-    <Asset d:Source="File" Type="DotVVM.0.9.1.6-pre.nupkg" Path="Packages\DotVVM.0.9.1.6-pre.nupkg" d:VsixSubPath="Packages" />
+    <Asset d:Source="File" Type="DotVVM.0.9.1.7-pre.nupkg" Path="Packages\DotVVM.0.9.1.7-pre.nupkg" d:VsixSubPath="Packages" />
   </Assets>
 </PackageManifest>
