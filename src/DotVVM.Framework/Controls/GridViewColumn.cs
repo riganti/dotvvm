@@ -117,11 +117,9 @@ namespace DotVVM.Framework.Controls
                 var literal = new Literal(HeaderText);
                 cell.Children.Add(literal);
             }
-
-            CreateHeaderFilterControls(context, gridView, sortCommand, cell, gridViewDataSet);
         }
 
-        private void CreateHeaderFilterControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
+        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
         {
             if (FilterTemplate != null)
             {

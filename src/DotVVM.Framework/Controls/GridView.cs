@@ -33,6 +33,18 @@ namespace DotVVM.Framework.Controls
 
 
         /// <summary>
+        /// Gets or sets the place where the filters will be created.
+        /// </summary>
+        public GridViewFilterPlacement FilterPlacement
+        {
+            get { return (GridViewFilterPlacement)GetValue(FilterPlacementProperty); }
+            set { SetValue(FilterPlacementProperty, value); }
+        }
+        public static readonly DotvvmProperty FilterPlacementProperty
+            = DotvvmProperty.Register<GridViewFilterPlacement, GridView>(c => c.FilterPlacement, GridViewFilterPlacement.HeaderRow);
+
+
+        /// <summary>
         /// Gets or sets the template which will be displayed when the DataSource is empty.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
@@ -184,14 +196,14 @@ namespace DotVVM.Framework.Controls
         private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
-            var dsBinding = GetValueBinding(DataSourceProperty);
-            //head.SetBinding(VisibleProperty, new ValueBindingExpression(h => dsBinding.Evaluate(this, DataSourceProperty) != null, dsBinding.GetKnockoutBindingExpression()));
             head.Attributes["data-bind"] = "visible: $data";
             Children.Add(head);
 
-            var headerRow = new HtmlGenericControl("tr");
+            var gridViewDataSet = DataSource as IGridViewDataSet;
+            
             // workaroud: header template must have to be one level nested, because it is in the Columns property which nests the dataContext to the item type
             // on server we need null, to be Convertible to Item type and on client the best is empty object, because with will hide the inner content when it is null
+            var headerRow = new HtmlGenericControl("tr");
             headerRow.SetBinding(DataContextProperty, new ValueBindingExpression(h => null, "{}"));
             head.Children.Add(headerRow);
             foreach (var column in Columns)
@@ -199,10 +211,27 @@ namespace DotVVM.Framework.Controls
                 var cell = new HtmlGenericControl("th");
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
-                
-                column.CreateHeaderControls(context, this, sortCommand, cell, DataSource as IGridViewDataSet);
+
+                column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet);
+                if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
+                {
+                    column.CreateFilterControls(context, this, cell, gridViewDataSet);
+                }
             }
 
+            if (FilterPlacement == GridViewFilterPlacement.ExtraRow)
+            {
+                headerRow = new HtmlGenericControl("tr");
+                headerRow.SetBinding(DataContextProperty, new ValueBindingExpression(h => null, "{}"));
+                head.Children.Add(headerRow);
+                foreach (var column in Columns)
+                {
+                    var cell = new HtmlGenericControl("th");
+                    SetCellAttributes(column, cell, true);
+                    headerRow.Children.Add(cell);
+                    column.CreateFilterControls(context, this, cell, gridViewDataSet);
+                }
+            }
         }
 
         private static void SetCellAttributes(GridViewColumn column, HtmlGenericControl cell, bool isHeaderCell)
