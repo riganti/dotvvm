@@ -151,6 +151,7 @@
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxFormatViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
@@ -309,6 +310,8 @@
     <Content Include="Views\Errors\ControlUsageValidation.dothtml" />
     <Content Include="Views\ControlSamples\RouteLink\RouteLinkEnabled.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingValidation.dothtml" />
+    <Content Include="Views\ControlSamples\UpdateProgress\UpdateProgress.dothtml" />
+    <Content Include="test.zip" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

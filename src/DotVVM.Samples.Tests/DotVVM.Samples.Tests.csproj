@@ -102,6 +102,7 @@
     <Compile Include="Complex\ChangedEventTests.cs" />
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
     <Compile Include="Control\HtmlLiteralTests.cs" />
+    <Compile Include="Control\UpdateProgressTests.cs" />
     <Compile Include="Control\LiteralTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
     <Compile Include="Control\GridViewTests.cs" />

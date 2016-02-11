@@ -5,6 +5,7 @@
     public error =  new DotvvmEvent<DotvvmErrorEventArgs>("dotvvm.events.error");
     public spaNavigating = new DotvvmEvent<DotvvmSpaNavigatingEventArgs>("dotvvm.events.spaNavigating");
     public spaNavigated = new DotvvmEvent<DotvvmSpaNavigatedEventArgs>("dotvvm.events.spaNavigated");
+    public redirect = new DotvvmEvent<DotvvmRedirectEventArgs>("dotvvm.events.redirect");
 }
 
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support 
@@ -77,6 +78,12 @@ class DotvvmSpaNavigatingEventArgs extends DotvvmEventArgs {
 class DotvvmSpaNavigatedEventArgs extends DotvvmEventArgs {
     public isHandled: boolean = false;
     constructor(public viewModel: any, public viewModelName: string, public serverResponseObject: any) {
+        super(viewModel);
+    }
+}
+class DotvvmRedirectEventArgs extends DotvvmEventArgs {
+    public isHandled: boolean = false;
+    constructor(public viewModel: any, public viewModelName: string, public url: string, public replace: boolean) {
         super(viewModel);
     }
 }

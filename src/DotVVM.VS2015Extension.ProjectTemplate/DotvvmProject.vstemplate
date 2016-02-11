@@ -43,7 +43,7 @@
       <package id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
       <package id="ExpressionEvaluator" version="2.0.3.0" />
       <package id="Antlr" version="3.5.0.2" />
-      <package id="DotVVM" version="0.9.1.5-pre" />
+      <package id="DotVVM" version="0.9.1.7-pre" />
     </packages>
   </WizardData>
 </VSTemplate>
