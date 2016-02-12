@@ -36,6 +36,11 @@ namespace DotVVM.Framework.Runtime.ControlTree
         {
             get
             {
+                if (string.IsNullOrEmpty(attribute.DefaultContentProperty))
+                {
+                    return null;
+                }
+
                 IPropertyDescriptor result;
                 return Properties.TryGetValue(attribute.DefaultContentProperty, out result) ? result : null;
             }
