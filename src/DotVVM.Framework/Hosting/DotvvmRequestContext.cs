@@ -266,32 +266,37 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
-        /// Sends data stream to client.
+        /// Redirects the client to the specified file.
         /// </summary>
-        /// <param name="bytes">Data to be sent.</param>
-        /// <param name="fileName">Name of file.</param>
-        /// <param name="mimeType">MIME type.</param>
-        /// <param name="additionalHeaders">Additional headers.</param>
-        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null)
         {
             var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
-            var generatedFileId = returnedFileStorage.GenerateFileId();
-            returnedFileStorage.StoreFile(generatedFileId, bytes, fileName, mimeType, additionalHeaders);
+            var metadata = new ReturnedFileMetadata()
+            {
+                FileName = fileName,
+                MimeType = mimeType,
+                AdditionalHeaders = additionalHeaders
+            };
+
+            var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata);
             Redirect("~/dotvvmReturnedFile?id=" + generatedFileId);
         }
 
         /// <summary>
-        /// Sends data stream to client.
+        /// Redirects the client to the specified file.
         /// </summary>
-        /// <param name="stream">Data to be sent.</param>
-        /// <param name="fileName">Name of file.</param>
-        /// <param name="mimeType">MIME type.</param>
-        /// <param name="additionalHeaders">Additional headers.</param>
-        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null)
         {
-            var bytes = new byte[stream.Length];
-            stream.Read(bytes, 0, bytes.Length);
-            ReturnFile(bytes, fileName, mimeType, additionalHeaders);
+            var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
+            var metadata = new ReturnedFileMetadata()
+            {
+                FileName = fileName,
+                MimeType = mimeType,
+                AdditionalHeaders = additionalHeaders
+            };
+
+            var generatedFileId = returnedFileStorage.StoreFile(stream, metadata);
+            Redirect("~/dotvvmReturnedFile?id=" + generatedFileId);
         }
 
     }
