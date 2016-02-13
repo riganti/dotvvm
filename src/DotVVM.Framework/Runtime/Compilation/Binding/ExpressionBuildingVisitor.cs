@@ -214,7 +214,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         {
             var expr = ExpressionHelper.GetMember(Scope, node.Name, throwExceptions: false) ??
                 Registry.Resolve(node.Name, false);
-            if (expr == null) throw new BindingCompilationException($"The identifier '{ node.Name }' could not be resolved!", node);
+            if (expr == null) throw new BindingCompilationException($"The identifier '{ node.Name }' could not be resolved in context {Scope.Type.Name}!", node);
             return expr;
         }
 

@@ -32,7 +32,19 @@ namespace DotVVM.Framework.Runtime.ControlTree
 
         public bool IsContentAllowed => attribute.AllowContent;
 
-        public IPropertyDescriptor DefaultContentProperty => !string.IsNullOrEmpty(attribute.DefaultContentProperty) ? Properties[attribute.DefaultContentProperty] : null;
+        public IPropertyDescriptor DefaultContentProperty
+        {
+            get
+            {
+                if (string.IsNullOrEmpty(attribute.DefaultContentProperty))
+                {
+                    return null;
+                }
+
+                IPropertyDescriptor result;
+                return Properties.TryGetValue(attribute.DefaultContentProperty, out result) ? result : null;
+            }
+        }
 
         public string VirtualPath => controlType.VirtualPath;
 
