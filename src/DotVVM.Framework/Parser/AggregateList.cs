@@ -127,6 +127,8 @@ namespace DotVVM.Framework.Parser
                 this.list = list;
                 this.from = from;
                 this.len = len;
+                if (len < 0) throw new IndexOutOfRangeException("len < 0");
+                if (list.Count < from + len) throw new IndexOutOfRangeException();
             }
 
             public Part WithLen(int newLen) => new Part(list, from, newLen);
