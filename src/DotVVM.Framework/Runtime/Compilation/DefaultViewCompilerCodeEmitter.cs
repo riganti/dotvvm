@@ -223,17 +223,24 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 return EmitBooleanLiteral((bool)value);
             }
-            if (value is int)
+            if (value is int || value is long || value is ulong || value is uint || value is decimal || value is float || value is double)
             {
-                return EmitIntegerLiteral((int)value);
+                return EmitStandartNumericLiteral(value);
             }
-            if(value is Type)
+            if (value is Type)
             {
                 UsedAssemblies.Add((value as Type).Assembly);
                 return SyntaxFactory.TypeOfExpression(ParseTypeName((value as Type)));
             }
 
             var type = value.GetType();
+
+
+            if (ReflectionUtils.IsNumericType(type))
+            {
+                return EmitStrangeIntegerValue(Convert.ToInt64(value), type);
+            }
+
             if (type.IsEnum)
             {
                 UsedAssemblies.Add(type.Assembly);
@@ -248,7 +255,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             {
                 return EmitCreateArray(ReflectionUtils.GetEnumerableType(type), (IEnumerable)value);
             }
-            throw new NotSupportedException();
+            throw new NotSupportedException($"Emiting value of type '{value.GetType().FullName}' is not supported.");
         }
 
         public ExpressionSyntax EmitCreateArray(Type arrayType, IEnumerable values)
@@ -468,9 +475,14 @@ namespace DotVVM.Framework.Runtime.Compilation
             return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
         }
 
-        private LiteralExpressionSyntax EmitIntegerLiteral(int value)
+        private LiteralExpressionSyntax EmitStandartNumericLiteral(dynamic value)
         {
-            return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private ExpressionSyntax EmitStrangeIntegerValue(long value, Type type)
+        {
+            return SyntaxFactory.CastExpression(this.ParseTypeName(type), SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value)));
         }
 
         /// <summary>
