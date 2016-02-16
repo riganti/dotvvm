@@ -122,7 +122,7 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
         if (this.isPostBackProhibited(sender)) return;
 
         // TODO: events for static command postback
@@ -138,7 +138,13 @@ class DotVVM {
 
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
-            callback(JSON.parse(response.responseText));
+            try {
+                callback(JSON.parse(response.responseText));
+            }
+            catch(error)
+            {
+                errorCallback(response, error);
+            }
         }, errorCallback,
             xhr => {
                 xhr.setRequestHeader("X-PostbackType", "StaticCommand");
@@ -205,61 +211,68 @@ class DotVVM {
                 promise.reject("postback collision");
                 return;
             }
-
-            var resultObject = JSON.parse(result.responseText);
-            if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                // TODO: patch (~deserialize) it to ko.observable viewModel
-                this.isViewModelUpdating = true;
-                resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
-            }
-
-            this.loadResourceList(resultObject.resources, () => {
-                var isSuccess = false;
-                if (resultObject.action === "successfulCommand") {
+            try {
+                var resultObject = JSON.parse(result.responseText);
+                if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                    // TODO: patch (~deserialize) it to ko.observable viewModel
                     this.isViewModelUpdating = true;
+                    resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
+                }
 
-                    // remove updated controls
-                    var updatedControls = this.cleanUpdatedControls(resultObject);
+                this.loadResourceList(resultObject.resources, () => {
+                    var isSuccess = false;
+                    if (resultObject.action === "successfulCommand") {
+                        this.isViewModelUpdating = true;
 
-                    // update the viewmodel
-                    if (resultObject.viewModel) {
+                        // remove updated controls
+                        var updatedControls = this.cleanUpdatedControls(resultObject);
+
+                        // update the viewmodel
+                        if (resultObject.viewModel) {
                         this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                        }
+                        isSuccess = true;
+
+                        // remove updated controls which were previously hidden
+                        this.cleanUpdatedControls(resultObject, updatedControls);
+
+                        // add updated controls
+                        this.restoreUpdatedControls(resultObject, updatedControls, true);
+                        this.isViewModelUpdating = false;
+                    } else if (resultObject.action === "redirect") {
+                        // redirect
+                        this.handleRedirect(resultObject, viewModelName);
+                        return;
                     }
-                    isSuccess = true;
 
-                    // remove updated controls which were previously hidden
-                    this.cleanUpdatedControls(resultObject, updatedControls);
-
-                    // add updated controls
-                    this.restoreUpdatedControls(resultObject, updatedControls, true);
-                    this.isViewModelUpdating = false;
-                } else if (resultObject.action === "redirect") {
-                    // redirect
-                    this.handleRedirect(resultObject, viewModelName);
-                    return;
-                }
-
-                // trigger afterPostback event
-                var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
-                promise.resolve(afterPostBackArgs);
-                this.events.afterPostback.trigger(afterPostBackArgs);
-                if (!isSuccess && !afterPostBackArgs.isHandled) {
-                    throw "Invalid response from server!";
-                }
-            });
+                    // trigger afterPostback event
+                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+                    promise.resolve(afterPostBackArgs);
+                    this.events.afterPostback.trigger(afterPostBackArgs);
+                    if (!isSuccess && !afterPostBackArgs.isHandled) {
+                        this.error(viewModel, result, promise);
+                    }
+                });
+            }
+            catch (error) {
+                this.error(viewModel, result, promise);
+            }
         }, xhr => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
-
-            // execute error handlers
-            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-            promise.reject(errArgs);
-            this.events.error.trigger(errArgs);
-            if (!errArgs.handled) {
-                alert(xhr.responseText);
-            }
+            this.error(viewModel, xhr, promise);
         });
         return promise;
+    }
+
+    private error(viewModel, xhr: XMLHttpRequest, promise: DotvvmPromise<any> = null) {
+        // execute error handlers
+        var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+        if(promise != null) promise.reject(errArgs);
+        this.events.error.trigger(errArgs);
+        if (!errArgs.handled) {
+            alert("unhandled error during postback");
+        }
     }
 
     private loadResourceList(resources: IRenderedResourceList, callback: () => void) {
