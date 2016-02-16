@@ -8,6 +8,7 @@ using DotVVM.Framework.Parser;
 using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Runtime.Compilation.Binding
 {
@@ -75,6 +76,7 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
                 yield return Expression.Parameter(dataContext.RootControlType, "_control");
             }
             yield return Expression.Parameter(dataContext.DataContextType, "_this");
+            yield return Expression.Parameter(typeof(BindingPageInfo), "_page");
             var index = 0;
             while (dataContext.Parent != null)
             {

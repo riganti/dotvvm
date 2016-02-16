@@ -44,6 +44,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             yield return GetParameter(par.Length - 1, Constants.RootSpecialBindingProperty, vmArray, par);
             yield return new KeyValuePair<string, Expression>("_control", controlRoot);
             yield return new KeyValuePair<string, Expression>("_parents", vmArray);
+            yield return new KeyValuePair<string, Expression>("_page", Expression.New(typeof(BindingPageInfo)));
             if (par.Length > 0)
             {
                 if (par.Length > 1)

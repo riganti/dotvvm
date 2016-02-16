@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
 {
@@ -87,6 +88,8 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
             AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({0})"), 0);
             AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
+
+            BindingPageInfo.RegisterJavascriptTranslations();
         }
 
         public DataContextStack DataContexts { get; set; }

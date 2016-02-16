@@ -60,6 +60,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string Errors_NonExistingProperty = "Errors/NonExistingProperty";
 			public const string Errors_NotAllowedHardCodedPropertyValue = "Errors/NotAllowedHardCodedPropertyValue";
 			public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
+			public const string FeatureSamples_BindingPageInfo_BindingPageInfo = "FeatureSamples/BindingPageInfo/BindingPageInfo";
 			public const string FeatureSamples_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
 			public const string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention = "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
 			public const string FeatureSamples_Formatting_Formatting = "FeatureSamples/Formatting/Formatting";

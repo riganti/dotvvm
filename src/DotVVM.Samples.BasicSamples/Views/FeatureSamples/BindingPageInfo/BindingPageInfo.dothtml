@@ -1,0 +1,27 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingPageInfo.BindingPageInfoViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>DateTime serialization with custom format</title>
+</head>
+<body>
+	<p>
+		{{value: _page.IsPostbackRunning ? "postback running" : "no postback" }}
+	</p>
+
+    <p RenderSettings.Mode="Server">
+		Server rendering:
+		{{value: _page.EvaluatingOnServer ? "Evaluated on server" : "Evaluated on client"}}
+    </p>
+    <p RenderSettings.Mode="Client">
+		Client rendering:
+		{{value: _page.EvaluatingOnServer ? "Evaluated on server" : "Evaluated on client"}}
+    </p>
+
+	<dot:Button Click="{command: LongCommand()}" Text="Run postback" />
+
+</body>
+</html>

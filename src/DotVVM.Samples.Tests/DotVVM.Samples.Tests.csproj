@@ -119,6 +119,7 @@
     <Compile Include="Control\CheckBoxTests.cs" />
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
+    <Compile Include="Feature\BindingPageInfoTests.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
     <Compile Include="Feature\HtmlTagTests.cs" />
     <Compile Include="Feature\IdGenerationTests.cs" />

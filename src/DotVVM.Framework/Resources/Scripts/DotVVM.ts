@@ -45,6 +45,8 @@ class DotVVM {
     public validation: DotvvmValidation;
     public extensions: IDotvvmExtensions = {};
 
+    public isPostbackRunning = ko.observable(false);
+
     public init(viewModelName: string, culture: string): void {
         this.addKnockoutBindingHandlers();
 
@@ -155,7 +157,9 @@ class DotVVM {
         if (this.isPostBackProhibited(sender)) return;
 
         var promise = new DotvvmPromise<DotvvmAfterPostBackEventArgs>();
-
+        this.isPostbackRunning(true);
+        promise.done(() => this.isPostbackRunning(false));
+        promise.fail(() => this.isPostbackRunning(false));
         if (useWindowSetTimeout) {
             window.setTimeout(() => promise.chainFrom(this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers)), 0);
             return promise;
