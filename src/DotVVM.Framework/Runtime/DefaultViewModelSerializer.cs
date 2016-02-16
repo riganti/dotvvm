@@ -20,6 +20,7 @@ namespace DotVVM.Framework.Runtime
 {
     public class DefaultViewModelSerializer : IViewModelSerializer
     {
+        private const string GeneralViewModelRecomendations = "Check out general viewMode recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
 
         private CommandResolver commandResolver = new CommandResolver();
 
@@ -73,7 +74,14 @@ namespace DotVVM.Framework.Runtime
             };
             serializer.Converters.Add(viewModelConverter);
             var writer = new JTokenWriter();
-            serializer.Serialize(writer, context.ViewModel);
+            try
+            {
+                serializer.Serialize(writer, context.ViewModel);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecomendations}");
+            }
 
             // persist CSRF token
             writer.Token["$csrfToken"] = context.CsrfToken;
@@ -207,7 +215,13 @@ namespace DotVVM.Framework.Runtime
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
             serializer.Converters.Add(viewModelConverter);
-            viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
+            try {
+                viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
+            }
+            catch(Exception ex)
+            {
+                throw new Exception($"Could not deserialize viewModel of type { context.ViewModel.GetType().Name }. {GeneralViewModelRecomendations}");
+            }
         }
 
         /// <summary>
