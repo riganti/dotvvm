@@ -10,11 +10,11 @@ namespace DotVVM.Framework.Hosting
 {
     public class DotvvmReturnedFileMiddleware : OwinMiddleware
     {
-        private readonly DotvvmConfiguration _configuration;
+        private readonly DotvvmConfiguration configuration;
 
         public DotvvmReturnedFileMiddleware(OwinMiddleware next, DotvvmConfiguration configuration) : base(next)
         {
-            _configuration = configuration;
+            this.configuration = configuration;
         }
 
         public override Task Invoke(IOwinContext context)
@@ -26,22 +26,20 @@ namespace DotVVM.Framework.Hosting
 
         private async Task RenderReturnedFile(IOwinContext context)
         {
-            context.Response.StatusCode = (int) HttpStatusCode.OK;
-            var id = context.Request.Query["id"];
+            var returnedFileStorage = configuration.ServiceLocator.GetService<IReturnedFileStorage>();
+            ReturnedFileMetadata metadata;
 
-            var returnedFileStorage = _configuration.ServiceLocator.GetService<IReturnedFileStorage>();
-            string fileName, mimeType;
-            IHeaderDictionary additionalHeaders;
-
-            using (var stream = returnedFileStorage.GetFile(id, out fileName, out mimeType, out additionalHeaders))
+            var id = Guid.Parse(context.Request.Query["id"]);
+            using (var stream = returnedFileStorage.GetFile(id, out metadata))
             {
-                context.Response.Headers["Content-Disposition"] = "attachment; filename=" + fileName;
-                context.Response.ContentType = mimeType;
-                foreach (var header in additionalHeaders)
+                context.Response.Headers["Content-Disposition"] = "attachment; filename=" + metadata.FileName;
+                context.Response.ContentType = metadata.MimeType;
+                foreach (var header in metadata.AdditionalHeaders)
                 {
                     context.Response.Headers.Add(header);
                 }
 
+                context.Response.StatusCode = (int)HttpStatusCode.OK;
                 await stream.CopyToAsync(context.Response.Body);
             }
         }

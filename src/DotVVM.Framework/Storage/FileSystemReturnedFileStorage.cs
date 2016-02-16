@@ -1,9 +1,12 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using Microsoft.Owin;
 using Newtonsoft.Json;
 
@@ -11,22 +14,6 @@ namespace DotVVM.Framework.Storage
 {
     public class FileSystemReturnedFileStorage : IReturnedFileStorage, IDisposable
     {
-        /// <summary>
-        /// Array of characters which can be used in generated file ID.
-        /// </summary>
-        public static readonly char[] AvailableCharacters =
-        {
-            'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M',
-            'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-            'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm',
-            'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
-            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '_'
-        };
-
-        /// <summary>
-        /// Lenght of generated file ID.
-        /// </summary>
-        public static readonly int FileIdLength = 32;
 
         /// <summary>
         /// Temp directory where are files stored.
@@ -48,7 +35,9 @@ namespace DotVVM.Framework.Storage
         /// Initializes new instance of <see cref="FileSystemReturnedFileStorage"/> class with default interval for deleting old files.
         /// </summary>
         /// <param name="directory">Temp directory for storing files.</param>
-        public FileSystemReturnedFileStorage(string directory) : this(directory, new TimeSpan(0, 5, 0)) { }
+        public FileSystemReturnedFileStorage(string directory) : this(directory, new TimeSpan(0, 5, 0))
+        {
+        }
 
         /// <summary>
         /// Initializes new instance of <see cref="FileSystemReturnedFileStorage"/> class.
@@ -59,7 +48,7 @@ namespace DotVVM.Framework.Storage
         {
             if (string.IsNullOrEmpty(directory))
             {
-                throw new ArgumentException("Directory can not be null or empty.");
+                throw new ArgumentNullException(nameof(directory));
             }
 
             TempDirectory = directory;
@@ -73,69 +62,79 @@ namespace DotVVM.Framework.Storage
             _autoDeleteTimer = new Timer(state => DeleteOldFiles(DateTime.Now - AutoDeleteInterval), null, AutoDeleteInterval, AutoDeleteInterval);
         }
 
-        public string GenerateFileId()
+        private Guid GenerateFileId()
         {
-            var sb = new StringBuilder();
-            var randomData = new byte[FileIdLength];
-
-            using (RandomNumberGenerator rng = new RNGCryptoServiceProvider())
-            {
-                rng.GetBytes(randomData);
-            }
-
-            for (var i = 0; i < FileIdLength; ++i)
-            {
-                var n = randomData[i] % AvailableCharacters.Length;
-                sb.Append(AvailableCharacters[n]);
-            }
-
-            return sb.ToString();
+            return Guid.NewGuid();
         }
 
-        public void StoreFile(string id, byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public async Task<Guid> StoreFile(byte[] bytes, ReturnedFileMetadata metadata)
         {
-            using (FileStream fs = new FileStream(TempDirectory + Path.DirectorySeparatorChar + id + ".data", FileMode.Create),
-                    fs2 = new FileStream(TempDirectory + Path.DirectorySeparatorChar + id + ".metadata", FileMode.Create))
-            using (var sw2 = new StreamWriter(fs2))
+            var id = GenerateFileId();
+            var dataFilePath = GetDataFilePath(id);
+
+            using (var fs = new FileStream(dataFilePath, FileMode.Create))
             {
-                fs.Write(bytes, 0, bytes.Length);
-
-                var jsonFileName = JsonConvert.SerializeObject(fileName);
-                var jsonMimeType = JsonConvert.SerializeObject(mimeType);
-                var jsonAdditionalHeaders = JsonConvert.SerializeObject(additionalHeaders);
-
-                sw2.WriteLine(jsonFileName);
-                sw2.WriteLine(jsonMimeType);
-                sw2.WriteLine(jsonAdditionalHeaders);
-            }
-        }
-
-        public void StoreFile(string id, Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
-        {
-            var bytes = new byte[stream.Length];
-            stream.Read(bytes, 0, bytes.Length);
-            StoreFile(id, bytes, fileName, mimeType, additionalHeaders);
-        }
-
-        public Stream GetFile(string id, out string fileName, out string mimeType, out IHeaderDictionary additionalHeaders)
-        {
-            Stream stream = new FileStream(TempDirectory + Path.DirectorySeparatorChar + id + ".data", FileMode.Open);
-
-            using (var fs = new FileStream(TempDirectory + Path.DirectorySeparatorChar + id + ".metadata", FileMode.Open))
-            using(var sr = new StreamReader(fs))
-            {
-                fileName = JsonConvert.DeserializeObject<string>(sr.ReadLine());
-                mimeType = JsonConvert.DeserializeObject<string>(sr.ReadLine());
-                additionalHeaders = JsonConvert.DeserializeObject<HeaderDictionary>(sr.ReadLine());
+                await fs.WriteAsync(bytes, 0, bytes.Length);
             }
 
-            return stream;
+            StoreMetadata(id, metadata);
+            return id;
         }
 
-        public void DeleteFile(string id)
+        public async Task<Guid> StoreFile(Stream stream, ReturnedFileMetadata metadata)
         {
-            File.Delete(TempDirectory + Path.DirectorySeparatorChar + id + ".data");
-            File.Delete(TempDirectory + Path.DirectorySeparatorChar + id + ".metadata");
+            var id = GenerateFileId();
+            var dataFilePath = GetDataFilePath(id);
+            using (var fs = new FileStream(dataFilePath, FileMode.Create))
+            {
+                await stream.CopyToAsync(fs);    
+            }
+            
+            StoreMetadata(id, metadata);
+            return id;
+        }
+
+        private void StoreMetadata(Guid id, ReturnedFileMetadata metadata)
+        {
+            var metadataFilePath = GetMetadataFilePath(id);
+            File.WriteAllText(metadataFilePath, JsonConvert.SerializeObject(metadata), Encoding.UTF8);
+        }
+
+        private string GetDataFilePath(Guid id)
+        {
+            return Path.Combine(TempDirectory, id + ".data");
+        }
+
+        private string GetMetadataFilePath(Guid id)
+        {
+            return Path.Combine(TempDirectory, id + ".metadata");
+        }
+
+        public Stream GetFile(Guid id, out ReturnedFileMetadata metadata)
+        {
+            var metadataJson = File.ReadAllText(GetMetadataFilePath(id), Encoding.UTF8);
+            metadata = JsonConvert.DeserializeObject<ReturnedFileMetadata>(metadataJson);
+
+            return new FileStream(GetDataFilePath(id), FileMode.Open);
+        }
+
+        public void DeleteFile(Guid id)
+        {
+            try
+            {
+                File.Delete(GetDataFilePath(id));
+            }
+            catch (IOException)
+            {
+            }
+
+            try
+            {
+                File.Delete(GetMetadataFilePath(id));
+            }
+            catch (IOException)
+            {
+            }
         }
 
         public void DeleteOldFiles(DateTime maxCreatedDate)
@@ -143,7 +142,13 @@ namespace DotVVM.Framework.Storage
             var files = Directory.GetFiles(TempDirectory).Where(t => File.GetCreationTime(t) < maxCreatedDate);
             foreach (var file in files)
             {
-                File.Delete(file);
+                try
+                {
+                    File.Delete(file);
+                }
+                catch (IOException)
+                {
+                }
             }
         }
 

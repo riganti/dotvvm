@@ -456,6 +456,7 @@
     <Compile Include="Storage\FileSystemUploadedFileStorage.cs" />
     <Compile Include="Storage\IReturnedFileStorage.cs" />
     <Compile Include="Storage\IUploadedFileStorage.cs" />
+    <Compile Include="Storage\ReturnedFileMetadata.cs" />
     <Compile Include="Storage\UploadedFile.cs" />
     <Compile Include="Storage\UploadedFileStorageExtensions.cs" />
     <Compile Include="Styles\CompileTimeStyleBase.cs" />
