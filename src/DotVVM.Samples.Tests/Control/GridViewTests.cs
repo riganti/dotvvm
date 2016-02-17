@@ -203,6 +203,8 @@ namespace DotVVM.Samples.Tests.Control
 
                 };
 
+                Control_GridViewShowHeaderWhenNoData(browser);
+
                 browser.Wait();
                 performTest();
                 browser.Wait();
@@ -212,6 +214,11 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Wait();
                 performTest();
             });
+        }
+
+        private void Control_GridViewShowHeaderWhenNoData(BrowserWrapper browser)
+        {
+            browser.FindElements("[data-ui='ShowHeaderWhenNoDataGrid']").FindElements("th").First().IsDisplayed();
         }
 
         [TestMethod]

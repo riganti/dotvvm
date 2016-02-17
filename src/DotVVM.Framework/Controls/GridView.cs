@@ -196,7 +196,11 @@ namespace DotVVM.Framework.Controls
         private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
-            head.Attributes["data-bind"] = "visible: $data";
+
+            if (!ShowHeaderWhenNoData)
+            {
+                head.Attributes["data-bind"] = "visible: $data";
+            }
             Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
@@ -419,7 +423,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
-            if (RenderOnServer && numberOfRows == 0)
+            if (RenderOnServer && numberOfRows == 0 && !ShowHeaderWhenNoData)
             {
                 emptyDataContainer?.Render(writer, context);
             }
@@ -440,10 +444,13 @@ namespace DotVVM.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
-                if (numberOfRows == 0)
+                if (!ShowHeaderWhenNoData)
                 {
-                    writer.AddStyleAttribute("display", "none");
+                    writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
+                    if (numberOfRows == 0)
+                    {
+                        writer.AddStyleAttribute("display", "none");
+                    } 
                 }
 
                 // with databind
