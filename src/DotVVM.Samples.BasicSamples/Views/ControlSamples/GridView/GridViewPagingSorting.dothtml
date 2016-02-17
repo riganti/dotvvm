@@ -64,6 +64,17 @@
         </dot:EmptyData>
 
 		<dot:Button Text="Set the data source" Click="{staticCommand: Null = GetDataList()}" />
+			
+        <h1>GridView with empty dataset and ShowHeaderWhenNoData true</h1>
+        <dot:GridView DataSource="{value: EmptyCustomersDataSet}" data-ui="ShowHeaderWhenNoDataGrid" ShowHeaderWhenNoData="true" class="table table-bordered">
+            <Columns>
+                <!-- comment inside columns collection -->
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+            </Columns>
+            <!-- comment inside control -->
+        </dot:GridView>
     </div>
 </body>
 </html>

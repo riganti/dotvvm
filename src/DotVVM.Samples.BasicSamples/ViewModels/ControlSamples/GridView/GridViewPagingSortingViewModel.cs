@@ -36,20 +36,15 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         }
 
 
-        public GridViewDataSet<CustomerData> CustomersDataSet { get; set; }
+        public GridViewDataSet<CustomerData> CustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>() { PageSize = 10 };
+        public GridViewDataSet<CustomerData> EmptyCustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>() { PageSize = 10 };
 
         public string SelectedSortColumn { get; set; }
 
         public List<CustomerData> Customers { get; set; }
 
         public List<CustomerData> Null { get; set; }
-
-
-        public GridViewPagingSortingViewModel()
-        {
-            CustomersDataSet = new GridViewDataSet<CustomerData>() { PageSize = 10 };
-        }
-
+        
         public override Task PreRender()
         {
             // fill dataset

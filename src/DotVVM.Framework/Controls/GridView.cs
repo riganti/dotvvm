@@ -188,7 +188,11 @@ namespace DotVVM.Framework.Controls
             head = new HtmlGenericControl("thead");
             var dsBinding = GetValueBinding(DataSourceProperty);
             //head.SetBinding(VisibleProperty, new ValueBindingExpression(h => dsBinding.Evaluate(this, DataSourceProperty) != null, dsBinding.GetKnockoutBindingExpression()));
-            head.Attributes["data-bind"] = "visible: $data";
+
+            if (!ShowHeaderWhenNoData)
+            {
+                head.Attributes["data-bind"] = "visible: $data";
+            }
             Children.Add(head);
 
             var headerRow = new HtmlGenericControl("tr");
@@ -392,7 +396,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderControl(IHtmlWriter writer, RenderContext context)
         {
-            if (RenderOnServer && numberOfRows == 0)
+            if (RenderOnServer && numberOfRows == 0 && !ShowHeaderWhenNoData)
             {
                 emptyDataContainer?.Render(writer, context);
             }
@@ -413,10 +417,13 @@ namespace DotVVM.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
-                if (numberOfRows == 0)
+                if (!ShowHeaderWhenNoData)
                 {
-                    writer.AddStyleAttribute("display", "none");
+                    writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
+                    if (numberOfRows == 0)
+                    {
+                        writer.AddStyleAttribute("display", "none");
+                    } 
                 }
 
                 // with databind
