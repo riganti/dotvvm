@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
             var viewModelType = FindType(viewModelDirective.Value);
             if (viewModelType == null)
             {
-                viewModelDirective.AddError($"The type '{viewModelDirective}' required in the @viewModel directive in was not found!");
+                viewModelDirective.AddError($"The type '{viewModelDirective.Value}' required in the @viewModel directive in was not found!");
                 return null;
             }
             return CreateDataContextTypeStack(viewModelType, wrapperType);
