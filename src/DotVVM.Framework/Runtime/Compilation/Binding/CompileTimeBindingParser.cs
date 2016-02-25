@@ -61,11 +61,15 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
             var namespaces = dataContext.Enumerable().Select(t => t.Namespace).Except(new[] { "System" }).Distinct();
             return reg.AddSymbols(new[]
             {
+                // ViewModel is alias for current viewmodel type
                 new KeyValuePair<string, Expression>("ViewModel", TypeRegistry.CreateStatic(dataContext.DataContextType)),
+                // RootViewModel alias for root view model type
                 new KeyValuePair<string, Expression>("RootViewModel", TypeRegistry.CreateStatic(dataContext.Enumerable().Last())),
             })
+            // alias for any viewModel in hierarchy :
             .AddSymbols(dataContext.Enumerable()
-                .Select((t, i) => new KeyValuePair<string, Expression>("Parent" + i + "ViewModel", TypeRegistry.CreateStatic(t))))
+                .Select((t, i) => new KeyValuePair<string, Expression>($"Parent{i}ViewModel", TypeRegistry.CreateStatic(t))))
+            // import all viewModel namespaces
             .AddSymbols(namespaces.Select(ns => (Func<string, Expression>)(typeName => TypeRegistry.CreateStatic(ReflectionUtils.FindType(ns + "." + typeName)))));
         }
 

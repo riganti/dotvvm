@@ -213,8 +213,8 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         protected override Expression VisitIdentifierName(IdentifierNameBindingParserNode node)
         {
             var expr = ExpressionHelper.GetMember(Scope, node.Name, throwExceptions: false) ??
-                Registry.Resolve(node.Name, false);
-            if (expr == null) throw new BindingCompilationException($"The identifier '{ node.Name }' could not be resolved in context {Scope.Type.Name}!", node);
+                Registry.Resolve(node.Name, throwException: false);
+            if (expr == null) return new UnknownStaticClassIdentifierExpression(node.Name);
             return expr;
         }
 
@@ -232,6 +232,11 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         {
             var identifier = node.MemberNameExpression.Name;
             var target = Visit(node.TargetExpression);
+            if(target is UnknownStaticClassIdentifierExpression)
+            {
+                var name = (target as UnknownStaticClassIdentifierExpression).Name + "." + identifier;
+                return Registry.Resolve(name, throwException: false) ?? new UnknownStaticClassIdentifierExpression(name);
+            }
             return ExpressionHelper.GetMember(target, identifier);
         }
     }

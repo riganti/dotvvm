@@ -357,6 +357,7 @@
     <Compile Include="Runtime\Compilation\Binding\StaticClassIdentifier.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeConversions.cs" />
     <Compile Include="Runtime\Compilation\Binding\TypeRegistry.cs" />
+    <Compile Include="Runtime\Compilation\Binding\UnknownStaticClassIdentifierExpression.cs" />
     <Compile Include="Runtime\Compilation\CommandBindingCompilationAttribute.cs" />
     <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
     <Compile Include="Runtime\Compilation\DefaultViewCompiler.cs" />
