@@ -19,7 +19,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_DateTimeSerialization_DateTimeSerialization);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingPageInfo_BindingPageInfo);
 
                 // verify the first date
                 browser.ElementAt("p", 1).CheckIfInnerText(s => s.Contains("server"));
