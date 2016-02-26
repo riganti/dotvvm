@@ -7,5 +7,6 @@ namespace DotVVM.Framework.Routing
 
         public string AppRelativePath { get; set; }
 
+        public string ViewsFolderRelativePath { get; set; }
     }
 }

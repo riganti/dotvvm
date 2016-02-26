@@ -14,25 +14,27 @@ namespace DotVVM.Framework.Routing
     {
 
         private readonly DotvvmConfiguration configuration;
-        private readonly DirectoryInfo directoryInfo;
+        private readonly string applicationPhysicalPath;
+        private readonly DirectoryInfo viewsFolderDirectoryInfo;
 
 
         public DefaultRouteStrategy(DotvvmConfiguration configuration, string viewsFolder = "Views")
         {
             this.configuration = configuration;
-            var directory = Path.Combine(configuration.ApplicationPhysicalPath, viewsFolder);
-            directoryInfo = new DirectoryInfo(directory);
-            if (!directoryInfo.Exists)
-            {
-                throw new DotvvmRouteStrategyException($"Cannot auto-discover DotVVM routes. The directory '{directory}' was not found!");
-            }
+            this.applicationPhysicalPath = Path.GetFullPath(configuration.ApplicationPhysicalPath);
+
+            var directory = Path.Combine(applicationPhysicalPath, viewsFolder);
+            viewsFolderDirectoryInfo = new DirectoryInfo(directory);
         }
 
 
         public IEnumerable<RouteBase> GetRoutes()
         {
+            var existingRouteNames = new HashSet<string>(configuration.RouteTable.Select(r => r.RouteName));
+
             return DiscoverMarkupFiles()
-                .Select(BuildRoute);
+                .Select(BuildRoute)
+                .Where(r => !existingRouteNames.Contains(r.RouteName));
         }
 
         /// <summary>
@@ -40,12 +42,18 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         protected virtual IEnumerable<RouteStrategyMarkupFileInfo> DiscoverMarkupFiles()
         {
-            return directoryInfo
+            if (!viewsFolderDirectoryInfo.Exists)
+            {
+                throw new DotvvmRouteStrategyException($"Cannot auto-discover DotVVM routes. The directory '{viewsFolderDirectoryInfo.FullName}' was not found!");
+            }
+
+            return viewsFolderDirectoryInfo
                 .GetFiles("*.dothtml", SearchOption.AllDirectories)
                 .Select(file => new RouteStrategyMarkupFileInfo()
                 {
                     AbsolutePath = file.FullName,
-                    AppRelativePath = file.FullName.Substring(directoryInfo.FullName.Length).Replace('\\', '/').TrimStart('/')
+                    AppRelativePath = file.FullName.Substring(applicationPhysicalPath.Length).Replace('\\', '/').TrimStart('/'),
+                    ViewsFolderRelativePath = file.FullName.Substring(viewsFolderDirectoryInfo.FullName.Length).Replace('\\', '/').TrimStart('/')
                 });
         }
 
@@ -54,24 +62,26 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         protected virtual RouteBase BuildRoute(RouteStrategyMarkupFileInfo file)
         {
+            var routeName = GetRouteName(file);
             var url = GetRouteUrl(file);
             var defaultParameters = GetRouteDefaultParameters(file);
             var presenterFactory = GetRoutePresenterFactory(file);
 
             return new DotvvmRoute(url, file.AppRelativePath, defaultParameters, presenterFactory)
             {
-                RouteName = GetRouteName(file)
+                RouteName = routeName
             };
         }
 
         protected virtual string GetRouteName(RouteStrategyMarkupFileInfo file)
         {
-            return string.Join("_", file.AppRelativePath.Split('/'));
+            return GetRouteUrl(file).Replace('/', '_');
         }
 
         protected virtual string GetRouteUrl(RouteStrategyMarkupFileInfo file)
         {
-            return file.AppRelativePath.Substring(0, file.AppRelativePath.Length - ".dothtml".Length);
+            var pathWithoutExtension = file.ViewsFolderRelativePath.Substring(0, file.ViewsFolderRelativePath.Length - ".dothtml".Length);
+            return pathWithoutExtension;
         }
 
         protected virtual object GetRouteDefaultParameters(RouteStrategyMarkupFileInfo file)
