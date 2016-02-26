@@ -53,7 +53,7 @@ namespace DotVVM.Samples.BasicSamples
 
             dotvvmConfiguration.Debug = true;
 
-            dotvvmConfiguration.RouteTable.RegisterRoutingStrategy(new ViewsFolderBasedRouteStrategy(dotvvmConfiguration));
+            dotvvmConfiguration.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(dotvvmConfiguration));
 
             dotvvmConfiguration.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
 

@@ -1,0 +1,11 @@
+namespace DotVVM.Framework.Routing
+{
+    public class RouteStrategyMarkupFileInfo
+    {
+
+        public string AbsolutePath { get; set; }
+
+        public string AppRelativePath { get; set; }
+
+    }
+}

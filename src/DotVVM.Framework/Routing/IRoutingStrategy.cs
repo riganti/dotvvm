@@ -4,6 +4,6 @@ namespace DotVVM.Framework.Routing
 {
     public interface IRoutingStrategy
     {
-        IEnumerable<RouteInfo> GetRoutes();
+        IEnumerable<RouteBase> GetRoutes();
     }
 }
