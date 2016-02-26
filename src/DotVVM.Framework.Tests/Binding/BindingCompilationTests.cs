@@ -144,6 +144,27 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("AHOJ 12", ExecuteBinding("StringProp2 ?? (StringProp ?? 'HUHHHHE')", viewModel));
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_ImportedStaticClass()
+        {
+            var result = ExecuteBinding($"TestStaticClass.GetSomeString()", new TestViewModel());
+            Assert.AreEqual(result, TestStaticClass.GetSomeString());
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_SystemStaticClass()
+        {
+            var result = ExecuteBinding($"String.Empty", new TestViewModel());
+            Assert.AreEqual(result, String.Empty);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_StaticClassWithNamespace()
+        {
+            var result = ExecuteBinding($"System.Text.Encoding.ASCII.GetBytes('ahoj')", new TestViewModel());
+            Assert.IsTrue(Encoding.ASCII.GetBytes("ahoj").SequenceEqual((byte[])result));
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
@@ -201,5 +222,10 @@ namespace DotVVM.Framework.Tests.Binding
         {
             public bool Value { get; set; }
         }
+    }
+
+    public static class TestStaticClass
+    {
+        public static string GetSomeString() => "string 123";
     }
 }

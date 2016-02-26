@@ -16,6 +16,7 @@ namespace DotVVM.Framework.ResourceManagement
         private List<string> requiredResourcesOrdered = new List<string>();
         private Dictionary<string, ResourceBase> requiredResources = new Dictionary<string, ResourceBase>();
         private List<IResourceProcessor> processors = new List<IResourceProcessor>();
+        private int nonameCtr = 0;
 
         public IReadOnlyCollection<string> RequiredResources
         {
@@ -44,6 +45,8 @@ namespace DotVVM.Framework.ResourceManagement
 
             AddRequiredResourceCore(name, resource);
         }
+
+        private void AddRequiredResourceCore(ResourceBase resource) => AddRequiredResourceCore("__noname_" + nonameCtr++, resource);
 
         /// <summary>
         /// Adds the resource and checks name conflicts.
@@ -91,6 +94,14 @@ namespace DotVVM.Framework.ResourceManagement
         public void AddStartupScript(string name, string javascriptCode, params string[] dependentResourceNames)
         {
             AddRequiredResourceCore(name, new InlineScriptResource() { Code = javascriptCode, Dependencies = dependentResourceNames });
+        }
+
+        /// <summary>
+        /// Adds the specified piece of javascript that will be executed when the page is loaded.
+        /// </summary>
+        public void AddStartupScript(string javascriptCode, params string[] dependentResourceNames)
+        {
+            AddRequiredResourceCore(new InlineScriptResource() { Code = javascriptCode, Dependencies = dependentResourceNames });
         }
 
         /// <summary>

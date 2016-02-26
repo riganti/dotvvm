@@ -381,9 +381,11 @@ var DotVVM = (function () {
     DotVVM.prototype.loadResourceList = function (resources, callback) {
         var html = "";
         for (var name in resources) {
-            if (this.resourceSigns[name])
-                continue;
-            this.resourceSigns[name] = true;
+            if (!/^__noname_\d+$/.test(name)) {
+                if (this.resourceSigns[name])
+                    continue;
+                this.resourceSigns[name] = true;
+            }
             html += resources[name] + " ";
         }
         if (html.trim() == "") {
