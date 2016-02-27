@@ -363,6 +363,22 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsTrue(((DothtmlRootNode)root.DothtmlNode).Directives.First().HasNodeErrors);
         }
 
+        [TestMethod]
+        public void ResolvedTree_DefaultContentProperty_BindingInside()
+        {
+            var root = ParseSource(@"
+@viewModel System.Object
+<dot:GridViewTemplateColumn HeaderText='Amount'>
+    <dot:Literal Text='Text123' FormatString = 'n0' /> {{value: _this}}
+</dot:GridViewTemplateColumn>
+ ");
+            var column = root.Content.First(t => t.Metadata.Name == nameof(GridViewTemplateColumn));
+            Assert.IsFalse(column.DothtmlNode.HasNodeErrors, column.DothtmlNode.NodeErrors.FirstOrDefault());
+            var template = (column.Properties.FirstOrDefault(p => p.Key.Name == nameof(GridViewTemplateColumn.ContentTemplate)).Value as ResolvedPropertyTemplate)?.Content;
+            Assert.IsTrue(template.Any(n => n.DothtmlNode  is DothtmlBindingNode));
+            Assert.IsTrue(template.Any(n => n.DothtmlNode  is DothtmlElementNode && n.Metadata.Name == "Literal"));
+        }
+
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
