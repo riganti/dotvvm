@@ -58,14 +58,15 @@ namespace DotVVM.Framework.Routing
         }
 
         /// <summary>
-        /// Adds collection of routes defined by <see cref="IRoutingStrategy"/> to RouteTable.
+        /// Registers all routes discovered by specified <see cref="IRoutingStrategy"/> in the RouteTable.
         /// </summary>
-        /// <param name="table"></param>
-        /// <param name="strategy">Object that provides list of routes.</param>
-        public static void RegisterRoutingStrategy(this DotvvmRouteTable table, IRoutingStrategy strategy)
+        /// <param name="strategy">A strategy that provides list of routes.</param>
+        public static void AutoDiscoverRoutes(this DotvvmRouteTable table, IRoutingStrategy strategy)
         {
-            var routes = new List<RouteInfo>(strategy.GetRoutes() ?? new List<RouteInfo>());
-            routes.ForEach(r => table.Add(r.RouteName, r.RouteUrl, r.VirtualPath, r.DefaultObject));
+            foreach (var route in strategy.GetRoutes())
+            {
+                table.Add(route.RouteName, route);
+            }
         }
 
         private static string Combine(string a, string b)

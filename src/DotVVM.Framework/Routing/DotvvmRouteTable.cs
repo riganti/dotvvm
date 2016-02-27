@@ -66,6 +66,11 @@ namespace DotVVM.Framework.Routing
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));
         }
 
+        public bool Contains(string routeName)
+        {
+            return list.Any(r => string.Equals(r.Key, routeName, StringComparison.InvariantCultureIgnoreCase));
+        }
+
         public RouteBase this[string routeName]
         {
             get
