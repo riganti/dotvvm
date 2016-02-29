@@ -39,9 +39,9 @@ namespace DotVVM.Framework.ViewModel
                     Name = property.Name,
                     ViewModelProtection = ViewModelProtectionSettings.None,
                     Type = property.PropertyType,
-                    TransferAfterPostback = property.GetMethod != null,
-                    TransferFirstRequest = property.GetMethod != null,
-                    TransferToServer = property.SetMethod != null,
+                    TransferAfterPostback = property.GetMethod != null && property.GetMethod.IsPublic,
+                    TransferFirstRequest = property.GetMethod != null && property.GetMethod.IsPublic,
+                    TransferToServer = property.SetMethod != null && property.SetMethod.IsPublic,
                     JsonConverter = GetJsonConverter(property),
                     Populate = ViewModelJsonConverter.IsComplexType(property.PropertyType) && !ViewModelJsonConverter.IsEnumerable(property.PropertyType)
                 };
