@@ -621,9 +621,18 @@ class DotVVM {
                     }
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
+                element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
-
                 return { controlsDescendantBindings: true }; // do not apply binding again
+            },
+            update(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var control = element.innerBindingContext.$control;
+                var value = valueAccessor();
+                for (var p in value) {
+                    if (value[p] != ko.unwrap(control[p])) {
+                        control[p](value[p]);
+                    }
+                }
             }
         };
 
