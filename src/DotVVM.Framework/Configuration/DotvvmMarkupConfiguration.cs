@@ -34,6 +34,13 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("defaultDirectives")]
         public Dictionary<string, string> DefaultDirectives { get; private set; }
 
+
+        /// <summary>
+        /// Gets or sets list of namespaces imported in bindings
+        /// </summary>
+        [JsonProperty("importedNamespaces")]
+        public List<string> ImportedNamespaces { get; set; } = new List<string>();
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.
         /// </summary>

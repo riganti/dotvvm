@@ -384,8 +384,18 @@ namespace DotVVM.Framework.Runtime.Compilation.JavascriptCompilation
         public string TranslateMemberAccess(MemberExpression expression)
         {
             var getter = (expression.Member as PropertyInfo)?.GetMethod;
-            return TryTranslateMethodCall(ParenthesizedTranslate(expression, expression.Expression), new string[0], getter) ??
-                TranslateViewModelProperty(ParenthesizedTranslate(expression, expression.Expression), expression.Member);
+            if (expression.Expression == null)
+            {
+                // static
+                return TryTranslateMethodCall(null, new string[0], getter) ??
+                    JavascriptCompilationHelper.CompileConstant((
+                        ((expression.Member as FieldInfo)?.GetValue(null) ?? (expression.Member as PropertyInfo)?.GetValue(null))));
+            }
+            else
+            {
+                return TryTranslateMethodCall(ParenthesizedTranslate(expression, expression.Expression), new string[0], getter) ??
+                    TranslateViewModelProperty(ParenthesizedTranslate(expression, expression.Expression), expression.Member);
+            }
         }
 
         public string TranslateViewModelProperty(string context, MemberInfo propInfo)

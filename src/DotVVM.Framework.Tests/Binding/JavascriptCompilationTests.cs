@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_EnumComparison()
         {
             var js = CompileBinding($"_this == 'Local'", typeof(DateTimeKind));
-            Assert.AreEqual("$data==2", js);
+            Assert.AreEqual("$data==\"Local\"", js);
         }
     }
 }

@@ -26,6 +26,10 @@ namespace DotVVM.Framework.Runtime.ControlTree
         public ControlResolverBase(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
+            foreach (var bpo in this.BindingTypes.Values)
+            {
+                bpo.ImportNamespaces = configuration.Markup.ImportedNamespaces.ToArray();
+            }
         }
 
         /// <summary>
@@ -68,7 +72,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
 
 
 
-        public static Dictionary<string, BindingParserOptions> BindingTypes = new Dictionary<string, BindingParserOptions>(StringComparer.OrdinalIgnoreCase)
+        public Dictionary<string, BindingParserOptions> BindingTypes = new Dictionary<string, BindingParserOptions>(StringComparer.OrdinalIgnoreCase)
         {
             { Constants.ValueBinding, BindingParserOptions.Create<ValueBindingExpression>() },
             { Constants.CommandBinding, BindingParserOptions.Create<CommandBindingExpression>() },
