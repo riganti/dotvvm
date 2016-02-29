@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Runtime
             }
             catch(Exception ex)
             {
-                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecomendations}");
+                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecomendations}", ex);
             }
 
             // persist CSRF token
@@ -216,12 +216,13 @@ namespace DotVVM.Framework.Runtime
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
             serializer.Converters.Add(viewModelConverter);
-            try {
+            try
+            {
                 viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
             }
             catch(Exception ex)
             {
-                throw new Exception($"Could not deserialize viewModel of type { context.ViewModel.GetType().Name }. {GeneralViewModelRecomendations}");
+                throw new Exception($"Could not deserialize viewModel of type { context.ViewModel.GetType().Name }. {GeneralViewModelRecomendations}", ex);
             }
         }
 

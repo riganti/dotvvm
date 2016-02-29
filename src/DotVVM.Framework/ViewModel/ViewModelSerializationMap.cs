@@ -6,6 +6,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using DotVVM.Framework.Runtime;
+using System.IO;
+using System.Reflection;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -340,4 +343,5 @@ namespace DotVVM.Framework.ViewModel
         }
 
     }
+
 }
