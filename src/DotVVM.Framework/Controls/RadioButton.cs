@@ -50,16 +50,12 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void RenderGroupNameAttribute(IHtmlWriter writer)
         {
-            var groupNameBinding = GetValueBinding(GroupNameProperty);
-            if (groupNameBinding != null)
-            {
-                // TODO: do not overwrite existing attribute bindings
-                writer.AddKnockoutDataBind("attr", new[] { new KeyValuePair<string, IValueBinding>("name", groupNameBinding) }, this, GroupNameProperty);
-            }
-            else
+            var group = new KnockoutBindingGroup();
+            group.Add("name", this, GroupNameProperty, () =>
             {
                 writer.AddAttribute("name", GroupName);
-            }
+            });
+            writer.AddKnockoutDataBind("attr", group);
         }
 
         protected virtual void RenderTypeAttribute(IHtmlWriter writer)

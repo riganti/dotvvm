@@ -19,7 +19,9 @@ namespace DotVVM.Framework.Controls
         {
             if (!control.RenderOnServer)
             {
-                writer.AddKnockoutDataBind("attr", "{ href: " + GenerateKnockoutHrefExpression(routeName, control, context) + "}");
+                var group = new KnockoutBindingGroup();
+                group.Add("href", GenerateKnockoutHrefExpression(routeName, control, context));
+                writer.AddKnockoutDataBind("attr", group);
             }
             else
             {
