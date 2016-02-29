@@ -121,6 +121,7 @@ namespace DotVVM.Framework.Runtime
                 DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
             };
             s.Converters.Add(new DotvvmDateTimeConverter());
+            s.Converters.Add(new StringEnumConverter());
             return s;
         }
 
