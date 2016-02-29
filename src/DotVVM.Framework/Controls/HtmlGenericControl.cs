@@ -104,7 +104,12 @@ namespace DotVVM.Framework.Controls
             {
                 if (propertyValuePairs.Any())
                 {
-                    writer.AddKnockoutDataBind("attr", propertyValuePairs, this, null);
+                    var group = new KnockoutBindingGroup();
+                    foreach (var pair in propertyValuePairs)
+                    {
+                        group.Add(pair.Key, pair.Value.GetKnockoutBindingExpression());
+                    }
+                    writer.AddKnockoutDataBind("attr", group);
                 }
             }
             else
