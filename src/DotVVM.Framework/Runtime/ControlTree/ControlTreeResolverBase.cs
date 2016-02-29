@@ -424,15 +424,7 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 }
                 else
                 {
-                    if (!control.Metadata.IsContentAllowed)
-                    {
-                        if (node.IsNotEmpty())
-                        {
-                            node.AddError($"Content not allowed inside {control.Metadata.Type.FullName}");
-                        }
-                    }
-                    else
-                        content.Add(node);
+                    content.Add(node);
                 }
             }
             if (content.Any(DothtmlNodeHelper.IsNotEmpty))
@@ -443,7 +435,17 @@ namespace DotVVM.Framework.Runtime.ControlTree
                 }
                 else
                 {
-                    ResolveControlContentImmediately(control, content);
+                    if(!control.Metadata.IsContentAllowed)
+                    {
+                        foreach (var item in content)
+                        {
+                            if(item.IsNotEmpty())
+                            {
+                                item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
+                            }
+                        }
+                    }
+                    else ResolveControlContentImmediately(control, content);
                 }
             }
         }

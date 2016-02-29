@@ -1,7 +1,9 @@
 ﻿using DotVVM.Framework.Runtime.Compilation.Binding;
+using DotVVM.Framework.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -11,7 +13,11 @@ namespace DotVVM.Framework.Runtime
     {
         public Type BindingType { get; }
         public string ScopeParameter { get; }
-        public virtual TypeRegistry AddTypes(TypeRegistry reg) => reg;
+
+        public string[] ImportNamespaces { get; set; } = new string[0];
+
+        public virtual TypeRegistry AddTypes(TypeRegistry reg) => reg.AddSymbols(ImportNamespaces.Select(n =>
+            (Func<string, Expression>)(t => TypeRegistry.CreateStatic(ReflectionUtils.FindType(n + "." + t)))));
 
         public BindingParserOptions(Type bindingType, string scopeParameter = "_this")
         {
