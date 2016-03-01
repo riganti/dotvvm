@@ -28,21 +28,21 @@ namespace DotVVM.Samples.Tests.Complex
                 // upload file in the first part
                 browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("0");
                 browser.FileUploadDialogSelect(browser.ElementAt(".dot-upload-button a", 0), tempPath);
-                browser.Wait(2000);
+                browser.Wait(3000);
                 browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("1");
                 browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
                 browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("0");
 
                 // upload file in the third part
                 browser.FileUploadDialogSelect(browser.ElementAt(".dot-upload-button a", 2), tempPath);
-                browser.Wait(2000);
+                browser.Wait(3000);
                 browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("1");
                 browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
                 browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("1");
 
                 // upload file in the first part
                 browser.FileUploadDialogSelect(browser.ElementAt(".dot-upload-button a", 0), tempPath);
-                browser.Wait(2000);
+                browser.Wait(3000);
                 browser.ElementAt(".files-count", 0).CheckIfInnerTextEquals("2");
                 browser.ElementAt(".files-count", 1).CheckIfInnerTextEquals("0");
                 browser.ElementAt(".files-count", 2).CheckIfInnerTextEquals("1");

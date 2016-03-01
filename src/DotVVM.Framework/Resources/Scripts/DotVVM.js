@@ -770,8 +770,9 @@ var DotVVM = (function () {
                 var control = element.innerBindingContext.$control;
                 var value = valueAccessor();
                 for (var p in value) {
-                    if (value[p] != ko.unwrap(control[p])) {
-                        control[p](value[p]);
+                    var unwrappedValue = ko.unwrap(value[p]);
+                    if (unwrappedValue !== ko.unwrap(control[p])) {
+                        control[p](unwrappedValue);
                     }
                 }
             }
