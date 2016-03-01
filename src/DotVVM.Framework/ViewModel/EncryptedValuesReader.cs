@@ -51,6 +51,7 @@ namespace DotVVM.Framework.ViewModel
             if (virtualNests > 0)
             {
                 virtualNests--;
+                if (virtualNests == 0) propertyIndex++;
             }
             else if(json.TokenType == JsonToken.EndObject)
             {

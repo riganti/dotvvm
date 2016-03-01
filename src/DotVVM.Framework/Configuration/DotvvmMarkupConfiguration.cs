@@ -8,7 +8,6 @@ namespace DotVVM.Framework.Configuration
 {
     public class DotvvmMarkupConfiguration
     {
-
         /// <summary>
         /// Gets the registered control namespaces.
         /// </summary>
@@ -33,7 +32,6 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonProperty("defaultDirectives")]
         public Dictionary<string, string> DefaultDirectives { get; private set; }
-
 
         /// <summary>
         /// Gets or sets list of namespaces imported in bindings
@@ -73,7 +71,6 @@ namespace DotVVM.Framework.Configuration
                 },
             };
         }
-
 
         /// <summary>
         /// Adds the assembly to the list of required assemblies.
