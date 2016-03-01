@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, RenderContext context)
         {
-            var properties = this.properties.Keys.Where(p => GetType().IsAssignableFrom(p.DeclaringType))
+            var properties = GetDeclaredProperties().Where(p => GetType().IsAssignableFrom(p.DeclaringType))
                 .Select(p => new
                 {
                     js = GetJsValue(p),
