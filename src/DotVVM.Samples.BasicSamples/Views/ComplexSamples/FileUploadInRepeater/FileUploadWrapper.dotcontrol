@@ -1,4 +1,4 @@
-﻿@viewModel System.Object, mscorlib
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.FileUploadInRepeater.FileUploadInRepeaterCollection, DotVVM.Samples.BasicSamples
 @baseType DotVVM.Samples.BasicSamples.Views.ComplexSamples.FileUploadInRepeater.FileUploadWrapper, DotVVM.Samples.BasicSamples
 
 <dot:FileUpload UploadedFiles="{controlProperty: Files}" UploadCompleted="{controlCommand: OnUploaded()}" />

@@ -53,8 +53,8 @@ namespace DotVVM.Samples.BasicSamples
 
             dotvvmConfiguration.Debug = true;
 
+            dotvvmConfiguration.RouteTable.Add("Default", "", "Views/Default.dothtml");
             dotvvmConfiguration.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(dotvvmConfiguration));
-
             dotvvmConfiguration.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
 
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
