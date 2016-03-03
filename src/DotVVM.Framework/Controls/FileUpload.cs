@@ -113,21 +113,21 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        protected internal override void OnInit(IDotvvmRequestContext context)
+        protected internal override void OnInit(Hosting.IDotvvmRequestContext context)
         {
             EnsureControlHasId();
 
             base.OnInit(context);
         }
 
-        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
+        internal override void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
         {
             context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
 
             base.OnPreRenderComplete(context);
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("with", this, UploadedFilesProperty, () =>
             {
@@ -138,13 +138,13 @@ namespace DotVVM.Framework.Controls
             var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
             if (uploadCompletedBinding != null)
             {
-                writer.AddAttribute("data-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, context, this, true, null));
+                writer.AddAttribute("data-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, this, true, null));
             }
 
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render iframe
             writer.AddAttribute("class", "dot-upload-iframe");

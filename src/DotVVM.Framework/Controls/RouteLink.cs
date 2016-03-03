@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Controls
 
         private bool shouldRenderText = false;
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(RouteName, this, writer, context);
 
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Controls
             writer.AddAttribute("onclick", "return !this.hasAttribute('disabled')");
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (shouldRenderText)
             {

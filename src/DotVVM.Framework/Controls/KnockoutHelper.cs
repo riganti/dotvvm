@@ -6,6 +6,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -70,8 +71,8 @@ namespace DotVVM.Framework.Controls
             writer.AddKnockoutDataBind("foreach", expression);
         }
 
-        public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, RenderContext context, DotvvmControl control,
-            bool useWindowSetTimeout = false, bool? returnValue = false, bool isOnChange = false)
+        public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmControl control, bool useWindowSetTimeout = false,
+            bool? returnValue = false, bool isOnChange = false)
         {
             var uniqueControlId = "";
             if (expression is ControlCommandBindingExpression)
@@ -83,7 +84,7 @@ namespace DotVVM.Framework.Controls
 
             var arguments = new List<string>()
             {
-                "'" + context.CurrentPageArea + "'",
+                "'root'",
                 "this",
                 "[" + String.Join(", ", GetContextPath(control).Reverse().Select(p => '"' + p + '"')) + "]",
                 "'" + uniqueControlId + "'",

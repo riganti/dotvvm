@@ -5,6 +5,7 @@ using System.Web;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.Controls
 {
@@ -27,7 +28,7 @@ namespace DotVVM.Samples.BasicSamples.Controls
         }
 
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.WriteUnencodedText(Text);
         }

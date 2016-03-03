@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // verify that the properties are used only where they should
             if (!RendersHtmlTag)
@@ -170,7 +170,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the control begin tag.
         /// </summary>
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderBeginTag(TagName);
         }
@@ -178,7 +178,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the control end tag.
         /// </summary>
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderEndTag();
         }

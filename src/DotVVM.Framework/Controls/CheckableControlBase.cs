@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the children.
         /// </summary>
-        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // label
             var textBinding = GetValueBinding(TextProperty);
@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Controls
             var changedBinding = GetCommandBinding(ChangedProperty);
             if (changedBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, context, this, true, true, isOnChange: true));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, true, true, isOnChange: true));
             }
 
             // handle enabled attribute

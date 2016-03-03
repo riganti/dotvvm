@@ -346,7 +346,7 @@ test <dot:Literal><a /></dot:Literal>";
             return new MarkupFile(virtualPath, virtualPath, markupFiles[virtualPath]);
         }
 
-        public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
+        public string GetMarkupFileVirtualPath(Hosting.IDotvvmRequestContext context)
         {
             throw new NotImplementedException();
         }

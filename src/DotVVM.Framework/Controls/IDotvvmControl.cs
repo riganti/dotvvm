@@ -1,4 +1,5 @@
 ﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
@@ -36,7 +37,7 @@ namespace DotVVM.Framework.Controls
 
         bool IsPropertySet(DotvvmProperty property, bool inherit = true);
 
-        void Render(IHtmlWriter writer, RenderContext context);
+        void Render(IHtmlWriter writer, IDotvvmRequestContext context);
 
         void SetValue(DotvvmProperty property, object value);
     }

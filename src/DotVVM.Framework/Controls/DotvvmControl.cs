@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        public virtual void Render(IHtmlWriter writer, RenderContext context)
+        public virtual void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (Properties.ContainsKey(PostBack.UpdateProperty))
             {
@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        protected virtual void RenderControl(IHtmlWriter writer, RenderContext context)
+        protected virtual void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RenderBeginWithDataBindAttribute(writer);
 
@@ -168,21 +168,21 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        protected virtual void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected virtual void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Renders the control begin tag.
         /// </summary>
-        protected virtual void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected virtual void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Renders the contents inside the control begin and end tags.
         /// </summary>
-        protected virtual void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected virtual void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RenderChildren(writer, context);
         }
@@ -190,14 +190,14 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the control end tag.
         /// </summary>
-        protected virtual void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected virtual void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Renders the children.
         /// </summary>
-        protected void RenderChildren(IHtmlWriter writer, RenderContext context)
+        protected void RenderChildren(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             foreach (var child in Children)
             {
@@ -308,7 +308,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs after the viewmodel tree is complete.
         /// </summary>
-        internal virtual void OnPreInit(IDotvvmRequestContext context)
+        internal virtual void OnPreInit(Hosting.IDotvvmRequestContext context)
         {
             foreach (var property in GetDeclaredProperties())
             {
@@ -319,7 +319,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Called right before the rendering shall occur.
         /// </summary>
-        internal virtual void OnPreRenderComplete(IDotvvmRequestContext context)
+        internal virtual void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
         {
             // events on properties
             foreach (var property in GetDeclaredProperties())
@@ -331,21 +331,21 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs before the viewmodel is applied to the page.
         /// </summary>
-        protected internal virtual void OnInit(IDotvvmRequestContext context)
+        protected internal virtual void OnInit(Hosting.IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Occurs after the viewmodel is applied to the page and before the commands are executed.
         /// </summary>
-        protected internal virtual void OnLoad(IDotvvmRequestContext context)
+        protected internal virtual void OnLoad(Hosting.IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Occurs after the page commands are executed.
         /// </summary>
-        protected internal virtual void OnPreRender(IDotvvmRequestContext context)
+        protected internal virtual void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
         }
 

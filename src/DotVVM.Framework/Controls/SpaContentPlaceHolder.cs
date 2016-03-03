@@ -32,14 +32,14 @@ namespace DotVVM.Framework.Controls
             return GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
         }
 
-        protected internal override void OnInit(IDotvvmRequestContext context)
+        protected internal override void OnInit(Hosting.IDotvvmRequestContext context)
         {
             GetRoot().SetValue(Internal.IsSpaPageProperty, true);
 
             base.OnInit(context);
         }
 
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
             if (context.IsSpaRequest)
             {
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddAttribute("id", ID);
             writer.AddAttribute("name", HostingConstants.SpaContentPlaceHolderID);
@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Controls
 
             if (!string.IsNullOrEmpty(DefaultRouteName))
             {
-                var route = context.RequestContext.Configuration.RouteTable[DefaultRouteName];
+                var route = context.Configuration.RouteTable[DefaultRouteName];
                 if (route.ParameterNames.Any())
                 {
                     throw new DotvvmControlException(this, $"The route '{DefaultRouteName}' specified in SpaContentPlaceHolder DefaultRouteName property cannot contain route parameters!");
@@ -69,13 +69,13 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderBeginTag("div");
             base.RenderBeginTag(writer, context);
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             base.RenderEndTag(writer, context);
             writer.RenderEndTag();

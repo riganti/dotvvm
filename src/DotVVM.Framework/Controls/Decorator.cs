@@ -43,12 +43,12 @@ namespace DotVVM.Framework.Controls
             return decorator;
         }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // do nothing
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // do nothing
         }

@@ -7,6 +7,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Controls
         private const string RouteParameterPrefix = "Param-";
 
 
-        public static void WriteRouteLinkHrefAttribute(string routeName, HtmlGenericControl control, IHtmlWriter writer, RenderContext context)
+        public static void WriteRouteLinkHrefAttribute(string routeName, HtmlGenericControl control, IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!control.RenderOnServer)
             {
@@ -30,7 +31,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public static string EvaluateRouteUrl(string routeName, HtmlGenericControl control, RenderContext context)
+        public static string EvaluateRouteUrl(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
         {
             var coreUrl = GenerateRouteUrlCore(routeName, control, context);
 
@@ -40,11 +41,11 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                return context.RequestContext.TranslateVirtualPath(coreUrl);
+                return context.TranslateVirtualPath(coreUrl);
             }
         }
 
-        private static string GenerateRouteUrlCore(string routeName, HtmlGenericControl control, RenderContext context)
+        private static string GenerateRouteUrlCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
         {
             var route = GetRoute(context, routeName);
             var parameters = ComposeNewRouteParameters(control, context, route);
@@ -60,12 +61,12 @@ namespace DotVVM.Framework.Controls
             return route.BuildUrl(parameters);
         }
 
-        private static RouteBase GetRoute(RenderContext context, string routeName)
+        private static RouteBase GetRoute(IDotvvmRequestContext context, string routeName)
         {
-            return context.RequestContext.Configuration.RouteTable[routeName];
+            return context.Configuration.RouteTable[routeName];
         }
 
-        public static string GenerateKnockoutHrefExpression(string routeName, HtmlGenericControl control, RenderContext context)
+        public static string GenerateKnockoutHrefExpression(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
         {
             var link = GenerateRouteLinkCore(routeName, control, context);
 
@@ -75,11 +76,11 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                return string.Format("'{0}' + {1}", context.RequestContext.TranslateVirtualPath("~/"), link);
+                return string.Format("'{0}' + {1}", context.TranslateVirtualPath("~/"), link);
             }
         }
 
-        private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, RenderContext context)
+        private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
         {
             var route = GetRoute(context, routeName);
             var parameters = ComposeNewRouteParameters(control, context, route);
@@ -119,10 +120,10 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private static Dictionary<string, object> ComposeNewRouteParameters(HtmlGenericControl control, RenderContext context, RouteBase route)
+        private static Dictionary<string, object> ComposeNewRouteParameters(HtmlGenericControl control, IDotvvmRequestContext context, RouteBase route)
         {
             var parameters = new Dictionary<string, object>(route.DefaultValues, StringComparer.OrdinalIgnoreCase);
-            foreach (var param in context.RequestContext.Parameters)
+            foreach (var param in context.Parameters)
             {
                 parameters[param.Key] = param.Value;
             }

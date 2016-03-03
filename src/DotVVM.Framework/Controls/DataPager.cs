@@ -129,19 +129,19 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        protected internal override void OnLoad(IDotvvmRequestContext context)
+        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnLoad(context);
         }
 
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnPreRender(context);
         }
 
-        private void DataBind(IDotvvmRequestContext context)
+        private void DataBind(Hosting.IDotvvmRequestContext context)
         {
             Children.Clear();
 
@@ -208,7 +208,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetButtonContent(IDotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
+        private void SetButtonContent(Hosting.IDotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
         {
             if (contentTemplate != null)
             {
@@ -227,7 +227,7 @@ namespace DotVVM.Framework.Controls
                         "NearPageIndexes[" + i + "]");
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer)
             {
@@ -237,7 +237,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (HideWhenOnlyOnePage)
             {
@@ -248,7 +248,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderBeginTag("ul");
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsFirstPage() }");
             firstLi.Render(writer, context);
@@ -297,7 +297,7 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderEndTag();
         }

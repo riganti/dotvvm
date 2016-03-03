@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Controls
 
 
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!RenderOnServer)
             {
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer)
             {

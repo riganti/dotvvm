@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!RenderOnServer)
             {
@@ -31,7 +32,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!RenderOnServer || GetIEnumerableFromDataSource(DataSource)?.GetEnumerator()?.MoveNext() != true)
             {

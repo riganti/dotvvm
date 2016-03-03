@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Runtime.Compilation.Validation;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -56,7 +57,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Controls
             var clickBinding = GetCommandBinding(ClickProperty);
             if (clickBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, context, this));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this));
             }
 
             writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>
@@ -100,7 +101,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (ButtonTagName == ButtonTagName.input)
             {
@@ -112,7 +113,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (ButtonTagName == ButtonTagName.button)
             {
@@ -131,7 +132,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (ButtonTagName != ButtonTagName.input)
             {

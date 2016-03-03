@@ -4,6 +4,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -68,7 +69,7 @@ namespace DotVVM.Framework.Controls
 
 
 
-        private static void AddValidatedValue(IHtmlWriter writer, RenderContext context, DotvvmProperty prop, DotvvmControl control)
+        private static void AddValidatedValue(IHtmlWriter writer, IDotvvmRequestContext context, DotvvmProperty prop, DotvvmControl control)
         {
             writer.AddKnockoutDataBind("dotvvmValidation", control, ValueProperty);
 

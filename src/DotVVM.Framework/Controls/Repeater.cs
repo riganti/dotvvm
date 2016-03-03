@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs after the viewmodel is applied to the page and before the commands are executed.
         /// </summary>
-        protected internal override void OnLoad(IDotvvmRequestContext context)
+        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnLoad(context);
@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs after the page commands are executed.
         /// </summary>
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
             DataBind(context);     // TODO: we should handle observable collection operations to persist controlstate of controls inside the Repeater
             base.OnPreRender(context);
@@ -99,7 +99,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
         /// </summary>
-        private void DataBind(IDotvvmRequestContext context)
+        private void DataBind(Hosting.IDotvvmRequestContext context)
         {
             Children.Clear();
             emptyDataContainer = null;
@@ -142,7 +142,7 @@ namespace DotVVM.Framework.Controls
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             TagName = WrapperTagName;
 
@@ -166,7 +166,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderWrapperTag)
             {
@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the contents inside the control begin and end tags.
         /// </summary>
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer)
             {
@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Controls
                 var placeholder = new DataItemContainer() { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                 placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
-                ItemTemplate.BuildContent(context.RequestContext, placeholder);
+                ItemTemplate.BuildContent(context, placeholder);
                 Children.Add(placeholder);
 
                 placeholder.Render(writer, context);
@@ -208,7 +208,7 @@ namespace DotVVM.Framework.Controls
         }
          
 
-        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer && numberOfRows == 0)
             {

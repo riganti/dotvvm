@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -19,7 +20,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             IsWhitespace = isWhitespace;
         }
 
-        public override void Render(IHtmlWriter writer, RenderContext context)
+        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.WriteUnencodedText(EncodedText);
         }

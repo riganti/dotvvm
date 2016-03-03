@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty InlineEditingProperty =
             DotvvmProperty.Register<bool, GridView>(t => t.InlineEditing, false);
 
-        protected internal override void OnLoad(IDotvvmRequestContext context)
+        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
         {
             EnsureControlHasId();
 
@@ -124,14 +124,14 @@ namespace DotVVM.Framework.Controls
             base.OnLoad(context);
         }
 
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
             DataBind(context);     // TODO: support for observable collection
             base.OnPreRender(context);
         }
 
 
-        private void DataBind(IDotvvmRequestContext context)
+        private void DataBind(Hosting.IDotvvmRequestContext context)
         {
             Children.Clear();
             emptyDataContainer = null;
@@ -194,7 +194,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
+        private void CreateHeaderRow(Hosting.IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
 
@@ -272,7 +272,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateRow(IDotvvmRequestContext context, DataItemContainer placeholder)
+        private void CreateRow(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder)
         {
             var row = new HtmlGenericControl("tr");
 
@@ -334,7 +334,7 @@ namespace DotVVM.Framework.Controls
             return false;
         }
 
-        private void CreateTemplates(IDotvvmRequestContext context, DataItemContainer placeholder, bool createEditTemplates = false)
+        private void CreateTemplates(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder, bool createEditTemplates = false)
         {
             var row = new HtmlGenericControl("tr");
 
@@ -359,7 +359,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render the header
             head?.Render(writer, context);
@@ -393,7 +393,7 @@ namespace DotVVM.Framework.Controls
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) !== ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
-                    CreateTemplates(context.RequestContext, placeholder);
+                    CreateTemplates(context, placeholder);
                     Children.Add(placeholder);
                     placeholder.Render(writer, context);
                     writer.WriteKnockoutDataBindEndComment();
@@ -402,7 +402,7 @@ namespace DotVVM.Framework.Controls
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                     placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) === ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
-                    CreateTemplates(context.RequestContext, placeholderEdit, true);
+                    CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
                     placeholderEdit.Render(writer, context);
                     writer.WriteKnockoutDataBindEndComment();
@@ -412,7 +412,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
-                    CreateRow(context.RequestContext, placeholder);
+                    CreateRow(context, placeholder);
                     Children.Add(placeholder);
                     placeholder.Render(writer, context);
 
@@ -422,7 +422,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
         }
 
-        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer && numberOfRows == 0 && !ShowHeaderWhenNoData)
             {
@@ -434,14 +434,14 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             base.RenderEndTag(writer, context);
 
             emptyDataContainer?.Render(writer, context);
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!RenderOnServer)
             {

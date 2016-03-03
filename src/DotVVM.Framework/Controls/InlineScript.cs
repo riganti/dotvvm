@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, InlineScript>(t => t.Script);
 
 
-        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
+        internal override void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
         {
             EnsureControlHasId();
 
@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Controls
             base.OnPreRenderComplete(context);
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // don't render anything
         }

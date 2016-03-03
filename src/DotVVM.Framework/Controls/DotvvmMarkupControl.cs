@@ -23,13 +23,13 @@ namespace DotVVM.Framework.Controls
             SetValue(Internal.IsControlBindingTargetProperty, true);
         }
 
-        protected internal override void OnLoad(IDotvvmRequestContext context)
+        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
         {
             EnsureControlHasId();
             base.OnLoad(context);
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var properties = GetDeclaredProperties().Where(p => GetType().IsAssignableFrom(p.DeclaringType))
                 .Select(p => new

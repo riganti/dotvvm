@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Controls
 
         private bool isFormattingRequired;
 
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
             isFormattingRequired = !string.IsNullOrEmpty(FormatString) || ValueType != FormatValueType.Text;
             if (isFormattingRequired)
@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
             {
@@ -178,13 +178,13 @@ namespace DotVVM.Framework.Controls
             var changedBinding = GetCommandBinding(ChangedProperty);
             if (changedBinding != null)
             {
-                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, context, this, true, isOnChange: true));
+                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, true, isOnChange: true));
             }
 
             base.AddAttributesToRender(writer, context);
         }
 
-        private void AddValueAndFormatBindingAttribute(IHtmlWriter writer, RenderContext context)
+        private void AddValueAndFormatBindingAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!isFormattingRequired)
             {
@@ -223,7 +223,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the contents inside the control begin and end tags.
         /// </summary>
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (Type == TextBoxType.MultiLine && GetValueBinding(TextProperty) == null)
             {

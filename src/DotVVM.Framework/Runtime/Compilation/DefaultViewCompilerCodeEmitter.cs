@@ -712,7 +712,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                                 ))
                                 .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
                                         SyntaxFactory.Attribute(
-                                            SyntaxFactory.ParseName("DotVVM.Framework.Runtime.LoadControlBuilder"),
+                                            SyntaxFactory.ParseName(typeof(DotVVM.Framework.Runtime.LoadControlBuilderAttribute).FullName),
                                             SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
                                                 SyntaxFactory.AttributeArgument(EmitStringLiteral(fileName))
                                             }))
