@@ -142,7 +142,6 @@ test <dot:Literal><a /></dot:Literal>";
 
             DotvvmControl placeholder = new PlaceHolder();
             ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, placeholder);
-            placeholder = placeholder.Children[0];
             
             Assert.AreEqual(3, placeholder.Children.Count);
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)placeholder.Children[0]).EncodedText));
@@ -233,18 +232,17 @@ test <dot:Literal><a /></dot:Literal>";
 
             var container = new PlaceHolder();
             ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, container);
-            Assert.IsInstanceOfType(container.Children[0], typeof(PlaceHolder));
 
-            var literal1 = container.Children[0].Children[0];
+            var literal1 = container.Children[0];
             Assert.IsInstanceOfType(literal1, typeof(RawLiteral));
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal1).EncodedText));
 
-            var markupControl = container.Children[0].Children[1];
+            var markupControl = container.Children[1];
             Assert.IsInstanceOfType(markupControl, typeof(DotvvmView));
             Assert.IsInstanceOfType(markupControl.Children[0], typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)markupControl.Children[0]).Text);
 
-            var literal2 = container.Children[0].Children[2];
+            var literal2 = container.Children[2];
             Assert.IsInstanceOfType(literal2, typeof(RawLiteral));
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal2).EncodedText));
         }
@@ -268,18 +266,17 @@ test <dot:Literal><a /></dot:Literal>";
 
             var container = new PlaceHolder();
             ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, container);
-            Assert.IsInstanceOfType(container.Children[0], typeof(PlaceHolder));
 
-            var literal1 = container.Children[0].Children[0];
+            var literal1 = container.Children[0];
             Assert.IsInstanceOfType(literal1, typeof(RawLiteral));
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal1).EncodedText));
 
-            var markupControl = container.Children[0].Children[1];
+            var markupControl = container.Children[1];
             Assert.IsInstanceOfType(markupControl, typeof(DotvvmView));
             Assert.IsInstanceOfType(markupControl.Children[0], typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)markupControl.Children[0]).Text);
 
-            var literal2 = container.Children[0].Children[2];
+            var literal2 = container.Children[2];
             Assert.IsInstanceOfType(literal2, typeof(RawLiteral));
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)literal2).EncodedText));
         }
