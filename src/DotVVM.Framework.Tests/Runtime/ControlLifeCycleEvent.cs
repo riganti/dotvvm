@@ -2,7 +2,7 @@
 
 namespace DotVVM.Framework.Tests.Runtime
 {
-    public class ControlLifeCycleEvent
+    internal class ControlLifeCycleEvent
     {
 
         public ControlLifeCycleEvent(ControlLifeCycleMock control, LifeCycleEventType eventType, bool isEntering)

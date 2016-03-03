@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Linq.Expressions;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime.Compilation.Binding;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 using DotVVM.Framework.Utils;

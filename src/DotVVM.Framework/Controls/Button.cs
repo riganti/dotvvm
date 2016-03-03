@@ -4,7 +4,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Runtime.Compilation.Validation;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 using DotVVM.Framework.Parser.Dothtml.Parser;

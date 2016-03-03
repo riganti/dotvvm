@@ -7,7 +7,6 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Compilation;
 using System.Reflection;
-using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {

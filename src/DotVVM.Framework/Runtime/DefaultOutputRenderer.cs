@@ -10,7 +10,6 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {

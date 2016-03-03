@@ -9,6 +9,7 @@ using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding;
 using System.Collections.Concurrent;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using DotVVM.Framework.Runtime.Compilation.Binding;

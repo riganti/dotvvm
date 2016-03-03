@@ -1,7 +1,7 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {

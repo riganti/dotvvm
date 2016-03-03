@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 

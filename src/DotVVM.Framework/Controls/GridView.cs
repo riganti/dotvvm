@@ -8,6 +8,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System.Collections;
 using System.Reflection;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using DotVVM.Framework.Utils;
 

@@ -19,7 +19,6 @@ using DotVVM.Framework.Styles;
 using DotVVM.Framework.Runtime.Compilation.Binding;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
-using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {

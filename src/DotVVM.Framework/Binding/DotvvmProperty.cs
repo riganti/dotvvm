@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;

@@ -7,7 +7,6 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime.Compilation;
-using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {

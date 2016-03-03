@@ -209,7 +209,6 @@ namespace DotVVM.Framework.Configuration
                 EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name
             });
 
-
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());
         }
         

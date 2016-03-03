@@ -1,5 +1,4 @@
 ﻿using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Parser.Dothtml.Tokenizer;

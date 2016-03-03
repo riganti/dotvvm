@@ -27,7 +27,7 @@
 					</ContentTemplate>
 					<EditTemplate>
 						<dot:Button ButtonTagName="button" Text="Save" Click="{command: _parent.UpdateItem(_this)}"></dot:Button>
-						<dot:Button Validate.Enabled="false" ButtonTagName="button" Text="Cancel" Click="{command: _parent.CancelEditItem()}"></dot:Button>
+						<dot:Button Validation.Enabled="false" ButtonTagName="button" Text="Cancel" Click="{command: _parent.CancelEditItem()}"></dot:Button>
 					</EditTemplate>
 				</dot:GridViewTemplateColumn>
             </Columns>

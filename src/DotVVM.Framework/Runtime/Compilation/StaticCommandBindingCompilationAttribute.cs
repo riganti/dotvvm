@@ -7,6 +7,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 

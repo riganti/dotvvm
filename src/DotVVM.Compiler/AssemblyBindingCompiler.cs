@@ -11,6 +11,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
