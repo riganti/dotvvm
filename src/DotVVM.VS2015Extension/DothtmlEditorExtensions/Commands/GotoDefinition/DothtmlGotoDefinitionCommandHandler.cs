@@ -15,8 +15,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using Constants = DotVVM.Framework.Compilation.Parser.Constants;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
 {
@@ -66,14 +66,14 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
             if (currentDirective == null) return false;
 
             //check viewModel and typeBased directive and navigate to definition of the viewModel
-            if (currentDirective.Name.Equals(Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
-                || currentDirective.Name.Equals(Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
+            if (currentDirective.Name.Equals(ParserConstants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
+                || currentDirective.Name.Equals(ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (NavigateToViewModel(new ViewModelDirectiveValue(currentDirective))) return true;
             }
 
             //check masterPage directive
-            if (currentDirective.Name.Equals(Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
+            if (currentDirective.Name.Equals(ParserConstants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (NavigateToMasterPage(currentDirective)) return true;
             }

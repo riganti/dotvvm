@@ -12,6 +12,7 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -188,19 +189,19 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             public string Property1 { get; set; }
 
-            [ViewModelProtection(ViewModelProtectionSettings.SignData)]
+            [Protect(ProtectMode.SignData)]
             public int Property2 { get; set; }
 
-            [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
+            [Protect(ProtectMode.EnryptData)]
             public DateTime Property3 { get; set; }
             public List<TestViewModel4> Property4 { get; set; }
         }
         public class TestViewModel4
         {
-            [ViewModelProtection(ViewModelProtectionSettings.SignData)]
+            [Protect(ProtectMode.SignData)]
             public string PropertyA { get; set; }
 
-            [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
+            [Protect(ProtectMode.EnryptData)]
             public int PropertyB { get; set; }
         }
 
@@ -230,7 +231,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
         class TestViewModel5
         {
-            [ViewModelProtection(ViewModelProtectionSettings.SignData)]
+            [Protect(ProtectMode.SignData)]
             public int? ProtectedNullable { get; set; }
         }
 

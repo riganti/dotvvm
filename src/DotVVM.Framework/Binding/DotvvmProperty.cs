@@ -8,9 +8,8 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Runtime.Compilation;
-using DotVVM.Framework.Runtime.ControlTree;
-using DotVVM.Framework.Runtime.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Binding
 {

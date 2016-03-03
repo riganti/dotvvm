@@ -5,10 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
-using DotVVM.Framework.Runtime.Compilation;
 using System.Linq.Expressions;
-using DotVVM.Framework.Runtime.ControlTree;
-using DotVVM.Framework.Runtime.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Binding
 {

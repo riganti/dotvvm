@@ -1,8 +1,6 @@
 ﻿using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Runtime.Compilation;
-using DotVVM.Framework.Runtime.Compilation.Binding;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
@@ -10,7 +8,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Runtime.ControlTree;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
             {
                 context = new DataContextStack(contexts[i].GetType(), context);
             }
-            var parser = new CompileTimeBindingParser();
+            var parser = new BindingExpressionBuilder();
             var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>());
             return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, typeof(object)).Compile()(contexts, control);
         }

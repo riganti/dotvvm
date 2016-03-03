@@ -9,7 +9,7 @@ using DotVVM.Framework.Runtime;
 using System.Collections;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls

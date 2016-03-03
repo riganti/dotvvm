@@ -6,7 +6,6 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
-using DotVVM.Framework.Runtime.Compilation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BindingParser = DotVVM.Framework.Compilation.Parser.Binding.Parser.BindingParser;
 

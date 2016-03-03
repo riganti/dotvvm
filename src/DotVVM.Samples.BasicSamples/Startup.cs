@@ -12,7 +12,6 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Storage;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.AspNet.Identity;
-using Constants = DotVVM.Framework.Compilation.Parser.Constants;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.BasicSamples.Startup))]
 

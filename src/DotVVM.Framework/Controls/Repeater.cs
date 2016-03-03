@@ -6,7 +6,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System.Collections;
 using System.Diagnostics;
-using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {

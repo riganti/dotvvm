@@ -17,6 +17,7 @@ using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Hosting
 {

@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -138,12 +138,12 @@ namespace DotVVM.Framework.Binding.Expressions
 
             // get type directive
             string resourceTypeDirectiveValue;
-            directives.TryGetValue(Constants.ResourceTypeDirective, out resourceTypeDirectiveValue);
+            directives.TryGetValue(ParserConstants.ResourceTypeDirective, out resourceTypeDirectiveValue);
             ResourceTypeDirectiveValue = (resourceTypeDirectiveValue ?? "").Trim();
 
             // get namespace directive
             string resourceNamespaceDirectiveValue;
-            directives.TryGetValue(Constants.ResourceNamespaceDirective, out resourceNamespaceDirectiveValue);
+            directives.TryGetValue(ParserConstants.ResourceNamespaceDirective, out resourceNamespaceDirectiveValue);
             ResourceNamespaceDirectiveValue = (resourceNamespaceDirectiveValue ?? "").Trim();
         }
 

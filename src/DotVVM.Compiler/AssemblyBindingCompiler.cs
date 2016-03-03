@@ -1,5 +1,4 @@
 ﻿using DotVVM.Framework.Binding;
-using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis.CSharp;
@@ -12,7 +11,8 @@ using System.Linq.Expressions;
 using System.Reflection;
 using System.Reflection.Emit;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Runtime.ControlTree.Resolved;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Compiler
 {
@@ -58,7 +58,7 @@ namespace DotVVM.Compiler
             result.OriginalString = TryExecute(binding.BindingNode, "hey, no, that should not happen. Really.", requirements.OriginalString, () => binding.Value);
             result.Expression = TryExecute(binding.BindingNode, "Could not get binding expression.", requirements.Expression, () => binding.GetExpression());
             result.ActionFilters = TryExecute(binding.BindingNode, "", requirements.ActionFilters, () => GetActionAttributeData(binding.GetExpression()));
-            result.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJs(binding, new CompiledBindingExpression()
+            result.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJavascript(binding, new CompiledBindingExpression()
             {
                 Expression = result.Expression,
                 Id = id,

@@ -8,6 +8,8 @@ using DotVVM.Framework.ResourceManagement;
 using System.Collections.Concurrent;
 using System.Threading;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Hosting
 {

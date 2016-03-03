@@ -4,12 +4,12 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Tests.Runtime
 {

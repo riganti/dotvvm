@@ -8,10 +8,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ViewModelProtect
 {
     public class ViewModelProtectionViewModel : DotvvmViewModelBase
     {
-        [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
+        [Protect(ProtectMode.EnryptData)]
         public string SecretData { get; set; }
 
-        [ViewModelProtection(ViewModelProtectionSettings.SignData)]
+        [Protect(ProtectMode.SignData)]
         public string ReadOnlyData { get; set; }
 
 
@@ -76,7 +76,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ViewModelProtect
 
         public bool IsCompleted { get; set; }
 
-        [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
+        [Protect(ProtectMode.EnryptData)]
         public string SecretTaskData { get; set; }
 
         public ProtectionTaskViewModel()

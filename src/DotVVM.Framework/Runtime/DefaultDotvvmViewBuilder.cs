@@ -1,12 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Runtime
             while (IsNestedInMasterPage(contentPage))
             {
                 // load master page
-                var masterPageFile = contentPage.Directives[Constants.MasterPageDirective];
+                var masterPageFile = contentPage.Directives[ParserConstants.MasterPageDirective];
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).BuildControl(controlBuilderFactory);
 
                 FillsDefaultDirectives(masterPage, context.Configuration);
@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private bool IsNestedInMasterPage(DotvvmView page)
         {
-            return page.Directives.ContainsKey(Constants.MasterPageDirective);
+            return page.Directives.ContainsKey(ParserConstants.MasterPageDirective);
         }
         /// <summary>
         /// Fills default directives if specific directives are not set

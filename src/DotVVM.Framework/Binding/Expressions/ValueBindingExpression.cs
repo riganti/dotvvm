@@ -1,8 +1,8 @@
 using System;
 using System.Collections;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Runtime.Compilation;
-using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 
 namespace DotVVM.Framework.Binding.Expressions
 {

@@ -1,11 +1,10 @@
-﻿using DotVVM.Framework.Runtime.Compilation;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Runtime.ControlTree;
-using DotVVM.Framework.Runtime.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Compiler
 {

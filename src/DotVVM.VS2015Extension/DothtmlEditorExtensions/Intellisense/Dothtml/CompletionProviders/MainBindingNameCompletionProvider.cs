@@ -14,8 +14,8 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.Co
     {
         public override IEnumerable<SimpleDothtmlCompletion> GetItems(DothtmlCompletionContext context)
         {
-            var bindingTypes = new[] { Constants.CommandBinding, Constants.ValueBinding, Constants.ResourceBinding };
-            var userControlBindingTypes = new[] { Constants.StaticCommandBinding, Constants.ControlCommandBinding, Constants.ControlPropertyBinding };
+            var bindingTypes = new[] { ParserConstants.CommandBinding, ParserConstants.ValueBinding, ParserConstants.ResourceBinding };
+            var userControlBindingTypes = new[] { ParserConstants.StaticCommandBinding, ParserConstants.ControlCommandBinding, ParserConstants.ControlPropertyBinding };
 
             var glyph = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphKeyword, StandardGlyphItem.GlyphItemPublic);
             return Enumerable.Concat(bindingTypes, userControlBindingTypes).Select(b => new SimpleDothtmlCompletion(b, b + ": ", glyph));

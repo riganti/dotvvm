@@ -26,8 +26,8 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.Co
 
         protected override IEnumerable<SimpleDothtmlCompletion> GetItemsCore(DothtmlCompletionContext context, string directiveName)
         {
-            if (string.Equals(directiveName, Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
-                || string.Equals(directiveName, Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(directiveName, ParserConstants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
+                || string.Equals(directiveName, ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 // get icons for intellisense
                 var classGlyph = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphGroupClass, StandardGlyphItem.GlyphItemPublic);

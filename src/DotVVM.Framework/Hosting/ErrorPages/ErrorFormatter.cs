@@ -8,7 +8,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Runtime.Compilation;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {

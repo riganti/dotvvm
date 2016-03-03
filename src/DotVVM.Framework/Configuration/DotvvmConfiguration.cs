@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Threading;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Compilation.Validation;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ResourceManagement.ClientGlobalize;
-using DotVVM.Framework.Styles;
-using DotVVM.Framework.Runtime.Compilation.Binding;
-using DotVVM.Framework.Runtime.ControlTree;
-using DotVVM.Framework.Runtime.ControlTree.Resolved;
-using DotVVM.Framework.Runtime.Compilation.Validation;
+using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -195,8 +197,8 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IAbstractTreeBuilder>(() => new ResolvedTreeBuilder());
             configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
             configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler());
-            configuration.ServiceLocator.RegisterSingleton<IBindingParser>(() => new CompileTimeBindingParser());
-            configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBidningIdGenerator());
+            configuration.ServiceLocator.RegisterSingleton<IBindingExpressionBuilder>(() => new BindingExpressionBuilder());
+            configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBindingIdGenerator());
             configuration.ServiceLocator.RegisterSingleton<IControlUsageValidator>(() => new DefaultControlUsageValidator());
         }
 

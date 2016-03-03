@@ -3,6 +3,7 @@ using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Controls
 {

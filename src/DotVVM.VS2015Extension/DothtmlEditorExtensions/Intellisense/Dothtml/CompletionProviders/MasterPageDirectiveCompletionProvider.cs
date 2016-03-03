@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using Constants = DotVVM.Framework.Compilation.Parser.Constants;
+using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.CompletionProviders
 {
@@ -15,7 +15,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.Co
     {
         protected override IEnumerable<SimpleDothtmlCompletion> GetItemsCore(DothtmlCompletionContext context, string directiveName)
         {
-            if (string.Equals(directiveName, Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(directiveName, ParserConstants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 var documents = CompletionHelper.GetCurrentProjectFiles(context)
                     .Where(i => i.Name.EndsWith(".dotmaster", StringComparison.CurrentCultureIgnoreCase))
