@@ -16,22 +16,13 @@ namespace $safeprojectname$
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM
-            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM(applicationPhysicalPath);
+            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
 #if DEBUG
             dotvvmConfiguration.Debug = true;
 #endif
         
-        // Routes registration 
-        // To register one route by one use: 
-        dotvvmConfiguration.RouteTable.Add("Default", "", "Views/default.dothtml", null);
-
-        //OR
-        //for automatic registration use IRoutingStrategy
-        //dotvvmConfiguration.RouteTable.RegisterRoutingStrategy(new ViewsFolderBasedRouteStrategy(dotvvmConfiguration));
-
-
-        // use static files
-        app.UseStaticFiles(new StaticFileOptions()
+             // use static files
+            app.UseStaticFiles(new StaticFileOptions()
             {
                 FileSystem = new PhysicalFileSystem(applicationPhysicalPath)
             });

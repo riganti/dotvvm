@@ -552,6 +552,7 @@
       copy "$(SolutionDir)packages\Microsoft.Owin.FileSystems.3.0.1\Microsoft.Owin.FileSystems.3.0.1.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.Owin.StaticFiles.3.0.1\Microsoft.Owin.StaticFiles.3.0.1.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.Owin.Host.SystemWeb.3.0.1\Microsoft.Owin.Host.SystemWeb.3.0.1.nupkg" "$(ProjectDir)Packages"
+      copy "$(SolutionDir)packages\Microsoft.Owin.Security.3.0.1\Microsoft.Owin.Security.3.0.1.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\System.Collections.Immutable.1.1.36\System.Collections.Immutable.1.1.36.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\System.Reflection.Metadata.1.0.21\System.Reflection.Metadata.1.0.21.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\Microsoft.CodeAnalysis.Analyzers.1.0.0.nupkg" "$(ProjectDir)Packages"

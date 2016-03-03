@@ -14,6 +14,7 @@
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
                 <dependency id="Microsoft.Owin.StaticFiles" version="3.0.1" />
+				<dependency id="Microsoft.Owin.Security" version="3.0.1" />
                 <dependency id="Microsoft.Owin.Host.SystemWeb" version="3.0.1" />
                 <dependency id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0" />
                 <dependency id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
@@ -23,9 +24,6 @@
     </metadata>
     <files>
         <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.dll" target="lib\net451\DotVVM.Framework.dll" />
-	      <file src="..\..\..\DotVVM.Compiler\bin\Debug\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />
-        <file src="init.ps1" target="tools\init.ps1" />
-        <file src="install.ps1" target="tools\install.ps1" />
-        <file src="DotvvmModule.psm1" target="tools\DotvvmModule.psm1" />
+	    <file src="..\..\..\DotVVM.Compiler\bin\Debug\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />        
     </files>
 </package>

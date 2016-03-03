@@ -53,6 +53,7 @@
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
+	<Compile Include="DotvvmStartup.cs" />
     <Compile Include="ViewModels\DefaultViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
