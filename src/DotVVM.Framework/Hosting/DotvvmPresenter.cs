@@ -17,6 +17,7 @@ using DotVVM.Framework.Security;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -99,11 +100,10 @@ namespace DotVVM.Framework.Hosting
             }
             if (context.OwinContext.Request.Headers["X-PostbackType"] == "StaticCommand")
             {
-                ProcessStaticCommandRequest(context);
+                await ProcessStaticCommandRequest(context);
                 return;
             }
-            var isPostBack = DetermineIsPostBack(context.OwinContext);
-            context.IsPostBack = isPostBack;
+            var isPostBack = context.IsPostBack = DetermineIsPostBack(context.OwinContext);
             context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
 
             // build the page view
@@ -182,43 +182,7 @@ namespace DotVVM.Framework.Hosting
                     var methodFilters = actionInfo.Binding.ActionFilters == null ? globalFilters.Concat(viewModelFilters).ToArray() :
                        globalFilters.Concat(viewModelFilters).Concat(actionInfo.Binding.ActionFilters).ToArray();
 
-                    // run OnCommandExecuting on action filters
-                    foreach (var filter in methodFilters)
-                    {
-                        filter.OnCommandExecuting(context, actionInfo);
-                    }
-                    
-                    try
-                    {
-                        var result = actionInfo.Action();
-                        if (result is Task)
-                        {
-                            await (Task)result;
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex is TargetInvocationException)
-                        {
-                            ex = ex.InnerException;
-                        }
-                        if (ex is DotvvmInterruptRequestExecutionException)
-                        {
-                            throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
-                        }
-                        context.CommandException = ex;
-                    }
-
-                    // run OnCommandExecuted on action filters
-                    foreach (var filter in methodFilters.Reverse())
-                    {
-                        filter.OnCommandExecuted(context, actionInfo, context.CommandException);
-                    }
-
-                    if (context.CommandException != null && !context.IsCommandExceptionHandled)
-                    {
-                        throw new Exception("Unhandled exception occured in the command!", context.CommandException);
-                    }
+                    await ExecuteCommand(actionInfo, context, methodFilters);
                 }
             }
 
@@ -266,7 +230,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        public void ProcessStaticCommandRequest(DotvvmRequestContext context)
+        public async Task ProcessStaticCommandRequest(DotvvmRequestContext context)
         {
             JObject postData;
             using (var jsonReader = new JsonTextReader(new StreamReader(context.OwinContext.Request.Body)))
@@ -289,23 +253,41 @@ namespace DotVVM.Framework.Hosting
                 throw new DotvvmHttpException($"This method cannot be called from the static command. If you need to call this method, add the '{nameof(AllowStaticCommandAttribute)}' to the method.");
             }
             var target = methodInfo.IsStatic ? null : arguments[0].ToObject(methodInfo.DeclaringType);
-            var marguments = arguments.Skip(1).Zip(methodInfo.GetParameters(),
-                (arg, parameter) => arg.ToObject(parameter.ParameterType)).ToArray();
+            var methodArguments =
+                arguments.Skip(methodInfo.IsStatic ? 0 : 1)
+                .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
+                .ToArray();
             var actionInfo = new ActionInfo()
             {
                 IsControlCommand = false,
-                Action = () => methodInfo.Invoke(target, marguments)
+                Action = () => methodInfo.Invoke(target, methodArguments)
             };
-            var filters = methodInfo.GetCustomAttributes<ActionFilterAttribute>();
-            foreach (var filter in filters)
+            var filters = context.Configuration.Runtime.GlobalFilters
+                .Concat(methodInfo.DeclaringType.GetCustomAttributes<ActionFilterAttribute>())
+                .Concat(methodInfo.GetCustomAttributes<ActionFilterAttribute>())
+                .ToArray();
+
+            var task = ExecuteCommand(actionInfo, context, filters);
+            await task;
+            object result = TaskUtils.GetResult(task);
+
+            using (var writer = new StreamWriter(context.OwinContext.Response.Body))
             {
-                filter.OnCommandExecuting(context, actionInfo);
+                writer.WriteLine(JsonConvert.SerializeObject(result));
             }
-            Exception exception = null;
+        }
+
+        protected Task ExecuteCommand(ActionInfo action, DotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
+        {
+            // run OnCommandExecuting on action filters
+            foreach (var filter in methodFilters)
+            {
+                filter.OnCommandExecuting(context, action);
+            }
             object result = null;
             try
             {
-                result = methodInfo.Invoke(target, marguments);
+                result = action.Action();
             }
             catch (Exception ex)
             {
@@ -317,21 +299,21 @@ namespace DotVVM.Framework.Hosting
                 {
                     throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
                 }
-                exception = ex;
-            }
-            foreach (var filter in filters)
-            {
-                filter.OnCommandExecuted(context, actionInfo, exception);
-            }
-            if (exception != null)
-            {
-                throw new Exception("unhandled exception in command", exception);
+                context.CommandException = ex;
             }
 
-            using (var writer = new StreamWriter(context.OwinContext.Response.Body))
+            // run OnCommandExecuted on action filters
+            foreach (var filter in methodFilters.Reverse())
             {
-                writer.WriteLine(JsonConvert.SerializeObject(result));
+                filter.OnCommandExecuted(context, action, context.CommandException);
             }
+
+            if (context.CommandException != null && !context.IsCommandExceptionHandled)
+            {
+                throw new Exception("Unhandled exception occured in the command!", context.CommandException);
+            }
+
+            return result as Task ?? (result == null ? TaskUtils.GetCompletedTask() : Task.FromResult(result));
         }
 
         public static bool DetermineIsPostBack(IOwinContext context)
