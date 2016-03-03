@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotVVM.Framework.Runtime.Compilation
 {
@@ -13,10 +14,15 @@ namespace DotVVM.Framework.Runtime.Compilation
         public string Name { get; set; }
 
         public int ControlIndex { get; set; }
-        
 
-        public EmitterMethodInfo()
+        public ParameterListSyntax Parameters { get; set; }
+
+        public TypeSyntax ReturnType { get; set; }
+
+        public EmitterMethodInfo(TypeSyntax returnType, params ParameterSyntax[] parameters)
         {
+            Parameters = SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(parameters));
+            ReturnType = returnType;
             Statements = new List<StatementSyntax>();
         }
     }

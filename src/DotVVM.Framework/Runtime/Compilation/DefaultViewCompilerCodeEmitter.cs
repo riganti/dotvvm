@@ -430,7 +430,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 )
             );
         }
-        
+
 
         /// <summary>
         /// Emits the add HTML attribute.
@@ -645,7 +645,11 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         private TypeSyntax ParseTypeName(Type type)
         {
-            if (!type.IsGenericType)
+            if(type == typeof(void))
+            {
+                return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
+            }
+            else if (!type.IsGenericType)
             {
                 return SyntaxFactory.ParseTypeName(type.FullName);
             }
@@ -665,7 +669,7 @@ namespace DotVVM.Framework.Runtime.Compilation
                 }
 
                 var typeArguments = type.GetGenericArguments().Select(ParseTypeName);
-                return SyntaxFactory.QualifiedName(identifier, 
+                return SyntaxFactory.QualifiedName(identifier,
                     SyntaxFactory.GenericName(
                         SyntaxFactory.Identifier(parts[parts.Length - 1]),
                         SyntaxFactory.TypeArgumentList(
@@ -718,15 +722,10 @@ namespace DotVVM.Framework.Runtime.Compilation
                                 SyntaxFactory.List<MemberDeclarationSyntax>(
                                     outputMethods.Select<EmitterMethodInfo, MemberDeclarationSyntax>(m =>
                                         SyntaxFactory.MethodDeclaration(
-                                            ParseTypeName(typeof(DotvvmControl)),
+                                            m.ReturnType,
                                             m.Name)
                                             .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                            .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(new[] {
-                                                SyntaxFactory.Parameter(
-                                                    SyntaxFactory.Identifier(ControlBuilderFactoryParameterName)
-                                                )
-                                                .WithType(ParseTypeName(typeof(IControlBuilderFactory)))
-                                            })))
+                                            .WithParameterList(m.Parameters)
                                             .WithBody(SyntaxFactory.Block(m.Statements))
                                         ).Concat(new [] {
                                             SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.DataContextType))
@@ -755,12 +754,22 @@ namespace DotVVM.Framework.Runtime.Compilation
         }
 
 
+        public ParameterSyntax EmitParameter(string name, Type type)
+        =>
+            SyntaxFactory.Parameter(
+                SyntaxFactory.Identifier(name)
+            )
+            .WithType(ParseTypeName(type));
+
+        public ParameterSyntax EmitControlBuilderParameter()
+            => EmitParameter(ControlBuilderFactoryParameterName, typeof(IControlBuilderFactory));
+
         /// <summary>
         /// Pushes the new method.
         /// </summary>
-        public void PushNewMethod(string name, params ParameterSyntax[] parameters)
+        public void PushNewMethod(string name, Type returnType, params ParameterSyntax[] parameters)
         {
-            var emitterMethodInfo = new EmitterMethodInfo() { Name = name };
+            var emitterMethodInfo = new EmitterMethodInfo(ParseTypeName(returnType), parameters) { Name = name };
             methods.Push(emitterMethodInfo);
         }
 
