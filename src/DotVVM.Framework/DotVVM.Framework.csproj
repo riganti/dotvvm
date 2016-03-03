@@ -521,8 +521,6 @@
     <Compile Include="Utils\TaskUtils.cs" />
     <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
-    <Compile Include="ViewModel\ClientCommandAttribute.cs" />
-    <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
     <Compile Include="ViewModel\ControlTreeWalker.cs" />
     <Compile Include="ViewModel\DateTimeFormatJsonConverterBase.cs" />
     <Compile Include="ViewModel\EncryptedValuesReader.cs" />

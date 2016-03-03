@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ViewModel
 {
@@ -15,17 +16,17 @@ namespace DotVVM.Framework.ViewModel
 
         public virtual Task Init()
         {
-            return Task.FromResult(0);
+            return TaskUtils.GetCompletedTask();
         }
 
         public virtual Task Load()
         {
-            return Task.FromResult(0);
+            return TaskUtils.GetCompletedTask();
         }
 
         public virtual Task PreRender()
         {
-            return Task.FromResult(0);
+            return TaskUtils.GetCompletedTask();
         }
     }
 }

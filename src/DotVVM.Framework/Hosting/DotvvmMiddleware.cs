@@ -7,6 +7,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Concurrent;
 using System.Threading;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -41,7 +42,8 @@ namespace DotVVM.Framework.Hosting
             {
                 OwinContext = context,
                 Configuration = Configuration,
-                ResourceManager = new ResourceManager(Configuration)
+                ResourceManager = new ResourceManager(Configuration),
+                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
             };
 
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.

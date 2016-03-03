@@ -8,9 +8,6 @@ namespace DotVVM.Framework.Hosting
 {
     public interface IDotvvmPresenter
     {
-
-        IViewModelSerializer ViewModelSerializer { get; }
-
         /// <summary>
         /// Processes the request.
         /// </summary>
