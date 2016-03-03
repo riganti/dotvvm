@@ -14,6 +14,19 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
+        public void Control_Button_Button()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_Button);
+
+                browser.First("span.result").CheckIfInnerTextEquals("0");
+                browser.First("input[type=button]").Click();
+                browser.First("span.result").CheckIfInnerTextEquals("1");
+            });
+        }
+
+        [TestMethod]
         public void Control_Button_InputTypeButton_TextContentInside()
         {
             RunInAllBrowsers(browser =>

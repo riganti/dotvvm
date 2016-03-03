@@ -5,8 +5,10 @@ using System.Security;
 using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Configuration;
 using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Hosting;
+using Microsoft.Owin.Security.DataProtection;
 
 namespace DotVVM.Framework.Security
 {
@@ -19,8 +21,15 @@ namespace DotVVM.Framework.Security
     public class DefaultCsrfProtector : ICsrfProtector
     {
         private const int SID_LENGTH = 32; // 256-bit identifier
-        private const string KDF_LABEL_SID = "DotVVM.Framework.Security.DefaultCsrfProtector.SID"; // Key derivation label for protecting SID
-        private const string KDF_LABEL_TOKEN = "DotVVM.Framework.Security.DefaultCsrfProtector.Token"; // Key derivation label for protecting token
+        private const string PURPOSE_SID = "DotVVM.Framework.Security.DefaultCsrfProtector.SID"; // Key derivation label for protecting SID
+        private const string PURPOSE_TOKEN = "DotVVM.Framework.Security.DefaultCsrfProtector.Token"; // Key derivation label for protecting token
+
+        private IDataProtectionProvider protectionProvider;
+
+        public DefaultCsrfProtector(DotvvmConfiguration configuration)
+        {
+            this.protectionProvider = configuration.ServiceLocator.GetService<IDataProtectionProvider>();
+        }
 
         public string GenerateToken(IDotvvmRequestContext context)
         {
@@ -29,13 +38,13 @@ namespace DotVVM.Framework.Security
             // Get SID
             var sid = this.GetOrCreateSessionId(context);
 
-            // Get application key helper
-            var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);
-
-            // Get token
+            // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var tokenData = keyHelper.ProtectData(sid, KDF_LABEL_TOKEN, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.Create(PURPOSE_TOKEN, userIdentity, requestIdentity);
+
+            // Get token
+            var tokenData = protector.Protect(sid);
 
             // Return encoded token
             return Convert.ToBase64String(tokenData);
@@ -46,17 +55,17 @@ namespace DotVVM.Framework.Security
             if (context == null) throw new ArgumentNullException(nameof(context));
             if (string.IsNullOrWhiteSpace(token)) throw new SecurityException("CSRF protection token is missing.");
 
-            // Get application key helper
-            var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);
-
-            // Get token
+            // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
+            var protector = this.protectionProvider.Create(PURPOSE_TOKEN, userIdentity, requestIdentity);
+
+            // Get token
             byte[] tokenSid;
             try
             {
                 var tokenData = Convert.FromBase64String(token);
-                tokenSid = keyHelper.UnprotectData(tokenData, KDF_LABEL_TOKEN, userIdentity, requestIdentity);
+                tokenSid = protector.Unprotect(tokenData);
             }
             catch (Exception ex)
             {
@@ -78,8 +87,10 @@ namespace DotVVM.Framework.Security
             // Get cookie manager
             var mgr = new ChunkingCookieManager(); // TODO: Make this configurable
 
-            // Get application key helper
-            var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);
+            // Construct protector with purposes
+            var userIdentity = ProtectionHelpers.GetUserIdentity(context);
+            var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
+            var protector = this.protectionProvider.Create(PURPOSE_SID);
 
             // Get cookie value
             var sidCookieValue = mgr.GetRequestCookie(context.OwinContext, sessionIdCookieName);
@@ -90,13 +101,13 @@ namespace DotVVM.Framework.Security
                 var rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
                 var sid = new byte[SID_LENGTH];
                 rng.GetBytes(sid);
-                var protectedSid = keyHelper.ProtectData(sid, KDF_LABEL_SID);
+                var protectedSid = protector.Protect(sid);
 
                 // Save to cookie
                 sidCookieValue = Convert.ToBase64String(protectedSid);
                 mgr.AppendResponseCookie(
                     context.OwinContext,
-                    sessionIdCookieName, // Configured cookie name
+                    sessionIdCookieName,                                // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value
                     new Microsoft.Owin.CookieOptions
                     {
@@ -107,13 +118,12 @@ namespace DotVVM.Framework.Security
                 // Return newly generated SID
                 return sid;
             }
-            else
-            {
+            else {
                 // Try to read from cookie
                 try
                 {
                     var protectedSid = Convert.FromBase64String(sidCookieValue);
-                    var sid = keyHelper.UnprotectData(protectedSid, KDF_LABEL_SID);
+                    var sid = protector.Unprotect(protectedSid);
                     return sid;
                 }
                 catch (Exception ex)

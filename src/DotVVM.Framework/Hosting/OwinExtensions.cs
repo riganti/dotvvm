@@ -1,6 +1,7 @@
 using System.IO;
 using System.Reflection;
 using DotVVM.Framework.Configuration;
+using Microsoft.Owin.Security.DataProtection;
 using Newtonsoft.Json;
 using Owin;
 
@@ -10,15 +11,8 @@ namespace DotVVM.Framework.Hosting
     {
         public static DotvvmConfiguration CreateConfiguration(string applicationRootDirectory)
         {
-            var configurationFilePath = Path.Combine(applicationRootDirectory, "dotvvm.json");
-
             // load or create default configuration
             var configuration = DotvvmConfiguration.CreateDefault();
-            if (File.Exists(configurationFilePath))
-            {
-                var fileContents = File.ReadAllText(configurationFilePath);
-                JsonConvert.PopulateObject(fileContents, configuration);
-            }
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
             configuration.Markup.AddAssembly(Assembly.GetCallingAssembly().FullName);
             return configuration;
@@ -27,6 +21,7 @@ namespace DotVVM.Framework.Hosting
         internal static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootDirectory, bool errorPages = true)
         {
             var configuration = CreateConfiguration(applicationRootDirectory);
+            configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(app.GetDataProtectionProvider);
 
             // add middlewares
             if (errorPages)
