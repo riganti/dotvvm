@@ -122,9 +122,6 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LICENSE.txt" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
       <Name>DotVVM.Framework</Name>
