@@ -1,16 +1,13 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Compilation;
 
@@ -160,22 +157,22 @@ test <dot:Literal><a /></dot:Literal>";
         public void DefaultViewCompiler_CodeGeneration_AttachedProperty()
         {
             var markup = @"@viewModel System.Object, mscorlib
-<dot:Button Validate.Enabled=""false"" /><dot:Button Validate.Enabled=""true"" /><dot:Button />";
+<dot:Button Validation.Enabled=""false"" /><dot:Button Validation.Enabled=""true"" /><dot:Button />";
             var page = CompileMarkup(markup);
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
 
             var button1 = page.Children[0];
             Assert.IsInstanceOfType(button1, typeof(Button));
-            Assert.IsFalse((bool)button1.GetValue(Validate.EnabledProperty));
+            Assert.IsFalse((bool)button1.GetValue(Controls.Validation.EnabledProperty));
 
             var button2 = page.Children[1];
             Assert.IsInstanceOfType(button2, typeof(Button));
-            Assert.IsTrue((bool)button2.GetValue(Validate.EnabledProperty));
+            Assert.IsTrue((bool)button2.GetValue(Controls.Validation.EnabledProperty));
 
             var button3 = page.Children[2];
             Assert.IsInstanceOfType(button3, typeof(Button));
-            Assert.IsTrue((bool)button3.GetValue(Validate.EnabledProperty));
+            Assert.IsTrue((bool)button3.GetValue(Controls.Validation.EnabledProperty));
         }
 
 

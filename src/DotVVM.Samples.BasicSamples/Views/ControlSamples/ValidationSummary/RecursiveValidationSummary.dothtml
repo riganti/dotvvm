@@ -12,15 +12,15 @@
 		<div ID="test1">
 			<dot:TextBox Text="{value: Child1.Text}" />
 			<dot:TextBox Text="{value: Child1.Child.Text}" />
-			<dot:ValidationSummary Validate.Target="{value: Child1}" IncludeErrorsFromChildren="true" />
-			<dot:Button Validate.Target="{value: Child1}" Text="Test 1" Click="{command: Validate()}" />
+			<dot:ValidationSummary Validation.Target="{value: Child1}" IncludeErrorsFromChildren="true" />
+			<dot:Button Validation.Target="{value: Child1}" Text="Test 1" Click="{command: Validate()}" />
 		</div>
 
 		<div ID="test1">
 			<dot:TextBox Text="{value: Child2.Text}" />
 			<dot:TextBox Text="{value: Child2.Child.Text}" />
-			<dot:ValidationSummary Validate.Target="{value: Child2}" />
-			<dot:Button Validate.Target="{value: Child2}" Text="Test 2" Click="{command: Validate()}" />
+			<dot:ValidationSummary Validation.Target="{value: Child2}" />
+			<dot:Button Validation.Target="{value: Child2}" Text="Test 2" Click="{command: Validate()}" />
 		</div>
 
 		<div ID="result"><span>{{value: Validated}}</span></div>

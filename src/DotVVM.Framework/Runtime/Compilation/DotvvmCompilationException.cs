@@ -1,0 +1,45 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Runtime.Serialization;
+using DotVVM.Framework.Parser;
+
+namespace DotVVM.Framework.Runtime.Compilation
+{
+    public class DotvvmCompilationException : ApplicationException
+    {
+
+        public string FileName { get; set; }
+
+        public IEnumerable<TokenBase> Tokens { get; set; }
+
+        public int? ColumnNumber { get; set; }
+
+        public int? LineNumber { get; set; }
+
+
+        public DotvvmCompilationException(string message) : base(message) { }
+
+        public DotvvmCompilationException(string message, Exception innerException) : base(message, innerException) { }
+
+        public DotvvmCompilationException(string message, Exception innerException, IEnumerable<TokenBase> tokens) : base(message, innerException)
+        {
+            if (tokens != null)
+            {
+                if (!(tokens is IList<TokenBase>)) tokens = tokens.ToArray();
+                this.Tokens = tokens;
+                LineNumber = tokens.FirstOrDefault()?.LineNumber;
+                ColumnNumber = tokens.FirstOrDefault()?.ColumnNumber;
+            }
+        }
+
+        public DotvvmCompilationException(string message, IEnumerable<TokenBase> tokens) : this(message, null, tokens) { }
+
+        public override void GetObjectData(SerializationInfo info, StreamingContext context)
+        {
+            base.GetObjectData(info, context);
+            info.AddValue(nameof(LineNumber), LineNumber);
+            info.AddValue(nameof(ColumnNumber), ColumnNumber);
+        }
+    }
+}

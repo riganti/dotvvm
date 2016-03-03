@@ -4,7 +4,6 @@ using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Resources;
 using System.Diagnostics;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Exceptions;
 using System.Net;
 using System;
 
@@ -536,7 +535,7 @@ namespace DotVVM.Framework.Parser.Dothtml.Parser
         {
             if (Peek() == null || Peek().Type != desiredType)
             {
-                throw new DotvvmInternalException($"DotVVM parser internal error! The token {desiredType} was expected!");
+                throw new Exception($"DotVVM parser internal error! The token {desiredType} was expected!");
             }
             return true;
         }

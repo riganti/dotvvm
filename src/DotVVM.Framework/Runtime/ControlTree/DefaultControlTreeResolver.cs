@@ -2,7 +2,6 @@ using System;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime.Compilation;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;

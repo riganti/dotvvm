@@ -1,5 +1,4 @@
-﻿using DotVVM.Framework.Exceptions;
-using Microsoft.Owin;
+﻿using Microsoft.Owin;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {

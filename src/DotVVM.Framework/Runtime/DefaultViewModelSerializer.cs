@@ -15,6 +15,7 @@ using DotVVM.Framework.Utils;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Controls;
 using System.IO;
+using DotVVM.Framework.Runtime.Commands;
 
 namespace DotVVM.Framework.Runtime
 {

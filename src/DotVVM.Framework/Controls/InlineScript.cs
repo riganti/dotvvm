@@ -5,7 +5,6 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Controls.Infrastructure;
 
 namespace DotVVM.Framework.Controls

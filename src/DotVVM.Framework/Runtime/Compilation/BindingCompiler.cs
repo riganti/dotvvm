@@ -15,8 +15,8 @@ using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Runtime.Filters;
 using System.Diagnostics;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 

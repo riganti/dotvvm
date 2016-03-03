@@ -5,7 +5,7 @@ using System.Collections.Generic;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
-    public class ControlLifeCycleMock : HtmlGenericControl
+    internal class ControlLifeCycleMock : HtmlGenericControl
     {
         private List<ControlLifeCycleEvent> eventLog;
 

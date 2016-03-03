@@ -17,7 +17,6 @@ using DotVVM.Framework.Security;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -287,7 +286,7 @@ namespace DotVVM.Framework.Hosting
 
             if (!Attribute.IsDefined(methodInfo, typeof(AllowStaticCommandAttribute)))
             {
-                throw new DotvvmHttpException("method validation failed");
+                throw new DotvvmHttpException($"This method cannot be called from the static command. If you need to call this method, add the '{nameof(AllowStaticCommandAttribute)}' to the method.");
             }
             var target = methodInfo.IsStatic ? null : arguments[0].ToObject(methodInfo.DeclaringType);
             var marguments = arguments.Skip(1).Zip(methodInfo.GetParameters(),

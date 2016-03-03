@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Compiler
 {
@@ -36,7 +37,7 @@ namespace DotVVM.Compiler
             }
         }
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static Assembly GetDotvvmAssembly() => typeof(Framework.KnockoutHelper).Assembly;
+        private static Assembly GetDotvvmAssembly() => typeof(KnockoutHelper).Assembly;
 
         private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {

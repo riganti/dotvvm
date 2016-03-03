@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Hosting
         public override Task Invoke(IOwinContext context)
         {
             if (Interlocked.Exchange(ref configurationSaved, 1) == 0) {
-                VisualStudioHelper.SaveConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
+                VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
             }
             // create the context
             var dotvvmContext = new DotvvmRequestContext()
