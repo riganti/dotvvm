@@ -9,7 +9,6 @@ using Microsoft.Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Filters;
@@ -17,6 +16,7 @@ using DotVVM.Framework.Security;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -341,7 +341,7 @@ namespace DotVVM.Framework.Hosting
 
         public static bool DetermineSpaRequest(IOwinContext context)
         {
-            return !string.IsNullOrEmpty(context.Request.Headers[Constants.SpaContentPlaceHolderHeaderName]);
+            return !string.IsNullOrEmpty(context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName]);
         }
 
         public static bool DeterminePartialRendering(IOwinContext context)
@@ -351,7 +351,7 @@ namespace DotVVM.Framework.Hosting
 
         public static string DetermineSpaContentPlaceHolderUniqueId(IOwinContext context)
         {
-            return context.Request.Headers[Constants.SpaContentPlaceHolderHeaderName];
+            return context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName];
         }
     }
 }

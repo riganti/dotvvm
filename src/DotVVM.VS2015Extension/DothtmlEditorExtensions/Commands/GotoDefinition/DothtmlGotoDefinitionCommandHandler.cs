@@ -1,6 +1,3 @@
-using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.VS2015Extension.Bases;
 using DotVVM.VS2015Extension.Bases.Commands;
 using DotVVM.VS2015Extension.Bases.Directives;
@@ -18,7 +15,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
-using Constants = DotVVM.Framework.Parser.Constants;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using Constants = DotVVM.Framework.Compilation.Parser.Constants;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
 {

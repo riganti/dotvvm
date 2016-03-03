@@ -2,7 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using DotVVM.Framework.Parser;
+using DotVVM.Framework.Compilation.Parser;
+using StringReader = DotVVM.Framework.Compilation.Parser.StringReader;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -46,7 +47,7 @@ namespace DotVVM.Framework.Hosting
         {
             FileName = fileName;
             FullPath = fullPath;
-            ContentsReaderFactory = () => new Parser.StringReader(contents);
+            ContentsReaderFactory = () => new StringReader(contents);
         }
 
         public override bool Equals(object obj)

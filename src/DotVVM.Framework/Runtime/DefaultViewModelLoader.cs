@@ -4,7 +4,6 @@ using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime

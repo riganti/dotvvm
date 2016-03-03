@@ -2,10 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Controls
 {
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(DependenciesProperty, value); }
         }
         public static readonly DotvvmProperty DependenciesProperty =
-            DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies, Constants.DotvvmResourceName);
+            DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies, ResourceConstants.DotvvmResourceName);
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
         public string Script
@@ -41,7 +42,7 @@ namespace DotVVM.Framework.Controls
         {
             EnsureControlHasId();
 
-            var dep = Dependencies?.Split(',') ?? new string[] { Constants.DotvvmResourceName };
+            var dep = Dependencies?.Split(',') ?? new string[] { ResourceConstants.DotvvmResourceName };
             context.ResourceManager.AddStartupScript("inlinescript_" + ID, Script, dep);
 
             base.OnPreRenderComplete(context);

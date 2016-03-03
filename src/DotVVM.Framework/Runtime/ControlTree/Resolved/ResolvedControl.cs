@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Runtime.ControlTree.Resolved
 {

@@ -4,8 +4,8 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Parser;
 using Microsoft.Owin;
-using DotVVM.Framework.Parser;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Hosting
             }
 
             // embedded resource handler URL
-            if (url.StartsWith(Constants.ResourceHandlerMatchUrl, StringComparison.Ordinal))
+            if (url.StartsWith(HostingConstants.ResourceHandlerMatchUrl, StringComparison.Ordinal))
             {
                 return RenderEmbeddedResource(context);
             }

@@ -4,10 +4,12 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
+using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 
 namespace DotVVM.Framework.Runtime.Compilation.Binding
 {
@@ -18,10 +20,10 @@ namespace DotVVM.Framework.Runtime.Compilation.Binding
         {
             try
             {
-                var tokenizer = new Parser.Binding.Tokenizer.BindingTokenizer();
+                var tokenizer = new BindingTokenizer();
                 tokenizer.Tokenize(new StringReader(expression));
 
-                var parser = new Parser.Binding.Parser.BindingParser();
+                var parser = new BindingParser();
                 parser.Tokens = tokenizer.Tokens;
                 var node = parser.ReadExpression();
                 if (!parser.OnEnd())

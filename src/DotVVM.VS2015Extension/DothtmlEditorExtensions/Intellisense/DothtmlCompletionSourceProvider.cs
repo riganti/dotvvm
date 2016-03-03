@@ -1,4 +1,3 @@
-using DotVVM.Framework.Parser.Dothtml.Parser;
 using DotVVM.VS2015Extension.Configuration;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base;
@@ -16,6 +15,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense
 {

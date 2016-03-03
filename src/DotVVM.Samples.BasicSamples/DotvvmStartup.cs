@@ -1,5 +1,5 @@
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Routing;
 
 namespace DotVVM.Samples.BasicSamples

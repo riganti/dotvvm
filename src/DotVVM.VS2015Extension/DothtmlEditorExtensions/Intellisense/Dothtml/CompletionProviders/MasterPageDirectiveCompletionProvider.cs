@@ -6,7 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
-using Constants = DotVVM.Framework.Parser.Constants;
+using Constants = DotVVM.Framework.Compilation.Parser.Constants;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.CompletionProviders
 {

@@ -4,7 +4,6 @@ using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Parser;
 
 namespace DotVVM.Framework.ResourceManagement
 {

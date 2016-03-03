@@ -7,7 +7,6 @@ using System.Threading.Tasks;
 using System.Reflection;
 using DotVVM.Framework.Runtime.Compilation;
 using System.Linq.Expressions;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 

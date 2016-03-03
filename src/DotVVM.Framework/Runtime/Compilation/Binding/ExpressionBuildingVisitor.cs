@@ -1,11 +1,11 @@
-﻿using DotVVM.Framework.Parser.Binding.Parser;
-using DotVVM.Framework.Parser.Binding.Tokenizer;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
+using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 
 namespace DotVVM.Framework.Runtime.Compilation.Binding
 {

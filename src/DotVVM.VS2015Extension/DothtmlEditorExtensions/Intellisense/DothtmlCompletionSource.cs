@@ -1,5 +1,3 @@
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.VS2015Extension.Configuration;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base;
@@ -15,6 +13,8 @@ using Microsoft.VisualStudio.Text.Tagging;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using Debugger = System.Diagnostics.Debugger;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense

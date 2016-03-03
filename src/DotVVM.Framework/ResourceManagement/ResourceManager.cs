@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Parser;
 using System.Threading;
+using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -109,7 +109,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddCurrentCultureGlobalizationResource()
         {
-            AddRequiredResource(string.Format(Constants.GlobalizeCultureResourceName, Thread.CurrentThread.CurrentCulture.Name));
+            AddRequiredResource(string.Format(ResourceConstants.GlobalizeCultureResourceName, Thread.CurrentThread.CurrentCulture.Name));
         }
 
         public void RegisterProcessor(IResourceProcessor processor)

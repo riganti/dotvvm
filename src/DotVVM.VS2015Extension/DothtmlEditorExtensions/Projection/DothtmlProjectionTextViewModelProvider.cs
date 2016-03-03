@@ -1,6 +1,4 @@
-﻿using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
-using DotVVM.VS2015Extension.Configuration;
+﻿using DotVVM.VS2015Extension.Configuration;
 using DotVVM.VS2015Extension.DotvvmPageWizard;
 using DotVVM.VS2015Extension.VsPackages;
 using Microsoft.VisualStudio;

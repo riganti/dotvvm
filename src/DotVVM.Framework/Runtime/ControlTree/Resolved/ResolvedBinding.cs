@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq.Expressions;
-using DotVVM.Framework.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime.Compilation;
 
 namespace DotVVM.Framework.Runtime.ControlTree.Resolved

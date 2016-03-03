@@ -8,7 +8,6 @@ using DotVVM.Framework.Binding;
 using System.Reflection;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Controls;
 using System.Threading;
 using Microsoft.CodeAnalysis.CSharp;
@@ -16,7 +15,8 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Runtime.Filters;
 using System.Diagnostics;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime.ControlTree;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 

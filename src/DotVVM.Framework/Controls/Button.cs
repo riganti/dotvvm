@@ -3,10 +3,10 @@ using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Runtime.Compilation.Validation;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
-using DotVVM.Framework.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Controls
 {

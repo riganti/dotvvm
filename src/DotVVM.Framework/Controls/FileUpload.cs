@@ -5,8 +5,9 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
+using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 
@@ -121,7 +122,7 @@ namespace DotVVM.Framework.Controls
 
         internal override void OnPreRenderComplete(IDotvvmRequestContext context)
         {
-            context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadCssResourceName);
+            context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
 
             base.OnPreRenderComplete(context);
         }
@@ -147,7 +148,7 @@ namespace DotVVM.Framework.Controls
         {
             // render iframe
             writer.AddAttribute("class", "dot-upload-iframe");
-            writer.AddAttribute("src", "~/" + Constants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
+            writer.AddAttribute("src", "~/" + HostingConstants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
             writer.RenderBeginTag("iframe");
             writer.RenderEndTag();
 

@@ -3,12 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Binding.Parser;
-using DotVVM.Framework.Parser.Binding.Tokenizer;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
+using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Runtime.Compilation;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using BindingParser = DotVVM.Framework.Parser.Binding.Parser.BindingParser;
+using BindingParser = DotVVM.Framework.Compilation.Parser.Binding.Parser.BindingParser;
 
 namespace DotVVM.Framework.Tests.Parser.Binding
 {

@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
@@ -53,9 +53,9 @@ namespace DotVVM.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
         {
             writer.AddAttribute("id", ID);
-            writer.AddAttribute("name", Constants.SpaContentPlaceHolderID);
+            writer.AddAttribute("name", HostingConstants.SpaContentPlaceHolderID);
             writer.AddKnockoutDataBind("if", "dotvvm.isSpaReady");
-            writer.AddAttribute(Constants.SpaContentPlaceHolderDataAttributeName, GetSpaContentPlaceHolderUniqueId());
+            writer.AddAttribute(HostingConstants.SpaContentPlaceHolderDataAttributeName, GetSpaContentPlaceHolderUniqueId());
 
             if (!string.IsNullOrEmpty(DefaultRouteName))
             {
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Controls
                 {
                     throw new DotvvmControlException(this, $"The route '{DefaultRouteName}' specified in SpaContentPlaceHolder DefaultRouteName property cannot contain route parameters!");
                 }
-                writer.AddAttribute(Constants.SpaContentPlaceHolderDefaultRouteDataAttributeName, route.Url);
+                writer.AddAttribute(HostingConstants.SpaContentPlaceHolderDefaultRouteDataAttributeName, route.Url);
             }
             base.AddAttributesToRender(writer, context);
         }

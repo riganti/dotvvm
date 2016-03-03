@@ -1,4 +1,4 @@
-using DotVVM.Framework.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Runtime.Compilation

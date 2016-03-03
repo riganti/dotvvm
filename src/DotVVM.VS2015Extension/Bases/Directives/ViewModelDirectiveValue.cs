@@ -1,5 +1,5 @@
-using DotVVM.Framework.Parser.Dothtml.Parser;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.VS2015Extension.Bases.Directives
 {
