@@ -107,6 +107,8 @@ namespace DotVVM.Framework.Hosting
             get { return DotvvmPresenter.DeterminePartialRendering(OwinContext); }
         }
 
+        public IViewModelSerializer ViewModelSerializer { get; set; }
+
 
         /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
@@ -222,7 +224,7 @@ namespace DotVVM.Framework.Hosting
             if (!ModelState.IsValid)
             {
                 OwinContext.Response.ContentType = "application/json";
-                OwinContext.Response.Write(Presenter.ViewModelSerializer.SerializeModelState(this));
+                OwinContext.Response.Write(ViewModelSerializer.SerializeModelState(this));
                 throw new DotvvmInterruptRequestExecutionException("The ViewModel contains validation errors!");
             }
         }
@@ -232,7 +234,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         internal string GetSerializedViewModel()
         {
-            return Presenter.ViewModelSerializer.SerializeViewModel(this);
+            return ViewModelSerializer.SerializeViewModel(this);
         }
 
         /// <summary>

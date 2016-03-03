@@ -181,7 +181,6 @@ namespace DotVVM.Framework.Controls
         }
 
 
-
         /// <summary>
         /// Gets the hierarchy of all DataContext bindings from the root to current control.
         /// </summary>
