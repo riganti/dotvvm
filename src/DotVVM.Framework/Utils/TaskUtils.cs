@@ -10,5 +10,8 @@ namespace DotVVM.Framework.Utils
     {
         private static Task completedTask;
         public static Task GetCompletedTask() => completedTask ?? (completedTask = Task.WhenAll());
+
+        public static object GetResult(Task task) => task.GetType() == typeof(Task) ? null : ((dynamic)task).Result;
+
     }
 }

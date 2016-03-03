@@ -9,14 +9,13 @@ namespace DotVVM.Framework.Controls
     public class DelegateTemplate : ITemplate
     {
 
-        public Func<IControlBuilderFactory, DotvvmControl> BuildContentBody { get; set; }
+        public Action<IControlBuilderFactory, DotvvmControl> BuildContentBody { get; set; }
 
 
         public void BuildContent(IDotvvmRequestContext context, DotvvmControl container)
         {
             var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
-            var control = BuildContentBody(controlBuilderFactory);
-            container.Children.Add(control);
+            BuildContentBody.Invoke(controlBuilderFactory, container);
         }
     }
 }

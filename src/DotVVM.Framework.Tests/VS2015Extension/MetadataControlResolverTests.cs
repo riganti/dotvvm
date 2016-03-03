@@ -252,7 +252,7 @@ namespace DotVVM.Framework.Tests.VS2015Extension
             Assert.IsTrue(completions.Any(c => c.CompletionText == "RenderSettings.Mode"));
             Assert.IsTrue(completions.Any(c => c.CompletionText == "PostBack.Update"));
 
-            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.ValidatedValue"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.Value"));
             Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.HideWhenValid"));
             Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.InvalidCssClass"));
             Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.SetToolTipText"));

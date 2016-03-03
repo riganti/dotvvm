@@ -47,7 +47,8 @@ namespace DotVVM.Framework.Tests.Runtime
                     }
                 },
                 ResourceManager = new ResourceManager(configuration),
-                Presenter = configuration.RouteTable.GetDefaultPresenter()
+                Presenter = configuration.RouteTable.GetDefaultPresenter(),
+                ViewModelSerializer = serializer
             };
         }
 

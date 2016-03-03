@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Runtime.Compilation
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
             emitter.ResultControlType = wrapperClassName;
             // build the statements
-            emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName);
+            emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName, typeof(DotvvmControl), emitter.EmitControlBuilderParameter());
             var pageName = emitter.EmitCreateObject(wrapperClassName);
             emitter.EmitSetAttachedProperty(pageName, Internal.UniqueIDProperty, pageName);
             emitter.EmitSetAttachedProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
@@ -139,15 +139,13 @@ namespace DotVVM.Framework.Runtime.Compilation
         public override void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate)
         {
             var parentName = controlName;
-            var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + currentTemplateIndex;
-            currentTemplateIndex++;
-            emitter.PushNewMethod(methodName);
+            var methodName = DefaultViewCompilerCodeEmitter.BuildTemplateFunctionName + $"_{propertyTemplate.Property.DeclaringType.Name}_{propertyTemplate.Property.Name}_{currentTemplateIndex++}";
+            emitter.PushNewMethod(methodName, typeof(void), emitter.EmitControlBuilderParameter(), emitter.EmitParameter("templateContainer", typeof(DotvvmControl)));
             // build the statements
-            controlName = emitter.EmitCreateObject(typeof(PlaceHolder));
+            controlName = "templateContainer";
 
             base.VisitPropertyTemplate(propertyTemplate);
 
-            emitter.EmitReturnClause(controlName);
             emitter.PopMethod();
             controlName = parentName;
 

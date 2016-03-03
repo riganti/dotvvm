@@ -210,7 +210,6 @@
     <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LICENSE.txt" />
     <Content Include="Web.config" />
     <Content Include="packages.config" />
     <Content Include="dotvvm.json" />

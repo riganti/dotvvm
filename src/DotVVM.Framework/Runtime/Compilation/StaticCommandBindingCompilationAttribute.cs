@@ -50,8 +50,9 @@ namespace DotVVM.Framework.Runtime.Compilation
 
         public static string GetArgsScript(MethodCallExpression expression, DataContextStack dataContext)
         {
-            var target = expression.Object == null ? "null" : JavascriptTranslator.CompileToJavascript(expression.Object, dataContext);
-            var arguments = new[] { target }.Concat(expression.Arguments.Select(a => JavascriptTranslator.CompileToJavascript(a, dataContext)));
+            var target = expression.Object == null ? null : JavascriptTranslator.CompileToJavascript(expression.Object, dataContext);
+            var arguments = (target == null ? new string[0] : new[] { target })
+                .Concat(expression.Arguments.Select(a => JavascriptTranslator.CompileToJavascript(a, dataContext)));
             return "[" + String.Join(", ", arguments) + "]";
         }
 
