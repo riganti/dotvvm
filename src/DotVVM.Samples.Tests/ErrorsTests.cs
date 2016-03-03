@@ -20,7 +20,7 @@ namespace DotVVM.Samples.Tests
                 browser.First("p.summary")
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM.Framework.Exceptions.DotvvmCompilationException") &&
+                            s.Contains("DotVVM.Framework.Runtime.Compilation.DotvvmCompilationException") &&
                             s.Contains("@viewModel") &&
                             s.Contains("missing")
                         );
@@ -36,7 +36,7 @@ namespace DotVVM.Samples.Tests
                 browser.First("p.summary")
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM.Framework.Exceptions.DotvvmCompilationException") &&
+                            s.Contains("DotVVM.Framework.Runtime.Compilation.DotvvmCompilationException") &&
                             s.Contains("required in the @viewModel directive in was not found!")
                             );
             });

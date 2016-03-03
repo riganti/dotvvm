@@ -33,7 +33,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl("ControlSamples/Button/InputTypeButton_HtmlContentInside");
 
                 browser.First("p.summary")
-                    .CheckIfInnerText(t => t.Contains("DotVVM.Framework.Exceptions.DotvvmControlException")
+                    .CheckIfInnerText(t => t.Contains("DotVVM.Framework.Controls.DotvvmControlException")
                         && t.Contains("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!"));
             });
         }
