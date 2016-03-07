@@ -17,7 +17,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.UpdateProgress
 
         public void TestFileDownload()
         {
-            Context.Redirect("/test.zip");
+            Context.RedirectToUrl("/test.zip");
         }
 
     }

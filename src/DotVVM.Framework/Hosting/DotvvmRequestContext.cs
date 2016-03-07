@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void Redirect(string url)
+        public void RedirectToUrl(string url)
         {
             SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect);
             InterruptRequest();
@@ -172,17 +172,17 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void Redirect(string routeName, object newRouteValues)
+        public void RedirectToRoute(string routeName, object newRouteValues = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            Redirect(url);
+            RedirectToUrl(url);
         }
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectPermanent(string url)
+        public void RedirectToUrlPermanent(string url)
         {
             SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently);
             InterruptRequest();
@@ -191,11 +191,11 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectPermanent(string routeName, object newRouteValues)
+        public void RedirectToRoutePermanent(string routeName, object newRouteValues = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectPermanent(url);
+            RedirectToUrlPermanent(url);
         }
 
         /// <summary>
@@ -282,7 +282,7 @@ namespace DotVVM.Framework.Hosting
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata);
-            Redirect("~/dotvvmReturnedFile?id=" + generatedFileId);
+            RedirectToUrl("~/dotvvmReturnedFile?id=" + generatedFileId);
         }
 
         /// <summary>
@@ -299,7 +299,7 @@ namespace DotVVM.Framework.Hosting
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(stream, metadata);
-            Redirect("~/dotvvmReturnedFile?id=" + generatedFileId);
+            RedirectToUrl("~/dotvvmReturnedFile?id=" + generatedFileId);
         }
 
     }

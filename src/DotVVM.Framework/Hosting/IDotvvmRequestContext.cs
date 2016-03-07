@@ -84,13 +84,11 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns current UI culture of this HTTP request.
         /// </summary>
-
-        // ReSharper disable once InconsistentNaming
         CultureInfo GetCurrentUICulture();
+
         /// <summary>
         /// Returns current culture of this HTTP request.
         /// </summary>
-
         CultureInfo GetCurrentCulture();
 
         /// <summary>
@@ -101,22 +99,22 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        void Redirect(string url);
+        void RedirectToUrl(string url);
 
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        void Redirect(string routeName, object newRouteValues);
+        void RedirectToRoute(string routeName, object newRouteValues = null);
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectPermanent(string url);
+        void RedirectToUrlPermanent(string url);
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectPermanent(string routeName, object newRouteValues);
+        void RedirectToRoutePermanent(string routeName, object newRouteValues = null);
 
         /// <summary>
         /// Ends the request execution when the <see cref="DotvvmRequestContext.ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.

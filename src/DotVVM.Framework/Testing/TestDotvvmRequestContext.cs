@@ -48,28 +48,28 @@ namespace DotVVM.Framework.Testing
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.Interrupt);
         }
 
-        public void Redirect(string url)
+        public void RedirectToUrl(string url)
         {
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.Redirect, url);
         }
 
-        public void Redirect(string routeName, object newRouteValues)
+        public void RedirectToRoute(string routeName, object newRouteValues = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            Redirect(url);
+            RedirectToUrl(url);
         }
 
-        public void RedirectPermanent(string url)
+        public void RedirectToUrlPermanent(string url)
         {
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.RedirectPermanent, url);
         }
 
-        public void RedirectPermanent(string routeName, object newRouteValues)
+        public void RedirectToRoutePermanent(string routeName, object newRouteValues = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectPermanent(url);
+            RedirectToUrlPermanent(url);
         }
 
         public void FailOnInvalidModelState()
