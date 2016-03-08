@@ -334,7 +334,13 @@ var DotVVM = (function () {
             var handler = this.postBackHandlers[handlers[0].name];
             var options = this.evaluator.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
             var handlerInstance = handler(options);
-            handlerInstance.execute(function () { return promise.chainFrom(_this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1))); }, sender);
+            var nextHandler = function () { return promise.chainFrom(_this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1))); };
+            if (options.enabled) {
+                handlerInstance.execute(nextHandler, sender);
+            }
+            else {
+                nextHandler();
+            }
             return promise;
         }
         var viewModel = this.viewModels[viewModelName].viewModel;

@@ -99,7 +99,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // confirm third
                 browser.ElementAt("input[type=button]", 2).Click();
-                //Assert.AreEqual(null, browser.GetAlert());            // TODO: GetAlert should return null when no alert is present.
+                // Assert.IsNull(browser.GetAlert());  // TODO
                 browser.Wait();
                 browser.Last("span").CheckIfInnerTextEquals("3");
 
@@ -116,6 +116,35 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ConfirmAlert();
                 browser.Wait();
                 browser.Last("span").CheckIfInnerTextEquals("5");
+
+                // confirm conditional
+                browser.ElementAt("input[type=button]", 5).Click();
+                // Assert.IsNull(browser.GetAlert());  // TODO
+                browser.Wait();
+                browser.Last("span").CheckIfInnerTextEquals("6");
+
+                browser.First("input[type=checkbox]").Click();
+
+                browser.ElementAt("input[type=button]", 5).Click();
+                browser.CheckIfAlertTextEquals("Conditional 1");
+                browser.ConfirmAlert();
+                browser.Wait();
+                browser.Last("span").CheckIfInnerTextEquals("6");
+
+                browser.First("input[type=checkbox]").Click();
+
+                browser.ElementAt("input[type=button]", 5).Click();
+                // Assert.IsNull(browser.GetAlert());  // TODO
+                browser.Wait();
+                browser.Last("span").CheckIfInnerTextEquals("6");
+
+                browser.First("input[type=checkbox]").Click();
+
+                browser.ElementAt("input[type=button]", 5).Click();
+                browser.CheckIfAlertTextEquals("Conditional 1");
+                browser.ConfirmAlert();
+                browser.Wait();
+                browser.Last("span").CheckIfInnerTextEquals("6");
             });
         }
     }
