@@ -355,7 +355,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     if (!property.MarkupOptions.AllowHardCodedValue)
                     {
                         attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain hard coded value.");
-                        return;
                     }
 
                     var textValue = attribute.ValueNode as DothtmlValueTextNode;
