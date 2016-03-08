@@ -48,7 +48,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 
             if (Context.Query.ContainsKey("ReturnUrl"))
             {
-                Context.Redirect((string)Context.Query["ReturnUrl"]);
+                Context.RedirectToUrl((string)Context.Query["ReturnUrl"]);
             }
         }
     }

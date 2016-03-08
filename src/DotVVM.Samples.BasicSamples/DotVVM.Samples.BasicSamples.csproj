@@ -212,7 +212,6 @@
   <ItemGroup>
     <Content Include="Web.config" />
     <Content Include="packages.config" />
-    <Content Include="dotvvm.json" />
     <Content Include="Views\ControlSamples\Button\Button.dothtml" />
     <Content Include="Views\FeatureSamples\ServerComments\ServerComments.dothtml" />
     <Content Include="Views\Errors\MissingViewModel.dothtml" />
