@@ -233,6 +233,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     dataContext = CreateDataContextTypeStack(dataContextBinding?.ResultType, parentDataContextStack: dataContext);
                 }
+                else if (dataContext != null)
+                {
+                    dataContext = CreateDataContextTypeStack(null, null, dataContext);
+                }
                 else
                 {
                     dataContext = null;
@@ -434,11 +438,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
                 else
                 {
-                    if(!control.Metadata.IsContentAllowed)
+                    if (!control.Metadata.IsContentAllowed)
                     {
                         foreach (var item in content)
                         {
-                            if(item.IsNotEmpty())
+                            if (item.IsNotEmpty())
                             {
                                 item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
                             }
