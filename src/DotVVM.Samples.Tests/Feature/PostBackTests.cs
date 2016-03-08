@@ -99,7 +99,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // confirm third
                 browser.ElementAt("input[type=button]", 2).Click();
-                // Assert.IsNull(browser.GetAlert());  // TODO
+                Assert.IsFalse(browser.HasAlert());
                 browser.Wait();
                 browser.Last("span").CheckIfInnerTextEquals("3");
 
@@ -119,7 +119,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // confirm conditional
                 browser.ElementAt("input[type=button]", 5).Click();
-                // Assert.IsNull(browser.GetAlert());  // TODO
+                Assert.IsFalse(browser.HasAlert());
                 browser.Wait();
                 browser.Last("span").CheckIfInnerTextEquals("6");
 
@@ -134,7 +134,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First("input[type=checkbox]").Click();
 
                 browser.ElementAt("input[type=button]", 5).Click();
-                // Assert.IsNull(browser.GetAlert());  // TODO
+                Assert.IsFalse(browser.HasAlert());
                 browser.Wait();
                 browser.Last("span").CheckIfInnerTextEquals("6");
 
