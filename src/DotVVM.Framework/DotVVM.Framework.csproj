@@ -269,7 +269,6 @@
     <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlTokenizer.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlTokenType.cs" />
     <Compile Include="Compilation\Parser\IReader.cs" />
-    <Compile Include="Compilation\Parser\LazyList.cs" />
     <Compile Include="Compilation\Parser\NullTokenError.cs" />
     <Compile Include="Compilation\Parser\DotvvmParserException.cs" />
     <Compile Include="Compilation\Parser\SimpleTokenError.cs" />

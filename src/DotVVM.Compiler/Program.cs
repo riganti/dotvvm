@@ -52,7 +52,7 @@ namespace DotVVM.Compiler
         static Assembly LoadFromAlternativeFolder(string name)
         {
             var paths = Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',');
-            if (paths == null) return null;
+            if (paths == null) return null; paths = new[] { "." };
             foreach (var path in paths)
             {
                 string assemblyPath = Path.Combine(path, new AssemblyName(name).Name + ".dll");

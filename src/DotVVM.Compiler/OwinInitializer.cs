@@ -18,7 +18,10 @@ namespace DotVVM.Compiler
             var dotvvmStartups = webSiteAssembly.GetTypes()
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
 
-            var startup = (IDotvvmStartup)Activator.CreateInstance(dotvvmStartups.Single());
+            if (dotvvmStartups.Length == 0) throw new Exception("Could not find any implementation of IDotvvmStartup.");
+            if (dotvvmStartups.Length > 1) throw new Exception($"Found more than one implementation of IDotvvmStartup ({string.Join(", ", dotvvmStartups.Select(s => s.Name)) }).");
+
+            var startup = (IDotvvmStartup)Activator.CreateInstance(dotvvmStartups[0]);
             var config = OwinExtensions.CreateConfiguration(rootPath);
             startup.Configure(config, rootPath);
             config.CompiledViewsAssemblies = null;

@@ -233,6 +233,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     dataContext = CreateDataContextTypeStack(dataContextBinding?.ResultType, parentDataContextStack: dataContext);
                 }
+                else if (dataContext != null)
+                {
+                    dataContext = CreateDataContextTypeStack(null, null, dataContext);
+                }
                 else
                 {
                     dataContext = null;
@@ -355,7 +359,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     if (!property.MarkupOptions.AllowHardCodedValue)
                     {
                         attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain hard coded value.");
-                        return;
                     }
 
                     var textValue = attribute.ValueNode as DothtmlValueTextNode;
@@ -435,11 +438,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
                 else
                 {
-                    if(!control.Metadata.IsContentAllowed)
+                    if (!control.Metadata.IsContentAllowed)
                     {
                         foreach (var item in content)
                         {
-                            if(item.IsNotEmpty())
+                            if (item.IsNotEmpty())
                             {
                                 item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
                             }

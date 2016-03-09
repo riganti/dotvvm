@@ -123,8 +123,18 @@ namespace DotVVM.Framework.Controls
                 sb.Append("{name:'");
                 sb.Append(handler.ClientHandlerName);
                 sb.Append("',options:function(){return {");
-                foreach (var option in handler.GetHandlerOptionClientExpressions())
+
+                var isFirst = true;
+                var options = handler.GetHandlerOptionClientExpressions();
+                options.Add("enabled", handler.TranslateValueOrBinding(PostBackHandler.EnabledProperty));
+                foreach (var option in options)
                 {
+                    if (!isFirst)
+                    {
+                        sb.Append(',');
+                    }
+                    isFirst = false;
+
                     sb.Append(option.Key);
                     sb.Append(":");
                     sb.Append(option.Value);

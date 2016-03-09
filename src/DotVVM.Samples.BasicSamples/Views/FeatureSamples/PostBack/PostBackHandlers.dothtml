@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.PostBackHandlersViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.PostBackHandlersViewModel, DotVVM.Samples.BasicSamples
 
 
 <!DOCTYPE html>
@@ -44,6 +44,13 @@
 			</p>
 		</ItemTemplate>
 	</dot:Repeater>
+
+    <dot:Button Text="conditional handler" Click="{command: DoWork(6)}">
+        <PostBack.Handlers>
+            <dot:ConfirmPostBackHandler Message="Conditional 1" EventName="Click" Enabled="{value: IsEnabled}" />
+        </PostBack.Handlers>
+    </dot:Button>
+    <dot:CheckBox Checked="{value: IsEnabled}" Text="Allow 6th handler" />
 
 	<p><span>{{value: LastCommandValue}}</span></p>
 </body>
