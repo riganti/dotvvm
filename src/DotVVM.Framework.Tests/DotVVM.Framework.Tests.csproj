@@ -210,6 +210,7 @@
     <Compile Include="Routing\DotvvmRouteTests.cs" />
     <Compile Include="Runtime\DefaultViewCompilerTests.cs" />
     <Compile Include="TestExtensions.cs" />
+    <Compile Include="ViewModel\ChildViewModelInvokeMethodsTests.cs" />
     <Compile Include="ViewModel\JsonDiffTests.cs" />
     <Compile Include="ViewModel\ViewModelValidatorTests.cs" />
     <Compile Include="VS2015Extension\MetadataControlResolverTests.cs" />
