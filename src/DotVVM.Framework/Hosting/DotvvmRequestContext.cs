@@ -201,18 +201,18 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the redirect response.
         /// </summary>
-        public static void SetRedirectResponse(IOwinContext OwinContext, string url, int statusCode)
+        public static void SetRedirectResponse(IOwinContext owinContext, string url, int statusCode)
         {
-            if (!DotvvmPresenter.DeterminePartialRendering(OwinContext))
+            if (!DotvvmPresenter.DeterminePartialRendering(owinContext))
             {
-                OwinContext.Response.Headers["Location"] = url;
-                OwinContext.Response.StatusCode = statusCode;
+                owinContext.Response.Headers["Location"] = url;
+                owinContext.Response.StatusCode = statusCode;
             }
             else
             {
-                OwinContext.Response.StatusCode = 200;
-                OwinContext.Response.ContentType = "application/json";
-                OwinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url));
+                owinContext.Response.StatusCode = 200;
+                owinContext.Response.ContentType = "application/json";
+                owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url));
             }
         }
 
