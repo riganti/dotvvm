@@ -318,6 +318,7 @@
     <Content Include="test.zip" />
     <Content Include="Views\FeatureSamples\BindingPageInfo\BindingPageInfo.dothtml" />
     <Content Include="Views\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethods.dothtml" />
+    <Content Include="Views\Errors\EmptyBinding.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
