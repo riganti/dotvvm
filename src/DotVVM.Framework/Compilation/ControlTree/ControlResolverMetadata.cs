@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Runtime;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -13,10 +14,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public new Type Type => controlType.Type;
 
+        [JsonIgnore]
         public Type ControlBuilderType => controlType.ControlBuilderType;
-        
+
+        [JsonIgnore]
         public new DotvvmProperty DefaultContentProperty => (DotvvmProperty) base.DefaultContentProperty;
 
+        [JsonIgnore]
         public new Type DataContextConstraint => controlType.DataContextRequirement;
 
 
@@ -27,6 +31,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
             DataContextChangeAttributes = Type.GetCustomAttributes<DataContextChangeAttribute>(true).ToArray();
         }
 
+        public ControlResolverMetadata(Type type) : base(new ControlType(type))
+        {
+        }
+
+        [JsonIgnore]
         public override DataContextChangeAttribute[] DataContextChangeAttributes { get; }
 
         protected override void LoadProperties(Dictionary<string, IPropertyDescriptor> result)
