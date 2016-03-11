@@ -50,44 +50,61 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             if (exc is DotvvmCompilationException)
             {
                 var compilationException = (DotvvmCompilationException)exc;
-                if (compilationException.Tokens != null && compilationException.Tokens.Any())
-                {
-                    var errorColumn = compilationException.Tokens.First().ColumnNumber;
-                    var errorLength = compilationException.Tokens.Where(t => t.LineNumber == compilationException.LineNumber).Sum(t => t.Length);
-                    if (compilationException.FileName != null)
-                        return ErrorFormatter.LoadSourcePiece(compilationException.FileName, compilationException.LineNumber ?? 0,
-                            errorColumn: errorColumn,
-                            errorLength: errorLength);
-                    else
-                    {
-                        var line = string.Concat(compilationException.Tokens.Select(s => s.Text));
-                        return CreateAnonymousLine(line, lineNumber: compilationException.Tokens.First().LineNumber);
-                    }
-                }
-                else if(compilationException.FileName != null)
-                {
-                    return ErrorFormatter.LoadSourcePiece(compilationException.FileName, compilationException.LineNumber ?? 0, errorColumn: compilationException.ColumnNumber ?? 0, errorLength: compilationException.ColumnNumber != null ? 1 : 0);
-                }
+                return ExtractSourceFromDotvvmCompilationException(compilationException);
             }
             else if (exc is BindingCompilationException)
             {
                 var bce = (BindingCompilationException)exc;
-                if(bce.Expression != null)
-                {
-                    var first = bce.Tokens.First().StartPosition;
-                    return CreateAnonymousLine(bce.Expression, first, bce.Tokens.Last().StartPosition + bce.Tokens.Last().Length - first);
-                }
-                else if(bce.Tokens != null)
-                {
-                    return CreateAnonymousLine(string.Concat(bce.Tokens.Select(t => t.Text)));
-                }
+                return ExtractSourceFromBindingCompilationException(bce);
             }
             else if (exc is DotvvmControlException)
             {
                 var controlException = (DotvvmControlException)exc;
-                return ErrorFormatter.LoadSourcePiece(controlException.FileName, controlException.LineNumber ?? 0);
+                return ExtractSourceFromDotvvmControlException(controlException);
             }
             return null;
+        }
+
+        private SourceModel ExtractSourceFromDotvvmCompilationException(DotvvmCompilationException compilationException)
+        {
+            if (compilationException.Tokens != null && compilationException.Tokens.Any())
+            {
+                var errorColumn = compilationException.Tokens.FirstOrDefault()?.ColumnNumber ?? 0;
+                var errorLength = compilationException.Tokens.Where(t => t.LineNumber == compilationException.LineNumber).Sum(t => t.Length);
+                if (compilationException.FileName != null)
+                    return ErrorFormatter.LoadSourcePiece(compilationException.FileName, compilationException.LineNumber ?? 0,
+                        errorColumn: errorColumn,
+                        errorLength: errorLength);
+                else
+                {
+                    var line = string.Concat(compilationException.Tokens.Select(s => s.Text));
+                    return CreateAnonymousLine(line, lineNumber: compilationException.Tokens.FirstOrDefault()?.LineNumber ?? 0);
+                }
+            }
+            else if (compilationException.FileName != null)
+            {
+                return ErrorFormatter.LoadSourcePiece(compilationException.FileName, compilationException.LineNumber ?? 0, errorColumn: compilationException.ColumnNumber ?? 0, errorLength: compilationException.ColumnNumber != null ? 1 : 0);
+            }
+            return null;
+        }
+
+        private SourceModel ExtractSourceFromBindingCompilationException(BindingCompilationException bce)
+        {
+            if (bce.Expression != null)
+            {
+                var first = bce.Tokens.FirstOrDefault()?.StartPosition ?? 0;
+                return CreateAnonymousLine(bce.Expression, first, (bce.Tokens.LastOrDefault()?.StartPosition ?? 0) + (bce.Tokens.LastOrDefault()?.Length ?? 0) - first);
+            }
+            else if (bce.Tokens != null)
+            {
+                return CreateAnonymousLine(string.Concat(bce.Tokens.Select(t => t.Text)));
+            }
+            return null;
+        }
+
+        private SourceModel ExtractSourceFromDotvvmControlException(DotvvmControlException controlException)
+        {
+            return ErrorFormatter.LoadSourcePiece(controlException.FileName, controlException.LineNumber ?? 0);
         }
 
         private SourceModel CreateAnonymousLine(string line, int column = 0, int length = -1, int lineNumber = 0)

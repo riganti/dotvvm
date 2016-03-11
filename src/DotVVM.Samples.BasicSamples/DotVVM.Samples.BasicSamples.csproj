@@ -155,6 +155,9 @@
     <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingPageInfo\BindingPageInfoViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\NastyChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
@@ -314,6 +317,8 @@
     <Content Include="Views\ControlSamples\UpdateProgress\UpdateProgress.dothtml" />
     <Content Include="test.zip" />
     <Content Include="Views\FeatureSamples\BindingPageInfo\BindingPageInfo.dothtml" />
+    <Content Include="Views\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethods.dothtml" />
+    <Content Include="Views\Errors\EmptyBinding.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

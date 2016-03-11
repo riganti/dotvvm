@@ -171,6 +171,19 @@ namespace DotVVM.Samples.Tests
             });
         }
 
+
+        [TestMethod]
+        public void Error_EmptyBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl("Errors/EmptyBinding");
+
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
+                browser.ElementAt(".errorUnderline", 1).CheckIfInnerText(s => s.Contains("{{value: }}"));
+            });
+        }
+
         [TestMethod]
         public void Error_MasterPageRequiresDifferentViewModel()
         {

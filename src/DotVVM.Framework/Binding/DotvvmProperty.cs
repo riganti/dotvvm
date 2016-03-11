@@ -10,6 +10,7 @@ using System.Diagnostics;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Binding
 {
@@ -25,8 +26,10 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public string Name { get; private set; }
 
+        [JsonIgnore]
         ITypeDescriptor IPropertyDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
 
+        [JsonIgnore]
         ITypeDescriptor IPropertyDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
 
         /// <summary>
@@ -52,6 +55,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets or sets the Reflection property information.
         /// </summary>
+        [JsonIgnore]
         public PropertyInfo PropertyInfo { get; private set; }
 
         /// <summary>
@@ -85,6 +89,7 @@ namespace DotVVM.Framework.Binding
             get { return DeclaringType.Name + "." + Name; }
         }
 
+        [JsonIgnore]
         public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
 
         /// <summary>

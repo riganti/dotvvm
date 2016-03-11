@@ -10,6 +10,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack
     {
         public int LastCommandValue { get; set; }
 
+        public bool IsEnabled { get; set; }
+
         public List<MessageDate> Generated { get; set; } = new List<MessageDate>()
         {
             new MessageDate() { Message = "Generated 1", Value = 4 },

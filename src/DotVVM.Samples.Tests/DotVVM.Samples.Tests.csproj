@@ -63,8 +63,8 @@
     <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.6.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.6.0\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
+    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.6.8.3, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.6.8.3-pre\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -72,12 +72,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="WebDriver, Version=2.51.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.2.51.0\lib\net40\WebDriver.dll</HintPath>
+    <Reference Include="WebDriver, Version=2.52.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.2.52.0\lib\net40\WebDriver.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="WebDriver.Support, Version=2.51.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.Support.2.51.0\lib\net40\WebDriver.Support.dll</HintPath>
+    <Reference Include="WebDriver.Support, Version=2.52.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.Support.2.52.0\lib\net40\WebDriver.Support.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -120,6 +120,7 @@
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
     <Compile Include="Feature\BindingPageInfoTests.cs" />
+    <Compile Include="Feature\ChildViewModelInvokeMethodsTests.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
     <Compile Include="Feature\HtmlTagTests.cs" />
     <Compile Include="Feature\IdGenerationTests.cs" />
@@ -162,9 +163,7 @@
     <None Include="App.TestIE.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="SamplesRouteUrls.tt">
