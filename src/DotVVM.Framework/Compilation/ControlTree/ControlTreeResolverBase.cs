@@ -432,7 +432,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             if (control.Metadata.DefaultContentProperty != null)
             {
-                treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
+                if (control.HasProperty(control.Metadata.DefaultContentProperty))
+                {
+                    foreach (var c in content)
+                        if (c.IsNotEmpty())
+                            c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
+                }
+                else treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
             }
             else
             {

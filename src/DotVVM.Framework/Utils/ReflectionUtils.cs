@@ -31,6 +31,17 @@ namespace DotVVM.Framework.Utils
         }
 
         /// <summary>
+        /// Gets filesystem path of assembly CodeBase
+        /// http://stackoverflow.com/questions/52797/how-do-i-get-the-path-of-the-assembly-the-code-is-in
+        /// </summary>
+        public static string GetCodeBasePath(this Assembly assembly)
+        {
+            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            UriBuilder uri = new UriBuilder(codeBase);
+            return Uri.UnescapeDataString(uri.Path);
+        }
+
+        /// <summary>
         /// Gets the specified property of a given object.
         /// </summary>
         public static object GetObjectPropertyValue(object item, string propertyName, out PropertyInfo prop)

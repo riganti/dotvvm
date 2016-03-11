@@ -6,6 +6,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -38,7 +39,6 @@ namespace DotVVM.Framework.Compilation
                 foreach (var assembly in configuration.CompiledViewsAssemblies)
                 {
                     LoadCompiledViewsAssembly(assembly);
-                    //LoadCompiledViewsAssembly(Path.Combine(configuration.ApplicationPhysicalPath, assembly));
                 }
         }
 
@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Compilation
             if (csharpKeywords.Contains(identifier)) identifier += "0";
             return identifier;
         }
-        
+
         /// <summary>
         /// Gets the name of the namespace from the file name.
         /// </summary>
@@ -126,27 +126,37 @@ namespace DotVVM.Framework.Compilation
 
         public void LoadCompiledViewsAssembly(string filePath)
         {
-            filePath = TryFindAssembly(filePath);
-            if (filePath != null)
+            var assembly = TryFindAssembly(filePath);
+            if (assembly != null)
             {
-                LoadCompiledViewsAssembly(Assembly.LoadFile(Path.GetFullPath(filePath)));
+                LoadCompiledViewsAssembly(assembly);
 
-                var bindings = Path.Combine(Path.GetDirectoryName(filePath), "CompiledViewsBindings.dll");
+                var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath()), "CompiledViewsBindings.dll");
                 if (File.Exists(bindings)) AppDomain.CurrentDomain.Load(bindings);
             }
         }
 
-        public string TryFindAssembly(string fileName)
+        public Assembly TryFindAssembly(string fileName)
         {
-            if (File.Exists(fileName)) return fileName;
+            if (File.Exists(fileName)) return Assembly.LoadFile(fileName);
             if (Path.IsPathRooted(fileName)) return null;
+            var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
             string a;
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
-                if(!string.IsNullOrEmpty(assembly.Location))
+                // get already loaded assembly
+                if (assembly.GetName().Name == cleanName)
                 {
-                    a = Path.Combine(Path.GetDirectoryName(assembly.Location), fileName);
-                    if (File.Exists(a)) return a;
+                    var codeBase = assembly.GetCodeBasePath();
+                    if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
+                }
+            }
+            foreach (var assembly in new []{ typeof(DefaultControlBuilderFactory).Assembly.GetCodeBasePath(), configuration.ApplicationPhysicalPath })
+            {
+                if (!string.IsNullOrEmpty(assembly))
+                {
+                    a = Path.Combine(Path.GetDirectoryName(assembly), fileName);
+                    if (File.Exists(a)) return Assembly.LoadFile(a);
                 }
             }
             return null;
