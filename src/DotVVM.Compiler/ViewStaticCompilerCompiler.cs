@@ -45,7 +45,8 @@ namespace DotVVM.Compiler
         }
 
         static DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath)
-            => cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}", key => {
+            => cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}", key =>
+            {
                 return OwinInitializer.InitDotVVM(assembly, webSitePath);
             });
 
@@ -55,7 +56,8 @@ namespace DotVVM.Compiler
             SyntaxFactory.Token(SyntaxKind.NullKeyword);
 
             InitOptions();
-            if (!Directory.Exists(Options.OutputPath)) Directory.CreateDirectory(Options.OutputPath);
+            if (Options.FullCompile)
+                if (!Directory.Exists(Options.OutputPath)) Directory.CreateDirectory(Options.OutputPath);
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFrom(Options.WebSiteAssembly));
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath);
             bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"));
@@ -64,12 +66,14 @@ namespace DotVVM.Compiler
             if (Options.DothtmlFiles == null) Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
             controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
             fileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
-            if (Options.FullCompile) {
+            if (Options.FullCompile)
+            {
                 compiler = configuration.ServiceLocator.GetService<IViewCompiler>();
                 compilation = compiler.CreateCompilation(Options.AssemblyName);
             }
 
-            if (Options.SerializeConfig) {
+            if (Options.SerializeConfig)
+            {
                 result.Configuration = configuration;
             }
 
@@ -78,7 +82,8 @@ namespace DotVVM.Compiler
 
         private void Save()
         {
-            if (Options.FullCompile) {
+            if (Options.FullCompile)
+            {
                 var bindingsAssemblyPath = bindingCompiler.OutputFileName;
                 bindingCompiler.SaveAssembly();
                 Program.WriteInfo("bindings saved to " + bindingsAssemblyPath);
@@ -91,7 +96,8 @@ namespace DotVVM.Compiler
                 //    File.WriteAllText($"outputCS/file{i++}.cs", tree.GetRoot().NormalizeWhitespace().ToString());
                 //}
                 var result = compilation.Emit(compiledViewsFileName);
-                if (!result.Success) {
+                if (!result.Success)
+                {
                     throw new Exception("compilation failed");
                 }
                 Program.WriteInfo("views saved to " + compiledViewsFileName);
@@ -103,12 +109,16 @@ namespace DotVVM.Compiler
             Program.WriteInfo("loading");
             Init();
             Program.WriteInfo("compiling views");
-            foreach (var file in Options.DothtmlFiles) {
-                try {
+            foreach (var file in Options.DothtmlFiles)
+            {
+                try
+                {
                     CompileFile(file);
                 }
-                catch (DotvvmCompilationException exception) {
-                    result.Files.Add(file, new FileCompilationResult {
+                catch (DotvvmCompilationException exception)
+                {
+                    result.Files.Add(file, new FileCompilationResult
+                    {
                         Errors = new List<Exception>() { exception }
                     });
                 }
@@ -173,7 +183,8 @@ namespace DotVVM.Compiler
 
             DefaultViewCompilerCodeEmitter emitter = null;
             string fullClassName = null;
-            if (Options.FullCompile) {
+            if (Options.FullCompile)
+            {
                 var namespaceName = DefaultControlBuilderFactory.GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
                 var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 fullClassName = namespaceName + "." + className;
@@ -194,7 +205,8 @@ namespace DotVVM.Compiler
 
             Program.WriteInfo($"view { fileName } compiled");
 
-            var res = new ViewCompilationResult {
+            var res = new ViewCompilationResult
+            {
                 BuilderClassName = fullClassName,
                 ControlType = resolvedView.Metadata.Type,
                 DataContextType = emitter?.BuilderDataContextType,
