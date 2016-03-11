@@ -430,26 +430,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     content.Add(node);
                 }
             }
-            if (content.Any(DothtmlNodeHelper.IsNotEmpty))
+            if (control.Metadata.DefaultContentProperty != null)
             {
-                if (control.Metadata.DefaultContentProperty != null)
+                treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
+            }
+            else
+            {
+                if (!control.Metadata.IsContentAllowed)
                 {
-                    treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
-                }
-                else
-                {
-                    if (!control.Metadata.IsContentAllowed)
+                    foreach (var item in content)
                     {
-                        foreach (var item in content)
+                        if (item.IsNotEmpty())
                         {
-                            if (item.IsNotEmpty())
-                            {
-                                item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
-                            }
+                            item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
                         }
                     }
-                    else ResolveControlContentImmediately(control, content);
                 }
+                else ResolveControlContentImmediately(control, content);
             }
         }
 
