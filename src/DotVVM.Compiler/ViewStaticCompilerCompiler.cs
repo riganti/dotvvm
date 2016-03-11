@@ -18,6 +18,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Compilation.Validation;
 
 namespace DotVVM.Compiler
 {
@@ -83,6 +84,12 @@ namespace DotVVM.Compiler
                 Program.WriteInfo("bindings saved to " + bindingsAssemblyPath);
                 compilation = compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
                 var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll");
+                //Directory.CreateDirectory("outputCS");
+                //int i = 0;
+                //foreach (var tree in compilation.SyntaxTrees)
+                //{
+                //    File.WriteAllText($"outputCS/file{i++}.cs", tree.GetRoot().NormalizeWhitespace().ToString());
+                //}
                 var result = compilation.Emit(compiledViewsFileName);
                 if (!result.Success) {
                     throw new Exception("compilation failed");
@@ -141,8 +148,28 @@ namespace DotVVM.Compiler
 
             var resolvedView = (ResolvedTreeRoot)controlTreeResolver.ResolveTree(node, fileName);
 
+            var errorCheckingVisitor = new ErrorCheckingVisitor();
+            resolvedView.Accept(errorCheckingVisitor);
+
+
+            foreach (var n in node.EnumerateNodes())
+            {
+                if (n.HasNodeErrors)
+                {
+                    throw new DotvvmCompilationException(string.Join(", ", n.NodeErrors), n.Tokens);
+                }
+            }
+
             var styleVisitor = new StylingVisitor(configuration.Styles);
             resolvedView.Accept(styleVisitor);
+
+            var validationVisitor = new ControlUsageValidationVisitor(configuration);
+            resolvedView.Accept(validationVisitor);
+            if (validationVisitor.Errors.Any())
+            {
+                var controlUsageError = validationVisitor.Errors.First();
+                throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
+            }
 
             DefaultViewCompilerCodeEmitter emitter = null;
             string fullClassName = null;
@@ -160,7 +187,7 @@ namespace DotVVM.Compiler
                     CompileFile(resolvedView.Directives["masterPage"]);
 
                 compilation = compilation
-                    .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName))
+                    .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName)/*.Select(t => SyntaxFactory.ParseSyntaxTree(t.GetRoot().NormalizeWhitespace().ToString()))*/)
                     .AddReferences(emitter.UsedAssemblies
                         .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a)));
             }

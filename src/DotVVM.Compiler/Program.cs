@@ -12,8 +12,9 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Compiler
 {
-    class Program
+    static class Program
     {
+        public static List<string> AssemblySearchPaths = new List<string>();
         private static Stopwatch sw;
         static void Main(string[] args)
         {
@@ -36,6 +37,7 @@ namespace DotVVM.Compiler
                 }
             }
         }
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static Assembly GetDotvvmAssembly() => typeof(KnockoutHelper).Assembly;
 
@@ -48,11 +50,11 @@ namespace DotVVM.Compiler
 
             return null;
         }
-        
+
         static Assembly LoadFromAlternativeFolder(string name)
         {
-            var paths = Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',');
-            if (paths == null) return null; paths = new[] { "." };
+            IEnumerable<string> paths = Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',') ?? new string[0];
+            paths = paths.Concat(AssemblySearchPaths);
             foreach (var path in paths)
             {
                 string assemblyPath = Path.Combine(path, new AssemblyName(name).Name + ".dll");
@@ -83,6 +85,10 @@ namespace DotVVM.Compiler
             {
                 var compiler = new ViewStaticCompilerCompiler();
                 compiler.Options = JsonConvert.DeserializeObject<CompilerOptions>(optionsJson);
+                if (!String.IsNullOrEmpty(compiler.Options.WebSiteAssembly))
+                {
+                    AssemblySearchPaths.Add(Path.GetDirectoryName(compiler.Options.WebSiteAssembly));
+                }
                 var result = compiler.Execute();
                 Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
                 Console.WriteLine();

@@ -88,7 +88,12 @@ namespace DotVVM.Compiler
             if (actionFilters != null)
                 dict.Add(nameof(CompiledBindingExpression.ActionFilters),
                     SyntaxFactory.ArrayCreationExpression(
-                        SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(typeof(ActionFilterAttribute).FullName + "[]")),
+                        SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(typeof(ActionFilterAttribute).FullName))
+                            .WithRankSpecifiers(
+                                SyntaxFactory.SingletonList<ArrayRankSpecifierSyntax>(
+                                    SyntaxFactory.ArrayRankSpecifier(
+                                        SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
+                                            SyntaxFactory.OmittedArraySizeExpression())))),
                         SyntaxFactory.InitializerExpression(SyntaxKind.CollectionInitializerExpression,
                             SyntaxFactory.SeparatedList(actionFilters))));
 

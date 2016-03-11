@@ -38,6 +38,7 @@ namespace DotVVM.Framework.Compilation
                 foreach (var assembly in configuration.CompiledViewsAssemblies)
                 {
                     LoadCompiledViewsAssembly(assembly);
+                    //LoadCompiledViewsAssembly(Path.Combine(configuration.ApplicationPhysicalPath, assembly));
                 }
         }
 
@@ -125,10 +126,30 @@ namespace DotVVM.Framework.Compilation
 
         public void LoadCompiledViewsAssembly(string filePath)
         {
-            if (File.Exists(filePath))
+            filePath = TryFindAssembly(filePath);
+            if (filePath != null)
             {
                 LoadCompiledViewsAssembly(Assembly.LoadFile(Path.GetFullPath(filePath)));
+
+                var bindings = Path.Combine(Path.GetDirectoryName(filePath), "CompiledViewsBindings.dll");
+                if (File.Exists(bindings)) AppDomain.CurrentDomain.Load(bindings);
             }
+        }
+
+        public string TryFindAssembly(string fileName)
+        {
+            if (File.Exists(fileName)) return fileName;
+            if (Path.IsPathRooted(fileName)) return null;
+            string a;
+            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            {
+                if(!string.IsNullOrEmpty(assembly.Location))
+                {
+                    a = Path.Combine(Path.GetDirectoryName(assembly.Location), fileName);
+                    if (File.Exists(a)) return a;
+                }
+            }
+            return null;
         }
 
         public void LoadCompiledViewsAssembly(Assembly assembly)
