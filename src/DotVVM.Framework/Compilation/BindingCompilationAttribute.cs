@@ -15,7 +15,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class BindingCompilationAttribute: Attribute
+    public class BindingCompilationAttribute : Attribute
     {
         private static ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute> requirementCache = new ConcurrentDictionary<Type, BindingCompilationRequirementsAttribute>();
         public virtual BindingCompilationRequirementsAttribute GetRequirements(Type bindingType)
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation
             var list = new List<ActionFilterAttribute>();
             expression.ForEachMember(m =>
             {
-                list.AddRange(CustomAttributeExtensions.GetCustomAttributes<ActionFilterAttribute>((MemberInfo) m));
+                list.AddRange(CustomAttributeExtensions.GetCustomAttributes<ActionFilterAttribute>((MemberInfo)m));
             });
             return list;
         }
@@ -50,6 +50,7 @@ namespace DotVVM.Framework.Compilation
             expr = ExpressionUtils.ConvertToObject(expr);
             return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, viewModelsParameter, controlRootParameter);
         }
+
 
         protected virtual Expression ConvertExpressionToType(Expression expr, Type expectedType)
             => TypeConversion.ImplicitConversion(expr, expectedType, throwException: true, allowToString: true);

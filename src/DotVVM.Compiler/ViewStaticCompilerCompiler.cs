@@ -60,7 +60,7 @@ namespace DotVVM.Compiler
                 if (!Directory.Exists(Options.OutputPath)) Directory.CreateDirectory(Options.OutputPath);
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFrom(Options.WebSiteAssembly));
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath);
-            bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"));
+            bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), configuration);
             configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => bindingCompiler);
             configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new OfflineCompilationControlResolver(configuration, this));
             if (Options.DothtmlFiles == null) Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();

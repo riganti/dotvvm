@@ -171,6 +171,7 @@
     <Compile Include="Compilation\ControlTree\DataContextStack.cs" />
     <Compile Include="Compilation\ControlTree\DefaultControlResolver.cs" />
     <Compile Include="Compilation\ControlTree\DefaultControlTreeResolver.cs" />
+    <Compile Include="Compilation\ControlTree\ExpressionDebugInfoAddingVisitor.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractBinding.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractContentNode.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractControl.cs" />

@@ -28,6 +28,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         IAbstractTreeNode IAbstractBinding.Parent => Parent;
 
+        public DebugInfoExpression DebugInfo { get; set; }
+
         public Expression GetExpression()
         {
             if (ParsingError != null)

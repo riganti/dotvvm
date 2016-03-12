@@ -13,6 +13,9 @@ using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Runtime.CompilerServices;
+using System.Reflection.Emit;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -20,6 +23,19 @@ namespace DotVVM.Framework.Compilation
     {
         public static ConcurrentDictionary<int, CompiledBindingExpression> GlobalBindingList = new ConcurrentDictionary<int, CompiledBindingExpression>();
         private static int globalBindingIndex = 0;
+        private static int bindingClassCtr;
+
+        private static Lazy<ModuleBuilder> moduleBuilder = new Lazy<ModuleBuilder>(() =>
+        {
+            var assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("DynamicBindingAssembly"), AssemblyBuilderAccess.Run);
+            return assembly.DefineDynamicModule("Module", true);
+        });
+        private DotvvmConfiguration configuration;
+
+        public BindingCompiler(DotvvmConfiguration configuration)
+        {
+            this.configuration = configuration;
+        }
 
         public static BindingCompilationAttribute GetCompilationAttribute(Type bindingType)
         {
@@ -74,7 +90,7 @@ namespace DotVVM.Framework.Compilation
 
             var expression = new Lazy<Expression>(() => compilerAttribute.GetExpression(binding));
             var compiled = new CompiledBindingExpression();
-            compiled.Delegate = TryExecute(binding.BindingNode, "Error while compiling binding to delegate.", requirements.Delegate, () => compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType).Compile());
+            compiled.Delegate = TryExecute(binding.BindingNode, "Error while compiling binding to delegate.", requirements.Delegate, () => CompileExpression(compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType), binding.DebugInfo));
             compiled.UpdateDelegate = TryExecute(binding.BindingNode, "Error while compiling update delegate.", requirements.UpdateDelegate, () => compilerAttribute.CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
             compiled.OriginalString = TryExecute(binding.BindingNode, "hey, no, that should not happen. Really.", requirements.OriginalString, () => binding.Value);
             compiled.Expression = TryExecute(binding.BindingNode, "Could not get binding expression.", requirements.Expression, () => binding.GetExpression());
@@ -88,6 +104,45 @@ namespace DotVVM.Framework.Compilation
                 throw new Exception("internal bug");
             return EmitGetCompiledBinding(index);
         }
+
+        private T CompileExpression<T>(Expression<T> expression, DebugInfoExpression debugInfo)
+        {
+            if(!configuration.Debug || debugInfo == null)
+            {
+                return expression.Compile();
+            }
+            else
+            {
+                try
+                {
+                    var visitor = new DebugInfoExpressionVisitor { DebugInfo = debugInfo };
+                    expression = visitor.Visit(expression) as Expression<T>;
+
+                    var pdb = DebugInfoGenerator.CreatePdbGenerator();
+                    //return expression.Compile(pdb);
+                    var type = moduleBuilder.Value.DefineType("bindingWrapperType" + Interlocked.Increment(ref bindingClassCtr));
+                    var method = type.DefineMethod("Method", MethodAttributes.Public | MethodAttributes.Static);
+                    expression.CompileToMethod(method, pdb);
+                    var bakedType = type.CreateType();
+                    return (T)(object)bakedType.GetMethods().First().CreateDelegate(typeof(T));
+                }
+                catch
+                {
+                    return expression.Compile();
+                }
+            }
+        }
+
+        class DebugInfoExpressionVisitor : ExpressionVisitor
+        {
+            public DebugInfoExpression DebugInfo { get; set; }
+            protected override Expression VisitLambda<T>(Expression<T> node)
+            {
+                node = node.Update(Expression.Block(DebugInfo, node.Body), node.Parameters);
+                return base.VisitLambda<T>(node);
+            }
+        }
+
 
         protected virtual ExpressionSyntax EmitGetCompiledBinding(int index)
         {

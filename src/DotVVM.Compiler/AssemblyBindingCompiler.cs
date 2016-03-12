@@ -13,6 +13,7 @@ using System.Reflection.Emit;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Compiler
 {
@@ -26,7 +27,8 @@ namespace DotVVM.Compiler
 
         private object locker = new object();
 
-        public AssemblyBindingCompiler(string assemblyName, string className, string outputFileName)
+        public AssemblyBindingCompiler(string assemblyName, string className, string outputFileName, DotvvmConfiguration configuration)
+            : base(configuration)
         {
             assemblyBuilder = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName(assemblyName), AssemblyBuilderAccess.RunAndSave, Path.GetDirectoryName(outputFileName));
             moduleBuilder = assemblyBuilder.DefineDynamicModule(assemblyName, Path.GetFileName(outputFileName));

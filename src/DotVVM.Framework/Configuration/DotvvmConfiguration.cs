@@ -196,7 +196,7 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IControlTreeResolver>(() => new DefaultControlTreeResolver(configuration));
             configuration.ServiceLocator.RegisterSingleton<IAbstractTreeBuilder>(() => new ResolvedTreeBuilder());
             configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler());
+            configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler(configuration));
             configuration.ServiceLocator.RegisterSingleton<IBindingExpressionBuilder>(() => new BindingExpressionBuilder());
             configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBindingIdGenerator());
             configuration.ServiceLocator.RegisterSingleton<IControlUsageValidator>(() => new DefaultControlUsageValidator());

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Parser
 {
@@ -51,6 +52,32 @@ namespace DotVVM.Framework.Compilation.Parser
                 }
                 return r;
             }
+        }
+
+        public Part FindElement(Predicate<T> predicate)
+        {
+            if (firstPart.len == 0) return default(Part);
+            var findex = Find(firstPart, predicate);
+            if (findex >= 0) return new Part(firstPart.list, findex, 1);
+            if (parts == null) return default(Part);
+            foreach (var p in parts)
+            {
+                findex = Find(p, predicate);
+                if (findex >= 0) return new Part(p.list, findex, 1);
+            }
+            return default(Part);
+        }
+
+        private int Find(Part list, Predicate<T> predicate)
+        {
+            for (int i = 0; i < list.len; i++)
+            {
+                if(predicate(list.list[i + list.from]))
+                {
+                    return i + list.from;
+                }
+            }
+            return -1;
         }
 
         public T First()
