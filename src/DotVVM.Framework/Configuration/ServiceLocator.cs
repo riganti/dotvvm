@@ -18,6 +18,8 @@ namespace DotVVM.Framework.Configuration
         public void RegisterSingleton<T>(Func<T> factory)
         {
             factories[typeof (T)] = CreateSingletonFactory(factory);
+            object temp;
+            singletonInstances.TryRemove(typeof(T), out temp); //removes old service instance and allows to create new one
         }
 
 
