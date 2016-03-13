@@ -415,6 +415,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     {
                         content.Clear();
                         treeBuilder.SetProperty(control, ProcessElementProperty(control, property, element.Content));
+
+                        foreach (var attr in element.Attributes)
+                            attr.AddError("Attributes can't be set on element property.");
                     }
                     else
                     {
