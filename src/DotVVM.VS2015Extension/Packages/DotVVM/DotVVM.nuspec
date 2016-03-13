@@ -24,6 +24,7 @@
     </metadata>
     <files>
         <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.dll" target="lib\net451\DotVVM.Framework.dll" />
-	    <file src="..\..\..\DotVVM.Compiler\bin\Debug\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />        
+        <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.xml" target="lib\net451\DotVVM.Framework.xml" />
+        <file src="..\..\..\DotVVM.Compiler\bin\Debug\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />        
     </files>
 </package>
