@@ -347,7 +347,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     if (!property.MarkupOptions.AllowBinding)
                     {
                         attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain binding.");
-                        return;
                     }
                     var binding = ProcessBinding(bindingNode, dataContext);
                     var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding);
