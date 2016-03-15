@@ -1,10 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.SeleniumCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DotVVM.Samples.Tests
 {
@@ -83,10 +78,10 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl("Errors/NotAllowedHardCodedPropertyValue");
                 browser.First("[class='exceptionMessage']")
-                    .CheckIfInnerText(
+                .CheckIfInnerText(
                         s =>
-                            s.Contains("cannot contain hard coded value.")
-                            );
+                            s.ToLower().Contains("String was not recognized as a valid Boolean.".ToLower())
+                            , "Expected message is 'String was not recognized as a valid Boolean.'");
 
                 browser.First("[class='errorUnderline']")
                     .CheckIfInnerText(s => s.Contains("NotAllowedHardCodedValue"));
@@ -170,7 +165,6 @@ namespace DotVVM.Samples.Tests
                 browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("!"));
             });
         }
-
 
         [TestMethod]
         public void Error_EmptyBinding()
