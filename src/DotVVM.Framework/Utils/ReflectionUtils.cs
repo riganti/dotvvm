@@ -17,17 +17,17 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
-        public static string GetPropertyNameFromExpression<T, TProperty>(Expression<Func<T, TProperty>> expression)
+        public static MemberInfo GetMemberFromExpression(Expression expression)
         {
-            var body = expression.Body as MemberExpression;
+            var body = expression as MemberExpression;
 
             if (body == null)
             {
-                var unaryExpressionBody = (UnaryExpression)expression.Body;
+                var unaryExpressionBody = (UnaryExpression)expression;
                 body = unaryExpressionBody.Operand as MemberExpression;
             }
 
-            return body.Member.Name;
+            return body.Member;
         }
 
         /// <summary>

@@ -10,11 +10,10 @@ namespace DotVVM.Framework.Controls
     {
 
         [AttachedProperty(typeof(bool))]
-        public static DotvvmProperty EnabledProperty = DotvvmProperty.Register<bool, Validation>("Enabled", true, true);
+        public static DotvvmProperty EnabledProperty = DotvvmProperty.Register<bool, Validation>(() => EnabledProperty, true, true);
 
         [AttachedProperty(typeof(object))]
-        public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validation>("Target", null, true);
+        public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validation>(() => TargetProperty, null, true);
 
     }
-     
 }
