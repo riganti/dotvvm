@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public void Add(string routeName, RouteBase route)
         {
-            if (list.Any(r => string.Equals(r.Key, routeName, StringComparison.InvariantCultureIgnoreCase)))
+            if (list.Any(r => string.Equals(r.Key, routeName, StringComparison.OrdinalIgnoreCase)))
             {
                 throw new InvalidOperationException($"The route with name '{routeName}' has already been registered!");
             }
@@ -68,14 +68,14 @@ namespace DotVVM.Framework.Routing
 
         public bool Contains(string routeName)
         {
-            return list.Any(r => string.Equals(r.Key, routeName, StringComparison.InvariantCultureIgnoreCase));
+            return list.Any(r => string.Equals(r.Key, routeName, StringComparison.OrdinalIgnoreCase));
         }
 
         public RouteBase this[string routeName]
         {
             get
             {
-                var route = list.FirstOrDefault(r => string.Equals(r.Key, routeName, StringComparison.InvariantCultureIgnoreCase)).Value;
+                var route = list.FirstOrDefault(r => string.Equals(r.Key, routeName, StringComparison.OrdinalIgnoreCase)).Value;
                 if (route == null)
                 {
                     throw new ArgumentException($"The route with name '{routeName}' does not exist!");
