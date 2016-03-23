@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Controls
             var bindingGroup = new KnockoutBindingGroup();
             foreach (var property in ValidationOptionProperties)
             {
-                var javascriptName = property.Name.Substring(0, 1).ToLower() + property.Name.Substring(1);
+                var javascriptName = KnockoutHelper.ConvertToCamelCase(property.Name);
                 var optionValue = control.GetValue(property);
                 if (!object.Equals(optionValue, property.DefaultValue))
                 {

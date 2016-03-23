@@ -12,16 +12,15 @@ interface IDotvvmPostbackScriptFunction {
 interface IDotvvmExtensions {
 }
 
-interface IDotvvmViewModel {
+interface IDotvvmViewModelInfo {
     viewModel?;
     renderedResources?: string[];
     url?: string;
     virtualDirectory?: string;
-    validationRules?: any;
 }
 
 interface IDotvvmViewModels {
-    [name: string]: IDotvvmViewModel
+    [name: string]: IDotvvmViewModelInfo
 }
 
 class DotVVM {
@@ -29,7 +28,7 @@ class DotVVM {
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
     private viewModelObservables: {
-        [name: string]: KnockoutObservable<IDotvvmViewModel>;
+        [name: string]: KnockoutObservable<IDotvvmViewModelInfo>;
     } = {};
 
     public isSpaReady = ko.observable(false);

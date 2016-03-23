@@ -1,6 +1,6 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 
-class DotvvmValidationContext { 
+class DotvvmValidationContext {
     constructor(public valueToValidate: any, public parentViewModel: any, public parameters: any[]) {
     }
 }
@@ -47,31 +47,45 @@ class DotvvmRangeValidator extends DotvvmValidatorBase {
 }
 
 class ValidationError {
-    public errorMessage = ko.observable("");
-    public isValid = ko.computed(() => this.errorMessage());
-    public $targetCollection: any;
 
-    constructor(public targetObservable: KnockoutObservable<any>) {
+    constructor(public targetObservable: KnockoutObservable<any>, public errorMessage: string) {
     }
 
-    public static getOrCreate(targetObservable: KnockoutObservable<any>): ValidationError {
-        if (!targetObservable["validationError"]) {
-            targetObservable["validationError"] = new ValidationError(targetObservable);
+    public static getOrCreate(targetObservable: KnockoutObservable<any> & { validationErrors?: KnockoutObservableArray<ValidationError> }): KnockoutObservableArray<ValidationError> {
+        if (!targetObservable.validationErrors) {
+            targetObservable.validationErrors = ko.observableArray<ValidationError>();
         }
-        return <ValidationError>targetObservable["validationError"];
+        return targetObservable.validationErrors;
     }
 
+    public static isValid(observable: KnockoutObservable<any> & { validationErrors?: KnockoutObservableArray<ValidationError> }) {
+        return !observable.validationErrors || observable.validationErrors.length == 0;
+    }
+
+    public static clear(observable: KnockoutObservable<any> & { validationErrors?: KnockoutObservableArray<ValidationError> }) {
+        if (observable.validationErrors != null) {
+            observable.validationErrors.removeAll();
+        }
+    } 
+}
+interface IDotvvmViewModelInfo {
+    validationRules?: { [typeName: string]: { [propertyName: string]: IDotvvmPropertyValidationRuleInfo[] } }
+}
+
+interface IDotvvmPropertyValidationRuleInfo {
+    ruleName: string;
+    errorMessage: string;
+    parameters: any[];
 }
 
 interface IDotvvmValidationRules {
     [name: string]: DotvvmValidatorBase;
 }
 interface IDotvvmValidationElementUpdateFunctions {
-    [name: string]: (element: any, errorMessage: string, param: any) => void;
+    [name: string]: (element: HTMLElement, errorMessages: string[], param: any) => void;
 }
 
-class DotvvmValidation
-{
+class DotvvmValidation {
     public rules: IDotvvmValidationRules = {
         "required": new DotvvmRequiredValidator(),
         "regularExpression": new DotvvmRegularExpressionValidator(),
@@ -80,18 +94,18 @@ class DotvvmValidation
         //"numeric": new DotvvmNumericValidator(),
         //"datetime": new DotvvmDateTimeValidator(),
     }
-    
-    public errors = ko.observableArray([]);
+
+    public errors = ko.observableArray<ValidationError>([]);
 
     public events = {
         validationErrorsChanged: new DotvvmEvent<DotvvmEventArgs>("dotvvm.validation.events.validationErrorsChanged")
     };
-    
+
     public elementUpdateFunctions: IDotvvmValidationElementUpdateFunctions = {
         
         // shows the element when it is valid
-        hideWhenValid(element: any, errorMessage: string, param: any) {
-            if (errorMessage) {
+        hideWhenValid(element: HTMLElement, errorMessages: string[], param: any) {
+            if (errorMessages.length > 0) {
                 element.style.display = "";
             } else {
                 element.style.display = "none";
@@ -99,26 +113,26 @@ class DotvvmValidation
         },
         
         // adds a CSS class when the element is not valid
-        invalidCssClass(element: HTMLElement, errorMessage: string, param: any) {
-            if (errorMessage) {
-                element.className += " " + param;
+        invalidCssClass(element: HTMLElement, errorMessages: string[], className: string) {
+            if (errorMessages.length > 0) {
+                element.className += " " + className;
             } else {
-                element.className = element.className.split(' ').filter(c => c != param).join(' ');
+                element.className = element.className.split(' ').filter(c => c != className).join(' ');
             }
         },
 
         // sets the error message as the title attribute
-        setToolTipText(element: any, errorMessage: string, param: any) {
-            if (errorMessage) {
-                element.title = errorMessage;
+        setToolTipText(element: HTMLElement, errorMessages: string[], param: any) {
+            if (errorMessages.length > 0) {
+                element.title = errorMessages.join(", ");
             } else {
                 element.title = "";
             }
         },
 
         // displays the error message
-        showErrorMessageText(element: any, errorMessage: string, param: any) {
-            element[element.innerText ? "innerText" : "textContent"] = errorMessage;
+        showErrorMessageText(element: any, errorMessages: string[], param: any) {
+            element[element.innerText ? "innerText" : "textContent"] = errorMessages.join(", ");
         }
     }
 
@@ -165,18 +179,18 @@ class DotvvmValidation
                 if (ko.isObservable(observableProperty)) {
                     // try to get the options
                     var options = allBindingsAccessor.get("dotvvmValidationOptions");
-                    var updateFunction = (element, errorMessage) => {
+                    var updateFunction = (element, errorMessages: ValidationError[]) => {
                         for (var option in options) {
                             if (options.hasOwnProperty(option)) {
-                                this.elementUpdateFunctions[option](element, errorMessage, options[option]);
+                                this.elementUpdateFunctions[option](element, errorMessages.map(v => v.errorMessage), options[option]);
                             }
                         }
                     }
             
                     // subscribe to the observable property changes
-                    var validationError = ValidationError.getOrCreate(observableProperty);
-                    validationError.errorMessage.subscribe(newValue => updateFunction(element, newValue));
-                    updateFunction(element, validationError.errorMessage());
+                    var validationErrors = ValidationError.getOrCreate(observableProperty);
+                    validationErrors.subscribe(newValue => updateFunction(element, newValue));
+                    updateFunction(element, validationErrors());
                 }
             }
         };
@@ -206,11 +220,10 @@ class DotvvmValidation
             }
 
             if (value) {
-                if (Array.isArray(value))
-                {
+                if (Array.isArray(value)) {
                     // handle collections
-                    for (var i = 0; i < value.length; i++) {
-                        this.validateViewModel(value[i]);
+                    for (var item of value) {
+                        this.validateViewModel(item);
                     }
                 }
                 else if (value.$type) {
@@ -222,17 +235,17 @@ class DotvvmValidation
     }
 
     /// Validates the specified property in the viewModel
-    public validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, rulesForProperty: any[]) {
-        for (var i = 0; i < rulesForProperty.length; i++) {
+    public validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, rulesForProperty: IDotvvmPropertyValidationRuleInfo[]) {
+        for (var rule of rulesForProperty) {
             // validate the rules
-            var rule = rulesForProperty[i];
             var ruleTemplate = this.rules[rule.ruleName];
             var context = new DotvvmValidationContext(value, viewModel, rule.parameters);
 
-            var validationError = ValidationError.getOrCreate(property);
             if (!ruleTemplate.isValid(context)) {
+                var validationErrors = ValidationError.getOrCreate(property);
                 // add error message
-                validationError.errorMessage(rule.errorMessage);
+                var validationError = new ValidationError(property, rule.errorMessage);
+                validationErrors.push(validationError);
                 this.addValidationError(viewModel, validationError);
             }
         }
@@ -255,11 +268,6 @@ class DotvvmValidation
 
     public clearValidationErrors(viewModel: any) {
         this.clearValidationErrorsCore(viewModel);
-
-        var errors = this.errors();
-        for (var i = 0; i < errors.length; i++) {
-            errors[i].errorMessage("");
-        }
         this.errors.removeAll();
     }
 
@@ -279,8 +287,9 @@ class DotvvmValidation
             if (!viewModel.hasOwnProperty(property) || property.indexOf("$") === 0) continue;
             var viewModelProperty = viewModel[property];
             if (!viewModelProperty || !ko.isObservable(viewModelProperty)) continue;
-            var value = viewModel[property]();
+            ValidationError.clear(viewModel[property]);
 
+            var value = viewModel[property]();
             if (value) {
                 if (Array.isArray(value)) {
                     // handle collections
@@ -301,7 +310,7 @@ class DotvvmValidation
         viewModel = ko.unwrap(viewModel);
         if (!viewModel || !viewModel.$type || !viewModel.$validationErrors) return [];
 
-        var errors = viewModel.$validationErrors();
+        var errors = viewModel.$validationErrors() as ValidationError[];
 
         if (recursive) {
             // get child validation errors
@@ -314,8 +323,10 @@ class DotvvmValidation
                 if (value) {
                     if (Array.isArray(value)) {
                         // handle collections
-                        for (var i = 0; i < value.length; i++) {
-                            errors = errors.concat(this.getValidationErrors(value[i], recursive));
+                        for (var item of value) {
+                            if (item.$type) {
+                                errors = errors.concat(this.getValidationErrors(item, recursive));
+                            }
                         }
                     } else if (value.$type) {
                         // handle nested objects
@@ -349,8 +360,9 @@ class DotvvmValidation
             }
 
             // add the error to appropriate collections
-            var error = ValidationError.getOrCreate(observable);
-            error.errorMessage(modelState[i].errorMessage);
+            var errors = ValidationError.getOrCreate(observable);
+            var error = new ValidationError(observable, modelState[i].errorMessage)
+            errors.push(error);
             this.addValidationError(parent, error);
         }
     }
