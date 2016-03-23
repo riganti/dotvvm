@@ -79,6 +79,11 @@ namespace DotVVM.Framework.Configuration
         public bool Debug { get; set; }
 
         /// <summary>
+        /// Whether DotVVM compiler should generate runtime debug info for bindings. It can be useful, but may also cause unexpected problems.
+        /// </summary>
+        public bool AllowBindingDebugging { get; set; }
+
+        /// <summary>
         /// Gets an instance of the service locator component.
         /// </summary>
         [JsonIgnore]

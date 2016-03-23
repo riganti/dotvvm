@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Compilation
 
         private T CompileExpression<T>(Expression<T> expression, DebugInfoExpression debugInfo)
         {
-            if(!configuration.Debug || debugInfo == null)
+            if(!configuration.Debug || !configuration.AllowBindingDebugging || debugInfo == null)
             {
                 return expression.Compile();
             }

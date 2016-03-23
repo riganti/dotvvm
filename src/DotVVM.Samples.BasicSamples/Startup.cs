@@ -47,7 +47,7 @@ namespace DotVVM.Samples.BasicSamples
 
             // use DotVVM
             DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
-            dotvvmConfiguration.Debug = false;
+            dotvvmConfiguration.Debug = true;
             
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
