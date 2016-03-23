@@ -223,7 +223,7 @@ class DotvvmValidation {
                 if (Array.isArray(value)) {
                     // handle collections
                     for (var item of value) {
-                        this.validateViewModel(item);
+                        this.validateViewModel(ko.unwrap(item));
                     }
                 }
                 else if (value.$type) {
@@ -294,7 +294,7 @@ class DotvvmValidation {
                 if (Array.isArray(value)) {
                     // handle collections
                     for (var i = 0; i < value.length; i++) {
-                        this.clearValidationErrorsCore(value[i]);
+                        this.clearValidationErrorsCore(ko.unwrap(value[i]));
                     }
                 }
                 else if (value.$type) {
@@ -324,9 +324,7 @@ class DotvvmValidation {
                     if (Array.isArray(value)) {
                         // handle collections
                         for (var item of value) {
-                            if (item.$type) {
-                                errors = errors.concat(this.getValidationErrors(item, recursive));
-                            }
+                            errors = errors.concat(this.getValidationErrors(ko.unwrap(item), recursive));
                         }
                     } else if (value.$type) {
                         // handle nested objects
