@@ -204,16 +204,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             object[] constructorParameters;
 
             // build control
-            IControlResolverMetadata controlMetadata;
-            try
-            {
-                controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
-            }
-            catch (Exception ex)
+            var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
+            if (controlMetadata == null)
             {
                 controlMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(HtmlGenericControl)));
                 constructorParameters = new[] { element.FullTagName };
-                element.AddError(ex.Message);
+                element.AddError($"The control <{element.FullTagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
             }
             var control = treeBuilder.BuildControl(controlMetadata, element, dataContext);
             control.ConstructorParameters = constructorParameters;
