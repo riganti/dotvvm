@@ -183,10 +183,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     return existingValue;
                 }
             }
-            else if (property.Type.IsNumericType() && jtoken.Type != JTokenType.Float && jtoken.Type != JTokenType.Integer && existingValue != null)
-            {
-                return existingValue;
-            }
             else
             {
                 return serializer.Deserialize(jtoken.CreateReader(), property.Type);
