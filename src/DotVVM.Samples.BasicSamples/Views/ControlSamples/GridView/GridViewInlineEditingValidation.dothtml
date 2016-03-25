@@ -37,8 +37,7 @@
         <p>&nbsp;</p>
         <p>&nbsp;</p>
 
-			<span class="validation"><dot:ValidationSummary IncludeErrorsFromChildren="true"></dot:ValidationSummary></span>
-		 
+		<span class="validation"><dot:ValidationSummary IncludeErrorsFromChildren="true"></dot:ValidationSummary></span>
 
     </div>
 </body>

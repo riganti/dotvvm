@@ -207,10 +207,38 @@ class DotvvmSerialization {
                 else {
                     result[prop] = this.serialize(value, opt);
                 }
+                if (options && options.type && !this.validateType(result[prop], options.type)) {
+                    delete result[prop];
+                    options.wasInvalid = true;
+                }
             }
         }
         if (pathProp) opt.path.push(pathProp);
         return result;
+    }
+
+    public validateType(value, type: string) {
+        var nullable = type[type.length - 1] == "?";
+        if (nullable) {
+            type = type.substr(0, type.length - 2);
+        }
+        var intmatch = /(u?)int(\d*)/.exec(type);
+        if (intmatch) {
+            var unsigned = intmatch[1] == "u";
+            var bits = parseInt(intmatch[2]);
+            var minValue = 0;
+            var maxValue = Math.pow(2, bits) - 1;
+            if (!unsigned) {
+                minValue = -((maxValue / 2) | 0);
+                maxValue = maxValue + minValue;
+            }
+            var int = parseInt(value);
+            return int >= minValue && int <= maxValue && int == parseFloat(value);
+        }
+        if (type == "number" || type == "single" || type == "double" || type == "decimal") {
+            return parseFloat(value) != NaN || value == NaN;
+        }
+        return true;
     }
 
     private findObject(obj: any, matcher: (o) => boolean): string[] {

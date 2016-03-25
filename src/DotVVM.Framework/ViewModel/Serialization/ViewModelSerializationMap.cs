@@ -168,27 +168,28 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 return property.JsonConverter.ReadJson(jtoken.CreateReader(), property.Type, existingValue, serializer);
             }
-            else
+            else if (existingValue != null && property.Populate)
             {
-                if (existingValue != null && property.Populate)
+                if (jtoken.Type == JTokenType.Null)
+                    return null;
+                else if (jtoken.Type == JTokenType.Object)
                 {
-                    if (jtoken.Type == JTokenType.Null)
-                        return null;
-                    else if (jtoken.Type == JTokenType.Object)
-                    {
-                        serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject)jtoken, serializer, existingValue);
-                        return existingValue;
-                    }
-                    else
-                    {
-                        serializer.Populate(jtoken.CreateReader(), existingValue);
-                        return existingValue;
-                    }
+                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject)jtoken, serializer, existingValue);
+                    return existingValue;
                 }
                 else
                 {
-                    return serializer.Deserialize(jtoken.CreateReader(), property.Type);
+                    serializer.Populate(jtoken.CreateReader(), existingValue);
+                    return existingValue;
                 }
+            }
+            else if (property.Type.IsNumericType() && jtoken.Type != JTokenType.Float && jtoken.Type != JTokenType.Integer && existingValue != null)
+            {
+                return existingValue;
+            }
+            else
+            {
+                return serializer.Deserialize(jtoken.CreateReader(), property.Type);
             }
         }
 
@@ -302,6 +303,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     options["isDate"] = true;
                 }
 
+                AddTypeOptions(options, property.Type);
+                
                 block.Add(Expression.Label(endPropertyLabel));
                 if (options.Any())
                 {
@@ -322,6 +325,18 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, EncryptedValuesWriter, bool>>(
                 Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
             return ex.Compile();
+        }
+
+        private void AddTypeOptions(Dictionary<string, object> options, Type type)
+        {
+            if (type.IsNumericType())
+            {
+                options["type"] = type.Name.ToLower();
+            }
+            else if (Nullable.GetUnderlyingType(type)?.IsNumericType() == true)
+            {
+                options["type"] = Nullable.GetUnderlyingType(type).Name.ToLower();
+            }
         }
 
         private static readonly string DotvvmAssemblyName = typeof(ViewModelSerializationMap).Assembly.FullName;

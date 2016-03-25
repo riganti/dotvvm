@@ -46,6 +46,12 @@ class DotvvmRangeValidator extends DotvvmValidatorBase {
     }
 }
 
+class DotvvmNotNullValidator extends DotvvmValidatorBase {
+    public isValid(context: DotvvmValidationContext) {
+        return context.valueToValidate !== null && context.valueToValidate !== undefined;
+    }
+}
+
 class ValidationError {
 
     constructor(public targetObservable: KnockoutObservable<any>, public errorMessage: string) {
@@ -91,6 +97,7 @@ class DotvvmValidation {
         "regularExpression": new DotvvmRegularExpressionValidator(),
         "intrange": new DotvvmIntRangeValidator(),
         "range": new DotvvmRangeValidator(),
+        "notnull": new DotvvmNotNullValidator()
         //"numeric": new DotvvmNumericValidator(),
         //"datetime": new DotvvmDateTimeValidator(),
     }
@@ -217,6 +224,13 @@ class DotvvmValidation {
             // run validation rules
             if (rulesForType.hasOwnProperty(property)) {
                 this.validateProperty(viewModel, viewModelProperty, value, rulesForType[property]);
+            }
+
+            var options = viewModel[property + "$options"];
+            if (options && options.type && ValidationError.isValid(viewModelProperty) && !dotvvm.serialization.validateType(value, options.type)) {
+                var error = new ValidationError(property, `${value} is invalid value for type ${options.type}`);
+                ValidationError.getOrCreate(viewModelProperty).push(error);
+                this.addValidationError(viewModel, error);
             }
 
             if (value) {

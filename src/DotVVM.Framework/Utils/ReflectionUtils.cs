@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Utils
             return ResolvedTypeDescriptor.ToSystemType(result);
         }
 
-        private static readonly List<Type> NumericTypes = new List<Type>()
+        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
             typeof (sbyte),
             typeof (byte),
