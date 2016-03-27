@@ -176,11 +176,8 @@ namespace DotVVM.Framework.Binding
             var field = typeof (TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
 
-            if (registeredProperties.ContainsKey(fullName))
-            {
-                throw new DotvvmCompilationException($"Property is already registered: {fullName}");
-            }
-
+            if (registeredProperties.ContainsKey(fullName)) throw new ArgumentException($"Property is already registered: {fullName}");
+        
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
                 var propertyInfo = typeof(TDeclaringType).GetProperty(propertyName);

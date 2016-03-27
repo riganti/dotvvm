@@ -70,16 +70,21 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(viewModel.StringProp, "hulabula13");
         }
 
-        class MoqComponent
+        class MoqComponent: DotvvmBindableObject
         {
-            public object Property { get; set; }
+            public object Property
+            {
+                get { return (object)GetValue(PropertyProperty); }
+                set { SetValue(PropertyProperty, value); }
+            }
+            public static DotvvmProperty PropertyProperty;
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DotvvmCompilationException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void BindingCompiler_PropertyRegisteredTwiceThrowException()
         {
-            DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
+            MoqComponent.PropertyProperty = DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
             DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
         }
 
