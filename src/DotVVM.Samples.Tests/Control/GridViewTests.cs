@@ -94,6 +94,125 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        public void Control_GridViewInlineEditingFormat()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
+                
+                //Get rows
+                var rows = browser.First("table tbody");
+                rows.FindElements("tr").ThrowIfDifferentCountThan(3);
+
+                var firstRow = rows.ElementAt("tr", 0);
+                var dateDisplay = firstRow.ElementAt("td", 2).First("span").GetText();
+                var moneyDisplay = firstRow.ElementAt("td", 4).First("span").GetText();
+
+                //Edit
+                firstRow.ElementAt("td", 5).First("button").Click();
+
+                //init again
+                rows = browser.First("table tbody");
+                firstRow = rows.ElementAt("tr", 0);
+
+                //check format
+                firstRow.ElementAt("td", 2).First("input").CheckIfTextEquals(dateDisplay);
+                firstRow.ElementAt("td", 4).First("input").CheckIfTextEquals(moneyDisplay);
+
+            });
+        }
+
+        [TestMethod]
+        public void Control_GridViewInlineEditingPrimaryKeyGuid()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid);
+                //Get rows
+                var rows = browser.First("table tbody");
+                rows.FindElements("tr").ThrowIfDifferentCountThan(3);
+
+                var firstRow = rows.ElementAt("tr",0);
+                firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("9536d712-2e91-43d2-8ebb-93fbec31cf34");
+                //Edit
+                firstRow.ElementAt("td", 4).First("button").Click();
+
+                //init again
+                rows = browser.First("table tbody");
+                firstRow = rows.ElementAt("tr", 0);
+
+                //Check type
+                firstRow.ElementAt("td", 1).First("input").CheckAttribute("type","text");
+                firstRow.ElementAt("td", 2).First("input").CheckAttribute("type", "text");
+                firstRow.ElementAt("td", 3).First("input").CheckAttribute("type", "text");
+
+                //change name
+                firstRow.ElementAt("td", 1).First("input").Clear();
+                firstRow.ElementAt("td", 1).First("input").SendKeys("Test");
+
+                //update buttons
+                firstRow.ElementAt("td", 4).FindElements("button").ThrowIfDifferentCountThan(2);
+
+                //update
+                firstRow.ElementAt("td", 4).First("button").Click();
+
+                //init again
+                rows = browser.First("table tbody");
+                firstRow = rows.ElementAt("tr", 0);
+
+                //check changed name
+                firstRow.ElementAt("td", 1).First("span").CheckIfInnerTextEquals("Test");
+               
+            });
+        }
+
+
+        [TestMethod]
+        public void Control_GridViewInlineEditingPrimaryKeyString()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString);
+                //Get rows
+                var rows = browser.First("table tbody");
+                rows.FindElements("tr").ThrowIfDifferentCountThan(3);
+
+                var firstRow = rows.ElementAt("tr", 0);
+                firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("A");
+                //Edit
+                firstRow.ElementAt("td", 4).First("button").Click();
+
+                //init again
+                rows = browser.First("table tbody");
+                firstRow = rows.ElementAt("tr", 0);
+
+                //Check type
+                firstRow.ElementAt("td", 1).First("input").CheckAttribute("type", "text");
+                firstRow.ElementAt("td", 2).First("input").CheckAttribute("type", "text");
+                firstRow.ElementAt("td", 3).First("input").CheckAttribute("type", "text");
+
+                //change name
+                firstRow.ElementAt("td", 1).First("input").Clear();
+                firstRow.ElementAt("td", 1).First("input").SendKeys("Test");
+
+                //update buttons
+                firstRow.ElementAt("td", 4).FindElements("button").ThrowIfDifferentCountThan(2);
+
+                //update
+                firstRow.ElementAt("td", 4).First("button").Click();
+
+                //init again
+                rows = browser.First("table tbody");
+                firstRow = rows.ElementAt("tr", 0);
+
+                //check changed name and Id
+                firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("A");
+                firstRow.ElementAt("td", 1).First("span").CheckIfInnerTextEquals("Test");
+
+            });
+        }
+        
+        [TestMethod]
         public void Control_GridViewInlineEditingServer()
         {
             Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
@@ -103,6 +222,18 @@ namespace DotVVM.Samples.Tests.Control
         public void Control_GridViewInlineEditingClient()
         {
             Control_GridViewInlineEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
+        }
+
+        [TestMethod]
+        public void Control_GridViewInlineEditingPagingWhenEditModeServer()
+        {
+            Control_GridViewInlineEditingPagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 0);
+        }
+
+        [TestMethod]
+        public void Control_GridViewInlineEditingPagingWhenEditModeClient()
+        {
+            Control_GridViewInlineEditingPagingWhenEditing(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditing, 1);
         }
 
         public void Control_GridViewInlineEditing(string path, int tableID)
@@ -142,6 +273,54 @@ namespace DotVVM.Samples.Tests.Control
                 desiredRow.FindElements("button").ThrowIfDifferentCountThan(2);
             });
         }
+
+        public void Control_GridViewInlineEditingPagingWhenEditing(string path, int tableID)
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.Refresh();
+                browser.NavigateToUrl(path);
+
+                // get table
+                var table = browser.ElementAt("table", tableID);
+
+                //check rows
+                table.FindElements("tbody tr").ThrowIfDifferentCountThan(10);
+
+                // check whether the first row is in edit mode
+                var firstRow = table.First("tbody tr");
+                firstRow.First("td").CheckIfInnerTextEquals("1");
+                firstRow.ElementAt("td", 1).Single("input").CheckIfIsDisplayed();
+                firstRow.ElementAt("td", 2).Single("input").CheckIfIsDisplayed();
+                firstRow.ElementAt("td", 3).FindElements("button").ThrowIfDifferentCountThan(2);
+
+                // check if right number of testboxs are displayed => IsEditable works
+                table.FindElements("tbody tr td input").ThrowIfDifferentCountThan(2);
+
+                //page to second page
+                var navigation = browser.ElementAt(".pagination", 0);
+                navigation.FindElements("li a").Single(s => s.GetText() == "2").Click();
+
+                table = browser.ElementAt("table", tableID);
+                firstRow = table.First("tbody tr");
+                firstRow.First("td").CheckIfInnerTextEquals("11");
+
+                //page to back
+                navigation = browser.ElementAt(".pagination", 0);
+                navigation.FindElements("li a").Single(s => s.GetText() == "1").Click();
+
+                //after page back check edit row
+                table = browser.ElementAt("table", tableID);
+                firstRow = table.First("tbody tr");
+                firstRow.First("td").CheckIfInnerTextEquals("1");
+                firstRow.ElementAt("td", 1).Single("input").CheckIfIsDisplayed();
+                firstRow.ElementAt("td", 2).Single("input").CheckIfIsDisplayed();
+                firstRow.ElementAt("td", 3).FindElements("button").ThrowIfDifferentCountThan(2);
+
+
+            });
+        }
+
         public void Control_GridViewPagingSortingBase(string path) { 
 
             

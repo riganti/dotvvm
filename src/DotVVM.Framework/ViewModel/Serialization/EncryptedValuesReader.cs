@@ -34,13 +34,13 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 json.Read();
                 Debug.Assert(json.TokenType == JsonToken.StartObject);
                 json.Read();
-                propertyIndices.Push(propertyIndex + 1);
-                propertyIndex = 0;
             }
             else
             {
                 virtualNests++;
             }
+            propertyIndices.Push(propertyIndex + 1);
+            propertyIndex = 0;
         }
 
         public void AssertEnd()
@@ -48,7 +48,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (virtualNests > 0)
             {
                 virtualNests--;
-                if (virtualNests == 0) propertyIndex++;
+                propertyIndex = propertyIndices.Pop();
             }
             else if(json.TokenType == JsonToken.EndObject)
             {

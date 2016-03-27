@@ -9,8 +9,19 @@ namespace DotVVM.Framework.ViewModel
 {
     public class DotvvmViewModelBase : IDotvvmViewModel
     {
+        private IDotvvmRequestContext _context;
         [JsonIgnore]
-        public IDotvvmRequestContext Context { get; set; }
+        public IDotvvmRequestContext Context {
+            get { return _context; }
+            set
+            {
+                _context = value;
+                foreach (var c in GetChildViewModels())
+                {
+                    c.Context = value;
+                }
+            }
+        }
 
 
         async Task IDotvvmViewModel.Init()
@@ -57,9 +68,10 @@ namespace DotVVM.Framework.ViewModel
 
         protected virtual IEnumerable<IDotvvmViewModel> GetChildViewModels()
         {
+            // PERF: precompile ViewModels getter
             var thisType = this.GetType();
             var properties = ChildViewModelsCache.GetChildViewModelsProperties(thisType).Select(p => (IDotvvmViewModel)p.GetValue(this, null));
-            var collection = ChildViewModelsCache.GetChildViewModelsCollection(thisType).SelectMany(p => (IEnumerable<IDotvvmViewModel>)p.GetValue(this, null));
+            var collection = ChildViewModelsCache.GetChildViewModelsCollection(thisType).SelectMany(p => (IEnumerable<IDotvvmViewModel>)p.GetValue(this, null) ?? new IDotvvmViewModel[0]);
 
             return properties.Concat(collection).ToArray();
         }

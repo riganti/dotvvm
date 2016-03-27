@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Controls
 
             if (!ShowHeaderWhenNoData)
             {
-                head.Attributes["data-bind"] = "visible: $data";
+            head.Attributes["data-bind"] = "visible: $data";
             }
             Children.Add(head);
 
@@ -216,7 +216,7 @@ namespace DotVVM.Framework.Controls
                 var cell = new HtmlGenericControl("th");
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
-
+                
                 column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
                 {
@@ -447,11 +447,11 @@ namespace DotVVM.Framework.Controls
             {
                 if (!ShowHeaderWhenNoData)
                 {
-                    writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
-                    if (numberOfRows == 0)
-                    {
-                        writer.AddStyleAttribute("display", "none");
-                    } 
+                writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
+                if (numberOfRows == 0)
+                {
+                    writer.AddStyleAttribute("display", "none");
+                }
                 }
 
                 // with databind
