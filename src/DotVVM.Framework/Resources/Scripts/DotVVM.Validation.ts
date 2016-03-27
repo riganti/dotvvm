@@ -228,7 +228,7 @@ class DotvvmValidation {
 
             var options = viewModel[property + "$options"];
             if (options && options.type && ValidationError.isValid(viewModelProperty) && !dotvvm.serialization.validateType(value, options.type)) {
-                var error = new ValidationError(property, `${value} is invalid value for type ${options.type}`);
+                var error = new ValidationError(viewModelProperty, `${value} is invalid value for type ${options.type}`);
                 ValidationError.getOrCreate(viewModelProperty).push(error);
                 this.addValidationError(viewModel, error);
             }
@@ -248,7 +248,7 @@ class DotvvmValidation {
         }
     }
 
-    /// Validates the specified property in the viewModel
+    // validates the specified property in the viewModel
     public validateProperty(viewModel: any, property: KnockoutObservable<any>, value: any, rulesForProperty: IDotvvmPropertyValidationRuleInfo[]) {
         for (var rule of rulesForProperty) {
             // validate the rules

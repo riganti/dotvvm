@@ -1209,11 +1209,41 @@ var DotvvmSerialization = (function () {
                 else {
                     result[prop] = this.serialize(value, opt);
                 }
+                if (options && options.type && !this.validateType(result[prop], options.type)) {
+                    delete result[prop];
+                    options.wasInvalid = true;
+                }
             }
         }
         if (pathProp)
             opt.path.push(pathProp);
         return result;
+    };
+    DotvvmSerialization.prototype.validateType = function (value, type) {
+        var nullable = type[type.length - 1] === "?";
+        if (nullable) {
+            type = type.substr(0, type.length - 2);
+        }
+        if (nullable && (typeof (value) === "undefined" || value == null)) {
+            return true;
+        }
+        var intmatch = /(u?)int(\d*)/.exec(type);
+        if (intmatch) {
+            var unsigned = intmatch[1] === "u";
+            var bits = parseInt(intmatch[2]);
+            var minValue = 0;
+            var maxValue = Math.pow(2, bits) - 1;
+            if (!unsigned) {
+                minValue = -((maxValue / 2) | 0);
+                maxValue = maxValue + minValue;
+            }
+            var int = parseInt(value);
+            return int >= minValue && int <= maxValue && int === parseFloat(value);
+        }
+        if (type === "number" || type === "single" || type === "double" || type === "decimal") {
+            return parseFloat(value) !== NaN || value === NaN;
+        }
+        return true;
     };
     DotvvmSerialization.prototype.findObject = function (obj, matcher) {
         if (matcher(obj))
@@ -1343,6 +1373,16 @@ var DotvvmRangeValidator = (function (_super) {
     };
     return DotvvmRangeValidator;
 })(DotvvmValidatorBase);
+var DotvvmNotNullValidator = (function (_super) {
+    __extends(DotvvmNotNullValidator, _super);
+    function DotvvmNotNullValidator() {
+        _super.apply(this, arguments);
+    }
+    DotvvmNotNullValidator.prototype.isValid = function (context) {
+        return context.valueToValidate !== null && context.valueToValidate !== undefined;
+    };
+    return DotvvmNotNullValidator;
+})(DotvvmValidatorBase);
 var ValidationError = (function () {
     function ValidationError(targetObservable, errorMessage) {
         this.targetObservable = targetObservable;
@@ -1372,6 +1412,7 @@ var DotvvmValidation = (function () {
             "regularExpression": new DotvvmRegularExpressionValidator(),
             "intrange": new DotvvmIntRangeValidator(),
             "range": new DotvvmRangeValidator(),
+            "notnull": new DotvvmNotNullValidator()
         };
         this.errors = ko.observableArray([]);
         this.events = {
@@ -1485,6 +1526,12 @@ var DotvvmValidation = (function () {
             if (rulesForType.hasOwnProperty(property)) {
                 this.validateProperty(viewModel, viewModelProperty, value, rulesForType[property]);
             }
+            var options = viewModel[property + "$options"];
+            if (options && options.type && ValidationError.isValid(viewModelProperty) && !dotvvm.serialization.validateType(value, options.type)) {
+                var error = new ValidationError(viewModelProperty, value + " is invalid value for type " + options.type);
+                ValidationError.getOrCreate(viewModelProperty).push(error);
+                this.addValidationError(viewModel, error);
+            }
             if (value) {
                 if (Array.isArray(value)) {
                     // handle collections
@@ -1500,7 +1547,7 @@ var DotvvmValidation = (function () {
             }
         }
     };
-    /// Validates the specified property in the viewModel
+    // validates the specified property in the viewModel
     DotvvmValidation.prototype.validateProperty = function (viewModel, property, value, rulesForProperty) {
         for (var _i = 0; _i < rulesForProperty.length; _i++) {
             var rule = rulesForProperty[_i];
