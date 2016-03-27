@@ -9,12 +9,13 @@
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>DotVVM is an OWIN-based ASP.NET framework that allows you to write rich client applications using the MVVM pattern without writing javascript code.</description>
         <summary />
+	<iconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</iconUrl>
         <language />
         <tags>dotvvm dotvvm asp.net mvvm owin</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
                 <dependency id="Microsoft.Owin.StaticFiles" version="3.0.1" />
-				<dependency id="Microsoft.Owin.Security" version="3.0.1" />
+		<dependency id="Microsoft.Owin.Security" version="3.0.1" />
                 <dependency id="Microsoft.Owin.Host.SystemWeb" version="3.0.1" />
                 <dependency id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0" />
                 <dependency id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
