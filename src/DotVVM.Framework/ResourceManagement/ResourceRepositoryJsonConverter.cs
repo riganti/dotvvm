@@ -12,6 +12,8 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class ResourceRepositoryJsonConverter : JsonConverter
     {
+        public static Type UnknownResourceType = null;
+
         static Dictionary<string, Type> _resourceTypeNames;
         public static Dictionary<string, Type> ResourceTypeNames
         {
@@ -59,6 +61,10 @@ namespace DotVVM.Framework.ResourceManagement
                 if (ResourceTypeNames.TryGetValue(prop.Key, out type))
                 {
                     DeserializeResources((JObject)prop.Value, type, serializer, repo);
+                }
+                else if(UnknownResourceType != null)
+                {
+                    DeserializeResources((JObject)prop.Value, UnknownResourceType, serializer, repo);
                 }
                 else
                     throw new NotSupportedException(string.Format("resource collection name {0} is not supported", prop.Key));
