@@ -331,11 +331,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else if (Nullable.GetUnderlyingType(type)?.IsNumericType() == true)
             {
-                options["type"] = Nullable.GetUnderlyingType(type).Name.ToLower();
+                options["type"] = Nullable.GetUnderlyingType(type).Name.ToLower() + "?";
             }
         }
 
-        private static readonly string DotvvmAssemblyName = typeof(ViewModelSerializationMap).Assembly.FullName;
         /// <summary>
         /// Determines whether type can contain encrypted fields
         /// </summary>

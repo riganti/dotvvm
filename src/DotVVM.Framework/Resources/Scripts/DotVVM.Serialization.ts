@@ -218,13 +218,17 @@ class DotvvmSerialization {
     }
 
     public validateType(value, type: string) {
-        var nullable = type[type.length - 1] == "?";
+        var nullable = type[type.length - 1] === "?";
         if (nullable) {
             type = type.substr(0, type.length - 2);
         }
+        if (nullable && (typeof(value) === "undefined" || value == null)) {
+            return true;
+        }
+
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
-            var unsigned = intmatch[1] == "u";
+            var unsigned = intmatch[1] === "u";
             var bits = parseInt(intmatch[2]);
             var minValue = 0;
             var maxValue = Math.pow(2, bits) - 1;
@@ -233,10 +237,10 @@ class DotvvmSerialization {
                 maxValue = maxValue + minValue;
             }
             var int = parseInt(value);
-            return int >= minValue && int <= maxValue && int == parseFloat(value);
+            return int >= minValue && int <= maxValue && int === parseFloat(value);
         }
-        if (type == "number" || type == "single" || type == "double" || type == "decimal") {
-            return parseFloat(value) != NaN || value == NaN;
+        if (type === "number" || type === "single" || type === "double" || type === "decimal") {
+            return parseFloat(value) !== NaN || value === NaN;
         }
         return true;
     }
