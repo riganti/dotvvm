@@ -29,9 +29,9 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
             {
                 textView.Properties.GetOrCreateSingletonProperty(() => new DothtmlGotoDefinitionCommandHandler(textViewAdapter, textView, this));
 
-                var tempSession = CompletionBroker.CreateCompletionSession(textView, textView.TextSnapshot.CreateTrackingPoint(0, Microsoft.VisualStudio.Text.PointTrackingMode.Negative), true);
-                tempSession.Start();
-                tempSession.Dismiss();
+                //var tempSession = CompletionBroker.CreateCompletionSession(textView, textView.TextSnapshot.CreateTrackingPoint(0, Microsoft.VisualStudio.Text.PointTrackingMode.Negative), true);
+                //tempSession.Start();
+                //tempSession.Dismiss();
             }, DispatcherPriority.ApplicationIdle);
         }
     }

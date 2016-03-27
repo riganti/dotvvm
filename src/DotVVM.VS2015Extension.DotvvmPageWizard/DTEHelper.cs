@@ -103,7 +103,7 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
 
         public static string GetProjectPath(Project project)
         {
-            return project.Properties.Item("FullPath").Value as string;
+            return project.Properties?.Item("FullPath")?.Value as string;
         }
 
         public static IEnumerable<ProjectItem> GetAllProjectItems()

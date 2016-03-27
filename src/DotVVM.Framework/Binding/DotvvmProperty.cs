@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -174,6 +175,11 @@ namespace DotVVM.Framework.Binding
             var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
             var field = typeof (TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
             if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
+
+            if (registeredProperties.ContainsKey(fullName))
+            {
+                throw new DotvvmCompilationException($"Property is already registered: {fullName}");
+            }
 
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
