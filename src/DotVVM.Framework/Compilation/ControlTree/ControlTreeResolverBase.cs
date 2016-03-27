@@ -436,7 +436,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         if (c.IsNotEmpty())
                             c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
                 }
-                else treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
+                else if(!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value)))
+                    treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
             }
             else
             {
