@@ -76,7 +76,7 @@
             enumerable: false,
             configurable: true,
             get: function() {
-                dotvvm.serialization.serialize(obj)
+                return dotvvm.serialization.serialize(obj)
             }
         });
     }

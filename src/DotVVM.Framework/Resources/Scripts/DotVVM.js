@@ -16,6 +16,60 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 })();
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
+    }
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        }
+        else {
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
+    };
+    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
+        var id = "";
+        for (var i = 0; i < fragments.length; i++) {
+            if (id.length > 0) {
+                id += "_";
+            }
+            id += ko.unwrap(fragments[i]);
+        }
+        return id;
+    };
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
+})();
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -1220,13 +1274,16 @@ var DotvvmSerialization = (function () {
         return result;
     };
     DotvvmSerialization.prototype.validateType = function (value, type) {
-        var nullable = type[type.length - 1] == "?";
+        var nullable = type[type.length - 1] === "?";
         if (nullable) {
-            type = type.substr(0, type.length - 2);
+            type = type.substr(0, type.length - 1);
+        }
+        if (nullable && (typeof (value) === "undefined" || value == null)) {
+            return true;
         }
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
-            var unsigned = intmatch[1] == "u";
+            var unsigned = intmatch[1] === "u";
             var bits = parseInt(intmatch[2]);
             var minValue = 0;
             var maxValue = Math.pow(2, bits) - 1;
@@ -1235,10 +1292,10 @@ var DotvvmSerialization = (function () {
                 maxValue = maxValue + minValue;
             }
             var int = parseInt(value);
-            return int >= minValue && int <= maxValue && int == parseFloat(value);
+            return int >= minValue && int <= maxValue && int === parseFloat(value);
         }
-        if (type == "number" || type == "single" || type == "double" || type == "decimal") {
-            return parseFloat(value) != NaN || value == NaN;
+        if (type === "number" || type === "single" || type === "double" || type === "decimal") {
+            return parseFloat(value) !== NaN || value === NaN;
         }
         return true;
     };
@@ -1525,7 +1582,7 @@ var DotvvmValidation = (function () {
             }
             var options = viewModel[property + "$options"];
             if (options && options.type && ValidationError.isValid(viewModelProperty) && !dotvvm.serialization.validateType(value, options.type)) {
-                var error = new ValidationError(property, value + " is invalid value for type " + options.type);
+                var error = new ValidationError(viewModelProperty, value + " is invalid value for type " + options.type);
                 ValidationError.getOrCreate(viewModelProperty).push(error);
                 this.addValidationError(viewModel, error);
             }
@@ -1544,7 +1601,7 @@ var DotvvmValidation = (function () {
             }
         }
     };
-    /// Validates the specified property in the viewModel
+    // validates the specified property in the viewModel
     DotvvmValidation.prototype.validateProperty = function (viewModel, property, value, rulesForProperty) {
         for (var _i = 0; _i < rulesForProperty.length; _i++) {
             var rule = rulesForProperty[_i];
@@ -1680,58 +1737,4 @@ var DotvvmValidation = (function () {
     return DotvvmValidation;
 })();
 ;
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
-    }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
-        }
-        else {
-            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
-            }
-        }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
-        var id = "";
-        for (var i = 0; i < fragments.length; i++) {
-            if (id.length > 0) {
-                id += "_";
-            }
-            id += ko.unwrap(fragments[i]);
-        }
-        return id;
-    };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
-})();
 //# sourceMappingURL=DotVVM.js.map

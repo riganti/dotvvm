@@ -220,7 +220,7 @@ class DotvvmSerialization {
     public validateType(value, type: string) {
         var nullable = type[type.length - 1] === "?";
         if (nullable) {
-            type = type.substr(0, type.length - 2);
+            type = type.substr(0, type.length - 1);
         }
         if (nullable && (typeof(value) === "undefined" || value == null)) {
             return true;
