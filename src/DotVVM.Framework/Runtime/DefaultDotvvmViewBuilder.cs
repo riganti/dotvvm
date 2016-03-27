@@ -130,7 +130,7 @@ namespace DotVVM.Framework.Runtime
                 var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
                 if (placeHolder == null)
                 {
-                    throw new Exception(string.Format("The placeholder with ID '{0}' was not found in the master page!", content.ContentPlaceHolderID));
+                    throw new DotvvmControlException(content, $"The placeholder with ID '{content.ContentPlaceHolderID}' was not found in the master page '{masterPage.GetValue(Internal.MarkupFileNameProperty)}'!");
                 }
 
                 // replace the contents

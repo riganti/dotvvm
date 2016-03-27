@@ -41,7 +41,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         public List<CustomerData> Customers { get; set; }
 
         public List<CustomerData> Null { get; set; }
-        
+
         public override Task PreRender()
         {
             // fill dataset

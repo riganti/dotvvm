@@ -17,10 +17,11 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
+        public override bool CanReduce => GetMethod() != null;
+
         public Expression Target { get; set; }
         public string MethodName { get; set; }
         public Type[] TypeArgs { get; set; }
-
         public bool IsStatic => Target is StaticClassIdentifierExpression;
 
         private static MethodInfo CreateDelegateMethodInfo = typeof(Delegate).GetMethod("CreateDelegate", new[] { typeof(Type), typeof(object), typeof(MethodInfo) });
@@ -83,6 +84,11 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 return ExpressionHelper.CallMethod(Target, BindingFlags.Instance | BindingFlags.Public | BindingFlags.FlattenHierarchy, MethodName, TypeArgs, argsArray);
             }
+        }
+
+        public override Expression Reduce()
+        {
+            return CreateDelegateExpression();
         }
 
         public override string ToString()

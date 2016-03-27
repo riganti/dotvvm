@@ -394,6 +394,7 @@
     </Compile>
     <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeResourceRepository.cs" />
     <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeScriptCreator.cs" />
+    <Compile Include="ResourceManagement\NullResource.cs" />
     <Compile Include="ResourceManagement\ResourceConstants.cs" />
     <Compile Include="ResourceManagement\InlineScriptResource.cs" />
     <Compile Include="ResourceManagement\IDotvvmResourceRepository.cs" />

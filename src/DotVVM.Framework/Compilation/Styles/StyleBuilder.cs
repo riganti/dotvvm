@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public StyleBuilder<T> SetProperty<TProperty>(Expression<Func<T, TProperty>> property, TProperty value)
         {
-            var propertyName = ReflectionUtils.GetPropertyNameFromExpression(property);
+            var propertyName = ReflectionUtils.GetMemberFromExpression(property.Body).Name;
             return SetDotvvmProperty(GetProperty(propertyName), value);
         }
 

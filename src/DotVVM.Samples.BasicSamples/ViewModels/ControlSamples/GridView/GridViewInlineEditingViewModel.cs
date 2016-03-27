@@ -35,6 +35,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         }
 
 
+
         public GridViewDataSet<CustomerData> CustomersDataSet { get; set; }
 
         public string SelectedSortColumn { get; set; }
@@ -103,4 +104,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             SelectedSortColumn = column;
         }
     }
+
+
 }

@@ -49,8 +49,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var searchKey = GetSearchKey(tagPrefix, tagName);
             activationParameters = null;
             var controlType = cachedTagMappings.GetOrAdd(searchKey, _ => FindControlType(tagPrefix, tagName));
-            var metadata = ResolveControl(controlType);
-            return metadata;
+            if (controlType == null) return null;
+            return ResolveControl(controlType);
         }
 
         private static string GetSearchKey(string tagPrefix, string tagName)
@@ -126,6 +126,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     return FindMarkupControl(rule.Src);
                 }
             }
+            return null;
 
             throw new Exception($"The control <{tagPrefix}:{tagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
         }

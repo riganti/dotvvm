@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         [AttachedProperty(typeof(bool))]
         public static readonly DotvvmProperty HideWhenValidProperty =
-            DotvvmProperty.Register<bool, Validator>("HideWhenValid", isValueInherited: true);
+            DotvvmProperty.Register<bool, Validator>(() => HideWhenValidProperty, isValueInherited: true);
 
         /// <summary>
         /// Gets or sets the name of CSS class which is applied to the control when it is not valid.
@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         [AttachedProperty(typeof(string))]
         public static readonly DotvvmProperty InvalidCssClassProperty =
-            DotvvmProperty.Register<string, Validator>("InvalidCssClass", isValueInherited: true);
+            DotvvmProperty.Register<string, Validator>(() => InvalidCssClassProperty, isValueInherited: true);
 
         /// <summary>
         /// Gets or sets whether the title attribute should be set to the error message.
@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         [AttachedProperty(typeof(bool))]
         public static readonly DotvvmProperty SetToolTipTextProperty =
-            DotvvmProperty.Register<bool, Validator>("SetToolTipText", isValueInherited: true);
+            DotvvmProperty.Register<bool, Validator>(() => SetToolTipTextProperty, isValueInherited: true);
 
         /// <summary>
         /// Gets or sets whether the error message text should be displayed.
@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         [AttachedProperty(typeof(bool))]
         public static readonly DotvvmProperty ShowErrorMessageTextProperty =
-            DotvvmProperty.Register<bool, Validator>("ShowErrorMessageText", isValueInherited: true);
+            DotvvmProperty.Register<bool, Validator>(() => ShowErrorMessageTextProperty, isValueInherited: true);
 
 
 
@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Controls
             var bindingGroup = new KnockoutBindingGroup();
             foreach (var property in ValidationOptionProperties)
             {
-                var javascriptName = property.Name.Substring(0, 1).ToLower() + property.Name.Substring(1);
+                var javascriptName = KnockoutHelper.ConvertToCamelCase(property.Name);
                 var optionValue = control.GetValue(property);
                 if (!object.Equals(optionValue, property.DefaultValue))
                 {

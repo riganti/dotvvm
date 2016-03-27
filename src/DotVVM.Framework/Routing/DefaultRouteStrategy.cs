@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Routing
 
         public IEnumerable<RouteBase> GetRoutes()
         {
-            var existingRouteNames = new HashSet<string>(configuration.RouteTable.Select(r => r.RouteName));
+            var existingRouteNames = new HashSet<string>(configuration.RouteTable.Select(r => r.RouteName), StringComparer.OrdinalIgnoreCase);
 
             return DiscoverMarkupFiles()
                 .Select(BuildRoute)

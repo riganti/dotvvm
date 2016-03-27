@@ -18,14 +18,14 @@ namespace DotVVM.Framework.Runtime.Filters
         {
             if (exception != null)
             {
-                OnException(context, actionInfo, exception);
+                OnCommandException(context, actionInfo, exception);
             }
         }
 
         /// <summary>
         /// Called when the exception occurs during the command invocation.
         /// </summary>
-        protected virtual void OnException(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
+        protected virtual void OnCommandException(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
         {
         }
 

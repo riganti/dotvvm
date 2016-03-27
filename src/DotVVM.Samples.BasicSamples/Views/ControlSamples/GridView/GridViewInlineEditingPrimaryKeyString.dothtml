@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.GridViewInlineEditingValidationViewModel, DotVVM.Samples.BasicSamples
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.GridViewInlineEditingPrimaryKeyStringViewModel, DotVVM.Samples.BasicSamples
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
@@ -10,9 +10,8 @@
     </style>
 </head>
 <body>
-	
     <div class="container">
-		
+
         <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered"
                        PostBack.Update="true" InlineEditing="true">
             <Columns>
@@ -20,14 +19,13 @@
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
 				<dot:GridViewTextColumn HeaderText="Email" ValueBinding="{value: Email}" AllowSorting="True" />
-				<dot:GridViewTextColumn HeaderText="Money" ValueBinding="{value: Money}" FormatString="N" AllowSorting="True" />
 				<dot:GridViewTemplateColumn AllowSorting="false">
 					<ContentTemplate>
 						<dot:Button ButtonTagName="button" Text="Edit" Click="{command: _parent.EditItem(_this)}"></dot:Button>
 					</ContentTemplate>
 					<EditTemplate>
 						<dot:Button ButtonTagName="button" Text="Save" Click="{command: _parent.UpdateItem(_this)}"></dot:Button>
-						<dot:Button Validation.Enabled="false" ButtonTagName="button" Text="Cancel" Click="{command: _parent.CancelEditItem()}"></dot:Button>
+						<dot:Button ButtonTagName="button" Text="Cancel" Click="{command: _parent.CancelEditItem()}"></dot:Button>
 					</EditTemplate>
 				</dot:GridViewTemplateColumn>
             </Columns>
@@ -37,7 +35,8 @@
         <p>&nbsp;</p>
         <p>&nbsp;</p>
 
-		<span class="validation"><dot:ValidationSummary IncludeErrorsFromChildren="true"></dot:ValidationSummary></span>
+   
+
 
     </div>
 </body>

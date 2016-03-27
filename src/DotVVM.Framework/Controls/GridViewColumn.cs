@@ -30,20 +30,20 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public string SortAscendingHeaderCssClass
         {
-            get { return (string)GetValue(SortUpCssClassProperty); }
-            set { SetValue(SortUpCssClassProperty, value); }
+            get { return (string)GetValue(SortAscendingHeaderCssClassProperty); }
+            set { SetValue(SortAscendingHeaderCssClassProperty, value); }
         }
-        public static readonly DotvvmProperty SortUpCssClassProperty =
+        public static readonly DotvvmProperty SortAscendingHeaderCssClassProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.SortAscendingHeaderCssClass, "sort-asc");
 
 
         [MarkupOptions(AllowBinding = false)]
         public string SortDescendingHeaderCssClass
         {
-            get { return (string)GetValue(SortDownCssClassProperty); }
-            set { SetValue(SortDownCssClassProperty, value); }
+            get { return (string)GetValue(SortDescendingHeaderCssClassProperty); }
+            set { SetValue(SortDescendingHeaderCssClassProperty, value); }
         }
-        public static readonly DotvvmProperty SortDownCssClassProperty =
+        public static readonly DotvvmProperty SortDescendingHeaderCssClassProperty =
             DotvvmProperty.Register<string, GridViewColumn>(c => c.SortDescendingHeaderCssClass, "sort-desc");
 
         [MarkupOptions(AllowBinding = false)]

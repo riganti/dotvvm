@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using System.Diagnostics;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -145,13 +146,25 @@ namespace DotVVM.Framework.Binding
             control.Properties[this] = value;
         }
 
+        /// <summary>
+        /// Registers the specified DotVVM property.
+        /// </summary>
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<DotvvmProperty>> fieldAccessor, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false)
+        {
+            var field = ReflectionUtils.GetMemberFromExpression(fieldAccessor.Body) as FieldInfo;
+            if (field == null || !field.IsStatic) throw new ArgumentException("The expression should be simple static field access", nameof(fieldAccessor));
+            if (!field.Name.EndsWith("Property", StringComparison.Ordinal)) throw new ArgumentException($"DotVVM property backing field's '{field.Name}' name should end with 'Property'");
+            return Register<TPropertyType, TDeclaringType>(field.Name.Remove(field.Name.Length - "Property".Length), defaultValue, isValueInherited);
+        }
 
         /// <summary>
         /// Registers the specified DotVVM property.
         /// </summary>
-        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyName, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false)
+        public static DotvvmProperty Register<TPropertyType, TDeclaringType>(Expression<Func<TDeclaringType, object>> propertyAccessor, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false)
         {
-            return Register<TPropertyType, TDeclaringType>(ReflectionUtils.GetPropertyNameFromExpression(propertyName), defaultValue, isValueInherited);
+            var property = ReflectionUtils.GetMemberFromExpression(propertyAccessor.Body) as PropertyInfo;
+            if (property == null) throw new ArgumentException("The expression should be simple property access", nameof(propertyAccessor));
+            return Register<TPropertyType, TDeclaringType>(property.Name, defaultValue, isValueInherited);
         }
 
         /// <summary>
@@ -161,7 +174,10 @@ namespace DotVVM.Framework.Binding
         {
             var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
             var field = typeof (TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
 
+            if (registeredProperties.ContainsKey(fullName)) throw new ArgumentException($"Property is already registered: {fullName}");
+        
             return registeredProperties.GetOrAdd(fullName, _ =>
             {
                 var propertyInfo = typeof(TDeclaringType).GetProperty(propertyName);

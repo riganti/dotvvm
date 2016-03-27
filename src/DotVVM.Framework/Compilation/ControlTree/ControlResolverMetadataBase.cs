@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public ControlResolverMetadataBase(IControlType controlType)
         {
             this.controlType = controlType;
-            this.attribute = controlType?.Type.GetControlMarkupOptionsAttribute();
+            this.attribute = controlType?.Type?.GetControlMarkupOptionsAttribute();
 
             this.properties = new Lazy<Dictionary<string, IPropertyDescriptor>>(() => {
                 var result = new Dictionary<string, IPropertyDescriptor>(StringComparer.CurrentCultureIgnoreCase);

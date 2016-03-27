@@ -183,8 +183,8 @@ namespace DotVVM.Framework.Hosting
                        globalFilters.Concat(viewModelFilters).Concat(actionInfo.Binding.ActionFilters).ToArray();
 
                     await ExecuteCommand(actionInfo, context, methodFilters);
-                    }
-                        }
+                }
+            }
 
             if (context.ViewModel is IDotvvmViewModel)
             {

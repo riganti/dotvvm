@@ -82,5 +82,29 @@ namespace DotVVM.Framework.Configuration
                 Assemblies.Add(assemblyName);
             }
         }
+
+        /// <summary>
+        /// Registers markup control
+        /// </summary>
+        public void AddMarkupControl(string tagPrefix, string tagName, string src)
+        {
+            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, TagName = tagName, Src = src });
+        }
+
+        /// <summary>
+        /// Registers code controls in the specified namespace from the specified assembly
+        /// </summary>
+        public void AddCodeControl(string tagPrefix, string namespaceName, string assembly)
+        {
+            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = namespaceName, Assembly = assembly });
+        }
+
+        /// <summary>
+        /// Registers code controls from the same namespace and assembly as exampleControl
+        /// </summary>
+        public void AddCodeControl(string tagPrefix, Type exampleControl)
+        {
+            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.Assembly.FullName });
+        }
     }
 }
