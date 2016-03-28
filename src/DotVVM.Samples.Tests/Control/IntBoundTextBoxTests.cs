@@ -24,7 +24,8 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("input[type=button]", 0).Click();
                 browser.Wait();
 
-                browser.ElementAt("span", 0).CheckIfInnerTextEquals("NaN");
+                browser.ElementAt("input", 0).CheckIfInnerTextEquals("0");
+                browser.ElementAt("span", 0).CheckIfInnerTextEquals("0");
             });
         }
     }
