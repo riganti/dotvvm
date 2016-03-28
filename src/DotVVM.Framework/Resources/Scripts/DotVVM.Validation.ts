@@ -65,7 +65,7 @@ class ValidationError {
     }
 
     public static isValid(observable: KnockoutObservable<any> & { validationErrors?: KnockoutObservableArray<ValidationError> }) {
-        return !observable.validationErrors || observable.validationErrors.length == 0;
+        return !observable.validationErrors || observable.validationErrors().length === 0;
     }
 
     public static clear(observable: KnockoutObservable<any> & { validationErrors?: KnockoutObservableArray<ValidationError> }) {

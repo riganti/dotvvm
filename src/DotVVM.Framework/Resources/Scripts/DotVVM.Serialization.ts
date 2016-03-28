@@ -228,6 +228,8 @@ class DotvvmSerialization {
 
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
+            if (!/^-?\d*$/.test(value)) return false;
+
             var unsigned = intmatch[1] === "u";
             var bits = parseInt(intmatch[2]);
             var minValue = 0;
@@ -240,7 +242,7 @@ class DotvvmSerialization {
             return int >= minValue && int <= maxValue && int === parseFloat(value);
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
-            return parseFloat(value) !== NaN || value === NaN;
+            return !isNaN(value) || value === NaN;
         }
         return true;
     }

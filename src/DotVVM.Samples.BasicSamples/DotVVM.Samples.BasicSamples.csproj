@@ -163,6 +163,7 @@
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\EssentialTypeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelNesting\NestedViewModel.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
@@ -330,6 +331,7 @@
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
     <Content Include="Views\FeatureSamples\Resources\OnlineNonameResourceLoad.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelNesting\NestedViewModel.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\EssentialTypeValidation.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

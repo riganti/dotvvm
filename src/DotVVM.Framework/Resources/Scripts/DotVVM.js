@@ -1283,6 +1283,8 @@ var DotvvmSerialization = (function () {
         }
         var intmatch = /(u?)int(\d*)/.exec(type);
         if (intmatch) {
+            if (!/^-?\d*$/.test(value))
+                return false;
             var unsigned = intmatch[1] === "u";
             var bits = parseInt(intmatch[2]);
             var minValue = 0;
@@ -1295,7 +1297,7 @@ var DotvvmSerialization = (function () {
             return int >= minValue && int <= maxValue && int === parseFloat(value);
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
-            return parseFloat(value) !== NaN || value === NaN;
+            return !isNaN(value) || value === NaN;
         }
         return true;
     };
@@ -1449,7 +1451,7 @@ var ValidationError = (function () {
         return targetObservable.validationErrors;
     };
     ValidationError.isValid = function (observable) {
-        return !observable.validationErrors || observable.validationErrors.length == 0;
+        return !observable.validationErrors || observable.validationErrors().length === 0;
     };
     ValidationError.clear = function (observable) {
         if (observable.validationErrors != null) {
