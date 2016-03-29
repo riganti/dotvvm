@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var properties = GetDeclaredProperties().Where(p => !typeof(DotvvmMarkupControl).IsAssignableFrom(p.PropertyType))
+            var properties = GetDeclaredProperties().Where(p => !p.PropertyType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
                 .Select(p => new
                 {
                     js = GetJsValue(p),
