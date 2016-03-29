@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Controls
             Attributes = new Dictionary<string, object>();
         }
 
-        /// <summary> ahoj kokoti
+        /// <summary>
         /// Initializes a new instance of the <see cref="HtmlGenericControl"/> class.
         /// </summary>
         public HtmlGenericControl(string tagName) : this()
