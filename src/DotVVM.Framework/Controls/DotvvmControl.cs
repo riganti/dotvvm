@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Controls
 
                 if (enumerateChildrenCondition == null || enumerateChildrenCondition(child))
                 {
-                    foreach (var grandChild in child.GetAllDescendants())
+                    foreach (var grandChild in child.GetAllDescendants(enumerateChildrenCondition))
                     {
                         yield return grandChild;
                     }
