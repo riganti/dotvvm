@@ -9,5 +9,9 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class ContentPlaceHolder : DotvvmControl
     {
+        public ContentPlaceHolder()
+        {
+            SetValue(Internal.IsNamingContainerProperty, true);
+        }
     }
 }
