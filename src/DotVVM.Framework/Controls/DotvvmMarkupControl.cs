@@ -5,6 +5,7 @@ using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -13,7 +14,7 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class DotvvmMarkupControl : HtmlGenericControl
     {
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
         /// </summary>
@@ -31,27 +32,53 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            var properties = GetDeclaredProperties().Where(p => !p.PropertyType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
-                .Select(p => new
-                {
-                    js = GetJsValue(p),
-                    property = p
-                })
-                .Select(p => JsonConvert.SerializeObject(p.property.Name) + ": " + p.js);
+            var properties =
+                GetDeclaredProperties()
+                .Where(p => !p.PropertyType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
+                .Select(GetPropertySerializationInfo)
+                .Where(p => p.IsSerializable)
+                .Select(p => JsonConvert.SerializeObject(p.Property.Name) + ": " + p.Js);
 
             writer.WriteKnockoutDataBindComment("withControlProperties", "{ " + string.Join(", ", properties) + " }");
             base.RenderContents(writer, context);
             writer.WriteKnockoutDataBindEndComment();
         }
 
-        private string GetJsValue(DotvvmProperty property)
+        private PropertySerializeInfo GetPropertySerializationInfo(DotvvmProperty property)
         {
-            var valueBinding = GetValueBinding(property);
-            if (valueBinding != null)
+            var binding = GetBinding(property);
+
+            if (binding == null)
             {
-                return valueBinding.GetKnockoutBindingExpression();
+
+                return new PropertySerializeInfo
+                {
+                    Property = property,
+                    Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None),
+                    IsSerializable = true
+                };
             }
-            return JsonConvert.SerializeObject(GetValue(property), Formatting.None);
+            else if (binding is IValueBinding)
+            {
+                return new PropertySerializeInfo
+                {
+                    Property = property,
+                    Js = (binding as IValueBinding).GetKnockoutBindingExpression(),
+                    IsSerializable = true
+
+                };
+            }
+            else
+            {
+                return new PropertySerializeInfo { Property = property };
+            }
+        }
+
+        private class PropertySerializeInfo
+        {
+            public string Js { get; set; }
+            public DotvvmProperty Property { get; set; }
+            public bool IsSerializable { get; set; }
         }
     }
 }
