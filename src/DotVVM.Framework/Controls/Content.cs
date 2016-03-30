@@ -22,5 +22,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ContentPlaceHolderIDProperty =
             DotvvmProperty.Register<string, Content>(c => c.ContentPlaceHolderID);
 
+        public Content()
+        {
+            SetValue(Internal.IsNamingContainerProperty, true);
+        }
     }
 }

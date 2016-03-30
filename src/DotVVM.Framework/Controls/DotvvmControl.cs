@@ -245,7 +245,7 @@ namespace DotVVM.Framework.Controls
                 throw new ArgumentNullException(nameof(id));
             }
 
-            var control = GetAllDescendants(c => !IsNamingContainer(c)).SingleOrDefault(c => c.ID == id);
+            var control = GetAllDescendants(c => !IsNamingContainer(c)).SingleOrDefault(c => (c.ID ?? (string)c.GetValue(Internal.UniqueIDProperty)) == id);
             if (control == null && throwIfNotFound)
             {
                 throw new Exception(string.Format("The control with ID '{0}' was not found.", id));
