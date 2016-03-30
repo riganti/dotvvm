@@ -74,11 +74,11 @@ namespace DotVVM.Framework.Security
             }
 
             // Get SID from cookie and compare with token one
-            var cookieSid = this.GetOrCreateSessionId(context);
+            var cookieSid = this.GetOrCreateSessionId(context, canGenerate: false); // should not generate new token
             if (!cookieSid.SequenceEqual(tokenSid)) throw new SecurityException("CSRF protection token is invalid.");
         }
 
-        private byte[] GetOrCreateSessionId(IDotvvmRequestContext context)
+        private byte[] GetOrCreateSessionId(IDotvvmRequestContext context, bool canGenerate = true)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
             var sessionIdCookieName = GetSessionIdCookieName(context);
@@ -95,9 +95,29 @@ namespace DotVVM.Framework.Security
             // Get cookie value
             var sidCookieValue = mgr.GetRequestCookie(context.OwinContext, sessionIdCookieName);
 
-            if (string.IsNullOrWhiteSpace(sidCookieValue))
+            if (!string.IsNullOrWhiteSpace(sidCookieValue))
             {
-                // No SID - generate and protect new one
+                // Try to read from cookie
+                try
+                {
+                    var protectedSid = Convert.FromBase64String(sidCookieValue);
+                    var sid = protector.Unprotect(protectedSid);
+                    return sid;
+                }
+                catch (Exception ex)
+                {
+                    // Incorrect Base64 formatting of crypto protection error
+                    // Generate new one or thow error if can't
+                    if (!canGenerate)
+                        throw new SecurityException("Value of the SessionID cookie is corrupted or has been tampered with.", ex);
+                    // else suppress error and generate new SID
+                }
+            }
+
+            // No SID - generate and protect new one
+
+            if(canGenerate)
+            {
                 var rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
                 var sid = new byte[SID_LENGTH];
                 rng.GetBytes(sid);
@@ -118,19 +138,9 @@ namespace DotVVM.Framework.Security
                 // Return newly generated SID
                 return sid;
             }
-            else {
-                // Try to read from cookie
-                try
-                {
-                    var protectedSid = Convert.FromBase64String(sidCookieValue);
-                    var sid = protector.Unprotect(protectedSid);
-                    return sid;
-                }
-                catch (Exception ex)
-                {
-                    // Incorrect Base64 formatting of crypto protection error
-                    throw new SecurityException("Value of the SessionID cookie is corrupted or has been tampered with.", ex);
-                }
+            else
+            {
+                throw new SecurityException("SessionID cookie is missing, so can't verify CSRF token.");
             }
         }
 
