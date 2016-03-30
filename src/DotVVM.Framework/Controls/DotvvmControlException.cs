@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Controls
         {
             ControlType = control.GetType();
             LineNumber = (int?)Internal.MarkupLineNumberProperty.GetValue(control);
+            if (control.Parent != null) control = control.Parent;
             FileName = (string)Internal.MarkupFileNameProperty.GetValue(control);
         }
     }
