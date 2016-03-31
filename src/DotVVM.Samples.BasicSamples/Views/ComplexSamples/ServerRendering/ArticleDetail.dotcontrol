@@ -3,7 +3,7 @@
 
 <article>
     <ul>
-        <li>{{controlProperty: SanitizedMessage}}</li>
+        <li><dot:Literal data-ui="detail-text" Text="{controlProperty: SanitizedMessage}"></li>
         <li><dot:LinkButton Click="{controlCommand: OnEditClick()}" Text="Edit"></li>
     </ul>
 </article>

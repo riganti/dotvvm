@@ -13,9 +13,8 @@
     </div>
     <div DataContext="{value: EditedArticle}" Visible="{value: _root.ShowEditForm}" RenderSettings.Mode="Server" PostBack.Update="true">
         <sample:ArticleEditor Date="{value: DateSubmitted}"
-                            OriginalMessage="{value: Message}"/>
+                              OriginalMessage="{value: Message}"/>
     </div>
-    <dot:LinkButton data-ui="rewrite-link" Click="{command: RewriteArticle()}" Text="Rewrite"></dot:LinkButton>
 </body>
 </html>
 
