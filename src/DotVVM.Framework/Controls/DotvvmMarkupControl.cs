@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Controls
         {
             var properties =
                 GetDeclaredProperties()
-                .Where(p => !p.PropertyType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
+                .Where(p => !p.DeclaringType.IsAssignableFrom(typeof(DotvvmMarkupControl)))
                 .Select(GetPropertySerializationInfo)
                 .Where(p => p.IsSerializable)
                 .Select(p => JsonConvert.SerializeObject(p.Property.Name) + ": " + p.Js);
