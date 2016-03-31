@@ -211,7 +211,9 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.cs" />
-    <Compile Include="Views\ComplexSamples\ServerRendering\TestControl.cs" />
+    <Compile Include="Views\ComplexSamples\ServerRendering\ArticleBase.cs" />
+    <Compile Include="Views\ComplexSamples\ServerRendering\ArticleDetail.cs" />
+    <Compile Include="Views\ComplexSamples\ServerRendering\ArticleEditor.cs" />
     <Compile Include="Views\FeatureSamples\Localization\Localization2.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -330,8 +332,10 @@
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyGuid.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyString.dothtml" />
     <Content Include="Views\ComplexSamples\ServerRendering\ControlUsageSample.dothtml" />
-    <Content Include="Views\ComplexSamples\ServerRendering\TestControl.dotcontrol" />
+    <Content Include="Views\ComplexSamples\ServerRendering\ArticleEditor.dotcontrol" />
     <Content Include="Views\ComplexSamples\ServerRendering\ControlUsageSampleRewriting.dothtml" />
+    <Content Include="Views\ComplexSamples\ServerRendering\MarkupControlInRepeaterEditing.dothtml" />
+    <Content Include="Views\ComplexSamples\ServerRendering\ArticleDetail.dotcontrol" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

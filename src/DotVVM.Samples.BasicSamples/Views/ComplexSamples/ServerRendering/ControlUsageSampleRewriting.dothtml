@@ -13,14 +13,14 @@
     </div>
     <div data-ui="context-1" DataContext="{value: EditedArticle}" Visible="{value: _root.ShowEditForm && _root.ShowFirstForm}">
         <div RenderSettings.Mode="Server" PostBack.Update="true">
-            <sample:TestControl Date="{value: DateSubmitted}"
-                                OriginalMessage="{value: Message}" />
+            <sample:ArticleEditor Date="{value: DateSubmitted}"
+                                         OriginalMessage="{value: Message}"/>
         </div>
     </div>
     <div data-ui="context-2" DataContext="{value: EditedArticle}" Visible="{value: _root.ShowEditForm && !_root.ShowFirstForm}">
         <div RenderSettings.Mode="Server" PostBack.Update="true">
-            <sample:TestControl Date="{value: DateSubmitted}"
-                                OriginalMessage="{value: Message}" />
+            <sample:ArticleEditor Date="{value: DateSubmitted}"
+                                         OriginalMessage="{value: Message}" />
         </div>
     </div>
     <dot:LinkButton data-ui="rewrite-link" Click="{command: RewriteArticle()}" Text="Rewrite"></dot:LinkButton>

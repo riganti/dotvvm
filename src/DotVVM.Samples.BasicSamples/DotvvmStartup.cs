@@ -38,8 +38,14 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.Controls.Add(new DotvvmControlConfiguration()
             {
                 TagPrefix = "sample",
-                TagName = "TestControl",
-                Src = "Views/ComplexSamples/ServerRendering/TestControl.dotcontrol"
+                TagName = "ArticleEditor",
+                Src = "Views/ComplexSamples/ServerRendering/ArticleEditor.dotcontrol"
+            });
+            config.Markup.Controls.Add(new DotvvmControlConfiguration()
+            {
+                TagPrefix = "sample",
+                TagName = "ArticleDetail",
+                Src = "Views/ComplexSamples/ServerRendering/ArticleDetail.dotcontrol"
             });
 
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
