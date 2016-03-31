@@ -35,6 +35,7 @@ namespace DotVVM.Samples.BasicSamples
                 TagName = "ControlPropertyUpdating",
                 Src = "Views/FeatureSamples/MarkupControl/ControlPropertyUpdating.dotcontrol"
             });
+            config.Markup.AddMarkupControl("sample", "TextEditorControl", "Views/FeatureSamples/MarkupControl/TextEditorControl.dotcontrol");
 
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));

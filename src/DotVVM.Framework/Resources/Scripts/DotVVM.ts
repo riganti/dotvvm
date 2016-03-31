@@ -618,29 +618,21 @@ class DotVVM {
                 for (var prop in value) {
                     value[prop] = ko.pureComputed({
                         read() {
-                            return this.value != null ? this.value : ko.unwrap(valueAccessor()[prop]);
+                            var property = valueAccessor()[this.prop];
+                            var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
+                            return propertyValue;
                         },
                         write(value) {
-                            var val = valueAccessor()[prop]
+                            var val = valueAccessor()[this.prop]
                             if (ko.isObservable(val)) {
                                 val(value);
-                                this.value = null;
                             }
-                            else this.value = value;
+                            else
+                            {
+                                console.log(`Attempted to write to readonly property '${this.prop}' at '${valueAccessor.toString()}'`);
+                            }
                         }
-                    }, {});
-
-                    //if (!ko.isObservable(value[prop])) {
-                    //    var obs = ko.observable(value[prop]);
-                    //    value[prop] = obs;
-
-                    //    obs.subscribe(s => {
-                    //        var realProperty = valueAccessor()[prop];
-                    //        if (ko.isObservable(realProperty)) {
-                    //            realProperty(s);
-                    //        }
-                    //    });
-                    //}
+                    }, {prop: prop});
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -648,13 +640,15 @@ class DotVVM {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
             update(element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var control = element.innerBindingContext.$control;
-                var value = valueAccessor();
-                for (var p in control) {
-                    if (control.hasOwnProperty(p) && ko.isObservable(control[p])) {
-                        (<KnockoutObservable<any>>control[p]).notifySubscribers(ko.unwrap(value[p]));
-                    }
-                }
+                // I don't know if the update function is needed, the following can fix potential problems
+                // 
+                //var control = element.innerBindingContext.$control;
+                //var value = valueAccessor();
+                //for (var p in control) {
+                //    if (control.hasOwnProperty(p) && ko.isObservable(control[p])) {
+                //        (<KnockoutObservable<any>>control[p]).notifySubscribers(ko.unwrap(value[p]));
+                //    }
+                //}
             }
         };
 
