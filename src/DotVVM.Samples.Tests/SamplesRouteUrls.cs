@@ -99,5 +99,7 @@ namespace Dotvvm.Samples.Tests
         public const string FeatureSamples_ViewModelDeserialization_DoesNotDropObject = "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
         public const string FeatureSamples_ViewModelProtection_ViewModelProtection = "FeatureSamples/ViewModelProtection/ViewModelProtection";
         public const string Feature_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
+        public const string ComplexSamples_ServerRendering_ControlUsageSample = "ComplexSamples/ServerRendering/ControlUsageSample";
+        public const string ComplexSamples_ServerRendering_ControlUsageSampleRewriting = "ComplexSamples/ServerRendering/ControlUsageSampleRewriting";
     }
 }
