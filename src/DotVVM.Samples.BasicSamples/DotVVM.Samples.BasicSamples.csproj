@@ -163,6 +163,7 @@
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\NastyChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\EssentialTypeValidationViewModel.cs" />
@@ -220,6 +221,7 @@
       <DependentUpon>Localization2.resx</DependentUpon>
     </Compile>
     <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.cs" />
+    <Compile Include="Views\FeatureSamples\MarkupControl\TextEditorControl.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Web.config" />
@@ -342,6 +344,8 @@
     <Content Include="Views\FeatureSamples\Resources\OnlineNonameResourceLoad.dothtml" />
     <Content Include="Views\FeatureSamples\ViewModelNesting\NestedViewModel.dothtml" />
     <Content Include="Views\FeatureSamples\Validation\EssentialTypeValidation.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServer.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\TextEditorControl.dotcontrol" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

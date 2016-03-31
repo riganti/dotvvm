@@ -142,8 +142,7 @@ class DotVVM {
             try {
                 callback(JSON.parse(response.responseText));
             }
-            catch(error)
-            {
+            catch (error) {
                 errorCallback(response, error);
             }
         }, errorCallback,
@@ -234,7 +233,7 @@ class DotVVM {
 
                         // update the viewmodel
                         if (resultObject.viewModel) {
-                        this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                            this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
                         }
                         isSuccess = true;
 
@@ -273,7 +272,7 @@ class DotVVM {
     private error(viewModel, xhr: XMLHttpRequest, promise: DotvvmPromise<any> = null) {
         // execute error handlers
         var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-        if(promise != null) promise.reject(errArgs);
+        if (promise != null) promise.reject(errArgs);
         this.events.error.trigger(errArgs);
         if (!errArgs.handled) {
             alert("unhandled error during postback");
@@ -454,7 +453,7 @@ class DotVVM {
         // trigger redirect event
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
-        
+
         if (replace) {
             location.replace(url);
         } else {
@@ -617,9 +616,23 @@ class DotVVM {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 var value = valueAccessor();
                 for (var prop in value) {
-                    if (!ko.isObservable(value[prop])) {
-                        value[prop] = ko.observable(value[prop]);
-                    }
+                    value[prop] = ko.pureComputed({
+                        read() {
+                            var property = valueAccessor()[this.prop];
+                            var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
+                            return propertyValue;
+                        },
+                        write(value) {
+                            var val = valueAccessor()[this.prop]
+                            if (ko.isObservable(val)) {
+                                val(value);
+                            }
+                            else
+                            {
+                                console.log(`Attempted to write to readonly property '${this.prop}' at '${valueAccessor.toString()}'`);
+                            }
+                        }
+                    }, {prop: prop});
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -627,14 +640,15 @@ class DotVVM {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
             update(element, valueAccessor, allBindings, viewModel, bindingContext) {
-                var control = element.innerBindingContext.$control;
-                var value = valueAccessor();
-                for (var p in value) {
-                    var unwrappedValue = ko.unwrap(value[p]);
-                    if (unwrappedValue !== ko.unwrap(control[p])) {
-                        control[p](unwrappedValue);
-                    }
-                }
+                // I don't know if the update function is needed, the following can fix potential problems
+                // 
+                //var control = element.innerBindingContext.$control;
+                //var value = valueAccessor();
+                //for (var p in control) {
+                //    if (control.hasOwnProperty(p) && ko.isObservable(control[p])) {
+                //        (<KnockoutObservable<any>>control[p]).notifySubscribers(ko.unwrap(value[p]));
+                //    }
+                //}
             }
         };
 

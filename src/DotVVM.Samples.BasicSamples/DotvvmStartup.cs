@@ -47,6 +47,7 @@ namespace DotVVM.Samples.BasicSamples
                 TagName = "ArticleDetail",
                 Src = "Views/ComplexSamples/ServerRendering/ArticleDetail.dotcontrol"
             });
+            config.Markup.AddMarkupControl("sample", "TextEditorControl", "Views/FeatureSamples/MarkupControl/TextEditorControl.dotcontrol");
 
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
