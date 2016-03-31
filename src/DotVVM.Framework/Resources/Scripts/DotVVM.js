@@ -763,9 +763,20 @@ var DotVVM = (function () {
             init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var value = valueAccessor();
                 for (var prop in value) {
-                    if (!ko.isObservable(value[prop])) {
-                        value[prop] = ko.observable(value[prop]);
-                    }
+                    value[prop] = ko.pureComputed({
+                        read: function () {
+                            return this.value != null ? this.value : ko.unwrap(valueAccessor()[prop]);
+                        },
+                        write: function (value) {
+                            var val = valueAccessor()[prop];
+                            if (ko.isObservable(val)) {
+                                val(value);
+                                this.value = null;
+                            }
+                            else
+                                this.value = value;
+                        }
+                    }, {});
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -775,10 +786,9 @@ var DotVVM = (function () {
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var control = element.innerBindingContext.$control;
                 var value = valueAccessor();
-                for (var p in value) {
-                    var unwrappedValue = ko.unwrap(value[p]);
-                    if (unwrappedValue !== ko.unwrap(control[p])) {
-                        control[p](unwrappedValue);
+                for (var p in control) {
+                    if (control.hasOwnProperty(p) && ko.isObservable(control[p])) {
+                        control[p].notifySubscribers(ko.unwrap(value[p]));
                     }
                 }
             }
