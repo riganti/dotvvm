@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Controls
             set { SetValue(TextProperty, value); }
         }
         public static readonly DotvvmProperty TextProperty =
-            DotvvmProperty.Register<string, RouteLink>(c => c.Text);
+            DotvvmProperty.Register<string, RouteLink>(c => c.Text, "");
 
 
         public RouteLink() : base("a")
