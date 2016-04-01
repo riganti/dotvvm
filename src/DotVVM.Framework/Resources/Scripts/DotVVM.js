@@ -665,7 +665,7 @@ var DotVVM = (function () {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var updatedControl = updatedControls[id];
                 if (updatedControl) {
-                    var wrapper = document.createElement("div");
+                    var wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
                     wrapper.innerHTML = resultObject.updatedControls[id];
                     if (wrapper.childElementCount > 1)
                         throw new Error("Postback.Update control can not render more than one element");
