@@ -16,60 +16,6 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 })();
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
-    }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
-        }
-        else {
-            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
-            }
-        }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
-        var id = "";
-        for (var i = 0; i < fragments.length; i++) {
-            if (id.length > 0) {
-                id += "_";
-            }
-            id += ko.unwrap(fragments[i]);
-        }
-        return id;
-    };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
-})();
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -704,10 +650,11 @@ var DotVVM = (function () {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var control = document.getElementById(id);
                 if (control) {
+                    var dataContext = ko.contextFor(control);
                     var nextSibling = control.nextSibling;
                     var parent = control.parentNode;
                     ko.removeNode(control);
-                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent, dataContext: dataContext };
                 }
             }
         }
@@ -718,13 +665,22 @@ var DotVVM = (function () {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var updatedControl = updatedControls[id];
                 if (updatedControl) {
+                    var wrapper = document.createElement("div");
+                    wrapper.innerHTML = resultObject.updatedControls[id];
+                    if (wrapper.childElementCount > 1)
+                        throw new Error("Postback.Update control can not render more than one element");
+                    var element = wrapper.firstElementChild;
+                    if (element.id == null)
+                        throw new Error("Postback.Update control always has to render id attribute.");
+                    if (element.id !== updatedControls[id].control.id)
+                        console.log("Postback.Update control changed id from '" + updatedControls[id].control.id + "' to '" + element.id + "'");
+                    wrapper.removeChild(element);
                     if (updatedControl.nextSibling) {
-                        updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                        updatedControl.parent.insertBefore(element, updatedControl.nextSibling);
                     }
                     else {
-                        updatedControl.parent.appendChild(updatedControl.control);
+                        updatedControl.parent.appendChild(element);
                     }
-                    updatedControl.control.outerHTML = resultObject.updatedControls[id];
                 }
             }
         }
@@ -733,7 +689,7 @@ var DotVVM = (function () {
                 for (var id in resultObject.updatedControls) {
                     var updatedControl = document.getElementById(id);
                     if (updatedControl) {
-                        ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                        ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                     }
                 }
             }, 0);
@@ -1753,4 +1709,58 @@ var DotvvmValidation = (function () {
     return DotvvmValidation;
 })();
 ;
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
+    }
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        }
+        else {
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
+    };
+    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
+        var id = "";
+        for (var i = 0; i < fragments.length; i++) {
+            if (id.length > 0) {
+                id += "_";
+            }
+            id += ko.unwrap(fragments[i]);
+        }
+        return id;
+    };
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
+})();
 //# sourceMappingURL=DotVVM.js.map
