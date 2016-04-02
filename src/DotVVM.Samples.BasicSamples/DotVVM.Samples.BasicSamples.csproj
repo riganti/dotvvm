@@ -130,6 +130,7 @@
     <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\FileUploadInRepeater\FileUploadInRepeaterViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\RedirectAndUrl\ScrollingPageViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\ServerRendering\ArticleDTO.cs" />
     <Compile Include="ViewModels\ComplexSamples\ServerRendering\ControlUsageSampleViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
@@ -338,6 +339,7 @@
     <Content Include="Views\ComplexSamples\ServerRendering\ControlUsageSampleRewriting.dothtml" />
     <Content Include="Views\ComplexSamples\ServerRendering\MarkupControlInRepeaterEditing.dothtml" />
     <Content Include="Views\ComplexSamples\ServerRendering\ArticleDetail.dotcontrol" />
+    <Content Include="Views\ComplexSamples\RedirectAndUrl\ScrollingPage.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

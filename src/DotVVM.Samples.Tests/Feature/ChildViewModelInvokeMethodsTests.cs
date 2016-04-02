@@ -13,7 +13,7 @@ namespace DotVVM.Samples.Tests.Feature
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.Feature_ChildViewModelInvokeMethods);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods);
 
                 CheckIfInnerTextEqualsToOne(browser, "InitCount");
                 CheckIfInnerTextEqualsToOne(browser, "LoadCount");

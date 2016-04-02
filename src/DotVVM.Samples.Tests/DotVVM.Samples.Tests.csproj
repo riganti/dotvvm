@@ -93,6 +93,7 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Complex\RedirectUrlFragment.cs" />
     <Compile Include="Complex\PostbackUpdate.cs" />
     <Compile Include="Complex\AuthTests.cs" />
     <Compile Include="Complex\CascadeSelectorsTests.cs" />
