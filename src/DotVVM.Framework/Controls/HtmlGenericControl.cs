@@ -188,9 +188,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected void EnsureNoAttributesSet()
         {
-            if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty))
+            if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty) || ID != null)
             {
-                throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible or DataContext bindings on a control which does not render its own element!");
+                throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible, DataContext, ID, Postback.Update, ... bindings on a control which does not render its own element!");
             }
         }
 

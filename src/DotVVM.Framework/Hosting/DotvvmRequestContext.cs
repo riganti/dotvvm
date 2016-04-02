@@ -92,6 +92,8 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public Exception CommandException { get; internal set; }
 
+        public string ResultIdFragment { get; set; }
+
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
         /// </summary>
@@ -157,7 +159,7 @@ namespace DotVVM.Framework.Hosting
         [DebuggerHidden]
         public void InterruptRequest()
         {
-            throw new DotvvmInterruptRequestExecutionException();    
+            throw new DotvvmInterruptRequestExecutionException();
         }
 
         /// <summary>
@@ -165,8 +167,15 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void RedirectToUrl(string url)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect);
-            InterruptRequest();
+            if (url.StartsWith("#", StringComparison.Ordinal))
+            {
+                ResultIdFragment = url.Remove(0, 1);
+            }
+            else
+            {
+                SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect);
+                InterruptRequest();
+            }
         }
 
         /// <summary>

@@ -77,7 +77,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 serializer.Serialize(writer, context.ViewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecomendations}", ex);
             }
@@ -97,6 +97,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
             result["viewModel"] = writer.Token;
             result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
             result["virtualDirectory"] = DotvvmMiddleware.GetVirtualDirectory(context.OwinContext);
+            if (context.ResultIdFragment != null)
+            {
+                result["resultIdFragment"] = context.ResultIdFragment;
+            }
             if (context.IsPostBack || context.IsSpaRequest)
             {
                 result["action"] = "successfulCommand";
@@ -219,7 +223,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 throw new Exception($"Could not deserialize viewModel of type { context.ViewModel.GetType().Name }. {GeneralViewModelRecomendations}", ex);
             }

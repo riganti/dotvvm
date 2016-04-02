@@ -54,6 +54,7 @@ class DotVVM {
         if (thisViewModel.renderedResources) {
             thisViewModel.renderedResources.forEach(r => this.resourceSigns[r] = true);
         }
+        var idFragment = thisViewModel.resultIdFragment;
         var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
 
         // initialize services
@@ -73,6 +74,14 @@ class DotVVM {
         if (spaPlaceHolder) {
             this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
             this.handleHashChange(viewModelName, spaPlaceHolder);
+        }
+
+        if (idFragment) {
+            if (spaPlaceHolder) {
+                var element = document.getElementById(idFragment);
+                if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+            }
+            else location.hash = idFragment;
         }
 
         // persist the viewmodel in the hidden field so the Back button will work correctly
@@ -553,10 +562,11 @@ class DotVVM {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var control = document.getElementById(id);
                 if (control) {
+                    var dataContext = ko.contextFor(control);
                     var nextSibling = control.nextSibling;
                     var parent = control.parentNode;
                     ko.removeNode(control);
-                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent, dataContext: dataContext };
                 }
             }
         }
@@ -568,12 +578,18 @@ class DotVVM {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var updatedControl = updatedControls[id];
                 if (updatedControl) {
+                    var wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
+                    wrapper.innerHTML = resultObject.updatedControls[id];
+                    if (wrapper.childElementCount > 1) throw new Error("Postback.Update control can not render more than one element");
+                    var element = wrapper.firstElementChild;
+                    if (element.id == null) throw new Error("Postback.Update control always has to render id attribute.");
+                    if (element.id !== updatedControls[id].control.id) console.log(`Postback.Update control changed id from '${updatedControls[id].control.id}' to '${element.id}'`);
+                    wrapper.removeChild(element);
                     if (updatedControl.nextSibling) {
-                        updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                        updatedControl.parent.insertBefore(element, updatedControl.nextSibling);
                     } else {
-                        updatedControl.parent.appendChild(updatedControl.control);
+                        updatedControl.parent.appendChild(element);
                     }
-                    updatedControl.control.outerHTML = resultObject.updatedControls[id];
                 }
             }
         }
@@ -583,7 +599,7 @@ class DotVVM {
                 for (var id in resultObject.updatedControls) {
                     var updatedControl = document.getElementById(id);
                     if (updatedControl) {
-                        ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                        ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                     }
                 }
             }, 0);
