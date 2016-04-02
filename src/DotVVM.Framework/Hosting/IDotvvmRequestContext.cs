@@ -77,6 +77,11 @@ namespace DotVVM.Framework.Hosting
         bool IsInPartialRenderingMode { get; }
 
         /// <summary>
+        /// Gets or sets new url fragment (tha part after #) to be set on client
+        /// </summary>
+        string ResultIdFragment { get; set; }
+
+        /// <summary>
         /// Changes the current culture of this HTTP request.
         /// </summary>
         void ChangeCurrentCulture(string cultureName);

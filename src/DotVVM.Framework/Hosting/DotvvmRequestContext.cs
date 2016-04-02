@@ -92,6 +92,9 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public Exception CommandException { get; internal set; }
 
+        /// <summary>
+        /// Gets or sets new url fragment (tha part after #) to be set on client
+        /// </summary>
         public string ResultIdFragment { get; set; }
 
         /// <summary>
@@ -167,15 +170,8 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void RedirectToUrl(string url)
         {
-            if (url.StartsWith("#", StringComparison.Ordinal))
-            {
-                ResultIdFragment = url.Remove(0, 1);
-            }
-            else
-            {
-                SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect);
-                InterruptRequest();
-            }
+            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect);
+            InterruptRequest();
         }
 
         /// <summary>

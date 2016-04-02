@@ -258,6 +258,15 @@ class DotVVM {
                         return;
                     }
 
+                    var idFragment = resultObject.resultIdFragment;
+                    if (idFragment) {
+                        if (this.getSpaPlaceHolder()) {
+                            var element = document.getElementById(idFragment);
+                            if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+                        }
+                        else location.hash = idFragment;
+                    }
+
                     // trigger afterPostback event
                     var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
                     promise.resolve(afterPostBackArgs);
@@ -468,6 +477,8 @@ class DotVVM {
         } else {
             location.href = url;
         }
+        // reload if not reloaded by redirect
+        if (document.readyState === "complete") location.reload(true);
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
@@ -643,12 +654,11 @@ class DotVVM {
                             if (ko.isObservable(val)) {
                                 val(value);
                             }
-                            else
-                            {
+                            else {
                                 console.log(`Attempted to write to readonly property '${this.prop}' at '${valueAccessor.toString()}'`);
                             }
                         }
-                    }, {prop: prop});
+                    }, { prop: prop });
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
