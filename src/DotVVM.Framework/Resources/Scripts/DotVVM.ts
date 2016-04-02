@@ -54,6 +54,7 @@ class DotVVM {
         if (thisViewModel.renderedResources) {
             thisViewModel.renderedResources.forEach(r => this.resourceSigns[r] = true);
         }
+        var idFragment = thisViewModel.resultIdFragment;
         var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
 
         // initialize services
@@ -73,6 +74,14 @@ class DotVVM {
         if (spaPlaceHolder) {
             this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
             this.handleHashChange(viewModelName, spaPlaceHolder);
+        }
+
+        if (idFragment) {
+            if (spaPlaceHolder) {
+                var element = document.getElementById(idFragment);
+                if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+            }
+            else location.hash = idFragment;
         }
 
         // persist the viewmodel in the hidden field so the Back button will work correctly

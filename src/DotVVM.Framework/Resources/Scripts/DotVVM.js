@@ -16,6 +16,60 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 })();
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
+    }
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        }
+        else {
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
+    };
+    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
+        var id = "";
+        for (var i = 0; i < fragments.length; i++) {
+            if (id.length > 0) {
+                id += "_";
+            }
+            id += ko.unwrap(fragments[i]);
+        }
+        return id;
+    };
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
+})();
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -175,6 +229,7 @@ var DotVVM = (function () {
         if (thisViewModel.renderedResources) {
             thisViewModel.renderedResources.forEach(function (r) { return _this.resourceSigns[r] = true; });
         }
+        var idFragment = thisViewModel.resultIdFragment;
         var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
         // initialize services
         this.culture = culture;
@@ -190,6 +245,15 @@ var DotVVM = (function () {
         if (spaPlaceHolder) {
             this.domUtils.attachEvent(window, "hashchange", function () { return _this.handleHashChange(viewModelName, spaPlaceHolder); });
             this.handleHashChange(viewModelName, spaPlaceHolder);
+        }
+        if (idFragment) {
+            if (spaPlaceHolder) {
+                var element = document.getElementById(idFragment);
+                if (element && "function" == typeof element.scrollIntoView)
+                    element.scrollIntoView(true);
+            }
+            else
+                location.hash = idFragment;
         }
         // persist the viewmodel in the hidden field so the Back button will work correctly
         this.domUtils.attachEvent(window, "beforeunload", function (e) {
@@ -1709,58 +1773,4 @@ var DotvvmValidation = (function () {
     return DotvvmValidation;
 })();
 ;
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
-    }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
-        }
-        else {
-            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
-            }
-        }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
-        var id = "";
-        for (var i = 0; i < fragments.length; i++) {
-            if (id.length > 0) {
-                id += "_";
-            }
-            id += ko.unwrap(fragments[i]);
-        }
-        return id;
-    };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
-})();
 //# sourceMappingURL=DotVVM.js.map
