@@ -363,6 +363,16 @@ var DotVVM = (function () {
                         _this.handleRedirect(resultObject, viewModelName);
                         return;
                     }
+                    var idFragment = resultObject.resultIdFragment;
+                    if (idFragment) {
+                        if (_this.getSpaPlaceHolder()) {
+                            var element = document.getElementById(idFragment);
+                            if (element && "function" == typeof element.scrollIntoView)
+                                element.scrollIntoView(true);
+                        }
+                        else
+                            location.hash = idFragment;
+                    }
                     // trigger afterPostback event
                     var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
                     promise.resolve(afterPostBackArgs);
@@ -563,6 +573,9 @@ var DotVVM = (function () {
         else {
             location.href = url;
         }
+        // reload if not reloaded by redirect
+        if (document.readyState === "complete")
+            location.reload(true);
     };
     DotVVM.prototype.removeVirtualDirectoryFromUrl = function (url, viewModelName) {
         var virtualDirectory = "/" + this.viewModels[viewModelName].virtualDirectory;
