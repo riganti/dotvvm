@@ -13,11 +13,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.RedirectAndUrl
         public void GoToParagraph1()
         {
             Message = "ToParagraph1";
+            Context.ResultIdFragment = "paragraph1";
         }
 
         public void GoToParagraph2()
         {
             Message = "ToParagraph2";
+            Context.ResultIdFragment = "paragraph2";
         }
 
         public void GoToParagraph2WithRedirectToUrl()

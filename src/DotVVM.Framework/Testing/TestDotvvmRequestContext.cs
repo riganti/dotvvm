@@ -27,6 +27,7 @@ namespace DotVVM.Framework.Testing
         public bool IsSpaRequest { get; set; }
         public bool IsInPartialRenderingMode { get; set; }
         public string ApplicationHostPath { get; set; }
+        public string ResultIdFragment { get; set; }
 
         public void ChangeCurrentCulture(string cultureName)
         {

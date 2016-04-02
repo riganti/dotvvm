@@ -77,7 +77,7 @@ namespace DotVVM.Framework.Hosting
         bool IsInPartialRenderingMode { get; }
 
         /// <summary>
-        /// Gets or sets new url fragment (tha part after #) to be set on client
+        /// Gets or sets new url fragment (the part after #) to be set on client. Use thiis to refer to element Ids on the page
         /// </summary>
         string ResultIdFragment { get; set; }
 
