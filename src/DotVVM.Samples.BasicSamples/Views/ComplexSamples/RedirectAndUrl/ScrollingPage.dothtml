@@ -9,6 +9,7 @@
 </head>
 <body>
     <dot:LinkButton data-ui="test-link" Text="Test message" Click="{command: TestMessage()}" />
+    <dot:LinkButton data-ui="go-to-2-url-link" Text="To 2 RedirectToUrl" Click="{command: GoToParagraph2WithRedirectToUrl()}" />
     <dot:LinkButton data-ui="go-to-2-link" Text="To 2" Click="{command: GoToParagraph2()}" />
     <h2 ID="paragraph1" ClientIDMode="Static">Paragraph 1</h2>
     <dot:Literal data-ui="message1" Text="{value: _this.Message}" />
