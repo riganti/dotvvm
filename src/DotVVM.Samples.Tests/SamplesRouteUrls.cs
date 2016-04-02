@@ -14,6 +14,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ComplexSamples_GridViewDataSet_GridViewDataSet = "ComplexSamples/GridViewDataSet/GridViewDataSet";
 			public const string ComplexSamples_InvoiceCalculator_InvoiceCalculator = "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
 			public const string ComplexSamples_RedirectAndUrl_ScrollingPage = "ComplexSamples/RedirectAndUrl/ScrollingPage";
+			public const string ComplexSamples_ServerRendering_AddingIntoEmptyRepeater = "ComplexSamples/ServerRendering/AddingIntoEmptyRepeater";
 			public const string ComplexSamples_ServerRendering_ControlUsageSample = "ComplexSamples/ServerRendering/ControlUsageSample";
 			public const string ComplexSamples_ServerRendering_ControlUsageSampleRewriting = "ComplexSamples/ServerRendering/ControlUsageSampleRewriting";
 			public const string ComplexSamples_ServerRendering_MarkupControlInRepeaterEditing = "ComplexSamples/ServerRendering/MarkupControlInRepeaterEditing";

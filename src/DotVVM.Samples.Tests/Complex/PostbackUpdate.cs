@@ -1,6 +1,7 @@
 ﻿using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.SeleniumCore;
+using Riganti.Utils.Testing.SeleniumCore.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -39,6 +40,42 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("a[data-ui=rewrite-link]").Click();
                 browser.First("div[data-ui='context-2']").First("input[data-ui=textbox]").CheckAttribute("value", v => v.Contains("b"));
             });
+        }
+
+        [TestMethod]
+        public void PostbackUpdate_ServerRendering_AddingIntoRepeater()
+        {
+            //FIXME: It is common practice among repeaters to show added Items. The empty one does not do that. It should ;) 
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_AddingIntoEmptyRepeater);
+
+                //Is the item on nonempty repeater displayed?
+                var articles = browser.Single("div[data-ui='nonempty-repeater']").FindElements("article[data-ui='test-article']");
+                CheckArticleCount(browser, "nonempty-repeater", 1);
+                articles.SingleOrDefault().Single("span[data-ui='detail-text']").CheckIfInnerTextEquals("NonEmptyArticles 1");
+
+                //Add element and see
+                browser.First("a[data-ui='add-link']").Click();
+                //Has nonempty repeater been updated? 
+                var neArticlesPostAdd = browser.Single("div[data-ui='nonempty-repeater']").FindElements("article[data-ui='test-article']");
+                CheckArticleCount(browser, "nonempty-repeater", 2);
+                neArticlesPostAdd[1].Single("span[data-ui='detail-text']").CheckIfInnerTextEquals("NonEmptyArticles 2");
+
+                //Has the empty one?
+                var eArticlesPostAdd = browser.Single("div[data-ui='empty-repeater']").FindElements("article[data-ui='test-article']");
+                CheckArticleCount(browser, "empty-repeater", 1);
+                neArticlesPostAdd.SingleOrDefault().Single("span[data-ui='detail-text']").CheckIfInnerTextEquals("EmptyArticles 1");
+            });
+        }
+
+        public static void  CheckArticleCount(BrowserWrapper browser, string repeaterUiId, int expectedCount)
+        {
+            var articles = browser.First($"div[data-ui='{repeaterUiId}']").FindElements("article[data-ui='test-article']");
+            if (articles.Count != expectedCount)
+            {
+                throw new UnexpectedElementStateException($"There should be only 2 article in the repeater. There are {articles.Count}");
+            }
         }
     }
 }
