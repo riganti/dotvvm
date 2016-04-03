@@ -61,7 +61,7 @@
     }
 
     dotvvm.events.error.subscribe(function (e) {
-        console.log(`DotVVM: An ${e.handled ? "" : "un"}handled exception returned from the server command.`);
+        console.log("DotVVM: An " + (e.handled ? "" : "un") + "handled exception returned from the server command.");
         console.log("XmlHttpRequest: ", e.xhr);
         console.log("ViewModel: ", e.viewModel);
         if (e.handled) return;

@@ -419,7 +419,7 @@ var DotVVM = (function () {
                     }
                     var idFragment = resultObject.resultIdFragment;
                     if (idFragment) {
-                        if (_this.getSpaPlaceHolder() || location.hash == idFragment) {
+                        if (_this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
                             var element = document.getElementById(idFragment);
                             if (element && "function" == typeof element.scrollIntoView)
                                 element.scrollIntoView(true);
