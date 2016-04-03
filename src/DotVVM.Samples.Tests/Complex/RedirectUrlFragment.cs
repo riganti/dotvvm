@@ -90,6 +90,17 @@ namespace DotVVM.Samples.Tests.Complex
 
                 message1element.CheckIfInnerText(s => s.Equals("ToParagraph1"));
                 message2element.CheckIfInnerText(s => s.Equals("ToParagraph1"));
+
+                //Now test that the scrolling works 2 times in row with same link
+                var goTo1Link = browser.First("a[data-ui='go-to-1-link']");
+                goTo1Link.ScrollTo();
+                goTo1Link.CheckIfIsElementInView();
+                message1element.CheckIfIsElementNotInView();
+                message2element.CheckIfIsElementInView();
+
+                goTo1Link.Click();
+                message1element.CheckIfIsElementInView();
+                message2element.CheckIfIsElementNotInView();
             });
         }
     }
@@ -97,6 +108,25 @@ namespace DotVVM.Samples.Tests.Complex
 
 public static class ElementWrapperIsInViewExtensions
 {
+    public static void ScrollTo(this ElementWrapper element)
+    {
+        var javascript = @"
+            function findPosition(element) {
+                var curtop = 0;
+                if (element.offsetParent) {
+                    do {
+                        curtop += element.offsetTop;
+                    } while (element = element.offsetParent);
+                return [curtop];
+                }
+            }
+
+            window.scroll(0,findPosition(arguments[0]));
+        ";
+        var executor = element.BrowserWrapper.GetJavaScriptExecutor();
+        executor.ExecuteScript(javascript,element.WebElement);
+    }
+
     public static void CheckIfIsElementInView(this ElementWrapper element)
     {
         if (!IsElementInView(element))
