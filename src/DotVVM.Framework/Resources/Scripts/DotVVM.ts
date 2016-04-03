@@ -260,7 +260,7 @@ class DotVVM {
 
                     var idFragment = resultObject.resultIdFragment;
                     if (idFragment) {
-                        if (this.getSpaPlaceHolder()) {
+                        if (this.getSpaPlaceHolder() || location.hash == idFragment) {
                             var element = document.getElementById(idFragment);
                             if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
                         }
