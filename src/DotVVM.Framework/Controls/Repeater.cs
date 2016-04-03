@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowBinding = false)]
         public bool RenderWrapperTag
         {
-            get { return (bool) GetValue(RenderWrapperTagProperty); }
+            get { return (bool)GetValue(RenderWrapperTagProperty); }
             set { SetValue(RenderWrapperTagProperty, value); }
         }
         public static readonly DotvvmProperty RenderWrapperTagProperty =
@@ -113,9 +113,9 @@ namespace DotVVM.Framework.Controls
                 var javascriptDataSourceExpression = dataSourceBinding.GetKnockoutBindingExpression();
                 foreach (var item in items)
                 {
-                    var placeholder = new DataItemContainer {DataItemIndex = index};
+                    var placeholder = new DataItemContainer { DataItemIndex = index };
                     ItemTemplate.BuildContent(context, placeholder);
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList) items, javascriptDataSourceExpression, index));
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     placeholder.ID = "i" + index;
                     Children.Add(placeholder);
@@ -137,7 +137,7 @@ namespace DotVVM.Framework.Controls
                 Children.Add(emptyDataContainer);
             }
         }
-         
+
 
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
@@ -206,18 +206,6 @@ namespace DotVVM.Framework.Controls
                 placeholder.Render(writer, context);
             }
         }
-         
 
-        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            if (RenderOnServer && numberOfRows == 0)
-            {
-                emptyDataContainer?.Render(writer, context);
-            }
-            else
-            {
-                base.RenderControl(writer, context);
-            }
-        }
     }
 }
