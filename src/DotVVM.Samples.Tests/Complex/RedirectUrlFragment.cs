@@ -31,7 +31,7 @@ namespace DotVVM.Samples.Tests.Complex
                 //therefore  message1 should be blank
                 //view should scroll to #paragraph2
                 browser.First("a[data-ui='go-to-2-url-link']").Click();
-                browser.Wait(200);
+                browser.Wait(1200);
                 // message 2 should be scrolled to message 1 should not, both should be blank
                 var message2element = browser.First("span[data-ui='message2']");
                 message2element.IsDisplayed();
