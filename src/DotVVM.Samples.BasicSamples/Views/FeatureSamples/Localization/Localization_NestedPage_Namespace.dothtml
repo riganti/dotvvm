@@ -3,7 +3,7 @@
 @resourceNamespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization
 @resourceType 
 
-<dot:Content ContentPlaceHolderID="MainContent">
+<dot:Content ContentPlaceHolderID="MainContent" ClientIDMode="Static">
 
         <p ID="fromLocalizationFile1">{{resource: DotVVM.Samples.BasicSamples.Localization_Resources.LocalizedString1}}</p>
         <p ID="fromLocalizationFile2">{{resource: Localization2.NestedPageTitle }}</p>
