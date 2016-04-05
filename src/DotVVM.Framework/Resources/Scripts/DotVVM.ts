@@ -475,7 +475,7 @@ class DotVVM {
         if (replace) {
             location.replace(url);
         } else {
-            location.href = url;
+            setTimeout(function () { document.location.href = url }, 1000);
         }
         // reload if not reloaded by redirect
         if (document.readyState === "complete") location.reload(true);
