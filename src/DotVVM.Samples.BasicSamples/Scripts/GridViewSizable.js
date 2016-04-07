@@ -7,7 +7,6 @@ $jq(function () {
         var msg = "columns widths: ";
         columns.each(function () { msg += $jq(this).width() + "px; "; });
         $jq("#sizableGridTxt").html(msg);
-
     };
 
     $jq("#sizableGrid").colResizable({
@@ -15,8 +14,7 @@ $jq(function () {
         liveDrag: true,
         gripInnerHtml: "<div class='grip'></div>",
         draggingClass: "dragging",
-        postbackSafe: true,
-        partialRefresh: true,
+        headerOnly: true,
         onResize: onSampleResized
     });
 
