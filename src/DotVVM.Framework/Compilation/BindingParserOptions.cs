@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Compilation
             ScopeParameter = scopeParameter;
         }
 
-        public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this")
-            => new BindingParserOptions(typeof(TBinding), scopeParameter);
+        public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", string[] importNs = null)
+            => new BindingParserOptions(typeof(TBinding), scopeParameter) { ImportNamespaces = importNs ?? new string[0] };
     }
 }

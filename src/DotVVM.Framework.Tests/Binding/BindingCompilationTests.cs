@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
                 context = new DataContextStack(contexts[i].GetType(), context);
             }
             var parser = new BindingExpressionBuilder();
-            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>());
+            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: new[] { "DotVVM.Framework.Tests.Binding" }));
             return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, typeof(object)).Compile()(contexts, control);
         }
 
@@ -108,6 +108,25 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
             Assert.AreEqual(ExecuteBinding("EnumProperty == 'A'", viewModel), true);
             Assert.AreEqual(ExecuteBinding("EnumProperty == 'B'", viewModel), false);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_EnumStringComparison_Underscore()
+        {
+            var viewModel = new TestViewModel { EnumProperty = TestEnum.Underscore_hhh };
+            Assert.AreEqual(ExecuteBinding("EnumProperty == 'Underscore_hhh'", viewModel), true);
+            Assert.AreEqual(ExecuteBinding("EnumProperty == 'B'", viewModel), false);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_EnumMemberAccess()
+        {
+            var viewModel = new TestViewModel { EnumProperty = TestEnum.Underscore_hhh, StringProp = "abc" };
+            Assert.AreEqual(ExecuteBinding("TestEnum.A", viewModel), TestEnum.A);
+            Assert.AreEqual(ExecuteBinding("TestEnum.Underscore_hhh", viewModel), TestEnum.Underscore_hhh);
+            Assert.AreEqual(ExecuteBinding("EnumProperty == TestEnum.Underscore_hhh", viewModel), true);
+            Assert.AreEqual(ExecuteBinding("StringProp == 'abc' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.A);
+            Assert.AreEqual(ExecuteBinding("StringProp == 'abcd' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.Underscore_hhh);
         }
 
         [TestMethod]
@@ -221,14 +240,7 @@ namespace DotVVM.Framework.Tests.Binding
                 return false;
             }
         }
-        enum TestEnum
-        {
-            A,
-            B,
-            C,
-            D
-        }
-
+        
         class TestViewModel2
         {
             public int MyProperty { get; set; }
@@ -241,6 +253,15 @@ namespace DotVVM.Framework.Tests.Binding
             public bool Value { get; set; }
         }
     }
+    enum TestEnum
+    {
+        A,
+        B,
+        C,
+        D,
+        Underscore_hhh
+    }
+
 
     public static class TestStaticClass
     {
