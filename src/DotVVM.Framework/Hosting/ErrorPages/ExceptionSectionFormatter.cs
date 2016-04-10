@@ -89,6 +89,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 sb.Append(".");
             }
             sb.Append(method.Name);
+            if (method.IsGenericMethod)
+            {
+                sb.Append("<");
+                sb.Append(string.Join(", ", method.GetGenericArguments().Select(t => t.Name)));
+                sb.Append(">");
+            }
             sb.Append("(");
             var f = false;
             foreach (var p in method.GetParameters())

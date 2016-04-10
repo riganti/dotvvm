@@ -200,12 +200,12 @@ namespace DotVVM.Framework.Controls
 
             if (!ShowHeaderWhenNoData)
             {
-            head.Attributes["data-bind"] = "visible: $data";
+                head.Attributes["data-bind"] = "visible: dotvvm.evaluator.getDataSourceItems($data).length";
             }
             Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
-            
+
             // workaroud: header template must have to be one level nested, because it is in the Columns property which nests the dataContext to the item type
             // on server we need null, to be Convertible to Item type and on client the best is empty object, because with will hide the inner content when it is null
             var headerRow = new HtmlGenericControl("tr");
@@ -216,7 +216,7 @@ namespace DotVVM.Framework.Controls
                 var cell = new HtmlGenericControl("th");
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
-                
+
                 column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
                 {
@@ -347,7 +347,7 @@ namespace DotVVM.Framework.Controls
             {
                 var cell = new HtmlGenericControl("td");
                 row.Children.Add(cell);
-                if(createEditTemplates && column.IsEditable)
+                if (createEditTemplates && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);
                 }
@@ -355,7 +355,7 @@ namespace DotVVM.Framework.Controls
                 {
                     column.CreateControls(context, cell);
                 }
-                
+
             }
         }
 
@@ -371,8 +371,8 @@ namespace DotVVM.Framework.Controls
 
             }
             writer.RenderBeginTag("tbody");
-           
-        
+
+
             // render contents
             if (RenderOnServer)
             {
@@ -388,7 +388,7 @@ namespace DotVVM.Framework.Controls
             {
                 // render on client
                 if (InlineEditing)
-                {    
+                {
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
@@ -445,14 +445,15 @@ namespace DotVVM.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                if (!ShowHeaderWhenNoData)
-                {
-                writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
-                if (numberOfRows == 0)
-                {
-                    writer.AddStyleAttribute("display", "none");
-                }
-                }
+
+                //if (!ShowHeaderWhenNoData)
+                //{
+                //    writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
+                //    if (numberOfRows == 0)
+                //    {
+                //        writer.AddStyleAttribute("display", "none");
+                //    }
+                //}
 
                 // with databind
                 writer.AddKnockoutDataBind("with", GetDataSourceBinding());
