@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             foreach (var node in root.Content)
             {
                 var child = ProcessNode(view, node, viewMetadata, view.DataContextTypeStack);
-                treeBuilder.AddChildControl(view, child);
+                if (child != null) treeBuilder.AddChildControl(view, child);
             }
         }
 
@@ -140,11 +140,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
                 if (!LogError(ex, node))
                     throw;
+                else return null;
             }
             catch (Exception ex)
             {
                 if (!LogError(ex, node))
                     throw new DotvvmCompilationException("", ex, node.Tokens);
+                else return null;
             }
         }
 
@@ -471,7 +473,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             foreach (var node in content)
             {
                 var child = ProcessNode(control, node, control.Metadata, control.DataContextTypeStack);
-                treeBuilder.AddChildControl(control, child);
+                if (child != null) treeBuilder.AddChildControl(control, child);
             }
         }
 
@@ -548,7 +550,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private List<IAbstractControl> ProcessTemplate(IAbstractTreeNode parent, IEnumerable<DothtmlNode> elementContent, IDataContextStack dataContext)
         {
             var placeholderMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder)));
-            var content = elementContent.Select(e => ProcessNode(parent, e, placeholderMetadata, dataContext));
+            var content = elementContent.Select(e => ProcessNode(parent, e, placeholderMetadata, dataContext)).Where(e => e != null);
             return content.ToList();
         }
 
