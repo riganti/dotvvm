@@ -154,7 +154,10 @@ namespace DotVVM.Framework.Controls
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
             {
-                sortCommand = s => { throw new Exception("can't sort null data source"); };
+                sortCommand = s =>
+                {
+                    throw new DotvvmControlException(this, "Cannot sort when DataSource is null.");
+                };
             }
 
             CreateHeaderRow(context, sortCommand);
@@ -197,11 +200,6 @@ namespace DotVVM.Framework.Controls
         private void CreateHeaderRow(Hosting.IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
-
-            if (!ShowHeaderWhenNoData)
-            {
-            head.Attributes["data-bind"] = "visible: $data";
-            }
             Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
@@ -367,11 +365,9 @@ namespace DotVVM.Framework.Controls
             // render body
             if (!RenderOnServer)
             {
-                writer.AddKnockoutForeachDataBind("dotvvm.evaluator.getDataSourceItems($data)");
-
+                writer.AddKnockoutForeachDataBind("dotvvm.evaluator.getDataSourceItems($gridViewDataSet)");
             }
             writer.RenderBeginTag("tbody");
-           
         
             // render contents
             if (RenderOnServer)
@@ -392,7 +388,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
-                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) !== ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
+                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) !== ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholder);
                     Children.Add(placeholder);
                     placeholder.Render(writer, context);
@@ -401,7 +397,7 @@ namespace DotVVM.Framework.Controls
                     var placeholderEdit = new DataItemContainer { DataContext = null };
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                     placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
-                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap($parent.EditRowId) === ko.unwrap($data[ko.unwrap($parent.PrimaryKeyPropertyName)])");
+                    writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) === ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
                     placeholderEdit.Render(writer, context);
@@ -447,15 +443,15 @@ namespace DotVVM.Framework.Controls
             {
                 if (!ShowHeaderWhenNoData)
                 {
-                writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
-                if (numberOfRows == 0)
-                {
-                    writer.AddStyleAttribute("display", "none");
-                }
+                    writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
+                    if (numberOfRows == 0)
+                    {
+                        writer.AddStyleAttribute("display", "none");
+                    }
                 }
 
                 // with databind
-                writer.AddKnockoutDataBind("with", GetDataSourceBinding());
+                writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding());
             }
 
             base.AddAttributesToRender(writer, context);

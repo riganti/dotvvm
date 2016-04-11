@@ -150,8 +150,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                cell.Attributes["data-bind"] =
-                $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap($parent.SortExpression) == '{GetSortExpression()}' && $parent.SortDescending(), '{SortAscendingHeaderCssClass}': ko.unwrap($parent.SortExpression) == '{GetSortExpression()}' && !$parent.SortDescending()}}";
+                cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortDescending)}}";
             }
         }
 

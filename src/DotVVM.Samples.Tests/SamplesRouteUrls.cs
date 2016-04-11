@@ -38,6 +38,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_GridView_GridViewPagingSorting = "ControlSamples/GridView/GridViewPagingSorting";
 			public const string ControlSamples_GridView_GridViewRowDecorators = "ControlSamples/GridView/GridViewRowDecorators";
 			public const string ControlSamples_GridView_GridViewServerRender = "ControlSamples/GridView/GridViewServerRender";
+			public const string ControlSamples_GridView_GridViewSizable = "ControlSamples/GridView/GridViewSizable";
 			public const string ControlSamples_GridView_GridViewStaticCommand = "ControlSamples/GridView/GridViewStaticCommand";
 			public const string ControlSamples_HtmlLiteral_HtmlLiteral = "ControlSamples/HtmlLiteral/HtmlLiteral";
 			public const string ControlSamples_LinkButton_LinkButton = "ControlSamples/LinkButton/LinkButton";
@@ -67,6 +68,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string Errors_NonExistingProperty = "Errors/NonExistingProperty";
 			public const string Errors_NotAllowedHardCodedPropertyValue = "Errors/NotAllowedHardCodedPropertyValue";
 			public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
+			public const string FeatureSamples_BindingContexts_BindingContext = "FeatureSamples/BindingContexts/BindingContext";
 			public const string FeatureSamples_BindingPageInfo_BindingPageInfo = "FeatureSamples/BindingPageInfo/BindingPageInfo";
 			public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
 			public const string FeatureSamples_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";

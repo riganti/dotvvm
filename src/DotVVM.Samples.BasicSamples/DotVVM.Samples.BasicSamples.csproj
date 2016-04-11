@@ -160,6 +160,7 @@
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingPageInfo\BindingPageInfoViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
@@ -346,6 +347,7 @@
     <Content Include="Views\ComplexSamples\RedirectAndUrl\ScrollingPage.dothtml" />
     <Content Include="Views\ComplexSamples\ServerRendering\AddingIntoEmptyRepeater.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewSizable.dothtml" />
+    <Content Include="Views\FeatureSamples\BindingContexts\BindingContext.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
