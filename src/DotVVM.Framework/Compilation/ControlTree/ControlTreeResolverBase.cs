@@ -138,12 +138,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     ex.ColumnNumber = node.Tokens.First().ColumnNumber;
                     ex.LineNumber = node.Tokens.First().LineNumber;
                 }
-                throw;
+                if (!LogError(ex, node))
+                    throw;
             }
             catch (Exception ex)
             {
-                throw new DotvvmCompilationException("", ex, node.Tokens);
+                if (!LogError(ex, node))
+                    throw new DotvvmCompilationException("", ex, node.Tokens);
             }
+        }
+
+        protected virtual bool LogError(Exception exception, DothtmlNode node)
+        {
+            return false;
         }
 
         private IAbstractControl ProcessText(DothtmlNode node, IControlResolverMetadata parentMetadata, IDataContextStack dataContext, DothtmlLiteralNode literalNode)
@@ -436,7 +443,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         if (c.IsNotEmpty())
                             c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
                 }
-                else if(!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value)))
+                else if (!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value)))
                     treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
             }
             else
