@@ -47,6 +47,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_RadioButton_RadioButton = "ControlSamples/RadioButton/RadioButton";
 			public const string ControlSamples_Repeater_NestedRepeater = "ControlSamples/Repeater/NestedRepeater";
 			public const string ControlSamples_Repeater_RouteLink = "ControlSamples/Repeater/RouteLink";
+			public const string ControlSamples_Repeater_RouteLinkUrlSuffix = "ControlSamples/Repeater/RouteLinkUrlSuffix";
 			public const string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag = "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
 			public const string ControlSamples_RouteLink_RouteLinkEnabled = "ControlSamples/RouteLink/RouteLinkEnabled";
 			public const string ControlSamples_TextBox_IntBoundTextBox = "ControlSamples/TextBox/IntBoundTextBox";

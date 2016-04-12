@@ -348,6 +348,7 @@
     <Content Include="Views\ComplexSamples\ServerRendering\AddingIntoEmptyRepeater.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewSizable.dothtml" />
     <Content Include="Views\FeatureSamples\BindingContexts\BindingContext.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\RouteLinkUrlSuffix.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
