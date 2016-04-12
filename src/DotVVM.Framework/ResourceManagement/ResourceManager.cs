@@ -168,12 +168,12 @@ namespace DotVVM.Framework.ResourceManagement
 
         private static void ThrowNonUniqueName(string name)
         {
-            throw new ArgumentException(string.Format("Different resource with the same name '{0}' is already registered!", name));
+            throw new ArgumentException($"Different resource with the same name '{name}' is already registered!");
         }
 
         private static void ThrowResourceNotFound(string name)
         {
-            throw new ArgumentException(string.Format("The resource '{0}' could not be found. Make sure it is registered in the dotvvm.json file or in the startup class.", name));
+            throw new ArgumentException($"The resource '{name}' could not be found. Make sure it is registered in the startup class.");
         }
 
 
