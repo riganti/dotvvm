@@ -65,7 +65,7 @@ namespace DotVVM.Samples.Tests.Complex
                 //Has the empty one?
                 var eArticlesPostAdd = browser.Single("div[data-ui='empty-repeater']").FindElements("article[data-ui='test-article']");
                 CheckArticleCount(browser, "empty-repeater", 1);
-                neArticlesPostAdd.SingleOrDefault().Single("span[data-ui='detail-text']").CheckIfInnerTextEquals("EmptyArticles 1");
+                eArticlesPostAdd.SingleOrDefault().Single("span[data-ui='detail-text']").CheckIfInnerTextEquals("EmptyArticles 1");
             });
         }
 

@@ -35,7 +35,7 @@ namespace DotVVM.Samples.Tests.Complex
                 // message 2 should be scrolled to message 1 should not, both should be blank
                 var message2element = browser.First("span[data-ui='message2']");
                 message2element.IsDisplayed();
-                message2element.CheckIfIsElementInView();
+                message2element.CheckIfIsElementInView();           // TODO: Doesn't work in IE
 
                 var message1element = browser.First("span[data-ui='message1']");
                 message1element.IsDisplayed();

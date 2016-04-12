@@ -32,7 +32,7 @@
 
     <dot:GridView DataSource="{value: Children}">
         <dot:GridViewTemplateColumn>
-            <dot:LinkButton Click="{command: _parent.Test('grid parent')}" Text="grid parent2" />
+            <dot:LinkButton Click="{command: _parent.Test('grid parent')}" Text="grid parent" />
         </dot:GridViewTemplateColumn>
     </dot:GridView>
 

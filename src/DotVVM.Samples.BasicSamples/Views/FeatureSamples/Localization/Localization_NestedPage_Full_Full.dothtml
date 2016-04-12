@@ -5,7 +5,7 @@
 
 <dot:Content ContentPlaceHolderID="MainContent">
 
-        <p ID="fromLocalizationFile1">{{resource: DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization.Localization2.NestedPageTitle}}</p>
+    <p ID="fromLocalizationFile1" ClientIDMode="Static">{{resource: DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization.Localization2.NestedPageTitle}}</p>
 	<h3>Switch Language</h3>
     <ul>
         <li><a href="Localization_NestedPage_Full_Full">English</a></li>
