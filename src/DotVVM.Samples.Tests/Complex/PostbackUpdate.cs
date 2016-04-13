@@ -45,7 +45,6 @@ namespace DotVVM.Samples.Tests.Complex
         [TestMethod]
         public void PostbackUpdate_ServerRendering_AddingIntoRepeater()
         {
-            //FIXME: It is common practice among repeaters to show added Items. The empty one does not do that. It should ;) 
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_AddingIntoEmptyRepeater);

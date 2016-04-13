@@ -78,6 +78,9 @@ namespace DotVVM.Samples.Tests.Control
                 //update
                 firstRow.ElementAt("td", 5).First("button").Click();
 
+                //getting rid iof "postback interupted message"
+                browser.FindElements("div#debugNotification").First().Click();
+                browser.Wait(1000);
 
                 var validationResult = browser.ElementAt(".validation", 0);
                 validationResult.CheckIfInnerTextEquals("The Name field is required.");
@@ -87,6 +90,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //clear email
                 firstRow.ElementAt("td", 3).First("input").Clear();
+                
                 //update
                 firstRow.ElementAt("td", 5).First("button").Click();
 

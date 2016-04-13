@@ -13,8 +13,9 @@ namespace DotVVM.Framework.Compilation
 
         public string[] ImportNamespaces { get; set; } = new string[0];
 
-        public virtual TypeRegistry AddTypes(TypeRegistry reg) => reg.AddSymbols(ImportNamespaces.Select(n =>
-            (Func<string, Expression>)(t => TypeRegistry.CreateStatic(ReflectionUtils.FindType(n + "." + t)))));
+        public virtual TypeRegistry AddTypes(TypeRegistry reg) =>
+            reg.AddSymbols(ImportNamespaces.Select(n =>
+                (Func<string, Expression>)(t => TypeRegistry.CreateStatic(ReflectionUtils.FindType(n + "." + t)))));
 
         public BindingParserOptions(Type bindingType, string scopeParameter = "_this")
         {
@@ -22,7 +23,7 @@ namespace DotVVM.Framework.Compilation
             ScopeParameter = scopeParameter;
         }
 
-        public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this")
-            => new BindingParserOptions(typeof(TBinding), scopeParameter);
+        public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", string[] importNs = null)
+            => new BindingParserOptions(typeof(TBinding), scopeParameter) { ImportNamespaces = importNs ?? new string[0] };
     }
 }

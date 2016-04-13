@@ -200,6 +200,11 @@ namespace DotVVM.Framework.Controls
         private void CreateHeaderRow(Hosting.IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
+
+            if (!ShowHeaderWhenNoData)
+            {
+                head.Attributes["data-bind"] = "visible: dotvvm.evaluator.getDataSourceItems($gridViewDataSet).length";
+            }
             Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
@@ -345,7 +350,7 @@ namespace DotVVM.Framework.Controls
             {
                 var cell = new HtmlGenericControl("td");
                 row.Children.Add(cell);
-                if(createEditTemplates && column.IsEditable)
+                if (createEditTemplates && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);
                 }
@@ -368,7 +373,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutForeachDataBind("dotvvm.evaluator.getDataSourceItems($gridViewDataSet)");
             }
             writer.RenderBeginTag("tbody");
-        
+           
             // render contents
             if (RenderOnServer)
             {
@@ -441,15 +446,6 @@ namespace DotVVM.Framework.Controls
         {
             if (!RenderOnServer)
             {
-                if (!ShowHeaderWhenNoData)
-                {
-                    writer.AddKnockoutDataBind("visible", $"({ GetForeachDataBindJavascriptExpression() }).length");
-                    if (numberOfRows == 0)
-                    {
-                        writer.AddStyleAttribute("display", "none");
-                    }
-                }
-
                 // with databind
                 writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding());
             }

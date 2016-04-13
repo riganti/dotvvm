@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static IFrameMoreInfo CreateGithubLink(StackFrameModel frame)
         {
-            const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/";
+            const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/DotVVM.Framework";
             const string Octocat = @"https://assets-cdn.github.com/favicon.ico";
             if (frame.Method?.DeclaringType?.Assembly == typeof(ErrorFormatter).Assembly)
             {

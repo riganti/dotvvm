@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             foreach (var node in root.Content)
             {
                 var child = ProcessNode(view, node, viewMetadata, view.DataContextTypeStack);
-                treeBuilder.AddChildControl(view, child);
+                if (child != null) treeBuilder.AddChildControl(view, child);
             }
         }
 
@@ -138,12 +138,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     ex.ColumnNumber = node.Tokens.First().ColumnNumber;
                     ex.LineNumber = node.Tokens.First().LineNumber;
                 }
-                throw;
+                if (!LogError(ex, node))
+                    throw;
+                else return null;
             }
             catch (Exception ex)
             {
-                throw new DotvvmCompilationException("", ex, node.Tokens);
+                if (!LogError(ex, node))
+                    throw new DotvvmCompilationException("", ex, node.Tokens);
+                else return null;
             }
+        }
+
+        protected virtual bool LogError(Exception exception, DothtmlNode node)
+        {
+            return false;
         }
 
         private IAbstractControl ProcessText(DothtmlNode node, IControlResolverMetadata parentMetadata, IDataContextStack dataContext, DothtmlLiteralNode literalNode)
@@ -436,7 +445,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         if (c.IsNotEmpty())
                             c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
                 }
-                else if(!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value)))
+                else if (!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value)))
                     treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
             }
             else
@@ -464,7 +473,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             foreach (var node in content)
             {
                 var child = ProcessNode(control, node, control.Metadata, control.DataContextTypeStack);
-                treeBuilder.AddChildControl(control, child);
+                if (child != null) treeBuilder.AddChildControl(control, child);
             }
         }
 
@@ -541,7 +550,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private List<IAbstractControl> ProcessTemplate(IAbstractTreeNode parent, IEnumerable<DothtmlNode> elementContent, IDataContextStack dataContext)
         {
             var placeholderMetadata = controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder)));
-            var content = elementContent.Select(e => ProcessNode(parent, e, placeholderMetadata, dataContext));
+            var content = elementContent.Select(e => ProcessNode(parent, e, placeholderMetadata, dataContext)).Where(e => e != null);
             return content.ToList();
         }
 
