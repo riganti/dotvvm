@@ -16,6 +16,7 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 using System.Diagnostics;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 
@@ -64,6 +65,11 @@ namespace DotVVM.Framework.Hosting
         /// Gets the view model object for the current HTTP request.
         /// </summary>
         public object ViewModel { get; internal set; }
+
+        /// <summary>
+        /// Gets the top-level control representing the whole view for the current request.
+        /// </summary>
+        public DotvvmView View { get; internal set; }
 
         /// <summary>
         /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel.
@@ -286,7 +292,7 @@ namespace DotVVM.Framework.Hosting
                 AdditionalHeaders = additionalHeaders
             };
 
-            var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata);
+            var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata).Result;
             RedirectToUrl("~/dotvvmReturnedFile?id=" + generatedFileId);
         }
 
@@ -303,7 +309,7 @@ namespace DotVVM.Framework.Hosting
                 AdditionalHeaders = additionalHeaders
             };
 
-            var generatedFileId = returnedFileStorage.StoreFile(stream, metadata);
+            var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;
             RedirectToUrl("~/dotvvmReturnedFile?id=" + generatedFileId);
         }
 

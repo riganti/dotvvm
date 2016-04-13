@@ -474,11 +474,11 @@ class DotVVM {
 
         if (replace) {
             location.replace(url);
-        } else {
+        } else if (location.href !== url) {
             location.href = url;
+        } else {
+            location.reload(true);
         }
-        // reload if not reloaded by redirect
-        if (document.readyState === "complete") location.reload(true);
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {

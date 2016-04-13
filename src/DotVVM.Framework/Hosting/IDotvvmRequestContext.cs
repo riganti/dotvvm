@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using Microsoft.Owin;
@@ -17,7 +18,15 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         IOwinContext OwinContext { get; }
 
+        /// <summary>
+        /// Gets the view model for the current request.
+        /// </summary>
         object ViewModel { get; }
+
+        /// <summary>
+        /// Gets the top-level control representing the whole view for the current request.
+        /// </summary>
+        DotvvmView View { get; }
 
         /// <summary>
         /// Gets the global configuration of DotVVM.
@@ -140,7 +149,7 @@ namespace DotVVM.Framework.Hosting
         /// <param name="fileName">Name of file.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="additionalHeaders">Additional headers.</param>
-        void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders);
+        void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null);
 
         /// <summary>
         /// Sends data stream to client.
@@ -149,6 +158,6 @@ namespace DotVVM.Framework.Hosting
         /// <param name="fileName">Name of file.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="additionalHeaders">Additional headers.</param>
-        void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders);
+        void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null);
     }
 }

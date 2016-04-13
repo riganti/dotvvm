@@ -32,6 +32,7 @@ namespace DotVVM.Framework.Hosting
         public IOutputRenderer OutputRenderer { get; private set; }
 
         public ICsrfProtector CsrfProtector { get; private set; }
+
         public string ApplicationPath { get; private set; }
 
         /// <summary>
@@ -109,6 +110,7 @@ namespace DotVVM.Framework.Hosting
             // build the page view
             var page = DotvvmViewBuilder.BuildView(context);
             page.SetValue(Internal.RequestContextProperty, context);
+            context.View = page;
 
             // run the preinit phase in the page
             DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit);

@@ -34,9 +34,12 @@ namespace DotVVM.Framework.Hosting
             {
                 context.Response.Headers["Content-Disposition"] = "attachment; filename=" + metadata.FileName;
                 context.Response.ContentType = metadata.MimeType;
-                foreach (var header in metadata.AdditionalHeaders)
+                if (metadata.AdditionalHeaders != null)
                 {
-                    context.Response.Headers.Add(header);
+                    foreach (var header in metadata.AdditionalHeaders)
+                    {
+                        context.Response.Headers.Add(header);
+                    }
                 }
 
                 context.Response.StatusCode = (int)HttpStatusCode.OK;
