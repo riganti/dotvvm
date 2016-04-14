@@ -4,6 +4,7 @@ using System.Globalization;
 using System.IO;
 using System.Threading;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
@@ -28,6 +29,8 @@ namespace DotVVM.Framework.Testing
         public bool IsInPartialRenderingMode { get; set; }
         public string ApplicationHostPath { get; set; }
         public string ResultIdFragment { get; set; }
+
+        public DotvvmView View { get; set; }
 
         public void ChangeCurrentCulture(string cultureName)
         {

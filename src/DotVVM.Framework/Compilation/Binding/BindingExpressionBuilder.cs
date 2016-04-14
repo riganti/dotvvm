@@ -83,12 +83,18 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             yield return Expression.Parameter(dataContext.DataContextType, "_this");
             yield return Expression.Parameter(typeof(BindingPageInfo), "_page");
-            var index = 0;
+            var index = 1;
             while (dataContext.Parent != null)
             {
                 dataContext = dataContext.Parent;
-                if (index == 0) yield return Expression.Parameter(dataContext.DataContextType, "_parent");
-                yield return Expression.Parameter(dataContext.DataContextType, "_parent" + index);
+                if (index == 1)
+                {
+                    yield return Expression.Parameter(dataContext.DataContextType, "_parent");
+                }
+                else
+                {
+                    yield return Expression.Parameter(dataContext.DataContextType, "_parent" + index);
+                }
                 index++;
             }
             yield return Expression.Parameter(dataContext.DataContextType, "_root");

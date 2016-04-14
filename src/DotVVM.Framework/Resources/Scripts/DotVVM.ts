@@ -482,7 +482,7 @@ class DotVVM {
             if (document.readyState === "complete") {
                 location.reload(true);
             }
-        }, 1000);
+        }, 0);
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
@@ -670,15 +670,19 @@ class DotVVM {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
             update(element, valueAccessor, allBindings, viewModel, bindingContext) {
-                // I don't know if the update function is needed, the following can fix potential problems
-                // 
-                //var control = element.innerBindingContext.$control;
-                //var value = valueAccessor();
-                //for (var p in control) {
-                //    if (control.hasOwnProperty(p) && ko.isObservable(control[p])) {
-                //        (<KnockoutObservable<any>>control[p]).notifySubscribers(ko.unwrap(value[p]));
-                //    }
-                //}
+            }
+        };
+
+        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
+        ko.bindingHandlers["withGridViewDataSet"] = {
+            init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
+                var value = valueAccessor();
+                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value });
+                element.innerBindingContext = innerBindingContext;
+                ko.applyBindingsToDescendants(innerBindingContext, element);
+                return { controlsDescendantBindings: true }; // do not apply binding again
+            },
+            update(element, valueAccessor, allBindings, viewModel, bindingContext) {
             }
         };
 

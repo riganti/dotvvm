@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Storage
 
             using (var fs = new FileStream(dataFilePath, FileMode.Create))
             {
-                await fs.WriteAsync(bytes, 0, bytes.Length);
+                await fs.WriteAsync(bytes, 0, bytes.Length).ConfigureAwait(false);
             }
 
             StoreMetadata(id, metadata);
@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Storage
             var dataFilePath = GetDataFilePath(id);
             using (var fs = new FileStream(dataFilePath, FileMode.Create))
             {
-                await stream.CopyToAsync(fs);    
+                await stream.CopyToAsync(fs).ConfigureAwait(false);    
             }
             
             StoreMetadata(id, metadata);
