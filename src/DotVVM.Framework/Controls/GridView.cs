@@ -99,6 +99,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty SortChangedProperty =
             DotvvmProperty.Register<Action<string>, GridView>(c => c.SortChanged, null);
 
+        /// <summary>
+        /// Gets or sets whether the header row should be displayed when the grid is empty.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public bool ShowHeaderWhenNoData
         {
             get { return (bool)GetValue(ShowHeaderWhenNoDataProperty); }
@@ -107,6 +111,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty ShowHeaderWhenNoDataProperty =
             DotvvmProperty.Register<bool, GridView>(t => t.ShowHeaderWhenNoData, false);
 
+        /// <summary>
+        /// Gets or sets whether the inline editing is allowed in the Grid. If so, you have to use a GridViewDataSet as the DataSource.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public bool InlineEditing
         {
             get { return (bool)GetValue(InlineEditingProperty); }
@@ -200,11 +208,6 @@ namespace DotVVM.Framework.Controls
         private void CreateHeaderRow(Hosting.IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
-
-            if (!ShowHeaderWhenNoData)
-            {
-                head.Attributes["data-bind"] = "visible: dotvvm.evaluator.getDataSourceItems($gridViewDataSet).length";
-            }
             Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
@@ -444,8 +447,12 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // with databind
             writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding());
+
+            if (!ShowHeaderWhenNoData)
+            {
+                writer.AddKnockoutDataBind("visible", $"dotvvm.evaluator.getDataSourceItems({GetDataSourceBinding().GetKnockoutBindingExpression()}).length");
+            }
 
             base.AddAttributesToRender(writer, context);
         }
