@@ -208,7 +208,7 @@ namespace DotVVM.Framework.Controls
             Children.Add(head);
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
-            
+
             // workaroud: header template must have to be one level nested, because it is in the Columns property which nests the dataContext to the item type
             // on server we need null, to be Convertible to Item type and on client the best is empty object, because with will hide the inner content when it is null
             var headerRow = new HtmlGenericControl("tr");
@@ -219,7 +219,7 @@ namespace DotVVM.Framework.Controls
                 var cell = new HtmlGenericControl("th");
                 SetCellAttributes(column, cell, true);
                 headerRow.Children.Add(cell);
-                
+
                 column.CreateHeaderControls(context, this, sortCommand, cell, gridViewDataSet);
                 if (FilterPlacement == GridViewFilterPlacement.HeaderRow)
                 {
@@ -358,7 +358,7 @@ namespace DotVVM.Framework.Controls
                 {
                     column.CreateControls(context, cell);
                 }
-                
+
             }
         }
 
@@ -373,7 +373,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddKnockoutForeachDataBind("dotvvm.evaluator.getDataSourceItems($gridViewDataSet)");
             }
             writer.RenderBeginTag("tbody");
-           
+
             // render contents
             if (RenderOnServer)
             {
@@ -389,7 +389,7 @@ namespace DotVVM.Framework.Controls
             {
                 // render on client
                 if (InlineEditing)
-                {    
+                {
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
@@ -444,11 +444,8 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!RenderOnServer)
-            {
-                // with databind
-                writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding());
-            }
+            // with databind
+            writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding());
 
             base.AddAttributesToRender(writer, context);
         }

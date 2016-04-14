@@ -482,7 +482,7 @@ class DotVVM {
             if (document.readyState === "complete") {
                 location.reload(true);
             }
-        }, 1000);
+        }, 0);
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
