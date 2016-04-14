@@ -191,7 +191,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ResolvedTree_ElementProperty()
         {
-            var root = ParseSource(@"@viewModel " + typeof(DefaultControlResolverTestViewModel) + @"
+            var root = ParseSource(@"@viewModel " + typeof(DefaultControlResolverTestViewModel).AssemblyQualifiedName + @"
 <dot:Repeater DataSource='{value: Items}'>
     <ItemTemplate>
         <dot:Button Text='{value: _this}' />
@@ -222,7 +222,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ResolvedTree_DefaultElementProperty()
         {
-            var root = ParseSource(@"@viewModel " + typeof(DefaultControlResolverTestViewModel) + @"
+            var root = ParseSource(@"@viewModel " + typeof(DefaultControlResolverTestViewModel).AssemblyQualifiedName + @"
 <dot:Repeater DataSource='{value: Items}'>
     <dot:Button Text='{value: _this}' />
 </dot:Repeater>");
@@ -251,7 +251,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         [TestMethod]
         public void ResolvedTree_Binding_DataContextChange_InvalidType()
         {
-            var root = ParseSource(@"@viewModel " + typeof(DefaultControlResolverTestViewModel) + @"
+            var root = ParseSource(@"@viewModel " + typeof(DefaultControlResolverTestViewModel).AssemblyQualifiedName + @"
 <dot:Repeater DataSource='{value: Items2}'>
     <dot:Button Text='{value: _this}' />
 </dot:Repeater>");
