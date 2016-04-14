@@ -164,6 +164,7 @@
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\NastyChildViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
@@ -342,6 +343,7 @@
     <Content Include="Views\ComplexSamples\ServerRendering\ArticleDetail.dotcontrol" />
     <Content Include="Views\ComplexSamples\RedirectAndUrl\ScrollingPage.dothtml" />
     <Content Include="Views\ComplexSamples\ServerRendering\AddingIntoEmptyRepeater.dothtml" />
+    <Content Include="Views\FeatureSamples\Directives\ViewModelMissingAssembly.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

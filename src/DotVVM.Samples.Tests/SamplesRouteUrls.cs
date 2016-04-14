@@ -70,6 +70,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string FeatureSamples_BindingPageInfo_BindingPageInfo = "FeatureSamples/BindingPageInfo/BindingPageInfo";
 			public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
 			public const string FeatureSamples_DateTimeSerialization_DateTimeSerialization = "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
+			public const string FeatureSamples_Directives_ViewModelMissingAssembly = "FeatureSamples/Directives/ViewModelMissingAssembly";
 			public const string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention = "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
 			public const string FeatureSamples_Formatting_Formatting = "FeatureSamples/Formatting/Formatting";
 			public const string FeatureSamples_HtmlTag_NonPairHtmlTag = "FeatureSamples/HtmlTag/NonPairHtmlTag";
