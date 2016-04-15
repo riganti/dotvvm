@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Binding
             IPropertyDescriptor controlProperty;
             if (!control.Metadata.TryGetProperty(PropertyName, out controlProperty))
             {
-                throw new Exception($"The property '{PropertyName}' was not found on control '{control.Metadata.Type}'!");
+                throw new Exception($"The property '{PropertyName}' is required on control '{control.Metadata.Type}'!");
             }
 
             IAbstractPropertySetter setter;
