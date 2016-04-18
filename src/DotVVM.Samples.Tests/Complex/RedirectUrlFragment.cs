@@ -17,7 +17,7 @@ namespace DotVVM.Samples.Tests.Complex
         public void RedirectUrlFragment_PostbackInteruption()
         {
             //When redirecting to fragment e.g. /uri#element-id postback gets interupted and the page does not reload 
-            //Expected: Page reloads and scroolls to element-id
+            //Expected: Page reloads and scrolls to element-id
 
             base.RunInAllBrowsers(browser =>
             {
@@ -41,8 +41,8 @@ namespace DotVVM.Samples.Tests.Complex
                 message1element.IsDisplayed();
                 message1element.CheckIfIsElementNotInView();
 
-                message1element.CheckIfInnerText(s => string.IsNullOrEmpty(s));
-                message2element.CheckIfInnerText(s => string.IsNullOrEmpty(s));
+                message1element.CheckIfInnerText(string.IsNullOrEmpty, "InnerText is not empty.");
+                message2element.CheckIfInnerText(string.IsNullOrEmpty, "InnerText is not empty.");
             });
         }
 

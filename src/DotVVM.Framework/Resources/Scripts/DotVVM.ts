@@ -472,17 +472,19 @@ class DotVVM {
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
 
+        var a = document.createElement("a");
+        a.href = url;
+
         if (replace) {
             location.replace(url);
         } else {
+            var docHref = document.location.href;
+            var reload = docHref.substr(0, docHref.indexOf("#")) === a.href.substr(0, a.href.indexOf("#"));
             document.location.href = url;
-        }
-        // reload if not reloaded by redirect
-        setTimeout(function () {
-            if (document.readyState === "complete") {
-                location.reload(true);
+            if (reload) {
+                document.location.reload(true);
             }
-        }, 100);
+        }
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
