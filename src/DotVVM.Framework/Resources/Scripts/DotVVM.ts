@@ -472,17 +472,14 @@ class DotVVM {
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
 
+        var a = document.createElement("a");
+        a.href = url;
+
         if (replace) {
             location.replace(url);
         } else {
-            document.location.href = url;
+            a.click();
         }
-        // reload if not reloaded by redirect
-        setTimeout(function () {
-            if (document.readyState === "complete") {
-                location.reload(true);
-            }
-        }, 100);
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
