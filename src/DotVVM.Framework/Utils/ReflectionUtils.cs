@@ -147,8 +147,7 @@ namespace DotVVM.Framework.Utils
             if (split.Length > 1)
             {
                 var assembly = split[1];
-                type = assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
-                if (type != null) return type;
+                return assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
             }
 
             type = assemblies.Where(a => name.StartsWith(a.GetName().Name, stringComparison)).Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
