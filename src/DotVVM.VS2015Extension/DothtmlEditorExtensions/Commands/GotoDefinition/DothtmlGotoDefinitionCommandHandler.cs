@@ -120,8 +120,8 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
                 var declaredSymbol = semanticModel
                     .GetDeclaredSymbol(declaration.DeclarationSyntax);
 
-                // check assambly name and namespace
-                if (declaredSymbol.ContainingAssembly.Identity.Name == currentDirective.AssamblyName
+                // check assembly name and namespace
+                if (declaredSymbol.ContainingAssembly.Identity.Name == currentDirective.AssemblyName
                     && declaredSymbol.ContainingNamespace.ToString() == currentDirective.Namespace)
                 {
                     //navigate to definition - open window
