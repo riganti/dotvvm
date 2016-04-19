@@ -478,13 +478,7 @@ class DotVVM {
         if (replace) {
             location.replace(url);
         } else {
-            var docHref = document.location.href;
-
-            var reload = (docHref.indexOf("#") > -1 && a.href.indexOf("#") > -1) && (docHref.substr(0, docHref.indexOf("#")) === a.href.substr(0, a.href.indexOf("#")));
-            document.location.href = url;
-            if (reload) {
-                document.location.reload(true);
-            }   
+            a.click();
         }
     }
 

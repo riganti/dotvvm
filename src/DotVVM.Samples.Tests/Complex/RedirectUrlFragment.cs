@@ -19,13 +19,13 @@ namespace DotVVM.Samples.Tests.Complex
             //When redirecting to fragment e.g. /uri#element-id postback gets interupted and the page does not reload 
             //Expected: Page reloads and scrolls to element-id
 
-            base.RunInAllBrowsers(browser =>
+            RunInAllBrowsers(browser =>
             {
                 //Postback with no redirect sets message
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_RedirectAndUrl_ScrollingPage);
                 browser.First("a[data-ui=test-link]").Click();
                 browser.Wait(200);
-                browser.First("span[data-ui='message1']").CheckIfInnerText(s => s.Equals("TestMessage"));
+                browser.First("span[data-ui='message1']").CheckIfInnerTextEquals("TestMessage");
 
                 //used RedirectToUrl to redirect to page with Id, however the redirect made page reload and discarted the viewmodel
                 //therefore  message1 should be blank
@@ -41,8 +41,8 @@ namespace DotVVM.Samples.Tests.Complex
                 message1element.IsDisplayed();
                 message1element.CheckIfIsElementNotInView();
 
-                message1element.CheckIfInnerText(string.IsNullOrEmpty, "InnerText is not empty.");
-                message2element.CheckIfInnerText(string.IsNullOrEmpty, "InnerText is not empty.");
+                message1element.CheckIfInnerTextEquals("TestMessage");
+                message2element.CheckIfInnerTextEquals("TestMessage");
             });
         }
 
@@ -52,7 +52,7 @@ namespace DotVVM.Samples.Tests.Complex
             //There I am testing that scrolling to element using Context.ResultIdFragment works correctly
             //It should scroll to element without interupting the postback
 
-            base.RunInAllBrowsers(browser =>
+            RunInAllBrowsers(browser =>
             {
                 //Postback with no redirect sets message to 'TestMessage'
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_RedirectAndUrl_ScrollingPage);
