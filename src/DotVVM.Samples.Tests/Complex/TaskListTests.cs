@@ -31,10 +31,9 @@ namespace DotVVM.Samples.Tests.Complex
                 //mark last task as completed
                 browser.Last("a").Click();
 
-                browser.Last(".table tr").CheckClassAttribute(a => a.Contains("completed"),
-                    "Last task is not marked as completed.");
+                browser.Last(".table tr").CheckClassAttribute(a => a.Contains("completed"), "Last task is not marked as completed.");
 
-                browser.ElementAt("input[type=button]", 1).Click();
+                browser.ElementAt("input[type=button]", 1).Click().Wait(1000);
                 browser.FindElements(".table tr").ThrowIfDifferentCountThan(5);
             });
         }

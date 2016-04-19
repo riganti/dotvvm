@@ -16,7 +16,7 @@ namespace DotVVM.VS2015Extension.Bases.Directives
             {
                 var values = Value.Split(separator);
                 TypeFullName = values[0];
-                AssamblyName = values[1].Trim();
+                AssemblyName = values[1].Trim();
             }
             else
             {
@@ -32,7 +32,7 @@ namespace DotVVM.VS2015Extension.Bases.Directives
             }
         }
 
-        public string AssamblyName { get; set; }
+        public string AssemblyName { get; set; }
 
         public string Namespace { get; set; } = "";
         public string TypeFullName { get; set; }
