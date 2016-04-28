@@ -1,13 +1,14 @@
-﻿using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Parser;
-using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using DotVVM.Framework.Controls;
-using DotVVM.Framework.Controls.Infrastructure;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -35,7 +36,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             var wrapperType = ResolveWrapperType(root, fileName);
 
-            // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the
+            // We need to call BuildControlMetadata instead of ResolveControl. The control builder for the control doesn't have to be compiled yet so the 
             // metadata would be incomplete and ResolveControl caches them internally. BuildControlMetadata just builds the metadata and the control is
             // actually resolved when the control builder is ready and the metadata are complete.
             var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, fileName));
@@ -83,17 +84,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return null;
             }
 
-            ResolvedTypeDescriptor resolvedType = null;
-
-            var type = Type.GetType(viewModelDirective.Value);
-            if (type != null)
-            {
-                resolvedType = new ResolvedTypeDescriptor(type);
-            }
-            var viewModelType = resolvedType;
+            var viewModelType = FindType(viewModelDirective.Value);
             if (viewModelType == null)
             {
-                viewModelDirective.AddError($"The type '{viewModelDirective.Value}' required in the @viewModel directive in was not found!");
+                viewModelDirective.AddError($"The type '{viewModelDirective.Value}' required in the @viewModel directive was not found!");
                 return null;
             }
             return CreateDataContextTypeStack(viewModelType, wrapperType);
@@ -496,7 +490,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 dataContext = CreateDataContextTypeStack(newDataContextType, parentDataContextStack: dataContext);
             }
 
-            // the element is a property
+            // the element is a property 
             if (IsTemplateProperty(property))
             {
                 // template
@@ -675,6 +669,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return property.PropertyType.TryGetArrayElementOrIEnumerableType();
         }
 
+
         protected virtual bool IsTemplateProperty(IPropertyDescriptor property)
         {
             return property.PropertyType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(ITemplate)));
@@ -684,6 +679,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return property.PropertyType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmControl)));
         }
+
 
         /// <summary>
         /// Gets the data context change behavior for the specified control property.
@@ -703,6 +699,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             return type;
         }
+
 
         /// <summary>
         /// Creates the IControlType identification of the control.
@@ -733,5 +730,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// Compiles the binding.
         /// </summary>
         protected abstract IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context);
+
     }
 }

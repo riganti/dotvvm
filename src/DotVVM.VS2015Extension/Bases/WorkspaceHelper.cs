@@ -114,7 +114,7 @@ namespace DotVVM.VS2015Extension.Bases
             return trees;
         }
 
-        public void GetTypeDestination(string assambly, string typeName)
+        public void GetTypeDestination(string assembly, string typeName)
         {
             throw new NotImplementedException();
         }

@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the source collection or a GridViewDataSet that contains data in the control.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false, Required =  true)]
+        [MarkupOptions(AllowHardCodedValue = false)]
         public object DataSource
         {
             get { return GetValue(DataSourceProperty); }

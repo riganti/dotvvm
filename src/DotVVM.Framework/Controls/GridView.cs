@@ -449,7 +449,7 @@ namespace DotVVM.Framework.Controls
         {
             writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding());
 
-            if (!ShowHeaderWhenNoData)
+            if (!ShowHeaderWhenNoData && !IsPropertySet(VisibleProperty))
             {
                 writer.AddKnockoutDataBind("visible", $"dotvvm.evaluator.getDataSourceItems({GetDataSourceBinding().GetKnockoutBindingExpression()}).length");
             }
