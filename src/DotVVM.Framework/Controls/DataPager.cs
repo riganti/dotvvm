@@ -265,11 +265,11 @@ namespace DotVVM.Framework.Controls
             if (!RenderLinkForCurrentPage)
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
+                writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
-                literal.SetBinding(Literal.TextProperty,
-                    new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
+                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
                 li.Children.Add(literal);
                 numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
@@ -281,8 +281,7 @@ namespace DotVVM.Framework.Controls
             li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
-            link.SetBinding(ButtonBase.TextProperty,
-                new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
+            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
             numbersPlaceHolder.Children.Add(li);
             li.Render(writer, context);
