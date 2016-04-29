@@ -126,8 +126,73 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(tokens[1].HasError);
         }
 
+        [TestMethod]
+        public void BindingTokenizer_UnsupportedOperator_AddEquals()
+        {
+            var tokens = Tokenize("Test+=3");
 
+            Assert.AreEqual(3, tokens.Count);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
+            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
+        }
 
+        [TestMethod]
+        public void BindingTokenizer_UnsupportedOperator_TwoDifferent()
+        {
+            var tokens = Tokenize("Test+=3<>5");
+
+            Assert.AreEqual(5, tokens.Count);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
+            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
+            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[3].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[4].Type);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_UnsupportedOperator_ThreeEquals()
+        {
+            var tokens = Tokenize("Test===3");
+
+            Assert.AreEqual(3, tokens.Count);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
+            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_UnsupportedOperator_Arrow()
+        {
+            var tokens = Tokenize("Test=>>3");
+
+            Assert.AreEqual(3, tokens.Count);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
+            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_UnsupportedOperator_CarretEquals()
+        {
+            var tokens = Tokenize("Test^=3");
+
+            Assert.AreEqual(3, tokens.Count);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
+            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
+        }
+
+        [TestMethod]
+        public void BindingTokenizer_UnsupportedOperator_Carret()
+        {
+            var tokens = Tokenize("Test^3");
+
+            Assert.AreEqual(3, tokens.Count);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[0].Type);
+            Assert.AreEqual(BindingTokenType.UnsupportedOperator, tokens[1].Type);
+            Assert.AreEqual(BindingTokenType.Identifier, tokens[2].Type);
+        }
 
         private static List<BindingToken> Tokenize(string expression)
         {

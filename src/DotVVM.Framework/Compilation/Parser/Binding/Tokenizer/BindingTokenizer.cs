@@ -76,50 +76,36 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case '+':
                         FinishIncompleteIdentifier();
                         Read();
-                        if (!ReadUnsupportedOperator())
-                        {
-                            CreateToken(BindingTokenType.AddOperator);
-                        }
+                        EnsureUnsupportedOperator(BindingTokenType.AddOperator);
                         break;
 
                     case '-':
                         FinishIncompleteIdentifier();
                         Read();
-                        if (!ReadUnsupportedOperator())
-                        {
-                            CreateToken(BindingTokenType.SubtractOperator);
-                        }
+                        EnsureUnsupportedOperator(BindingTokenType.SubtractOperator);
                         break;
 
                     case '*':
                         FinishIncompleteIdentifier();
                         Read();
-                        if (!ReadUnsupportedOperator())
-                        {
-                            CreateToken(BindingTokenType.MultiplyOperator);
-                        }
+                        EnsureUnsupportedOperator(BindingTokenType.MultiplyOperator);
                         break;
 
                     case '/':
                         FinishIncompleteIdentifier();
                         Read();
-                        if (!ReadUnsupportedOperator())
-                        {
-                            CreateToken(BindingTokenType.DivideOperator);
-                        }
+                        EnsureUnsupportedOperator(BindingTokenType.DivideOperator);
                         break;
 
                     case '%':
                         FinishIncompleteIdentifier();
                         Read();
-                        if (!ReadUnsupportedOperator())
-                        {
-                            CreateToken(BindingTokenType.ModulusOperator);
-                        }
+                        EnsureUnsupportedOperator(BindingTokenType.ModulusOperator);
                         break;
                     case '^':
                         FinishIncompleteIdentifier();
-                        ReadUnsupportedOperator();
+                        Read();
+                        EnsureUnsupportedOperator(BindingTokenType.UnsupportedOperator);
                         break;
 
                     case ':':
@@ -134,11 +120,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '=')
                         {
                             Read();
-                            CreateToken(BindingTokenType.EqualsEqualsOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.EqualsEqualsOperator);
                         }
-                        else if (!ReadUnsupportedOperator())
-                        {
-                            CreateToken(BindingTokenType.AssignOperator);
+                        else {
+                            EnsureUnsupportedOperator(BindingTokenType.AssignOperator);
                         }
                         break;
 
@@ -148,11 +133,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '|')
                         {
                             Read();
-                            CreateToken(BindingTokenType.OrElseOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.OrElseOperator);
+
                         }
-                        else if(!ReadUnsupportedOperator())
+                        else
                         {
-                            CreateToken(BindingTokenType.OrOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.OrOperator);
                         }
                         break;
 
@@ -162,11 +148,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '&')
                         {
                             Read();
-                            CreateToken(BindingTokenType.AndAlsoOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.AndAlsoOperator);
                         }
-                        else if (!ReadUnsupportedOperator())
+                        else
                         {
-                            CreateToken(BindingTokenType.AndOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.AndOperator);
                         }
                         break;
 
@@ -176,11 +162,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '=')
                         {
                             Read();
-                            CreateToken(BindingTokenType.LessThanEqualsOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.LessThanEqualsOperator);
                         }
-                        else if (!ReadUnsupportedOperator())
+                        else
                         {
-                            CreateToken(BindingTokenType.LessThanOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.LessThanOperator);
                         }
                         break;
 
@@ -190,11 +176,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '=')
                         {
                             Read();
-                            CreateToken(BindingTokenType.GreaterThanEqualsOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.GreaterThanEqualsOperator);
                         }
-                        else if (!ReadUnsupportedOperator())
+                        else
                         {
-                            CreateToken(BindingTokenType.GreaterThanOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.GreaterThanOperator);
                         }
                         break;
 
@@ -204,11 +190,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '=')
                         {
                             Read();
-                            CreateToken(BindingTokenType.NotEqualsOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.NotEqualsOperator);
                         }
-                        else if (!ReadUnsupportedOperator())
+                        else
                         {
-                            CreateToken(BindingTokenType.NotOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.NotOperator);
                         }
                         break;
 
@@ -226,16 +212,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '?')
                         {
                             Read();
-                            CreateToken(BindingTokenType.NullCoalescingOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.NullCoalescingOperator);
                         }
-                        else if (!ReadUnsupportedOperator())
+                        else
                         {
-                            CreateToken(BindingTokenType.QuestionMarkOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.QuestionMarkOperator);
                         }
                         break;
 
                     default:
-                        if (Char.IsWhiteSpace(ch))
+                        if (char.IsWhiteSpace(ch))
                         {
                             // white space
                             FinishIncompleteIdentifier();
@@ -267,7 +253,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             }
         }
 
-        internal bool ReadUnsupportedOperator()
+        internal void EnsureUnsupportedOperator(BindingTokenType preferedOperatorToken)
         {
             if (IsOperator(Peek()))
             {
@@ -276,9 +262,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     Read();
                 }
                 CreateToken(BindingTokenType.UnsupportedOperator);
-                return true;
             }
-            return false;
+            else
+            {
+                CreateToken(preferedOperatorToken);
+            }
         }
 
         internal void ReadStringLiteral(out string errorMessage)
