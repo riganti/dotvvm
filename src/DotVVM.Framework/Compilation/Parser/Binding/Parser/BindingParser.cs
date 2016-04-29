@@ -12,16 +12,48 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     {
         protected override bool IsWhiteSpace(BindingToken t) => t.Type == BindingTokenType.WhiteSpace;
 
+        public BindingParserNode ReadMultiExpression()
+        {
+            int startIndex = CurrentIndex;
+            var expressions = new List<BindingParserNode>();
+            expressions.Add(ReadExpression());
+
+            int lastIndex = -1;
+
+            while (!OnEnd() && lastIndex != CurrentIndex)
+            {
+                lastIndex = CurrentIndex;
+                var extraNode = ReadExpression();
+                extraNode.NodeErrors.Add("Operator expected before this expression.");
+                expressions.Add(extraNode);
+            }
+
+            return CreateNode( new MultiExpressionBindingParserNode(expressions), startIndex, OnEnd() ? null : $"Unexpected token: {Peek().Text}");
+        }
+
         public BindingParserNode ReadExpression()
         {
             var startIndex = CurrentIndex;
             SkipWhiteSpace();
-            return CreateNode(ReadAssignmentExpression(), startIndex);
+            return CreateNode(ReadUnsupportedOperatorExpression(), startIndex);
         }
 
         public bool OnEnd()
         {
             return CurrentIndex >= Tokens.Count;
+        }
+
+        private BindingParserNode ReadUnsupportedOperatorExpression()
+        {
+            var first = ReadAssignmentExpression();
+            if (Peek() != null && Peek().Type == BindingTokenType.UnsupportedOperator)
+            {
+                var startIndex = CurrentIndex;
+                var operatorToken = Read();
+                var second = ReadUnsupportedOperatorExpression();
+                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.UnsupportedOperator), startIndex, $"Unsupported operator: {operatorToken.Text}");
+            }
+            else return first;
         }
 
         private BindingParserNode ReadAssignmentExpression()
@@ -202,11 +234,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             if (Peek() != null)
             {
                 var @operator = Peek().Type;
-                if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator)
+                var isOperatorUnsupported = @operator == BindingTokenType.UnsupportedOperator;
+
+                if (@operator == BindingTokenType.NotOperator || @operator == BindingTokenType.SubtractOperator || isOperatorUnsupported)
                 {
-                    Read();
+                    var operatorToken = Read();
                     var target = ReadUnaryExpression();
-                    return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex);
+                    return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex, isOperatorUnsupported ? $"Usupported operator {operatorToken.Text}" : null);
                 }
             }
             return CreateNode(ReadIdentifierExpression(), startIndex);

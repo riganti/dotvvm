@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
         MultiplyOperator,
         DivideOperator,
         ModulusOperator,
+        UnsupportedOperator,
 
         EqualsEqualsOperator,
         LessThanOperator,
