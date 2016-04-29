@@ -17,23 +17,23 @@ namespace DotVVM.Framework.Controls
         private const string RouteParameterPrefix = "Param-";
 
 
-        public static void WriteRouteLinkHrefAttribute(string routeName, HtmlGenericControl control, IHtmlWriter writer, IDotvvmRequestContext context)
+        public static void WriteRouteLinkHrefAttribute(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!control.RenderOnServer)
             {
                 var group = new KnockoutBindingGroup();
-                group.Add("href", GenerateKnockoutHrefExpression(routeName, control, context));
+                group.Add("href", GenerateKnockoutHrefExpression(routeName, control, urlSuffixProperty, context));
                 writer.AddKnockoutDataBind("attr", group);
             }
             else
             {
-                writer.AddAttribute("href", EvaluateRouteUrl(routeName, control, context));
+                writer.AddAttribute("href", EvaluateRouteUrl(routeName, control, urlSuffixProperty, context));
             }
         }
 
-        public static string EvaluateRouteUrl(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
+        public static string EvaluateRouteUrl(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IDotvvmRequestContext context)
         {
-            var coreUrl = GenerateRouteUrlCore(routeName, control, context);
+            var coreUrl = GenerateRouteUrlCore(routeName, control, context) + (control.GetValue(urlSuffixProperty) as string ?? "");
 
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
@@ -66,18 +66,34 @@ namespace DotVVM.Framework.Controls
             return context.Configuration.RouteTable[routeName];
         }
 
-        public static string GenerateKnockoutHrefExpression(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
+        public static string GenerateKnockoutHrefExpression(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IDotvvmRequestContext context)
         {
             var link = GenerateRouteLinkCore(routeName, control, context);
 
+            var urlSuffix = GetUrlSuffixExpression(control, urlSuffixProperty);
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
-                return string.Format("'#!/' + {0}", link);
+                return $"'#!/' + {link} + {urlSuffix}";
             }
             else
             {
-                return string.Format("'{0}' + {1}", context.TranslateVirtualPath("~/"), link);
+                return $"'{context.TranslateVirtualPath("~/")}' + {link} + {urlSuffix}";
             }
+        }
+
+        private static string GetUrlSuffixExpression(HtmlGenericControl control, DotvvmProperty urlSuffixProperty)
+        {
+            var urlSuffixBinding = control.GetValueBinding(urlSuffixProperty);
+            string urlSuffix;
+            if (urlSuffixBinding != null)
+            {
+                urlSuffix = urlSuffixBinding.GetKnockoutBindingExpression();
+            }
+            else
+            {
+                urlSuffix = JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
+            }
+            return urlSuffix;
         }
 
         private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)

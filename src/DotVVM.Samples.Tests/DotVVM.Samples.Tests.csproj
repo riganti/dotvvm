@@ -63,8 +63,9 @@
     <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Riganti.Utils.Testing.SeleniumCore">
-      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.7.0\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
+    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.7.1.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.7.1\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
@@ -107,7 +108,7 @@
     <Compile Include="Control\LiteralTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
     <Compile Include="Control\GridViewTests.cs" />
-    <Compile Include="Control\RouteLinkTests.cs" />
+    <Compile Include="Control\RepeaterTests.cs" />
     <Compile Include="Control\NestedRepeaterTests.cs" />
     <Compile Include="Control\RecursiveValidationSummaryTests.cs" />
     <Compile Include="Control\ButtonTagNameTests.cs" />
@@ -120,9 +121,11 @@
     <Compile Include="Control\CheckBoxTests.cs" />
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
+    <Compile Include="Feature\BindingContextsTest.cs" />
     <Compile Include="Feature\BindingPageInfoTests.cs" />
     <Compile Include="Feature\ChildViewModelInvokeMethodsTests.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
+    <Compile Include="Feature\DirectivesTests.cs" />
     <Compile Include="Feature\HtmlTagTests.cs" />
     <Compile Include="Feature\IdGenerationTests.cs" />
     <Compile Include="Feature\DynamicValidationTests.cs" />

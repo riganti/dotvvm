@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests
                     .CheckIfInnerText(
                         s =>
                             s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
-                            s.Contains("required in the @viewModel directive in was not found!")
+                            s.Contains("required in the @viewModel directive was not found!")
                             );
             });
         }

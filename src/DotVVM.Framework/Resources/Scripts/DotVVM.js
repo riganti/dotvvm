@@ -567,18 +567,21 @@ var DotVVM = (function () {
         // trigger redirect event
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
+        var fakeAnchor = this.fakeRedirectAnchor;
+        if (!fakeAnchor) {
+            fakeAnchor = document.createElement("a");
+            fakeAnchor.style.display = "none";
+            fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
+            document.body.appendChild(fakeAnchor);
+            this.fakeRedirectAnchor = fakeAnchor;
+        }
+        fakeAnchor.href = url;
         if (replace) {
             location.replace(url);
         }
         else {
-            document.location.href = url;
+            fakeAnchor.click();
         }
-        // reload if not reloaded by redirect
-        setTimeout(function () {
-            if (document.readyState === "complete") {
-                location.reload(true);
-            }
-        }, 1000);
     };
     DotVVM.prototype.removeVirtualDirectoryFromUrl = function (url, viewModelName) {
         var virtualDirectory = "/" + this.viewModels[viewModelName].virtualDirectory;
@@ -768,15 +771,18 @@ var DotVVM = (function () {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
-                // I don't know if the update function is needed, the following can fix potential problems
-                // 
-                //var control = element.innerBindingContext.$control;
-                //var value = valueAccessor();
-                //for (var p in control) {
-                //    if (control.hasOwnProperty(p) && ko.isObservable(control[p])) {
-                //        (<KnockoutObservable<any>>control[p]).notifySubscribers(ko.unwrap(value[p]));
-                //    }
-                //}
+            }
+        };
+        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
+        ko.bindingHandlers["withGridViewDataSet"] = {
+            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var value = valueAccessor();
+                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value });
+                element.innerBindingContext = innerBindingContext;
+                ko.applyBindingsToDescendants(innerBindingContext, element);
+                return { controlsDescendantBindings: true }; // do not apply binding again
+            },
+            update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
             }
         };
         ko.bindingHandlers['dotvvmEnable'] = {

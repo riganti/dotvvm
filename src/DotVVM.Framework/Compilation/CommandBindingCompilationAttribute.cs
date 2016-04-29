@@ -6,6 +6,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -13,7 +14,7 @@ namespace DotVVM.Framework.Compilation
     {
         public override string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression)
         {
-            return $"dotvvm.postbackScript('{ expression.Id }')";
+            return $"dotvvm.postbackScript({ JsonConvert.SerializeObject(expression.Id) })";
         }
 
         protected override Expression ConvertExpressionToType(Expression expr, Type expectedType)
@@ -33,7 +34,7 @@ namespace DotVVM.Framework.Compilation
                 );
             }
             // TODO: convert delegates to another delegates
-            throw new Exception($"can not convert expression '{ expr }' to '{expectedType}'");
+            throw new Exception($"Can not convert expression '{ expr }' to '{expectedType}'.");
         }
 
         public static Type GetTaskType(Type taskType)

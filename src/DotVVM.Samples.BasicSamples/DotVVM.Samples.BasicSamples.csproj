@@ -160,16 +160,19 @@
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingPageInfo\BindingPageInfoViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\NastyChildViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\EssentialTypeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelNesting\NestedViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewSizable.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
@@ -226,6 +229,8 @@
     <Compile Include="Views\FeatureSamples\MarkupControl\TextEditorControl.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\colResizable-1.5.min.js" />
+    <Content Include="Scripts\GridViewSizable.js" />
     <Content Include="Web.config" />
     <Content Include="packages.config" />
     <Content Include="Views\ControlSamples\Button\Button.dothtml" />
@@ -342,6 +347,10 @@
     <Content Include="Views\ComplexSamples\ServerRendering\ArticleDetail.dotcontrol" />
     <Content Include="Views\ComplexSamples\RedirectAndUrl\ScrollingPage.dothtml" />
     <Content Include="Views\ComplexSamples\ServerRendering\AddingIntoEmptyRepeater.dothtml" />
+    <Content Include="Views\FeatureSamples\Directives\ViewModelMissingAssembly.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewSizable.dothtml" />
+    <Content Include="Views\FeatureSamples\BindingContexts\BindingContext.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\RouteLinkUrlSuffix.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

@@ -15,6 +15,8 @@ namespace DotVVM.Framework.Binding
 
         public override int Order { get; }
 
+        public bool AllowMissingProperty { get; set; }
+
         public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
         {
             IPropertyDescriptor controlProperty;
@@ -35,7 +37,8 @@ namespace DotVVM.Framework.Binding
             }
             else
             {
-                return dataContext;
+                if (AllowMissingProperty) return dataContext;
+                else throw new Exception($"Property '{PropertyName}' is required on '{control.Metadata.Type.Name}'.");
             }
         }
 

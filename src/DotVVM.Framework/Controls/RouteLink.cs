@@ -32,6 +32,16 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmProperty.Register<bool, RouteLink>(t => t.Enabled, true);
 
+        /// <summary>
+        /// Gets or sets the suffix that will be appended to the generated URL (e.g. query string or URL fragment).
+        /// </summary>
+        public string UrlSuffix
+        {
+            get { return (string)GetValue(UrlSuffixProperty); }
+            set { SetValue(UrlSuffixProperty, value); }
+        }
+        public static readonly DotvvmProperty UrlSuffixProperty
+            = DotvvmProperty.Register<string, RouteLink>(c => c.UrlSuffix, null);
 
 
         /// <summary>
@@ -55,7 +65,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            RouteLinkHelpers.WriteRouteLinkHrefAttribute(RouteName, this, writer, context);
+            RouteLinkHelpers.WriteRouteLinkHrefAttribute(RouteName, this, UrlSuffixProperty, writer, context);
 
             writer.AddKnockoutDataBind("text", this, TextProperty, () =>
             {
@@ -70,7 +80,7 @@ namespace DotVVM.Framework.Controls
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, IValueBinding binding)
         {
             writer.AddKnockoutDataBind("dotvvmEnable", binding);
-            writer.AddAttribute("onclick", "return !this.hasAttribute('disabled')");
+            writer.AddAttribute("onclick", "return !this.hasAttribute('disabled');");
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
