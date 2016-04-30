@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     {
         public IReadOnlyList<BindingParserNode> Expressions { get; private set; }
 
-        public MultiExpressionBindingParserNode( List<BindingParserNode> expressions )
+        public MultiExpressionBindingParserNode(List<BindingParserNode> expressions)
         {
             Expressions = expressions;
         }
@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             return
                 base.EnumerateNodes()
-                    .Concat(Expressions);
+                    .Concat(Expressions.SelectMany(e => e.EnumerateNodes()));
         }
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
