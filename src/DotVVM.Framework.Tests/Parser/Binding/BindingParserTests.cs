@@ -447,6 +447,104 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(multiExpresionNode.Expressions[1] is LiteralExpressionBindingParserNode);
         }
 
+        [TestMethod]
+        public void BindingParser_NodeTokenCorrectness_UnsupportedOperators()
+        {
+            var parser = SetupParser("_this.MyCoolProperty +=  _control.ClientId &^ _root += Comments");
+            var node = parser.ReadExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsTrue(node is BinaryOperatorBindingParserNode);
+
+            var plusEqualsExp1 = node as BinaryOperatorBindingParserNode;
+
+            var myCoolPropertyExp = plusEqualsExp1.FirstExpression as MemberAccessBindingParserNode;
+            var andCarretExp = plusEqualsExp1.SecondExpression as BinaryOperatorBindingParserNode;
+
+            var clientIdExp = andCarretExp.FirstExpression as MemberAccessBindingParserNode;
+            var plusEqualsExp2 = andCarretExp.SecondExpression as BinaryOperatorBindingParserNode;
+
+            var rootExp = plusEqualsExp2.FirstExpression as IdentifierNameBindingParserNode;
+            var commentsExp = plusEqualsExp2.SecondExpression as IdentifierNameBindingParserNode;
+
+            //_this.MyCoolProperty +=  _control.ClientId &^ _root += Comments//
+            CheckTokenTypes(plusEqualsExp1.Tokens, new BindingTokenType[] {
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier
+            });
+
+            //_this.MyCoolProperty //
+            CheckTokenTypes(myCoolPropertyExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace
+            });
+
+            //  _control.ClientId &^ _root += Comments//
+            CheckTokenTypes(andCarretExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier
+            });
+
+            //  _control.ClientId //
+            CheckTokenTypes(clientIdExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace
+            });
+
+            // _root += Comments//
+            CheckTokenTypes(plusEqualsExp2.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier
+            });
+
+            // _root //
+            CheckTokenTypes(rootExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+            });
+
+            // Comments//
+            CheckTokenTypes(plusEqualsExp2.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier
+            });
+        }
+
         private static BindingParserNode Parse(string expression)
         {
             BindingParser parser = SetupParser(expression);
@@ -462,6 +560,13 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             return parser;
         }
 
+        private static void CheckTokenTypes(IEnumerable<BindingToken> bindingTokens, IEnumerable<BindingTokenType> expectedTokenTypes)
+        {
+            var actualTypes = bindingTokens.Select(t => t.Type);
+
+            Assert.IsTrue(Enumerable.SequenceEqual(actualTypes, expectedTokenTypes));
+        }
+
         private static void CheckUnaryOperatorNodeType<TInnerExpression>(UnaryOperatorBindingParserNode node, BindingTokenType operatorType)
            where TInnerExpression : BindingParserNode
         {
@@ -469,8 +574,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(node.InnerExpression is TInnerExpression);
         }
 
-        private static void CheckBinaryOperatorNodeType<TLeft, TRight> ( BinaryOperatorBindingParserNode node, BindingTokenType operatorType)
-            where TLeft : BindingParserNode 
+        private static void CheckBinaryOperatorNodeType<TLeft, TRight>(BinaryOperatorBindingParserNode node, BindingTokenType operatorType)
+            where TLeft : BindingParserNode
             where TRight : BindingParserNode
         {
             Assert.IsTrue(node.Operator == operatorType);
