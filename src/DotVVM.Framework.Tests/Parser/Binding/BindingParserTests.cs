@@ -539,7 +539,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             });
 
             // Comments//
-            CheckTokenTypes(plusEqualsExp2.Tokens, new BindingTokenType[] {
+            CheckTokenTypes(commentsExp.Tokens, new BindingTokenType[] {
                 BindingTokenType.WhiteSpace,
                 BindingTokenType.Identifier
             });
