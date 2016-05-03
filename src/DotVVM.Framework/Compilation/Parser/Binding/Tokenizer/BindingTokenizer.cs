@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
@@ -6,9 +7,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 {
     public class BindingTokenizer : TokenizerBase<BindingToken, BindingTokenType>
     {
+        private readonly ISet<char> operatorCharacters = new HashSet<char> { '+', '-', '*', '/', '^', '\\', '%', '<', '>', '=', '&', '|', '~', '!' };
+
         protected override BindingTokenType TextTokenType => BindingTokenType.Identifier;
 
         protected override BindingTokenType WhiteSpaceTokenType => BindingTokenType.WhiteSpace;
+
+        public bool IsOperator(char c) => operatorCharacters.Contains(c);
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         protected override void TokenizeCore()
@@ -71,31 +76,36 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                     case '+':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.AddOperator);
+                        EnsureUnsupportedOperator(BindingTokenType.AddOperator);
                         break;
 
                     case '-':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.SubtractOperator);
+                        EnsureUnsupportedOperator(BindingTokenType.SubtractOperator);
                         break;
 
                     case '*':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.MultiplyOperator);
+                        EnsureUnsupportedOperator(BindingTokenType.MultiplyOperator);
                         break;
 
                     case '/':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.DivideOperator);
+                        EnsureUnsupportedOperator(BindingTokenType.DivideOperator);
                         break;
 
                     case '%':
                         FinishIncompleteIdentifier();
                         Read();
-                        CreateToken(BindingTokenType.ModulusOperator);
+                        EnsureUnsupportedOperator(BindingTokenType.ModulusOperator);
+                        break;
+                    case '^':
+                        FinishIncompleteIdentifier();
+                        Read();
+                        EnsureUnsupportedOperator(BindingTokenType.UnsupportedOperator);
                         break;
 
                     case ':':
@@ -110,11 +120,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '=')
                         {
                             Read();
-                            CreateToken(BindingTokenType.EqualsEqualsOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.EqualsEqualsOperator);
                         }
-                        else
-                        {
-                            CreateToken(BindingTokenType.AssignOperator);
+                        else {
+                            EnsureUnsupportedOperator(BindingTokenType.AssignOperator);
                         }
                         break;
 
@@ -124,11 +133,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '|')
                         {
                             Read();
-                            CreateToken(BindingTokenType.OrElseOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.OrElseOperator);
+
                         }
                         else
                         {
-                            CreateToken(BindingTokenType.OrOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.OrOperator);
                         }
                         break;
 
@@ -138,11 +148,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '&')
                         {
                             Read();
-                            CreateToken(BindingTokenType.AndAlsoOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.AndAlsoOperator);
                         }
                         else
                         {
-                            CreateToken(BindingTokenType.AndOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.AndOperator);
                         }
                         break;
 
@@ -152,11 +162,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '=')
                         {
                             Read();
-                            CreateToken(BindingTokenType.LessThanEqualsOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.LessThanEqualsOperator);
                         }
                         else
                         {
-                            CreateToken(BindingTokenType.LessThanOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.LessThanOperator);
                         }
                         break;
 
@@ -166,11 +176,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '=')
                         {
                             Read();
-                            CreateToken(BindingTokenType.GreaterThanEqualsOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.GreaterThanEqualsOperator);
                         }
                         else
                         {
-                            CreateToken(BindingTokenType.GreaterThanOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.GreaterThanOperator);
                         }
                         break;
 
@@ -180,11 +190,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '=')
                         {
                             Read();
-                            CreateToken(BindingTokenType.NotEqualsOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.NotEqualsOperator);
                         }
                         else
                         {
-                            CreateToken(BindingTokenType.NotOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.NotOperator);
                         }
                         break;
 
@@ -202,16 +212,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         if (Peek() == '?')
                         {
                             Read();
-                            CreateToken(BindingTokenType.NullCoalescingOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.NullCoalescingOperator);
                         }
                         else
                         {
-                            CreateToken(BindingTokenType.QuestionMarkOperator);
+                            EnsureUnsupportedOperator(BindingTokenType.QuestionMarkOperator);
                         }
                         break;
 
                     default:
-                        if (Char.IsWhiteSpace(ch))
+                        if (char.IsWhiteSpace(ch))
                         {
                             // white space
                             FinishIncompleteIdentifier();
@@ -240,6 +250,22 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
             if (DistanceSinceLastToken > 0)
             {
                 CreateToken(BindingTokenType.Identifier);
+            }
+        }
+
+        internal void EnsureUnsupportedOperator(BindingTokenType preferedOperatorToken)
+        {
+            if (IsOperator(Peek()))
+            {
+                while (IsOperator(Peek()))
+                {
+                    Read();
+                }
+                CreateToken(BindingTokenType.UnsupportedOperator);
+            }
+            else
+            {
+                CreateToken(preferedOperatorToken);
             }
         }
 

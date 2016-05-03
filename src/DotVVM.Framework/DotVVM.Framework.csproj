@@ -240,6 +240,7 @@
     <Compile Include="Compilation\Parser\Binding\Parser\IdentifierNameBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\LiteralExpressionBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\MemberAccessBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\MultiExpressionBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\NumberLiteralSuffix.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\ParenthesizedExpressionBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\UnaryOperatorBindingParserNode.cs" />

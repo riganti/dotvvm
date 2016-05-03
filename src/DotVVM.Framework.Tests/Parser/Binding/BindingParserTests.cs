@@ -48,8 +48,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var result = Parse("a +b");
 
             var binaryOperator = (BinaryOperatorBindingParserNode)result;
-            Assert.AreEqual("a", ((IdentifierNameBindingParserNode) binaryOperator.FirstExpression).Name);
-            Assert.AreEqual("b", ((IdentifierNameBindingParserNode) binaryOperator.SecondExpression).Name);
+            Assert.AreEqual("a", ((IdentifierNameBindingParserNode)binaryOperator.FirstExpression).Name);
+            Assert.AreEqual("b", ((IdentifierNameBindingParserNode)binaryOperator.SecondExpression).Name);
             Assert.AreEqual(BindingTokenType.AddOperator, binaryOperator.Operator);
         }
 
@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual("d", acd.MemberNameExpression.Name);
             Assert.AreEqual("b", ((IdentifierNameBindingParserNode)first.SecondExpression).Name);
 
-            var second = (LiteralExpressionBindingParserNode) binaryOperator.SecondExpression;
+            var second = (LiteralExpressionBindingParserNode)binaryOperator.SecondExpression;
             Assert.AreEqual(3.14, second.Value);
         }
 
@@ -110,8 +110,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(BindingTokenType.DivideOperator, divide.Operator);
             Assert.AreEqual("d", ((IdentifierNameBindingParserNode)divide.FirstExpression).Name);
 
-            var parenthesis = (ParenthesizedExpressionBindingParserNode) divide.SecondExpression;
-            var addition2 = (BinaryOperatorBindingParserNode) parenthesis.InnerExpression;
+            var parenthesis = (ParenthesizedExpressionBindingParserNode)divide.SecondExpression;
+            var addition2 = (BinaryOperatorBindingParserNode)parenthesis.InnerExpression;
             Assert.AreEqual(BindingTokenType.AddOperator, addition2.Operator);
             Assert.AreEqual("e", ((IdentifierNameBindingParserNode)addition2.FirstExpression).Name);
             Assert.AreEqual(2, ((LiteralExpressionBindingParserNode)addition2.SecondExpression).Value);
@@ -143,20 +143,20 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             var root = (ArrayAccessBindingParserNode)result;
 
-            var ef = (BinaryOperatorBindingParserNode) root.ArrayIndexExpression;
+            var ef = (BinaryOperatorBindingParserNode)root.ArrayIndexExpression;
             Assert.AreEqual(BindingTokenType.NullCoalescingOperator, ef.Operator);
             Assert.AreEqual("e", ((IdentifierNameBindingParserNode)ef.FirstExpression).Name);
             Assert.AreEqual("f", ((IdentifierNameBindingParserNode)ef.SecondExpression).Name);
 
-            var d = (MemberAccessBindingParserNode) root.TargetExpression;
+            var d = (MemberAccessBindingParserNode)root.TargetExpression;
             Assert.AreEqual("d", d.MemberNameExpression.Name);
 
-            var functionCall = (FunctionCallBindingParserNode) d.TargetExpression;
+            var functionCall = (FunctionCallBindingParserNode)d.TargetExpression;
             Assert.AreEqual(1, functionCall.ArgumentExpressions.Count);
             Assert.AreEqual("c", ((IdentifierNameBindingParserNode)functionCall.ArgumentExpressions[0]).Name);
 
-            var firstArray = (ArrayAccessBindingParserNode) functionCall.TargetExpression;
-            var add = (BinaryOperatorBindingParserNode) firstArray.ArrayIndexExpression;
+            var firstArray = (ArrayAccessBindingParserNode)functionCall.TargetExpression;
+            var add = (BinaryOperatorBindingParserNode)firstArray.ArrayIndexExpression;
             Assert.AreEqual(BindingTokenType.AddOperator, add.Operator);
             Assert.AreEqual("b", ((IdentifierNameBindingParserNode)add.FirstExpression).Name);
             Assert.AreEqual(1, ((LiteralExpressionBindingParserNode)((UnaryOperatorBindingParserNode)add.SecondExpression).InnerExpression).Value);
@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         public void BindingParser_ConditionalOperator_Valid()
         {
             var result = Parse("a ? !b : c");
-            var condition = (ConditionalExpressionBindingParserNode) result;
+            var condition = (ConditionalExpressionBindingParserNode)result;
             Assert.AreEqual("a", ((IdentifierNameBindingParserNode)condition.ConditionExpression).Name);
             Assert.AreEqual("b", ((IdentifierNameBindingParserNode)((UnaryOperatorBindingParserNode)condition.TrueExpression).InnerExpression).Name);
             Assert.AreEqual(BindingTokenType.NotOperator, ((UnaryOperatorBindingParserNode)condition.TrueExpression).Operator);
@@ -214,7 +214,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.AreEqual(0, result.StartPosition);
             Assert.AreEqual(5, result.Length);
 
-            var inner = (BinaryOperatorBindingParserNode)((ParenthesizedExpressionBindingParserNode) result).InnerExpression;
+            var inner = (BinaryOperatorBindingParserNode)((ParenthesizedExpressionBindingParserNode)result).InnerExpression;
             Assert.AreEqual(BindingTokenType.AddOperator, inner.Operator);
             Assert.AreEqual("a", ((IdentifierNameBindingParserNode)inner.FirstExpression).Name);
             Assert.AreEqual("", ((IdentifierNameBindingParserNode)inner.SecondExpression).Name);
@@ -312,14 +312,275 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(second.HasNodeErrors);
         }
 
+        [TestMethod]
+        public void BindingParser_PlusAssign_Valid()
+        {
+            var parser = SetupParser("_root.MyCoolProperty += 3");
+            var node = parser.ReadExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsTrue(node is BinaryOperatorBindingParserNode);
+
+            var binOpNode = node as BinaryOperatorBindingParserNode;
+
+            Assert.IsTrue(binOpNode.FirstExpression is MemberAccessBindingParserNode);
+            Assert.IsTrue(binOpNode.SecondExpression is LiteralExpressionBindingParserNode);
+            Assert.IsTrue(binOpNode.Operator == BindingTokenType.UnsupportedOperator);
+            Assert.IsTrue(binOpNode.NodeErrors[0] == "Unsupported operator: +=");
+        }
+
+        [TestMethod]
+        public void BindingParser_MultipleUnsuportedBinaryOperators_Valid()
+        {
+            var parser = SetupParser("_root.MyCoolProperty += _this.Number1 + Number2^_parent0.Exponent * Multiplikator");
+            var node = parser.ReadExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsInstanceOfType(node, typeof(BinaryOperatorBindingParserNode));
+
+            var plusAssignNode = node as BinaryOperatorBindingParserNode;
+
+            CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, BinaryOperatorBindingParserNode>(plusAssignNode, BindingTokenType.UnsupportedOperator);
+
+            var caretNode = plusAssignNode.SecondExpression as BinaryOperatorBindingParserNode;
+
+            CheckBinaryOperatorNodeType<BinaryOperatorBindingParserNode, BinaryOperatorBindingParserNode>(caretNode, BindingTokenType.UnsupportedOperator);
+
+            var plusNode = caretNode.FirstExpression as BinaryOperatorBindingParserNode;
+
+            CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, IdentifierNameBindingParserNode>(plusNode, BindingTokenType.AddOperator);
+
+            var multiplyNode = caretNode.SecondExpression as BinaryOperatorBindingParserNode;
+
+            CheckBinaryOperatorNodeType<MemberAccessBindingParserNode, IdentifierNameBindingParserNode>(multiplyNode, BindingTokenType.MultiplyOperator);
+
+            Assert.IsTrue(caretNode.NodeErrors.Any());
+            Assert.IsTrue(plusAssignNode.NodeErrors.Any());
+        }
+
+        [TestMethod]
+        public void BindingParser_UnsuportedUnaryOperators_Valid()
+        {
+            var parser = SetupParser("MyCoolProperty = ^&Number1 + ^&Number2 * ^&Number3");
+            var node = parser.ReadExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsInstanceOfType(node, typeof(BinaryOperatorBindingParserNode));
+
+            var assignNode = node as BinaryOperatorBindingParserNode;
+
+            CheckBinaryOperatorNodeType<IdentifierNameBindingParserNode, BinaryOperatorBindingParserNode>(assignNode, BindingTokenType.AssignOperator);
+
+            var plusNode = assignNode.SecondExpression as BinaryOperatorBindingParserNode;
+
+            CheckBinaryOperatorNodeType<UnaryOperatorBindingParserNode, BinaryOperatorBindingParserNode>(plusNode, BindingTokenType.AddOperator);
+
+            var multiplyNode = plusNode.SecondExpression as BinaryOperatorBindingParserNode;
+
+            CheckBinaryOperatorNodeType<UnaryOperatorBindingParserNode, UnaryOperatorBindingParserNode>(multiplyNode, BindingTokenType.MultiplyOperator);
+
+            var Number1Unary = plusNode.FirstExpression as UnaryOperatorBindingParserNode;
+            var Number2Unary = multiplyNode.FirstExpression as UnaryOperatorBindingParserNode;
+            var Number3Unary = multiplyNode.SecondExpression as UnaryOperatorBindingParserNode;
+
+            CheckUnaryOperatorNodeType<IdentifierNameBindingParserNode>(Number1Unary, BindingTokenType.UnsupportedOperator);
+            CheckUnaryOperatorNodeType<IdentifierNameBindingParserNode>(Number2Unary, BindingTokenType.UnsupportedOperator);
+            CheckUnaryOperatorNodeType<IdentifierNameBindingParserNode>(Number3Unary, BindingTokenType.UnsupportedOperator);
+
+            Assert.IsTrue(Number1Unary.NodeErrors.Any());
+            Assert.IsTrue(Number2Unary.NodeErrors.Any());
+            Assert.IsTrue(Number3Unary.NodeErrors.Any());
+        }
+
+        [TestMethod]
+        public void BindingParser_BinaryAndUnaryUnsuportedOperators_Valid()
+        {
+            var parser = SetupParser("MyCoolProperty += ^& Number1");
+            var node = parser.ReadExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsInstanceOfType(node, typeof(BinaryOperatorBindingParserNode));
+
+            var plusAssignNode = node as BinaryOperatorBindingParserNode;
+
+            CheckBinaryOperatorNodeType<IdentifierNameBindingParserNode, UnaryOperatorBindingParserNode>(plusAssignNode, BindingTokenType.UnsupportedOperator);
+
+            var Number1Unary = plusAssignNode.SecondExpression as UnaryOperatorBindingParserNode;
+
+            CheckUnaryOperatorNodeType<IdentifierNameBindingParserNode>(Number1Unary, BindingTokenType.UnsupportedOperator);
+
+            Assert.IsTrue(Number1Unary.NodeErrors.Any());
+        }
+
+        [TestMethod]
+        public void BindingParser_MultiExpression_MemberAccessAndExplicitStrings()
+        {
+            var parser = SetupParser("_root.MyCoolProperty 'something' \"something else\"");
+            var node = parser.ReadMultiExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsTrue(node is MultiExpressionBindingParserNode);
+
+            var multiExpresionNode = node as MultiExpressionBindingParserNode;
+
+            Assert.IsTrue(multiExpresionNode.Expressions.Count == 3);
+
+            Assert.IsTrue(multiExpresionNode.Expressions[0] is MemberAccessBindingParserNode);
+            Assert.IsTrue(multiExpresionNode.Expressions[1] is LiteralExpressionBindingParserNode);
+            Assert.IsTrue(multiExpresionNode.Expressions[2] is LiteralExpressionBindingParserNode);
+        }
+
+        [TestMethod]
+        public void BindingParser_MultiExpression_MemberAccessUnsupportedOperatorAndExplicitStrings()
+        {
+            var parser = SetupParser("_root.MyCoolProperty += 'something' \"something else\"");
+            var node = parser.ReadMultiExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsTrue(node is MultiExpressionBindingParserNode);
+
+            var multiExpresionNode = node as MultiExpressionBindingParserNode;
+
+            Assert.IsTrue(multiExpresionNode.Expressions.Count == 2);
+
+            Assert.IsTrue(multiExpresionNode.Expressions[0] is BinaryOperatorBindingParserNode);
+            Assert.IsTrue(multiExpresionNode.Expressions[1] is LiteralExpressionBindingParserNode);
+        }
+
+        [TestMethod]
+        public void BindingParser_NodeTokenCorrectness_UnsupportedOperators()
+        {
+            var parser = SetupParser("_this.MyCoolProperty +=  _control.ClientId &^ _root += Comments");
+            var node = parser.ReadExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsTrue(node is BinaryOperatorBindingParserNode);
+
+            var plusEqualsExp1 = node as BinaryOperatorBindingParserNode;
+
+            var myCoolPropertyExp = plusEqualsExp1.FirstExpression as MemberAccessBindingParserNode;
+            var andCarretExp = plusEqualsExp1.SecondExpression as BinaryOperatorBindingParserNode;
+
+            var clientIdExp = andCarretExp.FirstExpression as MemberAccessBindingParserNode;
+            var plusEqualsExp2 = andCarretExp.SecondExpression as BinaryOperatorBindingParserNode;
+
+            var rootExp = plusEqualsExp2.FirstExpression as IdentifierNameBindingParserNode;
+            var commentsExp = plusEqualsExp2.SecondExpression as IdentifierNameBindingParserNode;
+
+            //_this.MyCoolProperty +=  _control.ClientId &^ _root += Comments//
+            CheckTokenTypes(plusEqualsExp1.Tokens, new BindingTokenType[] {
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier
+            });
+
+            //_this.MyCoolProperty //
+            CheckTokenTypes(myCoolPropertyExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace
+            });
+
+            //  _control.ClientId &^ _root += Comments//
+            CheckTokenTypes(andCarretExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier
+            });
+
+            //  _control.ClientId //
+            CheckTokenTypes(clientIdExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.Dot,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace
+            });
+
+            // _root += Comments//
+            CheckTokenTypes(plusEqualsExp2.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.UnsupportedOperator,
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier
+            });
+
+            // _root //
+            CheckTokenTypes(rootExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier,
+                BindingTokenType.WhiteSpace,
+            });
+
+            // Comments//
+            CheckTokenTypes(commentsExp.Tokens, new BindingTokenType[] {
+                BindingTokenType.WhiteSpace,
+                BindingTokenType.Identifier
+            });
+        }
 
         private static BindingParserNode Parse(string expression)
+        {
+            BindingParser parser = SetupParser(expression);
+            return parser.ReadExpression();
+        }
+
+        private static BindingParser SetupParser(string expression)
         {
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(new StringReader(expression));
             var parser = new BindingParser();
             parser.Tokens = tokenizer.Tokens;
-            return parser.ReadExpression();
+            return parser;
+        }
+
+        private static void CheckTokenTypes(IEnumerable<BindingToken> bindingTokens, IEnumerable<BindingTokenType> expectedTokenTypes)
+        {
+            var actualTypes = bindingTokens.Select(t => t.Type);
+
+            Assert.IsTrue(Enumerable.SequenceEqual(actualTypes, expectedTokenTypes));
+        }
+
+        private static void CheckUnaryOperatorNodeType<TInnerExpression>(UnaryOperatorBindingParserNode node, BindingTokenType operatorType)
+           where TInnerExpression : BindingParserNode
+        {
+            Assert.IsTrue(node.Operator == operatorType);
+            Assert.IsTrue(node.InnerExpression is TInnerExpression);
+        }
+
+        private static void CheckBinaryOperatorNodeType<TLeft, TRight>(BinaryOperatorBindingParserNode node, BindingTokenType operatorType)
+            where TLeft : BindingParserNode
+            where TRight : BindingParserNode
+        {
+            Assert.IsTrue(node.Operator == operatorType);
+            Assert.IsTrue(node.FirstExpression is TLeft);
+            Assert.IsTrue(node.SecondExpression is TRight);
         }
     }
 }

@@ -9,39 +9,43 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             if (node is ArrayAccessBindingParserNode)
             {
-                return VisitArrayAccess((ArrayAccessBindingParserNode) node);
+                return VisitArrayAccess((ArrayAccessBindingParserNode)node);
             }
             else if (node is BinaryOperatorBindingParserNode)
             {
-                return VisitBinaryOperator((BinaryOperatorBindingParserNode) node);
+                return VisitBinaryOperator((BinaryOperatorBindingParserNode)node);
             }
             else if (node is ConditionalExpressionBindingParserNode)
             {
-                return VisitConditionalExpression((ConditionalExpressionBindingParserNode) node);
+                return VisitConditionalExpression((ConditionalExpressionBindingParserNode)node);
             }
             else if (node is FunctionCallBindingParserNode)
             {
-                return VisitFunctionCall((FunctionCallBindingParserNode) node);
+                return VisitFunctionCall((FunctionCallBindingParserNode)node);
             }
             else if (node is IdentifierNameBindingParserNode)
             {
-                return VisitIdentifierName((IdentifierNameBindingParserNode) node);
+                return VisitIdentifierName((IdentifierNameBindingParserNode)node);
             }
             else if (node is LiteralExpressionBindingParserNode)
             {
-                return VisitLiteralExpression((LiteralExpressionBindingParserNode) node);
+                return VisitLiteralExpression((LiteralExpressionBindingParserNode)node);
             }
             else if (node is MemberAccessBindingParserNode)
             {
-                return VisitMemberAccess((MemberAccessBindingParserNode) node);
+                return VisitMemberAccess((MemberAccessBindingParserNode)node);
             }
             else if (node is ParenthesizedExpressionBindingParserNode)
             {
-                return VisitParenthesizedExpression((ParenthesizedExpressionBindingParserNode) node);
+                return VisitParenthesizedExpression((ParenthesizedExpressionBindingParserNode)node);
             }
             else if (node is UnaryOperatorBindingParserNode)
             {
-                return VisitUnaryOperator((UnaryOperatorBindingParserNode) node);
+                return VisitUnaryOperator((UnaryOperatorBindingParserNode)node);
+            }
+            else if (node is MultiExpressionBindingParserNode)
+            {
+                return VisitMultiExpression((MultiExpressionBindingParserNode)node);
             }
             else
             {
@@ -53,7 +57,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             return DefaultVisit(node);
         }
-        
+
         protected virtual T VisitBinaryOperator(BinaryOperatorBindingParserNode node)
         {
             return DefaultVisit(node);
@@ -94,6 +98,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return DefaultVisit(node);
         }
 
+        protected virtual T VisitMultiExpression(MultiExpressionBindingParserNode node)
+        {
+            return DefaultVisit(node);
+        }
 
         protected virtual T DefaultVisit(BindingParserNode node)
         {
