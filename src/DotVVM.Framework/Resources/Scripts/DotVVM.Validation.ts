@@ -357,6 +357,8 @@ class DotvvmValidation {
         var validationTarget = dotvvm.evaluator.evaluateOnViewModel(context, args.validationTargetPath);
         validationTarget = ko.unwrap(validationTarget);
 
+        if (validationTarget == null) return;
+
         // add validation errors
         this.clearValidationErrors(args.viewModel);
         var modelState = args.serverResponseObject.modelState;
