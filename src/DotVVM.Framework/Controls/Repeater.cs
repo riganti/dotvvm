@@ -199,7 +199,7 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer() { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
-                placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                 ItemTemplate.BuildContent(context, placeholder);
                 Children.Add(placeholder);
 

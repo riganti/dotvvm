@@ -1,6 +1,15 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
+
+interface Document {
+    getElementByDotvvmId(id: string): HTMLElement;
+}
+
+document.getElementByDotvvmId = function (id) {
+    return <HTMLElement>document.querySelector(`[data-dotvvm-id='${id}'`);
+}
+
 interface IRenderedResourceList {
     [name: string]: string;
 }
@@ -582,7 +591,7 @@ class DotVVM {
     private cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var control = document.getElementById(id);
+                var control = document.getElementByDotvvmId(id);
                 if (control) {
                     var dataContext = ko.contextFor(control);
                     var nextSibling = control.nextSibling;
@@ -619,7 +628,7 @@ class DotVVM {
         if (applyBindingsOnEachControl) {
             window.setTimeout(() => {
                 for (var id in resultObject.updatedControls) {
-                    var updatedControl = document.getElementById(id);
+                    var updatedControl = document.getElementByDotvvmId(id);
                     if (updatedControl) {
                         ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                     }

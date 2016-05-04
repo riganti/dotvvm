@@ -13,5 +13,6 @@ namespace DotVVM.Framework.Controls
         {
             SetValue(Internal.IsNamingContainerProperty, true);
         }
+        // TODO: static checker if has a ID
     }
 }

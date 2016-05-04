@@ -115,8 +115,6 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnInit(Hosting.IDotvvmRequestContext context)
         {
-            EnsureControlHasId();
-
             base.OnInit(context);
         }
 

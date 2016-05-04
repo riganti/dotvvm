@@ -149,6 +149,9 @@ var DotvvmRedirectEventArgs = (function (_super) {
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
+document.getElementByDotvvmId = function (id) {
+    return document.querySelector("[data-dotvvm-id='" + id + "'");
+};
 var DotVVM = (function () {
     function DotVVM() {
         this.postBackCounter = 0;
@@ -677,7 +680,7 @@ var DotVVM = (function () {
         if (updatedControls === void 0) { updatedControls = {}; }
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var control = document.getElementById(id);
+                var control = document.getElementByDotvvmId(id);
                 if (control) {
                     var dataContext = ko.contextFor(control);
                     var nextSibling = control.nextSibling;
@@ -716,7 +719,7 @@ var DotVVM = (function () {
         if (applyBindingsOnEachControl) {
             window.setTimeout(function () {
                 for (var id in resultObject.updatedControls) {
-                    var updatedControl = document.getElementById(id);
+                    var updatedControl = document.getElementByDotvvmId(id);
                     if (updatedControl) {
                         ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                     }
@@ -1770,16 +1773,6 @@ var DotvvmEvaluator = (function () {
         if (!startsWithProperty)
             expression = "$data." + expression;
         return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.buildClientId = function (element, fragments) {
-        var id = "";
-        for (var i = 0; i < fragments.length; i++) {
-            if (id.length > 0) {
-                id += "_";
-            }
-            id += ko.unwrap(fragments[i]);
-        }
-        return id;
     };
     DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
         var value = ko.unwrap(viewModel);
