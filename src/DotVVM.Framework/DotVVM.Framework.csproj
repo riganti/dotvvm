@@ -301,6 +301,7 @@
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
     <Compile Include="Configuration\IDotvvmStartup.cs" />
     <Compile Include="Configuration\ServiceLocator.cs" />
+    <Compile Include="Controls\ConfigurableHtmlControl.cs" />
     <Compile Include="Controls\ConfirmPostBackHandler.cs" />
     <Compile Include="Controls\ButtonTagName.cs" />
     <Compile Include="Controls\ClientIDFragment.cs" />

@@ -78,7 +78,7 @@ namespace DotVVM.Framework.Controls
             if (expression is ControlCommandBindingExpression)
             {
                 var target = (DotvvmControl)control.GetClosestControlBindingTarget();
-                uniqueControlId = target.GetDotvvmUniqueId();
+                uniqueControlId = target.GetDotvvmUniqueId() as string;
             }
 
             var arguments = new List<string>()
