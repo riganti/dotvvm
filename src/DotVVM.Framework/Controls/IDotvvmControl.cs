@@ -12,13 +12,6 @@ namespace DotVVM.Framework.Controls
         ClientIDMode ClientIDMode { get; set; }
         string ID { get; set; }
         DotvvmControl Parent { get; set; }
-
-        void EnsureControlHasId(bool autoGenerate = true);
-
-        DotvvmControl FindControl(string id, bool throwIfNotFound = false);
-
-        T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl;
-
         IEnumerable<DotvvmControl> GetAllAncestors();
 
         IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null);

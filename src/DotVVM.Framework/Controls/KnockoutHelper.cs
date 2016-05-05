@@ -74,12 +74,11 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmControl control, bool useWindowSetTimeout = false,
             bool? returnValue = false, bool isOnChange = false)
         {
-            var uniqueControlId = "";
+            object uniqueControlId = null;
             if (expression is ControlCommandBindingExpression)
             {
                 var target = (DotvvmControl)control.GetClosestControlBindingTarget();
-                target.EnsureControlHasId();
-                uniqueControlId = target.GetClientId();
+                uniqueControlId = target.GetDotvvmUniqueId() as string;
             }
 
             var arguments = new List<string>()
@@ -87,7 +86,7 @@ namespace DotVVM.Framework.Controls
                 "'root'",
                 "this",
                 "[" + String.Join(", ", GetContextPath(control).Reverse().Select(p => '"' + p + '"')) + "]",
-                "'" + uniqueControlId + "'",
+                (uniqueControlId is IValueBinding ? ((IValueBinding)uniqueControlId).GetKnockoutBindingExpression() : "'" + (string) uniqueControlId + "'"),
                 useWindowSetTimeout ? "true" : "false",
                 JsonConvert.SerializeObject(GetValidationTargetExpression(control)),
                 "null",

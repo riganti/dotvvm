@@ -40,10 +40,8 @@ namespace DotVVM.Framework.Controls
 
         internal override void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
         {
-            EnsureControlHasId();
-
             var dep = Dependencies?.Split(',') ?? new string[] { ResourceConstants.DotvvmResourceName };
-            context.ResourceManager.AddStartupScript("inlinescript_" + ID, Script, dep);
+            context.ResourceManager.AddStartupScript("inlinescript_" + (ClientID ?? (string)GetDotvvmUniqueId()), Script, dep);
 
             base.OnPreRenderComplete(context);
         }

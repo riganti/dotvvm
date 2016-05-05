@@ -75,6 +75,17 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            object id;
+            if (!IsPropertySet(ClientIDProperty))
+            {
+                SetValueRaw(ClientIDProperty, id = CreateClientId());
+            }
+            else
+            {
+                id = GetValueRaw(ClientIDProperty);
+            }
+            if (id != null) Attributes["id"] = id;
+
             // verify that the properties are used only where they should
             if (!RendersHtmlTag)
             {
@@ -82,37 +93,38 @@ namespace DotVVM.Framework.Controls
             }
             CheckInnerTextUsage();
 
-
+            var attrBindingGroup = new KnockoutBindingGroup();
             // render hard-coded HTML attributes
-            foreach (var attribute in Attributes.Where(a => a.Value is string || a.Value == null))
+            foreach (var attribute in Attributes)
             {
-                writer.AddAttribute(attribute.Key, (string)attribute.Value, true);
+                if (attribute.Value is IValueBinding)
+                {
+                    var binding = attribute.Value as IValueBinding;
+                    attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression());
+                    if (!RenderOnServer)
+                        continue;
+                }
+                AddHtmlAttribute(writer, attribute.Key, attribute.Value);
             }
 
-            foreach (var attrList in Attributes.Where(a => a.Value is string[]))
+            if (!attrBindingGroup.IsEmpty)
             {
-                foreach (var value in (string[])attrList.Value)
-                {
-                    writer.AddAttribute(attrList.Key, value);
-                }
+                writer.AddKnockoutDataBind("attr", attrBindingGroup);
             }
 
             // render binding HTML attributes
             var propertyValuePairs = Attributes.Where(a => a.Value is IValueBinding)
                 .Select(a => new KeyValuePair<string, IValueBinding>(a.Key, (IValueBinding)a.Value)).ToList();
-            if (!RenderOnServer)
+            if (propertyValuePairs.Any())
             {
-                if (propertyValuePairs.Any())
+                var group = new KnockoutBindingGroup();
+                foreach (var pair in propertyValuePairs)
                 {
-                    var group = new KnockoutBindingGroup();
-                    foreach (var pair in propertyValuePairs)
-                    {
-                        group.Add(pair.Key, pair.Value.GetKnockoutBindingExpression());
-                    }
-                    writer.AddKnockoutDataBind("attr", group);
+                    group.Add(pair.Key, pair.Value.GetKnockoutBindingExpression());
                 }
+                writer.AddKnockoutDataBind("attr", group);
             }
-            else
+            if (RenderOnServer)
             {
                 foreach (var prop in propertyValuePairs)
                 {
@@ -135,10 +147,27 @@ namespace DotVVM.Framework.Controls
                 }
             });
 
-            // hadle Id property
-            RenderClientId(writer);
-
             base.AddAttributesToRender(writer, context);
+        }
+
+        void AddHtmlAttribute(IHtmlWriter writer, string name, object value)
+        {
+            if (value is string || value == null)
+            {
+                writer.AddAttribute(name, (string)value, true);
+            }
+            else if (value is string[])
+            {
+                foreach (var vv in (string[])value)
+                {
+                    writer.AddAttribute(name, vv);
+                }
+            }
+            else if (value is IStaticValueBinding)
+            {
+                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this, null));
+            }
+            else throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
         }
 
         /// <summary>
@@ -146,7 +175,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         private void CheckInnerTextUsage()
         {
-            if (GetType() != typeof (HtmlGenericControl))
+            if (GetType() != typeof(HtmlGenericControl))
             {
                 if (GetValueRaw(InnerTextProperty) != null)
                 {

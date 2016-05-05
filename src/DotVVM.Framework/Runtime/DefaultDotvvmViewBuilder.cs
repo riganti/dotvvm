@@ -157,7 +157,7 @@ namespace DotVVM.Framework.Runtime
             // check that no placeholder is nested in another one and that each one has valid ID
             foreach (var placeHolder in placeHolders)
             {
-                placeHolder.EnsureControlHasId(autoGenerate: false);
+                if (placeHolder.ID == null) throw new DotvvmControlException(placeHolder, "PlaceHolder has to have a ID");
                 if (placeHolder.GetAllAncestors().Intersect(placeHolders).Any())
                 {
                     throw new Exception(string.Format("The ContentPlaceHolder with ID '{0}' cannot be nested in another ContentPlaceHolder!", placeHolder.ID)); // TODO: exception handling
