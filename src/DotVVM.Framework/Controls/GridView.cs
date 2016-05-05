@@ -180,7 +180,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
-                    placeholder.ID = "i" + index;
+                    placeholder.ID = index.ToString();
                     CreateRow(context, placeholder);
                     Children.Add(placeholder);
 

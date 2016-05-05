@@ -500,10 +500,10 @@ namespace DotVVM.Framework.Controls
                         expression.Append(clientIdExpression);
                         fragments.Add(new ClientIDFragment(expression.ToString(), isExpression: true));
                     }
-                    else if (!string.IsNullOrEmpty(ancestor.ClientID))
+                    else if (!string.IsNullOrEmpty(ancestor.ID))
                     {
                         // add the ID fragment
-                        fragments.Add(new ClientIDFragment(ancestor.ClientID));
+                        fragments.Add(new ClientIDFragment(ancestor.ID));
                     }
                     else
                     {
