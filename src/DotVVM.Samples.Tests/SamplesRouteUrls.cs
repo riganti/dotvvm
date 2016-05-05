@@ -69,6 +69,8 @@ namespace Dotvvm.Samples.Tests{
 			public const string Errors_NonExistingProperty = "Errors/NonExistingProperty";
 			public const string Errors_NotAllowedHardCodedPropertyValue = "Errors/NotAllowedHardCodedPropertyValue";
 			public const string Errors_WrongPropertyValue = "Errors/WrongPropertyValue";
+			public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
+			public const string FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling = "FeatureSamples/ActionFilterErrorHandling/ActionFilterPageErrorHandling";
 			public const string FeatureSamples_BindingContexts_BindingContext = "FeatureSamples/BindingContexts/BindingContext";
 			public const string FeatureSamples_BindingPageInfo_BindingPageInfo = "FeatureSamples/BindingPageInfo/BindingPageInfo";
 			public const string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods = "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
@@ -104,6 +106,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string FeatureSamples_Validation_DynamicValidation = "FeatureSamples/Validation/DynamicValidation";
 			public const string FeatureSamples_Validation_EssentialTypeValidation = "FeatureSamples/Validation/EssentialTypeValidation";
 			public const string FeatureSamples_Validation_NestedValidation = "FeatureSamples/Validation/NestedValidation";
+			public const string FeatureSamples_Validation_NullValidationTarget = "FeatureSamples/Validation/NullValidationTarget";
 			public const string FeatureSamples_Validation_RegexValidation = "FeatureSamples/Validation/RegexValidation";
 			public const string FeatureSamples_Validation_SimpleValidation = "FeatureSamples/Validation/SimpleValidation";
 			public const string FeatureSamples_Validation_ValidationRulesLoadOnPostback = "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
