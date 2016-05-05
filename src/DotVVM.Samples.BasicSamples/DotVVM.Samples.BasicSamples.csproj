@@ -160,6 +160,8 @@
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandlingViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingPageInfo\BindingPageInfoViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
@@ -352,6 +354,8 @@
     <Content Include="Views\ControlSamples\GridView\GridViewSizable.dothtml" />
     <Content Include="Views\FeatureSamples\BindingContexts\BindingContext.dothtml" />
     <Content Include="Views\ControlSamples\Repeater\RouteLinkUrlSuffix.dothtml" />
+    <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandling.dothtml" />
+    <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandling.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

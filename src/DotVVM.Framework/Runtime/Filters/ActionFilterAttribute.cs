@@ -42,5 +42,12 @@ namespace DotVVM.Framework.Runtime.Filters
         protected internal virtual void OnResponseRendering(IDotvvmRequestContext context)
         {
         }
+
+        /// <summary>
+        /// Called when an exception occurs during the processing of the page events.
+        /// </summary>
+        protected internal virtual void OnPageException(IDotvvmRequestContext context, Exception exception)
+        {
+        }
     }
 }

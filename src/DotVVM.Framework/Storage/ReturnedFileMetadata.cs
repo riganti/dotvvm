@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using Microsoft.Owin;
 
 namespace DotVVM.Framework.Storage
@@ -6,6 +7,6 @@ namespace DotVVM.Framework.Storage
     {
         public string FileName { get; set; }
         public string MimeType { get; set; }
-        public IHeaderDictionary AdditionalHeaders { get; set; }
+        public Dictionary<string, string[]> AdditionalHeaders { get; set; }
     }
 }

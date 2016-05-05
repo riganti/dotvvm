@@ -24,6 +24,7 @@ namespace DotVVM.Framework.Testing
         public ModelState ModelState { get; set; }
         public IDictionary<string, object> Query { get; set; }
         public bool IsCommandExceptionHandled { get; set; }
+        public bool IsPageExceptionHandled { get; set; }
         public Exception CommandException { get; set; }
         public bool IsSpaRequest { get; set; }
         public bool IsInPartialRenderingMode { get; set; }

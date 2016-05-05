@@ -89,9 +89,16 @@ namespace DotVVM.Framework.Hosting
 
         /// <summary>
         /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
-        /// This property is typically set from the exception filter.
+        /// This property is typically set from the exception filter's OnCommandException method.
         /// </summary>
         public bool IsCommandExceptionHandled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
+        /// This property is typically set from the action filter's OnPageExceptionHandled method.
+        /// </summary>
+        public bool IsPageExceptionHandled { get; set; }
+
 
         /// <summary>
         /// Gets or sets the exception that occured when the command was executed.
@@ -289,7 +296,7 @@ namespace DotVVM.Framework.Hosting
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders
+                AdditionalHeaders = additionalHeaders.ToDictionary(k => k.Key, k => k.Value)
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata).Result;
@@ -306,7 +313,7 @@ namespace DotVVM.Framework.Hosting
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders
+                AdditionalHeaders = additionalHeaders.ToDictionary(k => k.Key, k => k.Value)
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;
