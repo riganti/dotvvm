@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using DotVVM.Framework.ViewModel.Validation.DataAnnotations;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
@@ -50,7 +51,7 @@ namespace DotVVM.Framework.ViewModel.Validation
                         ClientRuleName = "regularExpression",
                         SourceValidationAttribute = attribute,
                         ErrorMessage = attribute.FormatErrorMessage(property.Name),
-                        Parameters = new Object[] { typedAttribute.Pattern }
+                        Parameters = new object[] { typedAttribute.Pattern }
                     };
                 }
                 else if (attribute is RangeAttribute)
@@ -64,6 +65,17 @@ namespace DotVVM.Framework.ViewModel.Validation
                         Parameters = new object[] { typed.Minimum, typed.Maximum }
                     };
                 }
+                else if (attribute is DotvvmEnforceClientFormatAttribute)
+                {
+                    var typed = (DotvvmEnforceClientFormatAttribute)attribute;
+                    yield return new ViewModelPropertyValidationRule
+                    {
+                        ClientRuleName = "enforceClientFormat",
+                        SourceValidationAttribute = attribute,
+                        ErrorMessage = attribute.FormatErrorMessage(property.Name),
+                        Parameters = new object[] { typed.AllowNull, typed.AllowEmptyString, typed.AllowEmptyStringOrWhitespaces }
+                    };
+                }
                 else
                 {
                     yield return new ViewModelPropertyValidationRule()
@@ -72,6 +84,11 @@ namespace DotVVM.Framework.ViewModel.Validation
                         SourceValidationAttribute = attribute,
                         ErrorMessage = attribute.FormatErrorMessage(property.Name)
                     };
+
+
+
+
+
                 }
             }
         }

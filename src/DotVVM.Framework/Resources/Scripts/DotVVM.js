@@ -215,7 +215,7 @@ var DotVVM = (function () {
         }
         else {
             // redirect to the default URL
-            var url = spaPlaceHolder.getAttribute("data-dot-spacontentplaceholder-defaultroute");
+            var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
             if (url) {
                 document.location.hash = "#!/" + url;
             }
@@ -417,7 +417,7 @@ var DotVVM = (function () {
             }
             html += resources[name] + " ";
         }
-        if (html.trim() == "") {
+        if (html.trim() === "") {
             setTimeout(callback, 4);
             return;
         }
@@ -826,16 +826,44 @@ var DotVVM = (function () {
         };
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var obs = valueAccessor();
+                //generate metadata func 
+                var elmMetadata = new DotvvmValidationElementMetadata();
+                elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
+                elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+                //add metadata for validation
+                if (!obs.dotvvmMetadata) {
+                    obs.dotvvmMetadata = new DotvvmValidationObservableMetadata();
+                    obs.dotvvmMetadata.elementsMetadata = [elmMetadata];
+                }
+                else {
+                    if (!obs.dotvvmMetadata.elementsMetadata) {
+                        obs.dotvvmMetadata.elementsMetadata = [];
+                    }
+                    obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
+                }
+                setTimeout(function (metaArray, element) {
+                    // remove element from collection when its removed from dom
+                    ko.utils.domNodeDisposal.addDisposeCallback(element, function () {
+                        for (var _i = 0, metaArray_1 = metaArray; _i < metaArray_1.length; _i++) {
+                            var meta = metaArray_1[_i];
+                            if (meta.element === element) {
+                                metaArray.splice(metaArray.indexOf(meta), 1);
+                                break;
+                            }
+                        }
+                    });
+                }, 0, obs.dotvvmMetadata.elementsMetadata, element);
                 dotvvm.domUtils.attachEvent(element, "blur", function () {
-                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
-                    var obs = valueAccessor();
-                    if ((element.attributes["data-dotvvm-value-type"] || { value: "" }).value === "datetime") {
-                        var result = dotvvm.globalize.parseDate(element.value, format);
+                    if (elmMetadata.dataType === "datetime") {
+                        var result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
                         if (!result) {
                             element.attributes["data-dotvvm-value-type-valid"] = false;
+                            elmMetadata.elementValidationState = false;
                         }
                         else {
                             element.attributes["data-dotvvm-value-type-valid"] = true;
+                            elmMetadata.elementValidationState = true;
                         }
                         if (result) {
                             obs(dotvvm.serialization.serializeDate(result, false));
@@ -848,6 +876,7 @@ var DotVVM = (function () {
                         var newValue = dotvvm.globalize.parseNumber(element.value);
                         if (!isNaN(newValue)) {
                             element.attributes["data-dotvvm-value-type-valid"] = true;
+                            elmMetadata.elementValidationState = true;
                             if (obs() === newValue) {
                                 if (obs.valueHasMutated) {
                                     obs.valueHasMutated();
@@ -862,6 +891,7 @@ var DotVVM = (function () {
                         }
                         else {
                             element.attributes["data-dotvvm-value-type-valid"] = false;
+                            elmMetadata.elementValidationState = false;
                             obs(null);
                         }
                     }
@@ -1374,14 +1404,28 @@ var DotvvmValidationContext = (function () {
     }
     return DotvvmValidationContext;
 }());
+var DotvvmValidationObservableMetadata = (function () {
+    function DotvvmValidationObservableMetadata() {
+    }
+    return DotvvmValidationObservableMetadata;
+}());
+var DotvvmValidationElementMetadata = (function () {
+    function DotvvmValidationElementMetadata() {
+        this.elementValidationState = true;
+    }
+    return DotvvmValidationElementMetadata;
+}());
 var DotvvmValidatorBase = (function () {
     function DotvvmValidatorBase() {
     }
-    DotvvmValidatorBase.prototype.isValid = function (context) {
+    DotvvmValidatorBase.prototype.isValid = function (context, property) {
         return false;
     };
     DotvvmValidatorBase.prototype.isEmpty = function (value) {
-        return value == null || (typeof value == "string" && value.trim() == "");
+        return value == null || (typeof value == "string" && value.trim() === "");
+    };
+    DotvvmValidatorBase.prototype.getValidationMetadata = function (property) {
+        return property.dotvvmMetadata;
     };
     return DotvvmValidatorBase;
 }());
@@ -1421,12 +1465,42 @@ var DotvvmIntRangeValidator = (function (_super) {
     };
     return DotvvmIntRangeValidator;
 }(DotvvmValidatorBase));
+var DotvvmEnforceClientFormatValidator = (function (_super) {
+    __extends(DotvvmEnforceClientFormatValidator, _super);
+    function DotvvmEnforceClientFormatValidator() {
+        _super.apply(this, arguments);
+    }
+    DotvvmEnforceClientFormatValidator.prototype.isValid = function (context, property) {
+        // parameters order: AllowNull, AllowEmptyString, AllowEmptyStringOrWhitespaces
+        var valid = true;
+        if (!context.parameters[0] && context.valueToValidate == null) {
+            valid = false;
+        }
+        if (!context.parameters[1] && context.valueToValidate.length === 0) {
+            valid = false;
+        }
+        if (!context.parameters[2] && this.isEmpty(context.valueToValidate)) {
+            valid = false;
+        }
+        var metadata = this.getValidationMetadata(property);
+        if (metadata && metadata.elementsMetadata) {
+            for (var _i = 0, _a = metadata.elementsMetadata; _i < _a.length; _i++) {
+                var metaElement = _a[_i];
+                if (!metaElement.elementValidationState) {
+                    valid = false;
+                }
+            }
+        }
+        return valid;
+    };
+    return DotvvmEnforceClientFormatValidator;
+}(DotvvmValidatorBase));
 var DotvvmRangeValidator = (function (_super) {
     __extends(DotvvmRangeValidator, _super);
     function DotvvmRangeValidator() {
         _super.apply(this, arguments);
     }
-    DotvvmRangeValidator.prototype.isValid = function (context) {
+    DotvvmRangeValidator.prototype.isValid = function (context, property) {
         var val = context.valueToValidate;
         var from = context.parameters[0];
         var to = context.parameters[1];
@@ -1473,7 +1547,8 @@ var DotvvmValidation = (function () {
             "regularExpression": new DotvvmRegularExpressionValidator(),
             "intrange": new DotvvmIntRangeValidator(),
             "range": new DotvvmRangeValidator(),
-            "notnull": new DotvvmNotNullValidator()
+            "notnull": new DotvvmNotNullValidator(),
+            "enforceClientFormat": new DotvvmEnforceClientFormatValidator()
         };
         this.errors = ko.observableArray([]);
         this.events = {
@@ -1615,7 +1690,7 @@ var DotvvmValidation = (function () {
             // validate the rules
             var ruleTemplate = this.rules[rule.ruleName];
             var context = new DotvvmValidationContext(value, viewModel, rule.parameters);
-            if (!ruleTemplate.isValid(context)) {
+            if (!ruleTemplate.isValid(context, property)) {
                 var validationErrors = ValidationError.getOrCreate(property);
                 // add error message
                 var validationError = new ValidationError(property, rule.errorMessage);
