@@ -172,6 +172,8 @@
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\DateTimeValidationViewModel2.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\NullableDateTimeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\EssentialTypeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NullValidationTargetViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelNesting\NestedViewModel.cs" />
@@ -365,6 +367,8 @@
     <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServer.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\TextEditorControl.dotcontrol" />
     <Content Include="Views\FeatureSamples\Validation\NullValidationTarget.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\DateTimeValidation.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\DateTimeValidation_NullableDateTime.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
