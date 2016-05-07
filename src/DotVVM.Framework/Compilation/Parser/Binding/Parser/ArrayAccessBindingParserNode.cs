@@ -1,10 +1,14 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ArrayAccessBindingParserNode : BindingParserNode
     {
+        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} [<E>]";
+
         public BindingParserNode TargetExpression { get; private set; }
         public BindingParserNode ArrayIndexExpression { get; private set; }
 
