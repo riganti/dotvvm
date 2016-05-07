@@ -47,18 +47,18 @@ namespace DotVVM.Samples.Tests.Feature
                 for (int i = 0; i < 4; i++)
                 {
                     repeater1.ElementAt("*[data-id=repeater1_marker]", i).CheckAttribute("id",
-                        s => s.Equals(repeater1.GetAttribute("id") + "_i" + i + "_repeater1"), "Wrong ID");
+                        s => s.Equals(repeater1.GetAttribute("id") + "_" + i + "_repeater1"), "Wrong ID");
                     repeater1.ElementAt("*[data-id=repeater2_marker]", i).CheckAttribute("id",
-                        s => s.Equals(repeater1.GetAttribute("id") + "_i" + i + "_repeater2"), "Wrong ID");
+                        s => s.Equals(repeater1.GetAttribute("id") + "_" + i + "_repeater2"), "Wrong ID");
                 }
 
                 var repeater2 = browser.Single("*[data-id=repeater2]");
                 for (int i = 0; i < 4; i++)
                 {
                     repeater2.ElementAt("*[data-id=repeater1server_marker]", i).CheckAttribute("id",
-                        s => s.Equals(repeater2.GetAttribute("id") + "_i" + i + "_repeater1server"), "Wrong ID");
+                        s => s.Equals(repeater2.GetAttribute("id") + "_" + i + "_repeater1server"), "Wrong ID");
                     repeater2.ElementAt("*[data-id=repeater2server_marker]", i).CheckAttribute("id",
-                        s => s.Equals(repeater2.GetAttribute("id") + "_i" + i + "_repeater2server"), "Wrong ID");
+                        s => s.Equals(repeater2.GetAttribute("id") + "_" + i + "_repeater2server"), "Wrong ID");
                 }
             });
         }

@@ -84,8 +84,8 @@
       <HintPath>..\packages\Microsoft.Owin.StaticFiles.3.0.1\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -160,6 +160,8 @@
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandlingViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingPageInfo\BindingPageInfoViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
@@ -170,7 +172,10 @@
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\DateTimeValidationViewModel2.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\NullableDateTimeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\EssentialTypeValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\NullValidationTargetViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelNesting\NestedViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewSizable.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
@@ -351,6 +356,8 @@
     <Content Include="Views\ControlSamples\GridView\GridViewSizable.dothtml" />
     <Content Include="Views\FeatureSamples\BindingContexts\BindingContext.dothtml" />
     <Content Include="Views\ControlSamples\Repeater\RouteLinkUrlSuffix.dothtml" />
+    <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandling.dothtml" />
+    <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandling.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
@@ -359,6 +366,9 @@
     <Content Include="Views\FeatureSamples\Validation\EssentialTypeValidation.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServer.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\TextEditorControl.dotcontrol" />
+    <Content Include="Views\FeatureSamples\Validation\NullValidationTarget.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\DateTimeValidation.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\DateTimeValidation_NullableDateTime.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

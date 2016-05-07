@@ -202,6 +202,14 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.IsTrue(Encoding.ASCII.GetBytes("ahoj").SequenceEqual((byte[])result));
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_MemberAssignment()
+        {
+            var vm = new TestViewModel() { TestViewModel2 = new TestViewModel2() };
+            var result = ExecuteBinding($"TestViewModel2.SomeString = '42'", vm);
+            Assert.AreEqual("42", vm.TestViewModel2.SomeString);
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
@@ -244,6 +252,7 @@ namespace DotVVM.Framework.Tests.Binding
         class TestViewModel2
         {
             public int MyProperty { get; set; }
+            public string SomeString { get; set; }
 
             public IList<Something> Collection { get; set; }
         }

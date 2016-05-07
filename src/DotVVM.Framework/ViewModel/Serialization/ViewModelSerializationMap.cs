@@ -124,7 +124,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                                 ExpressionUtils.Replace((JsonSerializer s, JObject j, object existingValue) =>
                                     Deserialize(s, j[property.Name], property, existingValue),
                                     serializer, jobj,
-                                    Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object))),
+                                    property.Populate ? 
+                                        (Expression)Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object)) :
+                                        Expression.Constant(null, typeof(object))),
                                 property.Type)
                     )));
 

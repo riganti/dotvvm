@@ -12,7 +12,7 @@
         public const string SpaContentPlaceHolderDataAttributeName = "data-dot-spacontentplaceholder";
         public const string SpaContentPlaceHolderHeaderName = "X-DotVVM-SpaContentPlaceHolder";
         public const string SpaContentPlaceHolderID = "__dot_SpaContentPlaceHolder";
-        public const string SpaContentPlaceHolderDefaultRouteDataAttributeName = "data-dot-spacontentplaceholder-defaultroute";
+        public const string SpaContentPlaceHolderDefaultRouteDataAttributeName = "data-dotvvm-spacontentplaceholder-defaultroute";
 
         public const string DotvvmFileUploadAsyncHeaderName = "X-DotvvmAsyncUpload";
     }

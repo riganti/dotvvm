@@ -1,6 +1,15 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
+
+interface Document {
+    getElementByDotvvmId(id: string): HTMLElement;
+}
+
+document.getElementByDotvvmId = function (id) {
+    return <HTMLElement>document.querySelector(`[data-dotvvm-id='${id}'`);
+}
+
 interface IRenderedResourceList {
     [name: string]: string;
 }
@@ -25,7 +34,7 @@ interface IDotvvmViewModels {
 
 class DotVVM {
     private postBackCounter = 0;
-    private fakeRedirectAnchor : HTMLAnchorElement;
+    private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
     private viewModelObservables: {
@@ -96,7 +105,7 @@ class DotVVM {
             this.navigateCore(viewModelName, document.location.hash.substring(2));
         } else {
             // redirect to the default URL
-            var url = spaPlaceHolder.getAttribute("data-dot-spacontentplaceholder-defaultroute");
+            var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
             if (url) {
                 document.location.hash = "#!/" + url;
             } else {
@@ -307,7 +316,7 @@ class DotVVM {
             }
             html += resources[name] + " ";
         }
-        if (html.trim() == "") {
+        if (html.trim() === "") {
             setTimeout(callback, 4);
             return;
         }
@@ -475,16 +484,16 @@ class DotVVM {
 
 
         var fakeAnchor = this.fakeRedirectAnchor;
-        if (!fakeAnchor ) {
+        if (!fakeAnchor) {
             fakeAnchor = document.createElement("a");
             fakeAnchor.style.display = "none";
-            fakeAnchor.setAttribute("data-dotvvm-fake-id","dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
+            fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
             document.body.appendChild(fakeAnchor);
             this.fakeRedirectAnchor = fakeAnchor;
         }
         fakeAnchor.href = url;
 
-        
+
         if (replace) {
             location.replace(url);
         } else {
@@ -582,7 +591,7 @@ class DotVVM {
     private cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var control = document.getElementById(id);
+                var control = document.getElementByDotvvmId(id);
                 if (control) {
                     var dataContext = ko.contextFor(control);
                     var nextSibling = control.nextSibling;
@@ -619,7 +628,7 @@ class DotVVM {
         if (applyBindingsOnEachControl) {
             window.setTimeout(() => {
                 for (var id in resultObject.updatedControls) {
-                    var updatedControl = document.getElementById(id);
+                    var updatedControl = document.getElementByDotvvmId(id);
                     if (updatedControl) {
                         ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                     }
@@ -731,15 +740,45 @@ class DotVVM {
         };
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                var obs = valueAccessor();
+
+                //generate metadata func 
+                var elmMetadata = new DotvvmValidationElementMetadata();
+                elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
+                elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+
+                //add metadata for validation
+                if (!obs.dotvvmMetadata) {
+                    obs.dotvvmMetadata = new DotvvmValidationObservableMetadata();
+                    obs.dotvvmMetadata.elementsMetadata = [elmMetadata];
+                } else {
+                    if (!obs.dotvvmMetadata.elementsMetadata) {
+                        obs.dotvvmMetadata.elementsMetadata = [];
+                    }
+                    obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
+                }
+                setTimeout((metaArray: DotvvmValidationElementMetadata[], element:HTMLElement) => {
+                    // remove element from collection when its removed from dom
+                    ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
+                        for (var meta of metaArray) {
+                            if (meta.element === element) {
+                                metaArray.splice(metaArray.indexOf(meta), 1);
+                                break;
+                            }
+                        }
+                    });
+                }, 0, obs.dotvvmMetadata.elementsMetadata, element);
+
+
                 dotvvm.domUtils.attachEvent(element, "blur", () => {
-                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
-                    var obs = valueAccessor();
-                    if ((element.attributes["data-dotvvm-value-type"] || { value: "" }).value === "datetime") {
-                        var result = dotvvm.globalize.parseDate(element.value, format);
+                if (elmMetadata.dataType === "datetime") {
+                        var result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
                         if (!result) {
                             element.attributes["data-dotvvm-value-type-valid"] = false;
+                            elmMetadata.elementValidationState = false;
                         } else {
                             element.attributes["data-dotvvm-value-type-valid"] = true;
+                            elmMetadata.elementValidationState = true;
                         }
                         if (result) {
                             obs(dotvvm.serialization.serializeDate(result, false));
@@ -751,6 +790,7 @@ class DotVVM {
                         var newValue = dotvvm.globalize.parseNumber(element.value);
                         if (!isNaN(newValue)) {
                             element.attributes["data-dotvvm-value-type-valid"] = true;
+                            elmMetadata.elementValidationState = true;
                             if (obs() === newValue) {
                                 if ((<KnockoutObservable<number>>obs).valueHasMutated) {
                                     (<KnockoutObservable<number>>obs).valueHasMutated();
@@ -762,6 +802,7 @@ class DotVVM {
                             }
                         } else {
                             element.attributes["data-dotvvm-value-type-valid"] = false;
+                            elmMetadata.elementValidationState = false;
                             obs(null);
                         }
                     }

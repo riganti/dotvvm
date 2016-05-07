@@ -1,7 +1,9 @@
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using Newtonsoft.Json;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -37,6 +39,19 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IDProperty =
             DotvvmProperty.Register<string, DotvvmControl>(c => c.ID, isValueInherited: false);
 
+        [MarkupOptions(MappingMode = MappingMode.Exclude)]
+        public string ClientID => (string)GetValue(ClientIDProperty) ?? CreateAndSaveClientId();
+        public static readonly DotvvmProperty ClientIDProperty
+            = DotvvmProperty.Register<string, DotvvmControl>(c => c.ClientID, null);
+
+        string CreateAndSaveClientId()
+        {
+            var id = CreateClientId();
+            if (id != null) SetValue(ClientIDProperty, id);
+            return (string)id;
+        }
+
+
         /// <summary>
         /// Gets or sets the client ID generation algorithm.
         /// </summary>
@@ -48,9 +63,7 @@ namespace DotVVM.Framework.Controls
         }
 
         public static readonly DotvvmProperty ClientIDModeProperty =
-            DotvvmProperty.Register<ClientIDMode, DotvvmControl>(c => c.ClientIDMode, ClientIDMode.DefaultBehavior, isValueInherited: true);
-
-        private bool requireUniqueId;
+            DotvvmProperty.Register<ClientIDMode, DotvvmControl>(c => c.ClientIDMode, ClientIDMode.Static, isValueInherited: true);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmControl"/> class.
@@ -111,8 +124,7 @@ namespace DotVVM.Framework.Controls
         {
             if (Properties.ContainsKey(PostBack.UpdateProperty))
             {
-                // the control might be updated on postback, add the control ID
-                EnsureControlHasId();
+                AddDotvvmUniqueIdAttribute();
             }
 
             try
@@ -124,6 +136,13 @@ namespace DotVVM.Framework.Controls
             {
                 throw new DotvvmControlException(this, "Error occured in Render method", e);
             }
+        }
+
+        private void AddDotvvmUniqueIdAttribute()
+        {
+            var htmlAttributes = this as IControlWithHtmlAttributes;
+            if (htmlAttributes == null) throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render html attributes.");
+            htmlAttributes.Attributes["data-dotvvm-id"] = GetDotvvmUniqueId();
         }
 
         /// <summary>
@@ -207,48 +226,19 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        /// <summary>
-        /// Ensures that the control has ID. The method can auto-generate it, if specified.
-        /// </summary>
-        public void EnsureControlHasId(bool autoGenerate = true)
-        {
-            if (autoGenerate && string.IsNullOrEmpty(ID))
-            {
-                requireUniqueId = true;
-                ID = AutoGenerateControlId();
-            }
-            else
-            {
-                if (string.IsNullOrWhiteSpace(ID))
-                {
-                    throw new DotvvmControlException(this, $"The control of type '{GetType().FullName}' must have ID!");
-                }
-                if (!Regex.IsMatch(ID, "^[a-zA-Z_][a-zA-Z0-9_]*$"))
-                {
-                    throw new DotvvmControlException(this, $"The control ID '{ID}' is not valid! It can contain only characters, numbers and the underscore character, and it cannot start with a number!");
-                }
-            }
-        }
+        [Obsolete("Use FindControlInContainer instead. Or FindControlByClientId if you want to be limited only to this container.")]
+        public DotvvmControl FindControl(string id, bool throwIfNotFound = false) => FindControlInContainer(id, throwIfNotFound);
+        [Obsolete("Use FindControlInContainer instead. Or FindControlByClientId if you want to be limited only to this container.")]
+        public T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl => FindControlInContainer<T>(id, throwIfNotFound);
 
         /// <summary>
-        /// Generates unique control ID automatically.
+        /// Finds the control by its ID coded in markup. Does not recurse into naming containers.
         /// </summary>
-        private string AutoGenerateControlId()
+        public DotvvmControl FindControlInContainer(string id, bool throwIfNotFound = false)
         {
-            return GetValue(Internal.UniqueIDProperty).ToString();
-        }
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
 
-        /// <summary>
-        /// Finds the control by its ID.
-        /// </summary>
-        public DotvvmControl FindControl(string id, bool throwIfNotFound = false)
-        {
-            if (string.IsNullOrEmpty(id))
-            {
-                throw new ArgumentNullException(nameof(id));
-            }
-
-            var control = GetAllDescendants(c => !IsNamingContainer(c)).SingleOrDefault(c => (c.ID ?? (string)c.GetValue(Internal.UniqueIDProperty)) == id);
+            var control = GetAllDescendants(c => !IsNamingContainer(c)).SingleOrDefault(c => c.ID == id);
             if (control == null && throwIfNotFound)
             {
                 throw new Exception(string.Format("The control with ID '{0}' was not found.", id));
@@ -257,11 +247,39 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Finds the control by its ID.
+        /// Finds the control by its ID coded in markup. Does not recurse into naming containers.
         /// </summary>
-        public T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
+        public T FindControlInContainer<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
         {
-            var control = FindControl(id, throwIfNotFound);
+            var control = FindControlInContainer(id, throwIfNotFound);
+            if (!(control is T))
+            {
+                throw new DotvvmControlException(this, $"The control with ID '{id}' was found, however it is not an instance of the desired type '{typeof(T)}'.");
+            }
+            return (T)control;
+        }
+
+        /// <summary>
+        /// Finds the control by its ClientId - the id rendered to output html.
+        /// </summary>
+        public DotvvmControl FindControlByClientId(string id, bool throwIfNotFound = false)
+        {
+            if (string.IsNullOrEmpty(id)) throw new ArgumentNullException(nameof(id));
+
+            var control = GetAllDescendants().SingleOrDefault(c => c.ClientID == id);
+            if (control == null && throwIfNotFound)
+            {
+                throw new Exception(string.Format("The control with ID '{0}' was not found.", id));
+            }
+            return control;
+        }
+
+        /// <summary>
+        /// Finds the control by its ClientId - the id rendered to output html.
+        /// </summary>
+        public T FindControlByClientId<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl
+        {
+            var control = FindControlByClientId(id, throwIfNotFound);
             if (!(control is T))
             {
                 throw new DotvvmControlException(this, $"The control with ID '{id}' was found, however it is not an instance of the desired type '{typeof(T)}'.");
@@ -278,7 +296,7 @@ namespace DotVVM.Framework.Controls
             DotvvmControl result = this;
             for (var i = 0; i < parts.Length; i++)
             {
-                result = result.FindControl(parts[i]);
+                result = result.FindControlInContainer(parts[i]);
                 if (result == null)
                 {
                     return null;
@@ -339,7 +357,7 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
-        /// Occurs after the viewmodel is applied to the page and before the commands are executed.
+        /// Occurs after the viewmodel is applied to the page IHtmlWriter writerand before the commands are executed.
         /// </summary>
         protected internal virtual void OnLoad(Hosting.IDotvvmRequestContext context)
         {
@@ -355,23 +373,22 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the client ID of the control. Returns null if the ID cannot be calculated.
         /// </summary>
-        public string GetClientId()
+        public object GetDotvvmUniqueId()
         {
-            if (!string.IsNullOrEmpty(ID))
+            // build the client ID
+            var fragments = GetUniqueIdFragments();
+            if (fragments.Any(f => f.IsExpression))
             {
-                // build the client ID
-                var fragments = GetClientIdFragments();
-                if (fragments.Any(f => f.IsExpression))
-                {
-                    return null;
-                }
-
+                var binding = string.Join("+'_'+", fragments.Reverse().Select(f => f.ToJavascriptExpression()));
+                return new ValueBindingExpression(h => null, binding);
+            }
+            else
+            {
                 return ComposeStaticClientId(fragments);
             }
-            return null;
         }
 
-        private static string ComposeStaticClientId(List<ClientIDFragment> fragments)
+        private static string ComposeStaticClientId(IList<ClientIDFragment> fragments)
         {
             var sb = new StringBuilder();
             for (int i = fragments.Count - 1; i >= 0; i--)
@@ -388,7 +405,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds the corresponding attribute for the Id property.
         /// </summary>
-        protected virtual void RenderClientId(IHtmlWriter writer)
+        protected virtual object CreateClientId()
         {
             if (!string.IsNullOrEmpty(ID))
             {
@@ -397,50 +414,80 @@ namespace DotVVM.Framework.Controls
                 if (!fragments.Any(f => f.IsExpression))
                 {
                     // generate ID attribute
-                    writer.AddAttribute("id", ComposeStaticClientId(fragments));
+                    return ComposeStaticClientId(fragments);
                 }
                 else
                 {
-                    // generate ID binding
-                    var sb = new StringBuilder();
-                    for (int i = fragments.Count - 1; i >= 0; i--)
-                    {
-                        if (sb.Length > 0)
-                        {
-                            sb.Append(",");
-                        }
-
-                        if (fragments[i].IsExpression)
-                        {
-                            sb.Append(fragments[i].Value);
-                        }
-                        else
-                        {
-                            sb.Append("'");
-                            sb.Append(fragments[i].Value);
-                            sb.Append("'");
-                        }
-                    }
-                    var group = new KnockoutBindingGroup();
-                    group.Add("id", $"dotvvm.evaluator.buildClientId(this, [{sb.ToString()}])");
-                    writer.AddKnockoutDataBind("attr", group);
+                    var binding = string.Join("+'_'+", fragments.Reverse().Select(f => f.ToJavascriptExpression()));
+                    return new ValueBindingExpression(h => { throw new NotSupportedException("Can't evaluate dynamic ID."); }, binding);
                 }
             }
+            return null;
         }
 
-        private List<ClientIDFragment> GetClientIdFragments()
+        private IList<ClientIDFragment> GetUniqueIdFragments()
         {
-            var dataContextChanges = 0;
-            var fragments = new List<ClientIDFragment>();
-            foreach (var ancestor in new[] { this }.Concat(GetAllAncestors()))
+            var fragments = new List<ClientIDFragment> { new ClientIDFragment((string)GetValue(Internal.UniqueIDProperty)) };
+            var dataContextChanges = HasBinding(DataContextProperty) ? 1 : 0;
+            foreach (var ancestor in GetAllAncestors())
             {
                 if (ancestor.HasBinding(DataContextProperty))
                 {
                     dataContextChanges++;
                 }
 
-                if (this == ancestor || IsNamingContainer(ancestor))
+                if (IsNamingContainer(ancestor))
                 {
+                    var clientIdExpression = (string)ancestor.GetValue(Internal.ClientIDFragmentProperty);
+                    if (clientIdExpression != null)
+                    {
+                        // generate the expression
+                        for (int i = 0; i < dataContextChanges; i++)
+                        {
+                            throw new NotImplementedException(); // todo
+                        }
+                        fragments.Add(new ClientIDFragment(clientIdExpression, isExpression: true));
+                    }
+                    else
+                    {
+                        fragments.Add(new ClientIDFragment((string)ancestor.GetValue(Internal.UniqueIDProperty)));
+                    }
+                }
+            }
+            return fragments;
+        }
+
+        private IList<ClientIDFragment> GetClientIdFragments()
+        {
+            var rawId = GetValue(IDProperty);
+            // can't generate ID from nothing
+            if (rawId == null) return null;
+
+            if (ClientIDMode == ClientIDMode.Static)
+            {
+                // just rewrite Static mode ID
+                return new[] { new ClientIDFragment(ID) };
+            }
+
+            var fragments = new List<ClientIDFragment> { ClientIDFragment.FromProperty(rawId) };
+            var dataContextChanges = HasBinding(DataContextProperty) ? 1 : 0;
+            DotvvmControl childContainer = null;
+            bool searchingForIdElement = false;
+            foreach (var ancestor in GetAllAncestors())
+            {
+                if (ancestor.HasBinding(DataContextProperty))
+                {
+                    dataContextChanges++;
+                }
+
+                if (IsNamingContainer(ancestor))
+                {
+                    if (searchingForIdElement)
+                    {
+                        fragments.Add(ClientIDFragment.FromProperty(childContainer.GetDotvvmUniqueId()));
+                    }
+                    searchingForIdElement = false;
+
                     var clientIdExpression = (string)ancestor.GetValue(Internal.ClientIDFragmentProperty);
                     if (clientIdExpression != null)
                     {
@@ -448,55 +495,41 @@ namespace DotVVM.Framework.Controls
                         var expression = new StringBuilder();
                         for (int i = 0; i < dataContextChanges; i++)
                         {
-                            expression.Append("$parentContext.");
+                            throw new NotImplementedException(); // TODO: 
                         }
                         expression.Append(clientIdExpression);
-                        fragments.Add(new ClientIDFragment() { Value = expression.ToString(), IsExpression = true });
+                        fragments.Add(new ClientIDFragment(expression.ToString(), isExpression: true));
                     }
                     else if (!string.IsNullOrEmpty(ancestor.ID))
                     {
                         // add the ID fragment
-                        fragments.Add(new ClientIDFragment() { Value = ancestor.ID });
+                        fragments.Add(new ClientIDFragment(ancestor.ID));
                     }
                     else
                     {
-                        fragments.Add(new ClientIDFragment() { Value = ancestor.AutoGenerateControlId() });
+                        searchingForIdElement = true;
+                        childContainer = ancestor;
                     }
-
                 }
 
-                if (ancestor.GetClientIDMode() == ClientIDMode.Static)
+                if (searchingForIdElement && ancestor.IsPropertySet(ClientIDProperty))
+                {
+                    fragments.Add(ClientIDFragment.FromProperty(ancestor.GetValueRaw(ClientIDProperty)));
+                    searchingForIdElement = false;
+                }
+
+                if (ancestor.ClientIDMode == ClientIDMode.Static)
                 {
                     break;
                 }
             }
+            if (searchingForIdElement)
+            {
+                fragments.Add(ClientIDFragment.FromProperty(childContainer.GetDotvvmUniqueId()));
+            }
             return fragments;
         }
 
-        /// <summary>
-        /// Gets the real ClientIDMode for the control.
-        /// </summary>
-        private ClientIDMode GetClientIDMode()
-        {
-            switch (ClientIDMode)
-            {
-                case ClientIDMode.AutoGenerated:
-                    return ClientIDMode.AutoGenerated;
-                    
-                case ClientIDMode.Static:
-                    return ClientIDMode.Static;
-
-                default:
-                    if (!requireUniqueId)
-                    {
-                        return ClientIDMode.Static;
-                    }
-                    else
-                    {
-                        return ClientIDMode.AutoGenerated;
-                    }
-            }
-        }
 
         /// <summary>
         /// Verifies that the control contains only a plain text content and tries to extract it.

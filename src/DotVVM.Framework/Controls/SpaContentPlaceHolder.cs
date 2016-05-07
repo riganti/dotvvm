@@ -26,6 +26,11 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DefaultRouteNameProperty
             = DotvvmProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
 
+        public SpaContentPlaceHolder()
+        {
+            RenderWrapperTag = true;
+            WrapperTagName = "div";
+        }
 
         public string GetSpaContentPlaceHolderUniqueId()
         {
@@ -35,6 +40,10 @@ namespace DotVVM.Framework.Controls
         protected internal override void OnInit(Hosting.IDotvvmRequestContext context)
         {
             GetRoot().SetValue(Internal.IsSpaPageProperty, true);
+
+            Attributes["name"] = HostingConstants.SpaContentPlaceHolderID;
+            Attributes[HostingConstants.SpaContentPlaceHolderDataAttributeName] = GetSpaContentPlaceHolderUniqueId();
+
 
             base.OnInit(context);
         }
@@ -52,10 +61,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddAttribute("id", ID);
-            writer.AddAttribute("name", HostingConstants.SpaContentPlaceHolderID);
             writer.AddKnockoutDataBind("if", "dotvvm.isSpaReady");
-            writer.AddAttribute(HostingConstants.SpaContentPlaceHolderDataAttributeName, GetSpaContentPlaceHolderUniqueId());
 
             if (!string.IsNullOrEmpty(DefaultRouteName))
             {
@@ -67,18 +73,6 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute(HostingConstants.SpaContentPlaceHolderDefaultRouteDataAttributeName, route.Url);
             }
             base.AddAttributesToRender(writer, context);
-        }
-
-        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            writer.RenderBeginTag("div");
-            base.RenderBeginTag(writer, context);
-        }
-
-        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            base.RenderEndTag(writer, context);
-            writer.RenderEndTag();
         }
     }
 }

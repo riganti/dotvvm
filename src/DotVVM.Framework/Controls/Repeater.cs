@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Controls
                     ItemTemplate.BuildContent(context, placeholder);
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
-                    placeholder.ID = "i" + index;
+                    placeholder.ID = index.ToString();
                     Children.Add(placeholder);
                     index++;
                 }
@@ -199,7 +199,7 @@ namespace DotVVM.Framework.Controls
                 // render on client
                 var placeholder = new DataItemContainer() { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
-                placeholder.SetValue(Internal.ClientIDFragmentProperty, "'i' + $index()");
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                 ItemTemplate.BuildContent(context, placeholder);
                 Children.Add(placeholder);
 

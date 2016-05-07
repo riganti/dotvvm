@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -95,8 +95,8 @@
       <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -301,6 +301,7 @@
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
     <Compile Include="Configuration\IDotvvmStartup.cs" />
     <Compile Include="Configuration\ServiceLocator.cs" />
+    <Compile Include="Controls\ConfigurableHtmlControl.cs" />
     <Compile Include="Controls\ConfirmPostBackHandler.cs" />
     <Compile Include="Controls\ButtonTagName.cs" />
     <Compile Include="Controls\ClientIDFragment.cs" />
@@ -534,6 +535,7 @@
     <Compile Include="ViewModel\Serialization\ViewModelSerializationMap.cs" />
     <Compile Include="ViewModel\Serialization\ViewModelSerializationMapper.cs" />
     <Compile Include="ViewModel\Validation\AttributeViewModelValidationMetadataProvider.cs" />
+    <Compile Include="ViewModel\Validation\DataAnnotations\DotvvmClientFormatAttribute.cs" />
     <Compile Include="ViewModel\Validation\IViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\Validation\ViewModelPropertyValidationRule.cs" />
     <Compile Include="ViewModel\Validation\ViewModelValidationError.cs" />
