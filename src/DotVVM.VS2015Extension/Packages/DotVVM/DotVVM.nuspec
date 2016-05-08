@@ -19,7 +19,7 @@
                 <dependency id="Microsoft.Owin.Host.SystemWeb" version="3.0.1" />
                 <dependency id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0" />
                 <dependency id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
-                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="Newtonsoft.Json" version="8.0.3" />
             </group>
         </dependencies>
     </metadata>
