@@ -138,6 +138,8 @@
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ComboBox\ComboBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\ContentPlaceHolder\ContentPlaceHolderMasterPageViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPageViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\DataPager\DataPagerViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
@@ -358,6 +360,8 @@
     <Content Include="Views\ControlSamples\Repeater\RouteLinkUrlSuffix.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandling.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandling.dothtml" />
+    <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderMasterPage.dotmaster" />
+    <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

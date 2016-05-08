@@ -28,6 +28,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_Button_InputTypeButton_TextContentInside = "ControlSamples/Button/InputTypeButton_TextContentInside";
 			public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
 			public const string ControlSamples_ComboBox_ComboBox = "ControlSamples/ComboBox/ComboBox";
+			public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
 			public const string ControlSamples_DataPager_DataPager = "ControlSamples/DataPager/DataPager";
 			public const string ControlSamples_EnabledProperty_EnabledProperty = "ControlSamples/EnabledProperty/EnabledProperty";
 			public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";
@@ -103,6 +104,8 @@ namespace Dotvvm.Samples.Tests{
 			public const string FeatureSamples_Serialization_Serialization = "FeatureSamples/Serialization/Serialization";
 			public const string FeatureSamples_ServerComments_ServerComments = "FeatureSamples/ServerComments/ServerComments";
 			public const string FeatureSamples_StaticCommand_StaticCommand = "FeatureSamples/StaticCommand/StaticCommand";
+			public const string FeatureSamples_Validation_DateTimeValidation = "FeatureSamples/Validation/DateTimeValidation";
+			public const string FeatureSamples_Validation_DateTimeValidation_NullableDateTime = "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
 			public const string FeatureSamples_Validation_DynamicValidation = "FeatureSamples/Validation/DynamicValidation";
 			public const string FeatureSamples_Validation_EssentialTypeValidation = "FeatureSamples/Validation/EssentialTypeValidation";
 			public const string FeatureSamples_Validation_NestedValidation = "FeatureSamples/Validation/NestedValidation";

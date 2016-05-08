@@ -63,8 +63,8 @@
     <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.7.1\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
+    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.7.2.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.7.2\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -72,12 +72,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="WebDriver, Version=2.52.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.2.52.0\lib\net40\WebDriver.dll</HintPath>
+    <Reference Include="WebDriver, Version=2.53.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.2.53.0\lib\net40\WebDriver.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="WebDriver.Support, Version=2.52.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.Support.2.52.0\lib\net40\WebDriver.Support.dll</HintPath>
+    <Reference Include="WebDriver.Support, Version=2.53.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.Support.2.53.0\lib\net40\WebDriver.Support.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -103,6 +103,7 @@
     <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
+    <Compile Include="Control\ContentPlaceHolderTests.cs" />
     <Compile Include="Control\HtmlLiteralTests.cs" />
     <Compile Include="Control\UpdateProgressTests.cs" />
     <Compile Include="Control\LiteralTests.cs" />
