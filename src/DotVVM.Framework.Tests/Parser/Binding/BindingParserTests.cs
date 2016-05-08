@@ -1,11 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
+using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BindingParser = DotVVM.Framework.Compilation.Parser.Binding.Parser.BindingParser;
 
@@ -428,6 +431,45 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             Assert.IsTrue(multiExpresionNode.Expressions[0] is MemberAccessBindingParserNode);
             Assert.IsTrue(multiExpresionNode.Expressions[1] is LiteralExpressionBindingParserNode);
             Assert.IsTrue(multiExpresionNode.Expressions[2] is LiteralExpressionBindingParserNode);
+        }
+
+        [TestMethod]
+        public void BindingParser_MultiExpression_SuperUnfriendlyContent()
+        {
+            var parser = SetupParser(@"
+                    IsCanceled ? '}"" ValueBinding=""{value: Currency}"" HeaderText=""Currency"" />
+           
+                <dot:GridViewTemplateColumn HeaderText="""" >
+                    <ContentTemplate>
+                        <dot:RouteLink RouteName=""AdminOrderDetail"" Param -Id=""{ value: Id}"" >
+                            <bs:GlyphIcon Icon=""Search"" />
+                        </dot:RouteLink>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+                <dot:GridViewTemplateColumn HeaderText="""" >
+                    <ContentTemplate>
+                        <dot:RouteLink RouteName=""OrderPaymentReceipt"" Visible =""{ value:  PaidDate != null}"" Param -OrderId=""{ value: Id}"" >
+                            <bs:GlyphIcon Icon=""Download_alt"" />
+                        </dot:RouteLink>
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+            </Columns>
+            <EmptyDataTemplate>
+                There are no orders to show. &nbsp; :'(
+            </EmptyDataTemplate>
+        </bs:GridView>
+        <dot:DataPager class=""pagination"" DataSet =""{ value: Orders}"" />
+    </bs:Container>
+</dot:Content>
+");
+            var node = parser.ReadMultiExpression();
+
+            Assert.IsTrue(parser.OnEnd());
+            Assert.IsTrue(node is MultiExpressionBindingParserNode);
+
+            var multiExpresionNode = node as MultiExpressionBindingParserNode;
+
+            Assert.IsTrue(multiExpresionNode.Expressions.Count == 12);
         }
 
         [TestMethod]

@@ -381,7 +381,7 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.1.0.4-rc.nupkg">
+    <Content Include="Packages\DotVVM.1.0.5-rc.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />

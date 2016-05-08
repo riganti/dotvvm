@@ -1,10 +1,14 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ConditionalExpressionBindingParserNode : BindingParserNode
     {
+        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} <E>?<T>:<F>";
+
         public BindingParserNode ConditionExpression { get; private set; }
         public BindingParserNode TrueExpression { get; private set; }
         public BindingParserNode FalseExpression { get; private set; }

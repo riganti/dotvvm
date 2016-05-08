@@ -1,10 +1,14 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class FunctionCallBindingParserNode : BindingParserNode
     {
+        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} <E> ({string.Join(", ",ArgumentExpressions.Select(e=> "<E>"))})";
+
         public BindingParserNode TargetExpression { get; private set; }
         public List<BindingParserNode> ArgumentExpressions { get; private set; }
 

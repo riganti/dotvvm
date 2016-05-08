@@ -20,8 +20,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
             int lastIndex = -1;
 
-            while (!OnEnd() && lastIndex != CurrentIndex)
+            while (!OnEnd())
             {
+                if (lastIndex == CurrentIndex)
+                {
+                    var extraToken = Read();
+                    expressions.Add( CreateNode(new LiteralExpressionBindingParserNode(extraToken.Text), lastIndex, "Unexpected token"));
+                }
+
                 lastIndex = CurrentIndex;
                 var extraNode = ReadExpression();
                 extraNode.NodeErrors.Add("Operator expected before this expression.");
@@ -253,8 +259,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             BindingParserNode expression = ReadAtomicExpression();
 
             var next = Peek();
-            while (next != null)
+            int previousIndex = -1;
+            while (next != null && previousIndex != CurrentIndex)
             {
+                previousIndex = CurrentIndex;
                 if (next.Type == BindingTokenType.Dot)
                 {
                     // member access
@@ -267,8 +275,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     // function call
                     Read();
                     var arguments = new List<BindingParserNode>();
-                    while (Peek() != null && Peek().Type != BindingTokenType.CloseParenthesis)
+                    int previousInnerIndex = -1;
+                    while (Peek() != null && Peek().Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
                     {
+                        previousInnerIndex = CurrentIndex;
                         if (arguments.Count > 0)
                         {
                             SkipWhiteSpace();

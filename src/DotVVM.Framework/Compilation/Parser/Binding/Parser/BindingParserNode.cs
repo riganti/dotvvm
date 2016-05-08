@@ -1,11 +1,14 @@
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class BindingParserNode
     {
+        protected virtual string DebuggerDisplay => $"(S: {StartPosition}, L: {Length}) E: {NodeErrors.Count}";
 
         public int StartPosition { get; internal set; }
 
