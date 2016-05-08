@@ -361,7 +361,9 @@ class DotvvmValidation {
     // get validation errors
     public getValidationErrors(viewModel, recursive) {
         viewModel = ko.unwrap(viewModel);
-        if (!viewModel || !viewModel.$type || !viewModel.$validationErrors) return [];
+        if (!viewModel || !viewModel.$type) return [];
+
+        if (viewModel.$validationErrors == null) viewModel.$validationErrors = ko.observableArray([]);
 
         var errors = viewModel.$validationErrors() as ValidationError[];
 
