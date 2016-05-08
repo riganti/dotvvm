@@ -173,7 +173,7 @@ class DotvvmSerialization {
                 var value = viewModel[prop];
 
                 if (opt.ignoreSpecialProperties && prop[0] === "$") continue;
-                if (!opt.serializeAll && /\$options$/.test(prop)) {
+                if (!opt.serializeAll && (/\$options$/.test(prop) || prop == "$validationErrors")) {
                     continue;
                 }
                 if (typeof (value) === "undefined") {

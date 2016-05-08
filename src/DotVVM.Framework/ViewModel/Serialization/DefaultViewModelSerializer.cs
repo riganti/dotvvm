@@ -238,7 +238,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var data = JObject.Parse(serializedPostData);
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
-            var controlUniqueId = data["controlUniqueId"].Value<string>();
+            var controlUniqueId = data["controlUniqueId"]?.Value<string>();
 
             if (string.IsNullOrEmpty(command))
             {

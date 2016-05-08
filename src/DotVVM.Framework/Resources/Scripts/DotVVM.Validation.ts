@@ -421,6 +421,7 @@ class DotvvmValidation {
     }
 
     private addValidationError(viewModel: any, error: ValidationError) {
+        if (viewModel.$validationErrors == null) viewModel.$validationErrors = ko.observableArray([]);
         if (viewModel.$validationErrors.indexOf(error) < 0) {
             viewModel.$validationErrors.push(error);
             this.errors.push(error);

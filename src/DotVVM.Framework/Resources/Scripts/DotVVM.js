@@ -1,8 +1,3 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var DotvvmDomUtils = (function () {
     function DotvvmDomUtils() {
     }
@@ -21,6 +16,55 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 }());
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
+    }
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        }
+        else {
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
+    };
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
+}());
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var DotvvmEvents = (function () {
     function DotvvmEvents() {
         this.init = new DotvvmEvent("dotvvm.events.init", true);
@@ -1266,7 +1310,7 @@ var DotvvmSerialization = (function () {
                 var value = viewModel[prop];
                 if (opt.ignoreSpecialProperties && prop[0] === "$")
                     continue;
-                if (!opt.serializeAll && /\$options$/.test(prop)) {
+                if (!opt.serializeAll && (/\$options$/.test(prop) || prop == "$validationErrors")) {
                     continue;
                 }
                 if (typeof (value) === "undefined") {
@@ -1813,6 +1857,8 @@ var DotvvmValidation = (function () {
         }
     };
     DotvvmValidation.prototype.addValidationError = function (viewModel, error) {
+        if (viewModel.$validationErrors == null)
+            viewModel.$validationErrors = ko.observableArray([]);
         if (viewModel.$validationErrors.indexOf(error) < 0) {
             viewModel.$validationErrors.push(error);
             this.errors.push(error);
@@ -1821,48 +1867,4 @@ var DotvvmValidation = (function () {
     return DotvvmValidation;
 }());
 ;
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
-    }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
-        }
-        else {
-            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
-            }
-        }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
-}());
 //# sourceMappingURL=DotVVM.js.map
