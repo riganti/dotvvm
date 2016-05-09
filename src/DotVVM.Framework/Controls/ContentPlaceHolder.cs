@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -14,6 +15,14 @@ namespace DotVVM.Framework.Controls
         {
             SetValue(Internal.IsNamingContainerProperty, true);
         }
+
+        protected override void EnsureNoAttributesSet()
+        {
+            if (!RenderWrapperTag)
+                Attributes.Remove("id");
+            base.EnsureNoAttributesSet();
+        }
+
         // TODO: static checker if has a ID
     }
 }

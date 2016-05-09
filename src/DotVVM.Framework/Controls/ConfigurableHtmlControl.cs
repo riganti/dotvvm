@@ -35,7 +35,7 @@ namespace DotVVM.Framework.Controls
             : base(tagName)
         {
             if (tagName != "div") WrapperTagName = tagName;
-            if (tagName == null) RenderWrapperTag = true;
+            if (tagName != null) RenderWrapperTag = true;
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)

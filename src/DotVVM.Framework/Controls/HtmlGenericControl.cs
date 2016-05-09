@@ -86,66 +86,49 @@ namespace DotVVM.Framework.Controls
             }
             if (id != null) Attributes["id"] = id;
 
+            CheckInnerTextUsage();
+
             // verify that the properties are used only where they should
             if (!RendersHtmlTag)
             {
                 EnsureNoAttributesSet();
             }
-            CheckInnerTextUsage();
-
-            var attrBindingGroup = new KnockoutBindingGroup();
-            // render hard-coded HTML attributes
-            foreach (var attribute in Attributes)
+            else
             {
-                if (attribute.Value is IValueBinding)
+                var attrBindingGroup = new KnockoutBindingGroup();
+                // render hard-coded HTML attributes
+                foreach (var attribute in Attributes)
                 {
-                    var binding = attribute.Value as IValueBinding;
-                    attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression());
-                    if (!RenderOnServer)
-                        continue;
+                    if (attribute.Value is IValueBinding)
+                    {
+                        var binding = attribute.Value as IValueBinding;
+                        attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression());
+                        if (!RenderOnServer)
+                            continue;
+                    }
+                    AddHtmlAttribute(writer, attribute.Key, attribute.Value);
                 }
-                AddHtmlAttribute(writer, attribute.Key, attribute.Value);
-            }
 
-            if (!attrBindingGroup.IsEmpty)
-            {
-                writer.AddKnockoutDataBind("attr", attrBindingGroup);
-            }
-
-            // render binding HTML attributes
-            var propertyValuePairs = Attributes.Where(a => a.Value is IValueBinding)
-                .Select(a => new KeyValuePair<string, IValueBinding>(a.Key, (IValueBinding)a.Value)).ToList();
-            if (propertyValuePairs.Any())
-            {
-                var group = new KnockoutBindingGroup();
-                foreach (var pair in propertyValuePairs)
+                if (!attrBindingGroup.IsEmpty)
                 {
-                    group.Add(pair.Key, pair.Value.GetKnockoutBindingExpression());
+                    writer.AddKnockoutDataBind("attr", attrBindingGroup);
                 }
-                writer.AddKnockoutDataBind("attr", group);
-            }
-            if (RenderOnServer)
-            {
-                foreach (var prop in propertyValuePairs)
-                {
-                    writer.AddAttribute(prop.Key, prop.Value.Evaluate(this, null)?.ToString());
-                }
-            }
 
-            // handle Visible property
-            AddVisibleAttributeOrBinding(writer);
+                // handle Visible property
+                AddVisibleAttributeOrBinding(writer);
 
-            // handle Text property
-            writer.AddKnockoutDataBind("text", this, InnerTextProperty, () =>
-            {
-                // inner Text is rendered as attribute only if contains binding
-                // otherwise it is rendered directly as encoded content
-                if (!string.IsNullOrWhiteSpace(InnerText))
+                // handle Text property
+                writer.AddKnockoutDataBind("text", this, InnerTextProperty, () =>
                 {
-                    Children.Clear();
-                    Children.Add(new Literal(InnerText));
-                }
-            });
+                    // inner Text is rendered as attribute only if contains binding
+                    // otherwise it is rendered directly as encoded content
+                    if (!string.IsNullOrWhiteSpace(InnerText))
+                    {
+                        Children.Clear();
+                        Children.Add(new Literal(InnerText));
+                    }
+                });
+            }
 
             base.AddAttributesToRender(writer, context);
         }
@@ -201,7 +184,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.RenderBeginTag(TagName);
+            if (RendersHtmlTag) writer.RenderBeginTag(TagName);
         }
 
         /// <summary>
@@ -209,15 +192,15 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.RenderEndTag();
+            if (RendersHtmlTag) writer.RenderEndTag();
         }
 
         /// <summary>
         /// Verifies that the control hasn't any HTML attributes or Visible or DataContext bindings set.
         /// </summary>
-        protected void EnsureNoAttributesSet()
+        protected virtual void EnsureNoAttributesSet()
         {
-            if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty) || ID != null)
+            if (Attributes.Any() || HasBinding(VisibleProperty) || HasBinding(DataContextProperty))
             {
                 throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible, DataContext, ID, Postback.Update, ... bindings on a control which does not render its own element!");
             }
