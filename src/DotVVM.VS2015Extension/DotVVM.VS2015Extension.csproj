@@ -552,7 +552,7 @@
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
     <PreBuildEvent>copy "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\Newtonsoft.Json.7.0.1.nupkg" "$(ProjectDir)Packages"
-      copy "$(SolutionDir)packages\Newtonsoft.Json.7.0.1\Newtonsoft.Json.7.0.1.nupkg" "$(ProjectDir)Packages"
+  
       copy "$(SolutionDir)packages\Owin.1.0\Owin.1.0.nupkg" "$(ProjectDir)Packages\Owin.1.0.0.nupkg"
       copy "$(SolutionDir)packages\Microsoft.Owin.3.0.1\Microsoft.Owin.3.0.1.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.Owin.FileSystems.3.0.1\Microsoft.Owin.FileSystems.3.0.1.nupkg" "$(ProjectDir)Packages"
