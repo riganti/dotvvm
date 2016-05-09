@@ -385,6 +385,10 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />
+    <Content Include="Packages\dotvvm.1.0.0-rc2.nupkg">
+      <IncludeInVSIX>true</IncludeInVSIX>
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <None Include="Packages\DotVVM\DotVVM.nuspec" />
     <None Include="Packages\DotVVM\init.ps1" />
     <None Include="Packages\DotVVM\install.ps1" />
@@ -429,6 +433,7 @@
     <Content Include="Snippets\DotVVM\dotprop.snippet">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
+    <None Include="Packages\newtonsoft.json.8.0.3.nupkg" />
     <None Include="source.extension.vsixmanifest">
       <SubType>Designer</SubType>
     </None>
@@ -546,7 +551,8 @@
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="$(VSToolsPath)\VSSDK\Microsoft.VsSDK.targets" Condition="'$(VSToolsPath)' != ''" />
   <PropertyGroup>
-    <PreBuildEvent>copy "$(SolutionDir)packages\Newtonsoft.Json.7.0.1\Newtonsoft.Json.7.0.1.nupkg" "$(ProjectDir)Packages"
+    <PreBuildEvent>copy "$(SolutionDir)packages\Newtonsoft.Json.8.0.3\Newtonsoft.Json.7.0.1.nupkg" "$(ProjectDir)Packages"
+      copy "$(SolutionDir)packages\Newtonsoft.Json.7.0.1\Newtonsoft.Json.7.0.1.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Owin.1.0\Owin.1.0.nupkg" "$(ProjectDir)Packages\Owin.1.0.0.nupkg"
       copy "$(SolutionDir)packages\Microsoft.Owin.3.0.1\Microsoft.Owin.3.0.1.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.Owin.FileSystems.3.0.1\Microsoft.Owin.FileSystems.3.0.1.nupkg" "$(ProjectDir)Packages"
@@ -559,10 +565,9 @@
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0\Microsoft.CodeAnalysis.Common.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" "$(ProjectDir)Packages"
       
-      if exist "$(ProjectDir)Packages\DotVVM.*.nupkg" (
-     del "$(ProjectDir)Packages\DotVVM.*.nupkg" /q 
-      )
+      copy "$(SolutionDir)packages\dotvvm.1.0.0-rc2\dotvvm.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
       
+         
   "$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -8,6 +8,6 @@ namespace DotVVM.VS2015Extension
 {
     public static class VsPackagesConfiguration
     {
-        public const string Version = "1.1";
+        public const string Version = "1.1.2";
     }
 }
