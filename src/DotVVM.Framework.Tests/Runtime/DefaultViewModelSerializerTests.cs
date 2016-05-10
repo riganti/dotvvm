@@ -194,7 +194,7 @@ namespace DotVVM.Framework.Tests.Runtime
             [Protect(ProtectMode.SignData)]
             public int Property2 { get; set; }
 
-            [Protect(ProtectMode.EnryptData)]
+            [Protect(ProtectMode.EncryptData)]
             public DateTime Property3 { get; set; }
             public List<TestViewModel4> Property4 { get; set; }
         }
@@ -203,7 +203,7 @@ namespace DotVVM.Framework.Tests.Runtime
             [Protect(ProtectMode.SignData)]
             public string PropertyA { get; set; }
 
-            [Protect(ProtectMode.EnryptData)]
+            [Protect(ProtectMode.EncryptData)]
             public int PropertyB { get; set; }
         }
 

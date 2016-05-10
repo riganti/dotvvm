@@ -88,7 +88,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // go through all properties that should be read
             foreach (var property in Properties.Where(p => p.TransferToServer))
             {
-                if (property.ViewModelProtection == ProtectMode.EnryptData || property.ViewModelProtection == ProtectMode.SignData)
+                if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
                 {
                     // encryptedValues[(int)jobj["{p.Name}"]]
 
@@ -241,7 +241,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     // writer.WritePropertyName("{property.Name"});
                     var prop = Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object));
 
-                    if (property.ViewModelProtection == ProtectMode.EnryptData ||
+                    if (property.ViewModelProtection == ProtectMode.EncryptData ||
                         property.ViewModelProtection == ProtectMode.SignData)
                     {
                         // encryptedValues.Add(JsonConvert.SerializeObject({value}));
