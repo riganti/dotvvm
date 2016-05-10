@@ -27,7 +27,6 @@
     <Asset Type="Microsoft.VisualStudio.Assembly" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmPageWizard" Path="|DotVVM.VS2015Extension.DotvvmPageWizard|" AssemblyName="|DotVVM.VS2015Extension.DotvvmPageWizard;AssemblyName|" />
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="Project" d:ProjectName="%CurrentProject%.DotvvmProjectSubType" Path="|DotVVM.VS2015Extension.DotvvmProjectSubType;PkgdefProjectOutputGroup|" />
     <Asset Type="Microsoft.VisualStudio.VsPackage" d:Source="File" Path="snippets.pkgdef" />
-    <Asset d:Source="File" Type="Newtonsoft.Json.7.0.1.nupkg" Path="Packages\Newtonsoft.Json.7.0.1.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Newtonsoft.Json.8.0.3.nupkg" Path="Packages\Newtonsoft.Json.8.0.3.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Owin.1.0.0.nupkg" Path="Packages\Owin.1.0.0.nupkg" d:VsixSubPath="Packages" />
     <Asset d:Source="File" Type="Microsoft.Owin.3.0.1.nupkg" Path="Packages\Microsoft.Owin.3.0.1.nupkg" d:VsixSubPath="Packages" />
