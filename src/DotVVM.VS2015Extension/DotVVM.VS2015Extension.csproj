@@ -414,9 +414,6 @@
     <Content Include="Packages\Microsoft.Owin.StaticFiles.3.0.1.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\Newtonsoft.Json.7.0.1.nupkg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-    </Content>
     <Content Include="Packages\Owin.1.0.0.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
