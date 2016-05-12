@@ -15,14 +15,6 @@
         <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered"
                       RenderSettings.Mode="Server" PostBack.Update="true" InlineEditing="true">
             <Columns>
-                <dot:GridViewTemplateColumn>
-                    <ContentTemplate>
-                        <dot:CheckBox Checked="{value: MessageReceived}" />
-                    </ContentTemplate>
-                    <EditTemplate>
-                        <dot:CheckBox Checked="{value: MessageReceived}" />
-                    </EditTemplate>
-                </dot:GridViewTemplateColumn>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" IsEditable="false"/>
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
