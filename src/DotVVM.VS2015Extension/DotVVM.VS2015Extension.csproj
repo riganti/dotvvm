@@ -561,9 +561,7 @@
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\Microsoft.CodeAnalysis.Analyzers.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0\Microsoft.CodeAnalysis.Common.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" "$(ProjectDir)Packages"
-      
-      copy "$(SolutionDir)packages\dotvvm.1.0.0-rc2\dotvvm.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
-      
+            
          
   "$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
   </PropertyGroup>
