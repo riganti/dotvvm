@@ -385,10 +385,6 @@
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />
-    <Content Include="Packages\dotvvm.1.0.0-rc2.nupkg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Packages\DotVVM\DotVVM.nuspec" />
     <None Include="Packages\DotVVM\init.ps1" />
     <None Include="Packages\DotVVM\install.ps1" />
