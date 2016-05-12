@@ -1,8 +1,3 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var DotvvmDomUtils = (function () {
     function DotvvmDomUtils() {
     }
@@ -21,6 +16,55 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 }());
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
+    }
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        }
+        else {
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
+    };
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
+}());
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var DotvvmEvents = (function () {
     function DotvvmEvents() {
         this.init = new DotvvmEvent("dotvvm.events.init", true);
@@ -855,45 +899,39 @@ var DotVVM = (function () {
                     });
                 }, 0, obs.dotvvmMetadata.elementsMetadata, element);
                 dotvvm.domUtils.attachEvent(element, "blur", function () {
+                    // parse the value
+                    var result, isEmpty, newValue;
                     if (elmMetadata.dataType === "datetime") {
-                        var result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
-                        if (!result) {
-                            element.attributes["data-dotvvm-value-type-valid"] = false;
-                            elmMetadata.elementValidationState = false;
+                        // parse date
+                        result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
+                        isEmpty = result === null;
+                        newValue = isEmpty ? null : dotvvm.serialization.serializeDate(result, false);
+                    }
+                    else {
+                        // parse number
+                        result = dotvvm.globalize.parseNumber(element.value);
+                        isEmpty = result === null || isNaN(result);
+                        newValue = isEmpty ? null : result;
+                    }
+                    // update element validation metadata
+                    if (!result && element.value !== null && element.value !== "") {
+                        element.attributes["data-dotvvm-value-type-valid"] = false;
+                        elmMetadata.elementValidationState = false;
+                    }
+                    else {
+                        element.attributes["data-dotvvm-value-type-valid"] = true;
+                        elmMetadata.elementValidationState = true;
+                    }
+                    if (obs() === newValue) {
+                        if (obs.valueHasMutated) {
+                            obs.valueHasMutated();
                         }
                         else {
-                            element.attributes["data-dotvvm-value-type-valid"] = true;
-                            elmMetadata.elementValidationState = true;
-                        }
-                        if (result) {
-                            obs(dotvvm.serialization.serializeDate(result, false));
-                        }
-                        else {
-                            obs(null);
+                            obs.notifySubscribers();
                         }
                     }
                     else {
-                        var newValue = dotvvm.globalize.parseNumber(element.value);
-                        if (!isNaN(newValue)) {
-                            element.attributes["data-dotvvm-value-type-valid"] = true;
-                            elmMetadata.elementValidationState = true;
-                            if (obs() === newValue) {
-                                if (obs.valueHasMutated) {
-                                    obs.valueHasMutated();
-                                }
-                                else {
-                                    obs.notifySubscribers();
-                                }
-                            }
-                            else {
-                                obs(newValue);
-                            }
-                        }
-                        else {
-                            element.attributes["data-dotvvm-value-type-valid"] = false;
-                            elmMetadata.elementValidationState = false;
-                            obs(null);
-                        }
+                        obs(newValue);
                     }
                 });
             },
@@ -1825,48 +1863,4 @@ var DotvvmValidation = (function () {
     return DotvvmValidation;
 }());
 ;
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
-    }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
-        }
-        else {
-            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
-            }
-        }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
-}());
 //# sourceMappingURL=DotVVM.js.map

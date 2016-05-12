@@ -771,40 +771,38 @@ class DotVVM {
 
 
                 dotvvm.domUtils.attachEvent(element, "blur", () => {
-                if (elmMetadata.dataType === "datetime") {
-                        var result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
-                        if (!result) {
-                            element.attributes["data-dotvvm-value-type-valid"] = false;
-                            elmMetadata.elementValidationState = false;
+
+                    // parse the value
+                    var result, isEmpty, newValue;
+                    if (elmMetadata.dataType === "datetime") {
+                        // parse date
+                        result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
+                        isEmpty = result === null;
+                        newValue = isEmpty ? null : dotvvm.serialization.serializeDate(result, false);
+                    } else {
+                        // parse number
+                        result = dotvvm.globalize.parseNumber(element.value);
+                        isEmpty = result === null || isNaN(result);
+                        newValue = isEmpty ? null : result;
+                    }
+
+                    // update element validation metadata
+                    if (!result && element.value !== null && element.value !== "") {
+                        element.attributes["data-dotvvm-value-type-valid"] = false;
+                        elmMetadata.elementValidationState = false;
+                    } else {
+                        element.attributes["data-dotvvm-value-type-valid"] = true;
+                        elmMetadata.elementValidationState = true;
+                    }
+
+                    if (obs() === newValue) {
+                        if ((<KnockoutObservable<number>>obs).valueHasMutated) {
+                            (<KnockoutObservable<number>>obs).valueHasMutated();
                         } else {
-                            element.attributes["data-dotvvm-value-type-valid"] = true;
-                            elmMetadata.elementValidationState = true;
-                        }
-                        if (result) {
-                            obs(dotvvm.serialization.serializeDate(result, false));
-                        }
-                        else {
-                            obs(null);
+                            (<KnockoutObservable<number>>obs).notifySubscribers();
                         }
                     } else {
-                        var newValue = dotvvm.globalize.parseNumber(element.value);
-                        if (!isNaN(newValue)) {
-                            element.attributes["data-dotvvm-value-type-valid"] = true;
-                            elmMetadata.elementValidationState = true;
-                            if (obs() === newValue) {
-                                if ((<KnockoutObservable<number>>obs).valueHasMutated) {
-                                    (<KnockoutObservable<number>>obs).valueHasMutated();
-                                } else {
-                                    (<KnockoutObservable<number>>obs).notifySubscribers();
-                                }
-                            } else {
-                                obs(newValue);
-                            }
-                        } else {
-                            element.attributes["data-dotvvm-value-type-valid"] = false;
-                            elmMetadata.elementValidationState = false;
-                            obs(null);
-                        }
+                        obs(newValue);
                     }
                 });
             },
