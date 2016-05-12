@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Configuration
         public void AddCodeControl(string tagPrefix, string namespaceName, string assembly)
         {
             Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = namespaceName, Assembly = assembly });
-            AddAssembly(assembly)
+            AddAssembly(assembly);
         }
 
         /// <summary>
