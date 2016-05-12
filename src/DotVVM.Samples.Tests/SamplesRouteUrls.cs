@@ -29,6 +29,7 @@ namespace Dotvvm.Samples.Tests{
 			public const string ControlSamples_CheckBox_CheckBox = "ControlSamples/CheckBox/CheckBox";
 			public const string ControlSamples_ComboBox_ComboBox = "ControlSamples/ComboBox/ComboBox";
 			public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
+			public const string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest = "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage_ContentTest";
 			public const string ControlSamples_DataPager_DataPager = "ControlSamples/DataPager/DataPager";
 			public const string ControlSamples_EnabledProperty_EnabledProperty = "ControlSamples/EnabledProperty/EnabledProperty";
 			public const string ControlSamples_FileUpload_FileUpload = "ControlSamples/FileUpload/FileUpload";

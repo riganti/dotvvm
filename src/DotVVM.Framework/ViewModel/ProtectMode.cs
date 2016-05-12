@@ -23,6 +23,6 @@ namespace DotVVM.Framework.ViewModel
         /// <summary>
         /// The property value is encrypted before it is sent to the client.
         /// </summary>
-        EnryptData
+        EncryptData
     }
 }

@@ -296,7 +296,7 @@ namespace DotVVM.Framework.Hosting
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders.ToDictionary(k => k.Key, k => k.Value)
+                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value)
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata).Result;
@@ -313,7 +313,7 @@ namespace DotVVM.Framework.Hosting
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders.ToDictionary(k => k.Key, k => k.Value)
+                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value)
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;
