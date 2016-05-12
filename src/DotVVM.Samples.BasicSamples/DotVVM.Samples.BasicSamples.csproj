@@ -163,6 +163,8 @@
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\Errors\EncryptedPropertyInValueBindingViewModel.cs" />
+    <Compile Include="ViewModels\Errors\FieldInValueBindingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
@@ -364,6 +366,8 @@
     <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderMasterPage.dotmaster" />
     <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage.dothtml" />
     <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage_ContentTest.dothtml" />
+    <Content Include="Views\Errors\EncryptedPropertyInValueBinding.dothtml" />
+    <Content Include="Views\Errors\FieldInValueBinding.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
