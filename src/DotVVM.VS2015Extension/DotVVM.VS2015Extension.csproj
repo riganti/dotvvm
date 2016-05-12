@@ -381,14 +381,10 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
-    <Content Include="Packages\DotVVM.1.0.0-rc2.nupkg">
+    <Content Include="Packages\DotVVM.1.0.0.1-rc.nupkg">
       <IncludeInVSIX>true</IncludeInVSIX>
     </Content>
     <None Include="packages.config" />
-    <Content Include="Packages\dotvvm.1.0.0-rc2.nupkg">
-      <IncludeInVSIX>true</IncludeInVSIX>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <None Include="Packages\DotVVM\DotVVM.nuspec" />
     <None Include="Packages\DotVVM\init.ps1" />
     <None Include="Packages\DotVVM\install.ps1" />
@@ -561,9 +557,7 @@
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\Microsoft.CodeAnalysis.Analyzers.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0\Microsoft.CodeAnalysis.Common.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" "$(ProjectDir)Packages"
-      
-      copy "$(SolutionDir)packages\dotvvm.1.0.0-rc2\dotvvm.1.0.0-rc2.nupkg" "$(ProjectDir)Packages"
-      
+            
          
   "$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
   </PropertyGroup>
