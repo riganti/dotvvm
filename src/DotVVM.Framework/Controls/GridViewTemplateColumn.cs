@@ -1,4 +1,6 @@
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
@@ -26,6 +28,7 @@ namespace DotVVM.Framework.Controls
 
         public override void CreateEditControls(IDotvvmRequestContext context, DotvvmControl container)
         {
+            if (EditTemplate == null) throw new DotvvmControlException(this, "EditTemplate must be set, when editting is allowed in a GridView.");
             EditTemplate.BuildContent(context, container);
         }
     }
