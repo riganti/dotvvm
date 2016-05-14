@@ -1,40 +1,38 @@
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Utils;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
-	/// <summary>
-	/// Renders <c>select</c> HTML element control.
-	/// </summary>
-    public abstract class SelectHtmlControlBase : Selector
-	{
-        
+    /// <summary>
+    /// Renders a multi-select HTML element control.
+    /// </summary>
+    public abstract class MultiSelectHtmlControlBase : MultiSelector
+    {
+
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectHtmlControlBase"/> class.
         /// </summary>
-        public SelectHtmlControlBase() : base("select")
+        public MultiSelectHtmlControlBase() : base("select")
         {
         }
-
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            RenderMultipleAttribute(writer);
             RenderEnabledProperty(writer);
             RenderOptionsProperties(writer);
             RenderChangedEvent(writer);
             RenderSelectedValueProperty(writer);
 
             base.AddAttributesToRender(writer, context);
+        }
+
+        protected virtual void RenderMultipleAttribute(IHtmlWriter writer)
+        {
+            writer.AddAttribute("multiple", "multiple");
         }
 
         protected virtual void RenderEnabledProperty(IHtmlWriter writer)
@@ -51,10 +49,10 @@ namespace DotVVM.Framework.Controls
         {
             SelectHtmlControlHelpers.RenderChangedEvent(writer, this);
         }
-        
+
         protected virtual void RenderSelectedValueProperty(IHtmlWriter writer)
-	    {
-	        writer.AddKnockoutDataBind("value", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
-	    }
-	}
+        {
+            writer.AddKnockoutDataBind("selectedOptions", this, SelectedValuesProperty, renderEvenInServerRenderingMode: true);
+        }
+    }
 }
