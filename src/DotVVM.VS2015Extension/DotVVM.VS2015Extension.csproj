@@ -558,7 +558,8 @@
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.Common.1.0.0\Microsoft.CodeAnalysis.Common.1.0.0.nupkg" "$(ProjectDir)Packages"
       copy "$(SolutionDir)packages\Microsoft.CodeAnalysis.CSharp.1.0.0\Microsoft.CodeAnalysis.CSharp.1.0.0.nupkg" "$(ProjectDir)Packages"
             
-         
+del "$(ProjectDir)Packages\DotVVM.*.nupkg" -y
+
   "$(SolutionDir)tools\nuget.exe" pack "$(ProjectDir)Packages\DotVVM\DotVVM.nuspec" -OutputDirectory "$(ProjectDir)Packages"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
