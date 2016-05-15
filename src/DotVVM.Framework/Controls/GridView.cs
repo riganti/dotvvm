@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<List<GridViewColumn>, GridView>(c => c.Columns);
 
         /// <summary>
-        /// Gets or sets a list of decorators that will be applied on each row.
+        /// Gets or sets a list of decorators that will be applied on each row which is not in the ediit mode.
         /// </summary>
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [ControlPropertyBindingDataContextChange("DataSource")]
@@ -85,6 +85,20 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty RowDecoratorsProperty =
             DotvvmProperty.Register<List<Decorator>, GridView>(c => c.RowDecorators);
+
+        /// <summary>
+        /// Gets or sets a list of decorators that will be applied on each row which is in edit mode.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
+        [ControlPropertyBindingDataContextChange("DataSource")]
+        [CollectionElementDataContextChange(1)]
+        public List<Decorator> EditRowDecorators
+        {
+            get { return (List<Decorator>)GetValue(EditRowDecoratorsProperty); }
+            set { SetValue(EditRowDecoratorsProperty, value); }
+        }
+        public static readonly DotvvmProperty EditRowDecoratorsProperty =
+            DotvvmProperty.Register<List<Decorator>, GridView>(c => c.EditRowDecorators);
 
 
         /// <summary>
@@ -181,7 +195,7 @@ namespace DotVVM.Framework.Controls
                     placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     placeholder.ID = index.ToString();
-                    CreateRow(context, placeholder);
+                    CreateRowWithCells(context, placeholder);
                     Children.Add(placeholder);
 
                     index++;
@@ -276,21 +290,10 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateRow(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder)
+        private void CreateRowWithCells(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder)
         {
-            var row = new HtmlGenericControl("tr");
-
-            DotvvmControl container = row;
-            foreach (var decorator in RowDecorators)
-            {
-                var decoratorInstance = decorator.Clone();
-                decoratorInstance.Children.Add(container);
-                container = decoratorInstance;
-            }
-            placeholder.Children.Add(container);
-
-            var isEdit = false;
-            if (InlineEditing == true)
+            var isInEditMode = false;
+            if (InlineEditing)
             {
                 // if gridviewdataset is missing throw exception
                 if (!(DataSource is IGridViewDataSet))
@@ -299,8 +302,10 @@ namespace DotVVM.Framework.Controls
                 }
 
                 //checks if row is being edited
-                isEdit = IsEditedRow(placeholder);
+                isInEditMode = IsEditedRow(placeholder);
             }
+
+            var row = CreateRow(placeholder, isInEditMode);
 
             // create cells
             foreach (var column in Columns)
@@ -309,7 +314,7 @@ namespace DotVVM.Framework.Controls
                 SetCellAttributes(column, cell, false);
                 row.Children.Add(cell);
 
-                if (isEdit && column.IsEditable)
+                if (isInEditMode && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);
                 }
@@ -317,14 +322,35 @@ namespace DotVVM.Framework.Controls
                 {
                     column.CreateControls(context, cell);
                 }
-
             }
+        }
+
+        private HtmlGenericControl CreateRow(DataItemContainer placeholder, bool isInEditMode)
+        {
+            var row = new HtmlGenericControl("tr");
+
+            DotvvmControl container = row;
+            var decorators = isInEditMode ? EditRowDecorators : RowDecorators;
+            foreach (var decorator in decorators)
+            {
+                var decoratorInstance = decorator.Clone();
+                decoratorInstance.Children.Add(container);
+                container = decoratorInstance;
+            }
+            placeholder.Children.Add(container);
+            return row;
         }
 
         private bool IsEditedRow(DataItemContainer placeholder)
         {
+            var primaryKeyPropertyName = ((IGridViewDataSet)DataSource).PrimaryKeyPropertyName;
+            if (string.IsNullOrEmpty(primaryKeyPropertyName))
+            {
+                throw new DotvvmControlException(this, $"The {nameof(IGridViewDataSet)} must specify the {nameof(IGridViewDataSet.PrimaryKeyPropertyName)} property when inline editing is enabled on the {nameof(GridView)} control!");
+            }
+
             PropertyInfo prop;
-            var value = ReflectionUtils.GetObjectPropertyValue(placeholder.DataContext, ((IGridViewDataSet)DataSource).PrimaryKeyPropertyName, out prop);
+            var value = ReflectionUtils.GetObjectPropertyValue(placeholder.DataContext, primaryKeyPropertyName, out prop);
 
             if (value != null)
             {
@@ -338,20 +364,16 @@ namespace DotVVM.Framework.Controls
             return false;
         }
 
-        private void CreateTemplates(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder, bool createEditTemplates = false)
+        private void CreateTemplates(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder, bool isInEditMode = false)
         {
-            var row = new HtmlGenericControl("tr");
-
-            DotvvmControl container = row;
-            placeholder.Children.Add(container);
-
-
+            var row = CreateRow(placeholder, isInEditMode);
+            
             // create cells
             foreach (var column in Columns)
             {
                 var cell = new HtmlGenericControl("td");
                 row.Children.Add(cell);
-                if (createEditTemplates && column.IsEditable)
+                if (isInEditMode && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);
                 }
@@ -359,7 +381,6 @@ namespace DotVVM.Framework.Controls
                 {
                     column.CreateControls(context, cell);
                 }
-
             }
         }
 
@@ -414,7 +435,7 @@ namespace DotVVM.Framework.Controls
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
-                    CreateRow(context, placeholder);
+                    CreateRowWithCells(context, placeholder);
                     Children.Add(placeholder);
                     placeholder.Render(writer, context);
 

@@ -421,21 +421,33 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+                browser.ElementAt("table", 0).FindElements("tr").ThrowIfDifferentCountThan(6);
+                browser.ElementAt("table", 1).FindElements("tr").ThrowIfDifferentCountThan(6);
 
-                browser.FindElements("tr").ThrowIfDifferentCountThan(6);
-
-                browser.ElementAt("tr", 3).Click();
-                browser.Wait(500);
+                // check that clicking selects the row which gets the 'selected' class
+                browser.ElementAt("tr", 3).Click().Wait(500);
                 for (int i = 0; i < 6; i++)
                 {
-                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                    browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                }
+                browser.ElementAt("tr", 2).Click().Wait(500);
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
                 }
 
-                browser.ElementAt("tr", 2).Click();
-                browser.Wait(500);
-                for (int i = 0; i < 6; i++)
+                
+                // check that the edit row has the 'edit' class while the other rows have the 'normal' class
+                for (int i = 1; i < 6; i++)
                 {
-                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
+                    if (i != 2)
+                    {
+                        browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("normal").CheckIfHasNotClass("edit");
+                    }
+                    else
+                    {
+                        browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("edit").CheckIfHasNotClass("normal");
+                    }
                 }
             });
         }
