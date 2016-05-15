@@ -331,11 +331,14 @@ namespace DotVVM.Framework.Controls
 
             DotvvmControl container = row;
             var decorators = isInEditMode ? EditRowDecorators : RowDecorators;
-            foreach (var decorator in decorators)
+            if (decorators != null)
             {
-                var decoratorInstance = decorator.Clone();
-                decoratorInstance.Children.Add(container);
-                container = decoratorInstance;
+                foreach (var decorator in decorators)
+                {
+                    var decoratorInstance = decorator.Clone();
+                    decoratorInstance.Children.Add(container);
+                    container = decoratorInstance;
+                }
             }
             placeholder.Children.Add(container);
             return row;
