@@ -176,6 +176,7 @@
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Redirect\RedirectingPresenter.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\DateTimeValidationViewModel2.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NullableDateTimeValidationViewModel.cs" />

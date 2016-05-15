@@ -29,5 +29,17 @@ namespace DotVVM.Samples.Tests.Feature
                     "Current url is same as origional url. Current url should be different.");
             });
         }
+
+        [TestMethod]
+        public void Feature_RedirectFromPresenter()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl("FeatureSamples/Redirect/RedirectFromPresenter");
+                browser.Wait();
+
+                browser.CheckUrl(s => s.Contains("?time="), "Current url doesn't contain query string ?time=");
+            });
+        }
     }
 }
