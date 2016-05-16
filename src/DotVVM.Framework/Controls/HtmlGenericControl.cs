@@ -139,9 +139,9 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute(name, (string)value, true);
             }
-            else if (value is string[])
+            else if (value is IEnumerable<string>)
             {
-                foreach (var vv in (string[])value)
+                foreach (var vv in (IEnumerable<string>)value)
                 {
                     writer.AddAttribute(name, vv);
                 }
