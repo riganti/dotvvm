@@ -115,6 +115,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private void EmbedResourceLinks(DotvvmView view)
         {
+            // PERF: 
             var sections = view.GetThisAndAllDescendants()
                 .OfType<HtmlGenericControl>()
                 .Where(t => t.TagName == "head" || t.TagName == "body")

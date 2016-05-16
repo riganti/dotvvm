@@ -78,6 +78,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 }
             }
 
+            // PERF: 
             return new [] { contextControl }.Concat(contextControl.GetAllAncestors())
                 .Where(c => c.IsPropertySet(DotvvmBindableObject.DataContextProperty, false))
                 .Select(c => c.GetValue(DotvvmBindableObject.DataContextProperty, false))
