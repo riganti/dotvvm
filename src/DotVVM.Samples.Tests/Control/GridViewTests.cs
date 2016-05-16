@@ -116,6 +116,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //Edit
                 firstRow.ElementAt("td", 5).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -142,6 +143,7 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("9536d712-2e91-43d2-8ebb-93fbec31cf34");
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -161,6 +163,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //update
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -187,6 +190,7 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("A");
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -206,6 +210,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //update
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -266,11 +271,13 @@ namespace DotVVM.Samples.Tests.Control
 
                 // click on Cancel button
                 firstRow.ElementAt("td", 3).ElementAt("button", 1).Click();
+                browser.Wait(500);
 
                 // click the Edit button on another row
                 table = browser.ElementAt("table", tableID);
                 var desiredRow = table.ElementAt("tbody tr", 3);
                 desiredRow.ElementAt("td", 3).Single("button").Click();
+                browser.Wait(500);
 
                 // check if edit row changed
                 table = browser.ElementAt("table", tableID);
@@ -306,6 +313,7 @@ namespace DotVVM.Samples.Tests.Control
                 //page to second page
                 var navigation = browser.ElementAt(".pagination", 0);
                 navigation.FindElements("li a").Single(s => s.GetText() == "2").Click();
+                browser.Wait(500);
 
                 table = browser.ElementAt("table", tableID);
                 firstRow = table.First("tbody tr");
@@ -314,6 +322,7 @@ namespace DotVVM.Samples.Tests.Control
                 //page to back
                 navigation = browser.ElementAt(".pagination", 0);
                 navigation.FindElements("li a").Single(s => s.GetText() == "1").Click();
+                browser.Wait(500);
 
                 //after page back check edit row
                 table = browser.ElementAt("table", tableID);
@@ -412,19 +421,33 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+                browser.ElementAt("table", 0).FindElements("tr").ThrowIfDifferentCountThan(6);
+                browser.ElementAt("table", 1).FindElements("tr").ThrowIfDifferentCountThan(6);
 
-                browser.FindElements("tr").ThrowIfDifferentCountThan(6);
-
-                browser.ElementAt("tr", 3).Click();
+                // check that clicking selects the row which gets the 'selected' class
+                browser.ElementAt("tr", 3).Click().Wait(500);
                 for (int i = 0; i < 6; i++)
                 {
-                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                    browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                }
+                browser.ElementAt("tr", 2).Click().Wait(500);
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
                 }
 
-                browser.ElementAt("tr", 2).Click();
-                for (int i = 0; i < 6; i++)
+                
+                // check that the edit row has the 'edit' class while the other rows have the 'normal' class
+                for (int i = 1; i < 6; i++)
                 {
-                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
+                    if (i != 2)
+                    {
+                        browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("normal").CheckIfHasNotClass("edit");
+                    }
+                    else
+                    {
+                        browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("edit").CheckIfHasNotClass("normal");
+                    }
                 }
             });
         }

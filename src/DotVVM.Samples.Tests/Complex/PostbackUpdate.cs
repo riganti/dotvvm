@@ -22,7 +22,7 @@ namespace DotVVM.Samples.Tests.Complex
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_ControlUsageSample);
                 browser.First("a[data-ui=show-link]").Click();
-                browser.Wait(200);
+                browser.Wait(500);
                 browser.First("input[data-ui=textbox]").CheckAttribute("value", v => v.Contains("a"));
             });
         }
@@ -35,9 +35,10 @@ namespace DotVVM.Samples.Tests.Complex
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_ServerRendering_ControlUsageSampleRewriting);
                 browser.First("a[data-ui=show-link]").Click();
-                browser.Wait(200);
+                browser.Wait(500);
                 browser.First("div[data-ui='context-1']").First("input[data-ui=textbox]").CheckAttribute("value", v => v.Contains("a"));
                 browser.First("a[data-ui=rewrite-link]").Click();
+                browser.Wait(500);
                 browser.First("div[data-ui='context-2']").First("input[data-ui=textbox]").CheckAttribute("value", v => v.Contains("b"));
             });
         }
@@ -56,6 +57,8 @@ namespace DotVVM.Samples.Tests.Complex
 
                 //Add element and see
                 browser.First("a[data-ui='add-link']").Click();
+                browser.Wait(500);
+
                 //Has nonempty repeater been updated? 
                 var neArticlesPostAdd = browser.Single("div[data-ui='nonempty-repeater']").FindElements("article[data-ui='test-article']");
                 CheckArticleCount(browser, "nonempty-repeater", 2);

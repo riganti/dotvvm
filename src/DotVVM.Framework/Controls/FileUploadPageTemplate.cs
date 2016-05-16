@@ -62,7 +62,7 @@ function dotvvmSubmit() {
 		// send the form using AJAX
 		var xhr = parent.window.dotvvm.getXHR();
 		xhr.open(""POST"", form.action, true);
-		xhr.setRequestHeader(""X-DotvvmAsyncUpload"", ""true"");
+		xhr.setRequestHeader(""X-DotVVM-AsyncUpload"", ""true"");
 		xhr.upload.onprogress = function (e) {
 			if (e.lengthComputable) {
 				reportProgress(true, Math.round(e.loaded * 100 / e.total, 0), '');

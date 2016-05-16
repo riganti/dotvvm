@@ -556,6 +556,7 @@ class DotVVM {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-DotVVM-PostBack", "true");
         preprocessRequest(xhr);
         xhr.onreadystatechange = () => {
             if (xhr.readyState != 4) return;

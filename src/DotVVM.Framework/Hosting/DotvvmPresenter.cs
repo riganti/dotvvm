@@ -76,11 +76,6 @@ namespace DotVVM.Framework.Hosting
             {
                 await ProcessRequestCore(context);
             }
-            catch (DotvvmInterruptRequestExecutionException)
-            {
-                // the response has already been generated, do nothing
-                return;
-            }
             catch (UnauthorizedAccessException)
             {
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -354,7 +349,7 @@ namespace DotVVM.Framework.Hosting
 
         public static bool DetermineIsPostBack(IOwinContext context)
         {
-            return context.Request.Method == "POST";
+            return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.SpaPostBackHeaderName);
         }
 
         public static bool DetermineSpaRequest(IOwinContext context)

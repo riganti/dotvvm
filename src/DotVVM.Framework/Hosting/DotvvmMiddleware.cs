@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Process an individual request.
         /// </summary>
-        public override Task Invoke(IOwinContext context)
+        public override async Task Invoke(IOwinContext context)
         {
             if (Interlocked.Exchange(ref configurationSaved, 1) == 0) {
                 VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
@@ -68,13 +68,20 @@ namespace DotVVM.Framework.Hosting
                 dotvvmContext.Query = context.Request.Query
                     .ToDictionary(d => d.Key, d => d.Value.Length == 1 ? (object) d.Value[0] : d.Value);
 
-                return route.ProcessRequest(dotvvmContext);
+                try
+                {
+                    await route.ProcessRequest(dotvvmContext);
+                    return;
+                }
+                catch (DotvvmInterruptRequestExecutionException)
+                {
+                    // the response has already been generated, do nothing
+                    return;
+                }
             }
-            else
-            {
-                // we cannot handle the request, pass it to another component
-                return Next.Invoke(context);
-            }
+            
+            // we cannot handle the request, pass it to another component
+            await Next.Invoke(context);
         }
 
         /// <summary>

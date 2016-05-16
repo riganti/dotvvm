@@ -337,6 +337,8 @@
     <Compile Include="Controls\KnockoutBindingGroup.cs" />
     <Compile Include="Controls\KnockoutHelper.cs" />
     <Compile Include="Controls\LifeCycleEventType.cs" />
+    <Compile Include="Controls\MultiSelectHtmlControlBase.cs" />
+    <Compile Include="Controls\MultiSelector.cs" />
     <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\PostBackHandler.cs" />
@@ -345,6 +347,8 @@
     <Compile Include="Controls\RenderSettings.cs" />
     <Compile Include="Controls\RouteLink.cs" />
     <Compile Include="Controls\RouteLinkHelpers.cs" />
+    <Compile Include="Controls\SelectHtmlControlHelpers.cs" />
+    <Compile Include="Controls\SelectorBase.cs" />
     <Compile Include="Controls\SelectorItem.cs" />
     <Compile Include="Controls\SpaContentPlaceHolder.cs" />
     <Compile Include="Controls\TextBoxType.cs" />

@@ -1,6 +1,7 @@
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Routing;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -53,6 +54,7 @@ namespace DotVVM.Samples.BasicSamples
             config.RouteTable.AutoDiscoverRoutes(new DefaultRouteStrategy(config));
             config.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
             config.RouteTable.Add("RepeaterRouteLinkUrlSuffix-PageDetail", "ControlSamples/Repeater/RouteLinkUrlSuffix/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
+            config.RouteTable.Add("FeatureSamples_Redirect_RedirectFromPresenter", "FeatureSamples/Redirect/RedirectFromPresenter", null, null, () => new RedirectingPresenter());
         }
         
     }

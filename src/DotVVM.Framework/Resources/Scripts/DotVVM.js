@@ -643,6 +643,7 @@ var DotVVM = (function () {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-DotVVM-PostBack", "true");
         preprocessRequest(xhr);
         xhr.onreadystatechange = function () {
             if (xhr.readyState != 4)
