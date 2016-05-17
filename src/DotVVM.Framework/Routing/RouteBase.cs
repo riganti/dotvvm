@@ -42,6 +42,12 @@ namespace DotVVM.Framework.Routing
             AddOrUpdateParameterCollection(DefaultValues, defaultValues);
         }
 
+        public RouteBase(string url, string virtualPath, string name, IDictionary<string, object> defaultValues)
+            : this(url, virtualPath, defaultValues)
+        {
+            this.RouteName = name;
+        }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="RouteBase"/> class.
         /// </summary>
@@ -148,7 +154,14 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public static void AddOrUpdateParameterCollection(IDictionary<string, object> targetCollection, object anonymousObject)
         {
-            if (anonymousObject != null)
+            if (anonymousObject is IEnumerable<KeyValuePair<string, string>>)
+            {
+                foreach (KeyValuePair<string, string> item in (IEnumerable<KeyValuePair<string, string>>)anonymousObject)
+                {
+                    targetCollection[item.Key] = item.Value;
+                }
+            }
+            else if (anonymousObject != null)
             {
                 foreach (var prop in anonymousObject.GetType().GetProperties())
                 {

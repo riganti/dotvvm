@@ -10,7 +10,6 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -22,13 +21,11 @@ namespace DotVVM.Framework.Runtime
             EmbedResourceLinks(view);
 
             // prepare the render context
-            var renderContext = new RenderContext(context);
-
             // get the HTML
             using (var textWriter = new StringWriter())
             {
                 var htmlWriter = new HtmlWriter(textWriter, context);
-                view.Render(htmlWriter, renderContext);
+                view.Render(htmlWriter, context);
                 return textWriter.ToString();
             }
         }
@@ -42,9 +39,8 @@ namespace DotVVM.Framework.Runtime
             await context.OwinContext.Response.WriteAsync(html);
         }
 
-        public void RenderPostbackUpdatedControls(DotvvmRequestContext request, DotvvmView page)
+        public void RenderPostbackUpdatedControls(DotvvmRequestContext context, DotvvmView page)
         {
-            var context = new RenderContext(request);
             var stack = new Stack<DotvvmControl>();
             stack.Push(page);
             do
@@ -58,15 +54,14 @@ namespace DotVVM.Framework.Runtime
                 {
                     using (var w = new StringWriter())
                     {
-                        control.EnsureControlHasId();
-                        control.Render(new HtmlWriter(w, request), context);
+                        control.Render(new HtmlWriter(w, context), context);
 
-                        var clientId = control.GetClientId();
+                        var clientId = control.GetDotvvmUniqueId() as string;
                         if (clientId == null)
                         {
                             throw new DotvvmControlException(control, "This control cannot use PostBack.Update=\"true\" because it has dynamic ID. This happens when the control is inside a Repeater or other data-bound control and the RenderSettings.Mode=\"Client\".");
                         }
-                        request.PostBackUpdatedControls[clientId] = w.ToString();
+                        context.PostBackUpdatedControls[clientId] = w.ToString();
                     }
                 }
                 else
@@ -120,6 +115,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private void EmbedResourceLinks(DotvvmView view)
         {
+            // PERF: 
             var sections = view.GetThisAndAllDescendants()
                 .OfType<HtmlGenericControl>()
                 .Where(t => t.TagName == "head" || t.TagName == "body")

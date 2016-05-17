@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Runtime.Filters
 {

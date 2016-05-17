@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render resource links
             var resources = context.ResourceManager.GetResourcesInOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Body);
@@ -28,9 +28,9 @@ namespace DotVVM.Framework.Controls.Infrastructure
             }
 
             // render the serialized viewmodel
-            var serializedViewModel = context.RequestContext.GetSerializedViewModel();
+            var serializedViewModel = ((DotvvmRequestContext) context).GetSerializedViewModel();
             writer.AddAttribute("type", "hidden");
-            writer.AddAttribute("id", "__dot_viewmodel_" + context.CurrentPageArea);
+            writer.AddAttribute("id", "__dot_viewmodel_root");
             writer.AddAttribute("value", serializedViewModel);
             writer.RenderSelfClosingTag("input");
 
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText($@"
 window.dotvvm.domUtils.onDocumentReady(function () {{ 
-    window.dotvvm.init('{context.CurrentPageArea}', '{Thread.CurrentThread.CurrentUICulture.Name}'); 
+    window.dotvvm.init('root', '{Thread.CurrentThread.CurrentUICulture.Name}'); 
 }});");
             writer.RenderEndTag();
         }

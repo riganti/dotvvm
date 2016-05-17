@@ -1,6 +1,3 @@
-using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.VS2015Extension.Bases;
 using DotVVM.VS2015Extension.Bases.Commands;
 using DotVVM.VS2015Extension.Bases.Directives;
@@ -18,7 +15,8 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
-using Constants = DotVVM.Framework.Parser.Constants;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
 {
@@ -68,14 +66,14 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
             if (currentDirective == null) return false;
 
             //check viewModel and typeBased directive and navigate to definition of the viewModel
-            if (currentDirective.Name.Equals(Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
-                || currentDirective.Name.Equals(Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
+            if (currentDirective.Name.Equals(ParserConstants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
+                || currentDirective.Name.Equals(ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (NavigateToViewModel(new ViewModelDirectiveValue(currentDirective))) return true;
             }
 
             //check masterPage directive
-            if (currentDirective.Name.Equals(Constants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
+            if (currentDirective.Name.Equals(ParserConstants.MasterPageDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 if (NavigateToMasterPage(currentDirective)) return true;
             }
@@ -122,8 +120,8 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Commands.GotoDefinition
                 var declaredSymbol = semanticModel
                     .GetDeclaredSymbol(declaration.DeclarationSyntax);
 
-                // check assambly name and namespace
-                if (declaredSymbol.ContainingAssembly.Identity.Name == currentDirective.AssamblyName
+                // check assembly name and namespace
+                if (declaredSymbol.ContainingAssembly.Identity.Name == currentDirective.AssemblyName
                     && declaredSymbol.ContainingNamespace.ToString() == currentDirective.Namespace)
                 {
                     //navigate to definition - open window

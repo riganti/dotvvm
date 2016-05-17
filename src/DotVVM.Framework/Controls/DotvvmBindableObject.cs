@@ -3,7 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the value or a binding object for a specified property.
         /// </summary>
-        protected virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
+        protected internal virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
         {
             return property.GetValue(this, inherit);
         }
@@ -179,7 +179,6 @@ namespace DotVVM.Framework.Controls
         {
             SetValueRaw(property, binding);
         }
-
 
 
         /// <summary>

@@ -8,10 +8,10 @@ using Microsoft.Owin.FileSystems;
 using Microsoft.Owin.StaticFiles;
 using Owin;
 using System.Web.Hosting;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Storage;
 using Microsoft.Owin.Security.Cookies;
 using Microsoft.AspNet.Identity;
-using Constants = DotVVM.Framework.Parser.Constants;
 
 [assembly: OwinStartup(typeof(DotVVM.Samples.BasicSamples.Startup))]
 
@@ -46,17 +46,9 @@ namespace DotVVM.Samples.BasicSamples
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM
-            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM(applicationPhysicalPath);
-            dotvvmConfiguration.DefaultCulture = "en-US";
-            dotvvmConfiguration.Markup.DefaultDirectives.Add(Constants.ResourceTypeDirective, "DotVVM.Samples.BasicSamples.Resources.Resource, DotVVM.Samples.BasicSamples");
-
-
+            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
             dotvvmConfiguration.Debug = true;
-
-            dotvvmConfiguration.RouteTable.RegisterRoutingStrategy(new ViewsFolderBasedRouteStrategy(dotvvmConfiguration));
-
-            dotvvmConfiguration.RouteTable.Add("RepeaterRouteLink-PageDetail", "ControlSamples/Repeater/RouteLink/{Id}", "Views/ControlSamples/Repeater/RouteLink.dothtml");
-
+            
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
 

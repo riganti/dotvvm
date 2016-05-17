@@ -1,9 +1,8 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using Microsoft.Owin.Security.DataProtection;
 
 namespace DotVVM.Framework.Security
 {
@@ -13,7 +12,14 @@ namespace DotVVM.Framework.Security
     /// </summary>
     public class DefaultViewModelProtector : IViewModelProtector
     {
-        private const string KDF_LABEL = "DotVVM.Framework.Security.DefaultViewModelProtector";
+        private const string PRIMARY_PURPOSE = "DotVVM.Framework.Security.DefaultViewModelProtector";
+
+        private IDataProtectionProvider protectionProvider;
+
+        public DefaultViewModelProtector(DotvvmConfiguration configuration)
+        {
+            this.protectionProvider = configuration.ServiceLocator.GetService<IDataProtectionProvider>();
+        }
 
         public string Protect(string serializedData, IDotvvmRequestContext context)
         {
@@ -21,13 +27,15 @@ namespace DotVVM.Framework.Security
             if (string.IsNullOrWhiteSpace(serializedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(serializedData));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            // Get application key helper
-            var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);
-
-            // Protect serialized data
+            // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            return keyHelper.ProtectString(serializedData, KDF_LABEL, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.Create(PRIMARY_PURPOSE, userIdentity, requestIdentity);
+
+            // Return protected view model data
+            var dataToProtect = Encoding.UTF8.GetBytes(serializedData);
+            var protectedData = protector.Protect(dataToProtect);
+            return Convert.ToBase64String(protectedData);
         }
 
         public string Unprotect(string protectedData, IDotvvmRequestContext context)
@@ -36,13 +44,15 @@ namespace DotVVM.Framework.Security
             if (string.IsNullOrWhiteSpace(protectedData)) throw new ArgumentException("Value cannot be empty or whitespace only string.", nameof(protectedData));
             if (context == null) throw new ArgumentNullException(nameof(context));
 
-            // Get application key helper
-            var keyHelper = new ApplicationKeyHelper(context.Configuration.Security);
-
-            // Unprotect serialized data
+            // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            return keyHelper.UnprotectString(protectedData, KDF_LABEL, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.Create(PRIMARY_PURPOSE, userIdentity, requestIdentity);
+
+            // Return unprotected view model data
+            var dataToUnprotect = Convert.FromBase64String(protectedData);
+            var unprotectedData = protector.Unprotect(dataToUnprotect);
+            return Encoding.UTF8.GetString(unprotectedData);
         }
 
     }

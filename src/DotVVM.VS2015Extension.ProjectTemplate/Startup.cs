@@ -16,10 +16,12 @@ namespace $safeprojectname$
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM
-            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM(applicationPhysicalPath);
-            dotvvmConfiguration.RouteTable.Add("Default", "", "Views/default.dothtml", null);
-
-            // use static files
+            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
+#if DEBUG
+            dotvvmConfiguration.Debug = true;
+#endif
+        
+             // use static files
             app.UseStaticFiles(new StaticFileOptions()
             {
                 FileSystem = new PhysicalFileSystem(applicationPhysicalPath)

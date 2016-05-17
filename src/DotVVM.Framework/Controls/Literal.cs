@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using System.Net;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
@@ -87,7 +88,7 @@ namespace DotVVM.Framework.Controls
 
         protected override bool RendersHtmlTag => RenderSpanElement;
          
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             base.AddAttributesToRender(writer, context);
 
@@ -115,7 +116,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderSpanElement)
             {
@@ -127,7 +128,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!renderAsKnockoutBinding)
             {
@@ -150,7 +151,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderSpanElement)
             {

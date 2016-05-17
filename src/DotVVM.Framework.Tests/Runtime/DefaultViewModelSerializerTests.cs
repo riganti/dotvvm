@@ -12,6 +12,8 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
+using Microsoft.Owin.Security.DataProtection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -26,10 +28,11 @@ namespace DotVVM.Framework.Tests.Runtime
         public void TestInit()
         {
             configuration = DotvvmConfiguration.CreateDefault();
+            configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(() => new DpapiDataProtectionProvider("dotvvm test"));
             configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
             configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
 
-            serializer = new DefaultViewModelSerializer(new DefaultViewModelProtector());
+            serializer = new DefaultViewModelSerializer(configuration);
             context = new DotvvmRequestContext()
             {
                 Configuration = configuration,
@@ -47,7 +50,8 @@ namespace DotVVM.Framework.Tests.Runtime
                     }
                 },
                 ResourceManager = new ResourceManager(configuration),
-                Presenter = configuration.RouteTable.GetDefaultPresenter()
+                Presenter = configuration.RouteTable.GetDefaultPresenter(),
+                ViewModelSerializer = serializer
             };
         }
 
@@ -187,19 +191,19 @@ namespace DotVVM.Framework.Tests.Runtime
         {
             public string Property1 { get; set; }
 
-            [ViewModelProtection(ViewModelProtectionSettings.SignData)]
+            [Protect(ProtectMode.SignData)]
             public int Property2 { get; set; }
 
-            [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
+            [Protect(ProtectMode.EncryptData)]
             public DateTime Property3 { get; set; }
             public List<TestViewModel4> Property4 { get; set; }
         }
         public class TestViewModel4
         {
-            [ViewModelProtection(ViewModelProtectionSettings.SignData)]
+            [Protect(ProtectMode.SignData)]
             public string PropertyA { get; set; }
 
-            [ViewModelProtection(ViewModelProtectionSettings.EnryptData)]
+            [Protect(ProtectMode.EncryptData)]
             public int PropertyB { get; set; }
         }
 
@@ -229,7 +233,7 @@ namespace DotVVM.Framework.Tests.Runtime
 
         class TestViewModel5
         {
-            [ViewModelProtection(ViewModelProtectionSettings.SignData)]
+            [Protect(ProtectMode.SignData)]
             public int? ProtectedNullable { get; set; }
         }
 

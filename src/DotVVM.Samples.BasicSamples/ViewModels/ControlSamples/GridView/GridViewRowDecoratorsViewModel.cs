@@ -28,9 +28,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         public GridViewRowDecoratorsViewModel()
         {
             CustomersDataSet = new GridViewDataSet<CustomerData>() { PageSize = 10 };
+            CustomersDataSet2 = new GridViewDataSet<CustomerData>() { PageSize = 10, EditRowId = 2, PrimaryKeyPropertyName = "CustomerId" };
         }
 
         public GridViewDataSet<CustomerData> CustomersDataSet { get; set; }
+
+        public GridViewDataSet<CustomerData> CustomersDataSet2 { get; set; }
 
         public override Task PreRender()
         {
@@ -38,6 +41,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             if (!Context.IsPostBack)
             {
                 CustomersDataSet.LoadFromQueryable(GetData());
+                CustomersDataSet2.LoadFromQueryable(GetData());
             }
             return base.PreRender();
         }

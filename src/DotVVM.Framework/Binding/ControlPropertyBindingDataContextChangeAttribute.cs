@@ -4,9 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
-using DotVVM.Framework.Runtime.Compilation;
 using System.Linq.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Binding
 {
@@ -16,23 +15,38 @@ namespace DotVVM.Framework.Binding
 
         public override int Order { get; }
 
+        public bool AllowMissingProperty { get; set; }
+
+        public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
+        {
+            IPropertyDescriptor controlProperty;
+            if (!control.Metadata.TryGetProperty(PropertyName, out controlProperty))
+            {
+                throw new Exception($"The property '{PropertyName}' was not found on control '{control.Metadata.Type}'!");
+            }
+
+            IAbstractPropertySetter setter;
+            if (control.TryGetProperty(controlProperty, out setter))
+            {
+                var binding = setter as IAbstractPropertyBinding;
+                if (binding == null)
+                {
+                    return dataContext;
+                }
+                return binding.Binding.ResultType;
+            }
+            else
+            {
+                if (AllowMissingProperty) return dataContext;
+                else throw new Exception($"Property '{PropertyName}' is required on '{control.Metadata.Type.Name}'.");
+            }
+        }
+
         public ControlPropertyBindingDataContextChangeAttribute(string propertyName, int order = 0)
         {
             PropertyName = propertyName;
             Order = order;
         }
-
-        public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control, DotvvmProperty dproperty = null)
-        {
-            var property = DotvvmProperty.ResolveProperty(control.Metadata.Type, PropertyName);
-            ResolvedPropertySetter propertyValue;
-            if (control.Properties.TryGetValue(property, out propertyValue))
-            {
-                var binding = propertyValue as ResolvedPropertyBinding;
-                if (binding == null) return dataContext;
-                return binding.Binding.GetExpression().Type;
-            }
-            else return dataContext;
-        }
+        
     }
 }

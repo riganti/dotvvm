@@ -137,6 +137,7 @@ namespace DotVVM.Framework.Controls
         {
             var type = typeof(T);
             var property = type.GetProperty(SortExpression);
+            if (property == null) throw new Exception($"Could not sort by property '{SortExpression}', since it does not exists.");
             var parameter = Expression.Parameter(type, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
             var orderBy = Expression.Lambda(propertyAccess, parameter);

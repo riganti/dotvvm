@@ -84,8 +84,8 @@
       <HintPath>..\packages\Microsoft.Owin.StaticFiles.3.0.1\lib\net45\Microsoft.Owin.StaticFiles.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -115,6 +115,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Controls\ServerRenderedLabel.cs" />
+    <Compile Include="DotvvmStartup.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Resource.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -129,10 +130,17 @@
     <Compile Include="ViewModels\ComplexSamples\ChangedEvent\ChangedEventViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\FileUploadInRepeater\FileUploadInRepeaterViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\GridViewDataSet\GridViewDataSetViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\RedirectAndUrl\ScrollingPageViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\ServerRendering\AddingIntoEmptyRepeaterViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\ServerRendering\ArticleDTO.cs" />
+    <Compile Include="ViewModels\ComplexSamples\ServerRendering\ControlUsageSampleViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ComboBox\ComboBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\ContentPlaceHolder\ContentPlaceHolderMasterPageViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPageViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage_ContentTestViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\DataPager\DataPagerViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\EnabledProperty\EnabledProperty.cs" />
     <Compile Include="ViewModels\ControlSamples\FileUpload\FileUploadViewModel.cs" />
@@ -143,18 +151,40 @@
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewPagingSortingViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewRowDecoratorsViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\LargeGridViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\HtmlLiteral\HtmlLiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Literal\LiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
+    <Compile Include="ViewModels\ControlSamples\RouteLink\RouteLinkEnabledViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxFormatViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
+    <Compile Include="ViewModels\Errors\EncryptedPropertyInValueBindingViewModel.cs" />
+    <Compile Include="ViewModels\Errors\FieldInValueBindingViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandlingViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandlingViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\BindingPageInfo\BindingPageInfoViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\NastyChildViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Redirect\RedirectingPresenter.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\DateTimeValidationViewModel2.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\NullableDateTimeValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\EssentialTypeValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\NullValidationTargetViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ViewModelNesting\NestedViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\GridView\GridViewSizable.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
@@ -199,18 +229,22 @@
       <DesignTime>True</DesignTime>
     </Compile>
     <Compile Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.cs" />
+    <Compile Include="Views\ComplexSamples\ServerRendering\ArticleBase.cs" />
+    <Compile Include="Views\ComplexSamples\ServerRendering\ArticleDetail.cs" />
+    <Compile Include="Views\ComplexSamples\ServerRendering\ArticleEditor.cs" />
     <Compile Include="Views\FeatureSamples\Localization\Localization2.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
       <DependentUpon>Localization2.resx</DependentUpon>
     </Compile>
     <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.cs" />
+    <Compile Include="Views\FeatureSamples\MarkupControl\TextEditorControl.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="LICENSE.txt" />
+    <Content Include="Scripts\colResizable-1.5.min.js" />
+    <Content Include="Scripts\GridViewSizable.js" />
     <Content Include="Web.config" />
     <Content Include="packages.config" />
-    <Content Include="dotvvm.json" />
     <Content Include="Views\ControlSamples\Button\Button.dothtml" />
     <Content Include="Views\FeatureSamples\ServerComments\ServerComments.dothtml" />
     <Content Include="Views\Errors\MissingViewModel.dothtml" />
@@ -307,12 +341,47 @@
     <Content Include="Views\ControlSamples\Literal\Literal_FormatString.dothtml" />
     <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadInRepeater.dothtml" />
     <Content Include="Views\ComplexSamples\FileUploadInRepeater\FileUploadWrapper.dotcontrol" />
+    <Content Include="Views\Errors\ControlUsageValidation.dothtml" />
+    <Content Include="Views\ControlSamples\RouteLink\RouteLinkEnabled.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingValidation.dothtml" />
+    <Content Include="Views\ControlSamples\UpdateProgress\UpdateProgress.dothtml" />
+    <Content Include="test.zip" />
+    <Content Include="Views\FeatureSamples\BindingPageInfo\BindingPageInfo.dothtml" />
+    <Content Include="Views\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethods.dothtml" />
+    <Content Include="Views\Errors\EmptyBinding.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingValidation.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyGuid.dothtml" />
     <Content Include="Views\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyString.dothtml" />
+    <Content Include="Views\ComplexSamples\ServerRendering\ControlUsageSample.dothtml" />
+    <Content Include="Views\ComplexSamples\ServerRendering\ArticleEditor.dotcontrol" />
+    <Content Include="Views\ComplexSamples\ServerRendering\ControlUsageSampleRewriting.dothtml" />
+    <Content Include="Views\ComplexSamples\ServerRendering\MarkupControlInRepeaterEditing.dothtml" />
+    <Content Include="Views\ComplexSamples\ServerRendering\ArticleDetail.dotcontrol" />
+    <Content Include="Views\ComplexSamples\RedirectAndUrl\ScrollingPage.dothtml" />
+    <Content Include="Views\ComplexSamples\ServerRendering\AddingIntoEmptyRepeater.dothtml" />
+    <Content Include="Views\FeatureSamples\Directives\ViewModelMissingAssembly.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\GridViewSizable.dothtml" />
+    <Content Include="Views\FeatureSamples\BindingContexts\BindingContext.dothtml" />
+    <Content Include="Views\ControlSamples\Repeater\RouteLinkUrlSuffix.dothtml" />
+    <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandling.dothtml" />
+    <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandling.dothtml" />
+    <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderMasterPage.dotmaster" />
+    <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage.dothtml" />
+    <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage_ContentTest.dothtml" />
+    <Content Include="Views\Errors\EncryptedPropertyInValueBinding.dothtml" />
+    <Content Include="Views\Errors\FieldInValueBinding.dothtml" />
+    <Content Include="Views\ControlSamples\GridView\LargeGrid.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
+    <Content Include="Views\FeatureSamples\Resources\OnlineNonameResourceLoad.dothtml" />
+    <Content Include="Views\FeatureSamples\ViewModelNesting\NestedViewModel.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\EssentialTypeValidation.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServer.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\TextEditorControl.dotcontrol" />
+    <Content Include="Views\FeatureSamples\Validation\NullValidationTarget.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\DateTimeValidation.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\DateTimeValidation_NullableDateTime.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

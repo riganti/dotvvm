@@ -87,6 +87,7 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("test", parameters["Title"]);
         }
         
+
         [TestMethod]
         public void DotvvmRoute_IsMatch_UrlTwoParametersBothRequired_NoMatchWhenOneSpecified()
         {
@@ -238,6 +239,17 @@ namespace DotVVM.Framework.Tests.Routing
             var result = route.BuildUrl(new { Id2 = "aaa" });
 
             Assert.AreEqual("~/Article/Test/aaa/suffix", result);
+        }
+
+        
+        [TestMethod]
+        public void DotvvmRoute_BuildUrl_CombineParameters_OneOptional()
+        {
+            var route = new DotvvmRoute("Article/{Id?}", null, null, null);
+
+            var result = route.BuildUrl(new Dictionary<string, object>() { { "Id", 5 } }, new { });
+
+            Assert.AreEqual("~/Article/5", result);
         }
 
 

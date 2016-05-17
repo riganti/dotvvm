@@ -63,8 +63,8 @@
     <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.5.8.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.5.8\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
+    <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.7.3.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.7.3\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -72,12 +72,12 @@
     <Reference Include="System.Drawing" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="WebDriver, Version=2.48.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.2.48.2\lib\net40\WebDriver.dll</HintPath>
+    <Reference Include="WebDriver, Version=2.53.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.WebDriver.2.53.0\lib\net40\WebDriver.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="WebDriver.Support, Version=2.48.2.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.Support.2.48.2\lib\net40\WebDriver.Support.dll</HintPath>
+    <Reference Include="WebDriver.Support, Version=2.53.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Selenium.Support.2.53.0\lib\net40\WebDriver.Support.dll</HintPath>
       <Private>True</Private>
     </Reference>
   </ItemGroup>
@@ -94,6 +94,8 @@
     </Otherwise>
   </Choose>
   <ItemGroup>
+    <Compile Include="Complex\RedirectUrlFragment.cs" />
+    <Compile Include="Complex\PostbackUpdate.cs" />
     <Compile Include="Complex\AuthTests.cs" />
     <Compile Include="Complex\CascadeSelectorsTests.cs" />
     <Compile Include="Complex\DataTemplateTests.cs" />
@@ -101,11 +103,13 @@
     <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
     <Compile Include="Complex\SPAViewModelReapplicationTests.cs" />
+    <Compile Include="Control\ContentPlaceHolderTests.cs" />
     <Compile Include="Control\HtmlLiteralTests.cs" />
+    <Compile Include="Control\UpdateProgressTests.cs" />
     <Compile Include="Control\LiteralTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
     <Compile Include="Control\GridViewTests.cs" />
-    <Compile Include="Control\RouteLinkTests.cs" />
+    <Compile Include="Control\RepeaterTests.cs" />
     <Compile Include="Control\NestedRepeaterTests.cs" />
     <Compile Include="Control\RecursiveValidationSummaryTests.cs" />
     <Compile Include="Control\ButtonTagNameTests.cs" />
@@ -118,7 +122,12 @@
     <Compile Include="Control\CheckBoxTests.cs" />
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
+    <Compile Include="Feature\ActionFilterErrorHandlingTest.cs" />
+    <Compile Include="Feature\BindingContextsTest.cs" />
+    <Compile Include="Feature\BindingPageInfoTests.cs" />
+    <Compile Include="Feature\ChildViewModelInvokeMethodsTests.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
+    <Compile Include="Feature\DirectivesTests.cs" />
     <Compile Include="Feature\HtmlTagTests.cs" />
     <Compile Include="Feature\IdGenerationTests.cs" />
     <Compile Include="Feature\DynamicValidationTests.cs" />

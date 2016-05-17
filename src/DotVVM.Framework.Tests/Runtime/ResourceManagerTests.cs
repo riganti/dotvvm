@@ -5,10 +5,10 @@ using System.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using System.Globalization;
+using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -22,8 +22,8 @@ namespace DotVVM.Framework.Tests.Runtime
             var configuration = DotvvmConfiguration.CreateDefault();
             var manager = new ResourceManager(configuration);
 
-            manager.AddRequiredResource(Constants.JQueryResourceName);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.JQueryResourceName), manager.GetResourcesInOrder().First());
+            manager.AddRequiredResource(ResourceConstants.JQueryResourceName);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.JQueryResourceName), manager.GetResourcesInOrder().First());
         }
 
 
@@ -33,11 +33,11 @@ namespace DotVVM.Framework.Tests.Runtime
             var configuration = DotvvmConfiguration.CreateDefault();
             var manager = new ResourceManager(configuration);
 
-            manager.AddRequiredResource(Constants.DotvvmResourceName);
+            manager.AddRequiredResource(ResourceConstants.DotvvmResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[1]);
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmResourceName), resourcesInCorrectOrder[2]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.KnockoutJSResourceName), resourcesInCorrectOrder[0]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName + ".internal"), resourcesInCorrectOrder[1]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmResourceName), resourcesInCorrectOrder[2]);
         }
 
 
@@ -47,9 +47,9 @@ namespace DotVVM.Framework.Tests.Runtime
             var configuration = DotvvmConfiguration.CreateDefault();
             var manager = new ResourceManager(configuration);
 
-            manager.AddRequiredResource(Constants.DotvvmFileUploadCssResourceName);
+            manager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
             var resourcesInCorrectOrder = manager.GetResourcesInOrder().ToList();
-            Assert.AreEqual(configuration.Resources.FindResource(Constants.DotvvmFileUploadCssResourceName), resourcesInCorrectOrder[0]);
+            Assert.AreEqual(configuration.Resources.FindResource(ResourceConstants.DotvvmFileUploadCssResourceName), resourcesInCorrectOrder[0]);
         }
 
         /// <summary>
@@ -64,11 +64,11 @@ namespace DotVVM.Framework.Tests.Runtime
         'scripts': {{ '{0}': {{ 'url': 'different url', 'globalObjectName': '$'}} }},
         'stylesheets': {{ 'newResource': {{ 'url': 'test' }} }}
     }}
-}}", Constants.JQueryResourceName);
+}}", ResourceConstants.JQueryResourceName);
             var configuration = DotvvmConfiguration.CreateDefault();
             JsonConvert.PopulateObject(json.Replace("'", "\""), configuration);
 
-            Assert.AreEqual("different url", configuration.Resources.FindResource(Constants.JQueryResourceName).Url);
+            Assert.AreEqual("different url", configuration.Resources.FindResource(ResourceConstants.JQueryResourceName).Url);
             Assert.AreEqual("test", configuration.Resources.FindResource("newResource").Url);
         }
 

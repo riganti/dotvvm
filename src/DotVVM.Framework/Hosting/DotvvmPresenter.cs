@@ -9,7 +9,6 @@ using Microsoft.Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Filters;
@@ -17,7 +16,9 @@ using DotVVM.Framework.Security;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -32,6 +33,7 @@ namespace DotVVM.Framework.Hosting
         public IOutputRenderer OutputRenderer { get; private set; }
 
         public ICsrfProtector CsrfProtector { get; private set; }
+
         public string ApplicationPath { get; private set; }
 
         /// <summary>
@@ -74,11 +76,6 @@ namespace DotVVM.Framework.Hosting
             {
                 await ProcessRequestCore(context);
             }
-            catch (DotvvmInterruptRequestExecutionException)
-            {
-                // the response has already been generated, do nothing
-                return;
-            }
             catch (UnauthorizedAccessException)
             {
                 context.OwinContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
@@ -100,172 +97,171 @@ namespace DotVVM.Framework.Hosting
             }
             if (context.OwinContext.Request.Headers["X-PostbackType"] == "StaticCommand")
             {
-                ProcessStaticCommandRequest(context);
+                await ProcessStaticCommandRequest(context);
                 return;
             }
-            var isPostBack = DetermineIsPostBack(context.OwinContext);
-            context.IsPostBack = isPostBack;
+            var isPostBack = context.IsPostBack = DetermineIsPostBack(context.OwinContext);
             context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
 
             // build the page view
             var page = DotvvmViewBuilder.BuildView(context);
             page.SetValue(Internal.RequestContextProperty, context);
-
-            // run the preinit phase in the page
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit);
-
+            context.View = page;
+            
             // locate and create the view model
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
-            page.DataContext = context.ViewModel;
 
             // get action filters
             var globalFilters = context.Configuration.Runtime.GlobalFilters.ToList();
             var viewModelFilters = context.ViewModel.GetType().GetCustomAttributes<ActionFilterAttribute>(true).ToList();
 
-            // run OnViewModelCreated on action filters
-            foreach (var filter in globalFilters.Concat(viewModelFilters))
+            try
             {
-                filter.OnViewModelCreated(context);
-            }
 
-            // init the view model lifecycle
-            if (context.ViewModel is IDotvvmViewModel)
-            {
-                ((IDotvvmViewModel)context.ViewModel).Context = context;
-                await ((IDotvvmViewModel)context.ViewModel).Init();
-            }
+                // run the preinit phase in the page
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit);
+                page.DataContext = context.ViewModel;
 
-            // run the init phase in the page
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
+                // run OnViewModelCreated on action filters
+                foreach (var filter in globalFilters.Concat(viewModelFilters))
+                {
+                    filter.OnViewModelCreated(context);
+                }
 
-            if (!isPostBack)
-            {
-                // perform standard get
+                // init the view model lifecycle
                 if (context.ViewModel is IDotvvmViewModel)
                 {
-                    await ((IDotvvmViewModel)context.ViewModel).Load();
+                    ((IDotvvmViewModel) context.ViewModel).Context = context;
+                    await ((IDotvvmViewModel) context.ViewModel).Init();
                 }
 
-                // run the load phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
-            }
-            else
-            {
-                // perform the postback
-                string postData;
-                using (var sr = new StreamReader(context.OwinContext.Request.Body))
+                // run the init phase in the page
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Init);
+
+                if (!isPostBack)
                 {
-                    postData = await sr.ReadToEndAsync();
-                }
-                ViewModelSerializer.PopulateViewModel(context, postData);
+                    // perform standard get
+                    if (context.ViewModel is IDotvvmViewModel)
+                    {
+                        await ((IDotvvmViewModel) context.ViewModel).Load();
+                    }
 
-                // validate CSRF token 
-                CsrfProtector.VerifyToken(context, context.CsrfToken);
+                    // run the load phase in the page
+                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                }
+                else
+                {
+                    // perform the postback
+                    string postData;
+                    using (var sr = new StreamReader(context.OwinContext.Request.Body))
+                    {
+                        postData = await sr.ReadToEndAsync();
+                    }
+                    ViewModelSerializer.PopulateViewModel(context, postData);
+
+                    // validate CSRF token 
+                    CsrfProtector.VerifyToken(context, context.CsrfToken);
+
+                    if (context.ViewModel is IDotvvmViewModel)
+                    {
+                        await ((IDotvvmViewModel) context.ViewModel).Load();
+                    }
+
+                    // validate CSRF token 
+                    CsrfProtector.VerifyToken(context, context.CsrfToken);
+
+                    // run the load phase in the page
+                    DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+
+                    // invoke the postback command
+                    ActionInfo actionInfo;
+                    ViewModelSerializer.ResolveCommand(context, page, postData, out actionInfo);
+
+                    if (actionInfo != null)
+                    {
+                        // get filters
+                        var methodFilters = actionInfo.Binding.ActionFilters == null ? globalFilters.Concat(viewModelFilters).ToArray() :
+                            globalFilters.Concat(viewModelFilters).Concat(actionInfo.Binding.ActionFilters).ToArray();
+
+                        await ExecuteCommand(actionInfo, context, methodFilters);
+                    }
+                }
 
                 if (context.ViewModel is IDotvvmViewModel)
                 {
-                    await ((IDotvvmViewModel)context.ViewModel).Load();
+                    await ((IDotvvmViewModel) context.ViewModel).PreRender();
                 }
 
-                // validate CSRF token 
-                CsrfProtector.VerifyToken(context, context.CsrfToken);
+                // run the prerender phase in the page
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender);
 
-                // run the load phase in the page
-                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
+                // run the prerender complete phase in the page
+                DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete);
 
-                // invoke the postback command
-                ActionInfo actionInfo;
-                ViewModelSerializer.ResolveCommand(context, page, postData, out actionInfo);
-
-                if (actionInfo != null)
+                // generate CSRF token if required
+                if (string.IsNullOrEmpty(context.CsrfToken))
                 {
-                    // get filters
-                    var methodFilters = actionInfo.Binding.ActionFilters == null ? globalFilters.Concat(viewModelFilters).ToArray() :
-                       globalFilters.Concat(viewModelFilters).Concat(actionInfo.Binding.ActionFilters).ToArray();
+                    context.CsrfToken = CsrfProtector.GenerateToken(context);
+                }
 
-                    // run OnCommandExecuting on action filters
-                    foreach (var filter in methodFilters)
-                    {
-                        filter.OnCommandExecuting(context, actionInfo);
-                    }
+                // run OnResponseRendering on action filters
+                foreach (var filter in globalFilters.Concat(viewModelFilters))
+                {
+                    filter.OnResponseRendering(context);
+                }
 
-                    Exception commandException = null;
-                    try
-                    {
-                        var result = actionInfo.Action();
-                        if (result is Task) await (Task)result;
-                    }
-                    catch (Exception ex)
-                    {
-                        if (ex is TargetInvocationException)
-                        {
-                            ex = ex.InnerException;
-                        }
-                        if (ex is DotvvmInterruptRequestExecutionException)
-                        {
-                            throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
-                        }
-                        commandException = ex;
-                    }
+                // render the output
+                ViewModelSerializer.BuildViewModel(context);
+                if (!context.IsInPartialRenderingMode)
+                {
+                    // standard get
+                    await OutputRenderer.WriteHtmlResponse(context, page);
+                }
+                else
+                {
+                    // postback or SPA content
+                    OutputRenderer.RenderPostbackUpdatedControls(context, page);
+                    ViewModelSerializer.AddPostBackUpdatedControls(context);
+                    await OutputRenderer.WriteViewModelResponse(context, page);
+                }
 
-                    // run OnCommandExecuted on action filters
-                    foreach (var filter in methodFilters)
-                    {
-                        filter.OnCommandExecuted(context, actionInfo, commandException);
-                    }
-
-                    if (commandException != null && !context.IsCommandExceptionHandled)
-                    {
-                        throw new Exception("Unhandled exception occured in the command!", commandException);
-                    }
+                if (context.ViewModel != null)
+                {
+                    ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
             }
-
-            if (context.ViewModel is IDotvvmViewModel)
+            catch (DotvvmInterruptRequestExecutionException)
             {
-                await ((IDotvvmViewModel)context.ViewModel).PreRender();
+                throw;
             }
-
-            // run the prerender phase in the page
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRender);
-
-            // run the prerender complete phase in the page
-            DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreRenderComplete);
-
-            // generate CSRF token if required
-            if (string.IsNullOrEmpty(context.CsrfToken))
+            catch (DotvvmHttpException)
             {
-                context.CsrfToken = CsrfProtector.GenerateToken(context);
+                throw;
             }
-
-            // run OnResponseRendering on action filters
-            foreach (var filter in globalFilters.Concat(viewModelFilters))
+            catch (DotvvmControlException) when (!context.Configuration.Debug)
             {
-                filter.OnResponseRendering(context);
+                throw;
             }
-
-            // render the output
-            ViewModelSerializer.BuildViewModel(context);
-            if (!context.IsInPartialRenderingMode)
+            catch (DotvvmCompilationException) when (!context.Configuration.Debug)
             {
-                // standard get
-                await OutputRenderer.WriteHtmlResponse(context, page);
+                throw;
             }
-            else
+            catch (Exception ex)
             {
-                // postback or SPA content
-                OutputRenderer.RenderPostbackUpdatedControls(context, page);
-                ViewModelSerializer.AddPostBackUpdatedControls(context);
-                await OutputRenderer.WriteViewModelResponse(context, page);
-            }
-
-            if (context.ViewModel != null)
-            {
-                ViewModelLoader.DisposeViewModel(context.ViewModel);
+                // run OnPageException on action filters
+                foreach (var filter in globalFilters.Concat(viewModelFilters))
+                {
+                    filter.OnPageException(context, ex);
+                    if (context.IsPageExceptionHandled)
+                    {
+                        context.InterruptRequest();
+                    }
+                }
+                throw;
             }
         }
 
-        public void ProcessStaticCommandRequest(DotvvmRequestContext context)
+        public async Task ProcessStaticCommandRequest(DotvvmRequestContext context)
         {
             JObject postData;
             using (var jsonReader = new JsonTextReader(new StreamReader(context.OwinContext.Request.Body)))
@@ -285,26 +281,44 @@ namespace DotVVM.Framework.Hosting
 
             if (!Attribute.IsDefined(methodInfo, typeof(AllowStaticCommandAttribute)))
             {
-                throw new DotvvmHttpException("method validation failed");
+                throw new DotvvmHttpException($"This method cannot be called from the static command. If you need to call this method, add the '{nameof(AllowStaticCommandAttribute)}' to the method.");
             }
             var target = methodInfo.IsStatic ? null : arguments[0].ToObject(methodInfo.DeclaringType);
-            var marguments = arguments.Skip(1).Zip(methodInfo.GetParameters(),
-                (arg, parameter) => arg.ToObject(parameter.ParameterType)).ToArray();
+            var methodArguments =
+                arguments.Skip(methodInfo.IsStatic ? 0 : 1)
+                .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
+                .ToArray();
             var actionInfo = new ActionInfo()
             {
                 IsControlCommand = false,
-                Action = () => methodInfo.Invoke(target, marguments)
+                Action = () => methodInfo.Invoke(target, methodArguments)
             };
-            var filters = methodInfo.GetCustomAttributes<ActionFilterAttribute>();
-            foreach (var filter in filters)
+            var filters = context.Configuration.Runtime.GlobalFilters
+                .Concat(methodInfo.DeclaringType.GetCustomAttributes<ActionFilterAttribute>())
+                .Concat(methodInfo.GetCustomAttributes<ActionFilterAttribute>())
+                .ToArray();
+
+            var task = ExecuteCommand(actionInfo, context, filters);
+            await task;
+            object result = TaskUtils.GetResult(task);
+
+            using (var writer = new StreamWriter(context.OwinContext.Response.Body))
             {
-                filter.OnCommandExecuting(context, actionInfo);
+                writer.WriteLine(JsonConvert.SerializeObject(result));
             }
-            Exception exception = null;
+        }
+
+        protected Task ExecuteCommand(ActionInfo action, DotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
+        {
+            // run OnCommandExecuting on action filters
+            foreach (var filter in methodFilters)
+            {
+                filter.OnCommandExecuting(context, action);
+            }
             object result = null;
             try
             {
-                result = methodInfo.Invoke(target, marguments);
+                result = action.Action();
             }
             catch (Exception ex)
             {
@@ -316,31 +330,31 @@ namespace DotVVM.Framework.Hosting
                 {
                     throw new DotvvmInterruptRequestExecutionException("The request execution was interrupted in the command!", ex);
                 }
-                exception = ex;
-            }
-            foreach (var filter in filters)
-            {
-                filter.OnCommandExecuted(context, actionInfo, exception);
-            }
-            if (exception != null)
-            {
-                throw new Exception("unhandled exception in command", exception);
+                context.CommandException = ex;
             }
 
-            using (var writer = new StreamWriter(context.OwinContext.Response.Body))
+            // run OnCommandExecuted on action filters
+            foreach (var filter in methodFilters.Reverse())
             {
-                writer.WriteLine(JsonConvert.SerializeObject(result));
+                filter.OnCommandExecuted(context, action, context.CommandException);
             }
+
+            if (context.CommandException != null && !context.IsCommandExceptionHandled)
+            {
+                throw new Exception("Unhandled exception occured in the command!", context.CommandException);
+            }
+
+            return result as Task ?? (result == null ? TaskUtils.GetCompletedTask() : Task.FromResult(result));
         }
 
         public static bool DetermineIsPostBack(IOwinContext context)
         {
-            return context.Request.Method == "POST";
+            return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.SpaPostBackHeaderName);
         }
 
         public static bool DetermineSpaRequest(IOwinContext context)
         {
-            return !string.IsNullOrEmpty(context.Request.Headers[Constants.SpaContentPlaceHolderHeaderName]);
+            return !string.IsNullOrEmpty(context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName]);
         }
 
         public static bool DeterminePartialRendering(IOwinContext context)
@@ -350,7 +364,7 @@ namespace DotVVM.Framework.Hosting
 
         public static string DetermineSpaContentPlaceHolderUniqueId(IOwinContext context)
         {
-            return context.Request.Headers[Constants.SpaContentPlaceHolderHeaderName];
+            return context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName];
         }
     }
 }

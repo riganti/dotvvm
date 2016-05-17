@@ -1,4 +1,3 @@
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml;
 using DotVVM.VS2015Extension.DotvvmPageWizard;
 using EnvDTE;
@@ -8,6 +7,7 @@ using Microsoft.VisualStudio.Shell;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using Task = System.Threading.Tasks.Task;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base

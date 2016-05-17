@@ -23,20 +23,35 @@ class DotvvmSerialization {
 
         // handle arrays
         if (viewModel instanceof Array) {
-            var array = [];
-            for (var i = 0; i < viewModel.length; i++) {
-                array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
-            }
-
-            if (ko.isObservable(target)) {
-                if (!target.removeAll) {
-                    // if the previous value was null, the property is not an observable array - make it
-                    ko.utils.extend(target, ko.observableArray['fn']);
-                    target = target.extend({ 'trackArrayChanges': true });
+            if (ko.isObservable(target) && target.removeAll && target().length === viewModel.length) {
+                // the array has the same number of items, update it
+                var targetArray = target();
+                for (var i = 0; i < viewModel.length; i++) {
+                    var targetItem = targetArray[i]();
+                    var deserialized = this.deserialize(viewModel[i], targetItem, deserializeAll);
+                    if (targetItem !== deserialized) {
+                        // update the observable only if the item has changed
+                        targetArray[i](deserialized);
+                    }
                 }
-                target(array);
+
             } else {
-                target = ko.observableArray(array);
+                // rebuild the array because it is different
+                var array = [];
+                for (var i = 0; i < viewModel.length; i++) {
+                    array.push(this.wrapObservable(this.deserialize(viewModel[i], {}, deserializeAll)));
+                }
+
+                if (ko.isObservable(target)) {
+                    if (!target.removeAll) {
+                        // if the previous value was null, the property is not an observable array - make it
+                        ko.utils.extend(target, ko.observableArray['fn']);
+                        target = target.extend({ 'trackArrayChanges': true });
+                    }
+                    target(array);
+                } else {
+                    target = ko.observableArray(array);
+                }
             }
             return target;
         }
@@ -77,7 +92,7 @@ class DotvvmSerialization {
                     }
                 } else {
                     if (ko.isObservable(result[prop])) {
-                        if (deserialized !== result[prop]) result[prop](deserialized);
+                        if (deserialized !== result[prop]()) result[prop](deserialized);
                     } else {
                         result[prop] = ko.observable(deserialized);
                     }
@@ -99,9 +114,9 @@ class DotvvmSerialization {
         return target;
     }
 
-    private wrapObservable(obj: any) {
+    public wrapObservable<T>(obj: T): KnockoutObservable<T> {
         if (!ko.isObservable(obj)) return ko.observable(obj);
-        return obj;
+        return <KnockoutObservable<T>><any>obj;
     }
 
     public serialize(viewModel: any, opt: ISerializationOptions = {}): any {
@@ -158,7 +173,7 @@ class DotvvmSerialization {
                 var value = viewModel[prop];
 
                 if (opt.ignoreSpecialProperties && prop[0] === "$") continue;
-                if (!opt.serializeAll && /\$options$/.test(prop)) {
+                if (!opt.serializeAll && (/\$options$/.test(prop) || prop == "$validationErrors")) {
                     continue;
                 }
                 if (typeof (value) === "undefined") {
@@ -192,10 +207,44 @@ class DotvvmSerialization {
                 else {
                     result[prop] = this.serialize(value, opt);
                 }
+                if (options && options.type && !this.validateType(result[prop], options.type)) {
+                    delete result[prop];
+                    options.wasInvalid = true;
+                }
             }
         }
         if (pathProp) opt.path.push(pathProp);
         return result;
+    }
+
+    public validateType(value, type: string) {
+        var nullable = type[type.length - 1] === "?";
+        if (nullable) {
+            type = type.substr(0, type.length - 1);
+        }
+        if (nullable && (typeof(value) === "undefined" || value == null)) {
+            return true;
+        }
+
+        var intmatch = /(u?)int(\d*)/.exec(type);
+        if (intmatch) {
+            if (!/^-?\d*$/.test(value)) return false;
+
+            var unsigned = intmatch[1] === "u";
+            var bits = parseInt(intmatch[2]);
+            var minValue = 0;
+            var maxValue = Math.pow(2, bits) - 1;
+            if (!unsigned) {
+                minValue = -((maxValue / 2) | 0);
+                maxValue = maxValue + minValue;
+            }
+            var int = parseInt(value);
+            return int >= minValue && int <= maxValue && int === parseFloat(value);
+        }
+        if (type === "number" || type === "single" || type === "double" || type === "decimal") {
+            return !isNaN(value) || value === NaN;
+        }
+        return true;
     }
 
     private findObject(obj: any, matcher: (o) => boolean): string[] {

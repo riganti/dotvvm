@@ -1,10 +1,5 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.SeleniumCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DotVVM.Samples.Tests
 {
@@ -20,7 +15,7 @@ namespace DotVVM.Samples.Tests
                 browser.First("p.summary")
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM.Framework.Exceptions.DotvvmCompilationException") &&
+                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
                             s.Contains("@viewModel") &&
                             s.Contains("missing")
                         );
@@ -36,8 +31,8 @@ namespace DotVVM.Samples.Tests
                 browser.First("p.summary")
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM.Framework.Exceptions.DotvvmCompilationException") &&
-                            s.Contains("required in the @viewModel directive in was not found!")
+                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
+                            s.Contains("required in the @viewModel directive was not found!")
                             );
             });
         }
@@ -83,10 +78,10 @@ namespace DotVVM.Samples.Tests
             {
                 browser.NavigateToUrl("Errors/NotAllowedHardCodedPropertyValue");
                 browser.First("[class='exceptionMessage']")
-                    .CheckIfInnerText(
+                .CheckIfInnerText(
                         s =>
-                            s.Contains("cannot contain hard coded value.")
-                            );
+                            s.ToLower().Contains("String was not recognized as a valid Boolean.".ToLower())
+                            , "Expected message is 'String was not recognized as a valid Boolean.'");
 
                 browser.First("[class='errorUnderline']")
                     .CheckIfInnerText(s => s.Contains("NotAllowedHardCodedValue"));
@@ -168,6 +163,18 @@ namespace DotVVM.Samples.Tests
 
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
                 browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("!"));
+            });
+        }
+
+        [TestMethod]
+        public void Error_EmptyBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl("Errors/EmptyBinding");
+
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
+                browser.ElementAt(".errorUnderline", 1).CheckIfInnerText(s => s.Contains("{{value: }}"));
             });
         }
 

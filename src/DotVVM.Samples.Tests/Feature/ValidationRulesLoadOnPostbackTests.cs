@@ -12,6 +12,9 @@ namespace DotVVM.Samples.Tests.Feature
     [TestClass]
     public class ValidationRulesLoadOnPostbackTests : SeleniumTestBase
     {
+        /// <summary>
+        /// Feature_s the validation rules load on postback.
+        /// </summary>
         [TestMethod]
         [Timeout(120000)]
         public void Feature_ValidationRulesLoadOnPostback()

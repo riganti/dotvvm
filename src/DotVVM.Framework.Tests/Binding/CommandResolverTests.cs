@@ -3,9 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Runtime.Commands;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -29,7 +31,7 @@ namespace DotVVM.Framework.Tests.Binding
                 NumberToPass = 16
             };
             var viewRoot = new DotvvmView() { DataContext = testObject };
-            viewRoot.SetBinding(Validate.TargetProperty, new ValueBindingExpression(vm => vm.Last(), "$root"));
+            viewRoot.SetBinding(Controls.Validation.TargetProperty, new ValueBindingExpression(vm => vm.Last(), "$root"));
 
             var placeholder = new HtmlGenericControl("div");
             placeholder.SetBinding(DotvvmBindableObject.DataContextProperty, path[0]);

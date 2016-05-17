@@ -6,6 +6,10 @@ using Microsoft.Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Concurrent;
+using System.Threading;
+using DotVVM.Framework.Runtime;
+using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -26,18 +30,22 @@ namespace DotVVM.Framework.Hosting
         {
             Configuration = configuration;
         }
-
+        private int configurationSaved = 0;
         /// <summary>
         /// Process an individual request.
         /// </summary>
-        public override Task Invoke(IOwinContext context)
+        public override async Task Invoke(IOwinContext context)
         {
+            if (Interlocked.Exchange(ref configurationSaved, 1) == 0) {
+                VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
+            }
             // create the context
             var dotvvmContext = new DotvvmRequestContext()
             {
                 OwinContext = context,
                 Configuration = Configuration,
-                ResourceManager = new ResourceManager(Configuration)
+                ResourceManager = new ResourceManager(Configuration),
+                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
             };
 
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
@@ -60,13 +68,20 @@ namespace DotVVM.Framework.Hosting
                 dotvvmContext.Query = context.Request.Query
                     .ToDictionary(d => d.Key, d => d.Value.Length == 1 ? (object) d.Value[0] : d.Value);
 
-                return route.ProcessRequest(dotvvmContext);
+                try
+                {
+                    await route.ProcessRequest(dotvvmContext);
+                    return;
+                }
+                catch (DotvvmInterruptRequestExecutionException)
+                {
+                    // the response has already been generated, do nothing
+                    return;
+                }
             }
-            else
-            {
-                // we cannot handle the request, pass it to another component
-                return Next.Invoke(context);
-            }
+            
+            // we cannot handle the request, pass it to another component
+            await Next.Invoke(context);
         }
 
         /// <summary>

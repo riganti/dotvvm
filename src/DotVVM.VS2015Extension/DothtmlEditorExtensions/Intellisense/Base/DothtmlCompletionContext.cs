@@ -1,6 +1,4 @@
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml;
 using EnvDTE80;
 using Microsoft.CodeAnalysis;
@@ -8,6 +6,8 @@ using Microsoft.VisualStudio.Language.Intellisense;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base
 {

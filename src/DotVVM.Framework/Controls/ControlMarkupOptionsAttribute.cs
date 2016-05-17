@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Controls
     {
 
 
-        public bool AllowContent { get; set; }
+        public bool AllowContent { get; set; } = true;
 
         public string DefaultContentProperty { get; set; }
 

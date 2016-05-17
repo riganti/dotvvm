@@ -19,7 +19,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
                 new CustomerDataValidation() { CustomerId = 1, Name = "John Doe", BirthDate = DateTime.Parse("1976-04-01"), Email= "test@test.cz", Money = 120011 },
                 new CustomerDataValidation() { CustomerId = 2, Name = "John Deer", BirthDate = DateTime.Parse("1984-03-02"), Email= "test@test.cz", Money = 1550011 },
                 new CustomerDataValidation() { CustomerId = 3, Name = "Johnny Walker", BirthDate = DateTime.Parse("1934-01-03"), Email= "test@test.cz", Money = 210000},
-
             }.AsQueryable();
         }
 

@@ -4,8 +4,10 @@ using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -15,21 +17,23 @@ namespace DotVVM.Framework.Controls
         private const string RouteParameterPrefix = "Param-";
 
 
-        public static void WriteRouteLinkHrefAttribute(string routeName, HtmlGenericControl control, IHtmlWriter writer, RenderContext context)
+        public static void WriteRouteLinkHrefAttribute(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!control.RenderOnServer)
             {
-                writer.AddKnockoutDataBind("attr", "{ href: " + GenerateKnockoutHrefExpression(routeName, control, context) + "}");
+                var group = new KnockoutBindingGroup();
+                group.Add("href", GenerateKnockoutHrefExpression(routeName, control, urlSuffixProperty, context));
+                writer.AddKnockoutDataBind("attr", group);
             }
             else
             {
-                writer.AddAttribute("href", EvaluateRouteUrl(routeName, control, context));
+                writer.AddAttribute("href", EvaluateRouteUrl(routeName, control, urlSuffixProperty, context));
             }
         }
 
-        public static string EvaluateRouteUrl(string routeName, HtmlGenericControl control, RenderContext context)
+        public static string EvaluateRouteUrl(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IDotvvmRequestContext context)
         {
-            var coreUrl = GenerateRouteUrlCore(routeName, control, context);
+            var coreUrl = GenerateRouteUrlCore(routeName, control, context) + (control.GetValue(urlSuffixProperty) as string ?? "");
 
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
@@ -37,11 +41,11 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                return context.RequestContext.TranslateVirtualPath(coreUrl);
+                return context.TranslateVirtualPath(coreUrl);
             }
         }
 
-        private static string GenerateRouteUrlCore(string routeName, HtmlGenericControl control, RenderContext context)
+        private static string GenerateRouteUrlCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
         {
             var route = GetRoute(context, routeName);
             var parameters = ComposeNewRouteParameters(control, context, route);
@@ -57,26 +61,42 @@ namespace DotVVM.Framework.Controls
             return route.BuildUrl(parameters);
         }
 
-        private static RouteBase GetRoute(RenderContext context, string routeName)
+        private static RouteBase GetRoute(IDotvvmRequestContext context, string routeName)
         {
-            return context.RequestContext.Configuration.RouteTable[routeName];
+            return context.Configuration.RouteTable[routeName];
         }
 
-        public static string GenerateKnockoutHrefExpression(string routeName, HtmlGenericControl control, RenderContext context)
+        public static string GenerateKnockoutHrefExpression(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IDotvvmRequestContext context)
         {
             var link = GenerateRouteLinkCore(routeName, control, context);
 
+            var urlSuffix = GetUrlSuffixExpression(control, urlSuffixProperty);
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
             {
-                return string.Format("'#!/' + {0}", link);
+                return $"'#!/' + {link} + {urlSuffix}";
             }
             else
             {
-                return string.Format("'{0}' + {1}", context.RequestContext.TranslateVirtualPath("~/"), link);
+                return $"'{context.TranslateVirtualPath("~/")}' + {link} + {urlSuffix}";
             }
         }
 
-        private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, RenderContext context)
+        private static string GetUrlSuffixExpression(HtmlGenericControl control, DotvvmProperty urlSuffixProperty)
+        {
+            var urlSuffixBinding = control.GetValueBinding(urlSuffixProperty);
+            string urlSuffix;
+            if (urlSuffixBinding != null)
+            {
+                urlSuffix = urlSuffixBinding.GetKnockoutBindingExpression();
+            }
+            else
+            {
+                urlSuffix = JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
+            }
+            return urlSuffix;
+        }
+
+        private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
         {
             var route = GetRoute(context, routeName);
             var parameters = ComposeNewRouteParameters(control, context, route);
@@ -116,10 +136,10 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private static Dictionary<string, object> ComposeNewRouteParameters(HtmlGenericControl control, RenderContext context, RouteBase route)
+        private static Dictionary<string, object> ComposeNewRouteParameters(HtmlGenericControl control, IDotvvmRequestContext context, RouteBase route)
         {
             var parameters = new Dictionary<string, object>(route.DefaultValues, StringComparer.OrdinalIgnoreCase);
-            foreach (var param in context.RequestContext.Parameters)
+            foreach (var param in context.Parameters)
             {
                 parameters[param.Key] = param.Value;
             }

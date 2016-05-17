@@ -1,13 +1,12 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
-using DotVVM.Framework.Runtime.Compilation;
-using DotVVM.Framework.Exceptions;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -51,7 +50,7 @@ namespace DotVVM.Framework.Runtime
             while (IsNestedInMasterPage(contentPage))
             {
                 // load master page
-                var masterPageFile = contentPage.Directives[Constants.MasterPageDirective];
+                var masterPageFile = contentPage.Directives[ParserConstants.MasterPageDirective];
                 var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).BuildControl(controlBuilderFactory);
 
                 FillsDefaultDirectives(masterPage, context.Configuration);
@@ -83,7 +82,7 @@ namespace DotVVM.Framework.Runtime
                 if (spaContentPlaceHolders.Count == 0 || spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId() != context.GetSpaContentPlaceHolderUniqueId())
                 {
                     // the client has loaded different page which does not contain current SpaContentPlaceHolder - he needs to be redirected
-                    context.Redirect(context.OwinContext.Request.Uri.AbsoluteUri);
+                    context.RedirectToUrl(context.OwinContext.Request.Uri.AbsoluteUri);
                 }
             }
         }
@@ -93,7 +92,7 @@ namespace DotVVM.Framework.Runtime
         /// </summary>
         private bool IsNestedInMasterPage(DotvvmView page)
         {
-            return page.Directives.ContainsKey(Constants.MasterPageDirective);
+            return page.Directives.ContainsKey(ParserConstants.MasterPageDirective);
         }
         /// <summary>
         /// Fills default directives if specific directives are not set
@@ -131,15 +130,16 @@ namespace DotVVM.Framework.Runtime
                 var placeHolder = placeHolders.SingleOrDefault(p => p.ID == content.ContentPlaceHolderID);
                 if (placeHolder == null)
                 {
-                    throw new Exception(string.Format("The placeholder with ID '{0}' was not found in the master page!", content.ContentPlaceHolderID));
+                    throw new DotvvmControlException(content, $"The placeholder with ID '{content.ContentPlaceHolderID}' was not found in the master page '{masterPage.GetValue(Internal.MarkupFileNameProperty)}'!");
                 }
 
                 // replace the contents
                 content.Parent.Children.Remove(content);
                 placeHolder.Children.Clear();
                 placeHolder.Children.Add(content);
-                content.SetValue(Internal.IsMasterPageCompositionFinished, true);
+                content.SetValue(Internal.IsMasterPageCompositionFinishedProperty, true);
                 content.SetValue(DotvvmView.DirectivesProperty, childPage.Directives);
+                content.SetValue(Internal.MarkupFileNameProperty, childPage.GetValue(Internal.MarkupFileNameProperty));
             }
 
 
@@ -157,7 +157,7 @@ namespace DotVVM.Framework.Runtime
             // check that no placeholder is nested in another one and that each one has valid ID
             foreach (var placeHolder in placeHolders)
             {
-                placeHolder.EnsureControlHasId(autoGenerate: false);
+                if (placeHolder.ID == null) throw new DotvvmControlException(placeHolder, "PlaceHolder has to have a ID");
                 if (placeHolder.GetAllAncestors().Intersect(placeHolders).Any())
                 {
                     throw new Exception(string.Format("The ContentPlaceHolder with ID '{0}' cannot be nested in another ContentPlaceHolder!", placeHolder.ID)); // TODO: exception handling
@@ -179,7 +179,7 @@ namespace DotVVM.Framework.Runtime
 
             // make sure that the Content controls are not nested in other elements
             var contents = childPage.GetAllDescendants().OfType<Content>()
-                .Where(c => !(bool) c.GetValue(Internal.IsMasterPageCompositionFinished))
+                .Where(c => !(bool) c.GetValue(Internal.IsMasterPageCompositionFinishedProperty))
                 .ToList();
             if (contents.Any(c => c.Parent != childPage))
             {

@@ -3,7 +3,6 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Resources;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls

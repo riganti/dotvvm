@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.DataTemplate.EmptyDataTemplateRepeaterGridViewViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.DataTemplate.EmptyDataTemplateRepeaterGridViewViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 

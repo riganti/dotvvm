@@ -7,7 +7,7 @@
 </head>
 <body>
     <!-- DO NOT CHANGE THE TAG NAME AND PROPERTY NAME- the tag name is used in tests-->
-	<dot:GridViewTextColumn NonExistingProperty="test" />
+	<dot:GridViewTextColumn NonExistingProperty="test" ValueBinding="{value: 55}" />
 	
 </body>
 </html>

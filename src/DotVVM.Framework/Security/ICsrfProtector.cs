@@ -5,9 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 
-namespace DotVVM.Framework.Security {
+namespace DotVVM.Framework.Security
+{
 
-    public interface ICsrfProtector {
+    public interface ICsrfProtector
+    {
 
         /// <summary>
         /// Generates new CSRF protection token, which is supposed to be passed intact on postback.

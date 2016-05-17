@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -129,19 +129,19 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        protected internal override void OnLoad(IDotvvmRequestContext context)
+        protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnLoad(context);
         }
 
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
             DataBind(context);
             base.OnPreRender(context);
         }
 
-        private void DataBind(IDotvvmRequestContext context)
+        private void DataBind(Hosting.IDotvvmRequestContext context)
         {
             Children.Clear();
 
@@ -208,7 +208,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetButtonContent(IDotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
+        private void SetButtonContent(Hosting.IDotvvmRequestContext context, LinkButton button, string text, ITemplate contentTemplate)
         {
             if (contentTemplate != null)
             {
@@ -227,7 +227,7 @@ namespace DotVVM.Framework.Controls
                         "NearPageIndexes[" + i + "]");
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer)
             {
@@ -237,7 +237,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (HideWhenOnlyOnePage)
             {
@@ -248,7 +248,7 @@ namespace DotVVM.Framework.Controls
             writer.RenderBeginTag("ul");
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsFirstPage() }");
             firstLi.Render(writer, context);
@@ -265,11 +265,11 @@ namespace DotVVM.Framework.Controls
             if (!RenderLinkForCurrentPage)
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
+                writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
-                literal.SetBinding(Literal.TextProperty,
-                    new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
+                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
                 li.Children.Add(literal);
                 numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
@@ -281,8 +281,7 @@ namespace DotVVM.Framework.Controls
             li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
-            link.SetBinding(ButtonBase.TextProperty,
-                new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
+            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
             numbersPlaceHolder.Children.Add(li);
             li.Render(writer, context);
@@ -297,7 +296,7 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderEndTag();
         }

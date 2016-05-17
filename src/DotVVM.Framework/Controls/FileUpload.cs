@@ -4,9 +4,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
+using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 
@@ -112,21 +113,19 @@ namespace DotVVM.Framework.Controls
         {
         }
 
-        protected internal override void OnInit(IDotvvmRequestContext context)
+        protected internal override void OnInit(Hosting.IDotvvmRequestContext context)
         {
-            EnsureControlHasId();
-
             base.OnInit(context);
         }
 
-        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
+        internal override void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
         {
-            context.ResourceManager.AddRequiredResource(Constants.DotvvmFileUploadCssResourceName);
+            context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
 
             base.OnPreRenderComplete(context);
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("with", this, UploadedFilesProperty, () =>
             {
@@ -137,17 +136,17 @@ namespace DotVVM.Framework.Controls
             var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
             if (uploadCompletedBinding != null)
             {
-                writer.AddAttribute("data-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, context, this, true, null));
+                writer.AddAttribute("data-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, this, true, null));
             }
 
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render iframe
             writer.AddAttribute("class", "dot-upload-iframe");
-            writer.AddAttribute("src", "~/" + Constants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
+            writer.AddAttribute("src", "~/" + HostingConstants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
             writer.RenderBeginTag("iframe");
             writer.RenderEndTag();
 

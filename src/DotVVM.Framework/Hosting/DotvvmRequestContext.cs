@@ -11,12 +11,14 @@ using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 using System.Diagnostics;
+using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -65,6 +67,11 @@ namespace DotVVM.Framework.Hosting
         public object ViewModel { get; internal set; }
 
         /// <summary>
+        /// Gets the top-level control representing the whole view for the current request.
+        /// </summary>
+        public DotvvmView View { get; internal set; }
+
+        /// <summary>
         /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel.
         /// </summary>
         public ModelState ModelState { get; private set; }
@@ -82,9 +89,26 @@ namespace DotVVM.Framework.Hosting
 
         /// <summary>
         /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
-        /// This property is typically set from the exception filter.
+        /// This property is typically set from the exception filter's OnCommandException method.
         /// </summary>
         public bool IsCommandExceptionHandled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
+        /// This property is typically set from the action filter's OnPageExceptionHandled method.
+        /// </summary>
+        public bool IsPageExceptionHandled { get; set; }
+
+
+        /// <summary>
+        /// Gets or sets the exception that occured when the command was executed.
+        /// </summary>
+        public Exception CommandException { get; internal set; }
+
+        /// <summary>
+        /// Gets or sets new url fragment (tha part after #) to be set on client
+        /// </summary>
+        public string ResultIdFragment { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
@@ -102,6 +126,7 @@ namespace DotVVM.Framework.Hosting
             get { return DotvvmPresenter.DeterminePartialRendering(OwinContext); }
         }
 
+        public IViewModelSerializer ViewModelSerializer { get; set; }
 
 
         /// <summary>
@@ -150,13 +175,13 @@ namespace DotVVM.Framework.Hosting
         [DebuggerHidden]
         public void InterruptRequest()
         {
-            throw new DotvvmInterruptRequestExecutionException();    
+            throw new DotvvmInterruptRequestExecutionException();
         }
 
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void Redirect(string url)
+        public void RedirectToUrl(string url)
         {
             SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect);
             InterruptRequest();
@@ -165,17 +190,17 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void Redirect(string routeName, object newRouteValues)
+        public void RedirectToRoute(string routeName, object newRouteValues = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            Redirect(url);
+            RedirectToUrl(url);
         }
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectPermanent(string url)
+        public void RedirectToUrlPermanent(string url)
         {
             SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently);
             InterruptRequest();
@@ -184,28 +209,28 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectPermanent(string routeName, object newRouteValues)
+        public void RedirectToRoutePermanent(string routeName, object newRouteValues = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectPermanent(url);
+            RedirectToUrlPermanent(url);
         }
 
         /// <summary>
         /// Renders the redirect response.
         /// </summary>
-        public static void SetRedirectResponse(IOwinContext OwinContext, string url, int statusCode)
+        public static void SetRedirectResponse(IOwinContext owinContext, string url, int statusCode)
         {
-            if (!DotvvmPresenter.DeterminePartialRendering(OwinContext))
+            if (!DotvvmPresenter.DeterminePartialRendering(owinContext))
             {
-                OwinContext.Response.Headers["Location"] = url;
-                OwinContext.Response.StatusCode = statusCode;
+                owinContext.Response.Headers["Location"] = url;
+                owinContext.Response.StatusCode = statusCode;
             }
             else
             {
-                OwinContext.Response.StatusCode = 200;
-                OwinContext.Response.ContentType = "application/json";
-                OwinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url));
+                owinContext.Response.StatusCode = 200;
+                owinContext.Response.ContentType = "application/json";
+                owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url));
             }
         }
 
@@ -218,7 +243,7 @@ namespace DotVVM.Framework.Hosting
             if (!ModelState.IsValid)
             {
                 OwinContext.Response.ContentType = "application/json";
-                OwinContext.Response.Write(Presenter.ViewModelSerializer.SerializeModelState(this));
+                OwinContext.Response.Write(ViewModelSerializer.SerializeModelState(this));
                 throw new DotvvmInterruptRequestExecutionException("The ViewModel contains validation errors!");
             }
         }
@@ -228,7 +253,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         internal string GetSerializedViewModel()
         {
-            return Presenter.ViewModelSerializer.SerializeViewModel(this);
+            return ViewModelSerializer.SerializeViewModel(this);
         }
 
         /// <summary>
@@ -262,32 +287,37 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
-        /// Sends data stream to client.
+        /// Redirects the client to the specified file.
         /// </summary>
-        /// <param name="bytes">Data to be sent.</param>
-        /// <param name="fileName">Name of file.</param>
-        /// <param name="mimeType">MIME type.</param>
-        /// <param name="additionalHeaders">Additional headers.</param>
-        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null)
         {
             var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
-            var generatedFileId = returnedFileStorage.GenerateFileId();
-            returnedFileStorage.StoreFile(generatedFileId, bytes, fileName, mimeType, additionalHeaders);
-            Redirect("~/dotvvmReturnedFile?id=" + generatedFileId);
+            var metadata = new ReturnedFileMetadata()
+            {
+                FileName = fileName,
+                MimeType = mimeType,
+                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value)
+            };
+
+            var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata).Result;
+            RedirectToUrl("~/dotvvmReturnedFile?id=" + generatedFileId);
         }
 
         /// <summary>
-        /// Sends data stream to client.
+        /// Redirects the client to the specified file.
         /// </summary>
-        /// <param name="stream">Data to be sent.</param>
-        /// <param name="fileName">Name of file.</param>
-        /// <param name="mimeType">MIME type.</param>
-        /// <param name="additionalHeaders">Additional headers.</param>
-        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null)
         {
-            var bytes = new byte[stream.Length];
-            stream.Read(bytes, 0, bytes.Length);
-            ReturnFile(bytes, fileName, mimeType, additionalHeaders);
+            var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
+            var metadata = new ReturnedFileMetadata()
+            {
+                FileName = fileName,
+                MimeType = mimeType,
+                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value)
+            };
+
+            var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;
+            RedirectToUrl("~/dotvvmReturnedFile?id=" + generatedFileId);
         }
 
     }

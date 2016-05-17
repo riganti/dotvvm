@@ -3,8 +3,11 @@ using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -54,7 +57,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
@@ -70,7 +73,7 @@ namespace DotVVM.Framework.Controls
             var clickBinding = GetCommandBinding(ClickProperty);
             if (clickBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, context, this));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this));
             }
 
             writer.AddKnockoutDataBind(ButtonTagName == ButtonTagName.input ? "value" : "text", this, TextProperty, () =>
@@ -98,7 +101,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (ButtonTagName == ButtonTagName.input)
             {
@@ -110,7 +113,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (ButtonTagName == ButtonTagName.button)
             {
@@ -119,6 +122,10 @@ namespace DotVVM.Framework.Controls
                     // render contents inside
                     if (IsPropertySet(TextProperty))
                     {
+                        if (Children.Any(t=>!t.HasOnlyWhiteSpaceContent()))
+                        {
+                            throw new DotvvmControlException(this, "The <dot:Button> control cannot have both inner content and the Text property set!");
+                        }
                         writer.WriteText(Text);
                     }
                     else
@@ -129,12 +136,28 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (ButtonTagName != ButtonTagName.input)
             {
                 base.RenderEndTag(writer, context);
             }
+        }
+
+        [ControlUsageValidator]
+        public static IEnumerable<ControlUsageError> ValidateUsage(ResolvedControl control)
+        {
+            if(control.Properties.ContainsKey(TextProperty) && control.Content.Any(n => n.DothtmlNode.IsNotEmpty()))
+            {
+                yield return new ControlUsageError("The <dot:Button> control cannot have both inner content and the Text property set!", control.DothtmlNode);
+            }
+            //ResolvedPropertySetter buttonType;
+            //bool allowcontent = false;
+            //if(control.Properties.TryGetValue(ButtonTagNameProperty, out buttonType))
+            //{
+            //    allowcontent = ButtonTagName.button.Equals((buttonType as ResolvedPropertyValue)?.Value);
+            //}
+            //if (!allowcontent && control.Content.Any(n => n.DothtmlNode.IsNotEmpty())) yield return new ControlUsageError("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!", control.DothtmlNode);
         }
     }
 }

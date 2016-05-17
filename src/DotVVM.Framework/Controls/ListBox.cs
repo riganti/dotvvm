@@ -1,4 +1,5 @@
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Utils;
 using System;
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Controls
 		/// <summary>
 		/// Adds all attributes that should be added to the control begin tag.
 		/// </summary>
-		protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+		protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
 		{
 			base.AddAttributesToRender(writer, context);
 			writer.AddKnockoutDataBind("size", this, SizeProperty, () => writer.AddAttribute("size", Size.ToString()));

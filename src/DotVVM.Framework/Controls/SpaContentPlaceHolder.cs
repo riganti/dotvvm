@@ -2,10 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
@@ -27,20 +26,29 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DefaultRouteNameProperty
             = DotvvmProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
 
+        public SpaContentPlaceHolder()
+        {
+            RenderWrapperTag = true;
+            WrapperTagName = "div";
+        }
 
         public string GetSpaContentPlaceHolderUniqueId()
         {
             return GetAllAncestors().FirstOrDefault(a => a is DotvvmView).GetType().ToString();
         }
 
-        protected internal override void OnInit(IDotvvmRequestContext context)
+        protected internal override void OnInit(Hosting.IDotvvmRequestContext context)
         {
             GetRoot().SetValue(Internal.IsSpaPageProperty, true);
+
+            Attributes["name"] = HostingConstants.SpaContentPlaceHolderID;
+            Attributes[HostingConstants.SpaContentPlaceHolderDataAttributeName] = GetSpaContentPlaceHolderUniqueId();
+
 
             base.OnInit(context);
         }
 
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
             if (context.IsSpaRequest)
             {
@@ -51,35 +59,20 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddAttribute("id", ID);
-            writer.AddAttribute("name", Constants.SpaContentPlaceHolderID);
             writer.AddKnockoutDataBind("if", "dotvvm.isSpaReady");
-            writer.AddAttribute(Constants.SpaContentPlaceHolderDataAttributeName, GetSpaContentPlaceHolderUniqueId());
 
             if (!string.IsNullOrEmpty(DefaultRouteName))
             {
-                var route = context.RequestContext.Configuration.RouteTable[DefaultRouteName];
+                var route = context.Configuration.RouteTable[DefaultRouteName];
                 if (route.ParameterNames.Any())
                 {
                     throw new DotvvmControlException(this, $"The route '{DefaultRouteName}' specified in SpaContentPlaceHolder DefaultRouteName property cannot contain route parameters!");
                 }
-                writer.AddAttribute(Constants.SpaContentPlaceHolderDefaultRouteDataAttributeName, route.Url);
+                writer.AddAttribute(HostingConstants.SpaContentPlaceHolderDefaultRouteDataAttributeName, route.Url);
             }
             base.AddAttributesToRender(writer, context);
-        }
-
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
-        {
-            writer.RenderBeginTag("div");
-            base.RenderBeginTag(writer, context);
-        }
-
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
-        {
-            base.RenderEndTag(writer, context);
-            writer.RenderEndTag();
         }
     }
 }

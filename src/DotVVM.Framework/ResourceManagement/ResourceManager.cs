@@ -2,8 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Parser;
 using System.Threading;
+using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -16,6 +16,7 @@ namespace DotVVM.Framework.ResourceManagement
         private List<string> requiredResourcesOrdered = new List<string>();
         private Dictionary<string, ResourceBase> requiredResources = new Dictionary<string, ResourceBase>();
         private List<IResourceProcessor> processors = new List<IResourceProcessor>();
+        private int nonameCtr = 0;
 
         public IReadOnlyCollection<string> RequiredResources
         {
@@ -44,6 +45,8 @@ namespace DotVVM.Framework.ResourceManagement
 
             AddRequiredResourceCore(name, resource);
         }
+
+        private void AddRequiredResourceCore(ResourceBase resource) => AddRequiredResourceCore("__noname_" + nonameCtr++, resource);
 
         /// <summary>
         /// Adds the resource and checks name conflicts.
@@ -94,11 +97,19 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         /// <summary>
+        /// Adds the specified piece of javascript that will be executed when the page is loaded.
+        /// </summary>
+        public void AddStartupScript(string javascriptCode, params string[] dependentResourceNames)
+        {
+            AddRequiredResourceCore(new InlineScriptResource() { Code = javascriptCode, Dependencies = dependentResourceNames });
+        }
+
+        /// <summary>
         /// Adds the globalization file for current thread culture.
         /// </summary>
         public void AddCurrentCultureGlobalizationResource()
         {
-            AddRequiredResource(string.Format(Constants.GlobalizeCultureResourceName, Thread.CurrentThread.CurrentCulture.Name));
+            AddRequiredResource(string.Format(ResourceConstants.GlobalizeCultureResourceName, Thread.CurrentThread.CurrentCulture.Name));
         }
 
         public void RegisterProcessor(IResourceProcessor processor)
@@ -157,12 +168,12 @@ namespace DotVVM.Framework.ResourceManagement
 
         private static void ThrowNonUniqueName(string name)
         {
-            throw new ArgumentException(string.Format("Different resource with the same name '{0}' is already registered!", name));
+            throw new ArgumentException($"Different resource with the same name '{name}' is already registered!");
         }
 
         private static void ThrowResourceNotFound(string name)
         {
-            throw new ArgumentException(string.Format("The resource '{0}' could not be found. Make sure it is registered in the dotvvm.json file or in the startup class.", name));
+            throw new ArgumentException($"The resource '{name}' could not be found. Make sure it is registered in the startup class.");
         }
 
 

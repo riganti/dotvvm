@@ -20,9 +20,10 @@
                 <dot:GridViewTextColumn ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True">
                     <HeaderTemplate>
 						<span class="class123">Birth date</span>
-						<dot:Button Click="{command: _root.TestCommand()}" Text="Button" />
+						<dot:Button Click="{command: _root.TestCommand()}" Text="Sort Button" ButtonTagName="button" />
 					</HeaderTemplate>
                 </dot:GridViewTextColumn>
+				<dot:GridViewCheckBoxColumn HeaderText="Message received" ValueBinding="{value: MessageReceived}" AllowSorting="True"></dot:GridViewCheckBoxColumn>
             </Columns>
             <!-- comment inside control -->
         </dot:GridView>
@@ -48,9 +49,9 @@
         <h1>GridView with null DataSource</h1>
         <dot:GridView DataSource="{value: Null}" class="table table-bordered">
             <Columns>
-                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
-                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
-                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="False" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="False" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="False" />
             </Columns>
         </dot:GridView>
 
@@ -64,6 +65,17 @@
         </dot:EmptyData>
 
 		<dot:Button Text="Set the data source" Click="{staticCommand: Null = GetDataList()}" />
+			
+        <h1>GridView with empty dataset and ShowHeaderWhenNoData true</h1>
+        <dot:GridView DataSource="{value: EmptyCustomersDataSet}" data-ui="ShowHeaderWhenNoDataGrid" ShowHeaderWhenNoData="true" class="table table-bordered">
+            <Columns>
+                <!-- comment inside columns collection -->
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+            </Columns>
+            <!-- comment inside control -->
+        </dot:GridView>
     </div>
 </body>
 </html>
