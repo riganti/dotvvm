@@ -296,7 +296,8 @@ namespace DotVVM.Framework.Controls
             DotvvmControl result = this;
             for (var i = 0; i < parts.Length; i++)
             {
-                result = result.FindControlInContainer(parts[i]);
+                result = result.GetAllDescendants(c => !IsNamingContainer(c))
+                    .SingleOrDefault(c => c.GetValue(Internal.UniqueIDProperty).Equals(parts[i]));
                 if (result == null)
                 {
                     return null;
