@@ -301,6 +301,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     options["isDate"] = true;
                 }
 
+                if (!String.IsNullOrWhiteSpace(property.ClientExtenderName))
+                {
+                    options["clientExtender"] = property.ClientExtenderName;
+                }
+
                 AddTypeOptions(options, property.Type);
                 
                 block.Add(Expression.Label(endPropertyLabel));

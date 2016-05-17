@@ -97,6 +97,13 @@ class DotvvmSerialization {
                         result[prop] = ko.observable(deserialized);
                     }
                 }
+
+                // knockout extenders support
+                if (options && options.clientExtender && ko.isObservable(result[prop])) {
+                    var extenderOptions = {};
+                    extenderOptions[options.clientExtender] = true;
+                    result[prop].extend(extenderOptions);
+                }
             }
         }
 

@@ -13,6 +13,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public string Name { get; set; } 
 
+        public string ClientExtenderName { get; set; }
+
         public ProtectMode ViewModelProtection { get; set; }
 
         public Type Type { get; set; }

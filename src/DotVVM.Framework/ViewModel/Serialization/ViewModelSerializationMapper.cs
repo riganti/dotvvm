@@ -61,6 +61,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
 
+                var clientExtenderAttribute = property.GetCustomAttribute<ClientExtenderAttribute>();
+                if (clientExtenderAttribute != null)
+                {
+                    propertyMap.ClientExtenderName = clientExtenderAttribute.Name;
+                }
+
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
                 propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();
 
