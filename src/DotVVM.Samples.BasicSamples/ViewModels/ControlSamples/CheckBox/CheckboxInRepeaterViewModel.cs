@@ -22,7 +22,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
 
         public void UpdateSelectedColors()
         {
-            SelectedColors = string.Join(", ", Colors.Select(i => i.ToString()));
+            SelectedColors = string.Join(", ", Colors);
         }
 
 	    public string SelectedColors { get; set; }
@@ -59,7 +59,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
                 },new CheckBox()
                 {
                     Text="CheckBox 3",
-                    Checked = false,
+                    Checked = true,
                     Visible = true,
                     CheckedValue = "four"
                 }

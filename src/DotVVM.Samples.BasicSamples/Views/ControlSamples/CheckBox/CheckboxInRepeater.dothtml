@@ -8,17 +8,23 @@
     <title></title>
 </head>
 <body>
-
     <fieldset>
-        <dot:Repeater DataSource="{value: CheckBoxes}">
+        <!--<dot:Repeater DataSource="{value: CheckBoxes}">
             <ItemTemplate>
-                <dot:CheckBox Text="{value: Text}" CheckedItems="{value: _parent.Colors}" CheckedValue="{value: CheckedValue}"
+                <dot:CheckBox Text="{value: CheckedValue}" CheckedItems="{value: _parent.Colors}" CheckedValue="{value: CheckedValue}"
                               Changed="{command: _parent.UpdateSelectedColors()}" Visible="{value: Visible}" />
             </ItemTemplate>
-        </dot:Repeater>
+        </dot:Repeater>-->
+
+        <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'one'}"
+                      Changed="{command: UpdateSelectedColors()}" />
+        <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'two'}"
+                      Changed="{command: UpdateSelectedColors()}" />
+        <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'three'}"
+                      Changed="{command: UpdateSelectedColors()}" />
+
         <dot:Button Text="Set checked state on server" Click="{command: SetCheckedItems()}" />
         <span data-ui="buttongroup-repeater-checkbox-checkedItems-value">{{value: SelectedColors}}</span>
-
     </fieldset>
 </body>
 </html>
