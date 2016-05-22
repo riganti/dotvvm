@@ -136,6 +136,7 @@
     <Compile Include="ViewModels\ComplexSamples\ServerRendering\ControlUsageSampleViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\CheckBox\CheckboxInRepeaterViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ComboBox\ComboBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ContentPlaceHolder\ContentPlaceHolderMasterPageViewModel.cs" />
@@ -371,6 +372,7 @@
     <Content Include="Views\Errors\EncryptedPropertyInValueBinding.dothtml" />
     <Content Include="Views\Errors\FieldInValueBinding.dothtml" />
     <Content Include="Views\ControlSamples\GridView\LargeGrid.dothtml" />
+    <Content Include="Views\ControlSamples\CheckBox\CheckboxInRepeater.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
