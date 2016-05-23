@@ -41,7 +41,6 @@ input[type=checkbox]:checked.collapse ~ .collapse-off  { display: none; }
 	color:#bababa;
 }
 label{
-    cursor: pointer;
 }
 label.nav {
 	display: inline-block;
@@ -62,9 +61,6 @@ hr{
 .container { display: none }
 .object-browser .propname { font-weight: bold; }
 .docLinks { float: right; }
-.exceptionType{
-
-}
 .source.file{
 	margin: 11px 0 5px 0;
     font-size: 12px;

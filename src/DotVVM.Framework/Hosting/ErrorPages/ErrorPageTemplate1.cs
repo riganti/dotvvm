@@ -52,147 +52,147 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                     "type=checkbox].collapse ~ .collapse-on  { display: none; }\r\ninput[type=checkbox]" +
                     ":checked.collapse ~ .collapse-on  { display: inherit; }\r\ninput[type=checkbox]:ch" +
                     "ecked.collapse ~ .collapse-off  { display: none; }\r\n.lineNumber{\r\n\tcolor:#bababa" +
-                    ";\r\n}\r\nlabel{\r\n    cursor: pointer;\r\n}\r\nlabel.nav {\r\n\tdisplay: inline-block;\r\n\tpa" +
-                    "dding: 4px 20px;\r\n\tfont-size: 1.1em;\r\n\tcolor: white;\r\n\tcursor:pointer;\r\n\tbackgro" +
-                    "und-color:#bcbcbc;\r\n\t/*#25384a*/\r\n}\r\nhr{\r\n\tborder:none;\r\n\theight: 1px; \r\n\tbackgr" +
-                    "ound-color: #bcbcbc;\r\n}\r\n.code { font-family: \'Consolas\',monospace; }\r\n.object-o" +
-                    "bj, .object-arr { padding-left: 10px; }\r\n.container { display: none }\r\n.object-b" +
-                    "rowser .propname { font-weight: bold; }\r\n.docLinks { float: right; }\r\n.exception" +
-                    "Type{\r\n\r\n}\r\n.source.file{\r\n\tmargin: 11px 0 5px 0;\r\n    font-size: 12px;\r\n}   \r\n");
+                    ";\r\n}\r\nlabel{\r\n}\r\nlabel.nav {\r\n\tdisplay: inline-block;\r\n\tpadding: 4px 20px;\r\n\tfon" +
+                    "t-size: 1.1em;\r\n\tcolor: white;\r\n\tcursor:pointer;\r\n\tbackground-color:#bcbcbc;\r\n\t/" +
+                    "*#25384a*/\r\n}\r\nhr{\r\n\tborder:none;\r\n\theight: 1px; \r\n\tbackground-color: #bcbcbc;\r\n" +
+                    "}\r\n.code { font-family: \'Consolas\',monospace; }\r\n.object-obj, .object-arr { padd" +
+                    "ing-left: 10px; }\r\n.container { display: none }\r\n.object-browser .propname { fon" +
+                    "t-weight: bold; }\r\n.docLinks { float: right; }\r\n.source.file{\r\n\tmargin: 11px 0 5" +
+                    "px 0;\r\n    font-size: 12px;\r\n}   \r\n");
             
-            #line 72 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 68 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 foreach(var f in Formatters){
             
             #line default
             #line hidden
             this.Write("#menu_radio_");
             
-            #line 73 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 69 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(":checked ~ #container_");
             
-            #line 73 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 69 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(" { display: block; }\r\n#menu_radio_");
             
-            #line 74 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 70 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write(":checked ~ label[for=\'menu_radio_");
             
-            #line 74 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 70 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\'] { background-color: #2980b9; }\r\n");
             
-            #line 75 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 71 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 f.WriteHead(this);
             
             #line default
             #line hidden
             
-            #line 76 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 72 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("\t\t</style>\r\n\t</head>\r\n\t<body>\r\n\t\t<h1>Server Error, HTTP ");
             
-            #line 80 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 76 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(ErrorCode));
             
             #line default
             #line hidden
             this.Write(": ");
             
-            #line 80 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 76 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(ErrorDescription)));
             
             #line default
             #line hidden
             this.Write("</h1>\r\n\t\t<p class=\"summary\">");
             
-            #line 81 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 77 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(WebUtility.HtmlEncode(Summary)));
             
             #line default
             #line hidden
             this.Write("</p>\r\n\t\t<hr />\r\n\t\t<div>\r\n\t\t");
             
-            #line 84 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 80 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  foreach(var f in Formatters) {
             
             #line default
             #line hidden
             this.Write("\t\t\t<input type=\"radio\" id=\"menu_radio_");
             
-            #line 85 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 81 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\" class=\"collapse\" name=\"menu\" ");
             
-            #line 85 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 81 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f == Formatters[0] ? "checked='checked'" : ""));
             
             #line default
             #line hidden
             this.Write(" />\r\n\t\t\t<label for=\"menu_radio_");
             
-            #line 86 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 82 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.Id));
             
             #line default
             #line hidden
             this.Write("\" class=\"nav\">\r\n\t\t\t\t");
             
-            #line 87 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 83 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(f.DisplayName));
             
             #line default
             #line hidden
             this.Write("\r\n\t\t\t</label>\r\n\t\t");
             
-            #line 89 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 85 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
             #line hidden
             this.Write("\t\t<hr />\r\n\t\t");
             
-            #line 91 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 87 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 foreach(var formatter in Formatters){
             
             #line default
             #line hidden
             this.Write("\t\t<div class=\"container\" id=\"container_");
             
-            #line 92 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 88 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(formatter.Id));
             
             #line default
             #line hidden
             this.Write("\">\r\n\t\t\t");
             
-            #line 93 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 89 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 formatter.WriteBody(this);
             
             #line default
             #line hidden
             this.Write("\t\t</div>\r\n\t\t");
             
-            #line 95 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+            #line 91 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
             
             #line default
@@ -201,7 +201,7 @@ formatter.WriteBody(this);
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 107 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 103 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 
 	public int ErrorCode { get; set; }
 
@@ -240,7 +240,7 @@ formatter.WriteBody(this);
         #line default
         #line hidden
         
-        #line 140 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 136 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t<div class=\"object-browser code\">\r\n\t\t\t<label>\r\n\t\t\t<input type=\"checkbox\" class=" +
         "\"collapse\" />\r\n\t\t\t<span class=\"collapse-off\">&gt; { ... } </span>\r\n\t\t\t<span clas" +
         "s=\"collapse-on\">[\r\n\t\t\t\t<div class=\"object-arr\">\r\n\t\t\t\t\t");
@@ -249,7 +249,7 @@ this.Write("\t\t<div class=\"object-browser code\">\r\n\t\t\t<label>\r\n\t\t\t<i
         #line default
         #line hidden
         
-        #line 147 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 143 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 
 					foreach(var p in arr) {
 						if(p is JObject) {
@@ -265,14 +265,14 @@ this.Write("\t\t<div class=\"object-browser code\">\r\n\t\t\t<label>\r\n\t\t\t<i
         #line default
         #line hidden
         
-        #line 157 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 153 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t\t\t</div>\r\n\t\t\t\t]\r\n\t\t\t</span>\r\n\t\t</div>\r\n\t");
 
         
         #line default
         #line hidden
         
-        #line 162 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 158 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
 
 	public void ObjectBrowser(JObject obj)
@@ -281,7 +281,7 @@ this.Write("\t\t\t\t</div>\r\n\t\t\t\t]\r\n\t\t\t</span>\r\n\t\t</div>\r\n\t");
         #line default
         #line hidden
         
-        #line 165 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 161 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t<div class=\"object-browser code\">\r\n\t\t\t<label>\r\n\t\t\t<input type=\"checkbox\" class=" +
         "\"collapse\" />\r\n\t\t\t<span class=\"collapse-off\">&gt; { ... } </span>\r\n\t\t\t<span clas" +
         "s=\"collapse-on\">{\r\n\t\t\t\t<div class=\"object-obj\">\r\n\t\t\t\t\t");
@@ -290,7 +290,7 @@ this.Write("\t\t<div class=\"object-browser code\">\r\n\t\t\t<label>\r\n\t\t\t<i
         #line default
         #line hidden
         
-        #line 172 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 168 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 
 					foreach(var p in obj) {
 						
@@ -298,14 +298,14 @@ this.Write("\t\t<div class=\"object-browser code\">\r\n\t\t\t<label>\r\n\t\t\t<i
         #line default
         #line hidden
         
-        #line 174 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 170 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("<div class=\'prop\'><span class=\'propname\'>");
 
         
         #line default
         #line hidden
         
-        #line 174 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 170 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 
 						this.WriteText(p.Key);
 						
@@ -313,14 +313,14 @@ this.Write("<div class=\'prop\'><span class=\'propname\'>");
         #line default
         #line hidden
         
-        #line 176 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 172 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("</span>:");
 
         
         #line default
         #line hidden
         
-        #line 176 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 172 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 
 						if(p.Value is JObject) {
 							ObjectBrowser((JObject)p.Value);
@@ -336,14 +336,14 @@ this.Write("</span>:");
         #line default
         #line hidden
         
-        #line 186 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 182 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t\t\t</div>\r\n\t\t\t\t}\r\n\t\t\t</span>\r\n\t\t</div>\r\n\t");
 
         
         #line default
         #line hidden
         
-        #line 191 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 187 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
 
 
@@ -353,118 +353,118 @@ this.Write("\t\t\t\t</div>\r\n\t\t\t\t}\r\n\t\t\t</span>\r\n\t\t</div>\r\n\t");
         #line default
         #line hidden
         
-        #line 195 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 191 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t<div class=\"source code\">\r\n\t\t\t<label>\r\n\t\t\t\t");
 
         
         #line default
         #line hidden
         
-        #line 198 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 194 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 if(collapse){
         
         #line default
         #line hidden
         
-        #line 198 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 194 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write(" <input type=\"checkbox\" class=\"collapse\" /> ");
 
         
         #line default
         #line hidden
         
-        #line 198 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 194 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
         
         #line default
         #line hidden
         
-        #line 198 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 194 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t\t\t<div class=\"source-prelines collapse-on\">\r\n\t\t\t\t\t");
 
         
         #line default
         #line hidden
         
-        #line 200 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 196 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  if(source.PreLines != null) WriteSourceLines(source.LineNumber - source.PreLines.Length, source.PreLines); 
         
         #line default
         #line hidden
         
-        #line 200 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 196 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t\t\t</div>\r\n\t\t\t\t<div class=\"source-errorLine\">\r\n\t\t\t\t\t");
 
         
         #line default
         #line hidden
         
-        #line 203 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 199 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  if(source.CurrentLine != null) WriteErrorLine(source.LineNumber, source.CurrentLine, source.ErrorColumn, source.ErrorLength);
         
         #line default
         #line hidden
         
-        #line 203 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 199 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t\t\t</div>\r\n\t\t\t\t<div class=\"source-postlines collapse-on\">\r\n\t\t\t\t\t");
 
         
         #line default
         #line hidden
         
-        #line 206 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 202 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  if(source.PostLines != null) WriteSourceLines(source.LineNumber + 1, source.PostLines);
         
         #line default
         #line hidden
         
-        #line 206 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 202 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t\t\t</div>\r\n\t\t\t</label>\r\n\t\t</div>\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 210 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 206 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  if (!string.IsNullOrEmpty(source.FileName)) { 
         
         #line default
         #line hidden
         
-        #line 210 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 206 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t<p class=\"source file\">Source File: <strong>");
 
         
         #line default
         #line hidden
         
-        #line 211 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 207 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  Write(source.SystemFileName); 
         
         #line default
         #line hidden
         
-        #line 211 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 207 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("</strong></p>\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 212 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 208 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  } 
         
         #line default
         #line hidden
         
-        #line 212 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 208 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t");
 
         
         #line default
         #line hidden
         
-        #line 213 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 209 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
 
     private void WriteSourceLines(int startLine, params string[] lines)
@@ -521,7 +521,7 @@ this.Write("\t");
         #line default
         #line hidden
         
-        #line 264 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 260 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\r\n\t\t<table class=\"kvtable\">\r\n\t\t\t<tr>\r\n\t\t\t\t<th> Variable </th>\r\n\t\t\t\t<th> Value </t" +
         "h>\r\n\t\t\t</tr>\r\n\t\t\t");
 
@@ -529,59 +529,59 @@ this.Write("\r\n\t\t<table class=\"kvtable\">\r\n\t\t\t<tr>\r\n\t\t\t\t<th> Vari
         #line default
         #line hidden
         
-        #line 271 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 267 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 foreach(var kvp in zip) {
         
         #line default
         #line hidden
         
-        #line 271 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 267 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t\t\t<tr>\r\n\t\t\t\t\t<td>");
 
         
         #line default
         #line hidden
         
-        #line 273 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 269 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  WriteObject(kvp.Key); 
         
         #line default
         #line hidden
         
-        #line 273 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 269 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("</td>\r\n\t\t\t\t\t<td>");
 
         
         #line default
         #line hidden
         
-        #line 274 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 270 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
  WriteObject(kvp.Value); 
         
         #line default
         #line hidden
         
-        #line 274 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 270 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("</td>\r\n\t\t\t\t</tr>\r\n\t\t\t");
 
         
         #line default
         #line hidden
         
-        #line 276 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 272 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 }
         
         #line default
         #line hidden
         
-        #line 276 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 272 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 this.Write("\t\t</table>\r\n\r\n\t\t");
 
         
         #line default
         #line hidden
         
-        #line 279 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
+        #line 275 "C:\git\dotvvm\src\DotVVM.Framework\Hosting\ErrorPages\ErrorPageTemplate.tt"
 
 	}
 

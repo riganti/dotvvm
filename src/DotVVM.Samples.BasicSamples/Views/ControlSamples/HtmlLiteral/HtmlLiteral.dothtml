@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.HtmlLiteral.HtmlLiteralViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.HtmlLiteral.HtmlLiteralViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 

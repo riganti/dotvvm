@@ -175,7 +175,8 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_EmptyBinding);
 
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
-                browser.ElementAt(".errorUnderline", 1).CheckIfInnerText(s => s.Contains("{{value: }}"));
+                browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("{{value: }}"));
+
             });
         }
 
