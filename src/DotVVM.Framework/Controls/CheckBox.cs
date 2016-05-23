@@ -36,6 +36,10 @@ namespace DotVVM.Framework.Controls
             }
             else if (!HasBinding(CheckedProperty) && HasBinding(CheckedItemsProperty))
             {
+                if (GetValue(CheckedItemsProperty) == null)
+                {
+                    throw new DotvvmControlException(this, "CheckedItems property cannot contain null!");
+                }
                 // collection mode
                 RenderCheckedItemsProperty(writer);
             }
@@ -59,6 +63,7 @@ namespace DotVVM.Framework.Controls
             var checkedItemsBinding = GetValueBinding(CheckedItemsProperty);
             writer.AddKnockoutDataBind("checked", checkedItemsBinding);
             writer.AddKnockoutDataBind("checkedArrayContainsObservables", "true");
+            writer.AddKnockoutDataBind("dotvvm-checkbox-updateAfterPostback", "true");
             writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
             {
                 var checkedValue = (CheckedValue ?? string.Empty).ToString();

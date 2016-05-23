@@ -7,8 +7,8 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
 {
-	public class CheckboxInRepeaterViewModel : DotvvmViewModelBase
-	{
+    public class CheckboxCheckedItemsNullCollectionViewModel : DotvvmViewModelBase
+    {
         public override Task PreRender()
         {
             CheckBoxes = new List<CheckBoxViewModel2>();
@@ -16,18 +16,18 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
             return base.PreRender();
         }
 
-	    public List<CheckBoxViewModel2> CheckBoxes { get; set; }
+        public List<CheckBoxViewModel2> CheckBoxes { get; set; }
 
-	    public List<string> Colors { get; set; } = new List<string>();
+        public List<string> Colors { get; set; }
 
         public void UpdateSelectedColors()
         {
             SelectedColors = string.Join(", ", Colors);
         }
 
-	    public string SelectedColors { get; set; }
+        public string SelectedColors { get; set; }
 
-	    public void SetCheckedItems()
+        public void SetCheckedItems()
         {
             Colors = new List<string>() { "one", "three" };
             UpdateSelectedColors();
@@ -65,6 +65,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
                 }
             };
         }
+
     }
 }
 

@@ -715,6 +715,25 @@ class DotVVM {
                 }
             }
         };
+        ko.bindingHandlers['dotvvm-checkbox-updateAfterPostback'] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+             dotvvm.events.afterPostback.subscribe(() => {
+                 var bindings = allBindingsAccessor();
+                 if (bindings["checked"]) {
+                     var checked = bindings["checked"];
+                     if (ko.isObservable(checked)) {
+                         if ((<KnockoutObservable<any>>checked).valueHasMutated) {
+                             (<KnockoutObservable<any>>checked).valueHasMutated();
+                         } else {                 
+                             (<KnockoutObservable<any>>checked).notifySubscribers();
+                         }
+                     }
+                 }
+//checkedValue: "one", checked
+             });
+            }
+        };
+       
 
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {

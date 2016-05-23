@@ -802,6 +802,25 @@ var DotVVM = (function () {
                 }
             }
         };
+        ko.bindingHandlers['dotvvm-checkbox-updateAfterPostback'] = {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                dotvvm.events.afterPostback.subscribe(function () {
+                    var bindings = allBindingsAccessor();
+                    if (bindings["checked"]) {
+                        var checked = bindings["checked"];
+                        if (ko.isObservable(checked)) {
+                            if (checked.valueHasMutated) {
+                                checked.valueHasMutated();
+                            }
+                            else {
+                                checked.notifySubscribers();
+                            }
+                        }
+                    }
+                    //checkedValue: "one", checked
+                });
+            }
+        };
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 element.style.display = "none";
