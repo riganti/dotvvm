@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the name of the tag that wraps the HtmlLiteral.
         /// </summary>
-        [MarkupOptions(AllowBinding = false)]
+        [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.Exclude)]
         public bool RenderWrapperTag
         {
             get { return (bool)GetValue(RenderWrapperTagProperty); }
