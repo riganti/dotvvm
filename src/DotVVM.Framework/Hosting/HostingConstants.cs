@@ -2,6 +2,8 @@
 {
     public class HostingConstants
     {
+        public const string DotvvmRequestContextOwinKey = "dotvvm.requestContext";
+
         public const string GlobalizeCultureUrlPath = "dotvvmGlobalizeCulture";
         public const string GlobalizeCultureUrlIdParameter = "id";
         public const string ResourceHandlerUrl = "~/dotvvmEmbeddedResource?name={0}&assembly={1}";

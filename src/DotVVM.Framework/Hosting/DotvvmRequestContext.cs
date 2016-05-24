@@ -236,6 +236,14 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
+        /// Gets the current DotVVM context.
+        /// </summary>
+        public static DotvvmRequestContext GetCurrent(IOwinContext owinContext)
+        {
+            return owinContext.Get<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
+        }
+
+        /// <summary>
         /// Ends the request execution when the <see cref="ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
         /// If it is, it does nothing.
         /// </summary>
