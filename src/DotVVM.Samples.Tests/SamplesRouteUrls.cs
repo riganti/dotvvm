@@ -18,6 +18,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_ServerRendering_ControlUsageSample => "ComplexSamples/ServerRendering/ControlUsageSample";
 			public static string ComplexSamples_ServerRendering_ControlUsageSampleRewriting => "ComplexSamples/ServerRendering/ControlUsageSampleRewriting";
 			public static string ComplexSamples_ServerRendering_MarkupControlInRepeaterEditing => "ComplexSamples/ServerRendering/MarkupControlInRepeaterEditing";
+			public static string ComplexSamples_SPARedirect_home => "ComplexSamples/SPARedirect/home";
+			public static string ComplexSamples_SPARedirect_login => "ComplexSamples/SPARedirect/login";
 			public static string ComplexSamples_SPAViewModelReapplication_pageA => "ComplexSamples/SPAViewModelReapplication/pageA";
 			public static string ComplexSamples_SPAViewModelReapplication_pageB => "ComplexSamples/SPAViewModelReapplication/pageB";
 			public static string ComplexSamples_TaskList_ServerRenderedTaskList => "ComplexSamples/TaskList/ServerRenderedTaskList";
@@ -28,6 +30,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_Button_InputTypeButton_TextContentInside => "ControlSamples/Button/InputTypeButton_TextContentInside";
 			public static string ControlSamples_CheckBox_CheckBox => "ControlSamples/CheckBox/CheckBox";
 			public static string ControlSamples_CheckBox_CheckboxInRepeater => "ControlSamples/CheckBox/CheckboxInRepeater";
+			public static string ControlSamples_CheckBox_CheckBox_CheckedItems_NullCollection => "ControlSamples/CheckBox/CheckBox_CheckedItems_NullCollection";
 			public static string ControlSamples_ComboBox_ComboBox => "ControlSamples/ComboBox/ComboBox";
 			public static string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage => "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
 			public static string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest => "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage_ContentTest";

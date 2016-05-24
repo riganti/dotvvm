@@ -82,8 +82,8 @@ class DotVVM {
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
-            this.handleHashChange(viewModelName, spaPlaceHolder);
+            this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder, false));
+            this.handleHashChange(viewModelName, spaPlaceHolder, true);
         }
 
         if (idFragment) {
@@ -100,13 +100,13 @@ class DotVVM {
         });
     }
 
-    private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement) {
+    private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
         if (document.location.hash.indexOf("#!/") === 0) {
             this.navigateCore(viewModelName, document.location.hash.substring(2));
         } else {
             // redirect to the default URL
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
-            if (url) {
+            if (url && !isInitialPageLoad) {
                 document.location.hash = "#!/" + url;
             } else {
                 this.isSpaReady(true);
@@ -481,7 +481,10 @@ class DotVVM {
             var correctPrefix = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"].value;
             var currentPrefix = document.location.pathname;
             if (correctPrefix !== currentPrefix) {
-                url = "/" + correctPrefix + url;
+                if (correctPrefix === "") {
+                    correctPrefix = "/";
+                }
+                url = correctPrefix + url;
             }
 
         } else {

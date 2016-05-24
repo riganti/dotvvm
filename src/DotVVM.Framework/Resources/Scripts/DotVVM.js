@@ -192,8 +192,8 @@ var DotVVM = (function () {
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.domUtils.attachEvent(window, "hashchange", function () { return _this.handleHashChange(viewModelName, spaPlaceHolder); });
-            this.handleHashChange(viewModelName, spaPlaceHolder);
+            this.domUtils.attachEvent(window, "hashchange", function () { return _this.handleHashChange(viewModelName, spaPlaceHolder, false); });
+            this.handleHashChange(viewModelName, spaPlaceHolder, true);
         }
         if (idFragment) {
             if (spaPlaceHolder) {
@@ -209,14 +209,14 @@ var DotVVM = (function () {
             _this.persistViewModel(viewModelName);
         });
     };
-    DotVVM.prototype.handleHashChange = function (viewModelName, spaPlaceHolder) {
+    DotVVM.prototype.handleHashChange = function (viewModelName, spaPlaceHolder, isInitialPageLoad) {
         if (document.location.hash.indexOf("#!/") === 0) {
             this.navigateCore(viewModelName, document.location.hash.substring(2));
         }
         else {
             // redirect to the default URL
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
-            if (url) {
+            if (url && !isInitialPageLoad) {
                 document.location.hash = "#!/" + url;
             }
             else {
@@ -569,7 +569,10 @@ var DotVVM = (function () {
             var correctPrefix = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"].value;
             var currentPrefix = document.location.pathname;
             if (correctPrefix !== currentPrefix) {
-                url = "/" + correctPrefix + url;
+                if (correctPrefix === "") {
+                    correctPrefix = "/";
+                }
+                url = correctPrefix + url;
             }
         }
         else {
