@@ -738,7 +738,6 @@ class DotVVM {
                          } else {                 
                              (<KnockoutObservable<any>>checked).notifySubscribers();
                          }
-                         dotvvm.events.afterCheckboxItemsUpdated.trigger(e);
                      }
                  }
              });
