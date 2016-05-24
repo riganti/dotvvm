@@ -2,6 +2,7 @@
     public init = new DotvvmEvent<DotvvmEventArgs>("dotvvm.events.init", true);
     public beforePostback = new DotvvmEvent<DotvvmBeforePostBackEventArgs>("dotvvm.events.beforePostback");
     public afterPostback = new DotvvmEvent<DotvvmAfterPostBackEventArgs>("dotvvm.events.afterPostback");
+    public afterCheckboxItemsUpdated = new DotvvmEvent<DotvvmAfterPostBackEventArgs>("dotvvm.events.afterCheckboxItemsUpdated");
     public error =  new DotvvmEvent<DotvvmErrorEventArgs>("dotvvm.events.error");
     public spaNavigating = new DotvvmEvent<DotvvmSpaNavigatingEventArgs>("dotvvm.events.spaNavigating");
     public spaNavigated = new DotvvmEvent<DotvvmSpaNavigatedEventArgs>("dotvvm.events.spaNavigated");

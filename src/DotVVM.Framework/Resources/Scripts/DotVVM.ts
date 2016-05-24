@@ -717,7 +717,7 @@ class DotVVM {
         };
         ko.bindingHandlers['dotvvm-checkbox-updateAfterPostback'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
-             dotvvm.events.afterPostback.subscribe(() => {
+             dotvvm.events.afterPostback.subscribe((e) => {
                  var bindings = allBindingsAccessor();
                  if (bindings["checked"]) {
                      var checked = bindings["checked"];
@@ -727,9 +727,9 @@ class DotVVM {
                          } else {                 
                              (<KnockoutObservable<any>>checked).notifySubscribers();
                          }
+                         dotvvm.events.afterCheckboxItemsUpdated.trigger(e);
                      }
                  }
-//checkedValue: "one", checked
              });
             }
         };
