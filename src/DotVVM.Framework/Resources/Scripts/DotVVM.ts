@@ -410,7 +410,7 @@ class DotVVM {
         }
 
         // send the request
-        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dot-spacontentplaceholder"].value;
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
         this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
@@ -473,6 +473,17 @@ class DotVVM {
         if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
+            if (url === "#!") {
+                url = "#!/";
+            }
+
+            // verify that the URL prefix is correct, if not - add it before the fragment
+            var correctPrefix = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"].value;
+            var currentPrefix = document.location.pathname;
+            if (correctPrefix !== currentPrefix) {
+                url = "/" + correctPrefix + url;
+            }
+
         } else {
             // absolute URL - load the URL
             url = resultObject.url;

@@ -138,10 +138,13 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void AddDotvvmUniqueIdAttribute()
+        protected void AddDotvvmUniqueIdAttribute()
         {
             var htmlAttributes = this as IControlWithHtmlAttributes;
-            if (htmlAttributes == null) throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render html attributes.");
+            if (htmlAttributes == null)
+            {
+                throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render html attributes.");
+            }
             htmlAttributes.Attributes["data-dotvvm-id"] = GetDotvvmUniqueId();
         }
 

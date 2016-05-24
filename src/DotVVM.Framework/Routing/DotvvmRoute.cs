@@ -230,7 +230,7 @@ namespace DotVVM.Framework.Routing
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not build url for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
+                throw new Exception($"Could not build URL for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
             }
         }
 
