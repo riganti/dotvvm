@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -172,21 +172,48 @@ namespace DotVVM.Framework.Compilation.Parser
         protected bool ReadTextUntil(TTokenType tokenType, string stopString, bool stopOnNewLine)
         {
             var startLine = CurrentLine;
-            var stopStringIndex = 0;
-            while (stopStringIndex != stopString.Length)
+            var currentTextMatchCandidateIndex = 0; //m
+            var currentPatternMatchPosition = 0; // i
+            var matchTable = CreateTable(stopString);
+            var tokenText = ""; // " my comment "
+            var pauseReading = 0;
+            char currentChar = '\0';
+            while (currentPatternMatchPosition != stopString.Length)
             {
-                var ch = Read();
-                if (ch == NullChar)
+                if (pauseReading == 0)
                 {
-                    return false;
-                }
-                else if (ch == stopString[stopStringIndex])
-                {
-                    stopStringIndex++;
+                    currentChar = Read();
                 }
                 else
                 {
-                    stopStringIndex = 0;
+                    pauseReading--;
+                }
+
+                tokenText += currentChar;
+                if (currentChar == NullChar)
+                {
+                    return false;
+                }
+
+                if (stopString[currentPatternMatchPosition] == currentChar)
+                {
+                    if (currentPatternMatchPosition == stopString.Length - 1)
+                    {
+                        break;
+                    }
+                    currentPatternMatchPosition++;
+                }
+                else
+                {
+                    if (matchTable[currentPatternMatchPosition] > -1)
+                    {
+                        currentPatternMatchPosition = matchTable[currentPatternMatchPosition];
+                        pauseReading ++;
+                    }
+                    else
+                    {
+                        currentPatternMatchPosition = 0;
+                    }
                 }
 
                 if (stopOnNewLine && startLine != CurrentLine)
@@ -198,6 +225,47 @@ namespace DotVVM.Framework.Compilation.Parser
             CreateToken(tokenType, stopString.Length);
             return true;
         }
+
+        public int[] CreateTable(string pattern)
+        {
+            var patternLength = pattern.Length;
+            var result = new int[patternLength];
+
+            result[0] = -1;
+
+            if (result.Length < 2)
+            {
+                return result;
+            }
+
+            var currentTablePosition = 2;
+            var currentCandidateSubstringIndex = 0;
+
+            result[1] = 0;
+
+            while (currentTablePosition < patternLength)
+            {
+                if (pattern[currentTablePosition - 1] == pattern[currentCandidateSubstringIndex])
+                {
+                    // let T[pos] ← cnd + 1, cnd ← cnd + 1, pos ← pos + 1
+                    result[currentTablePosition] = currentCandidateSubstringIndex + 1;
+                    currentCandidateSubstringIndex++;
+                    currentTablePosition++;
+                }
+                else if (currentCandidateSubstringIndex > 0)
+                {
+                    currentCandidateSubstringIndex = result[currentCandidateSubstringIndex];
+                }
+                else
+                {
+                    result[currentTablePosition] = 0;
+                    currentTablePosition++;
+                }
+            }
+            return result;
+        }
+
+
 
         protected string ReadOneOf(params string[] strings)
         {

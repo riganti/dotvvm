@@ -70,7 +70,6 @@ var DotvvmEvents = (function () {
         this.init = new DotvvmEvent("dotvvm.events.init", true);
         this.beforePostback = new DotvvmEvent("dotvvm.events.beforePostback");
         this.afterPostback = new DotvvmEvent("dotvvm.events.afterPostback");
-        this.afterCheckboxItemsUpdated = new DotvvmEvent("dotvvm.events.afterCheckboxItemsUpdated");
         this.error = new DotvvmEvent("dotvvm.events.error");
         this.spaNavigating = new DotvvmEvent("dotvvm.events.spaNavigating");
         this.spaNavigated = new DotvvmEvent("dotvvm.events.spaNavigated");
@@ -860,7 +859,6 @@ var DotVVM = (function () {
                             else {
                                 checked.notifySubscribers();
                             }
-                            dotvvm.events.afterCheckboxItemsUpdated.trigger(e);
                         }
                     }
                 });
