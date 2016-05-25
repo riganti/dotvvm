@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.IO;
 using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
@@ -21,34 +22,65 @@ namespace DotVVM.Samples.BasicSamples
     {
         public void Configuration(IAppBuilder app)
         {
-
-            app.UseCookieAuthentication(new CookieAuthenticationOptions()
-            {
-                LoginPath = new PathString("/AuthSample/Login"),
-                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                Provider = new CookieAuthenticationProvider()
-                {
-                    OnApplyRedirect = c =>
-                    {
-                        // redirect to login page on 401 request
-                        if (c.Response.StatusCode == 401 && c.Request.Method == "GET")
+            app.Use<SwitchMiddleware>(
+                new List<SwitchMiddlewareCase>() {
+                    new SwitchMiddlewareCase(
+                        c => c.Request.Uri.PathAndQuery.StartsWith("/ComplexSamples/Auth"), next =>
+                        new CookieAuthenticationMiddleware(next, app, new CookieAuthenticationOptions()
                         {
-                            c.Response.StatusCode = 302;
-                            c.Response.Headers["Location"] = c.RedirectUri;
-                        }
-                        // do not do anything on redirection to returnurl
-                        // to not return page when ViewModel is expected
-                        // we should implement this in DotVVM framework,
-                        // not samples
-                    }
+                            LoginPath = new PathString("/ComplexSamples/Auth/Login"),
+                            AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                            Provider = new CookieAuthenticationProvider()
+                            {
+                                OnApplyRedirect = c =>
+                                {
+                                    // redirect to login page on 401 request
+                                    if (c.Response.StatusCode == 401 && c.Request.Method == "GET")
+                                    {
+                                        c.Response.StatusCode = 302;
+                                        c.Response.Headers["Location"] = c.RedirectUri;
+                                    }
+                                    // do not do anything on redirection to returnurl
+                                    // to not return page when ViewModel is expected
+                                    // we should implement this in DotVVM framework,
+                                    // not samples
+                                }
+                            }
+                        })
+                    ),
+                    new SwitchMiddlewareCase(
+                        c => c.Request.Uri.PathAndQuery.StartsWith("/ComplexSamples/SPARedirect"), next =>
+                        new CookieAuthenticationMiddleware(next, app, new CookieAuthenticationOptions()
+                        {
+                            LoginPath = new PathString("/ComplexSamples/SPARedirect/login"),
+                            AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                            Provider = new CookieAuthenticationProvider()
+                            {
+                                OnApplyRedirect = c =>
+                                {
+                                    // redirect to login page on 401 request
+                                    if (c.Response.StatusCode == 401 && c.Request.Method == "GET")
+                                    {
+                                        c.Response.StatusCode = 302;
+                                        c.Response.Headers["Location"] = c.RedirectUri;
+                                    }
+                                    // do not do anything on redirection to returnurl
+                                    // to not return page when ViewModel is expected
+                                    // we should implement this in DotVVM framework,
+                                    // not samples
+                                }
+                            }
+                        })
+                    )
                 }
-            });
+            );
+
             var applicationPhysicalPath = HostingEnvironment.ApplicationPhysicalPath;
 
             // use DotVVM
             DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
             dotvvmConfiguration.Debug = true;
-            
+
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
 

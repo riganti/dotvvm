@@ -31,7 +31,7 @@ namespace Dotvvm.Samples.Tests{
 	//generate constants
 	foreach (var info in data){
 		#>
-		public const string <#= info.RouteName #> = "<#=  info.Url #>";
+		public static string <#= info.RouteName #> => "<#=  info.Url #>";
 	<# } #>
 	}
 }

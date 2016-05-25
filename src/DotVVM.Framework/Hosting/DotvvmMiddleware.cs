@@ -47,6 +47,7 @@ namespace DotVVM.Framework.Hosting
                 ResourceManager = new ResourceManager(Configuration),
                 ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
             };
+            context.Set(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
 
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
             string url;

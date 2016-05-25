@@ -236,8 +236,8 @@ var DotVVM = (function () {
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.domUtils.attachEvent(window, "hashchange", function () { return _this.handleHashChange(viewModelName, spaPlaceHolder); });
-            this.handleHashChange(viewModelName, spaPlaceHolder);
+            this.domUtils.attachEvent(window, "hashchange", function () { return _this.handleHashChange(viewModelName, spaPlaceHolder, false); });
+            this.handleHashChange(viewModelName, spaPlaceHolder, true);
         }
         if (idFragment) {
             if (spaPlaceHolder) {
@@ -253,14 +253,14 @@ var DotVVM = (function () {
             _this.persistViewModel(viewModelName);
         });
     };
-    DotVVM.prototype.handleHashChange = function (viewModelName, spaPlaceHolder) {
+    DotVVM.prototype.handleHashChange = function (viewModelName, spaPlaceHolder, isInitialPageLoad) {
         if (document.location.hash.indexOf("#!/") === 0) {
             this.navigateCore(viewModelName, document.location.hash.substring(2));
         }
         else {
             // redirect to the default URL
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
-            if (url) {
+            if (url && !isInitialPageLoad) {
                 document.location.hash = "#!/" + url;
             }
             else {
@@ -548,7 +548,7 @@ var DotVVM = (function () {
             return;
         }
         // send the request
-        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dot-spacontentplaceholder"].value;
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
         this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, function (result) {
             // if another postback has already been passed, don't do anything
             if (!_this.isPostBackStillActive(currentPostBackCounter))
@@ -606,6 +606,18 @@ var DotVVM = (function () {
         if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
+            if (url === "#!") {
+                url = "#!/";
+            }
+            // verify that the URL prefix is correct, if not - add it before the fragment
+            var correctPrefix = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"].value;
+            var currentPrefix = document.location.pathname;
+            if (correctPrefix !== currentPrefix) {
+                if (correctPrefix === "") {
+                    correctPrefix = "/";
+                }
+                url = correctPrefix + url;
+            }
         }
         else {
             // absolute URL - load the URL
@@ -844,6 +856,24 @@ var DotVVM = (function () {
                     element.disabled = true;
                     element.setAttribute("disabled", "disabled");
                 }
+            }
+        };
+        ko.bindingHandlers['dotvvm-checkbox-updateAfterPostback'] = {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                dotvvm.events.afterPostback.subscribe(function (e) {
+                    var bindings = allBindingsAccessor();
+                    if (bindings["checked"]) {
+                        var checked = bindings["checked"];
+                        if (ko.isObservable(checked)) {
+                            if (checked.valueHasMutated) {
+                                checked.valueHasMutated();
+                            }
+                            else {
+                                checked.notifySubscribers();
+                            }
+                        }
+                    }
+                });
             }
         };
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {

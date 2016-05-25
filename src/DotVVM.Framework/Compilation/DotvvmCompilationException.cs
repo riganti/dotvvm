@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Runtime.Serialization;
 using DotVVM.Framework.Compilation.Parser;
@@ -10,6 +11,7 @@ namespace DotVVM.Framework.Compilation
     {
 
         public string FileName { get; set; }
+        public string SystemFileName => FileName?.Replace('\\', Path.DirectorySeparatorChar).Replace('/', Path.DirectorySeparatorChar);
 
         public IEnumerable<TokenBase> Tokens { get; set; }
 

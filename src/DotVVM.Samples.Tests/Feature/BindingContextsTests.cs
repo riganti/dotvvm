@@ -15,11 +15,12 @@ namespace DotVVM.Samples.Tests.Feature
     public class BindingContextsTests : SeleniumTestBase
     {
         [TestMethod]
-        public void Feature_BindingContextsTests()
+        public void Feature_BindingContextsTest()
         {
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_BindingContexts_BindingContext);
+                browser.Wait(1000);
 
                 var linkCount = browser.FindElements("a").Count;
                 for (var i = 0; i < linkCount; i++)
