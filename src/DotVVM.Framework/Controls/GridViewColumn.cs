@@ -9,13 +9,34 @@ namespace DotVVM.Framework.Controls
     {
 
         [MarkupOptions(AllowBinding = false)]
-        public string HeaderText { get; set; }
+        public string HeaderText
+        {
+            get { return (string)GetValue(HeaderTextProperty); }
+            set { SetValue(HeaderTextProperty, value); }
+        }
+        public static readonly DotvvmProperty HeaderTextProperty
+            = DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderText, null);
+
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate HeaderTemplate { get; set; }
+        public ITemplate HeaderTemplate
+        {
+            get { return (ITemplate)GetValue(HeaderTemplateProperty); }
+            set { SetValue(HeaderTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty HeaderTemplateProperty
+            = DotvvmProperty.Register<ITemplate, GridViewColumn>(c => c.HeaderTemplate, null);
+
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate FilterTemplate { get; set; }
+        public ITemplate FilterTemplate
+        {
+            get { return (ITemplate)GetValue(FilterTemplateProperty); }
+            set { SetValue(FilterTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty FilterTemplateProperty
+            = DotvvmProperty.Register<ITemplate, GridViewColumn>(c => c.FilterTemplate, null);
+
 
         [MarkupOptions(AllowBinding = false)]
         public string SortExpression
@@ -47,8 +68,15 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, GridViewColumn>(c => c.SortDescendingHeaderCssClass, "sort-desc");
 
         [MarkupOptions(AllowBinding = false)]
-        public bool AllowSorting { get; set; }
+        public bool AllowSorting
+        {
+            get { return (bool)GetValue(AllowSortingProperty); }
+            set { SetValue(AllowSortingProperty, value); }
+        }
+        public static readonly DotvvmProperty AllowSortingProperty
+            = DotvvmProperty.Register<bool, GridViewColumn>(c => c.AllowSorting, false);
 
+        [MarkupOptions(AllowBinding = false)]
         public string CssClass
         {
             get { return (string)GetValue(CssClassProperty); }
@@ -63,12 +91,10 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(IsEditableProperty); }
             set { SetValue(IsEditableProperty, value); }
         }
-
         public static readonly DotvvmProperty IsEditableProperty =
             DotvvmProperty.Register<bool, GridViewColumn>(t => t.IsEditable, true);
 
-
-
+        [MarkupOptions(AllowBinding = false)]
         public string HeaderCssClass
         {
             get { return (string)GetValue(HeaderCssClassProperty); }
@@ -78,7 +104,14 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderCssClass);
 
         [MarkupOptions(AllowBinding = false)]
-        public string Width { get; set; }
+        public string Width
+        {
+            get { return (string)GetValue(WidthProperty); }
+            set { SetValue(WidthProperty, value); }
+        }
+        public static readonly DotvvmProperty WidthProperty
+            = DotvvmProperty.Register<string, GridViewColumn>(c => c.Width, null);
+
 
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);

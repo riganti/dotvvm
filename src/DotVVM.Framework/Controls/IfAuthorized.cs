@@ -18,13 +18,27 @@ namespace DotVVM.Framework.Controls
         /// This is rendered iff user is authorized and has specified roles
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate Template { get; set; }
+        public ITemplate Template
+        {
+            get { return (ITemplate)GetValue(TemplateProperty); }
+            set { SetValue(TemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty TemplateProperty
+            = DotvvmProperty.Register<ITemplate, IfAuthorized>(c => c.Template, null);
+
 
         /// <summary>
         /// This is rendered iff user is not logged or does not have specified roles
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate ElseTemplate { get; set; }
+        public ITemplate ElseTemplate
+        {
+            get { return (ITemplate)GetValue(ElseTemplateProperty); }
+            set { SetValue(ElseTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty ElseTemplateProperty
+            = DotvvmProperty.Register<ITemplate, IfAuthorized>(c => c.ElseTemplate, null);
+
 
         /// <summary>
         /// Roles must have to render the template for authorized

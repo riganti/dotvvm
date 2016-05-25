@@ -818,8 +818,8 @@ var DotVVM = (function () {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 dotvvm.events.afterPostback.subscribe(function (e) {
                     var bindings = allBindingsAccessor();
-                    if (bindings["checked"]) {
-                        var checked = bindings["checked"];
+                    if (bindings["dotvvm-checked-pointer"]) {
+                        var checked = bindings[bindings["dotvvm-checked-pointer"]];
                         if (ko.isObservable(checked)) {
                             if (checked.valueHasMutated) {
                                 checked.valueHasMutated();
@@ -830,6 +830,10 @@ var DotVVM = (function () {
                         }
                     }
                 });
+            }
+        };
+        ko.bindingHandlers['dotvvm-checked-pointer'] = {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
             }
         };
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {

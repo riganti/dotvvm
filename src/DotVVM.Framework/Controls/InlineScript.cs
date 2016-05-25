@@ -20,6 +20,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the comma-separated list of resources that should be loaded before this script is executed.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string Dependencies
         {
             get { return (string)GetValue(DependenciesProperty); }
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DependenciesProperty =
             DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies, ResourceConstants.DotvvmResourceName);
 
-        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        [MarkupOptions(MappingMode = MappingMode.InnerElement, AllowBinding = false)]
         public string Script
         {
             get { return (string)GetValue(ScriptProperty); }

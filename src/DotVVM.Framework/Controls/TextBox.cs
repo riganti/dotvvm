@@ -53,6 +53,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets a format of presentation of value to client.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string FormatString
         {
             get { return (string)GetValue(FormatStringProperty); }
