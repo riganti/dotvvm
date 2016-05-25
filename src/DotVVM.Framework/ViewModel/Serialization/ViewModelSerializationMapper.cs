@@ -61,13 +61,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
 
-                /*var clientExtenderAttribute = property.GetCustomAttribute<ClientExtenderAttribute>();
-                if (clientExtenderAttribute != null)
-                {
-                    propertyMap.ClientExtenderName = clientExtenderAttribute.Name;
-                }
-                */
-
                 var clientExtenderList = property.GetCustomAttributes<ClientExtenderAttribute>();
                 if (clientExtenderList.Any())
                 {
@@ -97,7 +90,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             catch (Exception ex)
             {
-                throw new JsonException(string.Format("Cannot create an instance of {0} converter! Please check that this class have a public parameterless constructor.", converterType), ex);
+                throw new JsonException($"Cannot create an instance of {converterType} converter! Please check that this class have a public parameterless constructor.", ex);
             }
         }
     }
