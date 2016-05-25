@@ -129,7 +129,9 @@ namespace DotVVM.Framework.Controls
                 }
                 else if (!string.IsNullOrEmpty(Text))
                 {
+                    writer.RenderBeginTag("span");
                     writer.WriteText(Text);
+                    writer.RenderEndTag();
                 }
                 else if (!HasOnlyWhiteSpaceContent())
                 {
