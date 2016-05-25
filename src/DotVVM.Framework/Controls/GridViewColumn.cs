@@ -1,7 +1,7 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -9,10 +9,34 @@ namespace DotVVM.Framework.Controls
     {
 
         [MarkupOptions(AllowBinding = false)]
-        public string HeaderText { get; set; }
+        public string HeaderText
+        {
+            get { return (string)GetValue(HeaderTextProperty); }
+            set { SetValue(HeaderTextProperty, value); }
+        }
+        public static readonly DotvvmProperty HeaderTextProperty
+            = DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderText, null);
+
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
-        public ITemplate HeaderTemplate { get; set; }
+        public ITemplate HeaderTemplate
+        {
+            get { return (ITemplate)GetValue(HeaderTemplateProperty); }
+            set { SetValue(HeaderTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty HeaderTemplateProperty
+            = DotvvmProperty.Register<ITemplate, GridViewColumn>(c => c.HeaderTemplate, null);
+
+
+        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        public ITemplate FilterTemplate
+        {
+            get { return (ITemplate)GetValue(FilterTemplateProperty); }
+            set { SetValue(FilterTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty FilterTemplateProperty
+            = DotvvmProperty.Register<ITemplate, GridViewColumn>(c => c.FilterTemplate, null);
+
 
         [MarkupOptions(AllowBinding = false)]
         public string SortExpression
@@ -25,27 +49,34 @@ namespace DotVVM.Framework.Controls
 
 
         [MarkupOptions(AllowBinding = false)]
-        public string SortUpCssClass
+        public string SortAscendingHeaderCssClass
         {
-            get { return (string)GetValue(SortUpCssClassProperty); }
-            set { SetValue(SortUpCssClassProperty, value); }
+            get { return (string)GetValue(SortAscendingHeaderCssClassProperty); }
+            set { SetValue(SortAscendingHeaderCssClassProperty, value); }
         }
-        public static readonly DotvvmProperty SortUpCssClassProperty =
-            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortUpCssClass, "SortedUp");
+        public static readonly DotvvmProperty SortAscendingHeaderCssClassProperty =
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortAscendingHeaderCssClass, "sort-asc");
 
 
         [MarkupOptions(AllowBinding = false)]
-        public string SortDownCssClass
+        public string SortDescendingHeaderCssClass
         {
-            get { return (string)GetValue(SortDownCssClassProperty); }
-            set { SetValue(SortDownCssClassProperty, value); }
+            get { return (string)GetValue(SortDescendingHeaderCssClassProperty); }
+            set { SetValue(SortDescendingHeaderCssClassProperty, value); }
         }
-        public static readonly DotvvmProperty SortDownCssClassProperty =
-            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortDownCssClass, "SortedDown");
+        public static readonly DotvvmProperty SortDescendingHeaderCssClassProperty =
+            DotvvmProperty.Register<string, GridViewColumn>(c => c.SortDescendingHeaderCssClass, "sort-desc");
 
         [MarkupOptions(AllowBinding = false)]
-        public bool AllowSorting { get; set; }
+        public bool AllowSorting
+        {
+            get { return (bool)GetValue(AllowSortingProperty); }
+            set { SetValue(AllowSortingProperty, value); }
+        }
+        public static readonly DotvvmProperty AllowSortingProperty
+            = DotvvmProperty.Register<bool, GridViewColumn>(c => c.AllowSorting, false);
 
+        [MarkupOptions(AllowBinding = false)]
         public string CssClass
         {
             get { return (string)GetValue(CssClassProperty); }
@@ -60,12 +91,10 @@ namespace DotVVM.Framework.Controls
             get { return (bool)GetValue(IsEditableProperty); }
             set { SetValue(IsEditableProperty, value); }
         }
-
         public static readonly DotvvmProperty IsEditableProperty =
             DotvvmProperty.Register<bool, GridViewColumn>(t => t.IsEditable, true);
 
-
-
+        [MarkupOptions(AllowBinding = false)]
         public string HeaderCssClass
         {
             get { return (string)GetValue(HeaderCssClassProperty); }
@@ -75,7 +104,14 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, GridViewColumn>(c => c.HeaderCssClass);
 
         [MarkupOptions(AllowBinding = false)]
-        public string Width { get; set; }
+        public string Width
+        {
+            get { return (string)GetValue(WidthProperty); }
+            set { SetValue(WidthProperty, value); }
+        }
+        public static readonly DotvvmProperty WidthProperty
+            = DotvvmProperty.Register<string, GridViewColumn>(c => c.Width, null);
+
 
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);
@@ -84,6 +120,12 @@ namespace DotVVM.Framework.Controls
 
         public virtual void CreateHeaderControls(IDotvvmRequestContext context, GridView gridView, Action<string> sortCommand, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
         {
+            if (HeaderTemplate != null)
+            {
+                HeaderTemplate.BuildContent(context, cell);
+                return;
+            }
+
             if (AllowSorting)
             {
                 if (sortCommand == null)
@@ -94,9 +136,9 @@ namespace DotVVM.Framework.Controls
                 var sortExpression = GetSortExpression();
 
                 var linkButton = new LinkButton();
-                if (HeaderTemplate != null) HeaderTemplate.BuildContent(context, linkButton);
-                else linkButton.Text = HeaderText;
+                linkButton.Text = HeaderText;
                 cell.Children.Add(linkButton);
+
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
                 var binding = new CommandBindingExpression(h => sortCommand(sortExpression), bindingId);
                 linkButton.SetBinding(ButtonBase.ClickProperty, binding);
@@ -105,12 +147,18 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                if (HeaderTemplate == null)
-                {
-                    var literal = new Literal(HeaderText);
-                    cell.Children.Add(literal);
-                }
-                else HeaderTemplate.BuildContent(context, cell);
+                var literal = new Literal(HeaderText);
+                cell.Children.Add(literal);
+            }
+        }
+
+        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
+        {
+            if (FilterTemplate != null)
+            {
+                var placeholder = new PlaceHolder();
+                cell.Children.Add(placeholder);
+                FilterTemplate.BuildContent(context, placeholder);
             }
         }
 
@@ -124,19 +172,18 @@ namespace DotVVM.Framework.Controls
                     {
                         if (gridViewDataSet.SortDescending)
                         {
-                            cell.Attributes["class"] = SortDownCssClass;
+                            cell.Attributes["class"] = SortDescendingHeaderCssClass;
                         }
                         else
                         {
-                            cell.Attributes["class"] = SortUpCssClass;
+                            cell.Attributes["class"] = SortAscendingHeaderCssClass;
                         }
                     }
                 }
             }
             else
             {
-                cell.Attributes["data-bind"] =
-                $"css: {{ {SortDownCssClass}: ko.unwrap($parent.SortExpression) == '{GetSortExpression()}' && $parent.SortDescending(), {SortUpCssClass}: ko.unwrap($parent.SortExpression) == '{GetSortExpression()}' && !$parent.SortDescending()}}";
+                cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortDescending)}}";
             }
         }
 

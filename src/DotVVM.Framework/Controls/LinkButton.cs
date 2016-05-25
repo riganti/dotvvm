@@ -1,7 +1,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -19,7 +18,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
@@ -31,7 +30,7 @@ namespace DotVVM.Framework.Controls
             var clickBinding = GetCommandBinding(ClickProperty);
             if (clickBinding != null)
             {
-                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, context, this));
+                writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this));
             }
 
             writer.AddKnockoutDataBind("text", this, TextProperty, () => { shouldRenderText = true; });
@@ -43,7 +42,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Renders the contents inside the control begin and end tags.
         /// </summary>
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (shouldRenderText)
             {

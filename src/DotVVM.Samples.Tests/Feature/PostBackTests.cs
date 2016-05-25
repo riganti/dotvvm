@@ -26,6 +26,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "15");
                 browser.Click("input[type=button]");
+                browser.Wait();
 
                 browser.FindElements("br").ThrowIfDifferentCountThan(14);
 
@@ -33,6 +34,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "5");
                 browser.Click("input[type=button]");
+                browser.Wait();
 
                 browser.FindElements("br").ThrowIfDifferentCountThan(4);
             });
@@ -49,6 +51,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "test");
                 browser.Click("input[type=button]");
+                browser.Wait();
 
                 // check the inner text of generated items
                 browser.FindElements("p.item").ThrowIfDifferentCountThan(5).ForEach(e => e.CheckIfInnerTextEquals("test"));
@@ -57,6 +60,7 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "xxx");
                 browser.Click("input[type=button]");
+                browser.Wait();
 
                 browser.FindElements("p.item").ThrowIfDifferentCountThan(5).ForEach(e => e.CheckIfInnerTextEquals("xxx"));
             });
@@ -99,7 +103,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // confirm third
                 browser.ElementAt("input[type=button]", 2).Click();
-                //Assert.AreEqual(null, browser.GetAlert());            // TODO: GetAlert should return null when no alert is present.
+                Assert.IsFalse(browser.HasAlert());
                 browser.Wait();
                 browser.Last("span").CheckIfInnerTextEquals("3");
 
@@ -116,6 +120,35 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.ConfirmAlert();
                 browser.Wait();
                 browser.Last("span").CheckIfInnerTextEquals("5");
+
+                // confirm conditional
+                browser.ElementAt("input[type=button]", 5).Click();
+                Assert.IsFalse(browser.HasAlert());
+                browser.Wait();
+                browser.Last("span").CheckIfInnerTextEquals("6");
+
+                browser.First("input[type=checkbox]").Click();
+
+                browser.ElementAt("input[type=button]", 5).Click();
+                browser.CheckIfAlertTextEquals("Conditional 1");
+                browser.ConfirmAlert();
+                browser.Wait();
+                browser.Last("span").CheckIfInnerTextEquals("6");
+
+                browser.First("input[type=checkbox]").Click();
+
+                browser.ElementAt("input[type=button]", 5).Click();
+                Assert.IsFalse(browser.HasAlert());
+                browser.Wait();
+                browser.Last("span").CheckIfInnerTextEquals("6");
+
+                browser.First("input[type=checkbox]").Click();
+
+                browser.ElementAt("input[type=button]", 5).Click();
+                browser.CheckIfAlertTextEquals("Conditional 1");
+                browser.ConfirmAlert();
+                browser.Wait();
+                browser.Last("span").CheckIfInnerTextEquals("6");
             });
         }
     }

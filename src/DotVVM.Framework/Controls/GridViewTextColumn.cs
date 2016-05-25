@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -20,7 +20,14 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the format string that will be applied to numeric or date-time values.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public string FormatString { get; set; }
+        public string FormatString
+        {
+            get { return (string)GetValue(FormatStringProperty); }
+            set { SetValue(FormatStringProperty, value); }
+        }
+        public static readonly DotvvmProperty FormatStringProperty
+            = DotvvmProperty.Register<string, GridViewTextColumn>(c => c.FormatString, null);
+
 
         /// <summary>
         /// Gets or sets the type of value being formatted - Number or DateTime.

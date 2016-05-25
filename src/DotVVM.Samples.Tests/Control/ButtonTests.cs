@@ -14,6 +14,19 @@ namespace DotVVM.Samples.Tests.Control
     {
 
         [TestMethod]
+        public void Control_Button_Button()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_Button);
+
+                browser.First("span.result").CheckIfInnerTextEquals("0");
+                browser.First("input[type=button]").Click();
+                browser.First("span.result").CheckIfInnerTextEquals("1");
+            });
+        }
+
+        [TestMethod]
         public void Control_Button_InputTypeButton_TextContentInside()
         {
             RunInAllBrowsers(browser =>
@@ -33,7 +46,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.NavigateToUrl("ControlSamples/Button/InputTypeButton_HtmlContentInside");
 
                 browser.First("p.summary")
-                    .CheckIfInnerText(t => t.Contains("DotVVM.Framework.Exceptions.DotvvmControlException")
+                    .CheckIfInnerText(t => t.Contains("DotVVM.Framework.Controls.DotvvmControlException")
                         && t.Contains("The <dot:Button> control cannot have inner HTML connect unless the 'ButtonTagName' property is set to 'button'!"));
             });
         }

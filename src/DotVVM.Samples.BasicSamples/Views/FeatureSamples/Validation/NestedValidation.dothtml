@@ -19,9 +19,9 @@
 		<p><dot:Button Text="Create" Click="{command: Test()}" /></p>
 		
 		<p>
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" ShowErrorMessageText="true" />
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text}" HideWhenValid="false" InvalidCssClass="invalid">AddCssClass</dot:ValidationMessage>
-			<dot:ValidationMessage ValidatedValue="{value: Child.Text}">HideWhenValid</dot:ValidationMessage>
+			<dot:Validator Value="{value: Child.Text}" ShowErrorMessageText="true" />
+            <dot:Validator Value="{value: Child.Text}" HideWhenValid="false" InvalidCssClass="invalid">AddCssClass</dot:Validator>
+            <dot:Validator Value="{value: Child.Text}">HideWhenValid</dot:Validator>
 		</p>
 		<p>&nbsp;</p>
 		<div class="summary1">
@@ -30,7 +30,7 @@
 		</div>
 		<div class="summary2">
 			<p>Summary 2</p>
-			<dot:ValidationSummary Validate.Target="{value: Child}" />
+			<dot:ValidationSummary Validation.Target="{value: Child}" />
 		</div>
 	</div>
 	

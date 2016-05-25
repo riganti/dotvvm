@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
-using DotVVM.Framework.Parser;
 using System.Text;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Tests.Parser.Dothtml
 {

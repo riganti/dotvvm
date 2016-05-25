@@ -51,6 +51,8 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewInlineEditingValidation);
+                browser.Browser.Manage().Window.Maximize();
+
                 //Get rows
                 var rows = browser.First("table tbody");
                 var firstRow = rows.ElementAt("tr", 0);
@@ -76,6 +78,9 @@ namespace DotVVM.Samples.Tests.Control
                 //update
                 firstRow.ElementAt("td", 5).First("button").Click();
 
+                //getting rid iof "postback interupted message"
+                browser.FindElements("div#debugNotification").First().Click();
+                browser.Wait(1000);
 
                 var validationResult = browser.ElementAt(".validation", 0);
                 validationResult.CheckIfInnerTextEquals("The Name field is required.");
@@ -85,6 +90,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //clear email
                 firstRow.ElementAt("td", 3).First("input").Clear();
+                
                 //update
                 firstRow.ElementAt("td", 5).First("button").Click();
 
@@ -110,6 +116,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //Edit
                 firstRow.ElementAt("td", 5).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -136,6 +143,7 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("9536d712-2e91-43d2-8ebb-93fbec31cf34");
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -155,6 +163,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //update
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -181,6 +190,7 @@ namespace DotVVM.Samples.Tests.Control
                 firstRow.ElementAt("td", 0).First("span").CheckIfInnerTextEquals("A");
                 //Edit
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -200,6 +210,7 @@ namespace DotVVM.Samples.Tests.Control
 
                 //update
                 firstRow.ElementAt("td", 4).First("button").Click();
+                browser.Wait(500);
 
                 //init again
                 rows = browser.First("table tbody");
@@ -211,9 +222,7 @@ namespace DotVVM.Samples.Tests.Control
 
             });
         }
-
-
-
+        
         [TestMethod]
         public void Control_GridViewInlineEditingServer()
         {
@@ -262,11 +271,13 @@ namespace DotVVM.Samples.Tests.Control
 
                 // click on Cancel button
                 firstRow.ElementAt("td", 3).ElementAt("button", 1).Click();
+                browser.Wait(500);
 
                 // click the Edit button on another row
                 table = browser.ElementAt("table", tableID);
                 var desiredRow = table.ElementAt("tbody tr", 3);
                 desiredRow.ElementAt("td", 3).Single("button").Click();
+                browser.Wait(500);
 
                 // check if edit row changed
                 table = browser.ElementAt("table", tableID);
@@ -302,6 +313,7 @@ namespace DotVVM.Samples.Tests.Control
                 //page to second page
                 var navigation = browser.ElementAt(".pagination", 0);
                 navigation.FindElements("li a").Single(s => s.GetText() == "2").Click();
+                browser.Wait(500);
 
                 table = browser.ElementAt("table", tableID);
                 firstRow = table.First("tbody tr");
@@ -310,6 +322,7 @@ namespace DotVVM.Samples.Tests.Control
                 //page to back
                 navigation = browser.ElementAt(".pagination", 0);
                 navigation.FindElements("li a").Single(s => s.GetText() == "1").Click();
+                browser.Wait(500);
 
                 //after page back check edit row
                 table = browser.ElementAt("table", tableID);
@@ -360,31 +373,28 @@ namespace DotVVM.Samples.Tests.Control
                     browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("11");
 
                     // try sorting in the first grid
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("a", 0).Click();
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("button", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).CheckClassAttribute("SortedUp");
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("4");
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
+                    browser.Wait();
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).CheckClassAttribute("sort-asc");
+
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
+                    browser.Wait();
+                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
 
                     //// sort descending in the first grid
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("a", 0).Click();
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).ElementAt("a", 0).Click();
                     browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).CheckClassAttribute("SortedDown");
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("9");
+                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 1).CheckClassAttribute("sort-desc");
+                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("16");
 
                     //// sort by different column in the first grid
                     browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
                     browser.Wait();
                     browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
 
-                    //// try sorting in the first grid
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 2).ElementAt("a", 0).Click();
-                    browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("4");
-
-                    //// sort by different column in the first grid
-                    browser.ElementAt("table", 0).ElementAt("tr", 0).ElementAt("th", 0).ElementAt("a", 0).Click();
-                    browser.Wait();
-                    browser.ElementAt("table", 0).ElementAt("tr", 1).ElementAt("td", 0).CheckIfInnerTextEquals("1");
                 };
 
                 Control_GridViewShowHeaderWhenNoData(browser);
@@ -411,19 +421,33 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+                browser.ElementAt("table", 0).FindElements("tr").ThrowIfDifferentCountThan(6);
+                browser.ElementAt("table", 1).FindElements("tr").ThrowIfDifferentCountThan(6);
 
-                browser.FindElements("tr").ThrowIfDifferentCountThan(6);
-
-                browser.ElementAt("tr", 3).Click();
+                // check that clicking selects the row which gets the 'selected' class
+                browser.ElementAt("tr", 3).Click().Wait(500);
                 for (int i = 0; i < 6; i++)
                 {
-                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                    browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
+                }
+                browser.ElementAt("tr", 2).Click().Wait(500);
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
                 }
 
-                browser.ElementAt("tr", 2).Click();
-                for (int i = 0; i < 6; i++)
+                
+                // check that the edit row has the 'edit' class while the other rows have the 'normal' class
+                for (int i = 1; i < 6; i++)
                 {
-                    browser.ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));
+                    if (i != 2)
+                    {
+                        browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("normal").CheckIfHasNotClass("edit");
+                    }
+                    else
+                    {
+                        browser.ElementAt("table", 1).ElementAt("tr", i).CheckIfHasClass("edit").CheckIfHasNotClass("normal");
+                    }
                 }
             });
         }

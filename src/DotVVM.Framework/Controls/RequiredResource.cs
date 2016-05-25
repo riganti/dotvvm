@@ -17,6 +17,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the name of the resource.
         /// </summary>
+        [MarkupOptions(Required = true, AllowBinding = false)]
         public string Name
         {
             get { return (string)GetValue(NameProperty); }

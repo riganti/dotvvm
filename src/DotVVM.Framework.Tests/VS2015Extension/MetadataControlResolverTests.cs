@@ -247,16 +247,16 @@ namespace DotVVM.Framework.Tests.VS2015Extension
             Assert.IsTrue(combineWithHtmlCompletions);
             Assert.IsTrue(completions.Any(c => c.CompletionText == "DataContext"));
             Assert.IsTrue(completions.Any(c => c.CompletionText == "Visible"));
-            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validate.Enabled"));
-            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validate.Target"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validation.Enabled"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validation.Target"));
             Assert.IsTrue(completions.Any(c => c.CompletionText == "RenderSettings.Mode"));
             Assert.IsTrue(completions.Any(c => c.CompletionText == "PostBack.Update"));
 
-            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.ValidatedValue"));
-            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.HideWhenValid"));
-            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.InvalidCssClass"));
-            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.SetToolTipText"));
-            Assert.IsTrue(completions.Any(c => c.CompletionText == "ValidationMessage.ShowErrorMessageText"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.Value"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.HideWhenValid"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.InvalidCssClass"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.SetToolTipText"));
+            Assert.IsTrue(completions.Any(c => c.CompletionText == "Validator.ShowErrorMessageText"));
         }
     }
 }

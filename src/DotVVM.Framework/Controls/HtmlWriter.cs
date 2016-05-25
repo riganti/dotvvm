@@ -183,6 +183,10 @@ namespace DotVVM.Framework.Controls
         private void RenderBeginTagCore(string name)
         {
             writer.Write("<");
+            if (string.IsNullOrWhiteSpace(name))
+            {
+                throw new InvalidOperationException("HtmlWriter cannot render tag, because tag name is empty.");
+            }
             writer.Write(name);
 
             foreach (DictionaryEntry attr in dataBindAttributes)

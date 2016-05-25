@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
+using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
@@ -13,6 +14,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the name of the event which the handler applies to. If this property is not set, it applies to all events.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string EventName
         {
             get { return (string)GetValue(EventNameProperty); }
@@ -20,6 +22,17 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty EventNameProperty
             = DotvvmProperty.Register<string, PostBackHandler>(c => c.EventName, null);
+
+        /// <summary>
+        /// Gets or sets a value indicating whether this <see cref="PostBackHandler"/> is enabled.
+        /// </summary>
+        public bool Enabled
+        {
+            get { return (bool)GetValue(EnabledProperty); }
+            set { SetValue(EnabledProperty, value); }
+        }
+        public static readonly DotvvmProperty EnabledProperty
+            = DotvvmProperty.Register<bool, PostBackHandler>(c => c.Enabled, true);
 
 
 
@@ -35,7 +48,7 @@ namespace DotVVM.Framework.Controls
 
 
 
-        protected string TranslateValueOrBinding(DotvvmProperty property)
+        protected internal string TranslateValueOrBinding(DotvvmProperty property)
         {
             var binding = GetValueBinding(property);
             if (binding == null)

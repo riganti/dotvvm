@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Routing
         };
 
         private Func<IDotvvmPresenter> presenterFactory;
-        
+
         private Regex routeRegex;
         private List<Func<Dictionary<string, object>, string>> urlBuilders;
         private List<KeyValuePair<string, IRouteParameterType>> parameters;
@@ -52,6 +52,17 @@ namespace DotVVM.Framework.Routing
             ParseRouteUrl();
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
+        /// </summary>
+        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory)
+            : base(url, virtualPath, name, defaultValues)
+        {
+            this.presenterFactory = presenterFactory;
+
+            ParseRouteUrl();
+        }
+
 
         /// <summary>
         /// Parses the route URL and extracts the components.
@@ -64,7 +75,7 @@ namespace DotVVM.Framework.Routing
                 throw new ArgumentException("The route URL must not end with '/'!");
 
             parameters = new List<KeyValuePair<string, IRouteParameterType>>();
-            
+
             urlBuilders = new List<Func<Dictionary<string, object>, string>>();
             urlBuilders.Add(_ => "~/");
 
@@ -107,13 +118,13 @@ namespace DotVVM.Framework.Routing
         {
             // find the end of the route parameter name
             var startIndex = index;
-            index = Url.IndexOfAny(new[] {'}', ':'}, index);
+            index = Url.IndexOfAny(new[] { '}', ':' }, index);
             if (index < 0)
             {
                 throw new ArgumentException($"The route URL '{Url}' is not valid! It contains an unclosed parameter.");
             }
             var name = Url.Substring(startIndex, index - startIndex).Trim();
-            
+
             // determine whether the parameter is optional - it must end with ?, or must be present in the DefaultValues collection
             var isOptional = name.EndsWith("?", StringComparison.Ordinal);
             if (isOptional)
@@ -179,7 +190,7 @@ namespace DotVVM.Framework.Routing
             return result;
         }
 
-        
+
         /// <summary>
         /// Determines whether the route matches to the specified URL and extracts the parameter values.
         /// </summary>
@@ -193,7 +204,7 @@ namespace DotVVM.Framework.Routing
             }
 
             values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
-            
+
             foreach (var parameter in parameters)
             {
                 var g = match.Groups["param" + parameter.Key];
@@ -219,7 +230,7 @@ namespace DotVVM.Framework.Routing
             }
             catch (Exception ex)
             {
-                throw new Exception($"Could not build url for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
+                throw new Exception($"Could not build URL for route '{ this.Url }' with values {{{ string.Join(", ", values.Select(kvp => kvp.Key + ": " + kvp.Value)) }}}", ex);
             }
         }
 

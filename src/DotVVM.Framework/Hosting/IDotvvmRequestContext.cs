@@ -1,8 +1,10 @@
+using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using Microsoft.Owin;
@@ -16,7 +18,15 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         IOwinContext OwinContext { get; }
 
+        /// <summary>
+        /// Gets the view model for the current request.
+        /// </summary>
         object ViewModel { get; }
+
+        /// <summary>
+        /// Gets the top-level control representing the whole view for the current request.
+        /// </summary>
+        DotvvmView View { get; }
 
         /// <summary>
         /// Gets the global configuration of DotVVM.
@@ -61,6 +71,17 @@ namespace DotVVM.Framework.Hosting
         bool IsCommandExceptionHandled { get; set; }
 
         /// <summary>
+        /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
+        /// This property is typically set from the action filter's OnPageExceptionHandled method.
+        /// </summary>
+        bool IsPageExceptionHandled { get; set; }
+
+        /// <summary>
+        /// Gets or sets the exception that occured when the command was executed.
+        /// </summary>
+        Exception CommandException { get; }
+
+        /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
         /// </summary>
         bool IsSpaRequest { get; }
@@ -71,6 +92,11 @@ namespace DotVVM.Framework.Hosting
         bool IsInPartialRenderingMode { get; }
 
         /// <summary>
+        /// Gets or sets new url fragment (the part after #) to be set on client. Use this to refer to element Ids on the page
+        /// </summary>
+        string ResultIdFragment { get; set; }
+
+        /// <summary>
         /// Changes the current culture of this HTTP request.
         /// </summary>
         void ChangeCurrentCulture(string cultureName);
@@ -78,13 +104,11 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns current UI culture of this HTTP request.
         /// </summary>
-
-        // ReSharper disable once InconsistentNaming
         CultureInfo GetCurrentUICulture();
+
         /// <summary>
         /// Returns current culture of this HTTP request.
         /// </summary>
-
         CultureInfo GetCurrentCulture();
 
         /// <summary>
@@ -95,22 +119,22 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        void Redirect(string url);
+        void RedirectToUrl(string url);
 
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        void Redirect(string routeName, object newRouteValues);
+        void RedirectToRoute(string routeName, object newRouteValues = null);
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectPermanent(string url);
+        void RedirectToUrlPermanent(string url);
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectPermanent(string routeName, object newRouteValues);
+        void RedirectToRoutePermanent(string routeName, object newRouteValues = null);
 
         /// <summary>
         /// Ends the request execution when the <see cref="DotvvmRequestContext.ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.
@@ -131,7 +155,7 @@ namespace DotVVM.Framework.Hosting
         /// <param name="fileName">Name of file.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="additionalHeaders">Additional headers.</param>
-        void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders);
+        void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null);
 
         /// <summary>
         /// Sends data stream to client.
@@ -140,6 +164,6 @@ namespace DotVVM.Framework.Hosting
         /// <param name="fileName">Name of file.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="additionalHeaders">Additional headers.</param>
-        void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders);
+        void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null);
     }
 }

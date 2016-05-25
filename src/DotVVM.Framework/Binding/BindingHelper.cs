@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Binding
 {
@@ -17,8 +18,7 @@ namespace DotVVM.Framework.Binding
 
         public static CommandBindingExpression RegisterExtensionCommand(this DotvvmControl control, Delegate action, string methodUsageId)
         {
-            control.EnsureControlHasId();
-            var id = control.ID + methodUsageId;
+            var id = control.GetDotvvmUniqueId() + methodUsageId;
             var propertyName = control.GetType().FullName + "/" + methodUsageId;
             var property = DotvvmProperty.Register<object, ExtensionCommands>(propertyName);
             var binding = new CommandBindingExpression(action, id);

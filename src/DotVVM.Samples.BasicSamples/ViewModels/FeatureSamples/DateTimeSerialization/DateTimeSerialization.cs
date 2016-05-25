@@ -4,6 +4,7 @@ using System.Globalization;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;

@@ -21,7 +21,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Wait();
                 Action<string> isDisplayed = id =>  browser.CheckIfIsDisplayed("#" + id);
                 Action<string> isHidden = id => browser.CheckIfIsNotDisplayed("#"+ id);
-                Action<string> isNotPresent = id => browser.FindElements("#" + id).ThrowIfDifferentCountThan(0);
+                Action<string> isNotPresent = id => browser.FindElements("#" + id + " > *").ThrowIfDifferentCountThan(0);
 
                 isHidden("marker1_parent");
                 isDisplayed("marker1");

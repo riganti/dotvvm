@@ -1,5 +1,3 @@
-using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.VS2015Extension.Configuration;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Projection;
 using DotVVM.VS2015Extension.DotvvmPageWizard;
@@ -14,6 +12,8 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
 {
@@ -57,7 +57,7 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Classification
             remove { }
         }
 
-        public IList<DothtmlToken> Tokens
+        public List<DothtmlToken> Tokens
         {
             get { return tokenizer.Tokens; }
         }

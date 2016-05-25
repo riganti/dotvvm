@@ -9,11 +9,11 @@ namespace DotVVM.Framework.Controls
     {
         [AttachedProperty(typeof(bool))]
         public static readonly DotvvmProperty UpdateProperty =
-            DotvvmProperty.Register<bool, PostBack>("Update", false);
+            DotvvmProperty.Register<bool, PostBack>(() => UpdateProperty, false);
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
         [AttachedProperty(typeof(PostBackHandlerCollection))]
         public static readonly DotvvmProperty HandlersProperty =
-            DotvvmProperty.Register<PostBackHandlerCollection, PostBack>("Handlers", null);
+            DotvvmProperty.Register<PostBackHandlerCollection, PostBack>(() => HandlersProperty, null);
     }
 }

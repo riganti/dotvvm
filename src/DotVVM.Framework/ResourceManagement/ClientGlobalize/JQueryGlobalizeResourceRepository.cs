@@ -1,9 +1,9 @@
-using DotVVM.Framework.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
 {
@@ -13,8 +13,8 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
         {
             return new ScriptResource()
             {
-                Url = string.Format("~/{0}?{1}={2}", Constants.GlobalizeCultureUrlPath, Constants.GlobalizeCultureUrlIdParameter, name),
-                Dependencies = new[] { Constants.GlobalizeResourceName },
+                Url = string.Format("~/{0}?{1}={2}", HostingConstants.GlobalizeCultureUrlPath, HostingConstants.GlobalizeCultureUrlIdParameter, name),
+                Dependencies = new[] { ResourceConstants.GlobalizeResourceName },
                 // TODO: cdn?
             };
         }

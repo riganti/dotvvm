@@ -4,9 +4,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.VS2015Extension.DotvvmPageWizard
 {
@@ -31,9 +31,9 @@ namespace DotVVM.VS2015Extension.DotvvmPageWizard
                     if (node.FullTagName == "dot:ContentPlaceHolder" || node.FullTagName == "dot:SpaContentPlaceHolder")
                     {
                         var id = node.Attributes.FirstOrDefault(a => a.AttributeName == "ID");
-                        if (id != null && id.Literal.GetType() == typeof(DothtmlLiteralNode))
+                        if (id != null && id.AttributeNameNode.GetType() == typeof(DothtmlLiteralNode))
                         {
-                            results.Add(id.Literal.Value);
+                            results.Add(id.AttributeNameNode.Text);
                         }
                     }
                 }

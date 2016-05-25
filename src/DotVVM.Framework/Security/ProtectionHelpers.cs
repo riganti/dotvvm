@@ -15,8 +15,15 @@ namespace DotVVM.Framework.Security
         public static string GetUserIdentity(IDotvvmRequestContext context)
         {
             var user = context.OwinContext.Request.User;
-            var userIdentity = user != null && user.Identity.IsAuthenticated ? user.Identity.Name : null;
-            return userIdentity;
+            
+            if (user != null && user.Identity.IsAuthenticated)
+            {
+                return "user" + user.Identity.Name ?? "";
+            }
+            else
+            {
+                return "anonymous";
+            }
         }
     }
 }

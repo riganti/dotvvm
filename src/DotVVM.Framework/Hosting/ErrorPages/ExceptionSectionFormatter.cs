@@ -89,6 +89,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 sb.Append(".");
             }
             sb.Append(method.Name);
+            if (method.IsGenericMethod)
+            {
+                sb.Append("<");
+                sb.Append(string.Join(", ", method.GetGenericArguments().Select(t => t.Name)));
+                sb.Append(">");
+            }
             sb.Append("(");
             var f = false;
             foreach (var p in method.GetParameters())
@@ -106,9 +112,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public void WriteHead(IErrorWriter w)
         {
             w.Write(@"
-.exception .exceptionType { font-weight: bold; }
 .exception .exceptionType:after { content: ': '; }
-.exception .exceptionType, .exceptionMessage { font-size: 1.5em; font-style: italic; }
+.exception .exceptionType { font-size: 1.2em; font-weight: bold; }
+.exception .exceptionMessage { font-style: italic; }
 .exceptionStackTrace {  }
 .exceptionStackTrace .frame { padding: 2px; margin: 0 0 0 30px; border-bottom: 1px #ddd solid; }
 .exceptionStackTrace .frame:hover { background-color: #f0f0f0; }

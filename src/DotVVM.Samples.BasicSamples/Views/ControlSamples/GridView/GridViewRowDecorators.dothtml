@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.GridViewRowDecoratorsViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.GridViewRowDecoratorsViewModel, DotVVM.Samples.BasicSamples
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -12,6 +12,13 @@
 		table tr.selected {
 			background-color: yellow;
 		}
+
+        .normal {
+            background-color: #aaffaa;
+        }
+        .edit {
+            background-color: #aaaaff;
+        }
 	</style>
 </head>
 <body>
@@ -22,6 +29,20 @@
 				<dot:Decorator Events.Click="{command: _root.SelectCustomer(CustomerId)}"
 							   class="{value: _root.SelectedRowId == CustomerId ? 'selected' : ''}" />
 			</RowDecorators>
+            <Columns>
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+            </Columns>
+        </dot:GridView>
+
+        <dot:GridView DataSource="{value: CustomersDataSet2}" class="table table-bordered" InlineEditing="true">
+            <RowDecorators>
+                <dot:Decorator class="normal" />
+            </RowDecorators>
+            <EditRowDecorators>
+                <dot:Decorator class="edit" />
+            </EditRowDecorators>
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />

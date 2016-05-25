@@ -1,15 +1,15 @@
 ﻿using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Exceptions;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Runtime.Compilation;
-using DotVVM.Framework.Runtime.Compilation.Binding;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -24,8 +24,8 @@ namespace DotVVM.Framework.Tests.Binding
             {
                 context = new DataContextStack(contexts[i].GetType(), context);
             }
-            var parser = new CompileTimeBindingParser();
-            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>());
+            var parser = new BindingExpressionBuilder();
+            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: new[] { "DotVVM.Framework.Tests.Binding" }));
             return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, typeof(object)).Compile()(contexts, control);
         }
 
@@ -70,16 +70,21 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(viewModel.StringProp, "hulabula13");
         }
 
-        class MoqComponent
+        class MoqComponent: DotvvmBindableObject
         {
-            public object Property { get; set; }
+            public object Property
+            {
+                get { return (object)GetValue(PropertyProperty); }
+                set { SetValue(PropertyProperty, value); }
+            }
+            public static DotvvmProperty PropertyProperty;
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DotvvmCompilationException))]
+        [ExpectedException(typeof(ArgumentException))]
         public void BindingCompiler_PropertyRegisteredTwiceThrowException()
         {
-            DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
+            MoqComponent.PropertyProperty = DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
             DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
         }
 
@@ -103,6 +108,25 @@ namespace DotVVM.Framework.Tests.Binding
             var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
             Assert.AreEqual(ExecuteBinding("EnumProperty == 'A'", viewModel), true);
             Assert.AreEqual(ExecuteBinding("EnumProperty == 'B'", viewModel), false);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_EnumStringComparison_Underscore()
+        {
+            var viewModel = new TestViewModel { EnumProperty = TestEnum.Underscore_hhh };
+            Assert.AreEqual(ExecuteBinding("EnumProperty == 'Underscore_hhh'", viewModel), true);
+            Assert.AreEqual(ExecuteBinding("EnumProperty == 'B'", viewModel), false);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_EnumMemberAccess()
+        {
+            var viewModel = new TestViewModel { EnumProperty = TestEnum.Underscore_hhh, StringProp = "abc" };
+            Assert.AreEqual(ExecuteBinding("TestEnum.A", viewModel), TestEnum.A);
+            Assert.AreEqual(ExecuteBinding("TestEnum.Underscore_hhh", viewModel), TestEnum.Underscore_hhh);
+            Assert.AreEqual(ExecuteBinding("EnumProperty == TestEnum.Underscore_hhh", viewModel), true);
+            Assert.AreEqual(ExecuteBinding("StringProp == 'abc' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.A);
+            Assert.AreEqual(ExecuteBinding("StringProp == 'abcd' ? TestEnum.A : TestEnum.Underscore_hhh", viewModel), TestEnum.Underscore_hhh);
         }
 
         [TestMethod]
@@ -150,12 +174,49 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(false, viewModel.BoolMethodExecuted);
         }
 
+        [TestMethod]
+        public void BindingCompiler_Valid_NullCoallescence()
+        {
+            var viewModel = new TestViewModel() { StringProp = "AHOJ 12" };
+            Assert.AreEqual("AHOJ 12", ExecuteBinding("StringProp2 ?? (StringProp ?? 'HUHHHHE')", viewModel));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_ImportedStaticClass()
+        {
+            var result = ExecuteBinding($"TestStaticClass.GetSomeString()", new TestViewModel());
+            Assert.AreEqual(result, TestStaticClass.GetSomeString());
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_SystemStaticClass()
+        {
+            var result = ExecuteBinding($"String.Empty", new TestViewModel());
+            Assert.AreEqual(result, String.Empty);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_StaticClassWithNamespace()
+        {
+            var result = ExecuteBinding($"System.Text.Encoding.ASCII.GetBytes('ahoj')", new TestViewModel());
+            Assert.IsTrue(Encoding.ASCII.GetBytes("ahoj").SequenceEqual((byte[])result));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_MemberAssignment()
+        {
+            var vm = new TestViewModel() { TestViewModel2 = new TestViewModel2() };
+            var result = ExecuteBinding($"TestViewModel2.SomeString = '42'", vm);
+            Assert.AreEqual("42", vm.TestViewModel2.SomeString);
+        }
+
         class TestViewModel
         {
             public string StringProp { get; set; }
 
             public TestViewModel2 TestViewModel2 { get; set; }
             public TestEnum EnumProperty { get; set; }
+            public string StringProp2 { get; set; }
 
             public string SetStringProp(string a, int b)
             {
@@ -187,17 +248,11 @@ namespace DotVVM.Framework.Tests.Binding
                 return false;
             }
         }
-        enum TestEnum
-        {
-            A,
-            B,
-            C,
-            D
-        }
-
+        
         class TestViewModel2
         {
             public int MyProperty { get; set; }
+            public string SomeString { get; set; }
 
             public IList<Something> Collection { get; set; }
         }
@@ -206,5 +261,19 @@ namespace DotVVM.Framework.Tests.Binding
         {
             public bool Value { get; set; }
         }
+    }
+    enum TestEnum
+    {
+        A,
+        B,
+        C,
+        D,
+        Underscore_hhh
+    }
+
+
+    public static class TestStaticClass
+    {
+        public static string GetSomeString() => "string 123";
     }
 }

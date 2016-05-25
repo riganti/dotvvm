@@ -18,7 +18,7 @@ namespace DotVVM.Samples.Tests.Complex
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_SPAViewModelReapplication_pageA);
-                browser.Wait();
+                browser.Wait(1000);
 
                 // verify items count
                 browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3);
@@ -29,7 +29,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("#test2").CheckIfInnerTextEquals("A");
                 
                 //check url
-                browser.CheckUrl(s => s.Contains("SPAViewModelReapplication/pageA#!/ComplexSamples/SPAViewModelReapplication/pageA"));
+                browser.CheckUrl(s => s.Contains("SPAViewModelReapplication/page"));
 
                 // try the postback
                 browser.First("input[type=button]").Click();

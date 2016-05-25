@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Tests.Parser.Dothtml
 {
@@ -487,6 +487,51 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.AreEqual(DothtmlTokenType.Text, tokens[9].Type);
             Assert.AreEqual(@"Test", tokens[9].Text);
         }
+
+
+
+
+        [TestMethod]
+        public void DothtmlTokenizer_CommentWithMoreMinuses()
+        {
+            var input = "<!-- my comment ---> @viewModel TestDirective\r\nTest";
+            var tokens = Tokenize(input);
+
+            Assert.AreEqual(DothtmlTokenType.OpenComment, tokens[0].Type);
+            Assert.AreEqual(@"<!--", tokens[0].Text);
+
+            Assert.AreEqual(DothtmlTokenType.CommentBody, tokens[1].Type);
+            Assert.AreEqual(@" my comment -", tokens[1].Text);
+
+            Assert.AreEqual(DothtmlTokenType.CloseComment, tokens[2].Type);
+            Assert.AreEqual(@"-->", tokens[2].Text);
+
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokens[3].Type);
+            Assert.AreEqual(@" ", tokens[3].Text);
+
+            Assert.AreEqual(DothtmlTokenType.DirectiveStart, tokens[4].Type);
+            Assert.AreEqual(@"@", tokens[4].Text);
+
+            Assert.AreEqual(DothtmlTokenType.DirectiveName, tokens[5].Type);
+            Assert.AreEqual(@"viewModel", tokens[5].Text);
+
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokens[6].Type);
+            Assert.AreEqual(@" ", tokens[6].Text);
+
+            Assert.AreEqual(DothtmlTokenType.DirectiveValue, tokens[7].Type);
+            Assert.AreEqual(@"TestDirective", tokens[7].Text);
+
+            Assert.AreEqual(DothtmlTokenType.WhiteSpace, tokens[8].Type);
+            Assert.AreEqual("\r\n", tokens[8].Text);
+
+            Assert.AreEqual(DothtmlTokenType.Text, tokens[9].Type);
+            Assert.AreEqual(@"Test", tokens[9].Text);
+        }
+
+
+
+
+
 
         [TestMethod]
         public void DothtmlTokenizer_Valid_ServerCommentBeforeDirective()

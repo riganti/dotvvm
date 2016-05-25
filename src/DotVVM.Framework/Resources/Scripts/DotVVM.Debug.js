@@ -61,11 +61,11 @@
     }
 
     dotvvm.events.error.subscribe(function (e) {
-        if (e.handled) return;
-        console.log("DotVVM: An unhandled exception returned from the server command.");
+        console.log("DotVVM: An " + (e.handled ? "" : "un") + "handled exception returned from the server command.");
         console.log("XmlHttpRequest: ", e.xhr);
         console.log("ViewModel: ", e.viewModel);
-        debugWindow.find("h1").text("DotVVM Debugger: Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "(unknown)"));
+        if (e.handled) return;
+        debugWindow.find("h1").text("DotVVM Debugger: Error " + (e.xhr.status ? e.xhr.status + ": " + e.xhr.statusText + "" : "XmlHttpRequest failed, maybe internet connection is lost or url is malformed"));
         debugWindow.find("iframe").contents().find('html').html(e.xhr.responseText);
         debugWindow.css({ display: "flex" });
         e.handled = true;
@@ -76,7 +76,7 @@
             enumerable: false,
             configurable: true,
             get: function() {
-                dotvvm.serialization.serialize(obj)
+                return dotvvm.serialization.serialize(obj)
             }
         });
     }

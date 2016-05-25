@@ -7,6 +7,8 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Utils
 {
@@ -15,17 +17,28 @@ namespace DotVVM.Framework.Utils
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
-        public static string GetPropertyNameFromExpression<T, TProperty>(Expression<Func<T, TProperty>> expression)
+        public static MemberInfo GetMemberFromExpression(Expression expression)
         {
-            var body = expression.Body as MemberExpression;
+            var body = expression as MemberExpression;
 
             if (body == null)
             {
-                var unaryExpressionBody = (UnaryExpression)expression.Body;
+                var unaryExpressionBody = (UnaryExpression)expression;
                 body = unaryExpressionBody.Operand as MemberExpression;
             }
 
-            return body.Member.Name;
+            return body.Member;
+        }
+
+        /// <summary>
+        /// Gets filesystem path of assembly CodeBase
+        /// http://stackoverflow.com/questions/52797/how-do-i-get-the-path-of-the-assembly-the-code-is-in
+        /// </summary>
+        public static string GetCodeBasePath(this Assembly assembly)
+        {
+            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            UriBuilder uri = new UriBuilder(codeBase);
+            return Uri.UnescapeDataString(uri.Path);
         }
 
         /// <summary>
@@ -134,8 +147,7 @@ namespace DotVVM.Framework.Utils
             if (split.Length > 1)
             {
                 var assembly = split[1];
-                type = assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
-                if (type != null) return type;
+                return assemblies.Where(a => a.GetName().Name == assembly).Select(a => a.GetType(name)).FirstOrDefault(t => t != null);
             }
 
             type = assemblies.Where(a => name.StartsWith(a.GetName().Name, stringComparison)).Select(a => a.GetType(name, false, ignoreCase)).FirstOrDefault(t => t != null);
@@ -145,45 +157,12 @@ namespace DotVVM.Framework.Utils
 
         public static Type GetEnumerableType(Type collectionType)
         {
-            // handle array
-            if (collectionType.IsArray)
-            {
-                return collectionType.GetElementType();
-            }
-
-            // handle iEnumerables
-            Type iEnumerable;
-            if (collectionType.IsGenericType && collectionType.GetGenericTypeDefinition() == typeof(IEnumerable<>))
-            {
-                iEnumerable = collectionType;
-            }
-            else
-            {
-                iEnumerable = collectionType.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
-            }
-            if (iEnumerable != null)
-            {
-                return iEnumerable.GetGenericArguments()[0];
-            }
-
-            // handle GridViewDataSet
-            if (typeof(IGridViewDataSet).IsAssignableFrom(collectionType))
-            {
-                var itemsType = collectionType.GetProperty(nameof(IGridViewDataSet.Items)).PropertyType;
-                return GetEnumerableType(itemsType);
-            }
-
-            // handle object collections
-            if (typeof(IEnumerable).IsAssignableFrom(collectionType))
-            {
-                return typeof(object);
-            }
-
-            throw new NotSupportedException();      // TODO
+            var result = TypeDescriptorUtils.GetCollectionItemType(new ResolvedTypeDescriptor(collectionType));
+            if (result == null) return null;
+            return ResolvedTypeDescriptor.ToSystemType(result);
         }
 
-        private static readonly List<Type> NumericTypes = new List<Type>()
+        private static readonly HashSet<Type> NumericTypes = new HashSet<Type>()
         {
             typeof (sbyte),
             typeof (byte),

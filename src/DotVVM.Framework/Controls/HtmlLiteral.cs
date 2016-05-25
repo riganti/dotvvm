@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -65,7 +64,7 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             TagName = WrapperTagName;
 
@@ -82,7 +81,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderBeginTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderWrapperTag)
             {
@@ -94,7 +93,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderOnServer || !HasBinding(HtmlProperty))
             {
@@ -102,7 +101,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        protected override void RenderEndTag(IHtmlWriter writer, RenderContext context)
+        protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (RenderWrapperTag)
             {

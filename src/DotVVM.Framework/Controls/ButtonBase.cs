@@ -2,7 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -60,7 +62,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddKnockoutDataBind("dotvvmEnable", this, EnabledProperty, () =>
             {

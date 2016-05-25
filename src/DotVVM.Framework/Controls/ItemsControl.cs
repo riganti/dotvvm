@@ -1,10 +1,10 @@
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
-using DotVVM.Framework.Runtime.Compilation.JavascriptCompilation;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {

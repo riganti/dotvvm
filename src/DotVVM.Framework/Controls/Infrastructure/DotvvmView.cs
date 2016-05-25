@@ -2,9 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -38,10 +39,10 @@ namespace DotVVM.Framework.Controls.Infrastructure
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            context.ResourceManager.AddRequiredResource(Constants.DotvvmResourceName);
+            context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmResourceName);
             if (context.Configuration.Debug)
             {
-                context.ResourceManager.AddRequiredResource(Constants.DotvvmDebugResourceName);
+                context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmDebugResourceName);
             }
             base.OnPreRender(context);
         }

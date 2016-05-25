@@ -6,9 +6,16 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Button
     {
         public string Title { get; set; }
 
+        public int Count { get; set; }
+        
         public ButtonViewModel()
         {
             Title = "Hello from DotVVM!";
+        }
+
+        public void IncreaseCount()
+        {
+            Count++;
         }
     }
 }

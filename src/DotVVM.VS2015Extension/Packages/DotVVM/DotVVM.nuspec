@@ -2,29 +2,30 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>DotVVM</id>
-        <version>0.9.0.0</version>
+        <version>1.0.0.6-rc2</version>
         <authors>RIGANTI</authors>
         <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
         <projectUrl>http://github.org/riganti/dotvvm</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>DotVVM is an OWIN-based ASP.NET framework that allows you to write rich client applications using the MVVM pattern without writing javascript code.</description>
         <summary />
+	<iconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</iconUrl>
         <language />
         <tags>dotvvm dotvvm asp.net mvvm owin</tags>
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
                 <dependency id="Microsoft.Owin.StaticFiles" version="3.0.1" />
+		<dependency id="Microsoft.Owin.Security" version="3.0.1" />
                 <dependency id="Microsoft.Owin.Host.SystemWeb" version="3.0.1" />
                 <dependency id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0" />
                 <dependency id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
-                <dependency id="Newtonsoft.Json" version="7.0.1" />
+                <dependency id="Newtonsoft.Json" version="8.0.3" />
             </group>
         </dependencies>
     </metadata>
     <files>
         <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.dll" target="lib\net451\DotVVM.Framework.dll" />
-        <file src="init.ps1" target="tools\init.ps1" />
-        <file src="install.ps1" target="tools\install.ps1" />
-        <file src="DotvvmModule.psm1" target="tools\DotvvmModule.psm1" />
+        <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.xml" target="lib\net451\DotVVM.Framework.xml" />
+        <file src="..\..\..\DotVVM.Compiler\bin\Debug\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />        
     </files>
 </package>

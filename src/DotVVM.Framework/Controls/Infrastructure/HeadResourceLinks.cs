@@ -4,6 +4,7 @@ using System.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
         /// <summary>
         /// Renders the control into the specified writer.
         /// </summary>
-        protected override void RenderControl(IHtmlWriter writer, RenderContext context)
+        protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render resource links
             var resources = context.ResourceManager.GetResourcesInOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Head);

@@ -1,5 +1,3 @@
-using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Base;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.Completions;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.Completions.CustomCommit;
@@ -11,6 +9,8 @@ using System.Collections.Generic;
 using System.ComponentModel.Composition;
 using System.Linq;
 using System.Windows.Media;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.CompletionProviders
 {
@@ -26,8 +26,8 @@ namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml.Co
 
         protected override IEnumerable<SimpleDothtmlCompletion> GetItemsCore(DothtmlCompletionContext context, string directiveName)
         {
-            if (string.Equals(directiveName, Constants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
-                || string.Equals(directiveName, Constants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
+            if (string.Equals(directiveName, ParserConstants.ViewModelDirectiveName, StringComparison.InvariantCultureIgnoreCase) 
+                || string.Equals(directiveName, ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
             {
                 // get icons for intellisense
                 var classGlyph = context.GlyphService.GetGlyph(StandardGlyphGroup.GlyphGroupClass, StandardGlyphItem.GlyphItemPublic);

@@ -1,5 +1,4 @@
 using Microsoft.Owin;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using System;
 using System.Collections.Generic;
@@ -8,6 +7,7 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Hosting
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
 
-            if (url.StartsWith(Constants.GlobalizeCultureUrlPath, StringComparison.Ordinal))
+            if (url.StartsWith(HostingConstants.GlobalizeCultureUrlPath, StringComparison.Ordinal))
             {
                 return RenderResponse(context);
             }
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Hosting
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/javascript";
 
-            var id = context.Request.Query[Constants.GlobalizeCultureUrlIdParameter];
+            var id = context.Request.Query[HostingConstants.GlobalizeCultureUrlIdParameter];
 
             var js = JQueryGlobalizeScriptCreator.BuildCultureInfoScript(CultureInfo.GetCultureInfo(id));
             return context.Response.WriteAsync(js);

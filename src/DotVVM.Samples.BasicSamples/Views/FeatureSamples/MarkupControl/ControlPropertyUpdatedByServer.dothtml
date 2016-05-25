@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.MarkupControl.ControlPropertyUpdatedByServerViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <sample:TextEditorControl Text="{value: SimpleProperty == "ahoj"}" Label="SimpleProperty" Trap="TRAP" />
+        <dot:TextBox Text="{value: SimpleProperty}" />
+    </div>
+
+    <div>
+        <sample:TextEditorControl Text="{value: ChildViewModel.Property}" Label="ChildViewModel.Property" Trap="TRAP" />
+        <dot:TextBox Text="{value: ChildViewModel.Property}" />
+        <dot:Button Click="{command: AddViewModel()}" Text="Add ViewModel" />
+    </div>
+</body>
+</html>
+
+

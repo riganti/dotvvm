@@ -5,8 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 
-namespace DotVVM.Framework.Security {
-    public interface IViewModelProtector {
+namespace DotVVM.Framework.Security
+{
+    public interface IViewModelProtector
+    {
 
         string Protect(string serializedData, IDotvvmRequestContext context);
 

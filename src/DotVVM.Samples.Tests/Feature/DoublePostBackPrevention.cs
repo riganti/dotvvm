@@ -36,11 +36,11 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.Wait();
 
                 // test update progress control
-                browser.CheckIfIsNotDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");
+                browser.CheckIfIsNotDisplayed("div[data-bind='dotvvm-UpdateProgress-Visible: true']");
                 browser.ElementAt("input[type=button]", 2).Click();
-                browser.CheckIfIsDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");
+                browser.CheckIfIsDisplayed("div[data-bind='dotvvm-UpdateProgress-Visible: true']");
                 browser.Wait(6000);
-                browser.CheckIfIsNotDisplayed("div[data-bind='dotvvmUpdateProgressVisible: true']");
+                browser.CheckIfIsNotDisplayed("div[data-bind='dotvvm-UpdateProgress-Visible: true']");
             });
         }
     }

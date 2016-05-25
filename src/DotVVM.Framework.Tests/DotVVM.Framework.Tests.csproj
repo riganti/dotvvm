@@ -118,6 +118,10 @@
       <HintPath>..\packages\Microsoft.Owin.Host.SystemWeb.3.0.1\lib\net45\Microsoft.Owin.Host.SystemWeb.dll</HintPath>
       <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.Owin.Security, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="Microsoft.QualityTools.Testing.Fakes, Version=12.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
     </Reference>
@@ -128,8 +132,8 @@
     <Reference Include="Microsoft.VisualStudio.LanguageServices.CSharp">
       <HintPath>C:\Program Files (x86)\Microsoft Visual Studio 14.0\Common7\IDE\PrivateAssemblies\Microsoft.VisualStudio.LanguageServices.CSharp.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -186,6 +190,7 @@
   <ItemGroup>
     <Compile Include="Binding\BindingCompilationTests.cs" />
     <Compile Include="Binding\CommandResolverTests.cs" />
+    <Compile Include="Binding\JavascriptCompilationTests.cs" />
     <Compile Include="Parser\Binding\BindingParserTests.cs" />
     <Compile Include="Parser\Binding\BindingTokenizerTests.cs" />
     <Compile Include="Parser\Dothtml\DothtmlParserTests.cs" />
@@ -198,12 +203,15 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Runtime\ControlLifeCycleEvent.cs" />
     <Compile Include="Runtime\ControlLifeCycleMock.cs" />
+    <Compile Include="Runtime\ControlTree\DefaultControlTreeResolverTests.cs" />
     <Compile Include="Runtime\DefaultViewModelSerializerTests.cs" />
     <Compile Include="Runtime\DotvvmControlCollectionTests.cs" />
     <Compile Include="Runtime\ResourceManagerTests.cs" />
     <Compile Include="Routing\DotvvmRouteTests.cs" />
     <Compile Include="Runtime\DefaultViewCompilerTests.cs" />
     <Compile Include="TestExtensions.cs" />
+    <Compile Include="ViewModel\ChildViewModelInvokeMethodsTests.cs" />
+    <Compile Include="ViewModel\JsonDiffTests.cs" />
     <Compile Include="ViewModel\ViewModelValidatorTests.cs" />
     <Compile Include="VS2015Extension\MetadataControlResolverTests.cs" />
   </ItemGroup>
@@ -222,9 +230,6 @@
     <Fakes Include="Fakes\Microsoft.Owin.fakes" />
     <None Include="dotvvmwizard.snk" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="LICENSE.txt" />
   </ItemGroup>
   <ItemGroup>
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />

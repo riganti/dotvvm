@@ -2,11 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Binding;
-using DotVVM.Framework.Exceptions;
+using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.Controls
 {
@@ -20,15 +20,16 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the comma-separated list of resources that should be loaded before this script is executed.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string Dependencies
         {
             get { return (string)GetValue(DependenciesProperty); }
             set { SetValue(DependenciesProperty, value); }
         }
         public static readonly DotvvmProperty DependenciesProperty =
-            DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies, Constants.DotvvmResourceName);
+            DotvvmProperty.Register<string, InlineScript>(c => c.Dependencies, ResourceConstants.DotvvmResourceName);
 
-        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        [MarkupOptions(MappingMode = MappingMode.InnerElement, AllowBinding = false)]
         public string Script
         {
             get { return (string)GetValue(ScriptProperty); }
@@ -38,17 +39,15 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<string, InlineScript>(t => t.Script);
 
 
-        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
+        internal override void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
         {
-            EnsureControlHasId();
-
-            var dep = Dependencies?.Split(',') ?? new string[] { Constants.DotvvmResourceName };
-            context.ResourceManager.AddStartupScript("inlinescript_" + ID, Script, dep);
+            var dep = Dependencies?.Split(',') ?? new string[] { ResourceConstants.DotvvmResourceName };
+            context.ResourceManager.AddStartupScript("inlinescript_" + (ClientID ?? (string)GetDotvvmUniqueId()), Script, dep);
 
             base.OnPreRenderComplete(context);
         }
 
-        protected override void RenderContents(IHtmlWriter writer, RenderContext context)
+        protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // don't render anything
         }

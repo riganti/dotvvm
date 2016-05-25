@@ -10,7 +10,7 @@ using Dotvvm.Samples.Tests;
 using DotVVM.Framework.Routing;
 
 namespace DotVVM.Samples.Tests.Feature
-{
+{   
     [TestClass]
     public class DateTimeSerializationTests : SeleniumTestBase
     {

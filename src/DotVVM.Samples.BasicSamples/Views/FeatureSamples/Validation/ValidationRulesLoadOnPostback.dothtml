@@ -9,7 +9,7 @@
 	<div class="container">
 		<h1>Validation rules loaded dynamically</h1>
 		
-		<p><dot:Button Text="Load Validated Object" Click="{command: LoadCustomer()}" Validate.Enabled="false" /></p>
+		<p><dot:Button Text="Load Validated Object" Click="{command: LoadCustomer()}" Validation.Enabled="false" /></p>
 
 		<fieldset>
 			<legend>Customer Data</legend>
@@ -25,11 +25,11 @@
 			</table>
 		</fieldset>
 
-		<div Validate.Target="{value: Customer}">
+		<div Validation.Target="{value: Customer}">
 			<dot:ValidationSummary/>
 		</div>
 
-		<p><dot:Button Text="Validate" Click="{command: Validate()}" Validate.Target="{value: Customer}" /></p>
+		<p><dot:Button Text="Validate" Click="{command: Validate()}" Validation.Target="{value: Customer}" /></p>
 		<p><span>{{value: IsValid}}</span></p>
 
 	</div>

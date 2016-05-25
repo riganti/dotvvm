@@ -23,7 +23,7 @@ namespace Dotvvm.Samples.Tests{
 	//simulate route strategy
 	var config = DotvvmConfiguration.CreateDefault();
 	config.ApplicationPhysicalPath = samplesProjectDir ;
-    var data = new List<RouteInfo> (new ViewsFolderBasedRouteStrategy(config).GetRoutes());
+    var data = new List<RouteBase> (new DefaultRouteStrategy(config).GetRoutes());
 	
 	 #>
 	
@@ -31,7 +31,7 @@ namespace Dotvvm.Samples.Tests{
 	//generate constants
 	foreach (var info in data){
 		#>
-		public const string <#= info.RouteName #> = "<#=  info.RouteUrl #>";
+		public static string <#= info.RouteName #> => "<#=  info.Url #>";
 	<# } #>
 	}
 }

@@ -1,10 +1,6 @@
-﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Dotvvm.Samples.Tests;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.SeleniumCore;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DotVVM.Samples.Tests
 {
@@ -16,11 +12,11 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/MissingViewModel");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_MissingViewModel);
                 browser.First("p.summary")
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM.Framework.Exceptions.DotvvmCompilationException") &&
+                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
                             s.Contains("@viewModel") &&
                             s.Contains("missing")
                         );
@@ -32,12 +28,12 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/InvalidViewModel");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_InvalidViewModel);
                 browser.First("p.summary")
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM.Framework.Exceptions.DotvvmCompilationException") &&
-                            s.Contains("required in the @viewModel directive in was not found!")
+                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
+                            s.Contains("required in the @viewModel directive was not found!")
                             );
             });
         }
@@ -47,7 +43,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/NonExistingControl");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_NonExistingControl);
                 browser.First("[class=exceptionMessage]")
                     .CheckIfInnerText(
                         s =>
@@ -64,7 +60,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/NonExistingProperty");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_NonExistingProperty);
                 browser.First("[class='exceptionMessage']")
                     .CheckIfInnerText(
                         s =>
@@ -81,12 +77,12 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/NotAllowedHardCodedPropertyValue");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_NotAllowedHardCodedPropertyValue);
                 browser.First("[class='exceptionMessage']")
-                    .CheckIfInnerText(
+                .CheckIfInnerText(
                         s =>
-                            s.Contains("cannot contain hard coded value.")
-                            );
+                            s.ToLower().Contains("String was not recognized as a valid Boolean.".ToLower())
+                            , "Expected message is 'String was not recognized as a valid Boolean.'");
 
                 browser.First("[class='errorUnderline']")
                     .CheckIfInnerText(s => s.Contains("NotAllowedHardCodedValue"));
@@ -98,7 +94,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/WrongPropertyValue");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_WrongPropertyValue);
                 browser.First("[class='exceptionMessage']")
                     .CheckIfInnerText(
                         s =>
@@ -115,7 +111,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/MissingRequiredProperty");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_MissingRequiredProperty);
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("must be set"));
                 browser.First("[class='source-errorLine']").CheckIfInnerText(s => s.Contains("dot:CheckBox"));
             });
@@ -126,7 +122,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/MissingRequiredProperty2");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_MissingRequiredProperty2);
 
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("is missing required properties"));
                 browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("dot:GridViewTextColumn "));
@@ -138,7 +134,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/BindingInvalidProperty");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_BindingInvalidProperty);
 
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid"));
                 browser.First("[class='source-errorLine']").CheckIfInnerText(s => s.Contains("InvalidPropertyName"));
@@ -151,7 +147,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/BindingInvalidCommand");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_BindingInvalidCommand);
 
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
                 browser.First("[class='source-errorLine']").CheckIfInnerText(s => s.Contains("NonExistingCommand"));
@@ -164,10 +160,23 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/MalformedBinding");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_MalformedBinding);
 
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
                 browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("!"));
+            });
+        }
+
+        [TestMethod]
+        public void Error_EmptyBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_EmptyBinding);
+
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
+                browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("{{value: }}"));
+
             });
         }
 
@@ -176,7 +185,7 @@ namespace DotVVM.Samples.Tests
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl("Errors/MasterPageRequiresDifferentViewModel");
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_MasterPageRequiresDifferentViewModel);
 
                 //TODO:  !!! In error page, viewModel directive should by underlined !!!
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("Master page requires viewModel"));

@@ -1,6 +1,15 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
+
+interface Document {
+    getElementByDotvvmId(id: string): HTMLElement;
+}
+
+document.getElementByDotvvmId = function (id) {
+    return <HTMLElement>document.querySelector(`[data-dotvvm-id='${id}'`);
+}
+
 interface IRenderedResourceList {
     [name: string]: string;
 }
@@ -12,24 +21,24 @@ interface IDotvvmPostbackScriptFunction {
 interface IDotvvmExtensions {
 }
 
-interface IDotvvmViewModel {
+interface IDotvvmViewModelInfo {
     viewModel?;
     renderedResources?: string[];
     url?: string;
     virtualDirectory?: string;
-    validationRules?: any;
 }
 
 interface IDotvvmViewModels {
-    [name: string]: IDotvvmViewModel
+    [name: string]: IDotvvmViewModelInfo
 }
 
 class DotVVM {
     private postBackCounter = 0;
+    private fakeRedirectAnchor: HTMLAnchorElement;
     private resourceSigns: { [name: string]: boolean } = {}
     private isViewModelUpdating: boolean = true;
     private viewModelObservables: {
-        [name: string]: KnockoutObservable<IDotvvmViewModel>;
+        [name: string]: KnockoutObservable<IDotvvmViewModelInfo>;
     } = {};
 
     public isSpaReady = ko.observable(false);
@@ -45,6 +54,8 @@ class DotVVM {
     public validation: DotvvmValidation;
     public extensions: IDotvvmExtensions = {};
 
+    public isPostbackRunning = ko.observable(false);
+
     public init(viewModelName: string, culture: string): void {
         this.addKnockoutBindingHandlers();
 
@@ -53,6 +64,7 @@ class DotVVM {
         if (thisViewModel.renderedResources) {
             thisViewModel.renderedResources.forEach(r => this.resourceSigns[r] = true);
         }
+        var idFragment = thisViewModel.resultIdFragment;
         var viewModel = thisViewModel.viewModel = this.serialization.deserialize(this.viewModels[viewModelName].viewModel, {}, true);
 
         // initialize services
@@ -70,8 +82,16 @@ class DotVVM {
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
-            this.handleHashChange(viewModelName, spaPlaceHolder);
+            this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder, false));
+            this.handleHashChange(viewModelName, spaPlaceHolder, true);
+        }
+
+        if (idFragment) {
+            if (spaPlaceHolder) {
+                var element = document.getElementById(idFragment);
+                if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+            }
+            else location.hash = idFragment;
         }
 
         // persist the viewmodel in the hidden field so the Back button will work correctly
@@ -80,13 +100,13 @@ class DotVVM {
         });
     }
 
-    private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement) {
+    private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
         if (document.location.hash.indexOf("#!/") === 0) {
             this.navigateCore(viewModelName, document.location.hash.substring(2));
         } else {
             // redirect to the default URL
-            var url = spaPlaceHolder.getAttribute("data-dot-spacontentplaceholder-defaultroute");
-            if (url) {
+            var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
+            if (url && !isInitialPageLoad) {
                 document.location.hash = "#!/" + url;
             } else {
                 this.isSpaReady(true);
@@ -122,7 +142,7 @@ class DotVVM {
         return this.postBackCounter === currentPostBackCounter;
     }
 
-    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest) => { }) {
+    public staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback = _ => { }, errorCallback = (xhr: XMLHttpRequest, error?) => { }) {
         if (this.isPostBackProhibited(sender)) return;
 
         // TODO: events for static command postback
@@ -138,7 +158,12 @@ class DotVVM {
 
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
-            callback(JSON.parse(response.responseText));
+            try {
+                callback(JSON.parse(response.responseText));
+            }
+            catch (error) {
+                errorCallback(response, error);
+            }
         }, errorCallback,
             xhr => {
                 xhr.setRequestHeader("X-PostbackType", "StaticCommand");
@@ -149,7 +174,9 @@ class DotVVM {
         if (this.isPostBackProhibited(sender)) return;
 
         var promise = new DotvvmPromise<DotvvmAfterPostBackEventArgs>();
-
+        this.isPostbackRunning(true);
+        promise.done(() => this.isPostbackRunning(false));
+        promise.fail(() => this.isPostbackRunning(false));
         if (useWindowSetTimeout) {
             window.setTimeout(() => promise.chainFrom(this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers)), 0);
             return promise;
@@ -160,10 +187,12 @@ class DotVVM {
             var handler = this.postBackHandlers[handlers[0].name];
             var options = this.evaluator.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
             var handlerInstance = handler(options);
-            handlerInstance.execute(
-                () => promise.chainFrom(this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1))),
-                sender
-            );
+            var nextHandler = () => promise.chainFrom(this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)));
+            if (options.enabled) {
+                handlerInstance.execute(nextHandler, sender);
+            } else {
+                nextHandler();
+            }
             return promise;
         }
 
@@ -205,71 +234,89 @@ class DotVVM {
                 promise.reject("postback collision");
                 return;
             }
-
-            var resultObject = JSON.parse(result.responseText);
-            if (!resultObject.viewModel && resultObject.viewModelDiff) {
-                // TODO: patch (~deserialize) it to ko.observable viewModel
-                this.isViewModelUpdating = true;
-                resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
-            }
-
-            this.loadResourceList(resultObject.resources, () => {
-                var isSuccess = false;
-                if (resultObject.action === "successfulCommand") {
+            try {
+                var resultObject = JSON.parse(result.responseText);
+                if (!resultObject.viewModel && resultObject.viewModelDiff) {
+                    // TODO: patch (~deserialize) it to ko.observable viewModel
                     this.isViewModelUpdating = true;
+                    resultObject.viewModel = this.patch(data.viewModel, resultObject.viewModelDiff);
+                }
 
-                    // remove updated controls
-                    var updatedControls = this.cleanUpdatedControls(resultObject);
+                this.loadResourceList(resultObject.resources, () => {
+                    var isSuccess = false;
+                    if (resultObject.action === "successfulCommand") {
+                        this.isViewModelUpdating = true;
 
-                    // update the viewmodel
-                    if (resultObject.viewModel) {
-                        this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                        // remove updated controls
+                        var updatedControls = this.cleanUpdatedControls(resultObject);
+
+                        // update the viewmodel
+                        if (resultObject.viewModel) {
+                            this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                        }
+                        isSuccess = true;
+
+                        // remove updated controls which were previously hidden
+                        this.cleanUpdatedControls(resultObject, updatedControls);
+
+                        // add updated controls
+                        this.restoreUpdatedControls(resultObject, updatedControls, true);
+                        this.isViewModelUpdating = false;
+                    } else if (resultObject.action === "redirect") {
+                        // redirect
+                        this.handleRedirect(resultObject, viewModelName);
+                        return;
                     }
-                    isSuccess = true;
 
-                    // remove updated controls which were previously hidden
-                    this.cleanUpdatedControls(resultObject, updatedControls);
+                    var idFragment = resultObject.resultIdFragment;
+                    if (idFragment) {
+                        if (this.getSpaPlaceHolder() || location.hash == "#" + idFragment) {
+                            var element = document.getElementById(idFragment);
+                            if (element && "function" == typeof element.scrollIntoView) element.scrollIntoView(true);
+                        }
+                        else location.hash = idFragment;
+                    }
 
-                    // add updated controls
-                    this.restoreUpdatedControls(resultObject, updatedControls, true);
-                    this.isViewModelUpdating = false;
-                } else if (resultObject.action === "redirect") {
-                    // redirect
-                    this.handleRedirect(resultObject, viewModelName);
-                    return;
-                }
-
-                // trigger afterPostback event
-                var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
-                promise.resolve(afterPostBackArgs);
-                this.events.afterPostback.trigger(afterPostBackArgs);
-                if (!isSuccess && !afterPostBackArgs.isHandled) {
-                    throw "Invalid response from server!";
-                }
-            });
+                    // trigger afterPostback event
+                    var afterPostBackArgs = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, resultObject);
+                    promise.resolve(afterPostBackArgs);
+                    this.events.afterPostback.trigger(afterPostBackArgs);
+                    if (!isSuccess && !afterPostBackArgs.isHandled) {
+                        this.error(viewModel, result, promise);
+                    }
+                });
+            }
+            catch (error) {
+                this.error(viewModel, result, promise);
+            }
         }, xhr => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
-
-            // execute error handlers
-            var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-            promise.reject(errArgs);
-            this.events.error.trigger(errArgs);
-            if (!errArgs.handled) {
-                alert(xhr.responseText);
-            }
+            this.error(viewModel, xhr, promise);
         });
         return promise;
+    }
+
+    private error(viewModel, xhr: XMLHttpRequest, promise: DotvvmPromise<any> = null) {
+        // execute error handlers
+        var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
+        if (promise != null) promise.reject(errArgs);
+        this.events.error.trigger(errArgs);
+        if (!errArgs.handled) {
+            alert("unhandled error during postback");
+        }
     }
 
     private loadResourceList(resources: IRenderedResourceList, callback: () => void) {
         var html = "";
         for (var name in resources) {
-            if (this.resourceSigns[name]) continue;
-            this.resourceSigns[name] = true;
+            if (!/^__noname_\d+$/.test(name)) {
+                if (this.resourceSigns[name]) continue;
+                this.resourceSigns[name] = true;
+            }
             html += resources[name] + " ";
         }
-        if (html.trim() == "") {
+        if (html.trim() === "") {
             setTimeout(callback, 4);
             return;
         }
@@ -363,7 +410,7 @@ class DotVVM {
         }
 
         // send the request
-        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dot-spacontentplaceholder"].value;
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
         this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
@@ -426,12 +473,46 @@ class DotVVM {
         if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
+            if (url === "#!") {
+                url = "#!/";
+            }
+
+            // verify that the URL prefix is correct, if not - add it before the fragment
+            var correctPrefix = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"].value;
+            var currentPrefix = document.location.pathname;
+            if (correctPrefix !== currentPrefix) {
+                if (correctPrefix === "") {
+                    correctPrefix = "/";
+                }
+                url = correctPrefix + url;
+            }
+
         } else {
             // absolute URL - load the URL
             url = resultObject.url;
         }
-        if (replace) location.replace(url);
-        else location.href = url;
+
+        // trigger redirect event
+        var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
+        this.events.redirect.trigger(redirectArgs);
+
+
+        var fakeAnchor = this.fakeRedirectAnchor;
+        if (!fakeAnchor) {
+            fakeAnchor = document.createElement("a");
+            fakeAnchor.style.display = "none";
+            fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
+            document.body.appendChild(fakeAnchor);
+            this.fakeRedirectAnchor = fakeAnchor;
+        }
+        fakeAnchor.href = url;
+
+
+        if (replace) {
+            location.replace(url);
+        } else {
+            fakeAnchor.click();
+        }
     }
 
     private removeVirtualDirectoryFromUrl(url: string, viewModelName: string) {
@@ -489,6 +570,7 @@ class DotVVM {
         var xhr = this.getXHR();
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.setRequestHeader("X-DotVVM-PostBack", "true");
         preprocessRequest(xhr);
         xhr.onreadystatechange = () => {
             if (xhr.readyState != 4) return;
@@ -524,12 +606,13 @@ class DotVVM {
     private cleanUpdatedControls(resultObject: any, updatedControls: any = {}) {
         for (var id in resultObject.updatedControls) {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
-                var control = document.getElementById(id);
+                var control = document.getElementByDotvvmId(id);
                 if (control) {
+                    var dataContext = ko.contextFor(control);
                     var nextSibling = control.nextSibling;
                     var parent = control.parentNode;
                     ko.removeNode(control);
-                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent };
+                    updatedControls[id] = { control: control, nextSibling: nextSibling, parent: parent, dataContext: dataContext };
                 }
             }
         }
@@ -541,12 +624,18 @@ class DotVVM {
             if (resultObject.updatedControls.hasOwnProperty(id)) {
                 var updatedControl = updatedControls[id];
                 if (updatedControl) {
+                    var wrapper = document.createElement(updatedControls[id].parent.tagName || "div");
+                    wrapper.innerHTML = resultObject.updatedControls[id];
+                    if (wrapper.childElementCount > 1) throw new Error("Postback.Update control can not render more than one element");
+                    var element = wrapper.firstElementChild;
+                    if (element.id == null) throw new Error("Postback.Update control always has to render id attribute.");
+                    if (element.id !== updatedControls[id].control.id) console.log(`Postback.Update control changed id from '${updatedControls[id].control.id}' to '${element.id}'`);
+                    wrapper.removeChild(element);
                     if (updatedControl.nextSibling) {
-                        updatedControl.parent.insertBefore(updatedControl.control, updatedControl.nextSibling);
+                        updatedControl.parent.insertBefore(element, updatedControl.nextSibling);
                     } else {
-                        updatedControl.parent.appendChild(updatedControl.control);
+                        updatedControl.parent.appendChild(element);
                     }
-                    updatedControl.control.outerHTML = resultObject.updatedControls[id];
                 }
             }
         }
@@ -554,9 +643,9 @@ class DotVVM {
         if (applyBindingsOnEachControl) {
             window.setTimeout(() => {
                 for (var id in resultObject.updatedControls) {
-                    var updatedControl = document.getElementById(id);
+                    var updatedControl = document.getElementByDotvvmId(id);
                     if (updatedControl) {
-                        ko.applyBindings(ko.dataFor(updatedControl.parentNode), updatedControl);
+                        ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                     }
                 }
             }, 0);
@@ -589,14 +678,42 @@ class DotVVM {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 var value = valueAccessor();
                 for (var prop in value) {
-                    if (!ko.isObservable(value[prop])) {
-                        value[prop] = ko.observable(value[prop]);
-                    }
+                    value[prop] = ko.pureComputed({
+                        read() {
+                            var property = valueAccessor()[this.prop];
+                            var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
+                            return propertyValue;
+                        },
+                        write(value) {
+                            var val = valueAccessor()[this.prop]
+                            if (ko.isObservable(val)) {
+                                val(value);
+                            }
+                            else {
+                                console.log(`Attempted to write to readonly property '${this.prop}' at '${valueAccessor.toString()}'`);
+                            }
+                        }
+                    }, { prop: prop });
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
+                element.innerBindingContext = innerBindingContext;
                 ko.applyBindingsToDescendants(innerBindingContext, element);
-
                 return { controlsDescendantBindings: true }; // do not apply binding again
+            },
+            update(element, valueAccessor, allBindings, viewModel, bindingContext) {
+            }
+        };
+
+        ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
+        ko.bindingHandlers["withGridViewDataSet"] = {
+            init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
+                var value = valueAccessor();
+                var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value });
+                element.innerBindingContext = innerBindingContext;
+                ko.applyBindingsToDescendants(innerBindingContext, element);
+                return { controlsDescendantBindings: true }; // do not apply binding again
+            },
+            update(element, valueAccessor, allBindings, viewModel, bindingContext) {
             }
         };
 
@@ -612,8 +729,29 @@ class DotVVM {
                 }
             }
         };
+        ko.bindingHandlers['dotvvm-checkbox-updateAfterPostback'] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+             dotvvm.events.afterPostback.subscribe((e) => {
+                 var bindings = allBindingsAccessor();
+                 if (bindings["dotvvm-checked-pointer"]) {
+                     var checked = bindings[bindings["dotvvm-checked-pointer"]];
+                     if (ko.isObservable(checked)) {
+                         if ((<KnockoutObservable<any>>checked).valueHasMutated) {
+                             (<KnockoutObservable<any>>checked).valueHasMutated();
+                         } else {
+                             (<KnockoutObservable<any>>checked).notifySubscribers();
+                         }
+                     }
+                 }
+             });
+            }
+        };
+        ko.bindingHandlers['dotvvm-checked-pointer'] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+            }
+        };
 
-        ko.bindingHandlers["dotvvmUpdateProgressVisible"] = {
+        ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 element.style.display = "none";
                 dotvvm.events.beforePostback.subscribe(e => {
@@ -623,6 +761,9 @@ class DotVVM {
                     element.style.display = "";
                 });
                 dotvvm.events.afterPostback.subscribe(e => {
+                    element.style.display = "none";
+                });
+                dotvvm.events.redirect.subscribe(e => {
                     element.style.display = "none";
                 });
                 dotvvm.events.spaNavigated.subscribe(e => {
@@ -635,39 +776,69 @@ class DotVVM {
         };
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                var obs = valueAccessor();
+
+                //generate metadata func 
+                var elmMetadata = new DotvvmValidationElementMetadata();
+                elmMetadata.dataType = (element.attributes["data-dotvvm-value-type"] || { value: "" }).value;
+                elmMetadata.format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
+
+                //add metadata for validation
+                if (!obs.dotvvmMetadata) {
+                    obs.dotvvmMetadata = new DotvvmValidationObservableMetadata();
+                    obs.dotvvmMetadata.elementsMetadata = [elmMetadata];
+                } else {
+                    if (!obs.dotvvmMetadata.elementsMetadata) {
+                        obs.dotvvmMetadata.elementsMetadata = [];
+                    }
+                    obs.dotvvmMetadata.elementsMetadata.push(elmMetadata);
+                }
+                setTimeout((metaArray: DotvvmValidationElementMetadata[], element:HTMLElement) => {
+                    // remove element from collection when its removed from dom
+                    ko.utils.domNodeDisposal.addDisposeCallback(element, () => {
+                        for (var meta of metaArray) {
+                            if (meta.element === element) {
+                                metaArray.splice(metaArray.indexOf(meta), 1);
+                                break;
+                            }
+                        }
+                    });
+                }, 0, obs.dotvvmMetadata.elementsMetadata, element);
+
+
                 dotvvm.domUtils.attachEvent(element, "blur", () => {
-                    var format = (element.attributes["data-dotvvm-format"] || { value: "" }).value;
-                    var obs = valueAccessor();
-                    if ((element.attributes["data-dotvvm-value-type"] || { value: "" }).value === "datetime") {
-                        var result = dotvvm.globalize.parseDate(element.value, format);
-                        if (!result) {
-                            element.attributes["data-dotvvm-value-type-valid"] = false;
+
+                    // parse the value
+                    var result, isEmpty, newValue;
+                    if (elmMetadata.dataType === "datetime") {
+                        // parse date
+                        result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
+                        isEmpty = result === null;
+                        newValue = isEmpty ? null : dotvvm.serialization.serializeDate(result, false);
+                    } else {
+                        // parse number
+                        result = dotvvm.globalize.parseNumber(element.value);
+                        isEmpty = result === null || isNaN(result);
+                        newValue = isEmpty ? null : result;
+                    }
+
+                    // update element validation metadata
+                    if (!result && element.value !== null && element.value !== "") {
+                        element.attributes["data-dotvvm-value-type-valid"] = false;
+                        elmMetadata.elementValidationState = false;
+                    } else {
+                        element.attributes["data-dotvvm-value-type-valid"] = true;
+                        elmMetadata.elementValidationState = true;
+                    }
+
+                    if (obs() === newValue) {
+                        if ((<KnockoutObservable<number>>obs).valueHasMutated) {
+                            (<KnockoutObservable<number>>obs).valueHasMutated();
                         } else {
-                            element.attributes["data-dotvvm-value-type-valid"] = true;
-                        }
-                        if (result) {
-                            obs(dotvvm.serialization.serializeDate(result, false));
-                        }
-                        else {
-                            obs(null);
+                            (<KnockoutObservable<number>>obs).notifySubscribers();
                         }
                     } else {
-                        var newValue = dotvvm.globalize.parseNumber(element.value);
-                        if (!isNaN(newValue)) {
-                            element.attributes["data-dotvvm-value-type-valid"] = true;
-                            if (obs() === newValue) {
-                                if ((<KnockoutObservable<number>>obs).valueHasMutated) {
-                                    (<KnockoutObservable<number>>obs).valueHasMutated();
-                                } else {
-                                    (<KnockoutObservable<number>>obs).notifySubscribers();
-                                }
-                            } else {
-                                obs(newValue);
-                            }
-                        } else {
-                            element.attributes["data-dotvvm-value-type-valid"] = false;
-                            obs(null);
-                        }
+                        obs(newValue);
                     }
                 });
             },

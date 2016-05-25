@@ -1,5 +1,4 @@
-﻿using DotVVM.Framework.Exceptions;
-using Microsoft.Owin;
+﻿using Microsoft.Owin;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -9,6 +8,7 @@ using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -64,13 +64,13 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static IFrameMoreInfo CreateDotvvmDocsLink(StackFrameModel frame)
         {
-            const string DotvvmThumb = "http://dotvvm.com/Content/assets/ico/favicon.png";
+            const string DotvvmThumb = "https://dotvvm.com/Content/assets/ico/favicon.png";
             var type = frame.Method?.DeclaringType;
             if (type == null) return null;
             while (type.DeclaringType != null) type = type.DeclaringType;
             if(type.Namespace == "DotVVM.Framework.Controls")
             {
-                const string BuildinControlsDocs = "http://dotvvm.com/docs/controls/builtin/";
+                const string BuildinControlsDocs = "https://dotvvm.com/docs/controls/builtin/";
                 var url = BuildinControlsDocs + type.Name;
                 return FrameMoreInfo.CreateThumbLink(url, DotvvmThumb);
             }
@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static IFrameMoreInfo CreateGithubLink(StackFrameModel frame)
         {
-            const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/";
+            const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/DotVVM.Framework";
             const string Octocat = @"https://assets-cdn.github.com/favicon.ico";
             if (frame.Method?.DeclaringType?.Assembly == typeof(ErrorFormatter).Assembly)
             {
@@ -185,7 +185,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => DotvvmMarkupErrorSection.Create(e));
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter { Exception = f.LoadException(e) });
             f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Request headers", "reqHeaders", o.Request.Headers));
+            f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
             f.Formatters.Add((e, o) => DictionarySection.Create("Environment", "env", o.Environment));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo
             {
@@ -205,7 +205,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 {
                     info.Objects = new object[]
                     {
-                        $"error in '{string.Concat(e.Tokens.Select(t => t.Text))}' at line {e.Tokens.First().LineNumber} in {e.FileName}"
+                        $"Error in '{string.Concat(e.Tokens.Select(t => t.Text))}' at line {e.Tokens.First().LineNumber} in {e.SystemFileName}"
                     };
                 }
                 return info;

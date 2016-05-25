@@ -1,6 +1,3 @@
-using DotVVM.Framework.Parser;
-using DotVVM.Framework.Parser.Dothtml.Parser;
-using DotVVM.Framework.Parser.Dothtml.Tokenizer;
 using DotVVM.VS2015Extension.Bases;
 using DotVVM.VS2015Extension.Bases.Commands;
 using DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense.Dothtml;
@@ -13,6 +10,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.VS2015Extension.DothtmlEditorExtensions.Intellisense
 {

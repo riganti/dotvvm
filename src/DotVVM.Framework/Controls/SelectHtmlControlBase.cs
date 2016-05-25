@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -14,62 +15,46 @@ namespace DotVVM.Framework.Controls
 	/// </summary>
     public abstract class SelectHtmlControlBase : Selector
 	{
-        /// <summary>
-        /// Gets or sets a value indicating whether the control is enabled and can be modified.
-        /// </summary>
-        public bool Enabled
-        {
-            get { return (bool)GetValue(EnabledProperty); }
-            set { SetValue(EnabledProperty, value); }
-        }
-        public static readonly DotvvmProperty EnabledProperty =
-            DotvvmProperty.Register<bool, SelectHtmlControlBase>(t => t.Enabled, true);
-
-
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectHtmlControlBase"/> class.
         /// </summary>
-        public SelectHtmlControlBase()
-			: base("select")
+        public SelectHtmlControlBase() : base("select")
         {
-            
         }
+
 
         /// <summary>
         /// Adds all attributes that should be added to the control begin tag.
         /// </summary>
-        protected override void AddAttributesToRender(IHtmlWriter writer, RenderContext context)
+        protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddKnockoutDataBind("enable", this, EnabledProperty, () =>
-            {
-                if (!Enabled)
-                {
-                    writer.AddAttribute("disabled", "disabled");
-                }
-            });
-
-            writer.AddKnockoutDataBind("options", this, DataSourceProperty, renderEvenInServerRenderingMode: true);
-            if (!string.IsNullOrEmpty(DisplayMember))
-            {
-                writer.AddKnockoutDataBind("optionsText", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(DisplayMember) + "]; }");
-            }
-            if (!string.IsNullOrEmpty(ValueMember))
-            {
-                writer.AddKnockoutDataBind("optionsValue", "function (i) { return ko.unwrap(i)[" + KnockoutHelper.MakeStringLiteral(ValueMember) + "]; }");
-            }
-
-			// changed event
-			var selectionChangedBinding = GetCommandBinding(SelectionChangedProperty);
-			if (selectionChangedBinding != null)
-			{
-				writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(SelectionChanged), selectionChangedBinding, context, this, isOnChange: true,useWindowSetTimeout:true));
-			}
-
-            // selected value
-            writer.AddKnockoutDataBind("value", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
+            RenderEnabledProperty(writer);
+            RenderOptionsProperties(writer);
+            RenderChangedEvent(writer);
+            RenderSelectedValueProperty(writer);
 
             base.AddAttributesToRender(writer, context);
         }
+
+        protected virtual void RenderEnabledProperty(IHtmlWriter writer)
+        {
+            SelectHtmlControlHelpers.RenderEnabledProperty(writer, this);
+        }
+
+        protected virtual void RenderOptionsProperties(IHtmlWriter writer)
+        {
+            SelectHtmlControlHelpers.RenderOptionsProperties(writer, this);
+        }
+
+        protected virtual void RenderChangedEvent(IHtmlWriter writer)
+        {
+            SelectHtmlControlHelpers.RenderChangedEvent(writer, this);
+        }
         
+        protected virtual void RenderSelectedValueProperty(IHtmlWriter writer)
+	    {
+	        writer.AddKnockoutDataBind("value", this, SelectedValueProperty, renderEvenInServerRenderingMode: true);
+	    }
 	}
 }

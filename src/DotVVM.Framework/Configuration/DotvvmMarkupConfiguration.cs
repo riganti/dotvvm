@@ -8,7 +8,6 @@ namespace DotVVM.Framework.Configuration
 {
     public class DotvvmMarkupConfiguration
     {
-
         /// <summary>
         /// Gets the registered control namespaces.
         /// </summary>
@@ -24,7 +23,8 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Gets a list of HTML attribute transforms.
         /// </summary>
-        [JsonProperty("htmlAttributeTransforms")]
+        //[JsonProperty("htmlAttributeTransforms")]
+        [JsonIgnore]
         public Dictionary<HtmlTagAttributePair, HtmlAttributeTransformConfiguration> HtmlAttributeTransforms { get; private set; }
      
         /// <summary>
@@ -32,6 +32,12 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonProperty("defaultDirectives")]
         public Dictionary<string, string> DefaultDirectives { get; private set; }
+
+        /// <summary>
+        /// Gets or sets list of namespaces imported in bindings
+        /// </summary>
+        [JsonProperty("importedNamespaces")]
+        public List<string> ImportedNamespaces { get; set; } = new List<string>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.
@@ -66,7 +72,6 @@ namespace DotVVM.Framework.Configuration
             };
         }
 
-
         /// <summary>
         /// Adds the assembly to the list of required assemblies.
         /// </summary>
@@ -76,6 +81,32 @@ namespace DotVVM.Framework.Configuration
             {
                 Assemblies.Add(assemblyName);
             }
+        }
+
+        /// <summary>
+        /// Registers markup control
+        /// </summary>
+        public void AddMarkupControl(string tagPrefix, string tagName, string src)
+        {
+            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, TagName = tagName, Src = src });
+        }
+
+        /// <summary>
+        /// Registers code controls in the specified namespace from the specified assembly
+        /// </summary>
+        public void AddCodeControl(string tagPrefix, string namespaceName, string assembly)
+        {
+            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = namespaceName, Assembly = assembly });
+            AddAssembly(assembly);
+        }
+
+        /// <summary>
+        /// Registers code controls from the same namespace and assembly as exampleControl
+        /// </summary>
+        public void AddCodeControl(string tagPrefix, Type exampleControl)
+        {
+            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.Assembly.FullName });
+            AddAssembly(exampleControl.Assembly.FullName);
         }
     }
 }

@@ -24,9 +24,9 @@
 				Title: <dot:TextBox Text="{value: NewTaskTitle}" />
 			</p>
 			<p>
-				<dot:ValidationMessage Id="hideWhenValid" ValidatedValue="{value: NewTaskTitle}">Validation 1 - HideWhenValid</dot:ValidationMessage>
-				<dot:ValidationMessage Id="addCssClass" ValidatedValue="{value: NewTaskTitle}" HideWhenValid="false" InvalidCssClass="validator">Validation 2 - AddCssClass</dot:ValidationMessage>
-				<dot:ValidationMessage Id="displayErrorMessage" ValidatedValue="{value: NewTaskTitle}" ShowErrorMessageText="true">Validation 3 - DisplayErrorMessage</dot:ValidationMessage>
+				<dot:Validator Id="hideWhenValid" Value="{value: NewTaskTitle}">Validation 1 - HideWhenValid</dot:Validator>
+                <dot:Validator Id="addCssClass" Value="{value: NewTaskTitle}" HideWhenValid="false" InvalidCssClass="validator">Validation 2 - AddCssClass</dot:Validator>
+                <dot:Validator Id="displayErrorMessage" Value="{value: NewTaskTitle}" ShowErrorMessageText="true">Validation 3 - DisplayErrorMessage</dot:Validator>
 			</p>
 			<p><dot:Button Text="Create" Click="{command: AddTask()}" /></p> 
 
@@ -44,7 +44,7 @@
 								Text="done" 
 								Click="{command: _parent.CompleteTask(TaskId)}" 
 								Visible="{value: !IsCompleted}"
-								Validate.Enabled="false" />
+								Validation.Enabled="false" />
 						</td>
 					</tr>
 				</ItemTemplate>

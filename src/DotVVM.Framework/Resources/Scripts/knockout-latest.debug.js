@@ -161,8 +161,9 @@ ko.utils = (function () {
 
         arrayIndexOf: function (array, item, unwrapArrayElements) {
             if (unwrapArrayElements) {
+                var itemToCompare = ko.utils.peekObservable(item);
                 for (var i = 0, j = array.length; i < j; i++)
-                    if (ko.utils.unwrapObservable(array[i]) === ko.utils.unwrapObservable(item))
+                    if (ko.utils.peekObservable(array[i]) === itemToCompare)
                         return i;
             }
             else {
@@ -486,6 +487,10 @@ ko.utils = (function () {
 
         unwrapObservable: function (value) {
             return ko.isObservable(value) ? value() : value;
+        },
+
+        wrapObservable: function (value) {
+            return ko.isObservable(value) ? value : ko.observable(value);
         },
 
         peekObservable: function (value) {
@@ -4506,7 +4511,7 @@ ko.bindingHandlers['options'] = {
             } else if (previousSelectedValues.length) {
                 // IE6 doesn't like us to assign selection to OPTION nodes before they're added to the document.
                 // That's why we first added them without selection. Now it's time to set the selection.
-                var isSelected = ko.utils.arrayIndexOf(previousSelectedValues, ko.selectExtensions.readValue(newOptions[0])) >= 0;
+                var isSelected = ko.utils.arrayIndexOf(previousSelectedValues, ko.selectExtensions.readValue(newOptions[0]), true) >= 0;
                 ko.utils.setOptionNodeSelectionState(newOptions[0], isSelected);
 
                 // If this option was changed from being selected during a single-item update, notify the change
@@ -4569,7 +4574,7 @@ ko.bindingHandlers['selectedOptions'] = {
             var value = valueAccessor(), valueToWrite = [];
             ko.utils.arrayForEach(element.getElementsByTagName("option"), function(node) {
                 if (node.selected)
-                    valueToWrite.push(ko.selectExtensions.readValue(node));
+                    valueToWrite.push(ko.utils.wrapObservable(ko.selectExtensions.readValue(node)));
             });
             ko.expressionRewriting.writeValueToProperty(value, allBindings, 'selectedOptions', valueToWrite);
         });
@@ -4583,7 +4588,7 @@ ko.bindingHandlers['selectedOptions'] = {
 
         if (newValue && typeof newValue.length == "number") {
             ko.utils.arrayForEach(element.getElementsByTagName("option"), function(node) {
-                var isSelected = ko.utils.arrayIndexOf(newValue, ko.selectExtensions.readValue(node)) >= 0;
+                var isSelected = ko.utils.arrayIndexOf(newValue, ko.selectExtensions.readValue(node), true) >= 0;
                 if (node.selected != isSelected) {      // This check prevents flashing of the select element in IE
                     ko.utils.setOptionNodeSelectionState(node, isSelected);
                 }

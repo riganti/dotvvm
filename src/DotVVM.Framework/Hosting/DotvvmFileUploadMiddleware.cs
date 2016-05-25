@@ -5,11 +5,11 @@ using System.Net;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DotVVM.Framework.Compilation.Parser;
 using Microsoft.AspNet.WebUtilities;
 using Microsoft.Owin;
 using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Parser;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 
@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Hosting
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
             // file upload handler
-            if (url == Constants.FileUploadHandlerMatchUrl)
+            if (url == HostingConstants.FileUploadHandlerMatchUrl)
             {
                 return ProcessMultipartRequest(context);
             }
@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Hosting
         private async Task RenderResponse(IOwinContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var outputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
-            if (isPost && context.Request.Headers.Get(Constants.DotvvmFileUploadAsyncHeaderName) == "true")
+            if (isPost && context.Request.Headers.Get(HostingConstants.DotvvmFileUploadAsyncHeaderName) == "true")
             {
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Hosting
             {
                 // old browser - return HTML
                 var template = new FileUploadPageTemplate();
-                template.FormPostUrl = DotvvmRequestContext.TranslateVirtualPath("~/" + Constants.FileUploadHandlerMatchUrl, context);
+                template.FormPostUrl = DotvvmRequestContext.TranslateVirtualPath("~/" + HostingConstants.FileUploadHandlerMatchUrl, context);
                 template.AllowMultipleFiles = context.Request.Query["multiple"] == "true";
 
                 if (isPost)

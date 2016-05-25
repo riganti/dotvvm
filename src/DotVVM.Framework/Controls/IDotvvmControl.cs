@@ -1,4 +1,5 @@
 ﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using System;
 using System.Collections.Generic;
@@ -11,13 +12,6 @@ namespace DotVVM.Framework.Controls
         ClientIDMode ClientIDMode { get; set; }
         string ID { get; set; }
         DotvvmControl Parent { get; set; }
-
-        void EnsureControlHasId(bool autoGenerate = true);
-
-        DotvvmControl FindControl(string id, bool throwIfNotFound = false);
-
-        T FindControl<T>(string id, bool throwIfNotFound = false) where T : DotvvmControl;
-
         IEnumerable<DotvvmControl> GetAllAncestors();
 
         IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null);
@@ -36,7 +30,7 @@ namespace DotVVM.Framework.Controls
 
         bool IsPropertySet(DotvvmProperty property, bool inherit = true);
 
-        void Render(IHtmlWriter writer, RenderContext context);
+        void Render(IHtmlWriter writer, IDotvvmRequestContext context);
 
         void SetValue(DotvvmProperty property, object value);
     }

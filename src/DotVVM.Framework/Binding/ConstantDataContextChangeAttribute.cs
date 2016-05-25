@@ -3,14 +3,15 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using DotVVM.Framework.Runtime.Compilation;
-using DotVVM.Framework.Runtime.Compilation.ResolvedControlTree;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Binding
 {
     public class ConstantDataContextChangeAttribute : DataContextChangeAttribute
     {
         public override int Order { get; }
+
         protected Type type;
 
         public ConstantDataContextChangeAttribute(Type type, int order = 0)
@@ -18,10 +19,10 @@ namespace DotVVM.Framework.Binding
             this.type = type;
             Order = order;
         }
-
-        public override Type GetChildDataContextType(Type dataContext, DataContextStack controlContextStack, ResolvedControl control, DotvvmProperty property = null)
+        
+        public override ITypeDescriptor GetChildDataContextType(ITypeDescriptor dataContext, IDataContextStack controlContextStack, IAbstractControl control, IPropertyDescriptor property = null)
         {
-            return type;
+            return new ResolvedTypeDescriptor(type);
         }
     }
 }

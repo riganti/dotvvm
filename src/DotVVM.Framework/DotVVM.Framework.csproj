@@ -13,7 +13,7 @@
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
-    <TypeScriptToolsVersion>1.7</TypeScriptToolsVersion>
+    <TypeScriptToolsVersion>1.8</TypeScriptToolsVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -91,8 +91,12 @@
       <HintPath>..\packages\Microsoft.Owin.3.0.1\lib\net45\Microsoft.Owin.dll</HintPath>
       <Private>True</Private>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Microsoft.Owin.Security, Version=3.0.1.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\Microsoft.Owin.Security.3.0.1\lib\net45\Microsoft.Owin.Security.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.3\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Owin, Version=1.0.0.0, Culture=neutral, PublicKeyToken=f0ebd12fd5e55cc5, processorArchitecture=MSIL">
@@ -119,35 +123,185 @@
   <ItemGroup>
     <Compile Include="Binding\ActiveDotvvmProperty.cs" />
     <Compile Include="Binding\AttachedPropertyAttribute.cs" />
-    <Compile Include="Binding\BindingCompilationRequirements.cs" />
-    <Compile Include="Binding\BindingExpression.cs" />
+    <Compile Include="Binding\BindingCompilationRequirementType.cs" />
+    <Compile Include="Binding\BindingCompilationRequirementsAttribute.cs" />
     <Compile Include="Binding\BindingHelper.cs" />
+    <Compile Include="Binding\BindingPageInfo.cs" />
     <Compile Include="Binding\CollectionElementDataContextChangeAttribute.cs" />
-    <Compile Include="Binding\CommandBindingExpression.cs" />
-    <Compile Include="Binding\CommandResolver.cs" />
-    <Compile Include="Binding\CompiledBindingExpression.cs" />
     <Compile Include="Binding\ConstantDataContextChangeAttribute.cs" />
-    <Compile Include="Binding\ControlCommandBindingExpression.cs" />
-    <Compile Include="Binding\ControlPropertyBindingExpression.cs" />
     <Compile Include="Binding\ControlPropertyBindingDataContextChangeAttribute.cs" />
     <Compile Include="Binding\DataContextChangeAttribute.cs" />
     <Compile Include="Binding\DelegateActionProperty.cs" />
-    <Compile Include="Binding\EventValidator.cs" />
-    <Compile Include="Binding\IBinding.cs" />
-    <Compile Include="Binding\ICommandBinding.cs" />
-    <Compile Include="Binding\IStaticValueBinding.cs" />
-    <Compile Include="Binding\IUpdatableValueBinding.cs" />
-    <Compile Include="Binding\IValueBinding.cs" />
+    <Compile Include="Binding\Expressions\BindingExpression.cs" />
+    <Compile Include="Binding\Expressions\CommandBindingExpression.cs" />
+    <Compile Include="Binding\Expressions\CompiledBindingExpression.cs" />
+    <Compile Include="Binding\Expressions\ControlCommandBindingExpression.cs" />
+    <Compile Include="Binding\Expressions\ControlPropertyBindingExpression.cs" />
+    <Compile Include="Binding\Expressions\IBinding.cs" />
+    <Compile Include="Binding\Expressions\ICommandBinding.cs" />
+    <Compile Include="Binding\Expressions\IStaticValueBinding.cs" />
+    <Compile Include="Binding\Expressions\IUpdatableValueBinding.cs" />
+    <Compile Include="Binding\Expressions\IValueBinding.cs" />
+    <Compile Include="Binding\Expressions\ResourceBindingExpression.cs" />
+    <Compile Include="Binding\Expressions\StaticCommandBindingExpression.cs" />
+    <Compile Include="Binding\Expressions\ValueBindingExpression.cs" />
     <Compile Include="Binding\DotvvmProperty.cs" />
-    <Compile Include="Binding\ResourceBindingExpression.cs" />
-    <Compile Include="Binding\StaticCommandBindingExpression.cs" />
-    <Compile Include="Binding\AllowStaticCommandAttribute.cs" />
-    <Compile Include="Binding\ValueBindingExpression.cs" />
-    <Compile Include="Binding\ViewModelPathComparer.cs" />
+    <Compile Include="Compilation\BindingCompilationAttribute.cs" />
+    <Compile Include="Compilation\BindingCompiler.cs" />
+    <Compile Include="Compilation\BindingParserException.cs" />
+    <Compile Include="Compilation\BindingParserOptions.cs" />
+    <Compile Include="Compilation\Binding\BindingCompilationException.cs" />
+    <Compile Include="Compilation\Binding\BindingExpressionBuilder.cs" />
+    <Compile Include="Compilation\Binding\ExpressionBuildingVisitor.cs" />
+    <Compile Include="Compilation\Binding\ExpressionHelper.cs" />
+    <Compile Include="Compilation\Binding\IBindingIdGenerator.cs" />
+    <Compile Include="Compilation\Binding\MethodGroupExpression.cs" />
+    <Compile Include="Compilation\Binding\OriginalStringBindingIdGenerator.cs" />
+    <Compile Include="Compilation\Binding\StaticClassIdentifier.cs" />
+    <Compile Include="Compilation\Binding\TypeConversions.cs" />
+    <Compile Include="Compilation\Binding\TypeRegistry.cs" />
+    <Compile Include="Compilation\Binding\UnknownStaticClassIdentifierExpression.cs" />
+    <Compile Include="Compilation\CommandBindingCompilationAttribute.cs" />
+    <Compile Include="Compilation\CompiledAssemblyCache.cs" />
+    <Compile Include="Compilation\ControlTree\ControlResolverBase.cs" />
+    <Compile Include="Compilation\ControlTree\ControlResolverMetadata.cs" />
+    <Compile Include="Compilation\ControlTree\ControlResolverMetadataBase.cs" />
+    <Compile Include="Compilation\ControlTree\ControlTreeHelper.cs" />
+    <Compile Include="Compilation\ControlTree\ControlTreeResolverBase.cs" />
+    <Compile Include="Compilation\ControlTree\DataContextStack.cs" />
+    <Compile Include="Compilation\ControlTree\DefaultControlResolver.cs" />
+    <Compile Include="Compilation\ControlTree\DefaultControlTreeResolver.cs" />
+    <Compile Include="Compilation\ControlTree\ExpressionDebugInfoAddingVisitor.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractBinding.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractContentNode.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractControl.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractPropertyBinding.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractPropertyControl.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractPropertyControlCollection.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractPropertySetter.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractPropertyTemplate.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractPropertyValue.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractTreeBuilder.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractTreeNode.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractTreeRoot.cs" />
+    <Compile Include="Compilation\ControlTree\IControlResolver.cs" />
+    <Compile Include="Compilation\ControlTree\IControlResolverMetadata.cs" />
+    <Compile Include="Compilation\ControlTree\IControlTreeResolver.cs" />
+    <Compile Include="Compilation\ControlTree\IDataContextStack.cs" />
+    <Compile Include="Compilation\ControlTree\IPropertyDescriptor.cs" />
+    <Compile Include="Compilation\ControlTree\ITypeDescriptor.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\IResolvedControlTreeVisitor.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\IResolvedTreeNode.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedBinding.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedContentNode.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedControl.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedControlTreeVisitor.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyBinding.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyControl.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyControlCollection.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertySetter.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyTemplate.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyValue.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedTreeBuilder.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedTreeNode.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedTreeRoot.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedTypeDescriptor.cs" />
+    <Compile Include="Compilation\ControlTree\TypeDescriptorUtils.cs" />
+    <Compile Include="Compilation\ControlType.cs" />
+    <Compile Include="Compilation\DefaultControlBuilderFactory.cs" />
+    <Compile Include="Compilation\DefaultViewCompiler.cs" />
+    <Compile Include="Compilation\DefaultViewCompilerCodeEmitter.cs" />
+    <Compile Include="Compilation\DotvvmCompilationException.cs" />
+    <Compile Include="Compilation\EmitterMethodInfo.cs" />
+    <Compile Include="Compilation\ErrorCheckingVisitor.cs" />
+    <Compile Include="Compilation\IBindingCompiler.cs" />
+    <Compile Include="Compilation\IBindingExpressionBuilder.cs" />
+    <Compile Include="Compilation\IControlBuilder.cs" />
+    <Compile Include="Compilation\IControlBuilderFactory.cs" />
+    <Compile Include="Compilation\IControlType.cs" />
+    <Compile Include="Compilation\IViewCompiler.cs" />
+    <Compile Include="Compilation\Javascript\ExpressionDependencyResolver.cs" />
+    <Compile Include="Compilation\Javascript\ExtractExpressionVisitor.cs" />
+    <Compile Include="Compilation\Javascript\IJsMethodTranslator.cs" />
+    <Compile Include="Compilation\Javascript\JavascriptCompilationHelper.cs" />
+    <Compile Include="Compilation\Javascript\JavascriptTranslator.cs" />
+    <Compile Include="Compilation\Javascript\StringJsMethodCompiler.cs" />
+    <Compile Include="Compilation\LoadControlBuilderAttribute.cs" />
+    <Compile Include="Compilation\Parser\AggregateList.cs" />
+    <Compile Include="Compilation\Parser\BeginWithLastTokenOfTypeTokenError.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\ArrayAccessBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\BinaryOperatorBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\BindingParser.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\BindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\BindingParserNodeVisitor.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\ConditionalExpressionBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\FunctionCallBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\IBindingParserNodeContext.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\IdentifierNameBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\LiteralExpressionBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\MemberAccessBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\MultiExpressionBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\NumberLiteralSuffix.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\ParenthesizedExpressionBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\UnaryOperatorBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingToken.cs" />
+    <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingTokenizer.cs" />
+    <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingTokenType.cs" />
+    <Compile Include="Compilation\Parser\ParserConstants.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlAttributeNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlBindingNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DotHtmlCommentNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlDirectiveNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlElementNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlLiteralNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlNameNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlNodeHelper.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlNodeWithContent.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlParser.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlRootNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlValueBindingNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlValueNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlValueTextNode.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\HierarchyBuildingVisitor.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\IDothtmlSyntaxTreeVisitor.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\ParentResolvingVisitor.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Parser\ParserBase.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlToken.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlTokenizer.cs" />
+    <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlTokenType.cs" />
+    <Compile Include="Compilation\Parser\IReader.cs" />
+    <Compile Include="Compilation\Parser\NullTokenError.cs" />
+    <Compile Include="Compilation\Parser\DotvvmParserException.cs" />
+    <Compile Include="Compilation\Parser\SimpleTokenError.cs" />
+    <Compile Include="Compilation\Parser\StringReader.cs" />
+    <Compile Include="Compilation\Parser\TextRange.cs" />
+    <Compile Include="Compilation\Parser\TokenBase.cs" />
+    <Compile Include="Compilation\Parser\TokenError.cs" />
+    <Compile Include="Compilation\Parser\TokenizerBase.cs" />
+    <Compile Include="Compilation\RoslynExtensionMethods.cs" />
+    <Compile Include="Compilation\StaticCommandBindingCompilationAttribute.cs" />
+    <Compile Include="Compilation\Styles\CompileTimeStyleBase.cs" />
+    <Compile Include="Compilation\Styles\IStyle.cs" />
+    <Compile Include="Compilation\Styles\IStyleApplicator.cs" />
+    <Compile Include="Compilation\Styles\StyleBuilder.cs" />
+    <Compile Include="Compilation\Styles\StyleMatchContext.cs" />
+    <Compile Include="Compilation\Styles\StyleMatcher.cs" />
+    <Compile Include="Compilation\Styles\StyleMatchingHelper.cs" />
+    <Compile Include="Compilation\Styles\StyleRepository.cs" />
+    <Compile Include="Compilation\Styles\StylingVisitor.cs" />
+    <Compile Include="Compilation\Validation\ControlUsageError.cs" />
+    <Compile Include="Compilation\Validation\ControlUsageValidationVisitor.cs" />
+    <Compile Include="Compilation\Validation\ControlUsageValidatorAttribute.cs" />
+    <Compile Include="Compilation\Validation\DefaultControlUsageValidator.cs" />
+    <Compile Include="Compilation\Validation\IControlUsageValidator.cs" />
+    <Compile Include="Compilation\ViewCompilingVisitor.cs" />
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
     <Compile Include="Configuration\HtmlTagAttributePair.cs" />
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
     <Compile Include="Configuration\IDotvvmStartup.cs" />
+    <Compile Include="Configuration\ServiceLocator.cs" />
+    <Compile Include="Controls\ConfigurableHtmlControl.cs" />
     <Compile Include="Controls\ConfirmPostBackHandler.cs" />
     <Compile Include="Controls\ButtonTagName.cs" />
     <Compile Include="Controls\ClientIDFragment.cs" />
@@ -157,11 +311,19 @@
     <Compile Include="Controls\DataPager.cs" />
     <Compile Include="Controls\Decorator.cs" />
     <Compile Include="Controls\DotvvmBindableObject.cs" />
+    <Compile Include="Controls\DotvvmControlException.cs" />
     <Compile Include="Controls\EmptyData.cs" />
     <Compile Include="Controls\Events.cs" />
     <Compile Include="Controls\FileUpload.cs" />
+    <Compile Include="Controls\FileUploadPageTemplate.cs">
+      <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+    </Compile>
     <Compile Include="Controls\GridView.cs" />
+    <Compile Include="Controls\GridViewCheckBoxColumn.cs" />
     <Compile Include="Controls\GridViewColumn.cs" />
+    <Compile Include="Controls\GridViewFilterPlacement.cs" />
     <Compile Include="Controls\GridViewTemplateColumn.cs" />
     <Compile Include="Controls\GridViewTextColumn.cs" />
     <Compile Include="Controls\HtmlLiteral.cs" />
@@ -172,35 +334,36 @@
     <Compile Include="Controls\IGridViewDataSet.cs" />
     <Compile Include="Controls\IHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\Infrastructure\RawLiteral.cs" />
+    <Compile Include="Controls\KnockoutBindingGroup.cs" />
+    <Compile Include="Controls\KnockoutHelper.cs" />
     <Compile Include="Controls\LifeCycleEventType.cs" />
+    <Compile Include="Controls\MultiSelectHtmlControlBase.cs" />
+    <Compile Include="Controls\MultiSelector.cs" />
     <Compile Include="Controls\Panel.cs" />
     <Compile Include="Controls\PostBack.cs" />
-    <Compile Include="Controls\MultiHtmlWriter.cs" />
     <Compile Include="Controls\PostBackHandler.cs" />
     <Compile Include="Controls\PostBackHandlerCollection.cs" />
     <Compile Include="Controls\RenderMode.cs" />
     <Compile Include="Controls\RenderSettings.cs" />
     <Compile Include="Controls\RouteLink.cs" />
     <Compile Include="Controls\RouteLinkHelpers.cs" />
+    <Compile Include="Controls\SelectHtmlControlHelpers.cs" />
+    <Compile Include="Controls\SelectorBase.cs" />
     <Compile Include="Controls\SelectorItem.cs" />
     <Compile Include="Controls\SpaContentPlaceHolder.cs" />
     <Compile Include="Controls\TextBoxType.cs" />
-    <Compile Include="Controls\TextboxValueType.cs" />
+    <Compile Include="Controls\FormatValueType.cs" />
     <Compile Include="Controls\TranslateVirtualPathHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\UpdateProgress.cs" />
     <Compile Include="Controls\UploadedFilesCollection.cs" />
-    <Compile Include="Controls\Validate.cs" />
+    <Compile Include="Controls\Validation.cs" />
     <Compile Include="Controls\ListBox.cs" />
     <Compile Include="Controls\SelectHtmlControlBase.cs" />
     <Compile Include="Controls\Selector.cs" />
-    <Compile Include="Controls\ValidationMessage.cs" />
-    <Compile Include="Controls\ValidationMessageMode.cs" />
+    <Compile Include="Controls\Validator.cs" />
     <Compile Include="Controls\ValidationSummary.cs" />
-    <Compile Include="DotvvmInternalException.cs" />
-    <Compile Include="Exceptions\DotvvmCompilationException.cs" />
-    <Compile Include="Exceptions\DotvvmControlException.cs" />
-    <Compile Include="Exceptions\ExceptionUtils.cs" />
-    <Compile Include="Extensions.cs" />
+    <Compile Include="Hosting\HostingConstants.cs" />
+    <Compile Include="Hosting\DotvvmAuthenticationHelper.cs" />
     <Compile Include="Hosting\ErrorPages\DictionarySection.cs" />
     <Compile Include="Hosting\ErrorPages\DotvvmMarkupErrorSection.cs" />
     <Compile Include="Hosting\ErrorPages\ErrorPageTemplate.cs" />
@@ -217,11 +380,6 @@
     <Compile Include="Hosting\ErrorPages\IErrorWriter.cs" />
     <Compile Include="Hosting\ErrorPages\SourceModel.cs" />
     <Compile Include="Hosting\ErrorPages\StackFrameModel.cs" />
-    <Compile Include="Hosting\FileUploadPageTemplate.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>FileUploadPageTemplate.tt</DependentUpon>
-    </Compile>
     <Compile Include="Hosting\IDotvvmRequestContext.cs" />
     <Compile Include="Hosting\InterruptReason.cs" />
     <Compile Include="Hosting\JQueryGlobalizeCultureMiddleware.cs" />
@@ -231,42 +389,9 @@
     <Compile Include="Hosting\DotvvmFileUploadMiddleware.cs" />
     <Compile Include="Hosting\DotvvmInterruptRequestExecutionException.cs" />
     <Compile Include="Hosting\DotvvmRestrictedStaticFilesMiddleware.cs" />
-    <Compile Include="Hosting\TestDotvvmRequestContext.cs" />
-    <Compile Include="KnockoutBindingGroup.cs" />
+    <Compile Include="Hosting\OwinExtensions.cs" />
     <Compile Include="Hosting\DotvvmReturnedFileMiddleware.cs" />
-    <Compile Include="Parser\BeginWithLastTokenOfTypeTokenError.cs" />
-    <Compile Include="Parser\Binding\Parser\ArrayAccessBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\BinaryOperatorBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\BindingParser.cs" />
-    <Compile Include="Parser\Binding\Parser\BindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\BindingParserNodeVisitor.cs" />
-    <Compile Include="Parser\Binding\Parser\ConditionalExpressionBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\FunctionCallBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\IBindingParserNodeContext.cs" />
-    <Compile Include="Parser\Binding\Parser\IdentifierNameBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\LiteralExpressionBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\MemberAccessBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\NumberLiteralSuffix.cs" />
-    <Compile Include="Parser\Binding\Parser\ParenthesizedExpressionBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Parser\UnaryOperatorBindingParserNode.cs" />
-    <Compile Include="Parser\Binding\Tokenizer\BindingToken.cs" />
-    <Compile Include="Parser\Binding\Tokenizer\BindingTokenizer.cs" />
-    <Compile Include="Parser\Binding\Tokenizer\BindingTokenType.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DotHtmlCommentNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlValueTextNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlValueBindingNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlNameNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlValueNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\HierarchyBuildingVisitor.cs" />
-    <Compile Include="Parser\Dothtml\Parser\IDothtmlSyntaxTreeVisitor.cs" />
-    <Compile Include="Parser\Dothtml\Parser\ParentResolvingVisitor.cs" />
-    <Compile Include="Parser\Dothtml\Parser\ParserBase.cs" />
-    <Compile Include="Parser\NullTokenError.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlNodeHelper.cs" />
-    <Compile Include="Parser\SimpleTokenError.cs" />
-    <Compile Include="Parser\TextRange.cs" />
-    <Compile Include="Parser\TokenError.cs" />
-    <Compile Include="DotvvmAuthenticationHelper.cs" />
+    <Compile Include="Hosting\VisualStudioHelper.cs" />
     <Compile Include="ResourceManagement\BundlingResourceProcessor.cs" />
     <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeRegisterTemplate.cs">
       <AutoGen>True</AutoGen>
@@ -275,6 +400,8 @@
     </Compile>
     <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeResourceRepository.cs" />
     <Compile Include="ResourceManagement\ClientGlobalize\JQueryGlobalizeScriptCreator.cs" />
+    <Compile Include="ResourceManagement\NullResource.cs" />
+    <Compile Include="ResourceManagement\ResourceConstants.cs" />
     <Compile Include="ResourceManagement\InlineScriptResource.cs" />
     <Compile Include="ResourceManagement\IDotvvmResourceRepository.cs" />
     <Compile Include="Configuration\DotvvmConfiguration.cs" />
@@ -331,65 +458,19 @@
     </Compile>
     <Compile Include="Routing\DotvvmRouteException.cs" />
     <Compile Include="Routing\DotvvmRouteStrategyException.cs" />
-    <Compile Include="Routing\FolderDothmlFileBasedRouteStrategy.cs" />
+    <Compile Include="Routing\DefaultRouteStrategy.cs" />
     <Compile Include="Routing\GenericRouteParameterType.cs" />
     <Compile Include="Routing\IRouteParameterType.cs" />
     <Compile Include="Routing\IRoutingStrategy.cs" />
     <Compile Include="Routing\RouteHelper.cs" />
-    <Compile Include="Routing\RouteInfo.cs" />
-    <Compile Include="Routing\ViewsFolderDothmlFileBasedRouteStrategy.cs" />
-    <Compile Include="Runtime\BindingParserOptions.cs" />
-    <Compile Include="Runtime\Compilation\BidningParserException.cs" />
-    <Compile Include="Runtime\Compilation\BindingCompilationAttribute.cs" />
-    <Compile Include="Runtime\Compilation\Binding\BindingCompilationException.cs" />
-    <Compile Include="Runtime\Compilation\Binding\CompileTimeBindingParser.cs" />
-    <Compile Include="Runtime\Compilation\Binding\ExpressionBuildingVisitor.cs" />
-    <Compile Include="Runtime\Compilation\Binding\ExpressionHelper.cs" />
-    <Compile Include="Runtime\Compilation\Binding\IBindingIdGenerator.cs" />
-    <Compile Include="Runtime\Compilation\Binding\MethodGroupExpression.cs" />
-    <Compile Include="Runtime\Compilation\Binding\OriginalStringBidningIdGenerator.cs" />
-    <Compile Include="Runtime\Compilation\Binding\StaticClassIdentifier.cs" />
-    <Compile Include="Runtime\Compilation\Binding\TypeConversions.cs" />
-    <Compile Include="Runtime\Compilation\Binding\TypeRegistry.cs" />
-    <Compile Include="Runtime\Compilation\CommandBindingCompilationAttribute.cs" />
-    <Compile Include="Runtime\Compilation\CompiledAssemblyCache.cs" />
-    <Compile Include="Runtime\Compilation\ControlTreeResolver.cs" />
-    <Compile Include="Runtime\Compilation\DataContextStack.cs" />
-    <Compile Include="Runtime\Compilation\DefaultViewCompiler.cs" />
-    <Compile Include="Runtime\Compilation\DefaultViewCompilerCodeEmitter.cs" />
-    <Compile Include="Runtime\Compilation\EmitterMethodInfo.cs" />
-    <Compile Include="Runtime\Compilation\IBindingCompiler.cs" />
-    <Compile Include="Runtime\Compilation\IBindingParser.cs" />
-    <Compile Include="Runtime\Compilation\IControlTreeResolver.cs" />
-    <Compile Include="Runtime\Compilation\IViewCompiler.cs" />
-    <Compile Include="Runtime\Compilation\JavascriptCompilation\ExpressionDependencyResolver.cs" />
-    <Compile Include="Runtime\Compilation\JavascriptCompilation\ExtractExpressionVisitor.cs" />
-    <Compile Include="Runtime\Compilation\JavascriptCompilation\IJsMethodTranslator.cs" />
-    <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptCompilationHelper.cs" />
-    <Compile Include="Runtime\Compilation\JavascriptCompilation\JavascriptTranslator.cs" />
-    <Compile Include="Runtime\Compilation\BindingCompiler.cs" />
-    <Compile Include="Runtime\Compilation\JavascriptCompilation\StringJsMethodCompiler.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\IResolvedTreeNode.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedBinding.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedControl.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\IResolvedControlTreeVisitor.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedControlTreeVisitor.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedContentNode.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyBinding.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertySetter.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyControl.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyControlCollection.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyTemplate.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedPropertyValue.cs" />
-    <Compile Include="Runtime\Compilation\ResolvedControlTree\ResolvedTreeRoot.cs" />
-    <Compile Include="Runtime\Compilation\RoslynExtensionMethods.cs" />
-    <Compile Include="Runtime\Compilation\StaticCommandBindingCompilationAttribute.cs" />
-    <Compile Include="Runtime\Compilation\ViewCompilingVisitor.cs" />
-    <Compile Include="Runtime\DefaultControlBuilderFactory.cs" />
+    <Compile Include="Routing\RouteStrategyMarkupFileInfo.cs" />
+    <Compile Include="Routing\RouteTableJsonConverter.cs" />
+    <Compile Include="Runtime\Commands\CommandResolver.cs" />
+    <Compile Include="Runtime\Commands\EventValidator.cs" />
+    <Compile Include="Runtime\Commands\ViewModelPathComparer.cs" />
+    <Compile Include="Runtime\ControlTreeWalker.cs" />
     <Compile Include="Runtime\DefaultOutputRenderer.cs" />
     <Compile Include="Runtime\DefaultDotvvmViewBuilder.cs" />
-    <Compile Include="Runtime\DefaultViewModelLoader.cs" />
-    <Compile Include="Runtime\DotvvmDateTimeConverter.cs" />
     <Compile Include="Runtime\Filters\ActionFilterAttribute.cs" />
     <Compile Include="Runtime\Filters\ActionInfo.cs" />
     <Compile Include="Runtime\Filters\ActionParameterInfo.cs" />
@@ -397,37 +478,22 @@
     <Compile Include="Runtime\Filters\ExceptionFilterAttribute.cs" />
     <Compile Include="Runtime\Filters\ModelValidationFilterAttribute.cs" />
     <Compile Include="Runtime\Filters\NotAuthorizedAttribute.cs" />
-    <Compile Include="Runtime\IControlBuilderFactory.cs" />
     <Compile Include="Runtime\IOutputRenderer.cs" />
     <Compile Include="Runtime\IDotvvmViewBuilder.cs" />
-    <Compile Include="Runtime\IViewModelLoader.cs" />
-    <Compile Include="Runtime\IViewModelSerializer.cs" />
-    <Compile Include="Runtime\LoadControlBuilderAttribute.cs" />
-    <Compile Include="Runtime\RenderContext.cs" />
-    <Compile Include="Runtime\DefaultViewModelSerializer.cs" />
-    <Compile Include="Security\ApplicationKeyHelper.cs" />
     <Compile Include="Security\DefaultCsrfProtector.cs" />
     <Compile Include="Security\DefaultViewModelProtector.cs" />
     <Compile Include="Security\ICsrfProtector.cs" />
     <Compile Include="Security\IViewModelProtector.cs" />
-    <Compile Include="Security\NistSP800108DeriveBytes.cs" />
     <Compile Include="Security\ProtectionHelpers.cs" />
-    <Compile Include="ServiceLocator.cs" />
     <Compile Include="Storage\FileSystemReturnedFileStorage.cs" />
     <Compile Include="Storage\FileSystemUploadedFileStorage.cs" />
     <Compile Include="Storage\IReturnedFileStorage.cs" />
     <Compile Include="Storage\IUploadedFileStorage.cs" />
+    <Compile Include="Storage\ReturnedFileMetadata.cs" />
     <Compile Include="Storage\UploadedFile.cs" />
     <Compile Include="Storage\UploadedFileStorageExtensions.cs" />
-    <Compile Include="Styles\CompileTimeStyleBase.cs" />
-    <Compile Include="Styles\IStyle.cs" />
-    <Compile Include="Styles\IStyleApplicator.cs" />
-    <Compile Include="Styles\StyleBuilder.cs" />
-    <Compile Include="Styles\StyleMatcher.cs" />
-    <Compile Include="Styles\StyleMatchingHelper.cs" />
-    <Compile Include="Styles\StyleMatchContext.cs" />
-    <Compile Include="Styles\StylingVisitor.cs" />
-    <Compile Include="Styles\StyleRepository.cs" />
+    <Compile Include="Testing\TestDotvvmRequestContext.cs" />
+    <Compile Include="Utils\ExceptionUtils.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
     <Compile Include="Hosting\FileReader.cs" />
@@ -438,26 +504,6 @@
     <Compile Include="Hosting\DotvvmMiddleware.cs" />
     <Compile Include="Hosting\DotvvmPresenter.cs" />
     <Compile Include="Hosting\DotvvmRequestContext.cs" />
-    <Compile Include="KnockoutHelper.cs" />
-    <Compile Include="OwinExtensions.cs" />
-    <Compile Include="Parser\Constants.cs" />
-    <Compile Include="Parser\ParserException.cs" />
-    <Compile Include="Parser\IReader.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlAttributeNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlBindingNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlDirectiveNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlElementNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlLiteralNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlNode.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlNodeWithContent.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlParser.cs" />
-    <Compile Include="Parser\Dothtml\Parser\DothtmlRootNode.cs" />
-    <Compile Include="Parser\Dothtml\Tokenizer\DothtmlToken.cs" />
-    <Compile Include="Parser\Dothtml\Tokenizer\DothtmlTokenizer.cs" />
-    <Compile Include="Parser\Dothtml\Tokenizer\DothtmlTokenType.cs" />
-    <Compile Include="Parser\StringReader.cs" />
-    <Compile Include="Parser\TokenBase.cs" />
-    <Compile Include="Parser\TokenizerBase.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Resources\Controls.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -467,11 +513,6 @@
     <Compile Include="Routing\DotvvmRoute.cs" />
     <Compile Include="Routing\DotvvmRouteTable.cs" />
     <Compile Include="Routing\RouteBase.cs" />
-    <Compile Include="Runtime\ControlResolverMetadata.cs" />
-    <Compile Include="Runtime\ControlType.cs" />
-    <Compile Include="Runtime\DefaultControlResolver.cs" />
-    <Compile Include="Runtime\IControlBuilder.cs" />
-    <Compile Include="Runtime\IControlResolver.cs" />
     <Compile Include="Utils\HttpAbstractions\BufferedReadStream.cs" />
     <Compile Include="Utils\HttpAbstractions\KeyValueAccumulator.cs" />
     <Compile Include="Utils\HttpAbstractions\MultipartReader.cs" />
@@ -481,31 +522,34 @@
     <Compile Include="Utils\JsonUtils.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
     <Compile Include="Utils\TaskUtils.cs" />
-    <Compile Include="ViewModel\AttributeViewModelValidationMetadataProvider.cs" />
+    <Compile Include="ViewModel\AllowStaticCommandAttribute.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
-    <Compile Include="ViewModel\ClientCommandAttribute.cs" />
-    <Compile Include="ViewModel\CollectionOptionsAttribute.cs" />
-    <Compile Include="ViewModel\ControlTreeWalker.cs" />
-    <Compile Include="ViewModel\DateTimeFormatJsonConverterBase.cs" />
-    <Compile Include="ViewModel\EncryptedValuesReader.cs" />
-    <Compile Include="ViewModel\EncryptedValuesWriter.cs" />
-    <Compile Include="ViewModel\FormatJsonConverterBase.cs" />
-    <Compile Include="ViewModel\IViewModelValidationMetadataProvider.cs" />
-    <Compile Include="ViewModel\ViewModelValidator.cs" />
-    <Compile Include="ViewModel\ViewModelPropertyValidationRule.cs" />
-    <Compile Include="ViewModel\ViewModelProtectionAttribute.cs" />
-    <Compile Include="ViewModel\ViewModelProtectionHelper.cs" />
-    <Compile Include="ViewModel\ViewModelProtectionSettings.cs" />
+    <Compile Include="ViewModel\ChildViewModelsCache.cs" />
+    <Compile Include="ViewModel\Serialization\DateTimeFormatJsonConverterBase.cs" />
+    <Compile Include="ViewModel\Serialization\DefaultViewModelLoader.cs" />
+    <Compile Include="ViewModel\Serialization\DefaultViewModelSerializer.cs" />
+    <Compile Include="ViewModel\Serialization\DotvvmDateTimeConverter.cs" />
+    <Compile Include="ViewModel\Serialization\EncryptedValuesReader.cs" />
+    <Compile Include="ViewModel\Serialization\EncryptedValuesWriter.cs" />
+    <Compile Include="ViewModel\Serialization\FormatJsonConverterBase.cs" />
+    <Compile Include="ViewModel\Serialization\IViewModelLoader.cs" />
+    <Compile Include="ViewModel\Serialization\IViewModelSerializer.cs" />
+    <Compile Include="ViewModel\Serialization\ViewModelJsonConverter.cs" />
+    <Compile Include="ViewModel\Serialization\ViewModelPropertyMap.cs" />
+    <Compile Include="ViewModel\Serialization\ViewModelSerializationMap.cs" />
+    <Compile Include="ViewModel\Serialization\ViewModelSerializationMapper.cs" />
+    <Compile Include="ViewModel\Validation\AttributeViewModelValidationMetadataProvider.cs" />
+    <Compile Include="ViewModel\Validation\DataAnnotations\DotvvmClientFormatAttribute.cs" />
+    <Compile Include="ViewModel\Validation\IViewModelValidationMetadataProvider.cs" />
+    <Compile Include="ViewModel\Validation\ViewModelPropertyValidationRule.cs" />
+    <Compile Include="ViewModel\Validation\ViewModelValidationError.cs" />
+    <Compile Include="ViewModel\Validation\ViewModelValidationRuleTranslator.cs" />
+    <Compile Include="ViewModel\Validation\ViewModelValidator.cs" />
+    <Compile Include="ViewModel\ProtectAttribute.cs" />
+    <Compile Include="ViewModel\ProtectMode.cs" />
     <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IDotvvmViewModel.cs" />
-    <Compile Include="ViewModel\KeyPropertyAttribute.cs" />
     <Compile Include="ViewModel\DotvvmViewModelBase.cs" />
-    <Compile Include="ViewModel\ViewModelJsonConverter.cs" />
-    <Compile Include="ViewModel\ViewModelPropertyMap.cs" />
-    <Compile Include="ViewModel\ViewModelSerializationMap.cs" />
-    <Compile Include="ViewModel\ViewModelSerializationMapper.cs" />
-    <Compile Include="ViewModel\ViewModelValidationError.cs" />
-    <Compile Include="ViewModel\ViewModelValidationRuleTranslator.cs" />
   </ItemGroup>
   <ItemGroup>
     <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
@@ -557,7 +601,7 @@
     <TypeScriptCompile Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Hosting\FileUploadPageTemplate.tt">
+    <Content Include="Controls\FileUploadPageTemplate.tt">
       <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>FileUploadPageTemplate.cs</LastGenOutput>
     </Content>
@@ -574,6 +618,7 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <TypeScriptTarget>ES5</TypeScriptTarget>
