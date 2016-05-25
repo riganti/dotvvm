@@ -99,10 +99,21 @@ class DotvvmSerialization {
                 }
 
                 // knockout extenders support
-                if (options && options.clientExtender && ko.isObservable(result[prop])) {
+                /*if (options && options.clientExtender && ko.isObservable(result[prop])) {
                     var extenderOptions = {};
                     extenderOptions[options.clientExtender] = true;
                     result[prop].extend(extenderOptions);
+                } */
+
+                if (options && options.clientExtenders && ko.isObservable(result[prop]))
+                {
+                    for (var i = 0; i < options.clientExtenders.length; i++) {
+                        var extenderOptions = {};
+                        var extenderInfo = options.clientExtenders[i];
+                        extenderOptions[extenderInfo.name] = extenderInfo.parameter;                        
+                        result[prop].extend(extenderOptions);
+                    }
+                        
                 }
             }
         }

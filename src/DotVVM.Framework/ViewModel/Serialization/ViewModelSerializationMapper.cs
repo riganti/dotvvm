@@ -61,10 +61,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
 
-                var clientExtenderAttribute = property.GetCustomAttribute<ClientExtenderAttribute>();
+                /*var clientExtenderAttribute = property.GetCustomAttribute<ClientExtenderAttribute>();
                 if (clientExtenderAttribute != null)
                 {
                     propertyMap.ClientExtenderName = clientExtenderAttribute.Name;
+                }
+                */
+
+                var clientExtenderList = property.GetCustomAttributes<ClientExtenderAttribute>();
+                if (clientExtenderList.Any())
+                {
+                    clientExtenderList
+                        .OrderBy(c => c.Order)
+                        .ToList()
+                        .ForEach(extender => propertyMap.ClientExtenders.Add(new ClientExtenderInfo() { Name = extender.Name, Parameter = extender.Parameter }));
                 }
 
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);

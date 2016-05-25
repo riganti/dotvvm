@@ -13,6 +13,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
     /// </summary>
     public class ViewModelSerializationMap
     {
+        private const string CLIENT_EXTENDERS_KEY = "clientExtenders";
+
         /// <summary>
         /// Gets or sets the object type for this serialization map.
         /// </summary>
@@ -301,9 +303,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     options["isDate"] = true;
                 }
 
-                if (!String.IsNullOrWhiteSpace(property.ClientExtenderName))
+                if (property.ClientExtenders.Any())
                 {
-                    options["clientExtender"] = property.ClientExtenderName;
+                    options[CLIENT_EXTENDERS_KEY] = property.ClientExtenders.ToArray();
                 }
 
                 AddTypeOptions(options, property.Type);
@@ -311,14 +313,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 block.Add(Expression.Label(endPropertyLabel));
                 if (options.Any())
                 {
-                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(property.Name + "$options"), writer));
-                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
-                    foreach (var option in options)
-                    {
-                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(option.Key), writer));
-                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(option.Value), writer));
-                    }
-                    block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
+                    GenerateOptionsBlock(block, property, options, writer);
                 }
             }
 
@@ -328,6 +323,42 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, EncryptedValuesWriter, bool>>(
                 Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
             return ex.Compile();
+        }
+
+        private void GenerateOptionsBlock(IList<Expression> block,  ViewModelPropertyMap property, Dictionary<string, object> options, ParameterExpression writer)
+        {
+            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(property.Name + "$options"), writer));
+            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
+            foreach (var option in options)
+            {
+                block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName(option.Key), writer));
+                switch (option.Key)
+                {
+                    case CLIENT_EXTENDERS_KEY:
+                    {
+                        // declare 'clientExtenders' as the array of objects
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartArray(), writer));
+                        foreach (var extender in property.ClientExtenders)
+                        {
+                            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteStartObject(), writer));
+                            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName("name"), writer));
+                            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(extender.Name), writer));
+                            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WritePropertyName("parameter"), writer));
+                            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(extender.Parameter), writer));
+                            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
+
+                        }
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndArray(), writer));
+                        break;
+                    }
+                    default:
+                        // legacy code - direct { property : value }
+                        block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteValue(option.Value), writer));
+                        break;
+                }
+            }
+            block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
+
         }
 
         private void AddTypeOptions(Dictionary<string, object> options, Type type)
