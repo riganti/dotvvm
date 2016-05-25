@@ -63,6 +63,7 @@ namespace DotVVM.Framework.Controls
             RenderCheckedItemsBinding(writer);
             writer.AddKnockoutDataBind("checkedArrayContainsObservables", "true");
             writer.AddKnockoutDataBind("dotvvm-checkbox-updateAfterPostback", "true");
+            RenderDotvvmCheckedPointerBinding(writer);
             writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
             {
                 var checkedValue = (CheckedValue ?? string.Empty).ToString();
@@ -72,6 +73,19 @@ namespace DotVVM.Framework.Controls
                 }
             });
         }
+
+
+        protected virtual void RenderDotvvmCheckedPointerBinding(IHtmlWriter writer)
+        {
+            writer.AddKnockoutDataBind("dotvvm-checked-pointer", GetDotvvmCheckedPointerBindingValue());
+        }
+
+        protected virtual string GetDotvvmCheckedPointerBindingValue()
+        {
+            return "'checked'";
+        }
+
+
 
         protected virtual void RenderCheckedItemsBinding(IHtmlWriter writer)
         {

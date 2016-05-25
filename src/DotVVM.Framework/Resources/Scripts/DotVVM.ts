@@ -733,12 +733,12 @@ class DotVVM {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
              dotvvm.events.afterPostback.subscribe((e) => {
                  var bindings = allBindingsAccessor();
-                 if (bindings["checked"]) {
-                     var checked = bindings["checked"];
+                 if (bindings["dotvvm-checked-pointer"]) {
+                     var checked = bindings[bindings["dotvvm-checked-pointer"]];
                      if (ko.isObservable(checked)) {
                          if ((<KnockoutObservable<any>>checked).valueHasMutated) {
                              (<KnockoutObservable<any>>checked).valueHasMutated();
-                         } else {                 
+                         } else {
                              (<KnockoutObservable<any>>checked).notifySubscribers();
                          }
                      }
@@ -746,7 +746,10 @@ class DotVVM {
              });
             }
         };
-       
+        ko.bindingHandlers['dotvvm-checked-pointer'] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+            }
+        };
 
         ko.bindingHandlers["dotvvm-UpdateProgress-Visible"] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
