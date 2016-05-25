@@ -1,6 +1,7 @@
 using System.IO;
 using System.Reflection;
 using DotVVM.Framework.Configuration;
+using Microsoft.Owin;
 using Microsoft.Owin.Security.DataProtection;
 using Newtonsoft.Json;
 using Owin;
@@ -45,6 +46,11 @@ namespace DotVVM.Framework.Hosting
             var config = app.UseDotVVM(applicationRootDirectory, errorPages);
             new TStartup().Configure(config, applicationRootDirectory);
             return config;
+        }
+
+        public static DotvvmRequestContext GetDotvvmContext(this IOwinContext owinContext)
+        {
+            return DotvvmRequestContext.GetCurrent(owinContext);
         }
     }
 }

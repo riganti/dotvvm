@@ -82,8 +82,8 @@ class DotVVM {
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
-            this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder));
-            this.handleHashChange(viewModelName, spaPlaceHolder);
+            this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder, false));
+            this.handleHashChange(viewModelName, spaPlaceHolder, true);
         }
 
         if (idFragment) {
@@ -100,13 +100,13 @@ class DotVVM {
         });
     }
 
-    private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement) {
+    private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
         if (document.location.hash.indexOf("#!/") === 0) {
             this.navigateCore(viewModelName, document.location.hash.substring(2));
         } else {
             // redirect to the default URL
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
-            if (url) {
+            if (url && !isInitialPageLoad) {
                 document.location.hash = "#!/" + url;
             } else {
                 this.isSpaReady(true);
@@ -410,7 +410,7 @@ class DotVVM {
         }
 
         // send the request
-        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dot-spacontentplaceholder"].value;
+        var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
         this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
@@ -473,6 +473,20 @@ class DotVVM {
         if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
+            if (url === "#!") {
+                url = "#!/";
+            }
+
+            // verify that the URL prefix is correct, if not - add it before the fragment
+            var correctPrefix = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"].value;
+            var currentPrefix = document.location.pathname;
+            if (correctPrefix !== currentPrefix) {
+                if (correctPrefix === "") {
+                    correctPrefix = "/";
+                }
+                url = correctPrefix + url;
+            }
+
         } else {
             // absolute URL - load the URL
             url = resultObject.url;
@@ -713,6 +727,27 @@ class DotVVM {
                     element.disabled = true;
                     element.setAttribute("disabled", "disabled");
                 }
+            }
+        };
+        ko.bindingHandlers['dotvvm-checkbox-updateAfterPostback'] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+             dotvvm.events.afterPostback.subscribe((e) => {
+                 var bindings = allBindingsAccessor();
+                 if (bindings["dotvvm-checked-pointer"]) {
+                     var checked = bindings[bindings["dotvvm-checked-pointer"]];
+                     if (ko.isObservable(checked)) {
+                         if ((<KnockoutObservable<any>>checked).valueHasMutated) {
+                             (<KnockoutObservable<any>>checked).valueHasMutated();
+                         } else {
+                             (<KnockoutObservable<any>>checked).notifySubscribers();
+                         }
+                     }
+                 }
+             });
+            }
+        };
+        ko.bindingHandlers['dotvvm-checked-pointer'] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
             }
         };
 

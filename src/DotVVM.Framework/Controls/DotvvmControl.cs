@@ -138,10 +138,13 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void AddDotvvmUniqueIdAttribute()
+        protected void AddDotvvmUniqueIdAttribute()
         {
             var htmlAttributes = this as IControlWithHtmlAttributes;
-            if (htmlAttributes == null) throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render html attributes.");
+            if (htmlAttributes == null)
+            {
+                throw new DotvvmControlException(this, "Postback.Update can not be set on property which don't render html attributes.");
+            }
             htmlAttributes.Attributes["data-dotvvm-id"] = GetDotvvmUniqueId();
         }
 
@@ -296,7 +299,8 @@ namespace DotVVM.Framework.Controls
             DotvvmControl result = this;
             for (var i = 0; i < parts.Length; i++)
             {
-                result = result.FindControlInContainer(parts[i]);
+                result = result.GetAllDescendants(c => !IsNamingContainer(c))
+                    .SingleOrDefault(c => c.GetValue(Internal.UniqueIDProperty).Equals(parts[i]));
                 if (result == null)
                 {
                     return null;

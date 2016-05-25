@@ -25,6 +25,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty DefaultRouteNameProperty
             = DotvvmProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
+        
 
         public SpaContentPlaceHolder()
         {
@@ -43,9 +44,24 @@ namespace DotVVM.Framework.Controls
 
             Attributes["name"] = HostingConstants.SpaContentPlaceHolderID;
             Attributes[HostingConstants.SpaContentPlaceHolderDataAttributeName] = GetSpaContentPlaceHolderUniqueId();
+            Attributes[HostingConstants.SpaUrlPrefixAttributeName] = GetCorrectSpaUrlPrefix(context);
 
+            AddDotvvmUniqueIdAttribute();
 
             base.OnInit(context);
+        }
+        
+        private string GetCorrectSpaUrlPrefix(IDotvvmRequestContext context)
+        {
+            var result = DotvvmMiddleware.GetVirtualDirectory(context.OwinContext);
+
+            var routePath = context.Configuration.RouteTable[DefaultRouteName].Url.Trim('/');
+            if (!string.IsNullOrEmpty(routePath))
+            {
+                result += "/" + routePath;
+            }
+
+            return result;
         }
 
         protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)

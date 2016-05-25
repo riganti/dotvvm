@@ -17,6 +17,11 @@ namespace DotVVM.Samples.Tests.Complex
         {
             RunInAllBrowsers(browser =>
             {
+                // try to visit the secured page and verify we are redirected
+                browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_Auth_SecuredPage);
+                browser.CheckUrl(u => u.Contains(SamplesRouteUrls.ComplexSamples_Auth_Login));
+
+                // use the login page
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_Auth_Login);
 
                 browser.SendKeys("input[type=text]", "user");

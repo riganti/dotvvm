@@ -36,6 +36,10 @@ namespace DotVVM.Framework.Controls
             }
             else if (!HasBinding(CheckedProperty) && HasBinding(CheckedItemsProperty))
             {
+                if (GetValue(CheckedItemsProperty) == null)
+                {
+                    throw new DotvvmControlException(this, "CheckedItems property cannot contain null!");
+                }
                 // collection mode
                 RenderCheckedItemsProperty(writer);
             }
@@ -56,9 +60,10 @@ namespace DotVVM.Framework.Controls
 
         protected virtual void RenderCheckedItemsProperty(IHtmlWriter writer)
         {
-            var checkedItemsBinding = GetValueBinding(CheckedItemsProperty);
-            writer.AddKnockoutDataBind("checked", checkedItemsBinding);
+            RenderCheckedItemsBinding(writer);
             writer.AddKnockoutDataBind("checkedArrayContainsObservables", "true");
+            writer.AddKnockoutDataBind("dotvvm-checkbox-updateAfterPostback", "true");
+            RenderDotvvmCheckedPointerBinding(writer);
             writer.AddKnockoutDataBind("checkedValue", this, CheckedValueProperty, () =>
             {
                 var checkedValue = (CheckedValue ?? string.Empty).ToString();
@@ -67,6 +72,25 @@ namespace DotVVM.Framework.Controls
                     writer.AddKnockoutDataBind("checkedValue", KnockoutHelper.MakeStringLiteral(checkedValue));
                 }
             });
+        }
+
+
+        protected virtual void RenderDotvvmCheckedPointerBinding(IHtmlWriter writer)
+        {
+            writer.AddKnockoutDataBind("dotvvm-checked-pointer", GetDotvvmCheckedPointerBindingValue());
+        }
+
+        protected virtual string GetDotvvmCheckedPointerBindingValue()
+        {
+            return "'checked'";
+        }
+
+
+
+        protected virtual void RenderCheckedItemsBinding(IHtmlWriter writer)
+        {
+            var checkedItemsBinding = GetValueBinding(CheckedItemsProperty);
+            writer.AddKnockoutDataBind("checked", checkedItemsBinding);
         }
 
         protected virtual void RenderCheckedProperty(IHtmlWriter writer)

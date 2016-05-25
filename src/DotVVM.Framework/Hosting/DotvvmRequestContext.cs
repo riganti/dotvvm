@@ -110,6 +110,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string ResultIdFragment { get; set; }
 
+
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
         /// </summary>
@@ -232,6 +233,14 @@ namespace DotVVM.Framework.Hosting
                 owinContext.Response.ContentType = "application/json";
                 owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url));
             }
+        }
+
+        /// <summary>
+        /// Gets the current DotVVM context.
+        /// </summary>
+        public static DotvvmRequestContext GetCurrent(IOwinContext owinContext)
+        {
+            return owinContext.Get<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
         }
 
         /// <summary>
