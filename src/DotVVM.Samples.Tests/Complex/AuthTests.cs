@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Wait(2000);
 
                 browser.SendKeys("input[type=text]", "message");
-                browser.First("input[type=button]").Click();
+                browser.First("input[type=button]").Click().Wait(500);
 
                 browser.ElementAt("h1",1)
                     .CheckIfInnerText(

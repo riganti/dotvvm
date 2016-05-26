@@ -173,7 +173,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var template = new ErrorPageTemplate();
             template.Formatters = Formatters.Select(f => f(exception, owin)).Where(t => t != null).ToArray();
             template.ErrorCode = owin.Response.StatusCode;
-            template.ErrorDescription = "unhandled exception occured";
+            template.ErrorDescription = "Unhandled exception occured";
             template.Summary = exception.GetType().FullName + ": " + LimitLength(exception.Message, 200);
 
             return template.TransformText();

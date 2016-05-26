@@ -27,7 +27,7 @@ namespace DotVVM.Samples.Tests.Control
                 boxes.ElementAt(0).First("input[type=button]").Click();
                 browser.Wait();
 
-                boxes.ElementAt(0).First("span")
+                boxes.ElementAt(0).First("span.result")
                     .CheckIfInnerTextEquals("True");
 
                 // check box list
@@ -36,7 +36,7 @@ namespace DotVVM.Samples.Tests.Control
                 boxes.ElementAt(1).First("input[type=button]").Click();
                 browser.Wait();
 
-                boxes.ElementAt(1).First("span")
+                boxes.ElementAt(1).First("span.result")
                     .CheckIfInnerTextEquals("g, b");
 
                 boxes.ElementAt(1).ElementAt("input[type=checkbox]", 2).Click();
@@ -44,14 +44,14 @@ namespace DotVVM.Samples.Tests.Control
                 boxes.ElementAt(1).First("input[type=button]").Click();
                 browser.Wait();
 
-                boxes.ElementAt(1).First("span")
+                boxes.ElementAt(1).First("span.result")
                     .CheckIfInnerTextEquals("g, r");
 
                 // checked changed
                 boxes.ElementAt(2).ElementAt("input[type=checkbox]", 0).Click();
                 browser.Wait();
 
-                boxes.ElementAt(2).Last("span")
+                boxes.ElementAt(2).Last("span.result")
                     .CheckIfInnerTextEquals("1");
                 boxes.ElementAt(2).First("input[type=checkbox]")
                     .CheckIfIsChecked();
@@ -59,7 +59,7 @@ namespace DotVVM.Samples.Tests.Control
                 boxes.ElementAt(2).ElementAt("input[type=checkbox]", 0).Click();
                 browser.Wait();
 
-                boxes.ElementAt(2).Last("span")
+                boxes.ElementAt(2).Last("span.result")
                    .CheckIfInnerTextEquals("2");
                 boxes.ElementAt(2).First("input[type=checkbox]")
                     .CheckIfIsNotChecked();

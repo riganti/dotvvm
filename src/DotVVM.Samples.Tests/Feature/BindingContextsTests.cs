@@ -26,8 +26,8 @@ namespace DotVVM.Samples.Tests.Feature
                 for (var i = 0; i < linkCount; i++)
                 {
                     var link = browser.ElementAt("a", i);
-                    link.Click();
-
+                    link.Click().Wait(500);
+                    
                     browser.Single(".result").CheckIfInnerTextEquals(link.GetInnerText());
                 }
             });

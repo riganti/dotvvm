@@ -76,7 +76,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty AllowSortingProperty
             = DotvvmProperty.Register<bool, GridViewColumn>(c => c.AllowSorting, false);
 
-        [MarkupOptions(AllowBinding = false)]
         public string CssClass
         {
             get { return (string)GetValue(CssClassProperty); }

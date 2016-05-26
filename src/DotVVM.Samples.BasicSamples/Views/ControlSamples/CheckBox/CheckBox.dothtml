@@ -20,7 +20,7 @@
                         &nbsp; &nbsp;
                         <dot:Button Text="Postback" Click="{command: UpdateSCB()}" />
                         &nbsp; &nbsp;
-                        <span>{{value: SCBResult}}</span>
+                        <span class="result">{{value: SCBResult}}</span>
                     </p>
                 </fieldset>
 
@@ -39,7 +39,7 @@
                         &nbsp; &nbsp;
                         <dot:Button Text="Postback" Click="{command: UpdateMCB()}" />
                         &nbsp; &nbsp;
-                        <span>	{{value: MCBResult}}</span>
+                        <span class="result">{{value: MCBResult}}</span>
                     </p>
                 </fieldset>
 
@@ -50,7 +50,7 @@
                 <fieldset>
                     <legend>Changed event</legend>
                     <dot:CheckBox Checked="{value: ChangedValue}" Changed="{command: OnChanged()}" />
-                    <span>	{{value: NumberOfChanges}}</span>
+                    <span class="result">{{value: NumberOfChanges}}</span>
                 </fieldset>
             </div>
             <div class="col-md-6">
@@ -62,7 +62,7 @@
                         &nbsp; &nbsp;
                         <dot:Button Text="Postback" Click="{command: UpdateSCB()}" />
                         &nbsp; &nbsp;
-                        <span>{{value: SCBResult}}</span>
+                        <span class="result">{{value: SCBResult}}</span>
                     </p>
                 </fieldset>
 
