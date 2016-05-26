@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
 
         /// <summary>
         /// Gets or sets the value that will be used as a result when the control is checked.
-        /// Use this property in combination with the CheckedValue or CheckedValues property.
+        /// Use this property in combination with the CheckedItem or CheckedItems property.
         /// </summary>
         public object CheckedValue
         {
