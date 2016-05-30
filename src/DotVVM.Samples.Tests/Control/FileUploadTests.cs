@@ -34,10 +34,10 @@ namespace DotVVM.Samples.Tests.Control
                 File.WriteAllText(tempFile, string.Join(",", Enumerable.Range(1, 100000)));
 
                 // write the full path to the dialog
-                browser.FileUploadDialogSelect(browser.First(".dot-upload-button a"),tempFile);
+                browser.FileUploadDialogSelect(browser.First(".dotvvm-upload-button a"),tempFile);
 
                 // wait for the file to be uploaded
-                while (browser.First(".dot-upload-files").GetText() != "1 files")
+                while (browser.First(".dotvvm-upload-files").GetText() != "1 files")
                 {
                     browser.Wait(2000);
                 }

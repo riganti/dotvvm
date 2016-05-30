@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload.FileUploadViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload.FileUploadViewModel, DotVVM.Samples.BasicSamples
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -10,7 +10,7 @@
 
 	<!-- The dot:FileUpload basic functionality test. -->
 
-	<dot:FileUpload UploadedFiles="{value: Files}" AllowMultipleFiles="true" />
+	<dot:FileUpload UploadedFiles="{value: Files}" AllowMultipleFiles="true" ID="FileUploadTest" />
 	<p>
 		<dot:Button Text="Confirm upload" Click="{command: Process()}" Enabled="{value: !Files.IsBusy}" />
 	</p>

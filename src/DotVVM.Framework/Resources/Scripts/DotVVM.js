@@ -776,7 +776,7 @@ var DotVVM = (function () {
                                 val(value);
                             }
                             else {
-                                console.log("Attempted to write to readonly property '" + this.prop + "' at '" + valueAccessor.toString() + "'");
+                                console.warn("Attempted to write to readonly property '" + this.prop + "' at '" + valueAccessor.toString() + "'");
                             }
                         }
                     }, { prop: prop });
@@ -947,7 +947,7 @@ var DotvvmFileUpload = (function () {
     function DotvvmFileUpload() {
     }
     DotvvmFileUpload.prototype.showUploadDialog = function (sender) {
-        var uploadId = "upl" + new Date().getTime().toString();
+        var uploadId = "DotVVM_upl" + new Date().getTime().toString();
         sender.parentElement.parentElement.dataset["dotvvmUploadId"] = uploadId;
         var iframe = sender.parentElement.previousSibling;
         iframe.dataset["dotvvmUploadId"] = uploadId;
@@ -1626,7 +1626,7 @@ var DotvvmValidation = (function () {
                 _this.clearValidationErrors(args.viewModel);
                 _this.validateViewModel(validationTarget);
                 if (_this.errors().length > 0) {
-                    console.log("Validation failed: postback aborted; errors: ", _this.errors());
+                    console.warn("Validation failed: postback aborted; errors: ", _this.errors());
                     args.cancel = true;
                     args.clientValidationFailed = true;
                 }

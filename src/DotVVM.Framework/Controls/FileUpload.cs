@@ -131,7 +131,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload control must be bound!"); 
             });
-            writer.AddAttribute("class", "dot-upload", true);
+            writer.AddAttribute("class", "dotvvm-upload", true);
 
             var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
             if (uploadCompletedBinding != null)
@@ -145,13 +145,13 @@ namespace DotVVM.Framework.Controls
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render iframe
-            writer.AddAttribute("class", "dot-upload-iframe");
+            writer.AddAttribute("class", "dotvvm-upload-iframe");
             writer.AddAttribute("src", "~/" + HostingConstants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
             writer.RenderBeginTag("iframe");
             writer.RenderEndTag();
 
             // render upload button
-            writer.AddAttribute("class", "dot-upload-button");
+            writer.AddAttribute("class", "dotvvm-upload-button");
             writer.AddKnockoutDataBind("visible", "!IsBusy()");
             writer.RenderBeginTag("span");
             writer.AddAttribute("href", "#");
@@ -162,26 +162,26 @@ namespace DotVVM.Framework.Controls
             writer.RenderEndTag();
 
             // render upload files
-            writer.AddAttribute("class", "dot-upload-files");
+            writer.AddAttribute("class", "dotvvm-upload-files");
             writer.AddKnockoutDataBind("html", $"dotvvm.globalize.format({JsonConvert.SerializeObject(NumberOfFilesIndicatorText)}, Files().length)");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
 
             // render progress wrapper
             writer.AddKnockoutDataBind("visible", "IsBusy");
-            writer.AddAttribute("class", "dot-upload-progress-wrapper");
+            writer.AddAttribute("class", "dotvvm-upload-progress-wrapper");
             writer.RenderBeginTag("span");
-            writer.AddAttribute("class", "dot-upload-progress");
+            writer.AddAttribute("class", "dotvvm-upload-progress");
             writer.AddKnockoutDataBind("style", "{ 'width': (Progress() == -1 ? '50' : Progress()) + '%' }");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
             writer.RenderEndTag();
 
             // render result
-            writer.AddAttribute("class", "dot-upload-result");
+            writer.AddAttribute("class", "dotvvm-upload-result");
             writer.AddKnockoutDataBind("html", $"Error() ? {JsonConvert.SerializeObject(UploadErrorMessageText)} : {JsonConvert.SerializeObject(SuccessMessageText)}");
             writer.AddKnockoutDataBind("attr", "{ title: Error }");
-            writer.AddKnockoutDataBind("css", "{ 'dot-upload-result-success': !Error(), 'dot-upload-result-error': Error }");
+            writer.AddKnockoutDataBind("css", "{ 'dotvvm-upload-result-success': !Error(), 'dotvvm-upload-result-error': Error }");
             writer.AddKnockoutDataBind("visible", "!IsBusy() && Files().length > 0");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();

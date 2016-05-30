@@ -2,7 +2,7 @@
 class DotvvmFileUpload {
 
     public showUploadDialog(sender: HTMLElement) {
-        var uploadId = "upl" + new Date().getTime().toString();
+        var uploadId = "DotVVM_upl" + new Date().getTime().toString();
         sender.parentElement.parentElement.dataset["dotvvmUploadId"] = uploadId;
 
         var iframe = <HTMLIFrameElement>sender.parentElement.previousSibling;

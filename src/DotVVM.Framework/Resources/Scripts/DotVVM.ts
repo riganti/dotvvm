@@ -685,12 +685,12 @@ class DotVVM {
                             return propertyValue;
                         },
                         write(value) {
-                            var val = valueAccessor()[this.prop]
+                            var val = valueAccessor()[this.prop];
                             if (ko.isObservable(val)) {
                                 val(value);
                             }
                             else {
-                                console.log(`Attempted to write to readonly property '${this.prop}' at '${valueAccessor.toString()}'`);
+                                console.warn(`Attempted to write to readonly property '${this.prop}' at '${valueAccessor.toString()}'`);
                             }
                         }
                     }, { prop: prop });

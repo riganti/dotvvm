@@ -55,13 +55,13 @@
         try {
             return func();
         } catch (error) {
-            console.log("Error '" + error + "' occured while evaluating " + func + ".");
+            console.error("Error '" + error + "' occured while evaluating " + func + ".");
             return null;
         }
     }
 
     dotvvm.events.error.subscribe(function (e) {
-        console.log("DotVVM: An " + (e.handled ? "" : "un") + "handled exception returned from the server command.");
+        console.error("DotVVM: An " + (e.handled ? "" : "un") + "handled exception returned from the server command.");
         console.log("XmlHttpRequest: ", e.xhr);
         console.log("ViewModel: ", e.viewModel);
         if (e.handled) return;
