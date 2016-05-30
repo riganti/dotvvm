@@ -49,6 +49,7 @@ namespace DotVVM.Samples.BasicSamples
                 Src = "Views/ComplexSamples/ServerRendering/ArticleDetail.dotcontrol"
             });
             config.Markup.AddMarkupControl("sample", "TextEditorControl", "Views/FeatureSamples/MarkupControl/TextEditorControl.dotcontrol");
+            config.Markup.AddMarkupControl("sample", "PasswordStrengthControl", "Views/FeatureSamples/ClientExtenders/PasswordStrengthControl.dotcontrol");
 
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
             config.RouteTable.Add("ComplexSamples_SPARedirect_home", "ComplexSamples/SPARedirect", "Views/ComplexSamples/SPARedirect/home.dothtml");
