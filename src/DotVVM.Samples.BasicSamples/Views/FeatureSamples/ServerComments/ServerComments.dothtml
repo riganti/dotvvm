@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ServerComments.ServerCommentsViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ServerComments.ServerCommentsViewModel, DotVVM.Samples.BasicSamples
 <!DOCTYPE html>
 
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">

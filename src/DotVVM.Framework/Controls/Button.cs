@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Controls
         {
             if ((HasBinding(TextProperty) || !string.IsNullOrEmpty(Text)) && !HasOnlyWhiteSpaceContent())
             {
-                throw new DotvvmControlException(this, "The <dot:Button> control cannot have both inner content and the Text property set!");
+                throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
             }
 
             if (ButtonTagName == ButtonTagName.button)
@@ -124,7 +124,7 @@ namespace DotVVM.Framework.Controls
                     {
                         if (Children.Any(t=>!t.HasOnlyWhiteSpaceContent()))
                         {
-                            throw new DotvvmControlException(this, "The <dot:Button> control cannot have both inner content and the Text property set!");
+                            throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
                         }
                         writer.WriteText(Text);
                     }
@@ -149,7 +149,7 @@ namespace DotVVM.Framework.Controls
         {
             if(control.Properties.ContainsKey(TextProperty) && control.Content.Any(n => n.DothtmlNode.IsNotEmpty()))
             {
-                yield return new ControlUsageError("The <dot:Button> control cannot have both inner content and the Text property set!", control.DothtmlNode);
+                yield return new ControlUsageError("Text property and inner content of the <dot:Button> control cannot be set at the same time!", control.DothtmlNode);
             }
             //ResolvedPropertySetter buttonType;
             //bool allowcontent = false;

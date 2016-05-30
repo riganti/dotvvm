@@ -401,10 +401,10 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public string TranslateViewModelProperty(string context, MemberInfo propInfo)
         {
-            if (propInfo is FieldInfo) throw new NotSupportedException($"Can not translate field '{propInfo.Name}' to knockout binding because field are not serialized.");
+            if (propInfo is FieldInfo) throw new NotSupportedException($"Field '{propInfo.Name}' cannot be translated to knockout binding. Use property with public getter and setter.");
             var protection = propInfo.GetCustomAttribute<ProtectAttribute>();
             if (protection != null && protection.Settings == ProtectMode.EncryptData)
-                throw new NotSupportedException($"Can not use encrypted property '{propInfo.Name}' in binding.");
+                throw new NotSupportedException($"Encrypted property '{propInfo.Name}' cannot be used in binding.");
             // Bind(None) can make sense to translate, since it can be used as client-only property
             return context + "." + propInfo.Name + "()";
         }

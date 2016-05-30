@@ -72,10 +72,8 @@
             ViewModel1 tree
         </p>
         <dot:Repeater DataSource="{value: ViewModel1Property.AllChildren}">
-            <div style="position: relative">
-                <div style="{value: "position: relative; left: " + 10 * Offset + "px;"}">
-                    Item (<span data-ui="offset">{{value: Offset}}</span>):
-                </div>
+            <div style="{value: "padding-left: " + 30 * Offset + "px;"}">
+                Item (<span data-ui="offset">{{value: Offset}}</span>):
             </div>
         </dot:Repeater>
     </div>
