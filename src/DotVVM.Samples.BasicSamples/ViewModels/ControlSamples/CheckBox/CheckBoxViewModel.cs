@@ -5,7 +5,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox
 {
     public class CheckBoxViewModel
     {
-
+        public string Text { get; set; } = "Label text";
+        
         public bool SCB { get; set; }
 
         public string SCBResult { get; set; }

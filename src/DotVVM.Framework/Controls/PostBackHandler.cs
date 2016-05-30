@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the name of the event which the handler applies to. If this property is not set, it applies to all events.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string EventName
         {
             get { return (string)GetValue(EventNameProperty); }
