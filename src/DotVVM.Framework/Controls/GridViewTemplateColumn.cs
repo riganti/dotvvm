@@ -16,10 +16,24 @@ namespace DotVVM.Framework.Controls
     {
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement, Required = true)]
-        public ITemplate ContentTemplate { get; set; }
+        public ITemplate ContentTemplate
+        {
+            get { return (ITemplate)GetValue(ContentTemplateProperty); }
+            set { SetValue(ContentTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty ContentTemplateProperty
+            = DotvvmProperty.Register<ITemplate, GridViewTemplateColumn>(c => c.ContentTemplate, null);
+
 
         [MarkupOptions(AllowBinding = false, MappingMode = MappingMode.InnerElement)]
-        public ITemplate EditTemplate { get; set; }
+        public ITemplate EditTemplate
+        {
+            get { return (ITemplate)GetValue(EditTemplateProperty); }
+            set { SetValue(EditTemplateProperty, value); }
+        }
+        public static readonly DotvvmProperty EditTemplateProperty
+            = DotvvmProperty.Register<ITemplate, GridViewTemplateColumn>(c => c.EditTemplate, null);
+
 
         public override void CreateControls(IDotvvmRequestContext context, DotvvmControl container)
         {

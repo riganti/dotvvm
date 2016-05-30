@@ -352,7 +352,7 @@
     <Compile Include="Controls\SelectorItem.cs" />
     <Compile Include="Controls\SpaContentPlaceHolder.cs" />
     <Compile Include="Controls\TextBoxType.cs" />
-    <Compile Include="Controls\TextboxValueType.cs" />
+    <Compile Include="Controls\FormatValueType.cs" />
     <Compile Include="Controls\TranslateVirtualPathHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\UpdateProgress.cs" />
     <Compile Include="Controls\UploadedFilesCollection.cs" />

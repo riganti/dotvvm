@@ -53,6 +53,20 @@
                     <span>	{{value: NumberOfChanges}}</span>
                 </fieldset>
             </div>
+            <div class="col-md-6">
+                <fieldset>
+                    <legend>Text binding CheckBox</legend>
+
+                    <p>
+                        <dot:CheckBox Text="{value: Text}" Checked="{value: SCB}" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Postback" Click="{command: UpdateSCB()}" />
+                        &nbsp; &nbsp;
+                        <span>{{value: SCBResult}}</span>
+                    </p>
+                </fieldset>
+
+            </div>
         </div>
     </div>
 
