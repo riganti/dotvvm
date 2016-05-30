@@ -55,7 +55,7 @@
         try {
             return func();
         } catch (error) {
-            console.error("Error '" + error + "' occured while evaluating " + func + ".");
+            console.warn("Error '" + error + "' occured while evaluating " + func + ".");
             return null;
         }
     }
