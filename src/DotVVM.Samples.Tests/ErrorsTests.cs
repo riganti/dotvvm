@@ -262,11 +262,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside);
-                browser.First("p.summary")
-                    .CheckIfInnerText(
-                        s =>
-                            s.Contains(
-                                "control cannot have inner HTML"));
+                browser.First("p.summary").CheckIfInnerText(s =>s.Contains("control cannot have inner HTML"));
             });
         }
 
@@ -305,8 +301,19 @@ namespace DotVVM.Samples.Tests
                 browser.Wait(3000);
                 browser.CompareUrl(
                     "http://referencesource.microsoft.com/#q=System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess");
+            });
+        }
 
-                
+        [TestMethod]
+        public void CheckRedirect_NotFinished()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
+
+                browser.First("label[for=menu_radio_exception]").Click();
+                browser.First("#container_exception").CheckIfIsDisplayed();
+                browser.First(".docLinks").Click().Wait(2000);
             });
         }
     }
