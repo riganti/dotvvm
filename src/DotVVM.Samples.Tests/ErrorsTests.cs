@@ -261,6 +261,20 @@ namespace DotVVM.Samples.Tests
         }
 
         [TestMethod]
+        public void Error_InputTypeButton_HtmlContentInside()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside);
+                browser.First("p.summary")
+                    .CheckIfInnerText(
+                        s =>
+                            s.Contains(
+                                "control cannot have inner HTML"));
+            });
+        }
+
+        [TestMethod]
         public void Exception_GitHubRedirect()
         {
             RunInAllBrowsers(browser =>
