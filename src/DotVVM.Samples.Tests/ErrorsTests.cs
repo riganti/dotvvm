@@ -192,5 +192,71 @@ namespace DotVVM.Samples.Tests
                 //browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.BasicSamples"));
             });
         }
+
+        [TestMethod]
+        public void Error_ControlUsageValidation()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_ControlUsageValidation);
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("Text property and inner content")&& s.Contains("cannot be set at the same time"));
+                browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("Click=\"{command: 5}\" Text=\"Text property\""));
+            });
+        }
+
+        [TestMethod]
+        public void Error_EncryptedPropertyInValueBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_EncryptedPropertyInValueBinding);
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("Could not compile binding to Javascript"));
+                browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("{{value: SomeProperty}}"));
+            });
+        }
+
+        [TestMethod]
+        public void Error_FieldInValueBinding()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("Could not compile binding to Javascript"));
+                browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("{{value: SomeField}}"));
+            });
+        }
+
+        [TestMethod]
+        public void LabelClickableTest()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
+
+                //click Exception
+                browser.First("body > div > label:nth-child(4)").Click();
+                browser.First("#container_exception > div:nth-child(1) > span.exceptionMessage")
+                    .CheckIfInnerText(s => s.Contains("cannot be translated to knockout"));
+
+                //click Cookies
+                browser.First("body > div > label:nth-child(6)").Click();
+                browser.First("#container_cookies > table > tbody > tr:nth-child(1) > th:nth-child(1)")
+                    .CheckIfInnerText(s => s.Contains("Variable"));
+
+                //click Request Headers
+                browser.First("body > div > label:nth-child(8)").Click();
+                browser.First("#container_reqHeaders > table > tbody > tr:nth-child(1) > th:nth-child(1)")
+                    .CheckIfInnerText(s => s.Contains("Variable"));
+
+                //click Environment
+                browser.First("body > div > label:nth-child(10)").Click();
+                browser.First("#container_env > table > tbody > tr:nth-child(1) > th:nth-child(1)")
+                    .CheckIfInnerText(s => s.Contains("Variable"));
+
+                //click DotVVM Markup
+                browser.First("body > div > label:nth-child(2)").Click();
+                browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("cannot be translated to knockout"));
+            });
+        }
     }
 }
