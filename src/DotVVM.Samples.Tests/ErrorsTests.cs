@@ -1,4 +1,5 @@
-﻿using Dotvvm.Samples.Tests;
+﻿using System;
+using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.SeleniumCore;
 
@@ -199,7 +200,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_ControlUsageValidation);
-                browser.First("p.summary").CheckIfInnerText(s => s.Contains("Text property and inner content")&& s.Contains("cannot be set at the same time"));
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("Text property and inner content") && s.Contains("cannot be set at the same time"));
                 browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("Click=\"{command: 5}\" Text=\"Text property\""));
             });
         }
@@ -241,7 +242,7 @@ namespace DotVVM.Samples.Tests
                 //click Cookies
                 browser.First("body > div > label:nth-child(6)").Click();
                 browser.First("#container_cookies > table > tbody > tr:nth-child(1) > th:nth-child(1)")
-                    .CheckIfInnerText(s => s.Contains("Variable"));
+                   .CheckIfInnerText(s => s.Contains("Variable"));
 
                 //click Request Headers
                 browser.First("body > div > label:nth-child(8)").Click();
@@ -251,11 +252,51 @@ namespace DotVVM.Samples.Tests
                 //click Environment
                 browser.First("body > div > label:nth-child(10)").Click();
                 browser.First("#container_env > table > tbody > tr:nth-child(1) > th:nth-child(1)")
-                    .CheckIfInnerText(s => s.Contains("Variable"));
+                   .CheckIfInnerText(s => s.Contains("Variable"));
 
                 //click DotVVM Markup
                 browser.First("body > div > label:nth-child(2)").Click();
                 browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("cannot be translated to knockout"));
+            });
+        }
+
+        [TestMethod]
+        public void Exception_GitHubRedirect()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
+                browser.First("body > div > label:nth-child(4)").Click();
+                browser.First(
+                    "#container_exception > div:nth-child(1) > div.exceptionStackTrace > div:nth-child(1) > span.docLinks > a > img")
+                    .Click();
+                browser.SwitchToTab(1);
+                browser.Wait(3000);
+                browser.CompareUrl(
+                    "https://github.com/riganti/dotvvm/blob/master/src/DotVVM.Framework/Compilation/Javascript/JavascriptTranslator.cs#L404");
+
+                browser.First(
+                    "#container_exception > div:nth-child(2) > div.exceptionStackTrace > div:nth-child(35) > span.docLinks > a > img")
+                    .Click();
+            });
+        }
+
+        [TestMethod]
+        public void Exception_dotNetRedirect()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
+                browser.First("body > div > label:nth-child(4)").Click();
+                browser.First(
+                    "#container_exception > div:nth-child(2) > div.exceptionStackTrace > div:nth-child(35) > span.docLinks > a > img")
+                    .Click();
+                browser.SwitchToTab(1);
+                browser.Wait(3000);
+                browser.CompareUrl(
+                    "http://referencesource.microsoft.com/#q=System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess");
+
+                
             });
         }
     }
