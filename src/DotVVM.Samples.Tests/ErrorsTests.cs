@@ -236,8 +236,7 @@ namespace DotVVM.Samples.Tests
 
                 //click Exception
                 browser.First("label[for=menu_radio_exception]").Click();
-                browser.First(".exceptionMessage")
-                    .CheckIfInnerText(s => s.Contains("cannot be translated to knockout"));
+                browser.First("#container_exception").CheckIfIsDisplayed();
 
                 //click Cookies
                 browser.First("label[for=menu_radio_cookies]").Click();
@@ -245,17 +244,15 @@ namespace DotVVM.Samples.Tests
 
                 //click Request Headers
                 browser.First("label[for=menu_radio_reqHeaders]").Click();
-                browser.First("#container_reqHeaders > table > tbody > tr:nth-child(1) > th:nth-child(1)")
-                    .CheckIfInnerText(s => s.Contains("Variable"));
+                browser.First("#container_reqHeaders").CheckIfIsDisplayed();
 
                 //click Environment
                 browser.First("label[for=menu_radio_env]").Click();
-                browser.First("#container_env > table > tbody > tr:nth-child(1) > th:nth-child(1)")
-                   .CheckIfInnerText(s => s.Contains("Variable"));
+                browser.First("#container_env").CheckIfIsDisplayed();
 
                 //click DotVVM Markup
                 browser.First("label[for=menu_radio_dothtml]").Click();
-                browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("cannot be translated to knockout"));
+                browser.First("#container_dothtml").CheckIfIsDisplayed();
             });
         }
 
