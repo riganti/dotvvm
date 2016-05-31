@@ -235,27 +235,26 @@ namespace DotVVM.Samples.Tests
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
 
                 //click Exception
-                browser.First("body > div > label:nth-child(4)").Click();
-                browser.First("#container_exception > div:nth-child(1) > span.exceptionMessage")
+                browser.First("label[for=menu_radio_exception]").Click();
+                browser.First(".exceptionMessage")
                     .CheckIfInnerText(s => s.Contains("cannot be translated to knockout"));
 
                 //click Cookies
-                browser.First("body > div > label:nth-child(6)").Click();
-                browser.First("#container_cookies > table > tbody > tr:nth-child(1) > th:nth-child(1)")
-                   .CheckIfInnerText(s => s.Contains("Variable"));
+                browser.First("label[for=menu_radio_cookies]").Click();
+                browser.First("#container_cookies").CheckIfIsDisplayed();
 
                 //click Request Headers
-                browser.First("body > div > label:nth-child(8)").Click();
+                browser.First("label[for=menu_radio_reqHeaders]").Click();
                 browser.First("#container_reqHeaders > table > tbody > tr:nth-child(1) > th:nth-child(1)")
                     .CheckIfInnerText(s => s.Contains("Variable"));
 
                 //click Environment
-                browser.First("body > div > label:nth-child(10)").Click();
+                browser.First("label[for=menu_radio_env]").Click();
                 browser.First("#container_env > table > tbody > tr:nth-child(1) > th:nth-child(1)")
                    .CheckIfInnerText(s => s.Contains("Variable"));
 
                 //click DotVVM Markup
-                browser.First("body > div > label:nth-child(2)").Click();
+                browser.First("label[for=menu_radio_dothtml]").Click();
                 browser.First(".exceptionMessage").CheckIfInnerText(s => s.Contains("cannot be translated to knockout"));
             });
         }
