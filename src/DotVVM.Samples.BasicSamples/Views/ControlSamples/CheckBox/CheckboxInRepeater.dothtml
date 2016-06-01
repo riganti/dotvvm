@@ -17,13 +17,13 @@
         </dot:Repeater>-->
 
         <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'one'}"
-                      Changed="{command: UpdateSelectedColors()}" />
+                      Changed="{command: UpdateSelectedColors()}" id="checkbox-one" />
         <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'two'}"
-                      Changed="{command: UpdateSelectedColors()}" />
+                      Changed="{command: UpdateSelectedColors()}" id="checkbox-two" />
         <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'three'}"
-                      Changed="{command: UpdateSelectedColors()}" />
+                      Changed="{command: UpdateSelectedColors()}" id="checkbox-three" />
 
-        <dot:Button Text="Set checked state on server" Click="{command: SetCheckedItems()}" />
+        <dot:Button Text="Set checked state on server" Click="{command: SetCheckedItems()}" id="set-server-values" />
         <span data-ui="buttongroup-repeater-checkbox-checkedItems-value">{{value: SelectedColors}}</span>
     </fieldset>
 </body>
