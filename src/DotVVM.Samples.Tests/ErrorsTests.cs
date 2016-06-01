@@ -305,7 +305,6 @@ namespace DotVVM.Samples.Tests
                        .Click();
 
                 browser.Wait(3000);
-                
                 browser.SwitchToTab(1);
 
                 //navigate to frame and check inner element content 
@@ -316,18 +315,5 @@ namespace DotVVM.Samples.Tests
 
             });
         }
-
-        [TestMethod]
-        public void CheckRedirect_NotFinished()
-        {
-            RunInAllBrowsers(browser =>
-            {
-                browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-
-                browser.First("label[for=menu_radio_exception]").Click();
-                browser.First("#container_exception").CheckIfIsDisplayed();
-                browser.First(".docLinks").Click().Wait(2000);
-            });
-        }
-    }
+     }
 }

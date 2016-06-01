@@ -108,6 +108,7 @@
     <Compile Include="Control\ContentPlaceHolderTests.cs" />
     <Compile Include="Control\HtmlLiteralTests.cs" />
     <Compile Include="Control\RouteLinkEnabledTests.cs" />
+    <Compile Include="Control\ServerCommentsTests.cs" />
     <Compile Include="Control\UpdateProgressTests.cs" />
     <Compile Include="Control\LiteralTests.cs" />
     <Compile Include="Control\DataPagerTests.cs" />
