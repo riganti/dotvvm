@@ -1,7 +1,8 @@
-﻿using System;
-using Dotvvm.Samples.Tests;
+﻿using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.SeleniumCore;
+using System;
+using System.Linq;
 
 namespace DotVVM.Samples.Tests
 {
@@ -177,7 +178,6 @@ namespace DotVVM.Samples.Tests
 
                 browser.First("p.summary").CheckIfInnerText(s => s.Contains("is not valid") && s.Contains("The binding"));
                 browser.First(".errorUnderline").CheckIfInnerText(s => s.Contains("{{value: }}"));
-
             });
         }
 
@@ -262,7 +262,7 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Button_InputTypeButton_HtmlContentInside);
-                browser.First("p.summary").CheckIfInnerText(s =>s.Contains("control cannot have inner HTML"));
+                browser.First("p.summary").CheckIfInnerText(s => s.Contains("control cannot have inner HTML"));
             });
         }
 
@@ -272,19 +272,23 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-                browser.First("body > div > label:nth-child(4)").Click();
-                browser.First(
-                    "#container_exception > div:nth-child(1) > div.exceptionStackTrace > div:nth-child(1) > span.docLinks > a > img")
-                    .Click();
-                browser.SwitchToTab(1);
+                //open exception tab
+                browser.First("label[for=menu_radio_exception]").Click();
+                
+                //find and click on github link
+                browser.FindElements("div.exceptionStackTrace  span.docLinks  a")
+                       .First(s => s.Children.Any(c => c.GetTagName() == "img" && ((c.GetAttribute("src")?.IndexOf("github", StringComparison.OrdinalIgnoreCase) ?? -1) > -1)))
+                       .Click();
+                
                 browser.Wait(3000);
-                browser.CompareUrl(
-                    "https://github.com/riganti/dotvvm/blob/master/src/DotVVM.Framework/Compilation/Javascript/JavascriptTranslator.cs#L404");
+                browser.SwitchToTab(1);
 
-                browser.First(
-                    "#container_exception > div:nth-child(2) > div.exceptionStackTrace > div:nth-child(35) > span.docLinks > a > img")
-                    .Click();
+                //check the opened tab
+                browser.CompareUrl("https://github.com/", UrlKind.Absolute, UriComponents.Host);
+                browser.CheckIfTitle(
+                    v => v.ToString().IndexOf("Page not found", StringComparison.OrdinalIgnoreCase) == -1, "Github page was not propably found.");
             });
+            
         }
 
         [TestMethod]
@@ -293,14 +297,23 @@ namespace DotVVM.Samples.Tests
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.Errors_FieldInValueBinding);
-                browser.First("body > div > label:nth-child(4)").Click();
-                browser.First(
-                    "#container_exception > div:nth-child(2) > div.exceptionStackTrace > div:nth-child(35) > span.docLinks > a > img")
-                    .Click();
-                browser.SwitchToTab(1);
+                browser.First("label[for=menu_radio_exception]").Click();
+
+                //find and click on github link
+                browser.FindElements("div.exceptionStackTrace span.docLinks a")
+                       .First(s => s.Children.Any(c => c.GetTagName() == "img" && ((c.GetAttribute("src")?.IndexOf("referencesource.microsoft.com", StringComparison.OrdinalIgnoreCase) ?? -1) > -1)))
+                       .Click();
+
                 browser.Wait(3000);
-                browser.CompareUrl(
-                    "http://referencesource.microsoft.com/#q=System.Runtime.CompilerServices.TaskAwaiter.ThrowForNonSuccess");
+                
+                browser.SwitchToTab(1);
+
+                //navigate to frame and check inner element content 
+                var resultScope = browser.GetFrameScope("#n");
+                resultScope.First(".note")
+                    .CheckIfInnerText(s => s.IndexOf("No results found", StringComparison.OrdinalIgnoreCase) == -1,
+                        "The relevant docs page on referencesource.microsoft.com was not found.");
+
             });
         }
 

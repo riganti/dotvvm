@@ -68,7 +68,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             var type = frame.Method?.DeclaringType;
             if (type == null) return null;
             while (type.DeclaringType != null) type = type.DeclaringType;
-            if(type.Namespace == "DotVVM.Framework.Controls")
+            if (type.Namespace == "DotVVM.Framework.Controls")
             {
                 const string BuildinControlsDocs = "https://dotvvm.com/docs/controls/builtin/";
                 var url = BuildinControlsDocs + type.Name;
@@ -87,7 +87,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 if (frame.At?.FileName != null)
                 {
                     var fileName = frame.At.FileName.Substring(frame.At.FileName.LastIndexOf("DotVVM.Framework", StringComparison.Ordinal));
-                    var url = GithubUrl + fileName.Replace('\\', '/') + "#L" + frame.At.LineNumber;
+                    var url = GithubUrl + fileName.Replace('\\', '/').TrimStart('/') + "#L" + frame.At.LineNumber;
                     return FrameMoreInfo.CreateThumbLink(url, Octocat);
                 }
                 else
@@ -115,11 +115,46 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 }
                 else
                 {
-                    var url = SourceUrl + "#q=" + WebUtility.HtmlEncode(frame.Method.DeclaringType.FullName.Replace('+', '.') + "." + frame.Method.Name);
-                    return FrameMoreInfo.CreateThumbLink(url, DotNetIcon);
+                   
+                    if (frame.Method.DeclaringType.IsGenericType)
+                    {
+                        var url = SourceUrl + "#q=" + WebUtility.HtmlEncode(GetGenericFullName(frame.Method.DeclaringType).Replace('+', '.'));
+                        return FrameMoreInfo.CreateThumbLink(url, DotNetIcon);
+                    }
+                    else
+                    {
+                        var url = SourceUrl + "#q=" + WebUtility.HtmlEncode(frame.Method.DeclaringType.FullName.Replace('+', '.') + "." + frame.Method.Name);
+                        return FrameMoreInfo.CreateThumbLink(url, DotNetIcon);
+                    }
+
+
                 }
             }
             return null;
+        }
+
+        protected static string GetGenericFullName(Type type)
+        {
+            if (!type.IsGenericType) return type.FullName;
+
+            var name = type.FullName;
+            name = name.Remove(name.IndexOf("`", StringComparison.Ordinal));
+            var typeInfo = type.GetTypeInfo();
+
+            StringBuilder sb = new StringBuilder(name);
+            sb.Append("<");
+            for (int i = 0; i < typeInfo.GenericTypeParameters.Length; i++)
+            {
+                sb.Append(typeInfo.GenericTypeParameters[i].Name);
+                if (i != typeInfo.GenericTypeParameters.Length - 1)
+                {
+                    sb.Append(", ");
+                }
+            }
+            sb.Append(">");
+
+            return sb.ToString();
+
         }
 
         public List<Func<Exception, ExceptionAdditionalInfo>> InfoLoaders = new List<Func<Exception, ExceptionAdditionalInfo>>();
