@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Compilation
             var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call);
             var rootCallback = visitor.Visit(expression);
             var js = SouldCompileCallback(rootCallback) ? JavascriptTranslator.CompileToJavascript(rootCallback, binding.DataContextTypeStack) : null;
-            foreach (var param in visitor.ParameterOrder)
+            foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
                 var callback = js == null ? null : $"function({param.Name}){{{js}}}";
                 var method = visitor.Replaced[param] as MethodCallExpression;
