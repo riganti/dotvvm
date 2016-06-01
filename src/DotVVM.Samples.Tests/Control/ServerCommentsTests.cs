@@ -22,22 +22,9 @@ namespace DotVVM.Samples.Tests.Control
                 browser.Single("#before").CheckIfInnerText(s => s.Contains("Before Server"));
                 browser.Single("#afterFirst").CheckIfInnerText(s => s.Contains("After Server"));
                 browser.Single("#afterOther").CheckIfInnerText(s => s.Contains("After Other"));
-                if (!browser.FindElements("#firstHidden").Any())
-                { 
-                }
-                else
-                {
-                    throw new Exception("Hidden element found!");
-                }
-
-                if (!browser.FindElements("#otherHidden").Any())
-                {
-                }
-                else
-                {
-                    throw new Exception("Hidden element found!");
-                }
-
+                browser.FindElements("#firstHidden").ThrowIfDifferentCountThan(0);
+                browser.FindElements("#otherHidden").ThrowIfDifferentCountThan(0);
+                
             });
         }
     }
