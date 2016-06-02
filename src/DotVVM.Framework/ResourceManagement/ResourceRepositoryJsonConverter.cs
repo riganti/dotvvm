@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -31,7 +32,7 @@ namespace DotVVM.Framework.ResourceManagement
             // for each type derived from ResourceBase
             foreach (var type in AppDomain.CurrentDomain.GetAssemblies()
                 .Where(a => a.GetReferencedAssemblies().Any(ra => ra.FullName == dotvvmAssembly) || a.FullName == dotvvmAssembly)
-                .SelectMany(a => a.GetTypes().Where(t => t.IsClass && !t.IsAbstract && resourceBaseType.IsAssignableFrom(t))))
+                .SelectMany(a => a.GetLoadableTypes().Where(t => t.IsClass && !t.IsAbstract && resourceBaseType.IsAssignableFrom(t))))
             {
                 var attr = type.GetCustomAttribute<ResourceConfigurationCollectionNameAttribute>();
                 // name from attribute

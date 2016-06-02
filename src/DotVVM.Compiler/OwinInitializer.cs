@@ -1,6 +1,7 @@
 ﻿using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Utils;
 using Microsoft.Owin.Hosting;
 using System;
 using System.Collections.Generic;
@@ -15,7 +16,7 @@ namespace DotVVM.Compiler
     {
         public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string rootPath)
         {
-            var dotvvmStartups = webSiteAssembly.GetTypes()
+            var dotvvmStartups = webSiteAssembly.GetLoadableTypes()
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
 
             if (dotvvmStartups.Length == 0) throw new Exception("Could not find any implementation of IDotvvmStartup.");
