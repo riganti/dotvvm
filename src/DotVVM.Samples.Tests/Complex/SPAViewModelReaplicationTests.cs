@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Samples.Tests.Complex
 {
     [TestClass]
-    public class SPAViewModelReapplicationTests : SeleniumTestBase
+    public class SPAViewModelReaplicationTests : SeleniumTestBase
     {
         [TestMethod]
         public void Complex_SPAViewModelReapplication()
@@ -22,12 +22,16 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // verify items count
                 browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3);
+                browser.Single("#first")
+                    .CheckIfInnerText(s => s.Contains("Entry 1") && s.Contains("Entry 2") && s.Contains("Entry 3"));
+
+                browser.First("#test2").CheckIfInnerTextEquals("A");
 
                 // verify first page values
                 browser.First("input[type=text]").GetAttribute("value").Contains("Hello");
                 browser.Last("input[type=text]").GetAttribute("value").Contains("1");
-                browser.First("#test2").CheckIfInnerTextEquals("A");
-                
+
+
                 //check url
                 browser.CheckUrl(s => s.Contains("SPAViewModelReapplication/page"));
 
@@ -36,20 +40,20 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Wait();
                 browser.First("#testResult").CheckIfInnerTextEquals("Hello1");
 
-                // go to second page
-                browser.Last("a").Click();
+                // go to the second page
+                browser.Single("#pageB").Click();
                 browser.Wait();
 
-                // verify items count
+                // verify items count and 
                 browser.FindElements("ul#first li").ThrowIfDifferentCountThan(3);
+                browser.Single("#first")
+                    .CheckIfInnerText(s => s.Contains("Entry 1") && s.Contains("Entry 2") && s.Contains("Entry 3"));
 
                 // verify second page values
                 browser.First("input[type=text]").GetAttribute("value").Contains("World");
                 browser.Last("input[type=text]").GetAttribute("value").Contains("2");
                 browser.First("#test2").CheckIfInnerTextEquals("B");
 
-                //check url
-                browser.CheckUrl(s => s.Contains("SPAViewModelReapplication/pageA#!/ComplexSamples/SPAViewModelReapplication/pageB"));
 
                 // try the postback
                 browser.First("input[type=button]").Click();
@@ -57,7 +61,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("#testResult").CheckIfInnerTextEquals("World2");
 
                 // go to first page
-                browser.First("a").Click();
+                browser.Single("#pageA").Click();
                 browser.Wait();
 
                 // verify items count
@@ -67,9 +71,6 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("input[type=text]").GetAttribute("value").Contains("Hello");
                 browser.Last("input[type=text]").GetAttribute("value").Contains("1");
                 browser.First("#test2").CheckIfInnerTextEquals("A");
-
-                //check url
-                browser.CheckUrl(s => s.Contains("SPAViewModelReapplication/pageA#!/ComplexSamples/SPAViewModelReapplication/pageA"));
             });
         }
     }
