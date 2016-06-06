@@ -1,11 +1,16 @@
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Runtime;
@@ -35,7 +40,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets a collection of uploaded files.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
+        [MarkupOptions(AllowHardCodedValue = false, Required = true)]
         public UploadedFilesCollection UploadedFiles
         {
             get { return (UploadedFilesCollection) GetValue(UploadedFilesProperty); }
@@ -123,6 +128,15 @@ namespace DotVVM.Framework.Controls
             context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
 
             base.OnPreRenderComplete(context);
+        }
+
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        {
+            if (UploadedFiles == null)
+            {
+                throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload cannot be null!");
+            }
+            base.OnPreRender(context);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
