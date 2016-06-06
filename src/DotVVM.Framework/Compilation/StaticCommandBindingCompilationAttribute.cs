@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -17,7 +18,7 @@ namespace DotVVM.Framework.Compilation
             var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call);
             var rootCallback = visitor.Visit(expression);
             var js = SouldCompileCallback(rootCallback) ? JavascriptTranslator.CompileToJavascript(rootCallback, binding.DataContextTypeStack) : null;
-            foreach (var param in visitor.ParameterOrder)
+            foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
                 var callback = js == null ? null : $"function({param.Name}){{{js}}}";
                 var method = visitor.Replaced[param] as MethodCallExpression;
@@ -34,6 +35,9 @@ namespace DotVVM.Framework.Compilation
 
         protected virtual string CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, string callbackFunction = null)
         {
+            if (!Attribute.IsDefined(methodExpression.Method, typeof(AllowStaticCommandAttribute)))
+                throw new Exception($"Method '{methodExpression.Method.DeclaringType.Name}.{methodExpression.Method.Name}' used in static command has to be marked with [AllowStaticCommand] attribute.");
+
             if (callbackFunction == null) callbackFunction = "null";
             if (methodExpression == null)
             {
