@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -9,9 +10,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class ViewModelPropertyMap
     {
+        public ViewModelPropertyMap()
+        {
+            this.ClientExtenders = new List<ClientExtenderInfo>();
+        }
+
         public PropertyInfo PropertyInfo { get; set; }
 
         public string Name { get; set; } 
+
+        public List<ClientExtenderInfo> ClientExtenders { get; private set; }
 
         public ProtectMode ViewModelProtection { get; set; }
 

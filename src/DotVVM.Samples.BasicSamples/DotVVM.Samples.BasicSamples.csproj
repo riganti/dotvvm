@@ -180,6 +180,7 @@
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\NastyChildViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\ClientExtenders\PasswordStrengthViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
@@ -248,6 +249,7 @@
     <Compile Include="Views\FeatureSamples\MarkupControl\TextEditorControl.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\ClientExtenders.js" />
     <Content Include="Scripts\colResizable-1.5.min.js" />
     <Content Include="Scripts\GridViewSizable.js" />
     <Content Include="Web.config" />
@@ -383,6 +385,7 @@
     <Content Include="Views\ComplexSamples\SPARedirect\home.dothtml" />
     <Content Include="Views\ComplexSamples\SPARedirect\login.dothtml" />
     <Content Include="Views\ComplexSamples\SPARedirect\site.dotmaster" />
+    <Content Include="Views\FeatureSamples\ClientExtenders\PasswordStrength.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

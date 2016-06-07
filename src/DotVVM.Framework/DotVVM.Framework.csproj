@@ -525,6 +525,8 @@
     <Compile Include="ViewModel\AllowStaticCommandAttribute.cs" />
     <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ChildViewModelsCache.cs" />
+    <Compile Include="ViewModel\ClientExtenderAttribute.cs" />
+    <Compile Include="ViewModel\Serialization\ClientExtenderInfo.cs" />
     <Compile Include="ViewModel\Serialization\DateTimeFormatJsonConverterBase.cs" />
     <Compile Include="ViewModel\Serialization\DefaultViewModelLoader.cs" />
     <Compile Include="ViewModel\Serialization\DefaultViewModelSerializer.cs" />

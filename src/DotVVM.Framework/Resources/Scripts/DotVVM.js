@@ -1230,6 +1230,14 @@ var DotvvmSerialization = (function () {
                         result[prop] = ko.observable(deserialized);
                     }
                 }
+                if (options && options.clientExtenders && ko.isObservable(result[prop])) {
+                    for (var j = 0; j < options.clientExtenders.length; j++) {
+                        var extenderOptions = {};
+                        var extenderInfo = options.clientExtenders[j];
+                        extenderOptions[extenderInfo.name] = extenderInfo.parameter;
+                        result[prop].extend(extenderOptions);
+                    }
+                }
             }
         }
         // copy the property options metadata
