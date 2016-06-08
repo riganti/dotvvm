@@ -10,6 +10,23 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
+    public class PostbackScriptOptions
+    {
+        public bool UseWindowSetTimeout { get; set; }
+        public bool? ReturnValue { get; set; }
+        public bool IsOnChange { get; set; }
+        public string ElementAccessor { get; set; }
+
+        public PostbackScriptOptions(bool useWindowSetTimeout = false,
+            bool? returnValue = false, bool isOnChange = false, string elementAccessor = "this")
+        {
+            UseWindowSetTimeout = useWindowSetTimeout;
+            ReturnValue = returnValue;
+            IsOnChange = isOnChange;
+            ElementAccessor = elementAccessor;
+        }
+    }
+
     public static class KnockoutHelper
     {
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction = null,
@@ -74,6 +91,10 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmControl control, bool useWindowSetTimeout = false,
             bool? returnValue = false, bool isOnChange = false, string elementAccessor = "this")
         {
+            return GenerateClientPostBackScript(propertyName, expression, control, new PostbackScriptOptions(useWindowSetTimeout, returnValue, isOnChange, elementAccessor));
+        }
+        public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmControl control, PostbackScriptOptions options)
+        {
             object uniqueControlId = null;
             if (expression is ControlCommandBindingExpression)
             {
@@ -84,21 +105,21 @@ namespace DotVVM.Framework.Controls
             var arguments = new List<string>()
             {
                 "'root'",
-                elementAccessor,
+                options.ElementAccessor,
                 "[" + String.Join(", ", GetContextPath(control).Reverse().Select(p => '"' + p + '"')) + "]",
                 (uniqueControlId is IValueBinding ? ((IValueBinding)uniqueControlId).GetKnockoutBindingExpression() : "'" + (string) uniqueControlId + "'"),
-                useWindowSetTimeout ? "true" : "false",
+                options.UseWindowSetTimeout ? "true" : "false",
                 JsonConvert.SerializeObject(GetValidationTargetExpression(control)),
                 "null",
                 GetPostBackHandlersScript(control, propertyName)
             };
 
             // return the script
-            var condition = isOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
-            var returnStatement = returnValue != null ? string.Format(";return {0};", returnValue.ToString().ToLower()) : "";
+            var condition = options.IsOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
+            var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};": "";
 
             // call the function returned from binding js with runtime arguments
-            var postBackCall = String.Format("{0}({1})", expression.GetCommandJavascript(), String.Join(", ", arguments));
+            var postBackCall = $"{expression.GetCommandJavascript()}({String.Join(", ", arguments)})";
             return condition + postBackCall + returnStatement;
         }
 
