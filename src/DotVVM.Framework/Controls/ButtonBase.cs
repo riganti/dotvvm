@@ -13,7 +13,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public abstract class ButtonBase : HtmlGenericControl, IEventValidationHandler
     {
-
         /// <summary>
         /// Gets or sets the text on the button.
         /// </summary>
@@ -24,6 +23,15 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty TextProperty =
             DotvvmProperty.Register<string, ButtonBase>(t => t.Text, "");
+
+        public static readonly DotvvmProperty DisableDuringPostbackProperty = DelegateActionProperty<bool>.Register<ButtonBase>("DisableDuringPostback",
+            (writer, context, property, control) =>
+            {
+                if ((bool)control.GetValue(property))
+                {
+                    PostBack.AddHandler(control, new DisableButtonPostbackHandler() { Renable = true });
+                }
+            }, false);
 
 
         /// <summary>
@@ -44,7 +52,7 @@ namespace DotVVM.Framework.Controls
         public bool Enabled
         {
             get { return (bool)GetValue(EnabledProperty); }
-            set {  SetValue(EnabledProperty, value); }
+            set { SetValue(EnabledProperty, value); }
         }
         public static readonly DotvvmProperty EnabledProperty =
             DotvvmProperty.Register<bool, ButtonBase>(t => t.Enabled, true);

@@ -310,6 +310,7 @@
     <Compile Include="Controls\ControlMarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DataPager.cs" />
     <Compile Include="Controls\Decorator.cs" />
+    <Compile Include="Controls\DisableButtonPostbackHandler.cs" />
     <Compile Include="Controls\DotvvmBindableObject.cs" />
     <Compile Include="Controls\DotvvmControlException.cs" />
     <Compile Include="Controls\EmptyData.cs" />
