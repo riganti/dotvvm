@@ -208,7 +208,7 @@ namespace DotVVM.Framework.Compilation.Parser
                     if (matchTable[currentPatternMatchPosition] > -1)
                     {
                         currentPatternMatchPosition = matchTable[currentPatternMatchPosition];
-                        pauseReading ++;
+                        pauseReading++;
                     }
                     else
                     {
@@ -314,9 +314,9 @@ namespace DotVVM.Framework.Compilation.Parser
             return new NullTokenError<TToken, TTokenType>(this);
         }
 
-        protected TokenError CreateTokenError(TToken lastToken, TTokenType firstTokenType, string errorMessage)
+        protected TokenError CreateTokenError(TToken lastToken, TTokenType firstTokenType, string errorMessage, bool isCritical = false)
         {
-            return new BeginWithLastTokenOfTypeTokenError<TToken, TTokenType>(errorMessage, this, lastToken, firstTokenType);
+            return new BeginWithLastTokenOfTypeTokenError<TToken, TTokenType>(errorMessage, this, lastToken, firstTokenType, isCritical);
         }
 
         protected TokenError CreateTokenError(TToken token, string errorMessage)

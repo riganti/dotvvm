@@ -47,6 +47,14 @@ namespace DotVVM.Framework.Compilation
             var errorCheckingVisitor = new ErrorCheckingVisitor();
             resolvedView.Accept(errorCheckingVisitor);
 
+            foreach (var token in tokenizer.Tokens)
+            {
+                if (token.HasError)
+                {
+                    throw new DotvvmCompilationException(token.Error.ErrorMessage, new[] { (token.Error as BeginWithLastTokenOfTypeTokenError<DothtmlToken, DothtmlTokenType>)?.LastToken ?? token });
+                }
+            }
+
             foreach (var n in node.EnumerateNodes())
             {
                 if (n.HasNodeErrors)

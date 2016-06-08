@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Compilation.Parser
 
         public TTokenType FirstTokenType { get; private set; }
 
-        public BeginWithLastTokenOfTypeTokenError(string errorMessage, TokenizerBase<TToken, TTokenType> tokenizer, TToken lastToken, TTokenType firstTokenType) : base(errorMessage, tokenizer)
+        public BeginWithLastTokenOfTypeTokenError(string errorMessage, TokenizerBase<TToken, TTokenType> tokenizer, TToken lastToken, TTokenType firstTokenType, bool isCritical = false) : base(errorMessage, tokenizer, isCritical)
         {
             LastToken = lastToken;
             FirstTokenType = firstTokenType;

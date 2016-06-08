@@ -216,7 +216,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                         }
                         else
                         {
-                            CreateToken(DothtmlTokenType.CloseTag, charsFromEndToSkip: 1, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag));
+                            CreateToken(DothtmlTokenType.CloseTag, charsFromEndToSkip: 1, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag, isCritical: true));
                             ReadElement(wasOpenBraceRead: true);
                             return ReadElementType.Error;
                         }
@@ -224,7 +224,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                     else
                     if (!ReadAttribute())
                     {
-                        CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag));
+                        CreateToken(DothtmlTokenType.CloseTag, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenTag, DothtmlTokenizerErrors.InvalidCharactersInTag, isCritical: true));
                         return ReadElementType.Error;
                     }
                 }
