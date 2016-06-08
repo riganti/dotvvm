@@ -15,5 +15,12 @@ namespace DotVVM.Framework.Controls
         [AttachedProperty(typeof(PostBackHandlerCollection))]
         public static readonly DotvvmProperty HandlersProperty =
             DotvvmProperty.Register<PostBackHandlerCollection, PostBack>(() => HandlersProperty, null);
+
+        public static void AddHandler(DotvvmControl control, PostBackHandler handler)
+        {
+            var collection = (PostBackHandlerCollection)control.GetValue(HandlersProperty) ?? new PostBackHandlerCollection();
+            collection.Add(handler);
+            control.SetValue(HandlersProperty, collection);
+        }
     }
 }

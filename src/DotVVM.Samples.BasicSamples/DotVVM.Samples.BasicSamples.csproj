@@ -184,6 +184,7 @@
     <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\PostBack\ButtonDisableduringPostbackViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Redirect\RedirectingPresenter.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resource\OnlineNonameResourceLoad.cs" />
@@ -397,6 +398,7 @@
     <Content Include="Views\FeatureSamples\Validation\NullValidationTarget.dothtml" />
     <Content Include="Views\FeatureSamples\Validation\DateTimeValidation.dothtml" />
     <Content Include="Views\FeatureSamples\Validation\DateTimeValidation_NullableDateTime.dothtml" />
+    <Content Include="Views\FeatureSamples\PostBack\ButtonDisableduringPostback.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

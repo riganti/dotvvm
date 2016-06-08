@@ -1107,9 +1107,30 @@ var ConfirmPostBackHandler = (function (_super) {
     };
     return ConfirmPostBackHandler;
 }(DotvvmPostBackHandler));
+var DisableButtonPostbackHandler = (function (_super) {
+    __extends(DisableButtonPostbackHandler, _super);
+    function DisableButtonPostbackHandler(reenable) {
+        _super.call(this);
+        this.reenable = reenable;
+    }
+    DisableButtonPostbackHandler.prototype.execute = function (callback, sender) {
+        var _this = this;
+        if (sender instanceof HTMLButtonElement || sender instanceof HTMLInputElement) {
+            sender.disabled = true;
+        }
+        callback().done(function () {
+            if (_this.reenable)
+                if (sender instanceof HTMLButtonElement || sender instanceof HTMLInputElement) {
+                    sender.disabled = false;
+                }
+        });
+    };
+    return DisableButtonPostbackHandler;
+}(DotvvmPostBackHandler));
 var DotvvmPostBackHandlers = (function () {
     function DotvvmPostBackHandlers() {
         this.confirm = function (options) { return new ConfirmPostBackHandler(options.message); };
+        this.disableButton = function (options) { return new DisableButtonPostbackHandler(options.reenable); };
     }
     return DotvvmPostBackHandlers;
 }());

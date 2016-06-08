@@ -155,11 +155,11 @@ namespace DotVVM.Framework.Controls
         {
             RenderBeginWithDataBindAttribute(writer);
 
-            foreach (var item in properties)
+            foreach (var item in properties.Keys.ToArray())
             {
-                if (item.Key is ActiveDotvvmProperty)
+                if (item is ActiveDotvvmProperty)
                 {
-                    ((ActiveDotvvmProperty)item.Key).AddAttributesToRender(writer, context, this);
+                    ((ActiveDotvvmProperty)item).AddAttributesToRender(writer, context, this);
                 }
             }
 
