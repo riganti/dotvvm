@@ -4,22 +4,33 @@ using System.Linq;
 using System.Reflection;
 using DotVVM.Framework.ViewModel.Validation;
 using Newtonsoft.Json;
+using System.Collections.Concurrent;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     /// <summary>
     /// Builds serialization maps that are used during the JSON serialization.
     /// </summary>
-    public class ViewModelSerializationMapper
+    public class ViewModelSerializationMapper: IViewModelSerializationMapper
     {
 
-        private ViewModelValidationRuleTranslator validationRuleTranslator = new ViewModelValidationRuleTranslator();
-        private IViewModelValidationMetadataProvider validationMetadataProvider = new AttributeViewModelValidationMetadataProvider();
+        private readonly IValidationRuleTranslator validationRuleTranslator;
+        private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
+
+        public ViewModelSerializationMapper(DotvvmConfiguration configuration)
+        {
+            validationRuleTranslator = configuration.ServiceLocator.GetService<IValidationRuleTranslator>();
+            validationMetadataProvider = configuration.ServiceLocator.GetService<IViewModelValidationMetadataProvider>();
+        }
+
+        private readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
+        public ViewModelSerializationMap GetMap(Type type) => serializationMapCache.GetOrAdd(type, CreateMap);
 
         /// <summary>
         /// Creates the serialization map for specified type.
         /// </summary>
-        public ViewModelSerializationMap CreateMap(Type type)
+        protected virtual ViewModelSerializationMap CreateMap(Type type)
         {
             return new ViewModelSerializationMap(type, GetProperties(type));
         }
@@ -27,7 +38,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Gets the properties of the specified type.
         /// </summary>
-        private IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
+        protected virtual IEnumerable<ViewModelPropertyMap> GetProperties(Type type)
         {
             foreach (var property in type.GetProperties(BindingFlags.Public | BindingFlags.Instance).OrderBy(p => p.Name))
             {
@@ -77,7 +88,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        private JsonConverter GetJsonConverter(PropertyInfo property)
+        protected virtual JsonConverter GetJsonConverter(PropertyInfo property)
         {
             var converterType = property.GetCustomAttribute<JsonConverterAttribute>()?.ConverterType;
             if (converterType == null)

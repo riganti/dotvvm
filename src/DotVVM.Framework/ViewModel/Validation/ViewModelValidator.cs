@@ -7,8 +7,15 @@ using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
-    public class ViewModelValidator
+    public class ViewModelValidator: IViewModelValidator
     {
+        private readonly IViewModelSerializationMapper viewModelSerializationMapper;
+
+        public ViewModelValidator(IViewModelSerializationMapper viewModelMapper)
+        {
+            this.viewModelSerializationMapper = viewModelMapper;
+        }
+
         /// <summary>
         /// Validates the view model.
         /// </summary>
@@ -52,7 +59,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             }
 
             // validate all properties on the object
-            var map = ViewModelJsonConverter.GetSerializationMapForType(viewModel.GetType());
+            var map = viewModelSerializationMapper.GetMap(viewModel.GetType());
             foreach (var property in map.Properties.Where(p => p.TransferToServer))
             {
                 var value = property.PropertyInfo.GetValue(viewModel);

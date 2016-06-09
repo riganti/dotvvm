@@ -24,6 +24,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private CommandResolver commandResolver = new CommandResolver();
 
         private readonly IViewModelProtector viewModelProtector;
+        private readonly IViewModelSerializationMapper viewModelMapper;
+        private readonly DotvvmConfiguration configuration;
 
         public bool SendDiff { get; set; }
 
@@ -37,6 +39,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             this.viewModelProtector = configuration.ServiceLocator.GetService<IViewModelProtector>();
             this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
+            this.viewModelMapper = configuration.ServiceLocator.GetService<IViewModelSerializationMapper>();
         }
 
         /// <summary>
@@ -67,7 +70,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack)
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper)
             {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
@@ -209,9 +212,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 // load encrypted values
                 var encryptedValuesString = viewModelToken["$encryptedValues"].Value<string>();
-                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
+                viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper, JObject.Parse(viewModelProtector.Unprotect(encryptedValuesString, context)));
             }
-            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack);
+            else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper);
 
             // get validation path
             context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();

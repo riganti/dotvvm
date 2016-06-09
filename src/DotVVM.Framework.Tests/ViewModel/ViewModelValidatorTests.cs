@@ -7,18 +7,21 @@ using System.Threading.Tasks;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Validation;
+using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Tests.ViewModel
 {
     [TestClass]
     public class ViewModelValidatorTests
     {
+        private IViewModelValidator CreateValidator() => DotvvmConfiguration.CreateDefault().ServiceLocator.GetService<IViewModelValidator>();
 
         [TestMethod]
         public void ViewModelValidator_SimpleObject()
         {
             var testViewModel = new TestViewModel();
-            var validator = new ViewModelValidator();
+            var validator = CreateValidator();
             var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
@@ -38,7 +41,7 @@ namespace DotVVM.Framework.Tests.ViewModel
                 },
                 Child = new TestViewModel2() {  Code = "123" }
             };
-            var validator = new ViewModelValidator();
+            var validator = CreateValidator();
             var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(4, results.Count);
@@ -52,7 +55,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void ViewModelValidator_ServerOnlyRules()
         {
             var testViewModel = new TestViewModel3() { Email = "aaa" };
-            var validator = new ViewModelValidator();
+            var validator = CreateValidator();
             var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
@@ -63,7 +66,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void ViewModelValidator_Child_CustomValidationAttribute()
         {
             var testViewModel = new TestViewModel4() { Child = new TestViewModel4Child() { IsChecked = true } };
-            var validator = new ViewModelValidator();
+            var validator = CreateValidator();
             var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
@@ -74,7 +77,7 @@ namespace DotVVM.Framework.Tests.ViewModel
         public void ViewModelValidator_Child_IValidatableObject()
         {
             var testViewModel = new TestViewModel5() { Child = new TestViewModel5Child() { IsChecked = true } };
-            var validator = new ViewModelValidator();
+            var validator = CreateValidator();
             var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);
@@ -88,7 +91,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             {
                 Children = new List<TestViewModel5Child>() {new TestViewModel5Child() {IsChecked = true}}
             };
-            var validator = new ViewModelValidator();
+            var validator = CreateValidator();
             var results = validator.ValidateViewModel(testViewModel).OrderBy(n => n.PropertyPath).ToList();
 
             Assert.AreEqual(1, results.Count);

@@ -13,10 +13,6 @@ namespace DotVVM.Framework.Runtime.Filters
     /// </summary>
     public class ModelValidationFilterAttribute : ActionFilterAttribute
     {
-
-        private ViewModelValidator viewModelValidator = new ViewModelValidator();
-
-
         /// <summary>
         /// Called before the command is executed.
         /// </summary>
@@ -24,6 +20,8 @@ namespace DotVVM.Framework.Runtime.Filters
         {
             if (!string.IsNullOrEmpty(context.ModelState.ValidationTargetPath))
             {
+                var viewModelValidator = context.Configuration.ServiceLocator.GetService<IViewModelValidator>();
+
                 // perform the validation
                 context.ModelState.Errors.AddRange(viewModelValidator.ValidateViewModel(context.ModelState.ValidationTarget));
 

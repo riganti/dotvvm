@@ -20,6 +20,7 @@ using DotVVM.Framework.Security;
 using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -192,6 +193,10 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector(configuration));
             configuration.ServiceLocator.RegisterSingleton<IDotvvmViewBuilder>(() => new DefaultDotvvmViewBuilder(configuration));
             configuration.ServiceLocator.RegisterSingleton<IViewModelLoader>(() => new DefaultViewModelLoader());
+            configuration.ServiceLocator.RegisterSingleton<IViewModelValidationMetadataProvider>(() => new AttributeViewModelValidationMetadataProvider());
+            configuration.ServiceLocator.RegisterSingleton<IValidationRuleTranslator>(() => new ViewModelValidationRuleTranslator());
+            configuration.ServiceLocator.RegisterSingleton<IViewModelValidator>(() => new ViewModelValidator(configuration.ServiceLocator.GetService<IViewModelSerializationMapper>()));
+            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializationMapper>(() => new ViewModelSerializationMapper(configuration));
             configuration.ServiceLocator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration) { SendDiff = true });
             configuration.ServiceLocator.RegisterSingleton<IOutputRenderer>(() => new DefaultOutputRenderer());
             configuration.ServiceLocator.RegisterSingleton<IDotvvmPresenter>(() => new DotvvmPresenter(configuration));

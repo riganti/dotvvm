@@ -535,6 +535,7 @@
     <Compile Include="ViewModel\Serialization\EncryptedValuesWriter.cs" />
     <Compile Include="ViewModel\Serialization\FormatJsonConverterBase.cs" />
     <Compile Include="ViewModel\Serialization\IViewModelLoader.cs" />
+    <Compile Include="ViewModel\Serialization\IViewModelSerializationMapper.cs" />
     <Compile Include="ViewModel\Serialization\IViewModelSerializer.cs" />
     <Compile Include="ViewModel\Serialization\ViewModelJsonConverter.cs" />
     <Compile Include="ViewModel\Serialization\ViewModelPropertyMap.cs" />
@@ -542,7 +543,9 @@
     <Compile Include="ViewModel\Serialization\ViewModelSerializationMapper.cs" />
     <Compile Include="ViewModel\Validation\AttributeViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\Validation\DataAnnotations\DotvvmClientFormatAttribute.cs" />
+    <Compile Include="ViewModel\Validation\IValidationRuleTranslator.cs" />
     <Compile Include="ViewModel\Validation\IViewModelValidationMetadataProvider.cs" />
+    <Compile Include="ViewModel\Validation\IViewModelValidator.cs" />
     <Compile Include="ViewModel\Validation\ViewModelPropertyValidationRule.cs" />
     <Compile Include="ViewModel\Validation\ViewModelValidationError.cs" />
     <Compile Include="ViewModel\Validation\ViewModelValidationRuleTranslator.cs" />

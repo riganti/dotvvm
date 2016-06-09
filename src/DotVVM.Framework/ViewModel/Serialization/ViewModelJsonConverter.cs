@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -19,15 +20,15 @@ namespace DotVVM.Framework.ViewModel.Serialization
             typeof(float), typeof(double), typeof(decimal)
         };
 
-        private static readonly ViewModelSerializationMapper viewModelSerializationMapper = new ViewModelSerializationMapper();
-        private static readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
+        private readonly IViewModelSerializationMapper viewModelSerializationMapper;
 
-        public ViewModelJsonConverter(bool isPostback, JObject encryptedValues = null)
+        public ViewModelJsonConverter(bool isPostback, IViewModelSerializationMapper viewModelSerializationMapper, JObject encryptedValues = null)
         {
             IsPostback = isPostback;
             EncryptedValues = encryptedValues ?? new JObject();
             evReader = EncryptedValuesReader.FromObject(EncryptedValues);
             evWriter = new EncryptedValuesWriter(EncryptedValues.CreateWriter());
+            this.viewModelSerializationMapper = viewModelSerializationMapper;
         }
 
         public JObject EncryptedValues { get; }
@@ -38,12 +39,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public HashSet<ViewModelSerializationMap> UsedSerializationMaps { get; set; }
         public bool IsPostback { get; private set; }
 
-        /// <summary>
-        /// Gets the serialization map for specified type.
-        /// </summary>
-        public static ViewModelSerializationMap GetSerializationMapForType(Type type)
+        private ViewModelSerializationMap GetSerializationMapForType(Type type)
         {
-            return serializationMapCache.GetOrAdd(type, viewModelSerializationMapper.CreateMap);
+            return viewModelSerializationMapper.GetMap(type);
         }
 
         /// <summary>
@@ -53,8 +51,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             return !IsEnumerable(objectType) && IsComplexType(objectType);
         }
-
-
 
         /// <summary>
         /// Reads the JSON representation of the object.
