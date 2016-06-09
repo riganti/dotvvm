@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Compilation
 
             foreach (var token in tokenizer.Tokens)
             {
-                if (token.HasError)
+                if (token.HasError && token.Error.IsCritical)
                 {
                     throw new DotvvmCompilationException(token.Error.ErrorMessage, new[] { (token.Error as BeginWithLastTokenOfTypeTokenError<DothtmlToken, DothtmlTokenType>)?.LastToken ?? token });
                 }
