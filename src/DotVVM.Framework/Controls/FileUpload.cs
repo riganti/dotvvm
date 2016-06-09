@@ -132,7 +132,7 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
-            if (UploadedFiles == null)
+            if (!IsPropertySet(UploadedFilesProperty))
             {
                 throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload cannot be null!");
             }
