@@ -86,6 +86,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
+            AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
             AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({0})"), 0);
             AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
