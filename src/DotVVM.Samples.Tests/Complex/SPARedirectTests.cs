@@ -21,8 +21,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Wait(1000);
 
                 //check url
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPARedirect/login?ReturnUrl="));
-                browser.CheckUrl(s => !s.Contains("#"));
+                browser.CheckUrl(s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect#!/ComplexSamples/SPARedirect"));
 
                 // login to the app
                 browser.First("input[type=button]").CheckAttribute("value", "Login").Click().Wait(1000);

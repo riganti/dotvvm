@@ -106,7 +106,7 @@ class DotVVM {
         } else {
             // redirect to the default URL
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
-            if (url && !isInitialPageLoad) {
+            if (url) {
                 document.location.hash = "#!/" + url;
             } else {
                 this.isSpaReady(true);
