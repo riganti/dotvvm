@@ -171,12 +171,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Serializes the redirect action.
         /// </summary>
-        public static string GenerateRedirectActionResponse(string url)
+        public static string GenerateRedirectActionResponse(string url, bool replace = false)
         {
             // create result object
             var result = new JObject();
             result["url"] = url;
             result["action"] = "redirect";
+            if (replace)
+            {
+                result["replace"] = true;
+            }
             return result.ToString(Formatting.None);
         }
 

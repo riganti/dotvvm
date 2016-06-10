@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Hosting
         {
             if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
             {
-                DotvvmRequestContext.SetRedirectResponse(context, redirectUri, (int)HttpStatusCode.Redirect);
+                DotvvmRequestContext.SetRedirectResponse(context, redirectUri, (int)HttpStatusCode.Redirect, forceRefresh: true);
             }
         }
     }

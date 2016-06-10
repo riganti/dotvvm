@@ -57,6 +57,12 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_Repeater_RouteLinkUrlSuffix => "ControlSamples/Repeater/RouteLinkUrlSuffix";
 			public static string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag => "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
 			public static string ControlSamples_RouteLink_RouteLinkEnabled => "ControlSamples/RouteLink/RouteLinkEnabled";
+			public static string ControlSamples_SpaContentPlaceHolder_Default => "ControlSamples/SpaContentPlaceHolder/Default";
+			public static string ControlSamples_SpaContentPlaceHolder_PageA => "ControlSamples/SpaContentPlaceHolder/PageA";
+			public static string ControlSamples_SpaContentPlaceHolder_PageB => "ControlSamples/SpaContentPlaceHolder/PageB";
+			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/Default";
+			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA";
+			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageB";
 			public static string ControlSamples_TextBox_IntBoundTextBox => "ControlSamples/TextBox/IntBoundTextBox";
 			public static string ControlSamples_TextBox_TextBox => "ControlSamples/TextBox/TextBox";
 			public static string ControlSamples_TextBox_TextBox_Format => "ControlSamples/TextBox/TextBox_Format";
@@ -83,6 +89,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_BindingContexts_BindingContext => "FeatureSamples/BindingContexts/BindingContext";
 			public static string FeatureSamples_BindingPageInfo_BindingPageInfo => "FeatureSamples/BindingPageInfo/BindingPageInfo";
 			public static string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods => "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
+			public static string FeatureSamples_ClientExtenders_PasswordStrength => "FeatureSamples/ClientExtenders/PasswordStrength";
 			public static string FeatureSamples_DateTimeSerialization_DateTimeSerialization => "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
 			public static string FeatureSamples_Directives_ViewModelMissingAssembly => "FeatureSamples/Directives/ViewModelMissingAssembly";
 			public static string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention => "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";

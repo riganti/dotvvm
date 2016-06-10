@@ -217,10 +217,13 @@ var DotVVM = (function () {
             // redirect to the default URL
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
             if (url) {
-                document.location.hash = "#!/" + url;
+                url = "#!/" + url;
+                url = this.fixSpaUrlPrefix(url);
+                this.performRedirect(url, false);
             }
             else {
                 this.isSpaReady(true);
+                spaPlaceHolder.style.display = "";
             }
         }
     };
@@ -559,21 +562,14 @@ var DotVVM = (function () {
             replace = resultObject.replace;
         var url;
         // redirect
-        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0) {
+        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && !replace) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
             if (url === "#!") {
                 url = "#!/";
             }
             // verify that the URL prefix is correct, if not - add it before the fragment
-            var correctPrefix = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"].value;
-            var currentPrefix = document.location.pathname;
-            if (correctPrefix !== currentPrefix) {
-                if (correctPrefix === "") {
-                    correctPrefix = "/";
-                }
-                url = correctPrefix + url;
-            }
+            url = this.fixSpaUrlPrefix(url);
         }
         else {
             // absolute URL - load the URL
@@ -582,21 +578,39 @@ var DotVVM = (function () {
         // trigger redirect event
         var redirectArgs = new DotvvmRedirectEventArgs(dotvvm.viewModels[viewModelName], viewModelName, url, replace);
         this.events.redirect.trigger(redirectArgs);
-        var fakeAnchor = this.fakeRedirectAnchor;
-        if (!fakeAnchor) {
-            fakeAnchor = document.createElement("a");
-            fakeAnchor.style.display = "none";
-            fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
-            document.body.appendChild(fakeAnchor);
-            this.fakeRedirectAnchor = fakeAnchor;
-        }
-        fakeAnchor.href = url;
+        this.performRedirect(url, replace);
+    };
+    DotVVM.prototype.performRedirect = function (url, replace) {
         if (replace) {
             location.replace(url);
         }
         else {
+            var fakeAnchor = this.fakeRedirectAnchor;
+            if (!fakeAnchor) {
+                fakeAnchor = document.createElement("a");
+                fakeAnchor.style.display = "none";
+                fakeAnchor.setAttribute("data-dotvvm-fake-id", "dotvvm_fake_redirect_anchor_87D7145D_8EA8_47BA_9941_82B75EE88CDB");
+                document.body.appendChild(fakeAnchor);
+                this.fakeRedirectAnchor = fakeAnchor;
+            }
+            fakeAnchor.href = url;
             fakeAnchor.click();
         }
+    };
+    DotVVM.prototype.fixSpaUrlPrefix = function (url) {
+        var attr = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"];
+        if (!attr) {
+            return url;
+        }
+        var correctPrefix = attr.value;
+        var currentPrefix = document.location.pathname;
+        if (correctPrefix !== currentPrefix) {
+            if (correctPrefix === "") {
+                correctPrefix = "/";
+            }
+            url = correctPrefix + url;
+        }
+        return url;
     };
     DotVVM.prototype.removeVirtualDirectoryFromUrl = function (url, viewModelName) {
         var virtualDirectory = "/" + this.viewModels[viewModelName].virtualDirectory;

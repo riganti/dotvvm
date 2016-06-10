@@ -20,7 +20,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
             var id = new ClaimsIdentity(claims, DefaultAuthenticationTypes.ApplicationCookie);
             Context.OwinContext.Authentication.SignIn(id);
 
-            Context.RedirectToRoute("ComplexSamples_SPARedirect_home");
+            Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
 	    }
 
 	}

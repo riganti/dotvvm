@@ -130,6 +130,7 @@ namespace DotVVM.Framework.Hosting
         public IViewModelSerializer ViewModelSerializer { get; set; }
 
 
+
         /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
         /// </summary>
@@ -182,45 +183,46 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToUrl(string url)
+        public void RedirectToUrl(string url, bool forceRefresh = false)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect);
+            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect, forceRefresh);
             InterruptRequest();
         }
 
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToRoute(string routeName, object newRouteValues = null)
+        public void RedirectToRoute(string routeName, object newRouteValues = null, bool forceRefresh = false)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectToUrl(url);
+            RedirectToUrl(url, forceRefresh);
         }
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToUrlPermanent(string url)
+        public void RedirectToUrlPermanent(string url, bool forceRefresh = false)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently);
+            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently, forceRefresh);
             InterruptRequest();
         }
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToRoutePermanent(string routeName, object newRouteValues = null)
+        public void RedirectToRoutePermanent(string routeName, object newRouteValues = null, bool forceRefresh = false)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectToUrlPermanent(url);
+            RedirectToUrlPermanent(url, forceRefresh);
         }
 
         /// <summary>
         /// Renders the redirect response.
         /// </summary>
-        public static void SetRedirectResponse(IOwinContext owinContext, string url, int statusCode)
+        /// <param name="forceRefresh"></param>
+        public static void SetRedirectResponse(IOwinContext owinContext, string url, int statusCode, bool forceRefresh = false)
         {
             if (!DotvvmPresenter.DeterminePartialRendering(owinContext))
             {
@@ -229,9 +231,15 @@ namespace DotVVM.Framework.Hosting
             }
             else
             {
+                if (DotvvmPresenter.DetermineIsPostBack(owinContext) && DotvvmPresenter.DetermineSpaRequest(owinContext) && !forceRefresh && !url.Contains("//"))
+                {
+                    // if we are in SPA postback, redirect should point at #! URL
+                    url = "#!" + url;
+                }
+
                 owinContext.Response.StatusCode = 200;
                 owinContext.Response.ContentType = "application/json";
-                owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url));
+                owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, forceRefresh));
             }
         }
 
