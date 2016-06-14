@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Runtime.Filters
         public void Authorize(IDotvvmRequestContext context)
         {
             // check for [NotAuthorized] attribute
-            if (!CanBeAuthorized(context.ViewModel.GetType())) return;
+            if (context.ViewModel != null && !CanBeAuthorized(context.ViewModel.GetType())) return;
 
             // the user must not be anonymous
             if (context.OwinContext.Request.User == null || !context.OwinContext.Request.User.Identity.IsAuthenticated)
