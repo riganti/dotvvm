@@ -269,14 +269,23 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (method.DeclaringType.IsGenericType && !method.DeclaringType.IsGenericTypeDefinition)
             {
                 var genericType = method.DeclaringType.GetGenericTypeDefinition();
-                var m2 = genericType.GetMethod(method.Name);
+                var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 if (m2 != null)
                 {
                     var r2 = TryTranslateMethodCall(context, args, m2);
                     if (r2 != null) return r2;
                 }
             }
-            var baseMethod = method.GetBaseDefinition();
+			if (method.DeclaringType.IsArray)
+			{
+				var m2 = typeof(Array).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+				if (m2 != null)
+				{
+					var r2 = TryTranslateMethodCall(context, args, m2);
+					if (r2 != null) return r2;
+				}
+			}
+			var baseMethod = method.GetBaseDefinition();
             if (baseMethod != null && baseMethod != method) return TryTranslateMethodCall(context, args, baseMethod);
             else return null;
         }
