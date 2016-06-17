@@ -296,9 +296,12 @@
     <Compile Include="Compilation\Validation\DefaultControlUsageValidator.cs" />
     <Compile Include="Compilation\Validation\IControlUsageValidator.cs" />
     <Compile Include="Compilation\ViewCompilingVisitor.cs" />
+    <Compile Include="Configuration\ConfigurationHelper.cs" />
+    <Compile Include="Configuration\DefaultControlRegistrationStrategy.cs" />
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
     <Compile Include="Configuration\HtmlTagAttributePair.cs" />
     <Compile Include="Configuration\DotvvmRuntimeConfiguration.cs" />
+    <Compile Include="Configuration\IControlRegistrationStrategy.cs" />
     <Compile Include="Configuration\IDotvvmStartup.cs" />
     <Compile Include="Configuration\ServiceLocator.cs" />
     <Compile Include="Controls\ConfigurableHtmlControl.cs" />

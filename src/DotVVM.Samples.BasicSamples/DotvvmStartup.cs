@@ -37,18 +37,7 @@ namespace DotVVM.Samples.BasicSamples
                 TagName = "ControlPropertyUpdating",
                 Src = "Views/FeatureSamples/MarkupControl/ControlPropertyUpdating.dotcontrol"
             });
-            config.Markup.Controls.Add(new DotvvmControlConfiguration()
-            {
-                TagPrefix = "sample",
-                TagName = "ArticleEditor",
-                Src = "Views/ComplexSamples/ServerRendering/ArticleEditor.dotcontrol"
-            });
-            config.Markup.Controls.Add(new DotvvmControlConfiguration()
-            {
-                TagPrefix = "sample",
-                TagName = "ArticleDetail",
-                Src = "Views/ComplexSamples/ServerRendering/ArticleDetail.dotcontrol"
-            });
+			config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/ComplexSamples/ServerRendering/"));
             config.Markup.AddMarkupControl("sample", "TextEditorControl", "Views/FeatureSamples/MarkupControl/TextEditorControl.dotcontrol");
             config.Markup.AddMarkupControl("sample", "PasswordStrengthControl", "Views/FeatureSamples/ClientExtenders/PasswordStrengthControl.dotcontrol");
 
