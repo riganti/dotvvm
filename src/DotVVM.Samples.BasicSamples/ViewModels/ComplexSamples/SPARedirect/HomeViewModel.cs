@@ -10,9 +10,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
         public void SignOut()
         {
             Context.OwinContext.Authentication.SignOut();
-
-            var url = Context.Configuration.RouteTable["ComplexSamples_SPARedirect_home"].BuildUrl(new { });
-            Context.RedirectToUrl(url + "?refresh=1");
+            
+            Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
         }
 
 	}

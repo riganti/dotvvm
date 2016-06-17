@@ -165,6 +165,14 @@
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
     <Compile Include="ViewModels\ControlSamples\RouteLink\RouteLinkEnabledViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\DefaultViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageAViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageBViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\SpaMasterViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder\DefaultViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder\PageAViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder\PageBViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder\SpaMasterViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\IntBoundTextBoxViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxFormatViewModel.cs" />
@@ -249,9 +257,12 @@
     <Compile Include="Views\FeatureSamples\MarkupControl\TextEditorControl.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Content\testResource.css" />
     <Content Include="Scripts\ClientExtenders.js" />
     <Content Include="Scripts\colResizable-1.5.min.js" />
     <Content Include="Scripts\GridViewSizable.js" />
+    <Content Include="Scripts\testResource2.js" />
+    <Content Include="Scripts\testResource.js" />
     <Content Include="Web.config" />
     <Content Include="packages.config" />
     <Content Include="Views\ControlSamples\Button\Button.dothtml" />
@@ -386,6 +397,14 @@
     <Content Include="Views\ComplexSamples\SPARedirect\login.dothtml" />
     <Content Include="Views\ComplexSamples\SPARedirect\site.dotmaster" />
     <Content Include="Views\FeatureSamples\ClientExtenders\PasswordStrength.dothtml" />
+    <Content Include="Views\ControlSamples\SpaContentPlaceHolder\SpaMaster.dotmaster" />
+    <Content Include="Views\ControlSamples\SpaContentPlaceHolder\Default.dothtml" />
+    <Content Include="Views\ControlSamples\SpaContentPlaceHolder\PageA.dothtml" />
+    <Content Include="Views\ControlSamples\SpaContentPlaceHolder\PageB.dothtml" />
+    <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\Default.dothtml" />
+    <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageA.dothtml" />
+    <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageB.dothtml" />
+    <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\SpaMaster.dotmaster" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

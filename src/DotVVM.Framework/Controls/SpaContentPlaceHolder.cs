@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the default name of the route that should be loaded when there is no hash part in the URL.
         /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string DefaultRouteName
         {
             get { return (string)GetValue(DefaultRouteNameProperty); }
@@ -25,7 +26,22 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty DefaultRouteNameProperty
             = DotvvmProperty.Register<string, SpaContentPlaceHolder>(p => p.DefaultRouteName);
-        
+
+
+        /// <summary>
+        /// Gets or sets the name of the route defining the base URL of the SPA (the part of the URL before the hash).
+        /// If this property is not set, the URL of the first page using the SpaContentPlaceHolder will stay before the hash mark.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string PrefixRouteName
+        {
+            get { return (string)GetValue(PrefixRouteNameProperty); }
+            set { SetValue(PrefixRouteNameProperty, value); }
+        }
+        public static readonly DotvvmProperty PrefixRouteNameProperty
+            = DotvvmProperty.Register<string, SpaContentPlaceHolder>(c => c.PrefixRouteName, null);
+
+
 
         public SpaContentPlaceHolder()
         {
@@ -44,7 +60,12 @@ namespace DotVVM.Framework.Controls
 
             Attributes["name"] = HostingConstants.SpaContentPlaceHolderID;
             Attributes[HostingConstants.SpaContentPlaceHolderDataAttributeName] = GetSpaContentPlaceHolderUniqueId();
-            Attributes[HostingConstants.SpaUrlPrefixAttributeName] = GetCorrectSpaUrlPrefix(context);
+
+            var correctSpaUrlPrefix = GetCorrectSpaUrlPrefix(context);
+            if (correctSpaUrlPrefix != null)
+            {
+                Attributes[HostingConstants.SpaUrlPrefixAttributeName] = correctSpaUrlPrefix;
+            }
 
             AddDotvvmUniqueIdAttribute();
 
@@ -53,14 +74,21 @@ namespace DotVVM.Framework.Controls
         
         private string GetCorrectSpaUrlPrefix(IDotvvmRequestContext context)
         {
-            var result = DotvvmMiddleware.GetVirtualDirectory(context.OwinContext);
+            var routePath = "";
+            if (!string.IsNullOrEmpty(PrefixRouteName))
+            {
+                routePath = context.Configuration.RouteTable[PrefixRouteName].Url.Trim('/');
+            }
+            else
+            {
+                return null;
+            }
 
-            var routePath = context.Configuration.RouteTable[DefaultRouteName].Url.Trim('/');
+            var result = DotvvmMiddleware.GetVirtualDirectory(context.OwinContext);
             if (!string.IsNullOrEmpty(routePath))
             {
                 result += "/" + routePath;
             }
-
             return result;
         }
 
@@ -77,6 +105,10 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            if (!context.IsInPartialRenderingMode)
+            {
+                writer.AddStyleAttribute("display", "none");
+            }
             writer.AddKnockoutDataBind("if", "dotvvm.isSpaReady");
 
             if (!string.IsNullOrEmpty(DefaultRouteName))
