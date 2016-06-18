@@ -59,6 +59,32 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [TestMethod]
+        public void Control_Literal_CollectionLength()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_Literal_Literal_CollectionLength);
+
+                
+                browser.Single("span").CheckIfInnerText(s => s.Contains("0"));
+                browser.Single("#second").CheckIfIsNotDisplayed();
+                browser.First("#first").Click();
+
+                browser.Single("span").CheckIfInnerText(s => s.Contains("1"));
+                browser.Single("#second").CheckIfIsNotDisplayed();
+                browser.First("#first").Click();
+
+
+                browser.Single("span").CheckIfInnerText(s => s.Contains("2"));
+                browser.Single("#second").CheckIfIsNotDisplayed();
+                browser.First("#first").Click();
+
+                browser.Single("span").CheckIfInnerText(s => s.Contains("3"));
+                browser.Single("#second").CheckIfIsDisplayed();
+            });
+        }
+
 
     }
 }

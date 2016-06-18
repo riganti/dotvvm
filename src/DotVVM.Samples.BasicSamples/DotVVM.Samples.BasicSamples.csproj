@@ -160,6 +160,7 @@
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewStaticCommandViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\LargeGridViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\HtmlLiteral\HtmlLiteralViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\Literal\Literal_CollectionLenghtViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Literal\LiteralViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
@@ -405,6 +406,7 @@
     <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageA.dothtml" />
     <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageB.dothtml" />
     <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\SpaMaster.dotmaster" />
+    <Content Include="Views\ControlSamples\Literal\Literal_CollectionLength.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
