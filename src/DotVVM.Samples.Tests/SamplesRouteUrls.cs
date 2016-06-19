@@ -50,9 +50,10 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_HtmlLiteral_HtmlLiteral => "ControlSamples/HtmlLiteral/HtmlLiteral";
 			public static string ControlSamples_LinkButton_LinkButton => "ControlSamples/LinkButton/LinkButton";
 			public static string ControlSamples_Literal_Literal => "ControlSamples/Literal/Literal";
-			public static string ControlSamples_Literal_Literal_FormatString => "ControlSamples/Literal/Literal_FormatString";
+			public static string ControlSamples_Literal_Literal_ArrayLength => "ControlSamples/Literal/Literal_ArrayLength";
 			public static string ControlSamples_Literal_Literal_CollectionLength => "ControlSamples/Literal/Literal_CollectionLength";
-            public static string ControlSamples_RadioButton_RadioButton => "ControlSamples/RadioButton/RadioButton";
+			public static string ControlSamples_Literal_Literal_FormatString => "ControlSamples/Literal/Literal_FormatString";
+			public static string ControlSamples_RadioButton_RadioButton => "ControlSamples/RadioButton/RadioButton";
 			public static string ControlSamples_Repeater_NestedRepeater => "ControlSamples/Repeater/NestedRepeater";
 			public static string ControlSamples_Repeater_RouteLink => "ControlSamples/Repeater/RouteLink";
 			public static string ControlSamples_Repeater_RouteLinkUrlSuffix => "ControlSamples/Repeater/RouteLinkUrlSuffix";

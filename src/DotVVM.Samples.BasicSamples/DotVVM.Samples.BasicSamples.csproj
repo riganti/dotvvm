@@ -407,6 +407,7 @@
     <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageB.dothtml" />
     <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\SpaMaster.dotmaster" />
     <Content Include="Views\ControlSamples\Literal\Literal_CollectionLength.dothtml" />
+    <Content Include="Views\ControlSamples\Literal\Literal_ArrayLength.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
