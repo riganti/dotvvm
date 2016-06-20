@@ -7,7 +7,7 @@
 //     the code is regenerated.
 // </auto-generated>
 // ------------------------------------------------------------------------------
-namespace DotVVM.Framework.Hosting
+namespace DotVVM.Framework.Controls
 {
     using System.Linq;
     using System.Text;
@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Hosting
     /// Class to produce the template output
     /// </summary>
     
-    #line 1 "d:\Work\DotVVM\src\DotVVM.Framework\Hosting\FileUploadPageTemplate.tt"
+    #line 1 "C:\git\dotvvm\src\DotVVM.Framework\Controls\FileUploadPageTemplate.tt"
     [global::System.CodeDom.Compiler.GeneratedCodeAttribute("Microsoft.VisualStudio.TextTemplating", "14.0.0.0")]
     public partial class FileUploadPageTemplate : FileUploadPageTemplateBase
     {
@@ -31,21 +31,21 @@ namespace DotVVM.Framework.Hosting
             this.Write("\r\n<!DOCTYPE html>\r\n<html>\r\n<head>\r\n    <title></title>\r\n\t<meta charset=\"utf-8\" />" +
                     "\r\n</head>\r\n<body>\r\n\r\n<form method=\"POST\" enctype=\"multipart/form-data\" action=\"");
             
-            #line 15 "d:\Work\DotVVM\src\DotVVM.Framework\Hosting\FileUploadPageTemplate.tt"
+            #line 15 "C:\git\dotvvm\src\DotVVM.Framework\Controls\FileUploadPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(FormPostUrl));
             
             #line default
             #line hidden
             this.Write("\" id=\"uploadForm\">\r\n    <input type=\"file\" name=\"upload\" id=\"upload\" ");
             
-            #line 16 "d:\Work\DotVVM\src\DotVVM.Framework\Hosting\FileUploadPageTemplate.tt"
+            #line 16 "C:\git\dotvvm\src\DotVVM.Framework\Controls\FileUploadPageTemplate.tt"
  if (AllowMultipleFiles) { 
             
             #line default
             #line hidden
             this.Write(" multiple=\"multiple\" ");
             
-            #line 16 "d:\Work\DotVVM\src\DotVVM.Framework\Hosting\FileUploadPageTemplate.tt"
+            #line 16 "C:\git\dotvvm\src\DotVVM.Framework\Controls\FileUploadPageTemplate.tt"
  } 
             
             #line default
@@ -88,12 +88,12 @@ function dotvvmSubmit() {
 }
 
 function reportProgress(isBusy, percent, resultOrError) {
-	parent.window.dotvvm.fileUpload.reportProgress(window.frameElement.dataset[""dotvvmUploadId""], isBusy, percent, resultOrError);
+	parent.window.dotvvm.fileUpload.reportProgress(window.frameElement.attributes[""data-dotvvm-upload-id""], isBusy, percent, resultOrError);
 }
 
 ");
             
-            #line 57 "d:\Work\DotVVM\src\DotVVM.Framework\Hosting\FileUploadPageTemplate.tt"
+            #line 57 "C:\git\dotvvm\src\DotVVM.Framework\Controls\FileUploadPageTemplate.tt"
             this.Write(this.ToStringHelper.ToStringWithCulture(StartupScript ?? ""));
             
             #line default
@@ -102,7 +102,7 @@ function reportProgress(isBusy, percent, resultOrError) {
             return this.GenerationEnvironment.ToString();
         }
         
-        #line 63 "d:\Work\DotVVM\src\DotVVM.Framework\Hosting\FileUploadPageTemplate.tt"
+        #line 63 "C:\git\dotvvm\src\DotVVM.Framework\Controls\FileUploadPageTemplate.tt"
  
 public string StartupScript { get; set; }
 public string FormPostUrl { get; set; }

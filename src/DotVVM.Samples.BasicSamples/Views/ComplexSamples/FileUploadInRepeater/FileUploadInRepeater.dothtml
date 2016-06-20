@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.FileUploadInRepeater.FileUploadInRepeaterViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.FileUploadInRepeater.FileUploadInRepeaterViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 
@@ -26,4 +26,4 @@
 	</dot:Repeater>
 
 </body>
-</html>
+</html> 

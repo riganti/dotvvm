@@ -10,6 +10,7 @@ using Microsoft.AspNet.WebUtilities;
 using Microsoft.Owin;
 using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 

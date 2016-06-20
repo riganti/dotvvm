@@ -150,7 +150,7 @@ namespace DotVVM.Framework.Controls
             var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
             if (uploadCompletedBinding != null)
             {
-                writer.AddAttribute("data-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, this, true, null));
+                writer.AddAttribute("data-dotvvm-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, this, true, null));
             }
 
             base.AddAttributesToRender(writer, context);
@@ -158,28 +158,30 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            // render iframe
-            writer.AddAttribute("class", "dotvvm-upload-iframe");
-            writer.AddAttribute("src", "~/" + HostingConstants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
-            writer.RenderBeginTag("iframe");
-            writer.RenderEndTag();
+            RenderIframe(writer);
 
-            // render upload button
-            writer.AddAttribute("class", "dotvvm-upload-button");
-            writer.AddKnockoutDataBind("visible", "!IsBusy()");
-            writer.RenderBeginTag("span");
-            writer.AddAttribute("href", "#");
-            writer.AddAttribute("onclick", "dotvvm.fileUpload.showUploadDialog(this); return false;");
-            writer.RenderBeginTag("a");
-            writer.WriteUnencodedText(UploadButtonText);
-            writer.RenderEndTag();
-            writer.RenderEndTag();
+            RenderUploadButton(writer);
+            RenderUploadedFilesTitle(writer);
+            RenderProgressWrapper(writer);
+            RenderResultTitle(writer);
 
-            // render upload files
-            writer.AddAttribute("class", "dotvvm-upload-files");
-            writer.AddKnockoutDataBind("html", $"dotvvm.globalize.format({JsonConvert.SerializeObject(NumberOfFilesIndicatorText)}, Files().length)");
+            base.RenderContents(writer, context);
+        }
+
+        private void RenderResultTitle(IHtmlWriter writer)
+        {
+            // render result
+            writer.AddAttribute("class", "dotvvm-upload-result");
+            writer.AddKnockoutDataBind("html", $"Error() ? {JsonConvert.SerializeObject(UploadErrorMessageText)} : {JsonConvert.SerializeObject(SuccessMessageText)}");
+            writer.AddKnockoutDataBind("attr", "{ title: Error }");
+            writer.AddKnockoutDataBind("css", "{ 'dotvvm-upload-result-success': !Error(), 'dotvvm-upload-result-error': Error }");
+            writer.AddKnockoutDataBind("visible", "!IsBusy() && Files().length > 0");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
+        }
+
+        private static void RenderProgressWrapper(IHtmlWriter writer)
+        {
 
             // render progress wrapper
             writer.AddKnockoutDataBind("visible", "IsBusy");
@@ -190,17 +192,39 @@ namespace DotVVM.Framework.Controls
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
             writer.RenderEndTag();
+        }
 
-            // render result
-            writer.AddAttribute("class", "dotvvm-upload-result");
-            writer.AddKnockoutDataBind("html", $"Error() ? {JsonConvert.SerializeObject(UploadErrorMessageText)} : {JsonConvert.SerializeObject(SuccessMessageText)}");
-            writer.AddKnockoutDataBind("attr", "{ title: Error }");
-            writer.AddKnockoutDataBind("css", "{ 'dotvvm-upload-result-success': !Error(), 'dotvvm-upload-result-error': Error }");
-            writer.AddKnockoutDataBind("visible", "!IsBusy() && Files().length > 0");
+        private void RenderUploadedFilesTitle(IHtmlWriter writer)
+        {
+
+            // render upload files
+            writer.AddAttribute("class", "dotvvm-upload-files");
+            writer.AddKnockoutDataBind("html", $"dotvvm.globalize.format({JsonConvert.SerializeObject(NumberOfFilesIndicatorText)}, Files().length)");
             writer.RenderBeginTag("span");
             writer.RenderEndTag();
+        }
 
-            base.RenderContents(writer, context);
+        private void RenderUploadButton(IHtmlWriter writer)
+        {
+            // render upload button
+            writer.AddAttribute("class", "dotvvm-upload-button");
+            writer.AddKnockoutDataBind("visible", "!IsBusy()");
+            writer.RenderBeginTag("span");
+            writer.AddAttribute("href", "#");
+            writer.AddAttribute("onclick", "dotvvm.fileUpload.showUploadDialog(this); return false;");
+            writer.RenderBeginTag("a");
+            writer.WriteUnencodedText(UploadButtonText);
+            writer.RenderEndTag();
+            writer.RenderEndTag();
+        }
+
+        private void RenderIframe(IHtmlWriter writer)
+        {
+            // render iframe
+            writer.AddAttribute("class", "dotvvm-upload-iframe");
+            writer.AddAttribute("src", "~/" + HostingConstants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
+            writer.RenderBeginTag("iframe");
+            writer.RenderEndTag();
         }
     }
 }

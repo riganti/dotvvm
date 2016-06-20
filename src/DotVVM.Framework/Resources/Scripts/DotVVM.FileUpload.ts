@@ -1,21 +1,30 @@
 /// <reference path="dotvvm.ts" />
 class DotvvmFileUpload {
-
     public showUploadDialog(sender: HTMLElement) {
-        var uploadId = "DotVVM_upl" + new Date().getTime().toString();
-        sender.parentElement.parentElement.dataset["dotvvmUploadId"] = uploadId;
-
-        var iframe = <HTMLIFrameElement>sender.parentElement.previousSibling;
-        iframe.dataset["dotvvmUploadId"] = uploadId;
-        
         // trigger the file upload dialog
+        var iframe = this.getIframe(sender);
+        this.createUploadId(sender, iframe);
+        this.openUploadDialog(iframe);
+    }
+    private getIframe(sender:HTMLElement) {
+        return <HTMLIFrameElement>sender.parentElement.previousSibling;
+    }
+    private openUploadDialog(iframe: HTMLIFrameElement) {
         var fileUpload = <HTMLInputElement>iframe.contentWindow.document.getElementById('upload');
         fileUpload.click();
     }
 
-    public reportProgress(targetControlId: string, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string) {
+    public createUploadId(sender: HTMLElement, iframe: HTMLElement) {
+        iframe = iframe || this.getIframe(sender);
+        var uploadId = "DotVVM_upl" + new Date().getTime().toString();
+        sender.parentElement.parentElement.setAttribute("data-dotvvm-upload-id", uploadId);
+
+        iframe.setAttribute("data-dotvvm-upload-id", uploadId);
+    }
+
+    public reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string) {
         // find target control viewmodel
-        var targetControl = <HTMLDivElement>document.querySelector("div[data-dotvvm-upload-id='" + targetControlId + "']");
+        var targetControl = <HTMLDivElement>document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
         var viewModel = <DotvvmFileUploadCollection>ko.dataFor(targetControl.firstChild);
 
         // determine the status
@@ -30,8 +39,8 @@ class DotvvmFileUpload {
             }
 
             // call the handler
-            if (targetControl.dataset["uploadCompleted"]) {
-                new Function(targetControl.dataset["uploadCompleted"]).call(targetControl);
+            if ((targetControl.attributes["data-dotvvm-upload-completed"] || { value: null }).value) {
+                new Function(targetControl.attributes["data-dotvvm-upload-completed"].value).call(targetControl);
             }
         }
         viewModel.Progress(progress);

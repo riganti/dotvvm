@@ -24,10 +24,11 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_FileUpload);
+                browser.Wait(1000);
 
                 // get existing files
                 var existingFiles = browser.FindElements("li").Select(e => e.GetText()).ToList();
-
+                browser.Wait(1000);
 
                 // generate a sample file to upload
                 var tempFile = Path.GetTempFileName();
@@ -37,25 +38,24 @@ namespace DotVVM.Samples.Tests.Control
                 browser.FileUploadDialogSelect(browser.First(".dotvvm-upload-button a"),tempFile);
 
                 // wait for the file to be uploaded
-                while (browser.First(".dotvvm-upload-files").GetText() != "1 files")
-                {
-                    browser.Wait(2000);
-                }
+
+                browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
+                    "File was not uploaded in 1 min interval.");
+
                 TestContext.WriteLine("The file was uploaded.");
 
                 // submit
                 browser.Click("input[type=button]");
 
                 // verify the file is there present
-                ElementWrapper firstLi;
-                do
-                {
-                    browser.Wait(2000);
-                    firstLi = browser.First("ul").FindElements("li").FirstOrDefault(t => !existingFiles.Contains(t.GetText()));
-                }
-                while (firstLi == null);
+                browser.WaitFor(
+                    () =>
+                        browser.First("ul").FindElements("li").FirstOrDefault(t => !existingFiles.Contains(t.GetText())) !=
+                        null, 60000, "File was not uploaded correctly.");
 
                 // delete the file
+                var firstLi =
+                    browser.First("ul").FindElements("li").FirstOrDefault(t => !existingFiles.Contains(t.GetText()));
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_FileUpload + "?delete=" + firstLi.GetText());
 
                 // delete the temp file
@@ -64,7 +64,6 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         // TODO: RenderSettings.Mode="Server"
-        // TODO: FileUpload in Repeater
         // TODO: FileUpload with UploadCompleted command
 
 
