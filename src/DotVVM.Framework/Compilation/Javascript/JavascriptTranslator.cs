@@ -276,7 +276,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     if (r2 != null) return r2;
                 }
             }
-			if (method.DeclaringType.IsArray)
+			if (method.DeclaringType == typeof(Array))
 			{
 				var m2 = typeof(Array).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 				if (m2 != null)
