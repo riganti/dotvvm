@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Controls
 
             // return the script
             var condition = options.IsOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
-            var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};": "";
+            var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};" : "";
 
             // call the function returned from binding js with runtime arguments
             var postBackCall = $"{expression.GetCommandJavascript()}({String.Join(", ", arguments)})";
@@ -211,6 +211,14 @@ namespace DotVVM.Framework.Controls
             validationExpression = string.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
 
             return validationExpression;
+        }
+
+        /// <summary>
+        /// Add knockout data bind comment dotvvm_withControlProperties with the specified properties
+        /// </summary>
+        public static void AddCommentAliasBinding(IHtmlWriter writer, IDictionary<string, string> properties)
+        {
+            writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", "{" + string.Join(", ", properties.Select(p => JsonConvert.ToString(p.Key) + ":" + properties.Values)) + "}");
         }
 
         /// <summary>

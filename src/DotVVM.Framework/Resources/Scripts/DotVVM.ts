@@ -688,27 +688,31 @@ class DotVVM {
     }
 
     private addKnockoutBindingHandlers() {
-        ko.virtualElements.allowedBindings["withControlProperties"] = true;
-        ko.bindingHandlers["withControlProperties"] = {
+        function createWrapperComputed(accessor: () => any, propertyDebugInfo: string = null) {
+            return ko.pureComputed({
+                read() {
+                    var property = accessor();
+                    var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
+                    return propertyValue;
+                },
+                write(value) {
+                    var val = accessor();
+                    if (ko.isObservable(val)) {
+                        val(value);
+                    }
+                    else {
+                        console.warn(`Attempted to write to readonly property` + (propertyDebugInfo == null ? `` : ` ` + propertyDebugInfo) + `.`);
+                    }
+                }
+            });
+        }
+
+        ko.virtualElements.allowedBindings["dotvvm_withControlProperties"] = true;
+        ko.bindingHandlers["dotvvm_withControlProperties"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
                 var value = valueAccessor();
                 for (var prop in value) {
-                    value[prop] = ko.pureComputed({
-                        read() {
-                            var property = valueAccessor()[this.prop];
-                            var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
-                            return propertyValue;
-                        },
-                        write(value) {
-                            var val = valueAccessor()[this.prop];
-                            if (ko.isObservable(val)) {
-                                val(value);
-                            }
-                            else {
-                                console.warn(`Attempted to write to readonly property '${this.prop}' at '${valueAccessor.toString()}'`);
-                            }
-                        }
-                    }, { prop: prop });
+                    value[prop] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), `'${prop}' at '${valueAccessor.toString()}'`);
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -718,6 +722,26 @@ class DotVVM {
             update(element, valueAccessor, allBindings, viewModel, bindingContext) {
             }
         };
+
+        ko.virtualElements.allowedBindings["dotvvm_introduceAlias"] = true;
+        ko.bindingHandlers["dotvvm_introduceAlias"] = {
+            init(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var value = valueAccessor();
+                var extendBy = {};
+                for (var prop in value) {
+                    var propPath = prop.split('.');
+                    var obj = extendBy;
+                    for (var i = 0; i < propPath.length - 1; i) {
+                        obj = extendBy[propPath[i]] || (extendBy[propPath[i]] = {});
+                    }
+                    obj[propPath[propPath.length - 1]] = createWrapperComputed(function () { return valueAccessor()[this.prop] }.bind({ prop: prop }), `'${prop}' at '${valueAccessor.toString()}'`);
+                }
+                var innerBindingContext = bindingContext.extend(extendBy);
+                element.innerBindingContext = innerBindingContext;
+                ko.applyBindingsToDescendants(innerBindingContext, element);
+                return { controlsDescendantBindings: true }; // do not apply binding again
+            }
+        }
 
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {

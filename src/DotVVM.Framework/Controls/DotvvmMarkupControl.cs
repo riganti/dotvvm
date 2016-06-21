@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Controls
                 .Where(p => p.IsSerializable)
                 .Select(p => JsonConvert.SerializeObject(p.Property.Name) + ": " + p.Js);
 
-            writer.WriteKnockoutDataBindComment("withControlProperties", "{ " + string.Join(", ", properties) + " }");
+            writer.WriteKnockoutDataBindComment("dotvvm_withControlProperties", "{ " + string.Join(", ", properties) + " }");
             base.RenderContents(writer, context);
             writer.WriteKnockoutDataBindEndComment();
         }
