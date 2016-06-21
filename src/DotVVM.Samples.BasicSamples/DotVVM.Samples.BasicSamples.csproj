@@ -125,6 +125,8 @@
     <Compile Include="Startup.cs" />
     <Compile Include="SwitchMiddleware.cs" />
     <Compile Include="SwitchMiddlewareCase.cs" />
+    <Compile Include="TestNamespace2\TestClass2.cs" />
+    <Compile Include="TestNamespace1\TestClass1.cs" />
     <Compile Include="ViewModels\ComplexSamples\Auth\LoginViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\CascadeSelectors\CascadeSelectorsViewModel.cs" />
@@ -185,6 +187,7 @@
     <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\BindingNamespaces\BindingUsingNamespaceViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingPageInfo\BindingPageInfoViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
@@ -408,6 +411,7 @@
     <Content Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\SpaMaster.dotmaster" />
     <Content Include="Views\ControlSamples\Literal\Literal_CollectionLength.dothtml" />
     <Content Include="Views\ControlSamples\Literal\Literal_ArrayLength.dothtml" />
+    <Content Include="Views\FeatureSamples\BindingNamespaces\BindingUsingNamespace.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

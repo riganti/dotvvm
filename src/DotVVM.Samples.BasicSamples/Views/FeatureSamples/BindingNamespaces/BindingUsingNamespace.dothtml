@@ -1,0 +1,35 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingNamespaces.BindingUsingNamespaceViewModel, DotVVM.Samples.BasicSamples
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div>
+        <table>
+            <tr>
+                <td>ViewModel namespace implicitly loaded</td>
+                <td>{{resource: BindingUsingNamespaceViewModel.Property}}</td>
+            </tr>
+            <tr>
+                <td>Fully qualified name</td>
+                <td>{{resource: DotVVM.Samples.BasicSamples.TestNamespace1.TestClass1.Property}}</td>
+            </tr>
+            <tr>
+                <td>Explicitly imported alias in DotvvmConfiguration</td>
+                <td>{{resource: TestNamespaceAlias.TestClass1.Property}}</td>
+            </tr>
+            <tr>
+                <td>Explicitly imported in DotvvmConfiguration</td>
+                <td>{{resource: TestClass2.Property}}</td>
+            </tr>
+        </table>
+        
+    </div>
+</body>
+</html>
+
+

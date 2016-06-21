@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -37,7 +38,7 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets list of namespaces imported in bindings
         /// </summary>
         [JsonProperty("importedNamespaces")]
-        public List<string> ImportedNamespaces { get; set; } = new List<string>();
+        public List<NamespaceImport> ImportedNamespaces { get; set; } = new List<NamespaceImport>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.
