@@ -191,6 +191,8 @@
     <Compile Include="Binding\BindingCompilationTests.cs" />
     <Compile Include="Binding\CommandResolverTests.cs" />
     <Compile Include="Binding\JavascriptCompilationTests.cs" />
+    <Compile Include="Binding\TestNamespace1\TestClass1.cs" />
+    <Compile Include="Binding\TestNamespace2\TestClass2.cs" />
     <Compile Include="Parser\Binding\BindingParserTests.cs" />
     <Compile Include="Parser\Binding\BindingTokenizerTests.cs" />
     <Compile Include="Parser\Dothtml\DothtmlParserTests.cs" />

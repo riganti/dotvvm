@@ -36,6 +36,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
 
             return base.PreRender();
         }
+
+        public bool Enabled { get; set; } = true;
     }
 
     public class Data

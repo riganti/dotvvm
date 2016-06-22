@@ -14,11 +14,13 @@
 			</ItemTemplate>
 		</dot:Repeater>
 
-		<dot:DataPager DataSet="{value: Data}" HideWhenOnlyOnePage="false" ID="pager1" class="pagination" />
-		<dot:DataPager DataSet="{value: Data}" HideWhenOnlyOnePage="true" ID="pager2" class="pagination" />
-        <dot:DataPager DataSet="{value: Data}" HideWhenOnlyOnePage="false" RenderLinkForCurrentPage="true" ID="pager3" class="pagination" />
+		<dot:DataPager DataSet="{value: Data}" HideWhenOnlyOnePage="false" ID="pager1" class="pagination" Enabled="{value: Enabled}" />
+		<dot:DataPager DataSet="{value: Data}" HideWhenOnlyOnePage="true" ID="pager2" class="pagination" Enabled="{value: Enabled}" />
+        <dot:DataPager DataSet="{value: Data}" HideWhenOnlyOnePage="false" RenderLinkForCurrentPage="true" ID="pager3" class="pagination" Enabled="{value: Enabled}" />
 
 		<dot:Button Text="Populate with data" Click="{command: Populate()}" />
+
+        <dot:CheckBox Text="DataPager enabled" Checked="{value: Enabled}" />
 	</div>
 </body>
 </html>

@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.Binding
     [TestClass]
     public class BindingCompilationTests
     {
-        public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control)
+        public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null)
         {
             var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object));
             context.RootControlType = control?.GetType() ?? typeof(DotvvmControl);
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
                 context = new DataContextStack(contexts[i].GetType(), context);
             }
             var parser = new BindingExpressionBuilder();
-            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: new[] { "DotVVM.Framework.Tests.Binding" }));
+            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") }.Concat(imports ?? Enumerable.Empty<NamespaceImport>()).ToArray()));
             return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, typeof(object)).Compile()(contexts, control);
         }
 
@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(viewModel.StringProp, "hulabula13");
         }
 
-        class MoqComponent: DotvvmBindableObject
+        class MoqComponent : DotvvmBindableObject
         {
             public object Property
             {
@@ -210,6 +210,29 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual("42", vm.TestViewModel2.SomeString);
         }
 
+
+        [TestMethod]
+        public void BindingCompiler_Valid_NamespaceAlias()
+        {
+            var result = ExecuteBinding("Alias.TestClass2.Property", new object[0], null, new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2", "Alias") });
+            Assert.AreEqual(TestNamespace2.TestClass2.Property, result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_MultipleNamespaceAliases()
+        {
+            var result = ExecuteBinding("Alias.TestClass1.Property", new object[0], null, new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2", "Alias"), new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace1", "Alias") });
+            Assert.AreEqual(TestNamespace1.TestClass1.Property, result);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_Valid_NamespaceImportAndAlias()
+        {
+            var result = ExecuteBinding("TestClass2.Property + Alias.TestClass1.Property", new object[0], null, new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2"), new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace1", "Alias") });
+            Assert.AreEqual(TestNamespace2.TestClass2.Property + TestNamespace1.TestClass1.Property, result);
+        }
+
+
         class TestViewModel
         {
             public string StringProp { get; set; }
@@ -248,7 +271,7 @@ namespace DotVVM.Framework.Tests.Binding
                 return false;
             }
         }
-        
+
         class TestViewModel2
         {
             public int MyProperty { get; set; }

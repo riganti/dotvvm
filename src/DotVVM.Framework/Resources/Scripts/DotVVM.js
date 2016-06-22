@@ -1,8 +1,3 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
 var DotvvmDomUtils = (function () {
     function DotvvmDomUtils() {
     }
@@ -21,6 +16,11 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 }());
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var DotvvmEvents = (function () {
     function DotvvmEvents() {
         this.init = new DotvvmEvent("dotvvm.events.init", true);
@@ -773,27 +773,31 @@ var DotVVM = (function () {
         return false;
     };
     DotVVM.prototype.addKnockoutBindingHandlers = function () {
-        ko.virtualElements.allowedBindings["withControlProperties"] = true;
-        ko.bindingHandlers["withControlProperties"] = {
+        function createWrapperComputed(accessor, propertyDebugInfo) {
+            if (propertyDebugInfo === void 0) { propertyDebugInfo = null; }
+            return ko.pureComputed({
+                read: function () {
+                    var property = accessor();
+                    var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
+                    return propertyValue;
+                },
+                write: function (value) {
+                    var val = accessor();
+                    if (ko.isObservable(val)) {
+                        val(value);
+                    }
+                    else {
+                        console.warn("Attempted to write to readonly property" + (propertyDebugInfo == null ? "" : " " + propertyDebugInfo) + ".");
+                    }
+                }
+            });
+        }
+        ko.virtualElements.allowedBindings["dotvvm_withControlProperties"] = true;
+        ko.bindingHandlers["dotvvm_withControlProperties"] = {
             init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
                 var value = valueAccessor();
                 for (var prop in value) {
-                    value[prop] = ko.pureComputed({
-                        read: function () {
-                            var property = valueAccessor()[this.prop];
-                            var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
-                            return propertyValue;
-                        },
-                        write: function (value) {
-                            var val = valueAccessor()[this.prop];
-                            if (ko.isObservable(val)) {
-                                val(value);
-                            }
-                            else {
-                                console.warn("Attempted to write to readonly property '" + this.prop + "' at '" + valueAccessor.toString() + "'");
-                            }
-                        }
-                    }, { prop: prop });
+                    value[prop] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), "'" + prop + "' at '" + valueAccessor.toString() + "'");
                 }
                 var innerBindingContext = bindingContext.extend({ $control: value });
                 element.innerBindingContext = innerBindingContext;
@@ -801,6 +805,25 @@ var DotVVM = (function () {
                 return { controlsDescendantBindings: true }; // do not apply binding again
             },
             update: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+            }
+        };
+        ko.virtualElements.allowedBindings["dotvvm_introduceAlias"] = true;
+        ko.bindingHandlers["dotvvm_introduceAlias"] = {
+            init: function (element, valueAccessor, allBindings, viewModel, bindingContext) {
+                var value = valueAccessor();
+                var extendBy = {};
+                for (var prop in value) {
+                    var propPath = prop.split('.');
+                    var obj = extendBy;
+                    for (var i = 0; i < propPath.length - 1; i) {
+                        obj = extendBy[propPath[i]] || (extendBy[propPath[i]] = {});
+                    }
+                    obj[propPath[propPath.length - 1]] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), "'" + prop + "' at '" + valueAccessor.toString() + "'");
+                }
+                var innerBindingContext = bindingContext.extend(extendBy);
+                element.innerBindingContext = innerBindingContext;
+                ko.applyBindingsToDescendants(innerBindingContext, element);
+                return { controlsDescendantBindings: true }; // do not apply binding again
             }
         };
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
@@ -961,17 +984,27 @@ var DotvvmFileUpload = (function () {
     function DotvvmFileUpload() {
     }
     DotvvmFileUpload.prototype.showUploadDialog = function (sender) {
-        var uploadId = "DotVVM_upl" + new Date().getTime().toString();
-        sender.parentElement.parentElement.dataset["dotvvmUploadId"] = uploadId;
-        var iframe = sender.parentElement.previousSibling;
-        iframe.dataset["dotvvmUploadId"] = uploadId;
         // trigger the file upload dialog
+        var iframe = this.getIframe(sender);
+        this.createUploadId(sender, iframe);
+        this.openUploadDialog(iframe);
+    };
+    DotvvmFileUpload.prototype.getIframe = function (sender) {
+        return sender.parentElement.previousSibling;
+    };
+    DotvvmFileUpload.prototype.openUploadDialog = function (iframe) {
         var fileUpload = iframe.contentWindow.document.getElementById('upload');
         fileUpload.click();
     };
+    DotvvmFileUpload.prototype.createUploadId = function (sender, iframe) {
+        iframe = iframe || this.getIframe(sender);
+        var uploadId = "DotVVM_upl" + new Date().getTime().toString();
+        sender.parentElement.parentElement.setAttribute("data-dotvvm-upload-id", uploadId);
+        iframe.setAttribute("data-dotvvm-upload-id", uploadId);
+    };
     DotvvmFileUpload.prototype.reportProgress = function (targetControlId, isBusy, progress, result) {
         // find target control viewmodel
-        var targetControl = document.querySelector("div[data-dotvvm-upload-id='" + targetControlId + "']");
+        var targetControl = document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
         var viewModel = ko.dataFor(targetControl.firstChild);
         // determine the status
         if (typeof result === "string") {
@@ -985,8 +1018,8 @@ var DotvvmFileUpload = (function () {
                 viewModel.Files.push(dotvvm.serialization.wrapObservable(dotvvm.serialization.deserialize(result[i])));
             }
             // call the handler
-            if (targetControl.dataset["uploadCompleted"]) {
-                new Function(targetControl.dataset["uploadCompleted"]).call(targetControl);
+            if ((targetControl.attributes["data-dotvvm-upload-completed"] || { value: null }).value) {
+                new Function(targetControl.attributes["data-dotvvm-upload-completed"].value).call(targetControl);
             }
         }
         viewModel.Progress(progress);

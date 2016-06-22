@@ -227,6 +227,7 @@
     <Compile Include="Compilation\Javascript\JavascriptTranslator.cs" />
     <Compile Include="Compilation\Javascript\StringJsMethodCompiler.cs" />
     <Compile Include="Compilation\LoadControlBuilderAttribute.cs" />
+    <Compile Include="Compilation\NamespaceImport.cs" />
     <Compile Include="Compilation\Parser\AggregateList.cs" />
     <Compile Include="Compilation\Parser\BeginWithLastTokenOfTypeTokenError.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\ArrayAccessBindingParserNode.cs" />

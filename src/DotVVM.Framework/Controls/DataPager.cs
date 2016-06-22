@@ -113,14 +113,21 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty HideWhenOnlyOnePageProperty
             = DotvvmProperty.Register<bool, DataPager>(c => c.HideWhenOnlyOnePage, true);
-        
+
+        public bool Enabled
+        {
+            get { return (bool)GetValue(EnabledProperty); }
+            set { SetValue(EnabledProperty, value); }
+        }
+        public static readonly DotvvmProperty EnabledProperty
+            = DotvvmProperty.Register<bool, DataPager>(c => c.Enabled, true);
 
 
 
         private HtmlGenericControl content;
         private HtmlGenericControl firstLi;
         private HtmlGenericControl previousLi;
-        private PlaceHolder numbersPlaceHolder; 
+        private PlaceHolder numbersPlaceHolder;
         private HtmlGenericControl nextLi;
         private HtmlGenericControl lastLi;
 
@@ -153,11 +160,14 @@ namespace DotVVM.Framework.Controls
             var dataSet = DataSet;
             if (dataSet != null)
             {
+                object enabledValue = HasBinding(EnabledProperty) ? (object)new ValueBindingExpression(h => GetValueBinding(EnabledProperty).Evaluate(this, EnabledProperty), "$pagerEnabled") : Enabled;
+
                 // first button
                 firstLi = new HtmlGenericControl("li");
                 var firstLink = new LinkButton();
                 SetButtonContent(context, firstLink, "««", FirstPageTemplate);
                 firstLink.SetBinding(ButtonBase.ClickProperty, GoToFirstPageCommand);
+                if (!true.Equals(enabledValue)) firstLink.SetValue(LinkButton.EnabledProperty, enabledValue);
                 firstLi.Children.Add(firstLink);
                 content.Children.Add(firstLi);
 
@@ -166,6 +176,7 @@ namespace DotVVM.Framework.Controls
                 var previousLink = new LinkButton();
                 SetButtonContent(context, previousLink, "«", PreviousPageTemplate);
                 previousLink.SetBinding(ButtonBase.ClickProperty, GoToPrevPageCommand);
+                if (!true.Equals(enabledValue)) previousLink.SetValue(LinkButton.EnabledProperty, enabledValue);
                 previousLi.Children.Add(previousLink);
                 content.Children.Add(previousLi);
 
@@ -184,6 +195,7 @@ namespace DotVVM.Framework.Controls
                     }
                     var link = new LinkButton() { Text = (number + 1).ToString() };
                     link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
+                    if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
                     li.Children.Add(link);
                     numbersPlaceHolder.Children.Add(li);
 
@@ -195,6 +207,7 @@ namespace DotVVM.Framework.Controls
                 var nextLink = new LinkButton();
                 SetButtonContent(context, nextLink, "»", NextPageTemplate);
                 nextLink.SetBinding(ButtonBase.ClickProperty, GoToNextPageCommand);
+                if (!true.Equals(enabledValue)) nextLink.SetValue(LinkButton.EnabledProperty, enabledValue);
                 nextLi.Children.Add(nextLink);
                 content.Children.Add(nextLi);
 
@@ -202,6 +215,7 @@ namespace DotVVM.Framework.Controls
                 lastLi = new HtmlGenericControl("li");
                 var lastLink = new LinkButton();
                 SetButtonContent(context, lastLink, "»»", LastPageTemplate);
+                if (!true.Equals(enabledValue)) lastLink.SetValue(LinkButton.EnabledProperty, enabledValue);
                 lastLink.SetBinding(ButtonBase.ClickProperty, GoToLastPageCommand);
                 lastLi.Children.Add(lastLink);
                 content.Children.Add(lastLi);
@@ -239,6 +253,9 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
+            if (HasBinding(EnabledProperty))
+                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression() }}}");
+
             if (HideWhenOnlyOnePage)
             {
                 writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").PagesCount() > 1");
@@ -255,7 +272,7 @@ namespace DotVVM.Framework.Controls
 
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsFirstPage() }");
             previousLi.Render(writer, context);
-            
+
             // render template
             writer.WriteKnockoutForeachComment("NearPageIndexes");
 
@@ -265,11 +282,11 @@ namespace DotVVM.Framework.Controls
             if (!RenderLinkForCurrentPage)
             {
                 writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
-                writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
+                writer.AddKnockoutDataBind("css", "{'active': $data == $parent.PageIndex()}");
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
-                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
+                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => ((int)vm[0] + 1).ToString(), "$data + 1"));
                 li.Children.Add(literal);
                 numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
@@ -281,13 +298,13 @@ namespace DotVVM.Framework.Controls
             li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
-            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => ((int) vm[0] + 1).ToString(), "$data + 1"));
+            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => ((int)vm[0] + 1).ToString(), "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
             numbersPlaceHolder.Children.Add(li);
             li.Render(writer, context);
 
             writer.WriteKnockoutDataBindEndComment();
-            
+
             writer.AddKnockoutDataBind("css", "{ 'disabled': IsLastPage() }");
             nextLi.Render(writer, context);
 
@@ -299,8 +316,8 @@ namespace DotVVM.Framework.Controls
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderEndTag();
+            if (HasBinding(EnabledProperty)) writer.WriteKnockoutDataBindEndComment();
         }
-
 
         private IValueBinding GetDataSetBinding()
         {
