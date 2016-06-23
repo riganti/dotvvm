@@ -51,4 +51,8 @@ describe("Globalize.js custom number format", () => {
     it("Decimal Number 8 thousands separator", () => {
         expect(Globalize.format(123456789.98765, "#,###.0##", "en-US")).toBe("123,456,789.988");
     });
+
+    it("Decimal Number 9 negative number", () => {
+        expect(Globalize.format(-123456789.98765, "#,##0.0##", "en-US")).toBe("-123,456,789.988");
+    });
 });

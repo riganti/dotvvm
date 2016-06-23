@@ -7,6 +7,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox
 
         public DateTime DateValue { get; set; } = DateTime.Parse("2015-12-27T00:00:00.0000000");
         public double NumberValue { get; set; } = 123.123456789;
+        public double BigNumberValue { get; set; } = 12356789.987654;
         public string CurrentCulture => Context.GetCurrentUICulture().Name;
         public string DateResult1 => $"{DateValue:d}";
         public string DateResult2 => $"{DateTime.Parse("2018-12-27T00:00:00.0000000"):d}";

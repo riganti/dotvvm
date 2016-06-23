@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.TextBoxFormatViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.TextBoxFormatViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 <html lang="en" xmlns="http://www.w3.org/1999/xhtml">
@@ -20,6 +20,17 @@
         Number: <br>
         <dot:textbox iD="numberTextbox" ClientIDMode="Static" Text="{value: NumberValue }" style="height: 20px; width: 200px;" FormatString="N4" />
         <dot:Literal ID="numberValueText" ClientIDMode="Static" Text="{value: NumberValue }" ValueType="Number"></dot:Literal>
+    </p>
+    <p ID="customNumberformat">
+        Custom Numeric Format: <br>
+        <dot:textbox iD="customFormatTextbox" ClientIDMode="Static" Text="{value: NumberValue }" style="height: 20px; width: 200px;" FormatString="#0.00" />
+        <dot:Literal ID="numberValueText" ClientIDMode="Static" Text="{value: NumberValue}" ValueType="Text" />
+        <dot:Literal ID="customFormatText" ClientIDMode="Static" Text="(Format: #0.00)" ValueType="Text" /> 
+        <br />
+        <br />
+        <dot:textbox iD="customFormatTextbox2" ClientIDMode="Static" Text="{value: BigNumberValue}" style="height: 20px; width: 200px;" FormatString="#,##0.0##" />
+        <dot:Literal ID="numberValueText" ClientIDMode="Static" Text="{value: BigNumberValue}" ValueType="Text" />
+        <dot:Literal ID="customFormatText2" ClientIDMode="Static" Text="(Format: #,##0.0##)" ValueType="Text" /> 
     </p>
     <div>
         <h3>Switch language</h3>
