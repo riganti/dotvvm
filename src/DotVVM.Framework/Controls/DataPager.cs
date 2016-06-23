@@ -179,7 +179,7 @@ namespace DotVVM.Framework.Controls
                 if (!true.Equals(enabledValue)) previousLink.SetValue(LinkButton.EnabledProperty, enabledValue);
                 previousLi.Children.Add(previousLink);
                 content.Children.Add(previousLi);
-
+                
                 // number fields
                 numbersPlaceHolder = new PlaceHolder();
                 content.Children.Add(numbersPlaceHolder);
@@ -201,7 +201,7 @@ namespace DotVVM.Framework.Controls
 
                     i++;
                 }
-
+                
                 // next button
                 nextLi = new HtmlGenericControl("li");
                 var nextLink = new LinkButton();
@@ -275,7 +275,7 @@ namespace DotVVM.Framework.Controls
 
             // render template
             writer.WriteKnockoutForeachComment("NearPageIndexes");
-
+        
             // render page number
             numbersPlaceHolder.Children.Clear();
             HtmlGenericControl li;
@@ -300,6 +300,8 @@ namespace DotVVM.Framework.Controls
             li.Children.Add(link);
             link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => ((int)vm[0] + 1).ToString(), "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
+            object enabledValue = HasBinding(EnabledProperty) ? (object)new ValueBindingExpression(h => GetValueBinding(EnabledProperty).Evaluate(this, EnabledProperty), "$pagerEnabled") : Enabled;
+            if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
             numbersPlaceHolder.Children.Add(li);
             li.Render(writer, context);
 
