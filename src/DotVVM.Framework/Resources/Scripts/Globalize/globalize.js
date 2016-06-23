@@ -755,100 +755,180 @@ formatDate = function (value, format, culture) {
 		return numberString.slice( 0, stringIndex + 1 ) + sep + ret + right;
 	};
 
-	formatNumber = function( value, format, culture ) {
-		if ( !isFinite(value) ) {
-			if ( value === Infinity ) {
-				return culture.numberFormat.positiveInfinity;
-			}
-			if ( value === -Infinity ) {
-				return culture.numberFormat.negativeInfinity;
-			}
-			return culture.numberFormat.NaN;
-		}
-		if ( !format || format === "i" ) {
-			return culture.name.length ? value.toLocaleString() : value.toString();
-		}
-		format = format || "D";
+	formatNumber = function (value, format, culture) {
+	    if (!isFinite(value)) {
+	        if (value === Infinity) {
+	            return culture.numberFormat.positiveInfinity;
+	        }
+	        if (value === -Infinity) {
+	            return culture.numberFormat.negativeInfinity;
+	        }
+	        return culture.numberFormat.NaN;
+	    }
+	    if (!format || format === "i") {
+	        return culture.name.length ? value.toLocaleString() : value.toString();
+	    }
+	    format = format || "D";
 
-		var nf = culture.numberFormat,
-			number = Math.abs( value ),
-			precision = -1,
-			pattern;
-		if ( format.length > 1 ) precision = parseInt( format.slice(1), 10 );
+	    var nf = culture.numberFormat,
+            number = Math.abs(value),
+            precision = -1,
+            pattern;
+	    if (format.length > 1) precision = parseInt(format.slice(1), 10);
 
-		var current = format.charAt( 0 ).toUpperCase(),
-			formatInfo,
-		    overrideGroupSizes;
+	    var current = format.charAt(0).toUpperCase();
 
-		switch ( current ) {
-			case "D":
-				pattern = "n";
-				number = truncate( number );
-				if ( precision !== -1 ) {
-					number = zeroPad( "" + number, precision, true );
-				}
-				if ( value < 0 ) number = "-" + number;
-				break;
-		    case "G":
-		        overrideGroupSizes = [0];
-		        var numberAsString = number.toString();
-                if (numberAsString.indexOf(".") >= 0) {
-                    precision = numberAsString.length - numberAsString.indexOf(".") - 1;
-                } else {
-                    precision = 0;
-                }
-                // fall through
-			case "N":
-				formatInfo = nf;
-				// fall through
-			case "C":
-				formatInfo = formatInfo || nf.currency;
-			    // fall through
-			case "P":
-				formatInfo = formatInfo || nf.percent;
-				pattern = value < 0 ? formatInfo.pattern[ 0 ] : ( formatInfo.pattern[1] || "n" );
-				if ( precision === -1 ) precision = formatInfo.decimals;
-				number = expandNumber(number * (current === "P" ? 100 : 1), precision, formatInfo, overrideGroupSizes);
-				break;
-			default:
-				throw "Bad number format specifier: " + current;
-		}
+	    var numFormats = "DGNCP";
 
-		var patternParts = /n|\$|-|%/g,
-			ret = "";
-		for ( ; ; ) {
-			var index = patternParts.lastIndex,
-				ar = patternParts.exec( pattern );
+	    if (numFormats.indexOf(current) > -1) {
+	        var formatInfo,
+            overrideGroupSizes;
 
-			ret += pattern.slice( index, ar ? ar.index : pattern.length );
+	        switch (current) {
+	            case "D":
+	                pattern = "n";
+	                number = truncate(number);
+	                if (precision !== -1) {
+	                    number = zeroPad("" + number, precision, true);
+	                }
+	                if (value < 0) number = "-" + number;
+	                break;
+	            case "G":
+	                overrideGroupSizes = [0];
+	                var numberAsString = number.toString();
+	                if (numberAsString.indexOf(".") >= 0) {
+	                    precision = numberAsString.length - numberAsString.indexOf(".") - 1;
+	                } else {
+	                    precision = 0;
+	                }
+	                // fall through
+	            case "N":
+	                formatInfo = nf;
+	                // fall through
+	            case "C":
+	                formatInfo = formatInfo || nf.currency;
+	                // fall through
+	            case "P":
+	                formatInfo = formatInfo || nf.percent;
+	                pattern = value < 0 ? formatInfo.pattern[0] : (formatInfo.pattern[1] || "n");
+	                if (precision === -1) precision = formatInfo.decimals;
+	                number = expandNumber(number * (current === "P" ? 100 : 1), precision, formatInfo, overrideGroupSizes);
+	                break;
+	            default:
+	                throw "Bad number format specifier: " + current;
+	        }
 
-			if ( !ar ) {
-				break;
-			}
+	        var patternParts = /n|\$|-|%/g,
+                ret = "";
+	        for (; ;) {
+	            var index = patternParts.lastIndex,
+                    ar = patternParts.exec(pattern);
 
-			switch ( ar[0] ) {
-				case "n":
-					ret += number;
-					break;
-				case "$":
-					ret += nf.currency.symbol;
-					break;
-				case "-":
-					// don't make 0 negative
-					if ( /[1-9]/.test(number) ) {
-						ret += nf[ "-" ];
-					}
-					break;
-				case "%":
-					ret += nf.percent.symbol;
-					break;
-			}
-		}
+	            ret += pattern.slice(index, ar ? ar.index : pattern.length);
 
-		return ret;
+	            if (!ar) {
+	                break;
+	            }
+
+	            switch (ar[0]) {
+	                case "n":
+	                    ret += number;
+	                    break;
+	                case "$":
+	                    ret += nf.currency.symbol;
+	                    break;
+	                case "-":
+	                    // don't make 0 negative
+	                    if (/[1-9]/.test(number)) {
+	                        ret += nf["-"];
+	                    }
+	                    break;
+	                case "%":
+	                    ret += nf.percent.symbol;
+	                    break;
+	            }
+	        }
+
+	        return ret;
+	    }
+	    else if (format.match(/^[0#.,]+$/g) != null && format.match(/^[0#.,]+$/g).length > 0) //.NET custom numeric format 
+	    {
+	        return formatCustomNumber(value, format, culture.numberFormat);
+	    }
+	    else
+	        throw "Bad number format: " + format;
 	};
-
 }());
+
+formatCustomNumber = function (value, format, formatInfo) {
+
+    if (!format || isNaN(+value)) {
+        return value; //return as it is.
+    }
+
+    // .NET decimal and group specifiers
+    var decimal = '.';
+    var group = ',';
+
+    //convert any string to number according to formation sign.
+    var value = format.charAt(0) == '-' ? -value : +value;
+    var isNegative = value < 0 ? value = -value : 0; //process only abs(), and turn on flag.
+
+    //split the decimal for the format string if any.
+    var format = format.split(decimal);
+    //Fix the decimal first, toFixed will auto fill trailing zero.
+    value = toFixed(value, format[1] && format[1].length);
+    value = +(value) + ''; //convert number to string to trim off *all* trailing decimal zero(es)
+
+    //fill back any trailing zero according to format
+    var posTrailZero = format[1] && format[1].lastIndexOf('0'); //look for last zero in format
+    var part = value.split(decimal);
+
+    //integer will get !part[1]
+    if (!part[1] || part[1] && part[1].length <= posTrailZero) {
+        value = (+value).toFixed(posTrailZero + 1);
+    }
+    var szSep = format[0].split(group); //look for separator
+    format[0] = szSep.join(''); //join back without separator for counting the pos of any leading 0.
+
+    var posLeadZero = format[0] && format[0].indexOf('0');
+    if (posLeadZero > -1) {
+        while (part[0].length < (format[0].length - posLeadZero)) {
+            part[0] = '0' + part[0];
+        }
+    }
+    else if (+part[0] == 0) {
+        part[0] = '';
+    }
+
+    value = value.split(decimal);
+    value[0] = part[0];
+
+    //process the first group separator from decimal (.) only, the rest ignore.
+    //get the length of the last slice of split result.
+    var posSeparator = (szSep[1] && szSep[szSep.length - 1].length);
+    if (posSeparator) {
+        var integer = value[0];
+        var str = '';
+        var offset = integer.length % posSeparator;
+        for (var i = 0, l = integer.length; i < l; i++) {
+
+            str += integer.charAt(i); //ie6 only support charAt for sz.
+            //-pos_separator so that won't trail separator on full length
+            if (!((i - offset + 1) % posSeparator) && i < l - posSeparator) {
+                str += formatInfo[","];
+            }
+        }
+        value[0] = str;
+    }
+
+    value[1] = (format[1] && value[1]) ? formatInfo["."] + value[1] : "";
+    return (isNegative ? '-' : '') + value[0] + value[1]; //put back any negation and combine integer and fraction.
+};
+
+toFixed = function (num, precision) {
+    return (+(Math.round(+(num + 'e' + precision)) + 'e' + -precision)).toFixed(precision);
+}
 
 getTokenRegExp = function() {
 	// regular expression for matching date and time tokens in format strings.
