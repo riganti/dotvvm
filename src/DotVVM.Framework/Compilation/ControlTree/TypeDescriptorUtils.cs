@@ -1,4 +1,5 @@
 using System;
+using DotVVM.Core;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 

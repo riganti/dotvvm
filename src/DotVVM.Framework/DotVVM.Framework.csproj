@@ -333,9 +333,7 @@
     <Compile Include="Controls\HtmlLiteral.cs" />
     <Compile Include="Controls\IDotvvmControl.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
-    <Compile Include="Controls\GridViewDataSet.cs" />
     <Compile Include="Controls\IfAuthorized.cs" />
-    <Compile Include="Controls\IGridViewDataSet.cs" />
     <Compile Include="Controls\IHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\Infrastructure\RawLiteral.cs" />
     <Compile Include="Controls\KnockoutBindingGroup.cs" />
@@ -627,7 +625,12 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.0.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj">
+      <Project>{45fa2f43-d92b-4a9b-9b93-9ab519ad0127}</Project>
+      <Name>DotVVM.Core</Name>
+    </ProjectReference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <TypeScriptTarget>ES5</TypeScriptTarget>

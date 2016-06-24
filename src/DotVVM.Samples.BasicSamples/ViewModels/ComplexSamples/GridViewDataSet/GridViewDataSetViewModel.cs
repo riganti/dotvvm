@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Controls;
+﻿using DotVVM.Core;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 using System.Collections.Generic;
 using System.Linq;

@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace DotVVM.Framework.Controls
+namespace DotVVM.Core
 {
     public interface IGridViewDataSet
     {

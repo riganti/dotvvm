@@ -1,6 +1,7 @@
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
+using DotVVM.Core;
 using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls

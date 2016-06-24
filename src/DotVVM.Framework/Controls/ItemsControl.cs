@@ -3,6 +3,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Core;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Javascript;
 

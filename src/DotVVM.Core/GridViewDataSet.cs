@@ -3,11 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DotVVM.Framework.Controls
+namespace DotVVM.Core
 {
     public class GridViewDataSet<T> : IGridViewDataSet
     {
