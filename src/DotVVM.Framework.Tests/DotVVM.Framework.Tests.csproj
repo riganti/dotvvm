@@ -215,16 +215,11 @@
     <Compile Include="ViewModel\ChildViewModelInvokeMethodsTests.cs" />
     <Compile Include="ViewModel\JsonDiffTests.cs" />
     <Compile Include="ViewModel\ViewModelValidatorTests.cs" />
-    <Compile Include="VS2015Extension\MetadataControlResolverTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
       <Project>{2865B545-E469-417A-B14F-E2CCDD4B6267}</Project>
       <Name>DotVVM.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DotVVM.VS2015Extension\DotVVM.VS2015Extension.csproj">
-      <Project>{772e47bf-a251-44f7-92c4-157d9f083a6f}</Project>
-      <Name>DotVVM.VS2015Extension</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
