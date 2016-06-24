@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Routing
         }
 
 
-        public IEnumerable<RouteBase> GetRoutes()
+        public virtual IEnumerable<RouteBase> GetRoutes()
         {
             var existingRouteNames = new HashSet<string>(configuration.RouteTable.Select(r => r.RouteName), StringComparer.OrdinalIgnoreCase);
 
