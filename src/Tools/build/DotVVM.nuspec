@@ -15,17 +15,18 @@
         <dependencies>
             <group targetFramework=".NETFramework4.5.1">
                 <dependency id="Microsoft.Owin.StaticFiles" version="3.0.1" />
-		<dependency id="Microsoft.Owin.Security" version="3.0.1" />
+				<dependency id="Microsoft.Owin.Security" version="3.0.1" />
                 <dependency id="Microsoft.Owin.Host.SystemWeb" version="3.0.1" />
                 <dependency id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0" />
                 <dependency id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
                 <dependency id="Newtonsoft.Json" version="8.0.3" />
+                <dependency id="DotVVM.Core" version="1.0.0.12-rc2" />
             </group>
         </dependencies>
     </metadata>
     <files>
-        <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.dll" target="lib\net451\DotVVM.Framework.dll" />
-        <file src="..\..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.xml" target="lib\net451\DotVVM.Framework.xml" />
-        <file src="..\..\..\DotVVM.Compiler\bin\Debug\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />        
+        <file src="..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.dll" target="lib\net451\DotVVM.Framework.dll" />
+        <file src="..\..\DotVVM.Framework\bin\Debug\DotVVM.Framework.xml" target="lib\net451\DotVVM.Framework.xml" />
+        <file src="..\..\DotVVM.Compiler\bin\Debug\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />        
     </files>
 </package>
