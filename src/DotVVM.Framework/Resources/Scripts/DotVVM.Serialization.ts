@@ -23,7 +23,7 @@ class DotvvmSerialization {
 
         // handle arrays
         if (viewModel instanceof Array) {
-            if (ko.isObservable(target) && target.removeAll && target().length === viewModel.length) {
+            if (ko.isObservable(target) && target.removeAll && target() != null && target().length === viewModel.length) {
                 // the array has the same number of items, update it
                 var targetArray = target();
                 for (var i = 0; i < viewModel.length; i++) {
