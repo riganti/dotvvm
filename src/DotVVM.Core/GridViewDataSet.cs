@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 
-namespace DotVVM.Core
+namespace DotVVM.Framework.Controls
 {
     public class GridViewDataSet<T> : IGridViewDataSet
     {

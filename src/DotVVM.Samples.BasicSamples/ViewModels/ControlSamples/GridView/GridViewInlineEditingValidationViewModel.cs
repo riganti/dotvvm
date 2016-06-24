@@ -6,7 +6,6 @@ using DotVVM.Framework.ViewModel;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using System.ComponentModel.DataAnnotations;
-using DotVVM.Core;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 {

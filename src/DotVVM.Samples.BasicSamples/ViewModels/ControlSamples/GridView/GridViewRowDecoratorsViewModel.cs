@@ -1,7 +1,6 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using DotVVM.Core;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 
