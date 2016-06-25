@@ -257,6 +257,11 @@ namespace DotVVM.Framework.Controls
             object value;
             return Properties.TryGetValue(property, out value) && value is IBinding;
         }
+        protected internal bool HasValueBinding(DotvvmProperty property)
+        {
+            object value;
+            return Properties.TryGetValue(property, out value) && value is IValueBinding;
+        }
 
         protected internal bool HasBinding<TBinding>(DotvvmProperty property)
             where TBinding : IBinding

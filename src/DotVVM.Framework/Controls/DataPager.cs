@@ -160,7 +160,7 @@ namespace DotVVM.Framework.Controls
             var dataSet = DataSet;
             if (dataSet != null)
             {
-                object enabledValue = HasBinding(EnabledProperty) ? (object)new ValueBindingExpression(h => GetValueBinding(EnabledProperty).Evaluate(this, EnabledProperty), "$pagerEnabled") : Enabled;
+                object enabledValue = HasValueBinding(EnabledProperty) ? (object)new ValueBindingExpression(h => GetValueBinding(EnabledProperty).Evaluate(this, EnabledProperty), "$pagerEnabled") : Enabled;
 
                 // first button
                 firstLi = new HtmlGenericControl("li");
@@ -253,7 +253,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (HasBinding(EnabledProperty))
+            if (HasValueBinding(EnabledProperty))
                 writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression() }}}");
 
             if (HideWhenOnlyOnePage)
@@ -300,7 +300,7 @@ namespace DotVVM.Framework.Controls
             li.Children.Add(link);
             link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => ((int)vm[0] + 1).ToString(), "$data + 1"));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
-            object enabledValue = HasBinding(EnabledProperty) ? (object)new ValueBindingExpression(h => GetValueBinding(EnabledProperty).Evaluate(this, EnabledProperty), "$pagerEnabled") : Enabled;
+            object enabledValue = HasValueBinding(EnabledProperty) ? (object)new ValueBindingExpression(h => GetValueBinding(EnabledProperty).Evaluate(this, EnabledProperty), "$pagerEnabled") : Enabled;
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
             numbersPlaceHolder.Children.Add(li);
             li.Render(writer, context);
@@ -318,7 +318,7 @@ namespace DotVVM.Framework.Controls
         protected override void RenderEndTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.RenderEndTag();
-            if (HasBinding(EnabledProperty)) writer.WriteKnockoutDataBindEndComment();
+            if (HasValueBinding(EnabledProperty)) writer.WriteKnockoutDataBindEndComment();
         }
 
         private IValueBinding GetDataSetBinding()
