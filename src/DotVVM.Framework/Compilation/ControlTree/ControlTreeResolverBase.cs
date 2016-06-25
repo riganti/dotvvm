@@ -29,6 +29,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.treeBuilder = treeBuilder;
         }
 
+        public static HashSet<string> MultiValueDirectives = new HashSet<string> { ParserConstants.BaseTypeDirective, ParserConstants.MasterPageDirective, ParserConstants.ResourceTypeDirective, ParserConstants.ViewModelDirectiveName };
+
         /// <summary>
         /// Resolves the control tree.
         /// </summary>
@@ -45,13 +47,31 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContextTypeStack = ResolveViewModel(fileName, root, wrapperType);
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack);
 
-            foreach (var directive in root.Directives)
+            dataContextTypeStack.NamespaceImports = new NamespaceImport[0];
+            foreach (var directive in root.Directives.GroupBy(d => d.Name))
             {
-                if (!string.Equals(directive.Name, ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
+                if (!string.Equals(directive.Key, ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
                 {
-                    if (view.Directives.ContainsKey(directive.Name))
-                        directive.AddError($"Directive '{directive.Name}' already exists.");
-                    view.Directives[directive.Name] = directive.Value;
+                    var list = directive.Select(d => d.Value).ToList();
+                    if (MultiValueDirectives.Contains(directive.Key) && list.Count > 1)
+                    {
+                        foreach (var d in directive)
+                        {
+                            d.AddError($"Directive '{d.Name}' can not be present multiple times.");
+                        }
+                        view.Directives[directive.Key] = list.Take(1).ToList();
+                    }
+                    else view.Directives[directive.Key] = list;
+                    if (directive.Key == ParserConstants.ImportNamespaceDirective || directive.Key == ParserConstants.ResourceNamespaceDirective)
+                    {
+                        dataContextTypeStack.NamespaceImports = directive.Select(d =>
+                        {
+                            var split = d.Value.Split('=');
+                            if (split.Length == 1)
+                                return new NamespaceImport(split[0].Trim());
+                            else return new NamespaceImport(split[1].Trim(), split[0].Trim());
+                        }).Concat(dataContextTypeStack.NamespaceImports).ToArray();
+                    }
                 }
             }
 
@@ -284,6 +304,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 node.NameNode.AddError($"Binding {node.Name} could not be resolved.");
                 bindingOptions = controlResolver.ResolveBinding("value"); // just try it as with value binding
             }
+
+            if (context.NamespaceImports.Length > 0)
+                bindingOptions = bindingOptions.AddImports(context.NamespaceImports);
+            
             return CompileBinding(node, bindingOptions, context);
         }
 

@@ -7,6 +7,7 @@ namespace DotVVM.Framework.Compilation.Parser
         public const string BaseTypeDirective = "baseType";
         public const string ResourceTypeDirective = "resourceType";
         public const string ResourceNamespaceDirective = "resourceNamespace";
+        public const string ImportNamespaceDirective = "import";
 
         public const string ValueBinding = "value";
         public const string CommandBinding = "command";

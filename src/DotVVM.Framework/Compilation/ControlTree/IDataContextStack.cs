@@ -4,6 +4,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
     {
         ITypeDescriptor DataContextType { get; } 
 
-        IDataContextStack Parent { get; } 
+        IDataContextStack Parent { get; }
+
+        NamespaceImport[] NamespaceImports { get; set; }
     }
 }

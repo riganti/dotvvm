@@ -7,6 +7,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using System.Linq;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -47,7 +48,7 @@ namespace DotVVM.Framework.Compilation
             {
                 foreach (var directive in view.Directives)
                 {
-                    emitter.EmitAddDirective(pageName, directive.Key, directive.Value);
+                    emitter.EmitAddDirective(pageName, directive.Key, directive.Value.First());
                 }
             }
 

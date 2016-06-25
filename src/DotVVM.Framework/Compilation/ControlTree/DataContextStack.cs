@@ -9,6 +9,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public DataContextStack Parent { get; set; }
         public Type DataContextType { get; set; }
         public Type RootControlType { get; set; }
+        NamespaceImport[] namespaceImports;
+        public NamespaceImport[] NamespaceImports
+        {
+            get
+            {
+                return namespaceImports ?? (namespaceImports = Parent?.NamespaceImports);
+            }
+
+            set
+            {
+                namespaceImports = value;
+            }
+        }
 
         public DataContextStack(Type type, DataContextStack parent = null)
         {

@@ -125,6 +125,7 @@
     <Compile Include="Startup.cs" />
     <Compile Include="SwitchMiddleware.cs" />
     <Compile Include="SwitchMiddlewareCase.cs" />
+    <Compile Include="TestNamespace2\SubNamespace\Class1.cs" />
     <Compile Include="TestNamespace2\TestClass2.cs" />
     <Compile Include="TestNamespace1\TestClass1.cs" />
     <Compile Include="ViewModels\ComplexSamples\Auth\LoginViewModel.cs" />

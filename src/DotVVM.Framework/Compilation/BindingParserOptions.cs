@@ -4,6 +4,7 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -12,7 +13,7 @@ namespace DotVVM.Framework.Compilation
 		public Type BindingType { get; }
 		public string ScopeParameter { get; }
 
-		public NamespaceImport[] ImportNamespaces { get; set; }
+		public ImmutableList<NamespaceImport> ImportNamespaces { get; }
 
 		public virtual TypeRegistry AddTypes(TypeRegistry reg)
 		{
@@ -35,13 +36,22 @@ namespace DotVVM.Framework.Compilation
 			else return t => TypeRegistry.CreateStatic(ReflectionUtils.FindType(import.Namespace + "." + t));
 		}
 
-		public BindingParserOptions(Type bindingType, string scopeParameter = "_this")
+		public BindingParserOptions(Type bindingType, string scopeParameter = "_this", ImmutableList<NamespaceImport> importNamespaces = null)
 		{
 			BindingType = bindingType;
 			ScopeParameter = scopeParameter;
+            ImportNamespaces = importNamespaces;
 		}
 
-		public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", NamespaceImport[] importNs = null)
-			=> new BindingParserOptions(typeof(TBinding), scopeParameter) { ImportNamespaces = importNs };
+		public static BindingParserOptions Create<TBinding>(string scopeParameter = "_this", IEnumerable<NamespaceImport> importNs = null)
+			=> new BindingParserOptions(typeof(TBinding), scopeParameter, importNamespaces: importNs is ImmutableList<NamespaceImport> || importNs == null ? (ImmutableList<NamespaceImport>)importNs : importNs.ToImmutableList());
+
+        public BindingParserOptions AddImports(params NamespaceImport[] imports)
+            => AddImports((IEnumerable<NamespaceImport>)imports);
+        public BindingParserOptions AddImports(IEnumerable<NamespaceImport> imports)
+            => new BindingParserOptions(BindingType, ScopeParameter, ImportNamespaces == null ? imports.ToImmutableList() : ImportNamespaces.AddRange(imports));
+
+        public BindingParserOptions WithScopeParameter(string scopeParameter)
+            => new BindingParserOptions(BindingType, scopeParameter, ImportNamespaces);
 	}
 }

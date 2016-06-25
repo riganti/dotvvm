@@ -5,5 +5,6 @@
 
         IAbstractTreeNode Parent { get; }
 
+        IAbstractTreeRoot TreeRoot { get; }
     }
 }

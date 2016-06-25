@@ -1,4 +1,5 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingNamespaces.BindingUsingNamespaceViewModel, DotVVM.Samples.BasicSamples
+@import ImportAlias =   DotVVM.Samples.BasicSamples.TestNamespace2.SubNamespace
 
 <!DOCTYPE html>
 
@@ -25,6 +26,10 @@
             <tr>
                 <td>Explicitly imported in DotvvmConfiguration</td>
                 <td>{{resource: TestClass2.Property}}</td>
+            </tr>
+            <tr>
+                <td>Explicitly imported alias by @import directive</td>
+                <td>{{resource: ImportAlias.Class1.Property}}</td>
             </tr>
         </table>
         

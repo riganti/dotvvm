@@ -8,6 +8,7 @@ using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -27,9 +28,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public ControlResolverBase(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
-            foreach (var bpo in this.BindingTypes.Values)
+            foreach (var ccc in this.BindingTypes.Keys.ToArray())
             {
-                bpo.ImportNamespaces = configuration.Markup.ImportedNamespaces.ToArray();
+                BindingTypes[ccc] = BindingTypes[ccc].AddImports(configuration.Markup.ImportedNamespaces);
             }
         }
 
