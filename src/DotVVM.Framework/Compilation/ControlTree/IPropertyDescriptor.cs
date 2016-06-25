@@ -19,5 +19,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         string FullName { get; }
         DataContextChangeAttribute[] DataContextChangeAttributes { get; }
 
+        bool IsVirtual { get; }
     }
 }

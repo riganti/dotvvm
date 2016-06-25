@@ -287,6 +287,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return CompileBinding(node, bindingOptions, context);
         }
 
+        static HashSet<string> treatBindingAsHardCodedValue = new HashSet<string> { "resource" };
+
         /// <summary>
         /// Processes the attribute node.
         /// </summary>
@@ -349,9 +351,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     // binding
                     var bindingNode = (attribute.ValueNode as DothtmlValueBindingNode).BindingNode;
-                    if (!property.MarkupOptions.AllowBinding)
+                    if (property.IsVirtual)
                     {
-                        attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain binding.");
+                        attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain bindings because it's not DotvvmProperty.");
+                    }
+                    else if (treatBindingAsHardCodedValue.Contains(bindingNode.Name))
+                    {
+                        if (!property.MarkupOptions.AllowHardCodedValue)
+                            attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding, it can contain only hard-coded value or resource binding.");
+                    }
+                    else
+                    {
+                        if (!property.MarkupOptions.AllowBinding)
+                            attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");
                     }
                     var binding = ProcessBinding(bindingNode, dataContext);
                     var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding);

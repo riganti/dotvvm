@@ -97,6 +97,5 @@ namespace DotVVM.Framework.Controls
                 }
             }
         }
-        
     }
 }
