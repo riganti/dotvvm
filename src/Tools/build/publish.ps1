@@ -6,7 +6,7 @@ remove-item dotvvm.*.nupkg -Force
 
 # publish DotVVM.Core
 $file = dir dotvvm.*.nupkg
-$file = $file.FileName
+$file = $file.FullName
 & ..\nuget.exe push $file -ApiKey $key
 
 # build DotVVM
@@ -15,5 +15,5 @@ remove-item dotvvm.*.nupkg -Force
 
 # publish DotVVM
 $file = dir dotvvm.*.nupkg
-$file = $file.FileName
+$file = $file.FullName
 & ..\nuget.exe push $file -ApiKey $key
