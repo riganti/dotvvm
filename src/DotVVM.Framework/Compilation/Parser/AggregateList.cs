@@ -82,6 +82,7 @@ namespace DotVVM.Framework.Compilation.Parser
 
         public T First()
         {
+			if (firstPart.len == 0) throw new InvalidOperationException("AggregateList does not contain any element.");
             return firstPart.list[firstPart.from];
         }
 
