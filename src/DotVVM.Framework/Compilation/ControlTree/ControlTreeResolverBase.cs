@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var dataContextTypeStack = ResolveViewModel(fileName, root, wrapperType);
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack);
 
-            dataContextTypeStack.NamespaceImports = new NamespaceImport[0];
+            if(dataContextTypeStack != null)dataContextTypeStack.NamespaceImports = new NamespaceImport[0];
             foreach (var directive in root.Directives.GroupBy(d => d.Name))
             {
                 if (!string.Equals(directive.Key, ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         view.Directives[directive.Key] = list.Take(1).ToList();
                     }
                     else view.Directives[directive.Key] = list;
-                    if (directive.Key == ParserConstants.ImportNamespaceDirective || directive.Key == ParserConstants.ResourceNamespaceDirective)
+                    if ((directive.Key == ParserConstants.ImportNamespaceDirective || directive.Key == ParserConstants.ResourceNamespaceDirective) && dataContextTypeStack != null)
                     {
                         dataContextTypeStack.NamespaceImports = directive.Select(d =>
                         {
@@ -305,7 +305,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 bindingOptions = controlResolver.ResolveBinding("value"); // just try it as with value binding
             }
 
-            if (context.NamespaceImports.Length > 0)
+            if (context != null && context.NamespaceImports.Length > 0)
                 bindingOptions = bindingOptions.AddImports(context.NamespaceImports);
             
             return CompileBinding(node, bindingOptions, context);
