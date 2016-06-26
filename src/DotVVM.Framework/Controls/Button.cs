@@ -122,7 +122,7 @@ namespace DotVVM.Framework.Controls
                     // render contents inside
                     if (IsPropertySet(TextProperty))
                     {
-                        if (HasOnlyWhiteSpaceContent())
+                        if (!HasOnlyWhiteSpaceContent())
                         {
                             throw new DotvvmControlException(this, "Text property and inner content of the <dot:Button> control cannot be set at the same time!");
                         }
