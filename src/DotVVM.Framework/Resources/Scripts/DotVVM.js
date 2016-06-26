@@ -759,7 +759,9 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.buildRouteUrl = function (routePath, params) {
         return routePath.replace(/\{([^\}]+?)\??(:(.+?))?\}/g, function (s, paramName, hsjdhsj, type) {
-            return ko.unwrap(params[paramName]) || "";
+            if (!paramName)
+                return "";
+            return ko.unwrap(params[paramName.toLowerCase()]) || "";
         });
     };
     DotVVM.prototype.isPostBackProhibited = function (element) {
