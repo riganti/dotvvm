@@ -200,7 +200,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void EnsureNoAttributesSet()
         {
-            if (Attributes.Any() || IsPropertySet(VisibleProperty) || IsPropertySet(DataContextProperty))
+            if (Attributes.Any() || IsPropertySet(VisibleProperty) || HasBinding(DataContextProperty))
             {
                 throw new DotvvmControlException(this, "Cannot set HTML attributes, Visible, DataContext, ID, Postback.Update, ... bindings on a control which does not render its own element!");
             }
