@@ -6,6 +6,7 @@ using Newtonsoft.Json;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Controls
 {
@@ -14,14 +15,39 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class DotvvmMarkupControl : HtmlGenericControl
     {
+        public Dictionary<string, string> Directives { get; } = new Dictionary<string, string>();
+
+        private bool rendersWrapperTag;
+        protected override bool RendersHtmlTag => rendersWrapperTag;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
         /// </summary>
-        public DotvvmMarkupControl() : base("div")
+        public DotvvmMarkupControl() : this("div") { }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
+        /// </summary>
+        public DotvvmMarkupControl(string wrapperTagName) : base(wrapperTagName ?? "JUST NOTHING")
         {
             SetValue(Internal.IsNamingContainerProperty, true);
             SetValue(Internal.IsControlBindingTargetProperty, true);
+            rendersWrapperTag = wrapperTagName != null;
+        }
+
+        internal override void OnPreInit(IDotvvmRequestContext context)
+        {
+            string wrapperTagName;
+            if (Directives.TryGetValue(ParserConstants.WrapperTagNameDirective, out wrapperTagName))
+            {
+                rendersWrapperTag = true;
+                TagName = wrapperTagName;
+            }
+            if(Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
+            {
+                rendersWrapperTag = false;
+            }
+            base.OnPreInit(context);
         }
 
         protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)

@@ -1,5 +1,6 @@
 ﻿@viewModel System.Object, mscorlib
 @baseType DotVVM.Samples.BasicSamples.Views.ComplexSamples.ServerRendering.ArticleDetail, DotVVM.Samples.BasicSamples
+@noWrapperTag
 
 <article data-ui="test-article">
     <ul>

@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation
             emitter.EmitSetAttachedProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
             if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type))
                 emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType), emitter.EmitValue(view.DataContextTypeStack.DataContextType));
-            if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)))
+            if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)) || typeof(DotvvmMarkupControl).IsAssignableFrom(view.Metadata.Type))
             {
                 foreach (var directive in view.Directives)
                 {

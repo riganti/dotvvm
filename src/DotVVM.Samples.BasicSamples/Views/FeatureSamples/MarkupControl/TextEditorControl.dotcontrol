@@ -1,11 +1,9 @@
 ﻿@viewModel System.Object, mscorlib
 @baseType DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl.TextEditorControl, DotVVM.Samples.BasicSamples
+@wrapperTag p
 
-
-<p>
-    <label>
-        {{controlProperty: Label}}
-        <dot:TextBox Text="{controlProperty: Text}" />
-    </label>
-</p>
+<label>
+    {{controlProperty: Label}}
+    <dot:TextBox Text="{controlProperty: Text}" />
+</label>
 

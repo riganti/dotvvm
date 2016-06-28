@@ -8,6 +8,8 @@ namespace DotVVM.Framework.Compilation.Parser
         public const string ResourceTypeDirective = "resourceType";
         public const string ResourceNamespaceDirective = "resourceNamespace";
         public const string ImportNamespaceDirective = "import";
+        public const string WrapperTagNameDirective = "wrapperTag";
+        public const string NoWrapperTagNameDirective = "noWrapperTag";
 
         public const string ValueBinding = "value";
         public const string CommandBinding = "command";
