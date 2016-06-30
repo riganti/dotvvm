@@ -48,6 +48,12 @@ namespace DotVVM.Framework.Configuration
         public DotvvmRouteTable RouteTable { get; private set; }
 
         /// <summary>
+        /// Gets static pages.
+        /// </summary>
+        [JsonProperty("staticRoutes")]
+        public DotvvmStaticPages StaticPages { get; private set; }
+
+        /// <summary>
         /// Gets the configuration of resources.
         /// </summary>
         [JsonProperty("resources", DefaultValueHandling = DefaultValueHandling.Ignore)]
@@ -107,6 +113,7 @@ namespace DotVVM.Framework.Configuration
             DefaultCulture = Thread.CurrentThread.CurrentCulture.Name;
             Markup = new DotvvmMarkupConfiguration();
             RouteTable = new DotvvmRouteTable(this);
+            StaticPages = new DotvvmStaticPages(this);
             Resources = new DotvvmResourceRepository();
             Security = new DotvvmSecurityConfiguration();
             Runtime = new DotvvmRuntimeConfiguration();

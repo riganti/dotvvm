@@ -69,6 +69,9 @@ namespace DotVVM.Framework.Controls
         public static string GenerateKnockoutHrefExpression(string routeName, HtmlGenericControl control, DotvvmProperty urlSuffixProperty, IDotvvmRequestContext context)
         {
             var link = GenerateRouteLinkCore(routeName, control, context);
+            string staticStorage = null;
+
+            if (context.Configuration.StaticPages.Contains(routeName)) staticStorage = context.Configuration.StaticPages.GetStaticStorage(routeName);
 
             var urlSuffix = GetUrlSuffixExpression(control, urlSuffixProperty);
             if ((bool)control.GetValue(Internal.IsSpaPageProperty))
@@ -77,6 +80,8 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
+                if (!string.IsNullOrWhiteSpace(staticStorage)) return $"'' + '{staticStorage}' + {link} + {urlSuffix} + '.html'";
+
                 return $"'{context.TranslateVirtualPath("~/")}' + {link} + {urlSuffix}";
             }
         }

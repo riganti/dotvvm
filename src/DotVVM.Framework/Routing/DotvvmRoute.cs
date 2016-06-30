@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Routing
         private Func<IDotvvmPresenter> presenterFactory;
 
         private Regex routeRegex;
-        private List<Func<Dictionary<string, object>, string>> urlBuilders;
+        protected List<Func<Dictionary<string, object>, string>> urlBuilders;
         private List<KeyValuePair<string, IRouteParameterType>> parameters;
 
         /// <summary>

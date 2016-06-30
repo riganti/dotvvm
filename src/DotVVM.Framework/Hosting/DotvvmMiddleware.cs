@@ -6,6 +6,7 @@ using Microsoft.Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Concurrent;
+using System.Net;
 using System.Threading;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ViewModel;
@@ -68,6 +69,17 @@ namespace DotVVM.Framework.Hosting
                 dotvvmContext.Parameters = parameters;
                 dotvvmContext.Query = context.Request.Query
                     .ToDictionary(d => d.Key, d => d.Value.Length == 1 ? (object) d.Value[0] : d.Value);
+
+                //check static route and reditec to it
+                if (!dotvvmContext.IsPostBack && Configuration.StaticPages.Contains(route.RouteName))
+                {
+                    var staticHtmlUrl = Configuration.StaticPages.CreateAbsolutePathToStaticFile(dotvvmContext);
+
+                    if (CheckIfUrlExists(staticHtmlUrl))
+                    {
+                        DotvvmRequestContext.SetRedirectResponse(context, staticHtmlUrl, 301);
+                    }
+                }
 
                 try
                 {
@@ -132,6 +144,24 @@ namespace DotVVM.Framework.Hosting
         public static string GetCleanRequestUrl(IOwinContext context)
         {
             return context.Request.Path.Value.TrimStart('/').TrimEnd('/');
+        }
+
+        private static bool CheckIfUrlExists(string staticHtmlUrl)
+        {
+            var request = (HttpWebRequest)WebRequest.Create(staticHtmlUrl);
+            request.Method = WebRequestMethods.Http.Head; ;
+
+            try
+            {
+                using (var response = (HttpWebResponse)request.GetResponse()) { }
+
+            }
+            catch (WebException ex)
+            {
+                return false;
+            }
+
+            return true;
         }
     }
 }

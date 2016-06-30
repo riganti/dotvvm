@@ -459,8 +459,10 @@
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
     <Compile Include="Routing\DotvvmRouteException.cs" />
+    <Compile Include="Routing\DotvvmRouteStaticExtended.cs" />
     <Compile Include="Routing\DotvvmRouteStrategyException.cs" />
     <Compile Include="Routing\DefaultRouteStrategy.cs" />
+    <Compile Include="Routing\DotvvmStaticPages.cs" />
     <Compile Include="Routing\GenericRouteParameterType.cs" />
     <Compile Include="Routing\IRouteParameterType.cs" />
     <Compile Include="Routing\IRoutingStrategy.cs" />
