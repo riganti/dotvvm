@@ -5,6 +5,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.ResourceManagement;
 using Microsoft.Owin;
 
 namespace DotVVM.Framework.Hosting
@@ -50,8 +51,11 @@ namespace DotVVM.Framework.Hosting
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 
-            var resourceName = context.Request.Query["name"];
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == context.Request.Query["assembly"]);
+            var pathValues = context.Request.Path.ToString().Substring(1).Split('/');
+            var assemblyName = EmbeddedResourceTranslator.TransformAliasToAssembly(pathValues[1]);
+            var resourceName = EmbeddedResourceTranslator.TransformAliasToUrl(pathValues[3]);
+            
+            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName);
 
             if (resourceName.EndsWith(".js", StringComparison.Ordinal))
             {

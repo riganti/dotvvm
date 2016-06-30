@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Configuration;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
@@ -65,7 +66,10 @@ namespace DotVVM.Framework.ResourceManagement
         {
             if (IsEmbeddedResource)
             {
-                return string.Format(HostingConstants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
+                return string.Format(HostingConstants.ResourceHandlerUrl,
+                    EmbeddedResourceTranslator.TransformAssemblyToAlias(WebUtility.UrlEncode(EmbeddedResourceAssembly)),
+                    typeof(DotvvmConfiguration).Assembly.GetName().Version,
+                    EmbeddedResourceTranslator.TransformUrlToAlias(WebUtility.UrlEncode(Url)));
             }
             return Url;
         }
