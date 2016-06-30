@@ -21,6 +21,9 @@ namespace DotVVM.Framework.ResourceManagement
         public ConcurrentDictionary<string, ResourceBase> Resources { get; private set; }
 
         [JsonIgnore]
+        public Dictionary<KeyValuePair<string, string>, string[]> ResourceBundleNames { get; set; }
+
+        [JsonIgnore]
         public ConcurrentDictionary<string, IDotvvmResourceRepository> Parents { get; set; }
 
         [JsonIgnore]
@@ -64,6 +67,31 @@ namespace DotVVM.Framework.ResourceManagement
         }
 
         /// <summary>
+        /// registers a new script bundle
+        /// </summary>
+        /// <param name="bundleName"></param>
+        /// <param name="urlSuffix"></param>
+        /// <param name="resourceNames"></param>
+        public void RegisterScritBundle(string bundleName, string urlSuffix, string[] resourceNames)
+        {
+            foreach (var resourceName in resourceNames)
+            {
+                if (!ResourceExists(resourceName))
+                {
+                    throw new ArgumentException($"Resource '{resourceName}' is not registered!");
+                }
+
+                ScriptResource currentResource = FindResource(resourceName) as ScriptResource;
+                InlineScriptResource currentInlineResource = FindResource(resourceName) as InlineScriptResource;
+                if (currentResource == null && currentInlineResource == null) throw new ArgumentException($"Resource '{resourceName}' is not script resource!");
+            }
+
+            var bundleNameToSuffix = new KeyValuePair<string, string>(bundleName, urlSuffix);
+
+            ResourceBundleNames.Add(bundleNameToSuffix, resourceNames);
+        }
+
+        /// <summary>
         /// Creates nested repository. All new registrations in the nested repo will not apply to this.
         /// </summary>
         public DotvvmResourceRepository Nest()
@@ -74,18 +102,36 @@ namespace DotVVM.Framework.ResourceManagement
         public DotvvmResourceRepository(DotvvmResourceRepository parent) : this()
         {
             this.Resources = new ConcurrentDictionary<string, ResourceBase>();
+            this.ResourceBundleNames = new Dictionary<KeyValuePair<string, string>, string[]>();
             this.Parents.TryAdd("", parent);
         }
 
         public DotvvmResourceRepository()
         {
             this.Resources = new ConcurrentDictionary<string, ResourceBase>();
+            this.ResourceBundleNames = new Dictionary<KeyValuePair<string, string>, string[]>();
             this.Parents = new ConcurrentDictionary<string, IDotvvmResourceRepository>();
         }
 
         public NamedResource FindNamedResource(string name)
         {
             return new NamedResource(name, FindResource(name));
+        }
+
+        public bool ResourceExists(string name)
+        {
+            return FindResource(name) != null;
+        }
+
+        public string GetBundleName(string resourceName)
+        {
+            return ResourceBundleNames.FirstOrDefault(x => x.Value.Contains(resourceName)).Key.Key;
+        }
+
+        public bool TryUnregisterBundledResource(string resourceName)
+        {
+            ResourceBase resource;
+            return Resources.TryRemove(resourceName, out resource);
         }
     }
 }

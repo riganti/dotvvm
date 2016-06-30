@@ -1,8 +1,11 @@
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Configuration;
 using System.Threading;
+using System.Web.Hosting;
+using System.Web.Optimization;
 using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.ResourceManagement
@@ -15,6 +18,7 @@ namespace DotVVM.Framework.ResourceManagement
         private readonly DotvvmConfiguration configuration;
         private List<string> requiredResourcesOrdered = new List<string>();
         private Dictionary<string, ResourceBase> requiredResources = new Dictionary<string, ResourceBase>();
+        private List<string> requiredResourcesForBundle = new List<string>();
         private List<IResourceProcessor> processors = new List<IResourceProcessor>();
         private int nonameCtr = 0;
 
@@ -37,6 +41,14 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredResource(string name)
         {
+            var bundleName = configuration.Resources.GetBundleName(name);
+            if (bundleName != null)
+            {
+                if (!requiredResourcesOrdered.Contains(bundleName) && !requiredResourcesForBundle.Contains(name))
+                    AddScriptBundle(bundleName);
+                return;
+            }
+
             var resource = configuration.Resources.FindResource(name);
             if (resource == null)
             {
@@ -165,6 +177,111 @@ namespace DotVVM.Framework.ResourceManagement
 
             return resource;
         }
+
+
+        private void AddScriptBundle(string bundleName)
+        {
+            List<string> orderedResourcesForBundle = new List<string>();
+            foreach (var resourceName in configuration.Resources.ResourceBundleNames.FirstOrDefault(b => b.Key.Key == bundleName).Value)
+            {
+                AddResourceToBundle(resourceName, ref orderedResourcesForBundle);
+            }
+
+            var bundleSuffix =
+                configuration.Resources.ResourceBundleNames.FirstOrDefault(b => b.Key.Key == bundleName).Key.Value;
+
+            BundleTable.Bundles.FileExtensionReplacementList.Clear();
+            BundleTable.Bundles.IgnoreList.Clear();
+            AddDefaultIgnorePatterns(BundleTable.Bundles.IgnoreList);
+
+            var scriptForBundle = new ScriptBundle("~/" + typeof(DotvvmConfiguration).Assembly.GetName().Version + "/" + bundleName + "/" + bundleSuffix);
+            foreach (var resourceName in orderedResourcesForBundle)
+            {
+                var resource = configuration.Resources.FindResource(resourceName);
+                if (resource is ScriptResource)
+                {
+                    ScriptResource scriptResource = resource as ScriptResource;
+                    HostingEnvironment.RegisterVirtualPathProvider(new EmbeddedVirtualPathProvider());
+                    BundleTable.VirtualPathProvider = HostingEnvironment.VirtualPathProvider;
+
+                    if (scriptResource.IsEmbeddedResource)
+                    {
+
+                        if (scriptResource.EmbeddedResourceAssembly.Contains("Bootstrap"))
+                        {
+                            scriptForBundle.Include("~/DotVVM.Framework.Controls.Bootstrap.dll/" + scriptResource.Url);
+                            requiredResourcesForBundle.Add(resourceName);
+                        }
+                        else
+                        {
+                            scriptForBundle.Include("~/DotVVM.Framework.dll/" + scriptResource.Url);
+                            requiredResourcesForBundle.Add(resourceName);
+                        }
+                    }
+                    else
+                    {
+                        scriptForBundle.Include(scriptResource.Url);
+                        requiredResourcesForBundle.Add(resourceName);
+                    }
+                }
+
+                if (resource is StylesheetResource)
+                {
+                    AddRequiredResource(resourceName);
+                }
+
+                if (resource is InlineScriptResource)
+                {
+                    if (resourceName == "dotvvm")
+                    {
+                        scriptForBundle.Include("~/DotVVM.Framework.dll/DotVVM.Framework.Resources.Scripts.DotVVM.Declaration.js");
+                        requiredResourcesForBundle.Add(resourceName);
+                    }
+                }
+
+            }
+
+            DisableMinificationIfDebug(ref scriptForBundle);
+
+            BundleTable.Bundles.Add(scriptForBundle);
+
+
+            AddRequiredScriptFile(bundleName, scriptForBundle.Path);
+        }
+
+
+        private void AddResourceToBundle(string resourceName, ref List<string> orderedResourcesListForBundle)
+        {
+            if (!orderedResourcesListForBundle.Contains(resourceName))
+            {
+                var resource = configuration.Resources.FindResource(resourceName);
+                foreach (var dependency in resource.Dependencies)
+                {
+                    AddResourceToBundle(dependency, ref orderedResourcesListForBundle);
+                }
+
+                orderedResourcesListForBundle.Add(resourceName);
+            }
+        }
+
+        public static void AddDefaultIgnorePatterns(IgnoreList ignoreList)
+        {
+            if (ignoreList == null)
+                throw new ArgumentNullException("ignoreList");
+            ignoreList.Ignore("*.intellisense.js");
+            ignoreList.Ignore("*-vsdoc.js");
+            ignoreList.Ignore("*.debug.js", OptimizationMode.WhenEnabled);
+            //ignoreList.Ignore("*.min.js", OptimizationMode.WhenDisabled);
+            ignoreList.Ignore("*.min.css", OptimizationMode.WhenDisabled);
+        }
+
+
+        [Conditional("DEBUG")]
+        private static void DisableMinificationIfDebug(ref ScriptBundle scriptForBundle)
+        {
+            scriptForBundle.Transforms.Clear();
+        }
+
 
         private static void ThrowNonUniqueName(string name)
         {
