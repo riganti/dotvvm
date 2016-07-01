@@ -60,10 +60,5 @@ namespace DotVVM.Framework.ResourceManagement
 
             throw new Exception("Alias of resource assembly must be only 'dotvvm' or 'bs'");
         }
-
-        public static bool CheckIfResourceIsInDictionary(string url)
-        {
-            return EmbeddedResourceToAlias.Any(k => k.Key == url);
-        }
     }
 }
