@@ -44,19 +44,12 @@ namespace DotVVM.Framework.Routing
         /// <param name="presenterFactory">The presenter factory.</param>
         public void Add(string routeName, string url, string virtualPath, object defaultValues = null, Func<IDotvvmPresenter> presenterFactory = null)
         {
-            string storage = null;
-
-            if (configuration.StaticPages.Contains(routeName))
-            {
-                storage = configuration.StaticPages.GetStaticStorage(routeName);
-            }
-
             if (presenterFactory == null)
             {
                 presenterFactory = GetDefaultPresenter;
             }
 
-            Add(routeName, new DotvvmRouteStaticExtended(storage, url, virtualPath, defaultValues, presenterFactory));
+            Add(routeName, new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory));
         }
 
         /// <summary>
