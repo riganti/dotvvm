@@ -142,14 +142,14 @@ namespace DotVVM.Framework.Configuration
                     CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
                     Url = "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js",
                     EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
-                    GlobalObjectName = "window['$']"
+                    GlobalObjectName = "$"
                 });
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
                     EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
-                    GlobalObjectName = "window['ko']"
+                    GlobalObjectName = "ko"
                 });
 
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
@@ -157,7 +157,7 @@ namespace DotVVM.Framework.Configuration
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.js",
                     EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
-                    GlobalObjectName = "window['dotvvm']",
+                    GlobalObjectName = "dotvvm",
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
                 });
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName,

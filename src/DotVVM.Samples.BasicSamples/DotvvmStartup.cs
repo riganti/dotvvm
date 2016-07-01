@@ -55,6 +55,19 @@ namespace DotVVM.Samples.BasicSamples
             config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource() { Url = "~/Scripts/testResource.js" });
             config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource() { Url = "~/Scripts/testResource2.js" });
 
+            config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource()
+            {
+                Url = "~/Scripts/testResource.js",
+                CdnUrl = "http://unavailable.local/testResource.js",
+                GlobalObjectName = "dotvvmTestResource"
+            });
+            config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource()
+            {
+                Url = "~/Scripts/testResource2.js",
+                CdnUrl = "~/Scripts/testResource.js",
+                GlobalObjectName = "dotvvmTestResource"
+            });
+
             // import namespaces
             config.Markup.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace1", "TestNamespaceAlias"));
             config.Markup.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace2"));

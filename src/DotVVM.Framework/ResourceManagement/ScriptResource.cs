@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -13,7 +14,7 @@ namespace DotVVM.Framework.ResourceManagement
     [ResourceConfigurationCollectionName("scripts")]    
     public class ScriptResource : ResourceBase
     {
-        private const string CdnFallbackScript = "{0} || document.write(\"<script src='{1}' type='text/javascript'><\\/script>\")";
+        private const string CdnFallbackScript = "if (typeof {0} === 'undefined') {{ document.write(\"<script src='{1}' type='text/javascript'><\\/script>\"); }}";
         
 
         /// <summary>
@@ -46,7 +47,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
         /// </summary>
-        public override void Render(IHtmlWriter writer)
+        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (CdnUrl != null)
             {
@@ -58,7 +59,9 @@ namespace DotVVM.Framework.ResourceManagement
                 if (Url != null && GlobalObjectName != null)
                 {
                     writer.RenderBeginTag("script");
-                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, GlobalObjectName, GetUrl()));
+
+                    var url = context.TranslateVirtualPath(GetUrl());
+                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, GlobalObjectName, url));
                     writer.RenderEndTag();
                 }
             }

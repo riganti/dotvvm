@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -20,7 +21,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
         /// </summary>
-        public override void Render(IHtmlWriter writer)
+        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             writer.AddAttribute("href", GetUrl());
             writer.AddAttribute("rel", "stylesheet");

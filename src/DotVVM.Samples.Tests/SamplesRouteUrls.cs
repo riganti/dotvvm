@@ -89,6 +89,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling => "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
 			public static string FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling => "FeatureSamples/ActionFilterErrorHandling/ActionFilterPageErrorHandling";
 			public static string FeatureSamples_BindingContexts_BindingContext => "FeatureSamples/BindingContexts/BindingContext";
+			public static string FeatureSamples_BindingNamespaces_BindingUsingNamespace => "FeatureSamples/BindingNamespaces/BindingUsingNamespace";
 			public static string FeatureSamples_BindingPageInfo_BindingPageInfo => "FeatureSamples/BindingPageInfo/BindingPageInfo";
 			public static string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods => "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
 			public static string FeatureSamples_ClientExtenders_PasswordStrength => "FeatureSamples/ClientExtenders/PasswordStrength";
@@ -116,6 +117,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_PostBack_PostbackUpdateRepeater => "FeatureSamples/PostBack/PostbackUpdateRepeater";
 			public static string FeatureSamples_Redirect_Redirect => "FeatureSamples/Redirect/Redirect";
 			public static string FeatureSamples_RenderSettingsModeServer_RenderSettingModeServerProperty => "FeatureSamples/RenderSettingsModeServer/RenderSettingModeServerProperty";
+			public static string FeatureSamples_Resources_CdnScriptPriority => "FeatureSamples/Resources/CdnScriptPriority";
+			public static string FeatureSamples_Resources_CdnUnavailableResourceLoad => "FeatureSamples/Resources/CdnUnavailableResourceLoad";
 			public static string FeatureSamples_Resources_OnlineNonameResourceLoad => "FeatureSamples/Resources/OnlineNonameResourceLoad";
 			public static string FeatureSamples_Serialization_ObservableCollectionShouldContainObservables => "FeatureSamples/Serialization/ObservableCollectionShouldContainObservables";
 			public static string FeatureSamples_Serialization_Serialization => "FeatureSamples/Serialization/Serialization";

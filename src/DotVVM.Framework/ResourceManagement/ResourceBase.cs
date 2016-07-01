@@ -54,7 +54,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter"/>.
         /// </summary>
-        public abstract void Render(IHtmlWriter writer);
+        public abstract void Render(IHtmlWriter writer, IDotvvmRequestContext context);
 
 
 
