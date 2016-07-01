@@ -66,10 +66,20 @@ namespace DotVVM.Framework.ResourceManagement
         {
             if (IsEmbeddedResource)
             {
-                return string.Format(HostingConstants.ResourceHandlerUrl,
-                    EmbeddedResourceTranslator.TransformAssemblyToAlias(WebUtility.UrlEncode(EmbeddedResourceAssembly)),
-                    typeof(DotvvmConfiguration).Assembly.GetName().Version,
-                    EmbeddedResourceTranslator.TransformUrlToAlias(WebUtility.UrlEncode(Url)));
+                if (EmbeddedResourceTranslator.CheckIfResourceIsInDictionary(WebUtility.UrlEncode(Url)))
+                {
+                    return string.Format(HostingConstants.ResourceHandlerUrl,
+                        EmbeddedResourceTranslator.TransformAssemblyToAlias(WebUtility.UrlEncode(EmbeddedResourceAssembly)),
+                        typeof(DotvvmConfiguration).Assembly.GetName().Version,
+                        EmbeddedResourceTranslator.TransformUrlToAlias(WebUtility.UrlEncode(Url)));
+                }
+                else
+                {
+                    return string.Format(HostingConstants.ResourceHandlerUrl,
+                        "external",
+                        typeof(DotvvmConfiguration).Assembly.GetName().Version,
+                        "resource?name=" + WebUtility.UrlEncode(Url) + "&assembly=" + WebUtility.UrlEncode(EmbeddedResourceAssembly));                    
+                }
             }
             return Url;
         }

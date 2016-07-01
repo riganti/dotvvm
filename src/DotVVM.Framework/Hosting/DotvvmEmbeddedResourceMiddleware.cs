@@ -52,10 +52,22 @@ namespace DotVVM.Framework.Hosting
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 
             var pathValues = context.Request.Path.ToString().Substring(1).Split('/');
-            var assemblyName = EmbeddedResourceTranslator.TransformAliasToAssembly(pathValues[1]);
-            var resourceName = EmbeddedResourceTranslator.TransformAliasToUrl(pathValues[3]);
-            
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName);
+
+            string resourceName;
+            string assemblyName;
+            Assembly assembly;
+
+            if (pathValues[1] == "external")
+            {
+                resourceName = context.Request.Query["name"];
+                assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == context.Request.Query["assembly"]);
+            }
+            else
+            {
+                assemblyName = EmbeddedResourceTranslator.TransformAliasToAssembly(pathValues[1]) ?? pathValues[1];
+                resourceName = EmbeddedResourceTranslator.TransformAliasToUrl(pathValues[3]) ?? pathValues[3];
+                assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == assemblyName);
+            }
 
             if (resourceName.EndsWith(".js", StringComparison.Ordinal))
             {
