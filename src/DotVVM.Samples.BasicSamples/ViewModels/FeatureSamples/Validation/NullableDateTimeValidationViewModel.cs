@@ -1,5 +1,4 @@
 using DotVVM.Framework.ViewModel;
-using DotVVM.Framework.ViewModel.Validation.DataAnnotations;
 using System;
 using System.ComponentModel.DataAnnotations;
 

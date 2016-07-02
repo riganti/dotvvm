@@ -544,7 +544,6 @@
     <Compile Include="ViewModel\Serialization\ViewModelSerializationMap.cs" />
     <Compile Include="ViewModel\Serialization\ViewModelSerializationMapper.cs" />
     <Compile Include="ViewModel\Validation\AttributeViewModelValidationMetadataProvider.cs" />
-    <Compile Include="ViewModel\Validation\DataAnnotations\DotvvmClientFormatAttribute.cs" />
     <Compile Include="ViewModel\Validation\IValidationRuleTranslator.cs" />
     <Compile Include="ViewModel\Validation\IViewModelValidationMetadataProvider.cs" />
     <Compile Include="ViewModel\Validation\IViewModelValidator.cs" />

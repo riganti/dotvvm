@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
-using DotVVM.Framework.ViewModel.Validation.DataAnnotations;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
