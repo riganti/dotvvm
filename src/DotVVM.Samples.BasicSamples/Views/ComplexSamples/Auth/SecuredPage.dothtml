@@ -16,14 +16,14 @@
 
         <fieldset>
             <legend>Replace the message</legend>
-            <dot:IfAuthorized Roles="admin">
-                <Template>
+            <dot:Roleview Roles="admin">
+                <IsMemberTemplate>
 					<p>You are logged as admin, so this should work well.</p>
-                </Template>
-                <ElseTemplate>
+                </IsMemberTemplate>
+                <IsNotMemberTemplate>
                     <p>You have to be admin to replace message and you are not. The postback will fail</p>
-                </ElseTemplate>
-            </dot:IfAuthorized>
+                </IsNotMemberTemplate>
+            </dot:Roleview>
             <p>Message: <dot:TextBox Text="{value: MessageEditor}" /></p>
             <p>
                 <dot:Button Text="Replace" Click="{command: ReplaceMessage()}" />
