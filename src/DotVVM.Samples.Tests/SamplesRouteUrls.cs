@@ -24,6 +24,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_SPAViewModelReapplication_pageB => "ComplexSamples/SPAViewModelReapplication/pageB";
 			public static string ComplexSamples_TaskList_ServerRenderedTaskList => "ComplexSamples/TaskList/ServerRenderedTaskList";
 			public static string ComplexSamples_TaskList_TaskListAsyncCommands => "ComplexSamples/TaskList/TaskListAsyncCommands";
+			public static string ControlSamples_AuthenticatedView_AuthenticatedViewTest => "ControlSamples/AuthenticatedView/AuthenticatedViewTest";
 			public static string ControlSamples_Button_Button => "ControlSamples/Button/Button";
 			public static string ControlSamples_Button_ButtonTagName => "ControlSamples/Button/ButtonTagName";
 			public static string ControlSamples_Button_InputTypeButton_HtmlContentInside => "ControlSamples/Button/InputTypeButton_HtmlContentInside";
@@ -58,6 +59,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_Repeater_RouteLink => "ControlSamples/Repeater/RouteLink";
 			public static string ControlSamples_Repeater_RouteLinkUrlSuffix => "ControlSamples/Repeater/RouteLinkUrlSuffix";
 			public static string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag => "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
+			public static string ControlSamples_RoleView_RoleViewTest => "ControlSamples/RoleView/RoleViewTest";
 			public static string ControlSamples_RouteLink_RouteLinkEnabled => "ControlSamples/RouteLink/RouteLinkEnabled";
 			public static string ControlSamples_SpaContentPlaceHolder_Default => "ControlSamples/SpaContentPlaceHolder/Default";
 			public static string ControlSamples_SpaContentPlaceHolder_PageA => "ControlSamples/SpaContentPlaceHolder/PageA";

@@ -104,6 +104,8 @@
     <Compile Include="Complex\ChangedEventTests.cs" />
     <Compile Include="Complex\SPARedirectTests.cs" />
     <Compile Include="Complex\SPAViewModelReaplicationTests.cs" />
+    <Compile Include="Control\RoleViewTests.cs" />
+    <Compile Include="Control\AuthenticatedViewTests.cs" />
     <Compile Include="Control\CheckBoxInRepeaterTests.cs" />
     <Compile Include="Control\ContentPlaceHolderTests.cs" />
     <Compile Include="Control\HtmlLiteralTests.cs" />

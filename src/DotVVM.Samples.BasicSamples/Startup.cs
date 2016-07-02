@@ -71,7 +71,15 @@ namespace DotVVM.Samples.BasicSamples
                                 }
                             }
                         })
-                    )
+                    ),
+                     new SwitchMiddlewareCase(
+                        c => c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/AuthenticatedView")
+                            || c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/RoleView"), next =>
+                        new CookieAuthenticationMiddleware(next, app, new CookieAuthenticationOptions()
+                        {
+                            AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie                            
+                        })
+                    ),
                 }
             );
 

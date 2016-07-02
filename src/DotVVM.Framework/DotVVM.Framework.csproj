@@ -333,7 +333,7 @@
     <Compile Include="Controls\HtmlLiteral.cs" />
     <Compile Include="Controls\IDotvvmControl.cs" />
     <Compile Include="Controls\IEventValidationHandler.cs" />
-    <Compile Include="Controls\IfAuthorized.cs" />
+    <Compile Include="Controls\AuthenticatedView.cs" />
     <Compile Include="Controls\IHtmlAttributeTransformer.cs" />
     <Compile Include="Controls\Infrastructure\RawLiteral.cs" />
     <Compile Include="Controls\KnockoutBindingGroup.cs" />
@@ -347,6 +347,7 @@
     <Compile Include="Controls\PostBackHandlerCollection.cs" />
     <Compile Include="Controls\RenderMode.cs" />
     <Compile Include="Controls\RenderSettings.cs" />
+    <Compile Include="Controls\RoleView.cs" />
     <Compile Include="Controls\RouteLink.cs" />
     <Compile Include="Controls\RouteLinkHelpers.cs" />
     <Compile Include="Controls\SelectHtmlControlHelpers.cs" />
@@ -446,7 +447,7 @@
     <Compile Include="Controls\DotvvmMarkupControl.cs" />
     <Compile Include="Controls\DotvvmControl.cs" />
     <Compile Include="Controls\DotvvmControlCollection.cs" />
-    <Compile Include="Controls\Placeholder.cs" />
+    <Compile Include="Controls\PlaceHolder.cs" />
     <Compile Include="Controls\MarkupOptionsAttribute.cs" />
     <Compile Include="Controls\DelegateTemplate.cs" />
     <Compile Include="Controls\Repeater.cs" />

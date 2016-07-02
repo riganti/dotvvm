@@ -23,6 +23,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // verify that if CDN is not available, local script loads
                 browser.CheckIfAlertTextEquals("javascript resource loaded!");
+                browser.ConfirmAlert();
             });
         }
 
@@ -37,6 +38,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 // verify that if CDN is available, local script doesn't load
                 browser.CheckIfAlertTextEquals("javascript resource loaded!");
+                browser.ConfirmAlert();
             });
         }
 

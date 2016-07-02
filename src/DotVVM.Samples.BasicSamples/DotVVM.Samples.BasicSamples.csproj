@@ -142,6 +142,7 @@
     <Compile Include="ViewModels\ComplexSamples\SPARedirect\HomeViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPARedirect\LoginViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\AuthenticatedView\AuthenticatedViewTestViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel2.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckboxCheckedItemsNullCollectionViewModel.cs" />
@@ -168,6 +169,7 @@
     <Compile Include="ViewModels\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTagViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
+    <Compile Include="ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RouteLink\RouteLinkEnabledViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\DefaultViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageAViewModel.cs" />
@@ -415,6 +417,8 @@
     <Content Include="Views\ControlSamples\Literal\Literal_CollectionLength.dothtml" />
     <Content Include="Views\ControlSamples\Literal\Literal_ArrayLength.dothtml" />
     <Content Include="Views\FeatureSamples\BindingNamespaces\BindingUsingNamespace.dothtml" />
+    <Content Include="Views\ControlSamples\AuthenticatedView\AuthenticatedViewTest.dothtml" />
+    <Content Include="Views\ControlSamples\RoleView\RoleViewTest.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

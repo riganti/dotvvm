@@ -9,10 +9,15 @@ using DotVVM.Framework.Hosting;
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Html control, where you can configure tag name and if to render the wrapper tag by properties
+    /// A base class for HTML controls which allows the user to configure rendered tag name and if the wrapper tag by properties.
     /// </summary>
-    public class ConfigurableHtmlControl: HtmlGenericControl
+    public abstract class ConfigurableHtmlControl : HtmlGenericControl
     {
+
+        /// <summary>
+        /// Gets or sets the name of the tag that wraps the Repeater.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public string WrapperTagName
         {
             get { return (string)GetValue(WrapperTagNameProperty); }
@@ -21,6 +26,10 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty WrapperTagNameProperty
             = DotvvmProperty.Register<string, ConfigurableHtmlControl>(c => c.WrapperTagName, "div");
 
+        /// <summary>
+        /// Gets or sets whether the control should render a wrapper element.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
         public bool RenderWrapperTag
         {
             get { return (bool)GetValue(RenderWrapperTagProperty); }
@@ -34,8 +43,8 @@ namespace DotVVM.Framework.Controls
         public ConfigurableHtmlControl(string tagName)
             : base(tagName)
         {
-            if (tagName != "div") WrapperTagName = tagName;
-            if (tagName != null) RenderWrapperTag = true;
+            WrapperTagName = tagName;
+            RenderWrapperTag = !string.IsNullOrEmpty(WrapperTagName);
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)
