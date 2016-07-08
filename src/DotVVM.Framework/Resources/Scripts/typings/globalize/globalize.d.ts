@@ -6,4 +6,4 @@ interface GlobalizeStatic {
     parseInt(value: string, radix?: number, cultureSelector?: string): number;
 }
 
-declare var Globalize: GlobalizeStatic;
+declare var dotvvm_Globalize: GlobalizeStatic;

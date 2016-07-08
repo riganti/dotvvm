@@ -24,7 +24,7 @@
             format = "G";
         }
 
-        return Globalize.format(value, format, dotvvm.culture);
+        return dotvvm_Globalize.format(value, format, dotvvm.culture);
     }
 
     public parseDotvvmDate(value: string): Date {
@@ -37,10 +37,10 @@
     }
 
     public parseNumber(value: string): number {
-        return Globalize.parseFloat(value,10, dotvvm.culture);
+        return dotvvm_Globalize.parseFloat(value,10, dotvvm.culture);
     }
 
     public parseDate(value: string, format: string) {
-        return Globalize.parseDate(value, format, dotvvm.culture);
+        return dotvvm_Globalize.parseDate(value, format, dotvvm.culture);
     }
 }

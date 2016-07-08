@@ -8,7 +8,7 @@
  * http://jquery.org/license
  */
 
-(function( window, undefined ) {
+(function( exportTo, undefined ) {
 
 var Globalize,
 	// private variables
@@ -50,7 +50,7 @@ if ( typeof require !== "undefined"
 	module.exports = Globalize;
 } else {
 	// Export as global variable
-	window.Globalize = Globalize;
+	exportTo.dotvvm_Globalize = Globalize;
 }
 
 Globalize.cultures = {};

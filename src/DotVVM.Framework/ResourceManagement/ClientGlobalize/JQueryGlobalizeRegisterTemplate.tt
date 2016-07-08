@@ -20,7 +20,7 @@ if ( typeof require !== "undefined"
 	Globalize = require( "globalize" );
 } else {
 	// Global variable
-	Globalize = window.Globalize;
+	Globalize = window.dotvvm_Globalize;
 }
 Globalize.addCultureInfo("<#= Name #>", "default", <#= CultureInfoJson.ToString() #>);
 
