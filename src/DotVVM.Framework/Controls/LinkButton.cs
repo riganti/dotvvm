@@ -32,19 +32,18 @@ namespace DotVVM.Framework.Controls
             {
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this));
             }
-
-            writer.AddKnockoutDataBind("text", this, TextProperty, () => { shouldRenderText = true; });
+			var textbinding = GetValueBinding(TextProperty);
+			if (textbinding != null) writer.AddKnockoutDataBind("text", textbinding);
             
             base.AddAttributesToRender(writer, context);
         }
 
-        private bool shouldRenderText = false;
         /// <summary>
         /// Renders the contents inside the control begin and end tags.
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (shouldRenderText)
+            if (IsPropertySet(TextProperty) && (!HasValueBinding(TextProperty) || RenderOnServer))
             {
                 if (!string.IsNullOrEmpty(Text))
                 {

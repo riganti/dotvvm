@@ -24,5 +24,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IEnumerable<IPropertyDescriptor> AllProperties { get; }
 
         DataContextChangeAttribute[] DataContextChangeAttributes { get; }
-    }
+		DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
+	}
 }

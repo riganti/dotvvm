@@ -227,7 +227,7 @@ namespace DotVVM.Framework.Controls
             // workaroud: header template must have to be one level nested, because it is in the Columns property which nests the dataContext to the item type
             // on server we need null, to be Convertible to Item type and on client the best is empty object, because with will hide the inner content when it is null
             var headerRow = new HtmlGenericControl("tr");
-            headerRow.SetBinding(DataContextProperty, new ValueBindingExpression(h => null, "{}"));
+            //headerRow.SetBinding(DataContextProperty, new ValueBindingExpression(h => null, "{}"));
             head.Children.Add(headerRow);
             foreach (var column in Columns)
             {
@@ -278,14 +278,9 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var cssClassBinding = column.GetValueBinding(GridViewColumn.HeaderCssClassProperty);
-                if (cssClassBinding != null)
+                if (column.IsPropertySet(GridViewColumn.HeaderCssClassProperty)) // transfer all bindings (even StaticValue), because column has wrong DataContext for them
                 {
-                    cell.Attributes["class"] = cssClassBinding;
-                }
-                else if (!string.IsNullOrWhiteSpace(column.HeaderCssClass))
-                {
-                    cell.Attributes["class"] = column.HeaderCssClass;
+                    cell.Attributes["class"] = column.GetValueRaw(GridViewColumn.HeaderCssClassProperty);
                 }
             }
         }

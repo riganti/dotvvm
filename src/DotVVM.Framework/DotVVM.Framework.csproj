@@ -146,6 +146,7 @@
     <Compile Include="Binding\Expressions\StaticCommandBindingExpression.cs" />
     <Compile Include="Binding\Expressions\ValueBindingExpression.cs" />
     <Compile Include="Binding\DotvvmProperty.cs" />
+    <Compile Include="Compilation\ControlTree\DataContextStackManipulationAttribute.cs" />
     <Compile Include="Compilation\BindingCompilationAttribute.cs" />
     <Compile Include="Compilation\BindingCompiler.cs" />
     <Compile Include="Compilation\BindingParserException.cs" />
@@ -190,6 +191,7 @@
     <Compile Include="Compilation\ControlTree\IDataContextStack.cs" />
     <Compile Include="Compilation\ControlTree\IPropertyDescriptor.cs" />
     <Compile Include="Compilation\ControlTree\ITypeDescriptor.cs" />
+    <Compile Include="Compilation\ControlTree\PopDataContextManipulationAttribute.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\IResolvedControlTreeVisitor.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\IResolvedTreeNode.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedBinding.cs" />

@@ -93,6 +93,9 @@ namespace DotVVM.Framework.Binding
         [JsonIgnore]
         public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
 
+		[JsonIgnore]
+		public DataContextStackManipulationAttribute DataContextManipulationAttribute { get; private set; }
+
         /// <summary>
         /// Prevents a default instance of the <see cref="DotvvmProperty"/> class from being created.
         /// </summary>
@@ -203,7 +206,9 @@ namespace DotVVM.Framework.Binding
                 property.IsValueInherited = isValueInherited;
                 property.PropertyInfo = propertyInfo;
                 property.DataContextChangeAttributes = (propertyInfo != null ? propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) : field.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
-                property.MarkupOptions = markupOptions;
+				property.DataContextManipulationAttribute = propertyInfo != null ? propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) : field.GetCustomAttribute<DataContextStackManipulationAttribute>();
+				if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{fullName}'.");
+				property.MarkupOptions = markupOptions;
                 property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
                 return property;
             });

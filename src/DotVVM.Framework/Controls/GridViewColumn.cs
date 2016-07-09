@@ -2,15 +2,16 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using System;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Controls
 {
     public abstract class GridViewColumn : DotvvmBindableObject
     {
 
-        [MarkupOptions(AllowBinding = false)]
+		[PopDataContextManipulationAttribute]
         public string HeaderText
-        {
+		{
             get { return (string)GetValue(HeaderTextProperty); }
             set { SetValue(HeaderTextProperty, value); }
         }
@@ -19,6 +20,7 @@ namespace DotVVM.Framework.Controls
 
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+		[PopDataContextManipulationAttribute]
         public ITemplate HeaderTemplate
         {
             get { return (ITemplate)GetValue(HeaderTemplateProperty); }
@@ -29,8 +31,9 @@ namespace DotVVM.Framework.Controls
 
 
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+		[PopDataContextManipulationAttribute]
         public ITemplate FilterTemplate
-        {
+		{
             get { return (ITemplate)GetValue(FilterTemplateProperty); }
             set { SetValue(FilterTemplateProperty, value); }
         }
@@ -86,16 +89,16 @@ namespace DotVVM.Framework.Controls
 
         [MarkupOptions(AllowBinding = false)]
         public bool IsEditable
-        {
+		{
             get { return (bool)GetValue(IsEditableProperty); }
             set { SetValue(IsEditableProperty, value); }
         }
         public static readonly DotvvmProperty IsEditableProperty =
             DotvvmProperty.Register<bool, GridViewColumn>(t => t.IsEditable, true);
 
-        [MarkupOptions(AllowBinding = false)]
+		[PopDataContextManipulationAttribute]
         public string HeaderCssClass
-        {
+		{
             get { return (string)GetValue(HeaderCssClassProperty); }
             set { SetValue(HeaderCssClassProperty, value); }
         }
@@ -135,7 +138,7 @@ namespace DotVVM.Framework.Controls
                 var sortExpression = GetSortExpression();
 
                 var linkButton = new LinkButton();
-                linkButton.Text = HeaderText;
+                linkButton.SetValue(LinkButton.TextProperty, GetValueRaw(HeaderTextProperty));
                 cell.Children.Add(linkButton);
 
                 var bindingId = linkButton.GetValue(Internal.UniqueIDProperty) + "_sortBinding";
@@ -146,7 +149,8 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                var literal = new Literal(HeaderText);
+                var literal = new Literal();
+				literal.SetValue(Literal.TextProperty, GetValueRaw(HeaderTextProperty));
                 cell.Children.Add(literal);
             }
         }

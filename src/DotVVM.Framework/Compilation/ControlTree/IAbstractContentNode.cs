@@ -10,6 +10,5 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IEnumerable<IAbstractControl> Content { get; }
         IControlResolverMetadata Metadata { get; }
         IDataContextStack DataContextTypeStack { get; set; }
-
-    }
+	}
 }

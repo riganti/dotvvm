@@ -17,7 +17,7 @@
 			<Columns>
 				<!-- comment inside columns collection -->
 				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" />
-				<dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="{value: CustomNameForName}" ValueBinding="{value: Name}" AllowSorting="True" />
 				<dot:GridViewTextColumn ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True">
                     <HeaderTemplate>
 						<span class="class123">Birth date</span>
@@ -39,7 +39,7 @@
 					  RenderSettings.Mode="Server" PostBack.Update="true">
 			<Columns>
 				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
-				<dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="{value: CustomNameForName}" ValueBinding="{value: Name}" AllowSorting="True" />
 				<dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
 			</Columns>
 		</dot:GridView>
@@ -52,7 +52,7 @@
 		<dot:GridView DataSource="{value: Null}" class="table table-bordered" RenderSettings.Mode="Server">
 			<Columns>
 				<dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
-				<dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+				<dot:GridViewTextColumn HeaderText="{value: CustomNameForName}" ValueBinding="{value: Name}" AllowSorting="True" />
 				<dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
 			</Columns>
 		</dot:GridView>
@@ -72,12 +72,16 @@
             <Columns>
                 <!-- comment inside columns collection -->
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" />
-                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="{value: CustomNameForName}" ValueBinding="{value: Name}" AllowSorting="True" />
                 <dot:GridViewTextColumn HeaderText="Birth date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
             </Columns>
             <!-- comment inside control -->
         </dot:GridView>
 
 	</div>
+
+    <p>
+        Rename the `Name` string in Grid's headers: <dot:TextBox Text="{value: CustomNameForName}" />
+    </p>
 </body>
 </html>

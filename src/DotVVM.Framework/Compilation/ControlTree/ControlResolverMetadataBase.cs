@@ -62,9 +62,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public IEnumerable<IPropertyDescriptor> AllProperties => Properties.Values;
 
         [JsonIgnore]
-        public abstract DataContextChangeAttribute[] DataContextChangeAttributes { get; } 
+        public abstract DataContextChangeAttribute[] DataContextChangeAttributes { get; }
+		[JsonIgnore]
+		public abstract DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
 
-        public ControlResolverMetadataBase(IControlType controlType)
+
+		public ControlResolverMetadataBase(IControlType controlType)
         {
             this.controlType = controlType;
             this.attribute = controlType?.Type?.GetControlMarkupOptionsAttribute();
