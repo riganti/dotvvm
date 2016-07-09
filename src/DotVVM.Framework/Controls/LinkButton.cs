@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (IsPropertySet(TextProperty) && (!HasValueBinding(TextProperty) || RenderOnServer))
+            if (!HasValueBinding(TextProperty) || RenderOnServer)
             {
                 if (!string.IsNullOrEmpty(Text))
                 {
