@@ -183,6 +183,7 @@
     <Compile Include="ViewModels\ControlSamples\RadioButton\RadioButtonViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxFormatViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\TextBox\TextBoxViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\TextBox\TextBox_FormatDoublePropertyViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\UpdateProgress\UpdateProgressViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
     <Compile Include="ViewModels\Errors\EncryptedPropertyInValueBindingViewModel.cs" />
@@ -419,6 +420,7 @@
     <Content Include="Views\FeatureSamples\BindingNamespaces\BindingUsingNamespace.dothtml" />
     <Content Include="Views\ControlSamples\AuthenticatedView\AuthenticatedViewTest.dothtml" />
     <Content Include="Views\ControlSamples\RoleView\RoleViewTest.dothtml" />
+    <Content Include="Views\ControlSamples\TextBox\TextBox_FormatDoubleProperty.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
