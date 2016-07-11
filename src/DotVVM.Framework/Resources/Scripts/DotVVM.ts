@@ -859,7 +859,7 @@ class DotVVM {
                     }
 
                     // update element validation metadata
-                    if (result == null && element.value !== null && element.value !== "") {
+                    if (newValue == null && element.value !== null && element.value !== "") {
                         element.attributes["data-dotvvm-value-type-valid"] = false;
                         elmMetadata.elementValidationState = false;
                     } else {
