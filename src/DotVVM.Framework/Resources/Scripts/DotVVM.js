@@ -984,7 +984,7 @@ var DotVVM = (function () {
                         newValue = isEmpty ? null : result;
                     }
                     // update element validation metadata
-                    if (!result && element.value !== null && element.value !== "") {
+                    if (result == null && element.value !== null && element.value !== "") {
                         element.attributes["data-dotvvm-value-type-valid"] = false;
                         elmMetadata.elementValidationState = false;
                     }
