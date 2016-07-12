@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Compilation.Validation
         protected virtual MethodInfo[] FindMethods(Type type)
         {
             return type.GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static | BindingFlags.FlattenHierarchy)
-                .Where(m => Attribute.IsDefined(m, typeof(ControlUsageValidatorAttribute)))
+                .Where(m => m.IsDefined(typeof(ControlUsageValidatorAttribute)))
                 .ToArray();
         }
 

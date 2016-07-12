@@ -7,6 +7,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Parser;
+using System.Reflection;
 
 namespace DotVVM.Framework.Controls
 {

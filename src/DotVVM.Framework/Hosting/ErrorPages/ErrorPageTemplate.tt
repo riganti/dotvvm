@@ -114,6 +114,10 @@ hr{
 		Write(WebUtility.HtmlEncode(str));
 	}
 
+	public void WriteUnencoded(string str) {
+		Write(str);
+	}
+
 	private void WriteException(Exception ex) 
 	{
 		using (var sr = new StringReader(ex.ToString()))

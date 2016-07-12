@@ -5,7 +5,7 @@ using System.Text;
 using DotVVM.Framework.ViewModel;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using Microsoft.AspNet.Identity;
+using System.Net;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 {
@@ -25,26 +25,26 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 
         public override Task Init()
         {
-            if (!Context.IsPostBack && Context.OwinContext.Authentication.User.Identity.IsAuthenticated)
+            if (!Context.IsPostBack && Context.HttpContext.User.Identity.IsAuthenticated)
             {
-                this.UserName = Context.OwinContext.Authentication.User.Identity.Name;
-                this.AdminRole = Context.OwinContext.Authentication.User.IsInRole("admin");
+                this.UserName = Context.HttpContext.User.Identity.Name;
+                this.AdminRole = Context.HttpContext.User.IsInRole("admin");
             }
             return base.Init();
         }
 
-        public void Login()
+        public async Task Login()
         {
-            var auth = Context.OwinContext.Authentication;
-            auth.SignOut(DefaultAuthenticationTypes.ExternalCookie);
+            var auth = Context.HttpContext.Authentication;
+            await auth.SignOutAsync("Cookie");
             var id = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, UserName)
-                    }, DefaultAuthenticationTypes.ApplicationCookie);
+                    }, "Cookie");
             if (AdminRole)
             {
                 id.AddClaim(new Claim(ClaimTypes.Role, "admin"));
             }
-            auth.SignIn(id);
+            await auth.SignInAsync("Cookie", new ClaimsPrincipal(new[] { id }));
 
             if (Context.Query.ContainsKey("ReturnUrl"))
             {

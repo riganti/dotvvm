@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Hosting
     /// An exception which is used to interrupt the request processing pipeline because the response has already been generated.
     /// </summary>
     [DebuggerStepThrough]
-    public class DotvvmInterruptRequestExecutionException : ApplicationException
+    public class DotvvmInterruptRequestExecutionException : Exception
     {
         public InterruptReason InterruptReason { get; set; }
 

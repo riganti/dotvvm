@@ -1,4 +1,3 @@
-using Microsoft.Owin;
 using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using System;
 using System.Collections.Generic;
@@ -8,16 +7,20 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
+using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class JQueryGlobalizeCultureMiddleware : OwinMiddleware
+    public class JQueryGlobalizeCultureMiddleware
     {
-        public JQueryGlobalizeCultureMiddleware(OwinMiddleware next) : base(next)
+		private readonly RequestDelegate next;
+
+		public JQueryGlobalizeCultureMiddleware(RequestDelegate next)
         {
+			this.next = next;
         }
 
-        public override Task Invoke(IOwinContext context)
+        public Task Invoke(HttpContext context)
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
 
@@ -27,7 +30,7 @@ namespace DotVVM.Framework.Hosting
             }
             else
             {
-                return Next.Invoke(context);
+                return next(context);
             }
         }
 
@@ -36,14 +39,14 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the embedded resource.
         /// </summary>
-        private Task RenderResponse(IOwinContext context)
+        private Task RenderResponse(HttpContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/javascript";
 
             var id = context.Request.Query[HostingConstants.GlobalizeCultureUrlIdParameter];
 
-            var js = JQueryGlobalizeScriptCreator.BuildCultureInfoScript(CultureInfo.GetCultureInfo(id));
+            var js = JQueryGlobalizeScriptCreator.BuildCultureInfoScript(new CultureInfo(id));
             return context.Response.WriteAsync(js);
         }
     }

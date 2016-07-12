@@ -2,29 +2,33 @@ using System;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Storage;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Primitives;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class DotvvmReturnedFileMiddleware : OwinMiddleware
+    public class DotvvmReturnedFileMiddleware
     {
         private readonly DotvvmConfiguration configuration;
+		private readonly RequestDelegate next;
 
-        public DotvvmReturnedFileMiddleware(OwinMiddleware next, DotvvmConfiguration configuration) : base(next)
+		public DotvvmReturnedFileMiddleware(RequestDelegate next, DotvvmConfiguration configuration)
         {
+			this.next = next;
             this.configuration = configuration;
         }
 
-        public override Task Invoke(IOwinContext context)
+        public Task Invoke(HttpContext context)
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
-            return url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal) ? RenderReturnedFile(context) : Next.Invoke(context);
+            return url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal) ? RenderReturnedFile(context) : next(context);
         }
 
-        private async Task RenderReturnedFile(IOwinContext context)
+        private async Task RenderReturnedFile(HttpContext context)
         {
             var returnedFileStorage = configuration.ServiceLocator.GetService<IReturnedFileStorage>();
             ReturnedFileMetadata metadata;
@@ -38,7 +42,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     foreach (var header in metadata.AdditionalHeaders)
                     {
-                        context.Response.Headers.Add(header);
+                        context.Response.Headers.Add(new KeyValuePair<string, StringValues>(header.Key, new StringValues(header.Value)));
                     }
                 }
 

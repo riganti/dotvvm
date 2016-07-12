@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using System.Reflection;
 
 namespace DotVVM.Framework.Routing
 {
@@ -61,11 +62,11 @@ namespace DotVVM.Framework.Routing
 
             if (defaultValues != null)
             {
-                DefaultValues = new Dictionary<string, object>(defaultValues, StringComparer.InvariantCultureIgnoreCase);
+                DefaultValues = new Dictionary<string, object>(defaultValues, StringComparer.OrdinalIgnoreCase);
             }
             else
             {
-                DefaultValues = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
+                DefaultValues = new Dictionary<string, object>(StringComparer.OrdinalIgnoreCase);
             }
         }
 
@@ -92,7 +93,7 @@ namespace DotVVM.Framework.Routing
             if (newRouteValues == null)
                 throw new ArgumentNullException(nameof(newRouteValues));
 
-            var values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
+            var values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, currentRouteValues);
             AddOrUpdateParameterCollection(values, newRouteValues);
 
@@ -107,7 +108,7 @@ namespace DotVVM.Framework.Routing
             if (currentRouteValues == null)
                 throw new ArgumentNullException(nameof(currentRouteValues));
 
-            var values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
+            var values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, currentRouteValues);
             AddOrUpdateParameterCollection(values, newRouteValues);
 
@@ -119,7 +120,7 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public string BuildUrl(object routeValues)
         {
-            var values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
+            var values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, routeValues);
 
             return BuildUrl(values);
@@ -133,7 +134,7 @@ namespace DotVVM.Framework.Routing
             if (routeValues == null)
                 throw new ArgumentNullException(nameof(routeValues));
 
-            var values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
+            var values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, routeValues);
 
             return BuildUrlCore(values);

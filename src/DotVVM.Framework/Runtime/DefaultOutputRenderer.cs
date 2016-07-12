@@ -4,12 +4,12 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
+using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -33,10 +33,10 @@ namespace DotVVM.Framework.Runtime
         public async Task WriteHtmlResponse(DotvvmRequestContext context, DotvvmView view)
         {
             // return the response
-            context.OwinContext.Response.ContentType = "text/html; charset=utf-8";
-            context.OwinContext.Response.Headers["Cache-Control"] = "no-cache";
+            context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
+            context.HttpContext.Response.Headers["Cache-Control"] = "no-cache";
             var html = RenderPage(context, view);
-            await context.OwinContext.Response.WriteAsync(html);
+            await context.HttpContext.Response.WriteAsync(html);
         }
 
         public void RenderPostbackUpdatedControls(DotvvmRequestContext context, DotvvmView page)
@@ -79,13 +79,13 @@ namespace DotVVM.Framework.Runtime
         public async Task WriteViewModelResponse(DotvvmRequestContext context, DotvvmView view)
         {
             // return the response
-            context.OwinContext.Response.ContentType = "application/json; charset=utf-8";
-            context.OwinContext.Response.Headers["Cache-Control"] = "no-cache";
+            context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+            context.HttpContext.Response.Headers["Cache-Control"] = "no-cache";
             var serializedViewModel = context.GetSerializedViewModel();
-            await context.OwinContext.Response.WriteAsync(serializedViewModel);
+            await context.HttpContext.Response.WriteAsync(serializedViewModel);
         }
 
-        public async Task RenderPlainJsonResponse(IOwinContext context, object data)
+        public async Task RenderPlainJsonResponse(HttpContext context, object data)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "application/json; charset=utf-8";
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
         }
 
-        public async Task RenderHtmlResponse(IOwinContext context, string html)
+        public async Task RenderHtmlResponse(HttpContext context, string html)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/html; charset=utf-8";
@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(html);
         }
 
-        public async Task RenderPlainTextResponse(IOwinContext context, string text)
+        public async Task RenderPlainTextResponse(HttpContext context, string text)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/plain; charset=utf-8";

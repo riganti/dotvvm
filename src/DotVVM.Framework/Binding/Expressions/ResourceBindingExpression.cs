@@ -7,6 +7,7 @@ using System.Resources;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -168,7 +169,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 {
                     throw new Exception($"Invalid resource type '{resourceType}'!");
                 }
-                var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+                var assemblies = ReflectionUtils.GetAllAssemblies();
                 types = assemblies.Select(assembly => assembly.GetType(resourceType)).Where(s => s != null).ToList();
 
                 // debug

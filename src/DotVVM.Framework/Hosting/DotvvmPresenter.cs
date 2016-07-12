@@ -5,7 +5,6 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -19,6 +18,11 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
+#if DotNetCore
+using Context = Microsoft.AspNetCore.Http.HttpContext;
+#else
+using Context = Microsoft.Owin.HttpContext;
+#endif
 
 namespace DotVVM.Framework.Hosting
 {
@@ -78,7 +82,7 @@ namespace DotVVM.Framework.Hosting
             }
             catch (UnauthorizedAccessException)
             {
-                context.OwinContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             }
             catch (DotvvmControlException ex)
             {
@@ -89,18 +93,18 @@ namespace DotVVM.Framework.Hosting
 
         public async Task ProcessRequestCore(DotvvmRequestContext context)
         {
-            if (context.OwinContext.Request.Method != "GET" && context.OwinContext.Request.Method != "POST")
+            if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
             {
                 // unknown HTTP method
-                context.OwinContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 throw new DotvvmHttpException("Only GET and POST methods are supported!");
             }
-            if (context.OwinContext.Request.Headers["X-PostbackType"] == "StaticCommand")
+            if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
             {
                 await ProcessStaticCommandRequest(context);
                 return;
             }
-            var isPostBack = context.IsPostBack = DetermineIsPostBack(context.OwinContext);
+            var isPostBack = context.IsPostBack = DetermineIsPostBack(context.HttpContext);
             context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
 
             // build the page view
@@ -113,7 +117,7 @@ namespace DotVVM.Framework.Hosting
 
             // get action filters
             var globalFilters = context.Configuration.Runtime.GlobalFilters.ToList();
-            var viewModelFilters = context.ViewModel.GetType().GetCustomAttributes<ActionFilterAttribute>(true).ToList();
+            var viewModelFilters = context.ViewModel.GetType().GetTypeInfo().GetCustomAttributes<ActionFilterAttribute>(true).ToList();
 
             try
             {
@@ -153,7 +157,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     // perform the postback
                     string postData;
-                    using (var sr = new StreamReader(context.OwinContext.Request.Body))
+                    using (var sr = new StreamReader(context.HttpContext.Request.Body))
                     {
                         postData = await sr.ReadToEndAsync();
                     }
@@ -264,7 +268,7 @@ namespace DotVVM.Framework.Hosting
         public async Task ProcessStaticCommandRequest(DotvvmRequestContext context)
         {
             JObject postData;
-            using (var jsonReader = new JsonTextReader(new StreamReader(context.OwinContext.Request.Body)))
+            using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
             {
                 postData = JObject.Load(jsonReader);
             }
@@ -279,7 +283,7 @@ namespace DotVVM.Framework.Hosting
             var methodName = command.Substring(lastDot + 1);
             var methodInfo = Type.GetType(typeName).GetMethod(methodName);
 
-            if (!Attribute.IsDefined(methodInfo, typeof(AllowStaticCommandAttribute)))
+            if (!methodInfo.IsDefined(typeof(AllowStaticCommandAttribute)))
             {
                 throw new DotvvmHttpException($"This method cannot be called from the static command. If you need to call this method, add the '{nameof(AllowStaticCommandAttribute)}' to the method.");
             }
@@ -294,7 +298,7 @@ namespace DotVVM.Framework.Hosting
                 Action = () => methodInfo.Invoke(target, methodArguments)
             };
             var filters = context.Configuration.Runtime.GlobalFilters
-                .Concat(methodInfo.DeclaringType.GetCustomAttributes<ActionFilterAttribute>())
+                .Concat(methodInfo.DeclaringType.GetTypeInfo().GetCustomAttributes<ActionFilterAttribute>())
                 .Concat(methodInfo.GetCustomAttributes<ActionFilterAttribute>())
                 .ToArray();
 
@@ -302,7 +306,7 @@ namespace DotVVM.Framework.Hosting
             await task;
             object result = TaskUtils.GetResult(task);
 
-            using (var writer = new StreamWriter(context.OwinContext.Response.Body))
+            using (var writer = new StreamWriter(context.HttpContext.Response.Body))
             {
                 writer.WriteLine(JsonConvert.SerializeObject(result));
             }
@@ -347,22 +351,22 @@ namespace DotVVM.Framework.Hosting
             return result as Task ?? (result == null ? TaskUtils.GetCompletedTask() : Task.FromResult(result));
         }
 
-        public static bool DetermineIsPostBack(IOwinContext context)
+        public static bool DetermineIsPostBack(Context context)
         {
             return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.SpaPostBackHeaderName);
         }
 
-        public static bool DetermineSpaRequest(IOwinContext context)
+        public static bool DetermineSpaRequest(Context context)
         {
             return !string.IsNullOrEmpty(context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName]);
         }
 
-        public static bool DeterminePartialRendering(IOwinContext context)
+        public static bool DeterminePartialRendering(Context context)
         {
             return DetermineIsPostBack(context) || DetermineSpaRequest(context);
         }
 
-        public static string DetermineSpaContentPlaceHolderUniqueId(IOwinContext context)
+        public static string DetermineSpaContentPlaceHolderUniqueId(Context context)
         {
             return context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName];
         }

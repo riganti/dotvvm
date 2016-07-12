@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
@@ -525,7 +526,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             error = null;
             T result;
             if (method(text, styles, CultureInfo.InvariantCulture, out result)) return result;
-            error = $"could not parse { text } using { method.Method.DeclaringType.FullName + "." + method.Method.Name }";
+            error = $"could not parse { text } using { method.GetMethodInfo().DeclaringType.FullName + "." + method.GetMethodInfo().Name }";
             return null;
         }
 

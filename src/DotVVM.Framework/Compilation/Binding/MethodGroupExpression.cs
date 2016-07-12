@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (throwException) throw new Exception($"Could not convert method group '{Target.Type.Name}.{ MethodName }' to delegate '{ delegateType.FullName }'");
                 else return null;
             if (IsStatic)
-                return Expression.Constant(Delegate.CreateDelegate(delegateType, method));
+                return Expression.Constant(method.CreateDelegate(delegateType));
             else
                 return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(delegateType), Target, Expression.Constant(method));
         }
@@ -69,7 +69,7 @@ namespace DotVVM.Framework.Compilation.Binding
             if (methodInfo == null) throw new Exception($"can not create delegate from method '{ MethodName }' on type '{ Target.Type.FullName }'");
 
             if (IsStatic)
-                return Expression.Constant(Delegate.CreateDelegate(GetDelegateType(methodInfo), methodInfo));
+                return Expression.Constant(methodInfo.CreateDelegate(GetDelegateType(methodInfo)));
             else
                 return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(GetDelegateType(methodInfo)), Target, Expression.Constant(methodInfo));
         }

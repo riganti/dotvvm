@@ -12,14 +12,14 @@ namespace DotVVM.Framework.Compilation
         private ConcurrentDictionary<Assembly, MetadataReference> cachedAssemblyMetadata = new ConcurrentDictionary<Assembly, MetadataReference>();
         private ConcurrentDictionary<string, Assembly> cachedAssemblies = new ConcurrentDictionary<string, Assembly>();
 
-        /// <summary>
-        /// Tries to resolve compiled assembly.
-        /// </summary>
-        public Assembly TryResolveAssembly(object sender, ResolveEventArgs args)
-        {
-            Assembly assembly;
-            return cachedAssemblies.TryGetValue(args.Name, out assembly) ? assembly : null;
-        }
+        ///// <summary>
+        ///// Tries to resolve compiled assembly.
+        ///// </summary>
+        //public Assembly TryResolveAssembly(object sender, ResolveEventArgs args)
+        //{
+        //    Assembly assembly;
+        //    return cachedAssemblies.TryGetValue(args.Name, out assembly) ? assembly : null;
+        //}
 
 
 
@@ -51,7 +51,7 @@ namespace DotVVM.Framework.Compilation
         {
             Instance = new CompiledAssemblyCache();
 
-            AppDomain.CurrentDomain.AssemblyResolve += Instance.TryResolveAssembly;
+            //AppDomain.CurrentDomain.AssemblyResolve += Instance.TryResolveAssembly;
         }
     }
 }

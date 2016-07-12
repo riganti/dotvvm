@@ -3,32 +3,34 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.Loader;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.DependencyModel;
+#if DotNetCore
+using Context = Microsoft.AspNetCore.Http.HttpContext;
+#else
+using Context = Microsoft.Owin.HttpContext;
+#endif
 
 namespace DotVVM.Framework.Hosting
 {
     /// <summary>
     /// Provides access to embedded resources in the DotVVM.Framework assembly.
     /// </summary>
-    public class DotvvmEmbeddedResourceMiddleware : OwinMiddleware
+    public class DotvvmEmbeddedResourceMiddleware
     {
-        public DotvvmEmbeddedResourceMiddleware(OwinMiddleware next) : base(next)
+        private readonly RequestDelegate next;
+
+        public DotvvmEmbeddedResourceMiddleware(RequestDelegate next)
         {
+            this.next = next;
         }
 
-        public override Task Invoke(IOwinContext context)
+        public Task Invoke(HttpContext context)
         {
-            // try resolve the route
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
-
-            // disable access to the dotvvm.json file
-            if (url.StartsWith("dotvvm.json", StringComparison.CurrentCultureIgnoreCase))
-            {
-                context.Response.StatusCode = (int)HttpStatusCode.NotFound;
-                throw new UnauthorizedAccessException("The dotvvm.json cannot be served!");
-            }
 
             // embedded resource handler URL
             if (url.StartsWith(HostingConstants.ResourceHandlerMatchUrl, StringComparison.Ordinal))
@@ -37,7 +39,7 @@ namespace DotVVM.Framework.Hosting
             }
             else
             {
-                return Next.Invoke(context);
+                return next(context);
             }
         }
 
@@ -46,13 +48,13 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the embedded resource.
         /// </summary>
-        private async Task RenderEmbeddedResource(IOwinContext context)
+        private async Task RenderEmbeddedResource(HttpContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 
-            var resourceName = context.Request.Query["name"];
-            var assembly = AppDomain.CurrentDomain.GetAssemblies().FirstOrDefault(a => a.GetName().Name == context.Request.Query["assembly"]);
-
+			var resourceName = context.Request.Query["name"].ToString();
+            var assemblyName = DependencyContext.Default.GetDefaultAssemblyNames().FirstOrDefault(a => a.Name == context.Request.Query["assembly"]);
+			var assembly = Assembly.Load(assemblyName);
             if (resourceName.EndsWith(".js", StringComparison.Ordinal))
             {
                 context.Response.ContentType = "text/javascript";

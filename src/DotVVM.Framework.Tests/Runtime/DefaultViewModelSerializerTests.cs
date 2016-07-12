@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Tests.Runtime
             context = new DotvvmRequestContext()
             {
                 Configuration = configuration,
-                OwinContext = new Microsoft.Owin.Fakes.StubIOwinContext()
+                OwinContext = new Microsoft.Owin.Fakes.StubHttpContext()
                 {
                     RequestGet = () => new Microsoft.Owin.Fakes.StubIOwinRequest()
                     {

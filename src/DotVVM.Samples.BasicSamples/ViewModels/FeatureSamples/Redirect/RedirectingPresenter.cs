@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Web;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect

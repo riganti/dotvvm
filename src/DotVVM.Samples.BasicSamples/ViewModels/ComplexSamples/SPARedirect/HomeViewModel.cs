@@ -1,5 +1,6 @@
 ﻿using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.ViewModel;
+using System.Threading.Tasks;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 {
@@ -7,9 +8,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 	public class HomeViewModel : DotvvmViewModelBase
 	{
 
-        public void SignOut()
+        public async Task SignOut()
         {
-            Context.OwinContext.Authentication.SignOut();
+            await Context.HttpContext.Authentication.SignOutAsync("Cookie");
             
             Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
         }

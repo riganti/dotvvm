@@ -1,21 +1,20 @@
-using System;
-using Microsoft.Owin;
+//using System;
 
-namespace DotVVM.Samples.BasicSamples
-{
-    public class SwitchMiddlewareCase
-    {
+//namespace DotVVM.Samples.BasicSamples
+//{
+//    public class SwitchMiddlewareCase
+//    {
 
-        public Func<IOwinContext, bool> Condition { get; set; }
+//        public Func<HttpContext, bool> Condition { get; set; }
 
-        public Func<OwinMiddleware, OwinMiddleware> MiddlewareFactory { get; set; }
+//        public Func<OwinMiddleware, OwinMiddleware> MiddlewareFactory { get; set; }
 
 
-        public SwitchMiddlewareCase(Func<IOwinContext, bool> condition, Func<OwinMiddleware, OwinMiddleware> middlewareFactory)
-        {
-            Condition = condition;
-            MiddlewareFactory = middlewareFactory;
-        }
+//        public SwitchMiddlewareCase(Func<HttpContext, bool> condition, Func<OwinMiddleware, OwinMiddleware> middlewareFactory)
+//        {
+//            Condition = condition;
+//            MiddlewareFactory = middlewareFactory;
+//        }
 
-    }
-}
+//    }
+//}

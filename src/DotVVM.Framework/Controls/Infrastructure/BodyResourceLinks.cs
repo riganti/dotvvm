@@ -6,6 +6,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ResourceManagement;
+using System.Globalization;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
@@ -38,7 +39,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText($@"
 window.dotvvm.domUtils.onDocumentReady(function () {{ 
-    window.dotvvm.init('root', '{Thread.CurrentThread.CurrentUICulture.Name}'); 
+    window.dotvvm.init('root', '{CultureInfo.CurrentUICulture.Name}'); 
 }});");
             writer.RenderEndTag();
         }

@@ -25,7 +25,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
         public void ReplaceMessage()
         {
             Message = LastMessage = string.Format("{0}: {1}",
-                Context.OwinContext.Authentication.User.Identity.Name,
+                Context.HttpContext.User.Identity.Name,
                 MessageEditor);
         }
     }

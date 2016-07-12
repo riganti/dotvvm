@@ -7,16 +7,22 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
+
+#if DotNetCore
+using Context = Microsoft.AspNetCore.Http.HttpContext;
+#else
+using Context = Microsoft.Owin.HttpContext;
+#endif
 
 namespace DotVVM.Framework.Hosting
 {
     public interface IDotvvmRequestContext
     {
         /// <summary>
-        /// Gets the underlying <see cref="IOwinContext"/> object for this HTTP request.
+        /// Gets the underlying <see cref="HttpContext"/> object for this HTTP request.
         /// </summary>
-        IOwinContext OwinContext { get; }
+        Context HttpContext { get; }
 
         /// <summary>
         /// Gets the view model for the current request.
@@ -96,10 +102,10 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         string ResultIdFragment { get; set; }
 
-        /// <summary>
-        /// Changes the current culture of this HTTP request.
-        /// </summary>
-        void ChangeCurrentCulture(string cultureName);
+		/// <summary>
+		/// Changes the current culture of this HTTP request.
+		/// </summary>
+		void ChangeCurrentCulture(string cultureName);
 
         /// <summary>
         /// Returns current UI culture of this HTTP request.

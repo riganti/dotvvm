@@ -6,6 +6,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
+using System.Reflection;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -60,7 +61,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // handle null keyword
             if (reader.TokenType == JsonToken.Null)
             {
-                if (objectType.IsValueType)
+                if (objectType.GetTypeInfo().IsValueType)
                     throw new InvalidOperationException(string.Format("Recieved NULL for value type. Path: " + reader.Path));
 
                 return null;
@@ -105,12 +106,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         public static bool IsNullableType(Type type)
         {
-            return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
+            return type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>);
         }
 
         public static bool IsEnum(Type type)
         {
-            return type.IsEnum;
+            return type.GetTypeInfo().IsEnum;
         }
 
         public static bool IsComplexType(Type type)

@@ -41,9 +41,9 @@ namespace DotVVM.Framework.Compilation.Binding
                     var field = members[0] as FieldInfo;
                     return Expression.Field(instance, field);
                 }
-                else if (members[0] is Type)
+                else if (members[0] is TypeInfo)
                 {
-                    return Expression.Constant(null, (Type)members[0]);
+                    return Expression.Constant(null, ((TypeInfo)members[0]).UnderlyingSystemType);
                 }
             }
             return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments };
@@ -192,12 +192,12 @@ namespace DotVVM.Framework.Compilation.Binding
                 if (m != null) return m;
             }
 
-            if (left.Type.IsValueType)
+            if (left.Type.GetTypeInfo().IsValueType)
             {
                 equatable = left;
                 theOther = right;
             }
-            else if (left.Type.IsValueType)
+            else if (left.Type.GetTypeInfo().IsValueType)
             {
                 equatable = right;
                 theOther = left;

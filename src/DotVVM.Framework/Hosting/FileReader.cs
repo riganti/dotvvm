@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public FileReader(string fileName)
         {
-            streamReader = new StreamReader(fileName, true);
+            streamReader = File.OpenText(fileName);
             ReadCore();
         }
 

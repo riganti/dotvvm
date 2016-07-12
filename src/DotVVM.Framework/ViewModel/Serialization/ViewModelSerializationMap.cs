@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -380,8 +381,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             return !(
                 // primitives can't contain encrypted fields
-                type.IsPrimitive ||
-                type.IsEnum ||
+                type.GetTypeInfo().IsPrimitive ||
+                type.GetTypeInfo().IsEnum ||
                 type == typeof(string)
            );
         }

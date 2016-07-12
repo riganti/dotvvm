@@ -1,5 +1,4 @@
-﻿using Microsoft.Owin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -28,56 +27,56 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             {
                 WriteException(w, model.InnerException);
             }
-            w.Write("<div class='exception'><span class='exceptionType'>");
+            w.WriteUnencoded("<div class='exception'><span class='exceptionType'>");
             w.WriteText(model.TypeName);
-            w.Write("</span><span class='exceptionMessage'>");
+            w.WriteUnencoded("</span><span class='exceptionMessage'>");
             w.WriteText(model.Message);
-            w.Write("</span><hr />");
+            w.WriteUnencoded("</span><hr />");
             if (model.AdditionalInfo != null && model.AdditionalInfo.Length > 0)
             {
-                w.Write("<div class='exceptionAdditionalInfo'>");
+                w.WriteUnencoded("<div class='exceptionAdditionalInfo'>");
                 foreach (var info in model.AdditionalInfo)
                 {
-                    w.Write("<div> <h3>");
+                    w.WriteUnencoded("<div> <h3>");
                     w.WriteText(info.Title);
-                    w.Write("</h3>");
+                    w.WriteUnencoded("</h3>");
                     if (info.Objects != null)
                         foreach (var obj in info.Objects)
                         {
                             if (info.Display == ExceptionAdditionalInfo.DisplayMode.ToString)
                             {
-                                w.Write("<p>" + WebUtility.HtmlEncode(obj.ToString()) + "</p>");
+                                w.WriteUnencoded("<p>" + WebUtility.HtmlEncode(obj.ToString()) + "</p>");
                             }
                             else if (info.Display == ExceptionAdditionalInfo.DisplayMode.ObjectBrowser)
                             {
                                 w.ObjectBrowser(obj);
                             }
                         }
-                    w.Write("</div><hr />");
+                    w.WriteUnencoded("</div><hr />");
                 }
-                w.Write("</div>");
+                w.WriteUnencoded("</div>");
             }
             w.ObjectBrowser(model.OriginalException);
-            w.Write("<hr /><div class='exceptionStackTrace'>");
+            w.WriteUnencoded("<hr /><div class='exceptionStackTrace'>");
             foreach (var frame in model.Stack)
             {
-                w.Write("<div class='frame'><span class='method code'>");
+                w.WriteUnencoded("<div class='frame'><span class='method code'>");
                 w.WriteText(FormatMethod(frame.Method));
-                w.Write(" </span>");
+                w.WriteUnencoded(" </span>");
                 if (frame.At.FileName != null) w.WriteText(frame.At.FileName + " +" + frame.At.LineNumber);
-                w.Write("<span class='docLinks'>");
+                w.WriteUnencoded("<span class='docLinks'>");
                 foreach (var icon in frame.MoreInfo)
                 {
-                    w.Write("<a target=\"_blank\" href='" + icon.Link + "'>");
-                    w.Write(icon.ContentHtml);
-                    w.Write("</a>");
+                    w.WriteUnencoded("<a target=\"_blank\" href='" + icon.Link + "'>");
+                    w.WriteUnencoded(icon.ContentHtml);
+                    w.WriteUnencoded("</a>");
                 }
-                w.Write("</span>");
+                w.WriteUnencoded("</span>");
                 w.WriteSourceCode(frame.At);
-                w.Write("</div>");
+                w.WriteUnencoded("</div>");
             }
-            w.Write("</div>");
-            w.Write("</div>");
+            w.WriteUnencoded("</div>");
+            w.WriteUnencoded("</div>");
         }
 
         protected virtual string FormatMethod(MethodBase method)
@@ -111,7 +110,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public void WriteHead(IErrorWriter w)
         {
-            w.Write(@"
+            w.WriteUnencoded(@"
 .exception .exceptionType:after { content: ': '; }
 .exception .exceptionType { font-size: 1.2em; font-weight: bold; }
 .exception .exceptionMessage { font-style: italic; }

@@ -102,11 +102,11 @@ namespace DotVVM.Framework.Compilation
         {
             return CSharpCompilation.Create(assemblyName).AddReferences(new[]
                 {
-                    typeof(object).Assembly,
-                    typeof(RuntimeBinderException).Assembly,
-                    typeof(System.Runtime.CompilerServices.DynamicAttribute).Assembly,
-                    Assembly.GetExecutingAssembly()
-                }.Concat(configuration.Markup.Assemblies.Select(Assembly.Load)).Distinct()
+                    typeof(object).GetTypeInfo().Assembly,
+                    typeof(RuntimeBinderException).GetTypeInfo().Assembly,
+                    typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly,
+                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                }.Concat(configuration.Markup.Assemblies.Select(/*Assembly.Load*/e => Assembly.Load(null))).Distinct()
                 .Select(a => assemblyCache.GetAssemblyMetadata(a)))
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
@@ -126,7 +126,7 @@ namespace DotVVM.Framework.Compilation
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {
-                    var assembly = Assembly.Load(ms.ToArray());
+                    var assembly = Assembly.Load(/*ms.ToArray()*/null);
                     assemblyCache.AddAssembly(assembly, compilation.ToMetadataReference());
                     return assembly;
                 }

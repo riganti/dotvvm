@@ -2,12 +2,11 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Runtime.Serialization;
 using DotVVM.Framework.Compilation.Parser;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class DotvvmCompilationException : ApplicationException
+    public class DotvvmCompilationException : Exception
     {
 
         public string FileName { get; set; }
@@ -36,12 +35,5 @@ namespace DotVVM.Framework.Compilation
         }
 
         public DotvvmCompilationException(string message, IEnumerable<TokenBase> tokens) : this(message, null, tokens) { }
-
-        public override void GetObjectData(SerializationInfo info, StreamingContext context)
-        {
-            base.GetObjectData(info, context);
-            info.AddValue(nameof(LineNumber), LineNumber);
-            info.AddValue(nameof(ColumnNumber), ColumnNumber);
-        }
     }
 }

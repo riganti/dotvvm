@@ -4,6 +4,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Styles
 {

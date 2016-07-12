@@ -6,9 +6,10 @@ using System.Security.Principal;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
-using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Hosting;
-using Microsoft.Owin.Security.DataProtection;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Security
 {
@@ -41,7 +42,7 @@ namespace DotVVM.Framework.Security
             // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.Create(PURPOSE_TOKEN, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN, userIdentity, requestIdentity);
 
             // Get token
             var tokenData = protector.Protect(sid);
@@ -58,7 +59,7 @@ namespace DotVVM.Framework.Security
             // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.Create(PURPOSE_TOKEN, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN, userIdentity, requestIdentity);
 
             // Get token
             byte[] tokenSid;
@@ -90,10 +91,10 @@ namespace DotVVM.Framework.Security
             // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.Create(PURPOSE_SID);
+            var protector = this.protectionProvider.CreateProtector(PURPOSE_SID);
 
             // Get cookie value
-            var sidCookieValue = mgr.GetRequestCookie(context.OwinContext, sessionIdCookieName);
+            var sidCookieValue = mgr.GetRequestCookie(context.HttpContext, sessionIdCookieName);
 
             if (!string.IsNullOrWhiteSpace(sidCookieValue))
             {
@@ -118,7 +119,7 @@ namespace DotVVM.Framework.Security
 
             if(canGenerate)
             {
-                var rng = new System.Security.Cryptography.RNGCryptoServiceProvider();
+				var rng = System.Security.Cryptography.RandomNumberGenerator.Create();
                 var sid = new byte[SID_LENGTH];
                 rng.GetBytes(sid);
                 var protectedSid = protector.Protect(sid);
@@ -126,13 +127,13 @@ namespace DotVVM.Framework.Security
                 // Save to cookie
                 sidCookieValue = Convert.ToBase64String(protectedSid);
                 mgr.AppendResponseCookie(
-                    context.OwinContext,
+                    context.HttpContext,
                     sessionIdCookieName,                                // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value
-                    new Microsoft.Owin.CookieOptions
+                    new CookieOptions
                     {
                         HttpOnly = true,                                // Don't allow client script access
-                        Secure = context.OwinContext.Request.IsSecure   // If request goes trough HTTPS, mark as secure only
+                        Secure = context.HttpContext.Request.IsHttps   // If request goes trough HTTPS, mark as secure only
                     });
 
                 // Return newly generated SID
@@ -146,10 +147,10 @@ namespace DotVVM.Framework.Security
 
         private string GetSessionIdCookieName(IDotvvmRequestContext context)
         {
-            var domain = context.OwinContext.Request.Uri.Host;
-            if (!context.OwinContext.Request.Uri.IsDefaultPort)
+            var domain = context.HttpContext.Request.Host.Host;
+            if (context.HttpContext.Request.Host.Port != (context.HttpContext.Request.IsHttps ? 443 : 80))
             {
-                domain += "-" + context.OwinContext.Request.Uri.Port;
+                domain += "-" + context.HttpContext.Request.Host.Port;
             }
             return string.Format(context.Configuration.Security.SessionIdCookieName, domain);
         }

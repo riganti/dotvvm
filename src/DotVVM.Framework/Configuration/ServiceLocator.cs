@@ -36,6 +36,5 @@ namespace DotVVM.Framework.Configuration
         {
             return () => singletonInstances.GetOrAdd(typeof (T), t => factory());
         }
-        
     }
 }

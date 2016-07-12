@@ -203,7 +203,7 @@ namespace DotVVM.Framework.Routing
                 return false;
             }
 
-            values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
+            values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
 
             foreach (var parameter in parameters)
             {

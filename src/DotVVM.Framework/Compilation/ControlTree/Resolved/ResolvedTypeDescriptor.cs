@@ -33,7 +33,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public ControlMarkupOptionsAttribute GetControlMarkupOptionsAttribute()
         {
-            return Type.GetCustomAttribute<ControlMarkupOptionsAttribute>();
+            return Type.GetTypeInfo().GetCustomAttribute<ControlMarkupOptionsAttribute>();
         }
 
         public bool IsEqualTo(ITypeDescriptor other)
@@ -51,14 +51,14 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
             // handle iEnumerables
             Type iEnumerable;
-            if (Type.IsGenericType && Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
+            if (Type.GetTypeInfo().IsGenericType && Type.GetGenericTypeDefinition() == typeof(IEnumerable<>))
             {
                 iEnumerable = Type;
             }
             else
             {
                 iEnumerable = Type.GetInterfaces()
-                    .FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+                    .FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
             }
             if (iEnumerable != null)
             {

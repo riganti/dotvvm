@@ -14,6 +14,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using System.Security;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -98,8 +99,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
-            result["virtualDirectory"] = DotvvmMiddleware.GetVirtualDirectory(context.OwinContext);
+            result["url"] = new Uri(context.HttpContext.Request.GetDisplayUrl()).PathAndQuery;
+            result["virtualDirectory"] = DotvvmMiddleware.GetVirtualDirectory(context.HttpContext);
             if (context.ResultIdFragment != null)
             {
                 result["resultIdFragment"] = context.ResultIdFragment;

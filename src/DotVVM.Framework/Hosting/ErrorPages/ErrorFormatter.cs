@@ -1,5 +1,4 @@
-﻿using Microsoft.Owin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -9,6 +8,7 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
+using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {
@@ -20,12 +20,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             m.Message = exception.Message;
             m.OriginalException = exception;
             m.TypeName = exception.GetType().FullName;
-            var s = new StackTrace(exception, true);
+            var frames = new StackTrace(exception, true).GetFrames();
             var stack = new List<StackFrameModel>();
             bool skipping = existingTrace != null;
-            for (int i = s.FrameCount - 1; i >= 0; i--)
+            for (int i = frames.Length - 1; i >= 0; i--)
             {
-                var f = s.GetFrame(i);
+                var f = frames[i];
                 if (skipping && existingTrace.Length > i && f.GetMethod() == existingTrace[i].Method) continue;
                 skipping = false;
 
@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/";
             const string Octocat = @"https://assets-cdn.github.com/favicon.ico";
-            if (frame.Method?.DeclaringType?.Assembly == typeof(ErrorFormatter).Assembly)
+            if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly == typeof(ErrorFormatter).GetTypeInfo().Assembly)
             {
                 // dotvvm github
                 if (frame.At?.FileName != null)
@@ -107,7 +107,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             const string DotNetIcon = "http://referencesource.microsoft.com/favicon.ico";
             const string SourceUrl = "http://referencesource.microsoft.com/";
-            if (frame.Method?.DeclaringType?.Assembly != null && ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.Assembly.GetName().Name))
+            if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly != null && ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.GetTypeInfo().Assembly.GetName().Name))
             {
                 if (frame.At?.FileName != null)
                 {
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 else
                 {
                    
-                    if (frame.Method.DeclaringType.IsGenericType)
+                    if (frame.Method.DeclaringType.GetTypeInfo().IsGenericType)
                     {
                         var url = SourceUrl + "#q=" + WebUtility.HtmlEncode(GetGenericFullName(frame.Method.DeclaringType).Replace('+', '.'));
                         return FrameMoreInfo.CreateThumbLink(url, DotNetIcon);
@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static string GetGenericFullName(Type type)
         {
-            if (!type.IsGenericType) return type.FullName;
+            if (!type.GetTypeInfo().IsGenericType) return type.FullName;
 
             var name = type.FullName;
             name = name.Remove(name.IndexOf("`", StringComparison.Ordinal));
@@ -201,9 +201,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return result;
         }
 
-        public List<Func<Exception, IOwinContext, IErrorSectionFormatter>> Formatters = new List<Func<Exception, IOwinContext, IErrorSectionFormatter>>();
+        public List<Func<Exception, HttpContext, IErrorSectionFormatter>> Formatters = new List<Func<Exception, HttpContext, IErrorSectionFormatter>>();
 
-        public string ErrorHtml(Exception exception, IOwinContext owin)
+        public string ErrorHtml(Exception exception, HttpContext owin)
         {
             var template = new ErrorPageTemplate();
             template.Formatters = Formatters.Select(f => f(exception, owin)).Where(t => t != null).ToArray();
@@ -221,7 +221,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter { Exception = f.LoadException(e) });
             f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
             f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Environment", "env", o.Environment));
+            f.Formatters.Add((e, o) => DictionarySection.Create("Environment", "env", o.Items));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo
             {
                 Title = "Loader Exceptions",

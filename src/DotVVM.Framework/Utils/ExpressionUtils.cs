@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Utils
         public static Expression Indexer(Expression instance, Expression index)
         {
             return Expression.Property(instance,
-                            instance.Type.GetProperty("Item", new[] { index.Type }),
+                            instance.Type.GetTypeInfo().GetProperty("Item", new[] { index.Type }),
                             index);
         }
 

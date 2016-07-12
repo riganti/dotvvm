@@ -250,9 +250,9 @@ namespace DotVVM.Framework.Binding
             var fullName = type.FullName + "." + name;
 
             DotvvmProperty property;
-            while (!registeredProperties.TryGetValue(fullName, out property) && type.BaseType != null)
+            while (!registeredProperties.TryGetValue(fullName, out property) && type.GetTypeInfo().BaseType != null)
             {
-                type = type.BaseType;
+                type = type.GetTypeInfo().BaseType;
                 fullName = type.FullName + "." + name;
             }
             return property;
@@ -273,10 +273,10 @@ namespace DotVVM.Framework.Binding
         public static IReadOnlyList<DotvvmProperty> ResolveProperties(Type type)
         {
             var types = new HashSet<Type>();
-            while (type.BaseType != null)
+            while (type.GetTypeInfo().BaseType != null)
             {
                 types.Add(type);
-                type = type.BaseType;
+                type = type.GetTypeInfo().BaseType;
             }
 
             return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToList();

@@ -2,10 +2,10 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Storage;
+using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Runtime
 {
@@ -16,11 +16,11 @@ namespace DotVVM.Framework.Runtime
 
         Task WriteViewModelResponse(DotvvmRequestContext context, DotvvmView view);
 
-        Task RenderPlainJsonResponse(IOwinContext context, object data);
+        Task RenderPlainJsonResponse(HttpContext context, object data);
 
-        Task RenderHtmlResponse(IOwinContext context, string html);
+        Task RenderHtmlResponse(HttpContext context, string html);
 
-        Task RenderPlainTextResponse(IOwinContext context, string text);
+        Task RenderPlainTextResponse(HttpContext context, string text);
         void RenderPostbackUpdatedControls(DotvvmRequestContext context, DotvvmView page);
     }
 }

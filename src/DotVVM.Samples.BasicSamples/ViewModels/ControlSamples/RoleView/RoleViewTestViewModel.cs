@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
 using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RoleView
 {
@@ -11,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RoleView
 	{
         public List<string> DesiredRoles { get; set; } = new List<string>();
 
-        public void SignIn()
+        public async Task SignIn()
         {
             var identity = new ClaimsIdentity(
                 new[]
@@ -21,13 +22,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RoleView
                 .Concat(DesiredRoles.Select(r => new Claim(ClaimTypes.Role, r))),
                 "ApplicationCookie");
 
-            Context.OwinContext.Authentication.SignIn(identity);
+            await Context.HttpContext.Authentication.SignInAsync("Cookie", new ClaimsPrincipal(identity));
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 
-        public void SignOut()
+        public async Task SignOut()
         {
-            Context.OwinContext.Authentication.SignOut();
+            await Context.HttpContext.Authentication.SignOutAsync("Cookie");
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using DotVVM.Framework.ViewModel;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.RedirectAndUrl
 {
@@ -25,14 +26,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.RedirectAndUrl
         public void GoToParagraph2WithRedirectToUrl()
         {
             Message = "GoToParagraph2_With_RedirectToUrl";
-            var path = Context.OwinContext.Request.Uri;
+			var path = Context.HttpContext.Request.GetDisplayUrl();
             Context.RedirectToUrl($"{path}#paragraph2");
         }
 
         public void TestQueryString()
         {
             Message = "TestQuerystring";
-            var path = Context.OwinContext.Request.Uri;
+            var path = Context.HttpContext.Request.GetDisplayUrl();
             Context.RedirectToUrl($"{path}?q='delf'&meep");
         }
 

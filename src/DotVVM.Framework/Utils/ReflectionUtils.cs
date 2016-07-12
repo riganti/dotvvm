@@ -9,11 +9,18 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.Extensions.DependencyModel;
 
 namespace DotVVM.Framework.Utils
 {
     public static class ReflectionUtils
     {
+		public static IEnumerable<Assembly> GetAllAssemblies()
+		{
+			return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load);
+		}
+
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>
@@ -51,7 +58,7 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static string GetCodeBasePath(this Assembly assembly)
         {
-            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            string codeBase = assembly.CodeBase;
             UriBuilder uri = new UriBuilder(codeBase);
             return Uri.UnescapeDataString(uri.Path);
         }
@@ -92,12 +99,13 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static object ConvertValue(object value, Type type)
         {
+			var typeinfo = type.GetTypeInfo();
             // handle null values
-            if ((value == null) && (type.IsValueType))
+            if ((value == null) && (typeinfo.IsValueType))
                 return Activator.CreateInstance(type);
 
             // handle nullable types
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (typeinfo.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 if ((value is string) && ((string)value == string.Empty))
                 {
@@ -106,9 +114,8 @@ namespace DotVVM.Framework.Utils
                 }
                 else
                 {
-                    // value is not null
-                    var nullableConverter = new NullableConverter(type);
-                    type = nullableConverter.UnderlyingType;
+					// value is not null
+					type = Nullable.GetUnderlyingType(type); typeinfo = type.GetTypeInfo();
                 }
             }
 
@@ -118,7 +125,7 @@ namespace DotVVM.Framework.Utils
             if (type == typeof(object)) return value;
 
             // handle enums
-            if (type.IsEnum && value is string)
+            if (typeinfo.IsEnum && value is string)
             {
                 try
                 {
@@ -158,7 +165,7 @@ namespace DotVVM.Framework.Utils
             var split = name.Split(',');
             name = split[0];
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = ReflectionUtils.GetAllAssemblies();
             if (split.Length > 1)
             {
                 var assembly = split[1];
@@ -206,12 +213,12 @@ namespace DotVVM.Framework.Utils
 
         public static bool IsDelegate(this Type type)
         {
-            return typeof(Delegate).IsAssignableFrom(type.BaseType);
+            return typeof(Delegate).IsAssignableFrom(type);
         }
 
         public static bool IsReferenceType(this Type type)
         {
-            return type.IsArray || type.IsClass || type.IsInterface || type.IsDelegate();
+            return type.IsArray || type.GetTypeInfo().IsClass || type.GetTypeInfo().IsInterface || type.IsDelegate();
         }
 
         public static bool IsDerivedFrom(this Type T, Type superClass)

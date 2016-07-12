@@ -7,6 +7,8 @@ using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using System.Runtime.Loader;
+using Microsoft.DotNet.InternalAbstractions;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -35,11 +37,11 @@ namespace DotVVM.Framework.Compilation
             ViewCompilerFactory = () => configuration.ServiceLocator.GetService<IViewCompiler>();
             markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
 
-            if (configuration.CompiledViewsAssemblies != null)
-                foreach (var assembly in configuration.CompiledViewsAssemblies)
-                {
-                    LoadCompiledViewsAssembly(assembly);
-                }
+            //if (configuration.CompiledViewsAssemblies != null)
+            //    foreach (var assembly in configuration.CompiledViewsAssemblies)
+            //    {
+            //        LoadCompiledViewsAssembly(assembly);
+            //    }
         }
 
 
@@ -124,56 +126,56 @@ namespace DotVVM.Framework.Compilation
             return "DotvvmGeneratedViews" + fileName + "_" + lastWriteDateTimeUtc.Ticks;
         }
 
-        public void LoadCompiledViewsAssembly(string filePath)
-        {
-            var assembly = TryFindAssembly(filePath);
-            if (assembly != null)
-            {
-                LoadCompiledViewsAssembly(assembly);
+        //public void LoadCompiledViewsAssembly(string filePath)
+        //{
+        //    var assembly = TryFindAssembly(filePath);
+        //    if (assembly != null)
+        //    {
+        //        LoadCompiledViewsAssembly(assembly);
 
-                var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath()), "CompiledViewsBindings.dll");
-                if (File.Exists(bindings)) AppDomain.CurrentDomain.Load(bindings);
-            }
-        }
+        //        var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath()), "CompiledViewsBindings.dll");
+        //        if (File.Exists(bindings)) AssemblyLoadContext.Load(bindings);
+        //    }
+        //}
 
-        public Assembly TryFindAssembly(string fileName)
-        {
-            if (File.Exists(fileName)) return Assembly.LoadFile(fileName);
-            if (Path.IsPathRooted(fileName)) return null;
-            var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
-            string a;
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
-            {
-                // get already loaded assembly
-                if (assembly.GetName().Name == cleanName)
-                {
-                    var codeBase = assembly.GetCodeBasePath();
-                    if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
-                }
-            }
-            foreach (var assembly in new []{ typeof(DefaultControlBuilderFactory).Assembly.GetCodeBasePath(), configuration.ApplicationPhysicalPath })
-            {
-                if (!string.IsNullOrEmpty(assembly))
-                {
-                    a = Path.Combine(Path.GetDirectoryName(assembly), fileName);
-                    if (File.Exists(a)) return Assembly.LoadFile(a);
-                }
-            }
-            return null;
-        }
+        //public Assembly TryFindAssembly(string fileName)
+        //{
+        //    if (File.Exists(fileName)) return Assembly.Load(fileName);
+        //    if (Path.IsPathRooted(fileName)) return null;
+        //    var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
+        //    string a;
+        //    foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+        //    {
+        //        // get already loaded assembly
+        //        if (assembly.GetName().Name == cleanName)
+        //        {
+        //            var codeBase = assembly.GetCodeBasePath();
+        //            if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
+        //        }
+        //    }
+        //    foreach (var assembly in new []{ typeof(DefaultControlBuilderFactory).GetTypeInfo().Assembly.GetCodeBasePath(), configuration.ApplicationPhysicalPath })
+        //    {
+        //        if (!string.IsNullOrEmpty(assembly))
+        //        {
+        //            a = Path.Combine(Path.GetDirectoryName(assembly), fileName);
+        //            if (File.Exists(a)) return Assembly.LoadFile(a);
+        //        }
+        //    }
+        //    return null;
+        //}
 
-        public void LoadCompiledViewsAssembly(Assembly assembly)
-        {
-            var builders = assembly.GetTypes().Select(t => new
-            {
-                type = t,
-                attribute = t.GetCustomAttribute<LoadControlBuilderAttribute>()
-            }).Where(t => t.attribute != null);
-            foreach (var builder in builders)
-            {
-                RegisterControlBuilder(builder.attribute.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type));
-            }
-        }
+        //public void LoadCompiledViewsAssembly(Assembly assembly)
+        //{
+        //    var builders = assembly.GetTypes().Select(t => new
+        //    {
+        //        type = t,
+        //        attribute = t.GetTypeInfo().GetCustomAttribute<LoadControlBuilderAttribute>()
+        //    }).Where(t => t.attribute != null);
+        //    foreach (var builder in builders)
+        //    {
+        //        RegisterControlBuilder(builder.attribute.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type));
+        //    }
+        //}
 
         public void RegisterControlBuilder(string file, IControlBuilder builder)
         {

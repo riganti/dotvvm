@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation
 {

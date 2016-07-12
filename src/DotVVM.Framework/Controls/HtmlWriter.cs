@@ -275,7 +275,7 @@ namespace DotVVM.Framework.Controls
         {
             if (text == null && text.Length == 0) return;
             EnsureTagFullyOpen();
-            WebUtility.HtmlEncode(text, writer);
+            writer.Write(WebUtility.HtmlEncode(text));
         }
 
         /// <summary>

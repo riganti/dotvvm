@@ -28,8 +28,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             this.controlType = controlType;
 
-            DataContextChangeAttributes = Type.GetCustomAttributes<DataContextChangeAttribute>(true).ToArray();
-			DataContextManipulationAttribute = Type.GetCustomAttribute<DataContextStackManipulationAttribute>(true);
+            DataContextChangeAttributes = Type.GetTypeInfo().GetCustomAttributes<DataContextChangeAttribute>(true).ToArray();
+			DataContextManipulationAttribute = Type.GetTypeInfo().GetCustomAttribute<DataContextStackManipulationAttribute>(true);
 			if (DataContextManipulationAttribute != null && DataContextChangeAttributes.Any())
 				throw new Exception($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set at the same time at control '{controlType.Type.FullName}'.");
         }

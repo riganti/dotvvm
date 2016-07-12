@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			if (dataContextTypeStack != null) dataContextTypeStack.NamespaceImports = new NamespaceImport[0];
 			foreach (var directive in root.Directives.GroupBy(d => d.Name))
 			{
-				if (!string.Equals(directive.Key, ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase))
+				if (!string.Equals(directive.Key, ParserConstants.BaseTypeDirective, StringComparison.OrdinalIgnoreCase))
 				{
 					var list = directive.Select(d => d.Value).ToList();
 					if (MultiValueDirectives.Contains(directive.Key) && list.Count > 1)
@@ -616,7 +616,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		{
 			var wrapperType = GetDefaultWrapperType(fileName);
 
-			var baseControlDirective = node.Directives.SingleOrDefault(d => string.Equals(d.Name, ParserConstants.BaseTypeDirective, StringComparison.InvariantCultureIgnoreCase));
+			var baseControlDirective = node.Directives.SingleOrDefault(d => string.Equals(d.Name, ParserConstants.BaseTypeDirective, StringComparison.OrdinalIgnoreCase));
 			if (baseControlDirective != null)
 			{
 				var baseType = FindType(baseControlDirective.Value);

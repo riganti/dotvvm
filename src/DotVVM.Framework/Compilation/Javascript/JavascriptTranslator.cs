@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static void AddMethodTranslator(MethodInfo method, IJsMethodTranslator translator)
         {
             MethodTranslators.Add(method, translator);
-            if (method.DeclaringType.IsInterface)
+            if (method.DeclaringType.GetTypeInfo().IsInterface)
                 Interfaces.Add(method.DeclaringType);
         }
 
@@ -260,13 +260,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 if (Interfaces.Contains(iface))
                 {
-                    var map = method.DeclaringType.GetInterfaceMap(iface);
+                    var map = method.DeclaringType.GetTypeInfo().GetRuntimeInterfaceMap(iface);
                     var imIndex = Array.IndexOf(map.TargetMethods, method);
                     if (imIndex >= 0 && MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]))
                         return MethodTranslators[map.InterfaceMethods[imIndex]].TranslateCall(context, args, method);
                 }
             }
-            if (method.DeclaringType.IsGenericType && !method.DeclaringType.IsGenericTypeDefinition)
+            if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var genericType = method.DeclaringType.GetGenericTypeDefinition();
                 var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);

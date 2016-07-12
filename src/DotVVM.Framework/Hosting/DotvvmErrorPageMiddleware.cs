@@ -1,27 +1,37 @@
-using Microsoft.Owin;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting.ErrorPages;
+using Microsoft.AspNetCore.Http;
+//#if DotNetCore
+//using AppBuilder = Microsoft.AspNetCore.Builder.IApplicationBuilder;
+//using Context = Microsoft.AspNetCore.Http.HttpContext;
+//#else
+//using AppBuilder = Owin.IApplicationBuilder;
+//using Context = Microsoft.Owin.HttpContext;
+//#endif
 
 namespace DotVVM.Framework.Hosting
 {
-    public class DotvvmErrorPageMiddleware : OwinMiddleware
+    public class DotvvmErrorPageMiddleware
     {
+        private RequestDelegate next;
+
         public ErrorFormatter Formatter { get; set; }
 
-        public DotvvmErrorPageMiddleware(OwinMiddleware next) : base(next)
+        public DotvvmErrorPageMiddleware(RequestDelegate next)
         {
+            this.next = next;
         }
 
-        public override async Task Invoke(IOwinContext context)
+        public async Task Invoke(HttpContext context)
         {
             Exception error = null;
             try
             {
-                await Next.Invoke(context);
+                await next(context);
             }
             catch (Exception ex)
             {
@@ -38,7 +48,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the error response.
         /// </summary>
-        public Task RenderErrorResponse(IOwinContext context, Exception error)
+        public Task RenderErrorResponse(HttpContext context, Exception error)
         {
             context.Response.ContentType = "text/html";
 

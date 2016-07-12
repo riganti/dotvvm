@@ -8,13 +8,13 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Testing
 {
     public class TestDotvvmRequestContext : IDotvvmRequestContext
     {
-        public IOwinContext OwinContext { get; set; }
+        public HttpContext HttpContext { get; set; }
         public object ViewModel { get; set; }
         public DotvvmConfiguration Configuration { get; set; }
         public RouteBase Route { get; set; }
@@ -35,17 +35,17 @@ namespace DotVVM.Framework.Testing
 
         public void ChangeCurrentCulture(string cultureName)
         {
-            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
         }
 
         public CultureInfo GetCurrentUICulture()
         {
-            return Thread.CurrentThread.CurrentUICulture;
+            return CultureInfo.CurrentUICulture;
         }
 
         public CultureInfo GetCurrentCulture()
         {
-            return Thread.CurrentThread.CurrentCulture;
+            return CultureInfo.CurrentCulture;
         }
 
         public void InterruptRequest()

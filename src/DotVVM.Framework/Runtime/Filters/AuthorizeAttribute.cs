@@ -4,6 +4,7 @@ using System.Linq;
 using System.Net;
 using DotVVM.Framework.Hosting;
 using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace DotVVM.Framework.Runtime.Filters
 {
@@ -55,7 +56,7 @@ namespace DotVVM.Framework.Runtime.Filters
             if (context.ViewModel != null && !CanBeAuthorized(context.ViewModel.GetType())) return;
 
             // the user must not be anonymous
-            if (context.OwinContext.Request.User == null || !context.OwinContext.Request.User.Identity.IsAuthenticated)
+            if (context.HttpContext.User == null || !context.HttpContext.User.Identity.IsAuthenticated)
             {
                 SetUnauthorizedResponse(context);
             }
@@ -63,7 +64,7 @@ namespace DotVVM.Framework.Runtime.Filters
             // if the role is set
             if (Roles != null && Roles.Length > 0)
             {
-                if (!Roles.Any(r => context.OwinContext.Request.User.IsInRole(r)))
+                if (!Roles.Any(r => context.HttpContext.User.IsInRole(r)))
                 {
                     SetUnauthorizedResponse(context);
                 }
@@ -73,7 +74,7 @@ namespace DotVVM.Framework.Runtime.Filters
         private static ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
         protected static bool CanBeAuthorized(Type viewModelType)
         {
-            return canBeAuthorizedCache.GetOrAdd(viewModelType, t => !IsDefined(t, typeof(NotAuthorizedAttribute)));
+            return canBeAuthorizedCache.GetOrAdd(viewModelType, t => !t.GetTypeInfo().IsDefined(typeof(NotAuthorizedAttribute)));
         }
 
         protected virtual void SetUnauthorizedResponse(IDotvvmRequestContext context)

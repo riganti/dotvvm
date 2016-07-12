@@ -8,6 +8,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Linq;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -34,7 +35,7 @@ namespace DotVVM.Framework.Compilation
         {
             lastMetadata = view.Metadata;
             var wrapperClassName = CreateControlClass(className, view.Metadata.Type);
-            emitter.UsedAssemblies.Add(view.Metadata.Type.Assembly);
+            emitter.UsedAssemblies.Add(view.Metadata.Type.GetTypeInfo().Assembly);
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
             emitter.ResultControlType = wrapperClassName;
             // build the statements

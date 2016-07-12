@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ViewModelNesting
 {
@@ -79,7 +80,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ViewModelNesting
             public async Task Init()
             {
                 await Task.Delay(100);
-                if (!Context.Query.ContainsKey("Id")) Context.RedirectToUrl(new UriBuilder(Context.OwinContext.Request.Uri) { Query = "Id=13" }.Uri.ToString());
+                if (!Context.Query.ContainsKey("Id")) Context.RedirectToUrl(new UriBuilder(Context.HttpContext.Request.GetDisplayUrl()) { Query = "Id=13" }.Uri.ToString());
                 Initialized = true;
             }
 

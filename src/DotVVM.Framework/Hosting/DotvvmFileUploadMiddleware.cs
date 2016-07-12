@@ -7,26 +7,27 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
 using Microsoft.AspNet.WebUtilities;
-using Microsoft.Owin;
 using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
+using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class DotvvmFileUploadMiddleware : OwinMiddleware
+    public class DotvvmFileUploadMiddleware
     {
         private readonly DotvvmConfiguration configuration;
+		private readonly RequestDelegate next;
 
-
-        public DotvvmFileUploadMiddleware(OwinMiddleware next, DotvvmConfiguration configuration) : base(next)
+		public DotvvmFileUploadMiddleware(RequestDelegate next, DotvvmConfiguration configuration)
         {
+			this.next = next;
             this.configuration = configuration;
         }
 
-        public override Task Invoke(IOwinContext context)
+        public Task Invoke(HttpContext context)
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
@@ -37,11 +38,11 @@ namespace DotVVM.Framework.Hosting
             }
             else
             {
-                return Next.Invoke(context);
+                return next(context);
             }
         }
 
-        private async Task ProcessMultipartRequest(IOwinContext context)
+        private async Task ProcessMultipartRequest(HttpContext context)
         {
             // verify the request
             var isPost = context.Request.Method == "POST";
@@ -78,10 +79,10 @@ namespace DotVVM.Framework.Hosting
             await RenderResponse(context, isPost, errorMessage, uploadedFiles);
         }
 
-        private async Task RenderResponse(IOwinContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
+        private async Task RenderResponse(HttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var outputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
-            if (isPost && context.Request.Headers.Get(HostingConstants.DotvvmFileUploadAsyncHeaderName) == "true")
+            if (isPost && context.Request.Headers[HostingConstants.DotvvmFileUploadAsyncHeaderName] == "true")
             {
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
@@ -118,7 +119,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        private async Task SaveFiles(IOwinContext context, Group boundary, List<UploadedFile> uploadedFiles)
+        private async Task SaveFiles(HttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
         {
             // get the file store
             var fileStore = configuration.ServiceLocator.GetService<IUploadedFileStorage>();

@@ -1,7 +1,6 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
 using DotVVM.Framework.ViewModel;
-using Microsoft.AspNet.Identity;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 {
@@ -17,8 +16,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
             var claims = new List<Claim>();
             claims.Add(new Claim(ClaimTypes.Name, "Brock"));
             claims.Add(new Claim(ClaimTypes.Email, "brockallen@gmail.com"));
-            var id = new ClaimsIdentity(claims, DefaultAuthenticationTypes.ApplicationCookie);
-            Context.OwinContext.Authentication.SignIn(id);
+            var id = new ClaimsIdentity(claims, "Cookie");
+            Context.HttpContext.Authentication.SignInAsync("Cookie", new ClaimsPrincipal(new[] { id }));
 
             Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
 	    }

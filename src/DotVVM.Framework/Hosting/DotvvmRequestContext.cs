@@ -5,9 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Remoting.Contexts;
 using System.Threading;
-using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -19,6 +17,13 @@ using System.Diagnostics;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using Microsoft.AspNetCore.Http;
+
+#if DotNetCore
+using Context = Microsoft.AspNetCore.Http.HttpContext;
+#else
+using Context = Microsoft.Owin.HttpContext;
+#endif
 
 namespace DotVVM.Framework.Hosting
 {
@@ -27,9 +32,9 @@ namespace DotVVM.Framework.Hosting
         internal string CsrfToken { get; set; }
 
         /// <summary>
-        /// Gets the underlying <see cref="IOwinContext"/> object for this HTTP request.
+        /// Gets the underlying <see cref="Context"/> object for this HTTP request.
         /// </summary>
-        public IOwinContext OwinContext { get; internal set; }
+        public Context HttpContext { get; internal set; }
 
         /// <summary>
         /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.
@@ -93,11 +98,16 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public bool IsCommandExceptionHandled { get; set; }
 
-        /// <summary>
-        /// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
-        /// This property is typically set from the action filter's OnPageExceptionHandled method.
-        /// </summary>
-        public bool IsPageExceptionHandled { get; set; }
+		internal void RedirectToUrl(object p)
+		{
+			throw new NotImplementedException();
+		}
+
+		/// <summary>
+		/// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
+		/// This property is typically set from the action filter's OnPageExceptionHandled method.
+		/// </summary>
+		public bool IsPageExceptionHandled { get; set; }
 
 
         /// <summary>
@@ -116,7 +126,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public bool IsSpaRequest
         {
-            get { return DotvvmPresenter.DetermineSpaRequest(OwinContext); }
+            get { return DotvvmPresenter.DetermineSpaRequest(HttpContext); }
         }
 
         /// <summary>
@@ -124,7 +134,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public bool IsInPartialRenderingMode
         {
-            get { return DotvvmPresenter.DeterminePartialRendering(OwinContext); }
+            get { return DotvvmPresenter.DeterminePartialRendering(HttpContext); }
         }
 
         public IViewModelSerializer ViewModelSerializer { get; set; }
@@ -136,7 +146,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string GetSpaContentPlaceHolderUniqueId()
         {
-            return DotvvmPresenter.DetermineSpaContentPlaceHolderUniqueId(OwinContext);
+            return DotvvmPresenter.DetermineSpaContentPlaceHolderUniqueId(HttpContext);
         }
 
         /// <summary>
@@ -153,7 +163,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void ChangeCurrentCulture(string cultureName)
         {
-            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
         }
 
         /// <summary>
@@ -161,7 +171,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public CultureInfo GetCurrentUICulture()
         {
-            return Thread.CurrentThread.CurrentUICulture;
+            return CultureInfo.CurrentUICulture;
         }
 
         /// <summary>
@@ -169,7 +179,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public CultureInfo GetCurrentCulture()
         {
-            return Thread.CurrentThread.CurrentCulture;
+            return CultureInfo.CurrentCulture;
         }
         /// <summary>
         /// Interrupts the execution of the current request.
@@ -185,7 +195,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void RedirectToUrl(string url, bool forceRefresh = false)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect, forceRefresh);
+            SetRedirectResponse(HttpContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect, forceRefresh);
             InterruptRequest();
         }
 
@@ -204,7 +214,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void RedirectToUrlPermanent(string url, bool forceRefresh = false)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently, forceRefresh);
+            SetRedirectResponse(HttpContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently, forceRefresh);
             InterruptRequest();
         }
 
@@ -222,7 +232,7 @@ namespace DotVVM.Framework.Hosting
         /// Renders the redirect response.
         /// </summary>
         /// <param name="forceRefresh"></param>
-        public static void SetRedirectResponse(IOwinContext owinContext, string url, int statusCode, bool forceRefresh = false)
+        public static void SetRedirectResponse(HttpContext owinContext, string url, int statusCode, bool forceRefresh = false)
         {
             if (!DotvvmPresenter.DeterminePartialRendering(owinContext))
             {
@@ -246,9 +256,9 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the current DotVVM context.
         /// </summary>
-        public static DotvvmRequestContext GetCurrent(IOwinContext owinContext)
+        public static DotvvmRequestContext GetCurrent(HttpContext httpContext)
         {
-            return owinContext.Get<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
+            return (DotvvmRequestContext)httpContext.Items[HostingConstants.DotvvmRequestContextOwinKey];
         }
 
         /// <summary>
@@ -259,8 +269,8 @@ namespace DotVVM.Framework.Hosting
         {
             if (!ModelState.IsValid)
             {
-                OwinContext.Response.ContentType = "application/json";
-                OwinContext.Response.Write(ViewModelSerializer.SerializeModelState(this));
+                HttpContext.Response.ContentType = "application/json";
+                HttpContext.Response.Write(ViewModelSerializer.SerializeModelState(this));
                 throw new DotvvmInterruptRequestExecutionException("The ViewModel contains validation errors!");
             }
         }
@@ -279,14 +289,14 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string TranslateVirtualPath(string virtualUrl)
         {
-            return TranslateVirtualPath(virtualUrl, OwinContext);
+            return TranslateVirtualPath(virtualUrl, HttpContext);
         }
 
         /// <summary>
         /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
         /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.dothtml' will be translated to '/virtDir/myPage.dothtml'.
         /// </summary>
-        public static string TranslateVirtualPath(string virtualUrl, IOwinContext owinContext)
+        public static string TranslateVirtualPath(string virtualUrl, HttpContext owinContext)
         {
             if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             {
@@ -313,7 +323,7 @@ namespace DotVVM.Framework.Hosting
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value)
+                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value.ToArray())
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata).Result;
@@ -330,7 +340,7 @@ namespace DotVVM.Framework.Hosting
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value)
+                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value.ToArray())
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;

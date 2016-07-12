@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using DotVVM.Framework.Compilation;
@@ -21,6 +20,8 @@ using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
+using System.Globalization;
+using System.Reflection;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -104,7 +105,7 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         internal DotvvmConfiguration()
         {
-            DefaultCulture = Thread.CurrentThread.CurrentCulture.Name;
+            DefaultCulture = CultureInfo.CurrentCulture.Name;
             Markup = new DotvvmMarkupConfiguration();
             RouteTable = new DotvvmRouteTable(this);
             Resources = new DotvvmResourceRepository();
@@ -141,14 +142,14 @@ namespace DotVVM.Framework.Configuration
                 {
                     CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
                     Url = "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name,
                     GlobalObjectName = "$"
                 });
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name,
                     GlobalObjectName = "ko"
                 });
 
@@ -156,7 +157,7 @@ namespace DotVVM.Framework.Configuration
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.js",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name,
                     GlobalObjectName = "dotvvm",
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
                 });
@@ -171,7 +172,7 @@ namespace DotVVM.Framework.Configuration
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name,
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName, ResourceConstants.JQueryResourceName }
                 });
 
@@ -179,7 +180,7 @@ namespace DotVVM.Framework.Configuration
                 new StylesheetResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name
                 });
 
             RegisterGlobalizeResources(configuration);
@@ -218,7 +219,7 @@ namespace DotVVM.Framework.Configuration
             configuration.Resources.Register(ResourceConstants.GlobalizeResourceName, new ScriptResource()
             {
                 Url = "DotVVM.Framework.Resources.Scripts.Globalize.globalize.js",
-                EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name
+                EmbeddedResourceAssembly = typeof(DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name
             });
 
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());

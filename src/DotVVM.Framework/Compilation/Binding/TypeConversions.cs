@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -84,7 +85,7 @@ namespace DotVVM.Framework.Compilation.Binding
         // A value type has a boxing conversion to an interface type I if it has a boxing conversion to an interface type I0 and I0 has an identity conversion to I.
         public static Expression BoxingConversion(Expression src, Type destType)
         {
-            if (src.Type.IsValueType && src.Type != typeof(void) && destType == typeof(object))
+            if (src.Type.GetTypeInfo().IsValueType && src.Type != typeof(void) && destType == typeof(object))
             {
                 return Expression.Convert(src, destType);
             }
@@ -233,7 +234,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 var value = (string)srcValue;
                 // to enum
-                if (destType.IsEnum)
+                if (destType.GetTypeInfo().IsEnum)
                 {
                     // Enum.TryParse is generic and wants TEnum
                     try

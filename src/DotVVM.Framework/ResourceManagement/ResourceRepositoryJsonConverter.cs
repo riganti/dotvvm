@@ -27,14 +27,14 @@ namespace DotVVM.Framework.ResourceManagement
         static Dictionary<string, Type> GetResourceCollectionNames()
         {
             var dict = new Dictionary<string, Type>();
-            var dotvvmAssembly = typeof(DotvvmConfiguration).Assembly.FullName;
+            var dotvvmAssembly = typeof(DotvvmConfiguration).GetTypeInfo().Assembly.FullName;
             var resourceBaseType = typeof(ResourceBase);
             // for each type derived from ResourceBase
-            foreach (var type in AppDomain.CurrentDomain.GetAssemblies()
+            foreach (var type in ReflectionUtils.GetAllAssemblies()
                 .Where(a => a.GetReferencedAssemblies().Any(ra => ra.FullName == dotvvmAssembly) || a.FullName == dotvvmAssembly)
-                .SelectMany(a => a.GetLoadableTypes().Where(t => t.IsClass && !t.IsAbstract && resourceBaseType.IsAssignableFrom(t))))
+                .SelectMany(a => a.GetLoadableTypes().Where(t => t.GetTypeInfo().IsClass && !t.GetTypeInfo().IsAbstract && resourceBaseType.IsAssignableFrom(t))))
             {
-                var attr = type.GetCustomAttribute<ResourceConfigurationCollectionNameAttribute>();
+                var attr = type.GetTypeInfo().GetCustomAttribute<ResourceConfigurationCollectionNameAttribute>();
                 // name from attribute
                 if (attr != null) dict.Add(attr.Name, type);
                 // full name of type

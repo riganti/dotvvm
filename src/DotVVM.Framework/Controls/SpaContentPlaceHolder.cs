@@ -84,7 +84,7 @@ namespace DotVVM.Framework.Controls
                 return null;
             }
 
-            var result = DotvvmMiddleware.GetVirtualDirectory(context.OwinContext);
+            var result = DotvvmMiddleware.GetVirtualDirectory(context.HttpContext);
             if (!string.IsNullOrEmpty(routePath))
             {
                 result += "/" + routePath;

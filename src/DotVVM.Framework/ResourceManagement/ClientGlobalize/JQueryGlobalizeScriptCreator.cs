@@ -175,8 +175,6 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
                 }
             };
             var jobj = JObject.FromObject(obj);
-            jobj["/"] = di.DateSeparator;
-            jobj[":"] = di.TimeSeparator;
             if (!di.MonthNames.SequenceEqual(di.MonthGenitiveNames))
             {
                 var monthsGenitive = jobj["monthsGenitive"] = new JObject();
@@ -196,7 +194,7 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
                 nativeName = ci.NativeName,
                 englishName = ci.EnglishName,
                 isRTL = ci.TextInfo.IsRightToLeft,
-                language = ci.IetfLanguageTag
+                language = ci.TwoLetterISOLanguageName
             };
             var jobj = JObject.FromObject(cultureInfoClientObj);
 

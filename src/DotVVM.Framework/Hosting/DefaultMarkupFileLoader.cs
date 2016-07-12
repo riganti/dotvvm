@@ -15,14 +15,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string GetMarkupFileVirtualPath(IDotvvmRequestContext context)
         {
-            // get file name
-            var fileName = context.Route != null ? context.Route.VirtualPath : context.OwinContext.Request.Uri.LocalPath;
-            if (!fileName.EndsWith(MarkupFile.ViewFileExtension, StringComparison.CurrentCultureIgnoreCase))
-            {
-                throw new Exception("The view must be a file with the .dothtml extension!");     // TODO: exception handling
-            }
-
-            return fileName;
+            return context.Route.VirtualPath;
         }
 
         /// <summary>
