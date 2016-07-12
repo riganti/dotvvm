@@ -26,6 +26,7 @@ namespace DotVVM.Framework.Hosting
         internal static DotvvmConfiguration UseDotVVM(this AppBuilder app, string applicationRootDirectory, bool errorPages = true)
         {
             var configuration = CreateConfiguration(applicationRootDirectory);
+			var protect = app.ApplicationServices.GetDataProtectionProvider();
 			configuration.ServiceLocator.RegisterSingleton(() => app.ApplicationServices);
 #if !DotNetCore
             configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(app.GetDataProtectionProvider);

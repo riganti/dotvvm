@@ -1,3 +1,9 @@
+#:C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Framework\DotVVM.Framework.xproj
+C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Framework\DotVVM.Framework.xproj|C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Core\DotVVM.Core.xproj
+#:C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Sample.DotNetCore\DotVVM.Sample.DotNetCore.xproj
+C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Sample.DotNetCore\DotVVM.Sample.DotNetCore.xproj|C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Core\DotVVM.Core.xproj
+C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Sample.DotNetCore\DotVVM.Sample.DotNetCore.xproj|C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Framework\DotVVM.Framework.xproj
+C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Framework\DotVVM.Framework.xproj|C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Core\DotVVM.Core.xproj
 #:C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Samples.BasicSamples\DotVVM.Samples.BasicSamples.xproj
 C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Samples.BasicSamples\DotVVM.Samples.BasicSamples.xproj|C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Core\DotVVM.Core.xproj
 C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Samples.BasicSamples\DotVVM.Samples.BasicSamples.xproj|C:\Users\exyi\Source\Repos\dotvvm\src\DotVVM.Framework\DotVVM.Framework.xproj

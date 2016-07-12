@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Hosting.Internal;
+using Microsoft.AspNetCore.DataProtection;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -22,6 +23,7 @@ namespace DotVVM.Samples.BasicSamples
 		// For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddDataProtection();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

@@ -22,6 +22,17 @@
     "System.Security.Cryptography.Algorithms": "4.2.0",
     "System.Threading.Thread": "4.0.0"
   },
+  "resource": [
+
+    //"Resources/Scripts/*",
+    "Resources/Scripts/DotVVM.js",
+    "Resources/Scripts/knockout-latest.js",
+    "Resources/Scripts/jquery-2.1.1.min.js",
+    "Resources/Scripts/DotVVM.Debug.js",
+    "Resources/Scripts/DotVVM.FileUpload.css",
+    "Resources/Scripts/Globalize/globalize.js"
+
+  ],
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50"
