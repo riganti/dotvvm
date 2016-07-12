@@ -8483,7 +8483,8 @@
       "Microsoft.Extensions.DependencyInjection.Abstractions >= 1.0.0",
       "Microsoft.Extensions.Logging.Abstractions >= 1.0.0",
       "Microsoft.Extensions.Logging.Console >= 1.0.0",
-      "Microsoft.NETCore.App >= 1.0.0"
+      "Microsoft.NETCore.App >= 1.0.0",
+      "System.Runtime >= 4.1.0"
     ],
     ".NETCoreApp,Version=v1.0": []
   },
