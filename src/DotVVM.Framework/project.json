@@ -11,16 +11,16 @@
     "Microsoft.Extensions.DependencyModel": "1.0.0",
     "Microsoft.Extensions.Localization": "1.0.0",
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
-    "NETStandard.Library": "1.6.0",
     "Newtonsoft.Json": "9.0.1",
     "System.Collections.Specialized": "4.0.1",
     "System.ComponentModel.Annotations": "4.1.0",
     "System.Diagnostics.Process": "4.1.0",
     "System.Diagnostics.StackTrace": "4.0.1",
     "System.Reflection.Extensions": "4.0.1",
-    "System.Runtime.Loader": "4.0.0-rc2-23712",
     "System.Security.Cryptography.Algorithms": "4.2.0",
-    "System.Threading.Thread": "4.0.0"
+    "System.Threading.Thread": "4.0.0",
+    "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
+    "System.Runtime": "4.1.0"
   },
   "resource": [
 
@@ -35,14 +35,23 @@
   ],
   "frameworks": {
     "netstandard1.6": {
-      "imports": "dnxcore50"
+      "imports": "dnxcore50",
+      "buildOptions": {
+        "keyFile": "dotvvmwizard.snk",
+        "define": [ "DotNetCore" ]
+      },
+      "dependencies": {
+        "System.Runtime.Loader": "4.0.0-rc2-23712",
+        "NETStandard.Library": "1.6.0"
+      }
+    },
+    "net461": {
+      "buildOptions": { "keyFile": "dotvvmwizard.snk" }
     }
   },
   "devDependencies": {
-    "grunt": "0.4.5",
+    "grunt": "0.4.5"
   },
-  "buildOptions": {
-    "define": [ "DotNetCore" ]
-  },
-  "exclude": ["node_modules"]
+  "exclude": [ "node_modules" ],
+  "buildOptions": { "keyFile": "dotvvmwizard.snk" },
 }

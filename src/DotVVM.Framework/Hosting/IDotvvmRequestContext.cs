@@ -9,10 +9,10 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using Microsoft.AspNetCore.Http;
 
-#if DotNetCore
-using Context = Microsoft.AspNetCore.Http.HttpContext;
-#else
+#if Owin
 using Context = Microsoft.Owin.HttpContext;
+#else
+using Context = Microsoft.AspNetCore.Http.HttpContext;
 #endif
 
 namespace DotVVM.Framework.Hosting

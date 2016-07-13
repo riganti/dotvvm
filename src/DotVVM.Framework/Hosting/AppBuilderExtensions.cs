@@ -5,10 +5,10 @@ using DotVVM.Framework.Configuration;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Builder;
-#if DotNetCore
-using AppBuilder = Microsoft.AspNetCore.Builder.IApplicationBuilder;
-#else
+#if Owin
 using AppBuilder = Owin.IApplicationBuilder;
+#else
+using AppBuilder = Microsoft.AspNetCore.Builder.IApplicationBuilder;
 #endif
 
 namespace DotVVM.Framework.Hosting
@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Hosting
             var configuration = CreateConfiguration(applicationRootDirectory);
 			var protect = app.ApplicationServices.GetDataProtectionProvider();
 			configuration.ServiceLocator.RegisterSingleton(() => app.ApplicationServices);
-#if !DotNetCore
+#if Owin
             configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(app.GetDataProtectionProvider);
 #endif
             

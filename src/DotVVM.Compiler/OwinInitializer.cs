@@ -23,7 +23,7 @@ namespace DotVVM.Compiler
             if (dotvvmStartups.Length > 1) throw new Exception($"Found more than one implementation of IDotvvmStartup ({string.Join(", ", dotvvmStartups.Select(s => s.Name)) }).");
 
             var startup = (IDotvvmStartup)Activator.CreateInstance(dotvvmStartups[0]);
-            var config = OwinExtensions.CreateConfiguration(rootPath);
+            var config = AppBuilderExtensions.CreateConfiguration(rootPath);
             startup.Configure(config, rootPath);
             config.CompiledViewsAssemblies = null;
             return config;

@@ -3,15 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using System.Runtime.Loader;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyModel;
-#if DotNetCore
-using Context = Microsoft.AspNetCore.Http.HttpContext;
-#else
+#if Owin
 using Context = Microsoft.Owin.HttpContext;
+#else
+using Context = Microsoft.AspNetCore.Http.HttpContext;
 #endif
 
 namespace DotVVM.Framework.Hosting

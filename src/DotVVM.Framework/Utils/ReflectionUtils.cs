@@ -18,7 +18,11 @@ namespace DotVVM.Framework.Utils
     {
 		public static IEnumerable<Assembly> GetAllAssemblies()
 		{
+#if DotNetCore
 			return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load);
+#else
+			return AppDomain.CurrentDomain.GetAssemblies();
+#endif
 		}
 
         /// <summary>

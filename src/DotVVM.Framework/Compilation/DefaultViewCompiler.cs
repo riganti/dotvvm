@@ -14,7 +14,6 @@ using DotVVM.Framework.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
-using System.Runtime.Loader;
 using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
@@ -108,10 +107,14 @@ namespace DotVVM.Framework.Compilation
                     typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly,
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
 					Assembly.Load(new AssemblyName("mscorlib")),
-					Assembly.Load(new AssemblyName("System.Runtime")),
+#if DotNetCore
+				    Assembly.Load(new AssemblyName("System.Runtime")),
 					Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
 					Assembly.Load(new AssemblyName("System.Collections"))
-				}.Concat(configuration.Markup.Assemblies.Select(e => Assembly.Load(new AssemblyName(e)))).Distinct()
+#else
+					typeof(System.Collections.Generic.List<>).Assembly
+#endif
+			}.Concat(configuration.Markup.Assemblies.Select(e => Assembly.Load(new AssemblyName(e)))).Distinct()
                 .Select(a => assemblyCache.GetAssemblyMetadata(a)))
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
@@ -131,8 +134,7 @@ namespace DotVVM.Framework.Compilation
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {
-					ms.Position = 0;
-					var assembly = AssemblyLoader.LoadStream(ms);
+					var assembly = AssemblyLoader.LoadRaw(ms.ToArray());
                     assemblyCache.AddAssembly(assembly, compilation.ToMetadataReference());
                     return assembly;
                 }

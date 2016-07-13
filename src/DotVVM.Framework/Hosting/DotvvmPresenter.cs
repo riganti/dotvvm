@@ -18,10 +18,10 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
-#if DotNetCore
-using Context = Microsoft.AspNetCore.Http.HttpContext;
-#else
+#if Owin
 using Context = Microsoft.Owin.HttpContext;
+#else
+using Context = Microsoft.AspNetCore.Http.HttpContext;
 #endif
 
 namespace DotVVM.Framework.Hosting
