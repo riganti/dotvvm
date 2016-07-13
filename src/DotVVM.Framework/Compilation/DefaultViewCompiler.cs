@@ -15,6 +15,7 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
 using System.Runtime.Loader;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -131,7 +132,7 @@ namespace DotVVM.Framework.Compilation
                 if (result.Success)
                 {
 					ms.Position = 0;
-					var assembly = new AssemblyLoader().LOADTHEFUCKINGSTREAM(ms); //Assembly.Load(/*ms.ToArray()*/null);
+					var assembly = AssemblyLoader.LoadStream(ms);
                     assemblyCache.AddAssembly(assembly, compilation.ToMetadataReference());
                     return assembly;
                 }
@@ -153,17 +154,4 @@ namespace DotVVM.Framework.Compilation
             return GetControlBuilder(assembly, namespaceName, className);
         }
     }
-
-	public class AssemblyLoader : AssemblyLoadContext
-	{
-		public Assembly LOADTHEFUCKINGSTREAM(Stream STREAM)
-		{
-			return LoadFromStream(STREAM);
-		}
-
-		protected override Assembly Load(AssemblyName assemblyName)
-		{
-			return Assembly.Load(assemblyName);
-		}
-	}
 }
