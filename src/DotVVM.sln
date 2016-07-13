@@ -32,8 +32,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Compiler", "DotVVM.C
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DotVVM.Core", "DotVVM.Core\DotVVM.Core.xproj", "{45FA2F43-D92B-4A9B-9B93-9AB519AD0127}"
 EndProject
-Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DotVVM.Sample.DotNetCore", "DotVVM.Sample.DotNetCore\DotVVM.Sample.DotNetCore.xproj", "{A77AC1BE-AE60-4C4D-9EC6-3B8E8872AFB4}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
