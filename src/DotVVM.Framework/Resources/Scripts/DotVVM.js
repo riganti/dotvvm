@@ -16,50 +16,6 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 }());
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
-    }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
-        }
-        else {
-            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
-            }
-        }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
-}());
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
     function __() { this.constructor = d; }
@@ -326,7 +282,7 @@ var DotVVM = (function () {
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers) {
         var _this = this;
         if (this.isPostBackProhibited(sender))
-            return;
+            return new DotvvmPromise().reject("rejected");
         var promise = new DotvvmPromise();
         this.isPostbackRunning(true);
         promise.done(function () { return _this.isPostbackRunning(false); });
@@ -360,7 +316,7 @@ var DotVVM = (function () {
             var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
             afterPostBackArgsCanceled.wasInterrupted = true;
             this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-            return;
+            return promise.reject("canceled");
         }
         // perform the postback
         if (!context) {
@@ -1195,6 +1151,7 @@ var DotvvmPromise = (function () {
         else if (this.state === DotvvmPromiseState.Pending) {
             this.errorCallbacks.push(callback);
         }
+        return this;
     };
     DotvvmPromise.prototype.resolve = function (arg) {
         if (this.state !== DotvvmPromiseState.Pending)
@@ -1207,6 +1164,7 @@ var DotvvmPromise = (function () {
         }
         this.callbacks = null;
         this.errorCallbacks = null;
+        return this;
     };
     DotvvmPromise.prototype.reject = function (error) {
         if (this.state != DotvvmPromiseState.Pending)
@@ -1219,6 +1177,7 @@ var DotvvmPromise = (function () {
         }
         this.callbacks = null;
         this.errorCallbacks = null;
+        return this;
     };
     DotvvmPromise.prototype.chainFrom = function (promise) {
         var _this = this;
@@ -1951,4 +1910,48 @@ var DotvvmValidation = (function () {
     return DotvvmValidation;
 }());
 ;
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
+    }
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        }
+        else {
+            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
+    };
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
+}());
 //# sourceMappingURL=DotVVM.js.map

@@ -174,7 +174,7 @@ class DotVVM {
     }
 
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs> {
-        if (this.isPostBackProhibited(sender)) return;
+        if (this.isPostBackProhibited(sender)) return new DotvvmPromise<DotvvmAfterPostBackEventArgs>().reject("rejected");
 
         var promise = new DotvvmPromise<DotvvmAfterPostBackEventArgs>();
         this.isPostbackRunning(true);
@@ -212,7 +212,7 @@ class DotVVM {
             var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
             afterPostBackArgsCanceled.wasInterrupted = true;
             this.events.afterPostback.trigger(afterPostBackArgsCanceled);
-            return;
+            return promise.reject("canceled");
         }
 
         // perform the postback

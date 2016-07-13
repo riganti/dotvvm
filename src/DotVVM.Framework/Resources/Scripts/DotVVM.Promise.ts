@@ -37,6 +37,7 @@ class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
         else if (this.state === DotvvmPromiseState.Pending) {
             this.errorCallbacks.push(callback);
         }
+        return this;
     }
 
     resolve(arg: TArg) {
@@ -48,6 +49,7 @@ class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
         }
         this.callbacks = null;
         this.errorCallbacks = null;
+        return this;
     }
 
     reject(error) {
@@ -59,11 +61,12 @@ class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
         }
         this.callbacks = null;
         this.errorCallbacks = null;
+        return this;
     }
 
     chainFrom(promise: IDotvvmPromise<TArg>) {
         promise.done(a => this.resolve(a));
         promise.fail(e => this.fail(e));
         return this;
-    }
+    } 
 }
