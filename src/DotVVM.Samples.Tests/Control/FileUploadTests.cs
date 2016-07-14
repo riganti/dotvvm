@@ -21,7 +21,6 @@ namespace DotVVM.Samples.Tests.Control
         [Timeout(120000)]
         public void Control_FileUpload()
         {
-			AppDomain.CurrentDomain
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_FileUpload_FileUpload);

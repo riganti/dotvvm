@@ -9,7 +9,8 @@
   },
   "frameworks": {
     "netstandard1.6": {
-      "imports": "dnxcore50"
+      "imports": "dnxcore50",
+      "buildOptions": { "keyFile": "dotvvmwizard.snk" }
     },
     "net461": {
       "buildOptions": {"keyFile": "dotvvmwizard.snk"}

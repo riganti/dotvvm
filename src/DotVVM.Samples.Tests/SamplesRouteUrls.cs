@@ -70,6 +70,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_TextBox_IntBoundTextBox => "ControlSamples/TextBox/IntBoundTextBox";
 			public static string ControlSamples_TextBox_TextBox => "ControlSamples/TextBox/TextBox";
 			public static string ControlSamples_TextBox_TextBox_Format => "ControlSamples/TextBox/TextBox_Format";
+			public static string ControlSamples_TextBox_TextBox_FormatDoubleProperty => "ControlSamples/TextBox/TextBox_FormatDoubleProperty";
 			public static string ControlSamples_UpdateProgress_UpdateProgress => "ControlSamples/UpdateProgress/UpdateProgress";
 			public static string ControlSamples_ValidationSummary_RecursiveValidationSummary => "ControlSamples/ValidationSummary/RecursiveValidationSummary";
 			public static string Errors_BindingInvalidCommand => "Errors/BindingInvalidCommand";

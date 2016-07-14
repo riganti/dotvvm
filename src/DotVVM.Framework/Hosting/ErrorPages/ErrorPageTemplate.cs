@@ -51,7 +51,13 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
 	public void ObjectBrowser(JArray arr)
 	{
-
+		this.Write(@"
+		<div class='object-browser code'>
+			<label>
+			<input type='checkbox' class='collapse' />
+			<span class='collapse-off'>&gt; { ... } </span>
+			<span class='collapse-on'>[
+				<div class='object-arr'> ");
 					foreach(var p in arr) {
 						if(p is JObject) {
 							ObjectBrowser((JObject)p);
@@ -61,18 +67,22 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 							this.Write(p.ToString());
 						}
 					}
-					
-}
+			
+			this.Write(@"</div>]</span></div>");
+	}
 
 	public void ObjectBrowser(JObject obj)
 	{
-
+		this.Write(@"<div class='object-browser code'>
+			<label>
+			<input type='checkbox' class='collapse' />
+			<span class='collapse-off'>&gt; { ... } </span>
+			<span class='collapse-on'>{
+				<div class='object-obj'>");
 					foreach(var p in obj) {
-						
-
+						Write("<div class='prop'><span class='propname'>");
 						this.WriteText(p.Key);
-						
-
+						Write("</span>:");
 						if(p.Value is JObject) {
 							ObjectBrowser((JObject)p.Value);
 						} else if (p.Value is JArray) {
@@ -82,21 +92,29 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 						}
 						this.Write("</div>");
 					}
-					
-}
+		this.Write("</div>}</span></div>");
+	}
 
 
 	public void WriteSourceCode(SourceModel source, bool collapse = true)
 	{
-if(collapse){
-}
- if(source.PreLines != null) WriteSourceLines(source.LineNumber - source.PreLines.Length, source.PreLines); 
- if(source.CurrentLine != null) WriteErrorLine(source.LineNumber, source.CurrentLine, source.ErrorColumn, source.ErrorLength);
- if(source.PostLines != null) WriteSourceLines(source.LineNumber + 1, source.PostLines);
- if (!string.IsNullOrEmpty(source.FileName)) { 
- Write(source.SystemFileName); 
- } 
-}
+		this.Write(@"
+		<div class='source code'>
+			<label>");
+				if(collapse){ this.Write(@"<input type='checkbox' class='collapse' />"); }
+				Write(@"<div class='source-prelines collapse-on'>");
+				if(source.PreLines != null) WriteSourceLines(source.LineNumber - source.PreLines.Length, source.PreLines);
+				Write(@"</div><div class='source-errorLine'>");
+				if(source.CurrentLine != null) WriteErrorLine(source.LineNumber, source.CurrentLine, source.ErrorColumn, source.ErrorLength);
+				this.Write(@"</div><div class='source-postlines collapse-on'>");
+				if(source.PostLines != null) WriteSourceLines(source.LineNumber + 1, source.PostLines);
+	    Write(@"</div></label></div>");
+		if (!string.IsNullOrEmpty(source.FileName)) {
+			Write("<p class='source file'>Source File: <strong>");
+			Write(source.SystemFileName);
+			Write("</strong></p>");
+		}
+	}
 
     private void WriteSourceLines(int startLine, params string[] lines)
 	{
@@ -147,12 +165,21 @@ if(collapse){
 	public void WriteKVTable(IEnumerable keys, IEnumerable values)
 	{
 		var zip = keys.Cast<object>().Zip(values.Cast<object>(), (k, v) => new KeyValuePair<object, object>(k, v));
-		
-foreach(var kvp in zip) {
- WriteObject(kvp.Key); 
- WriteObject(kvp.Value); 
-}
 
+		Write(@"
+		<table class='kvtable'>
+			<tr>
+				<th> Variable </th>
+				<th> Value </th>
+			</tr>");
+		foreach(var kvp in zip) {
+			Write("<tr><td>");
+			WriteObject(kvp.Key);
+			Write("</td><td>");
+			WriteObject(kvp.Value);
+			Write("</td></tr>");
+		}
+		Write("</table>");
 	}
 
 	public void WriteObject(object obj) 
@@ -307,83 +334,6 @@ formatter.WriteBody(this);__sb.Append(@"
 
 
 ");
-__sb.Append(@"
-		<div class=""object-browser code"">
-			<label>
-			<input type=""checkbox"" class=""collapse"" />
-			<span class=""collapse-off"">&gt; { ... } </span>
-			<span class=""collapse-on"">[
-				<div class=""object-arr"">
-					");
-__sb.Append(@"
-				</div>
-				]
-			</span>
-		</div>
-	");
-__sb.Append(@"
-		<div class=""object-browser code"">
-			<label>
-			<input type=""checkbox"" class=""collapse"" />
-			<span class=""collapse-off"">&gt; { ... } </span>
-			<span class=""collapse-on"">{
-				<div class=""object-obj"">
-					");
-__sb.Append(@"<div class='prop'><span class='propname'>");
-__sb.Append(@"</span>:");
-__sb.Append(@"
-				</div>
-				}
-			</span>
-		</div>
-	");
-__sb.Append(@"
-		<div class=""source code"">
-			<label>
-				");
-__sb.Append(@" <input type=""checkbox"" class=""collapse"" /> ");
-__sb.Append(@"
-				<div class=""source-prelines collapse-on"">
-					");
-__sb.Append(@"
-				</div>
-				<div class=""source-errorLine"">
-					");
-__sb.Append(@"
-				</div>
-				<div class=""source-postlines collapse-on"">
-					");
-__sb.Append(@"
-				</div>
-			</label>
-		</div>
-		");
-__sb.Append(@"
-		<p class=""source file"">Source File: <strong>");
-__sb.Append(@"</strong></p>
-		");
-__sb.Append(@"
-	");
-__sb.Append(@"
-
-		<table class=""kvtable"">
-			<tr>
-				<th> Variable </th>
-				<th> Value </th>
-			</tr>
-			");
-__sb.Append(@"
-				<tr>
-					<td>");
-__sb.Append(@"</td>
-					<td>");
-__sb.Append(@"</td>
-				</tr>
-			");
-__sb.Append(@"
-		</table>
-
-		");
 __sb.Append(@"
 ");
 

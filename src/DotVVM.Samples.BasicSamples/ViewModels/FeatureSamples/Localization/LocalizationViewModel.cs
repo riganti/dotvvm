@@ -22,5 +22,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization
 
             return base.Init();
         }
+
+        public override Task Load()
+        {
+            return base.Load();
+        }
     }
 }

@@ -1,6 +1,6 @@
 ﻿<#@ template debug="true" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ assembly name="$(ProjectDir)bin\Debug\DotVVM.Framework.dll" #>
+<#@ assembly name="$(SolutionDir)DotVVM.Framework\bin\Debug\net461\DotVVM.Framework.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
