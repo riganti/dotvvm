@@ -157,17 +157,24 @@ namespace DotVVM.Framework.Hosting
             ModelState = new ModelState();
             PostBackUpdatedControls = new Dictionary<string, string>();
         }
-
+        private CultureInfo currentCulture;
         /// <summary>
         /// Changes the current culture of this HTTP request.
         /// </summary>
         public void ChangeCurrentCulture(string cultureName)
         {
-            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
+            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = currentCulture = new CultureInfo(cultureName);
+        }
+        /// <summary>
+        /// WORKAROUND: .NET for some reason resets CurrentCulture when exited viewModel method, this is changing it back
+        /// </summary>
+        internal void ResetCulture()
+        {
+            if (currentCulture != null) CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = currentCulture;
         }
 
         /// <summary>
-        /// Changes the current UI culture of this HTTP request.
+        /// Gets the current UI culture of this HTTP request.
         /// </summary>
         public CultureInfo GetCurrentUICulture()
         {
@@ -175,7 +182,7 @@ namespace DotVVM.Framework.Hosting
         }
 
         /// <summary>
-        /// Changes the current culture of this HTTP request.
+        /// Gets the current culture of this HTTP request.
         /// </summary>
         public CultureInfo GetCurrentCulture()
         {
@@ -232,24 +239,24 @@ namespace DotVVM.Framework.Hosting
         /// Renders the redirect response.
         /// </summary>
         /// <param name="forceRefresh"></param>
-        public static void SetRedirectResponse(HttpContext owinContext, string url, int statusCode, bool forceRefresh = false)
+        public static void SetRedirectResponse(Context httpContext, string url, int statusCode, bool forceRefresh = false)
         {
-            if (!DotvvmPresenter.DeterminePartialRendering(owinContext))
+            if (!DotvvmPresenter.DeterminePartialRendering(httpContext))
             {
-                owinContext.Response.Headers["Location"] = url;
-                owinContext.Response.StatusCode = statusCode;
+                httpContext.Response.Headers["Location"] = url;
+                httpContext.Response.StatusCode = statusCode;
             }
             else
             {
-                if (DotvvmPresenter.DetermineIsPostBack(owinContext) && DotvvmPresenter.DetermineSpaRequest(owinContext) && !forceRefresh && !url.Contains("//"))
+                if (DotvvmPresenter.DetermineIsPostBack(httpContext) && DotvvmPresenter.DetermineSpaRequest(httpContext) && !forceRefresh && !url.Contains("//"))
                 {
                     // if we are in SPA postback, redirect should point at #! URL
                     url = "#!" + url;
                 }
 
-                owinContext.Response.StatusCode = 200;
-                owinContext.Response.ContentType = "application/json";
-                owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, forceRefresh));
+                httpContext.Response.StatusCode = 200;
+                httpContext.Response.ContentType = "application/json";
+                httpContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, forceRefresh));
             }
         }
 
@@ -296,11 +303,11 @@ namespace DotVVM.Framework.Hosting
         /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
         /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.dothtml' will be translated to '/virtDir/myPage.dothtml'.
         /// </summary>
-        public static string TranslateVirtualPath(string virtualUrl, HttpContext owinContext)
+        public static string TranslateVirtualPath(string virtualUrl, HttpContext httpContext)
         {
             if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             {
-                var url = DotvvmMiddleware.GetVirtualDirectory(owinContext) + "/" + virtualUrl.Substring(2);
+                var url = DotvvmMiddleware.GetVirtualDirectory(httpContext) + "/" + virtualUrl.Substring(2);
                 if (!url.StartsWith("/", StringComparison.Ordinal))
                 {
                     url = "/" + url;

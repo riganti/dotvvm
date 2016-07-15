@@ -26,11 +26,11 @@ namespace DotVVM.Framework.ViewModel
 
         async Task IDotvvmViewModel.Init()
         {
-            await this.Init();
+            await this.Init().ConfigureAwait(false);
             var dotvvmViewModels = GetChildViewModels();
             foreach (var childViewModel in dotvvmViewModels)
             {
-                await childViewModel.Init();
+                await childViewModel.Init().ConfigureAwait(false);
             }
         }
 

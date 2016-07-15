@@ -91,6 +91,11 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
         public async Task ProcessRequestCore(DotvvmRequestContext context)
         {
             if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
@@ -137,6 +142,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     ((IDotvvmViewModel) context.ViewModel).Context = context;
                     await ((IDotvvmViewModel) context.ViewModel).Init();
+                    context.ResetCulture();
                 }
 
                 // run the init phase in the page
@@ -148,6 +154,7 @@ namespace DotVVM.Framework.Hosting
                     if (context.ViewModel is IDotvvmViewModel)
                     {
                         await ((IDotvvmViewModel) context.ViewModel).Load();
+                        context.ResetCulture();
                     }
 
                     // run the load phase in the page
@@ -169,6 +176,7 @@ namespace DotVVM.Framework.Hosting
                     if (context.ViewModel is IDotvvmViewModel)
                     {
                         await ((IDotvvmViewModel) context.ViewModel).Load();
+                        context.ResetCulture();
                     }
 
                     // validate CSRF token 
@@ -188,12 +196,14 @@ namespace DotVVM.Framework.Hosting
                             globalFilters.Concat(viewModelFilters).Concat(actionInfo.Binding.ActionFilters).ToArray();
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
+                        context.ResetCulture();
                     }
                 }
 
                 if (context.ViewModel is IDotvvmViewModel)
                 {
                     await ((IDotvvmViewModel) context.ViewModel).PreRender();
+                    context.ResetCulture();
                 }
 
                 // run the prerender phase in the page

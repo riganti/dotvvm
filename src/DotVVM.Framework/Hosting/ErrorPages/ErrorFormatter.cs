@@ -203,11 +203,11 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         public List<Func<Exception, HttpContext, IErrorSectionFormatter>> Formatters = new List<Func<Exception, HttpContext, IErrorSectionFormatter>>();
 
-        public string ErrorHtml(Exception exception, HttpContext owin)
+        public string ErrorHtml(Exception exception, HttpContext context)
         {
             var template = new ErrorPageTemplate();
-            template.Formatters = Formatters.Select(f => f(exception, owin)).Where(t => t != null).ToArray();
-            template.ErrorCode = owin.Response.StatusCode;
+            template.Formatters = Formatters.Select(f => f(exception, context)).Where(t => t != null).ToArray();
+            template.ErrorCode = context.Response.StatusCode;
             template.ErrorDescription = "Unhandled exception occured";
             template.Summary = exception.GetType().FullName + ": " + LimitLength(exception.Message, 200);
 
