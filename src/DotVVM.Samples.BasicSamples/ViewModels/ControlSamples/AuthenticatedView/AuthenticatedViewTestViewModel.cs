@@ -20,13 +20,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.AuthenticatedVie
                 },
                 "ApplicationCookie");
 
-            await Context.HttpContext.Authentication.SignInAsync("Cookie", new ClaimsPrincipal(identity));
+            await Context.HttpContext.Authentication.SignInAsync("Scheme3", new ClaimsPrincipal(identity));
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 
         public async Task SignOut()
         {
-            await Context.HttpContext.Authentication.SignOutAsync("Cookie");
+            await Context.HttpContext.Authentication.SignOutAsync("Scheme3");
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 

@@ -36,20 +36,15 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
         public async Task Login()
         {
             var auth = Context.HttpContext.Authentication;
-            await auth.SignOutAsync("Cookie");
+            await auth.SignOutAsync("Scheme1");
             var id = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, UserName)
-                    }, "Cookie");
+                    }, "ApplicationCookie");
             if (AdminRole)
             {
                 id.AddClaim(new Claim(ClaimTypes.Role, "admin"));
             }
-            await auth.SignInAsync("Cookie", new ClaimsPrincipal(new[] { id }));
-
-            if (Context.Query.ContainsKey("ReturnUrl"))
-            {
-                Context.RedirectToUrl((string)Context.Query["ReturnUrl"]);
-            }
+            await auth.SignInAsync("Scheme1", new ClaimsPrincipal(new[] { id }));
         }
     }
 }

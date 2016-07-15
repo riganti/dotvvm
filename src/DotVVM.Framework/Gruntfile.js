@@ -20,5 +20,31 @@
         },
     });
 
+    grunt.initConfig({
+        typescript: {
+            base: {
+                src: [
+                    "Resources/Scripts/DotVVM.DomUtils.ts",
+                    "Resources/Scripts/DotVVM.Events.ts",
+                    "Resources/Scripts/DotVVM.FileUpload.ts",
+                    "Resources/Scripts/DotVVM.Globalize.ts",
+                    "Resources/Scripts/DotVVM.PostBackHandlers.ts",
+                    "Resources/Scripts/DotVVM.Promise.ts",
+                    "Resources/Scripts/DotVVM.Serialization.ts",
+                    "Resources/Scripts/DotVVM.Validation.ts",
+                    "Resources/Scripts/DotVVM.ts",
+                    "Resources/Scripts/DotVVM.Evaluator.ts",
+                ],
+                dest: "Resources/Scripts/DotVVM.js",
+                options: {
+                    sourceMap: true,
+                    declaration: true
+                }
+            }
+        }
+    })
+
     grunt.loadNpmTasks('grunt-runtime-t4-template-task');
+
+    grunt.loadNpmTasks('grunt-typescript')
 }

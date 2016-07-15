@@ -7,7 +7,7 @@ using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 {
-    [Authorize]
+    [Authorize(AuthScheme = "Scheme1")]
     public class SecuredPageViewModel : DotvvmViewModelBase
     {
         private static string Message = "server: Hello!";
@@ -21,7 +21,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
             LastMessage = Message;
         }
 
-        [Authorize("admin")]
+        [Authorize("admin", AuthScheme = "Scheme1")]
         public void ReplaceMessage()
         {
             Message = LastMessage = string.Format("{0}: {1}",

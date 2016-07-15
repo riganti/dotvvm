@@ -24,12 +24,26 @@ namespace DotVVM.Samples.BasicSamples
 		public void ConfigureServices(IServiceCollection services)
 		{
 			services.AddDataProtection();
+            services.AddWebEncoders();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
 		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 		{
-
+            app.UseCookieAuthentication(new CookieAuthenticationOptions
+            {
+                LoginPath = new PathString("/ComplexSamples/Auth/Login"),
+                AuthenticationScheme = "Scheme1"
+            });
+            app.UseCookieAuthentication(new CookieAuthenticationOptions
+            {
+                LoginPath = new PathString("/ComplexSamples/SPARedirect/login"),
+                AuthenticationScheme = "Scheme2"
+            });
+            app.UseCookieAuthentication(new CookieAuthenticationOptions
+            {
+                AuthenticationScheme = "Scheme3"
+            });
 			//     app.UseMiddleware<SwitchMiddleware>(
 			//         new List<SwitchMiddlewareCase>() {
 			//             new SwitchMiddlewareCase(

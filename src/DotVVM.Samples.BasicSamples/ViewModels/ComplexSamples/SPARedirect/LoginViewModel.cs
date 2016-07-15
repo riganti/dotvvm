@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Security.Claims;
 using DotVVM.Framework.ViewModel;
+using System.Threading.Tasks;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 {
@@ -11,13 +12,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 
 	    public string Password { get; set; }
 
-	    public void Login()
+	    public async Task Login()
 	    {
             var claims = new List<Claim>();
             claims.Add(new Claim(ClaimTypes.Name, "Brock"));
             claims.Add(new Claim(ClaimTypes.Email, "brockallen@gmail.com"));
-            var id = new ClaimsIdentity(claims, "Cookie");
-            Context.HttpContext.Authentication.SignInAsync("Cookie", new ClaimsPrincipal(new[] { id }));
+            var id = new ClaimsIdentity(claims, "ApplicationCookie");
+            await Context.HttpContext.Authentication.SignInAsync("Scheme2", new ClaimsPrincipal(new[] { id }));
 
             Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
 	    }

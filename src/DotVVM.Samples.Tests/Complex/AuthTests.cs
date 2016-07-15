@@ -37,7 +37,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.ElementAt("h1",1)
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM Debugger: Error 401: Unauthorized"),
+                            s.Contains("DotVVM Debugger: Error 403: Forbidden"),
                             "User is not in admin role"
                         );
 

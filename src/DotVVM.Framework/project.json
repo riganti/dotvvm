@@ -50,7 +50,8 @@
     }
   },
   "devDependencies": {
-    "grunt": "0.4.5"
+    "grunt": "0.4.5",
+    "grunt-typescript": "*"
   },
   "exclude": [ "node_modules" ],
   "buildOptions": { "keyFile": "dotvvmwizard.snk" },

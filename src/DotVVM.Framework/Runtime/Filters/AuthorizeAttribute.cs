@@ -19,6 +19,8 @@ namespace DotVVM.Framework.Runtime.Filters
         /// </summary>
         public string[] Roles { get; set; }
 
+        public string AuthScheme { get; set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="AuthorizeAttribute"/> class.
         /// </summary>
@@ -54,9 +56,11 @@ namespace DotVVM.Framework.Runtime.Filters
         {
             // check for [NotAuthorized] attribute
             if (context.ViewModel != null && !CanBeAuthorized(context.ViewModel.GetType())) return;
+            // TODO: async action filters
+            var user = AuthScheme == null ? context.HttpContext.User : context.HttpContext.Authentication.GetAuthenticateInfoAsync(AuthScheme).Result.Principal;
 
             // the user must not be anonymous
-            if (context.HttpContext.User == null || !context.HttpContext.User.Identity.IsAuthenticated)
+            if (user == null || !user.Identity.IsAuthenticated)
             {
                 SetUnauthorizedResponse(context);
             }
@@ -64,12 +68,14 @@ namespace DotVVM.Framework.Runtime.Filters
             // if the role is set
             if (Roles != null && Roles.Length > 0)
             {
-                if (!Roles.Any(r => context.HttpContext.User.IsInRole(r)))
+                if (!Roles.Any(r => user.IsInRole(r)))
                 {
                     SetUnauthorizedResponse(context);
                 }
             }
+            if (context.HttpContext.User == null) context.HttpContext.User = user;
         }
+
 
         private static ConcurrentDictionary<Type, bool> canBeAuthorizedCache = new ConcurrentDictionary<Type, bool>();
         protected static bool CanBeAuthorized(Type viewModelType)
@@ -79,7 +85,8 @@ namespace DotVVM.Framework.Runtime.Filters
 
         protected virtual void SetUnauthorizedResponse(IDotvvmRequestContext context)
         {
-            throw new UnauthorizedAccessException();
+            context.HttpContext.Authentication.ChallengeAsync(AuthScheme ?? "Automatic");
+            throw new DotvvmInterruptRequestExecutionException("User aunauthorized");
         }
     }
 }
