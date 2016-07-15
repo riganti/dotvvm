@@ -300,6 +300,7 @@
     <Compile Include="Compilation\Validation\IControlUsageValidator.cs" />
     <Compile Include="Compilation\ViewCompilingVisitor.cs" />
     <Compile Include="Configuration\ConfigurationHelper.cs" />
+    <Compile Include="Configuration\DefaultDataProtectionProvider.cs" />
     <Compile Include="Configuration\DefaultControlRegistrationStrategy.cs" />
     <Compile Include="Configuration\HtmlAttributeTransformConfiguration.cs" />
     <Compile Include="Configuration\HtmlTagAttributePair.cs" />
