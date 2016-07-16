@@ -13,33 +13,13 @@ namespace DotVVM.Samples.BasicSamples
             config.DefaultCulture = "en-US";
 
             config.Markup.DefaultDirectives.Add(ParserConstants.ResourceTypeDirective, "DotVVM.Samples.BasicSamples.Resources.Resource, DotVVM.Samples.BasicSamples");
-            config.Markup.Controls.Add(new DotvvmControlConfiguration()
-            {
-                Assembly = "DotVVM.Samples.BasicSamples",
-                Namespace = "DotVVM.Samples.BasicSamples.Controls",
-                TagPrefix = "PropertyUpdate"
-            });
-            config.Markup.Controls.Add(new DotvvmControlConfiguration()
-            {
-                TagPrefix = "IdGeneration",
-                TagName = "Control",
-                Src = "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol"
-            });
-            config.Markup.Controls.Add(new DotvvmControlConfiguration()
-            {
-                TagPrefix = "FileUploadInRepeater",
-                TagName = "FileUploadWrapper",
-                Src = "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol"
-            });
-            config.Markup.Controls.Add(new DotvvmControlConfiguration()
-            {
-                TagPrefix = "sample",
-                TagName = "ControlPropertyUpdating",
-                Src = "Views/FeatureSamples/MarkupControl/ControlPropertyUpdating.dotcontrol"
-            });
-			config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/ComplexSamples/ServerRendering/"));
-            config.Markup.AddMarkupControl("sample", "TextEditorControl", "Views/FeatureSamples/MarkupControl/TextEditorControl.dotcontrol");
+            config.Markup.AddMarkupControl("DotVVM.Samples.BasicSamples", "DotVVM.Samples.BasicSamples.Controls", "PropertyUpdate");
+            config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
+            config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
             config.Markup.AddMarkupControl("sample", "PasswordStrengthControl", "Views/FeatureSamples/ClientExtenders/PasswordStrengthControl.dotcontrol");
+
+			config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/ComplexSamples/ServerRendering/"));
+			config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/MarkupControl/"));
 
             config.RouteTable.Add("Default", "", "Views/Default.dothtml");
             config.RouteTable.Add("ComplexSamples_SPARedirect_home", "ComplexSamples/SPARedirect", "Views/ComplexSamples/SPARedirect/home.dothtml");

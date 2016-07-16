@@ -773,7 +773,7 @@ var DotVVM = (function () {
     DotVVM.prototype.addKnockoutBindingHandlers = function () {
         function createWrapperComputed(accessor, propertyDebugInfo) {
             if (propertyDebugInfo === void 0) { propertyDebugInfo = null; }
-            return ko.pureComputed({
+            var computed = ko.pureComputed({
                 read: function () {
                     var property = accessor();
                     var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
@@ -789,6 +789,8 @@ var DotVVM = (function () {
                     }
                 }
             });
+            computed["wrappedProperty"] = accessor;
+            return computed;
         }
         ko.virtualElements.allowedBindings["dotvvm_withControlProperties"] = true;
         ko.bindingHandlers["dotvvm_withControlProperties"] = {
@@ -1609,6 +1611,11 @@ var ValidationError = (function () {
         this.errorMessage = errorMessage;
     }
     ValidationError.getOrCreate = function (targetObservable) {
+        if (targetObservable["wrappedProperty"]) {
+            var newOne = targetObservable["wrappedProperty"]();
+            if (ko.isObservable(newOne))
+                targetObservable = newOne;
+        }
         if (!targetObservable.validationErrors) {
             targetObservable.validationErrors = ko.observableArray();
         }
