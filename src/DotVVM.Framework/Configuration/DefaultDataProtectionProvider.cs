@@ -9,18 +9,21 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Configuration
 {
-    internal class DefaultDataProtectionProvider : IDataProtectionProvider
+    public class DefaultDataProtectionProvider : IDataProtectionProvider
     {
         private IAppBuilder appBuilder;
+        private IDataProtectionProvider defaultProvider;
 
         public DefaultDataProtectionProvider(IAppBuilder appBuilder)
         {
             this.appBuilder = appBuilder;
+
+            defaultProvider = appBuilder.GetDataProtectionProvider();
         }
 
         public IDataProtector Create(params string[] purposes)
         {
-            return this.appBuilder.CreateDataProtector(new string[] { });
+            return defaultProvider?.Create(purposes) ?? appBuilder.CreateDataProtector(purposes);
         }
     }
 }
