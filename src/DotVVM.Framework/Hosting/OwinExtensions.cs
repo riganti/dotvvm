@@ -22,7 +22,14 @@ namespace DotVVM.Framework.Hosting
         internal static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootDirectory, bool errorPages = true)
         {
             var configuration = CreateConfiguration(applicationRootDirectory);
-            configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(app.GetDataProtectionProvider);
+
+            var protectionProvider = app.GetDataProtectionProvider();
+            if (protectionProvider == null)
+            {
+                protectionProvider = new DefaultDataProtectionProvider(app);
+            }
+
+            configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(() => protectionProvider);
 
             // add middlewares
             if (errorPages)
