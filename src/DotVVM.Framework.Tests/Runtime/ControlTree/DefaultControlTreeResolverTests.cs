@@ -12,6 +12,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -375,8 +376,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var column = root.Content.First(t => t.Metadata.Name == nameof(GridViewTemplateColumn));
             Assert.IsFalse(column.DothtmlNode.HasNodeErrors, column.DothtmlNode.NodeErrors.FirstOrDefault());
             var template = (column.Properties.FirstOrDefault(p => p.Key.Name == nameof(GridViewTemplateColumn.ContentTemplate)).Value as ResolvedPropertyTemplate)?.Content;
-            Assert.IsTrue(template.Any(n => n.DothtmlNode  is DothtmlBindingNode));
-            Assert.IsTrue(template.Any(n => n.DothtmlNode  is DothtmlElementNode && n.Metadata.Name == "Literal"));
+            Assert.IsTrue(template.Any(n => n.DothtmlNode is DothtmlBindingNode));
+            Assert.IsTrue(template.Any(n => n.DothtmlNode is DothtmlElementNode && n.Metadata.Name == "Literal"));
         }
 
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")

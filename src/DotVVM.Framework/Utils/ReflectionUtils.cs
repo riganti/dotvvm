@@ -120,14 +120,27 @@ namespace DotVVM.Framework.Utils
             // handle enums
             if (type.IsEnum && value is string)
             {
-                try
+                var split = ((string)value).Split(',', '|');
+                var isFlags = type.GetTypeInfo().IsDefined(typeof(FlagsAttribute));
+                if (!isFlags && split.Length > 1) throw new Exception($"Enum {type} does allow multiple values. Use [FlagsAttribute] to allow it.");
+
+                dynamic result = null;
+                foreach (var val in split)
                 {
-                    return Enum.Parse(type, (string)value, true);
+                    try
+                    {
+                        if (result == null) result = Enum.Parse(type, val.Trim(), ignoreCase: true); // Enum.TryParse requires type parameter
+                        else
+                        {
+                            result |= (dynamic)Enum.Parse(type, val.Trim(), ignoreCase: true);
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        throw new Exception($"The enum {type} does not allow a value '{val}'!", ex); // TODO: exception handling
+                    }
                 }
-                catch (Exception ex)
-                {
-                    throw new Exception(string.Format("The enum {0} does not allow a value '{1}'!", type, value), ex);      // TODO: exception handling
-                }
+                return result;
             }
 
             // generic to string
