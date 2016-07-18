@@ -35,6 +35,57 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_FullNameResourceBinding()
+        {
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("DotVVM.Framework.Tests.Resource1.ResourceKey123"));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_NamespaceResourceBinding()
+        {
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            {
+                new NamespaceImport("DotVVM.Framework.Tests")
+            }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MoreNamespacesResourceBinding()
+        {
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            {
+                new NamespaceImport("DotVVM.Framework.Tests0"),
+                new NamespaceImport("DotVVM.Framework.Tests"),
+                new NamespaceImport("DotVVM.Framework.Tests2")
+            }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_NamespaceAliasResourceBinding()
+        {
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("ghg.Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            {
+                new NamespaceImport("DotVVM.Framework.Tests","ghg")
+            }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ResourceBindingException()
+        {
+            try
+            {
+                Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.NotExist", new object[0], null, new NamespaceImport[]
+                    {
+                        new NamespaceImport("DotVVM.Framework.Tests")
+                    }));
+            }
+            catch (Exception x)
+            {
+                Assert.AreEqual(x.Message, "could not find static member NotExist on type DotVVM.Framework.Tests.Resource1");
+            }
+        }
+
+        [TestMethod]
         public void BindingCompiler_Valid_JustProperty()
         {
             var viewModel = new TestViewModel() { StringProp = "abc" };
