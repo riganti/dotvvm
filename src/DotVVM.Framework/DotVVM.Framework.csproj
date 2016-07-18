@@ -466,7 +466,7 @@
     <Compile Include="Routing\DotvvmRouteStrategyException.cs" />
     <Compile Include="Routing\DefaultRouteStrategy.cs" />
     <Compile Include="Routing\GenericRouteParameterType.cs" />
-    <Compile Include="Routing\IRouteParameterType.cs" />
+    <Compile Include="Routing\IRouteParameterConstraint.cs" />
     <Compile Include="Routing\IRoutingStrategy.cs" />
     <Compile Include="Routing\RouteHelper.cs" />
     <Compile Include="Routing\RouteStrategyMarkupFileInfo.cs" />
