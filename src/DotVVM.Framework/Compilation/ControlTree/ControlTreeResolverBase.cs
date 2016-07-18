@@ -365,6 +365,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
 				// set the property
 				if (attribute.ValueNode == null)
 				{
+                    // implicitly set boolean property
+                    if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))))
+                    {
+                        treeBuilder.SetProperty(control, treeBuilder.BuildPropertyValue(property, true));
+                    }
 					attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
 				}
 				else if (attribute.ValueNode is DothtmlValueBindingNode)

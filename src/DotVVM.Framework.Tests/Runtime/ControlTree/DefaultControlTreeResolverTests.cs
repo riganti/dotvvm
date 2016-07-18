@@ -380,6 +380,18 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsTrue(template.Any(n => n.DothtmlNode is DothtmlElementNode && n.Metadata.Name == "Literal"));
         }
 
+        [TestMethod]
+        public void ResolvedTree_ImplicitBooleanValue()
+        {
+            var root = ParseSource(@"
+@viewModel System.Object
+<dot:CheckBox Checked />
+ ");
+            var checkBox = root.Content.First(t => t.Metadata.Name == nameof(CheckBox));
+            Assert.IsFalse(checkBox.DothtmlNode.HasNodeErrors, checkBox.DothtmlNode.NodeErrors.FirstOrDefault());
+            Assert.AreEqual(true, (checkBox.Properties.FirstOrDefault(p => p.Key.Name == nameof(CheckBox.Checked)).Value as ResolvedPropertyValue)?.Value);
+        }
+
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
