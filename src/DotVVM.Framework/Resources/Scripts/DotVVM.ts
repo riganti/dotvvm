@@ -686,7 +686,7 @@ class DotVVM {
 
     private addKnockoutBindingHandlers() {
         function createWrapperComputed(accessor: () => any, propertyDebugInfo: string = null) {
-            return ko.pureComputed({
+            var computed = ko.pureComputed({
                 read() {
                     var property = accessor();
                     var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
@@ -702,6 +702,8 @@ class DotVVM {
                     }
                 }
             });
+            computed["wrappedProperty"] = accessor;
+            return computed;
         }
 
         ko.virtualElements.allowedBindings["dotvvm_withControlProperties"] = true;

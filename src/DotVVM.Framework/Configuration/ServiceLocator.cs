@@ -26,7 +26,9 @@ namespace DotVVM.Framework.Configuration
 
         public T GetService<T>()
         {
-            return (T)factories[typeof (T)]();
+            var service = (T)factories[typeof (T)]();
+            if (service == null) throw new ArgumentException($"Constructor for service {typeof(T)} returned null.");
+            return service;
         }
 
 
