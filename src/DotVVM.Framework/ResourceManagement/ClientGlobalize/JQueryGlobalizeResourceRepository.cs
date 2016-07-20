@@ -13,7 +13,8 @@ namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
         {
             return new ScriptResource()
             {
-                Url = string.Format("~/{0}?{1}={2}", HostingConstants.GlobalizeCultureUrlPath, HostingConstants.GlobalizeCultureUrlIdParameter, name),
+                //Url = string.Format("~/{0}?{1}={2}", HostingConstants.GlobalizeCultureUrlPath, HostingConstants.GlobalizeCultureUrlIdParameter, name),
+                Url = ResourceUrlGenerator.GetGlobalizeCultureResourceUrl(name),
                 Dependencies = new[] { ResourceConstants.GlobalizeResourceName },
                 // TODO: cdn?
             };

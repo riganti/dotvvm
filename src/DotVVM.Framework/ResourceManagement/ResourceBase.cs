@@ -1,7 +1,4 @@
-using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Net;
 using DotVVM.Framework.Compilation.Parser;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
@@ -61,13 +58,14 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets the URL.
         /// </summary>
-        protected string GetUrl()
+        protected string GetUrl(IDotvvmRequestContext context)
         {
             if (IsEmbeddedResource)
             {
-                return string.Format(HostingConstants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
+                return ResourceUrlGenerator.GetEmbeddedResourceUrl(this.Url, this.EmbeddedResourceAssembly);
             }
-            return Url;
+
+            return ResourceUrlGenerator.GetResourceUrl(context, Url);
         }
     }
 }
