@@ -213,23 +213,16 @@ namespace DotVVM.Framework.Controls
             return GetClosestControlBindingTarget(out numberOfDataContextChanges);
         }
 
-        /// <summary>
-        /// Gets the closest control binding target and returns number of DataContext changes since the target.
-        /// </summary>
-        public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges)
-        {
-            var result = GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
-            if (result == null)
-            {
-                throw new DotvvmControlException(this, "The {controlProperty: ...} binding can be only used in a markup control.");
-            }
-            return result;
-        }
+		/// <summary>
+		/// Gets the closest control binding target and returns number of DataContext changes since the target.
+		/// </summary>
+		public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
+			GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
 
-        /// <summary>
-        /// Gets the closest control with specified property value and returns number of DataContext changes since the target.
-        /// </summary>
-        public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, bool> filterFunction)
+		/// <summary>
+		/// Gets the closest control with specified property value and returns number of DataContext changes since the target.
+		/// </summary>
+		public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, bool> filterFunction)
         {
             var current = this;
             numberOfDataContextChanges = 0;
