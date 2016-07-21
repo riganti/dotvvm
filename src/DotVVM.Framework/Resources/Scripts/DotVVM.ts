@@ -77,7 +77,6 @@ class DotVVM {
 
         // trigger the init event
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
-        this.isViewModelUpdating = false;
 
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
@@ -85,6 +84,7 @@ class DotVVM {
             this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder, false));
             this.handleHashChange(viewModelName, spaPlaceHolder, true);
         }
+        this.isViewModelUpdating = false;
 
         if (idFragment) {
             if (spaPlaceHolder) {

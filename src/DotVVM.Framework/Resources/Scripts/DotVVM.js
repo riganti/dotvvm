@@ -188,13 +188,13 @@ var DotVVM = (function () {
         ko.applyBindings(this.viewModelObservables[viewModelName], document.documentElement);
         // trigger the init event
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
-        this.isViewModelUpdating = false;
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
         if (spaPlaceHolder) {
             this.domUtils.attachEvent(window, "hashchange", function () { return _this.handleHashChange(viewModelName, spaPlaceHolder, false); });
             this.handleHashChange(viewModelName, spaPlaceHolder, true);
         }
+        this.isViewModelUpdating = false;
         if (idFragment) {
             if (spaPlaceHolder) {
                 var element = document.getElementById(idFragment);
