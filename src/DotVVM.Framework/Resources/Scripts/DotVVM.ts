@@ -657,12 +657,14 @@ class DotVVM {
 
         if (applyBindingsOnEachControl) {
             window.setTimeout(() => {
+                this.isViewModelUpdating = true;
                 for (var id in resultObject.updatedControls) {
                     var updatedControl = document.getElementByDotvvmId(id);
                     if (updatedControl) {
                         ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                     }
                 }
+                this.isViewModelUpdating = false;
             }, 0);
         }
     }
