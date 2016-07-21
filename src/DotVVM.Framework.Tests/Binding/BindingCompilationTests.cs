@@ -18,8 +18,7 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object));
-            context.RootControlType = control?.GetType() ?? typeof(DotvvmControl);
+            var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object), rootControlType: control?.GetType() ?? typeof(DotvvmControl));
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = new DataContextStack(contexts[i].GetType(), context);

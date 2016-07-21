@@ -20,8 +20,7 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public object CompileBinding(string expression, params Type[] contexts)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault() ?? typeof(object));
-            context.RootControlType = typeof(DotvvmControl);
+            var context = new DataContextStack(contexts.FirstOrDefault() ?? typeof(object), rootControlType: typeof(DotvvmControl));
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = new DataContextStack(contexts[i], context);

@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Compilation
             {
                 foreach (var directive in view.Directives)
                 {
-                    emitter.EmitAddDirective(pageName, directive.Key, directive.Value.First());
+                    emitter.EmitAddDirective(pageName, directive.Key, directive.Value.First().Value);
                 }
             }
 

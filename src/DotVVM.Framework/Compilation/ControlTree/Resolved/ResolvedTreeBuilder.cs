@@ -11,9 +11,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     public class ResolvedTreeBuilder : IAbstractTreeBuilder
     {
 
-        public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext)
+        public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
         {
-            return new ResolvedTreeRoot((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext);
+            return new ResolvedTreeRoot((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext, directives);
         }
 
         public IAbstractControl BuildControl(IControlResolverMetadata metadata, DothtmlNode node, IDataContextStack dataContext)
@@ -73,6 +73,11 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public void AddChildControl(IAbstractContentNode control, IAbstractControl child)
         {
             ((ResolvedContentNode)control).AddChild((ResolvedControl)child);
+        }
+
+        public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)
+        {
+            return new ResolvedDirective() { DirectiveNode = node};
         }
     }
 }

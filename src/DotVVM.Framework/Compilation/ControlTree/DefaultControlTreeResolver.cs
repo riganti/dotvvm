@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -30,14 +32,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlType(ResolvedTypeDescriptor.ToSystemType(wrapperType), virtualPath: virtualPath);
         }
 
-        protected override IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, ITypeDescriptor wrapperType = null, IDataContextStack parentDataContextStack = null)
+        protected override IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, ITypeDescriptor wrapperType = null, IDataContextStack parentDataContextStack = null,  IReadOnlyList<NamespaceImport> namespaceImports = null)
         {
-            var dataContextTypeStack = new DataContextStack(ResolvedTypeDescriptor.ToSystemType(viewModelType), parentDataContextStack as DataContextStack);
-            if (wrapperType != null)
-            {
-                dataContextTypeStack.RootControlType = ResolvedTypeDescriptor.ToSystemType(wrapperType);
-            }
-            return dataContextTypeStack;
+            return new DataContextStack(ResolvedTypeDescriptor.ToSystemType(viewModelType), parentDataContextStack as DataContextStack, ResolvedTypeDescriptor.ToSystemType(wrapperType), namespaceImports);
         }
 
         protected override IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context)
