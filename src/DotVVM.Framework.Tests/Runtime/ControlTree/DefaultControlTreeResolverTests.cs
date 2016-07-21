@@ -380,7 +380,17 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsTrue(template.Any(n => n.DothtmlNode is DothtmlElementNode && n.Metadata.Name == "Literal"));
         }
 
-        private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
+		[TestMethod]
+		public void ResolvedTree_UnescapedAttributeValue()
+		{
+			var root = ParseSource(@"
+<div onclick='ahoj &gt; lao' />
+ ");
+			var column = root.Content.First(t => t.Metadata.Name == nameof(HtmlGenericControl));
+			Assert.AreEqual(column.HtmlAttributes["onclick"], "ahoj > lao");
+		}
+
+		private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
             tokenizer.Tokenize(new StringReader(markup));

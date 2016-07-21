@@ -471,7 +471,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
             else
             {
-                return (valueNode as DothtmlValueTextNode)?.Text;
+                return WebUtility.HtmlDecode((valueNode as DothtmlValueTextNode)?.Text);
             }
         }
 
