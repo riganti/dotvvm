@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public override Delegate GetCommandDelegate(DotvvmBindableObject control, DotvvmProperty property)
         {
-            return (Delegate)ExecDelegate(control, true, true);
+            return (Delegate)ExecDelegate(control, true);
         }
 
     }
