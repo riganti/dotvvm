@@ -298,6 +298,13 @@ namespace DotVVM.Framework.Tests.Routing
             Assert.AreEqual("test", parameters["Title"]);
         }
 
+		[TestMethod]
+		public void DotvvmRoute_Performace()
+		{
+			var route = new DotvvmRoute("Article/{name}@{domain}/{id:int}", null, null, null);
 
+			IDictionary<string, object> parameters;
+			Assert.IsFalse(route.IsMatch("Article/f" + new string('@', 2000) + "f/4f", out parameters));
+		}
     }
 }

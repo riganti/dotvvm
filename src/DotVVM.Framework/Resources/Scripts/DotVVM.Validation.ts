@@ -100,6 +100,10 @@ class ValidationError {
     }
 
     public static getOrCreate(targetObservable: KnockoutObservable<any> & { validationErrors?: KnockoutObservableArray<ValidationError> }): KnockoutObservableArray<ValidationError> {
+        if (targetObservable["wrappedProperty"]) {
+            var newOne = targetObservable["wrappedProperty"]();
+            if (ko.isObservable(newOne)) targetObservable = newOne;
+        }
         if (!targetObservable.validationErrors) {
             targetObservable.validationErrors = ko.observableArray<ValidationError>();
         }

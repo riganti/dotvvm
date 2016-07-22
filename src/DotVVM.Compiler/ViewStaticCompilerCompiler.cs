@@ -195,7 +195,7 @@ namespace DotVVM.Compiler
 
                 // compile master pages
                 if (resolvedView.Directives.ContainsKey("masterPage"))
-                    CompileFile(resolvedView.Directives["masterPage"].Single());
+                    CompileFile(resolvedView.Directives["masterPage"].Single().Value);
 
                 compilation = compilation
                     .AddSyntaxTrees(emitter.BuildTree(namespaceName, className, fileName)/*.Select(t => SyntaxFactory.ParseSyntaxTree(t.GetRoot().NormalizeWhitespace().ToString()))*/)

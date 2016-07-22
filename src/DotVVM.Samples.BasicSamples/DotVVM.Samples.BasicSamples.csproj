@@ -200,6 +200,7 @@
     <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyValidationPageViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Redirect\RedirectingPresenter.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resources\CdnScriptPriorityViewModel.cs" />
@@ -264,6 +265,7 @@
       <DependentUpon>Localization2.resx</DependentUpon>
     </Compile>
     <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.cs" />
+    <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidation.cs" />
     <Compile Include="Views\FeatureSamples\MarkupControl\TextEditorControl.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -434,6 +436,8 @@
     <Content Include="Views\FeatureSamples\Validation\DateTimeValidation_NullableDateTime.dothtml" />
     <Content Include="Views\FeatureSamples\Resources\CdnUnavailableResourceLoad.dothtml" />
     <Content Include="Views\FeatureSamples\Resources\CdnScriptPriority.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidation.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidationPage.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

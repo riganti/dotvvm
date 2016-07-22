@@ -77,7 +77,6 @@ class DotVVM {
 
         // trigger the init event
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
-        this.isViewModelUpdating = false;
 
         // handle SPA requests
         var spaPlaceHolder = this.getSpaPlaceHolder();
@@ -85,6 +84,7 @@ class DotVVM {
             this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder, false));
             this.handleHashChange(viewModelName, spaPlaceHolder, true);
         }
+        this.isViewModelUpdating = false;
 
         if (idFragment) {
             if (spaPlaceHolder) {
@@ -657,12 +657,14 @@ class DotVVM {
 
         if (applyBindingsOnEachControl) {
             window.setTimeout(() => {
+                this.isViewModelUpdating = true;
                 for (var id in resultObject.updatedControls) {
                     var updatedControl = document.getElementByDotvvmId(id);
                     if (updatedControl) {
                         ko.applyBindings(updatedControls[id].dataContext, updatedControl);
                     }
                 }
+                this.isViewModelUpdating = false;
             }, 0);
         }
     }
@@ -686,7 +688,7 @@ class DotVVM {
 
     private addKnockoutBindingHandlers() {
         function createWrapperComputed(accessor: () => any, propertyDebugInfo: string = null) {
-            return ko.pureComputed({
+            var computed = ko.pureComputed({
                 read() {
                     var property = accessor();
                     var propertyValue = ko.unwrap(property); // has to call that always as it is a dependency
@@ -702,6 +704,8 @@ class DotVVM {
                     }
                 }
             });
+            computed["wrappedProperty"] = accessor;
+            return computed;
         }
 
         ko.virtualElements.allowedBindings["dotvvm_withControlProperties"] = true;

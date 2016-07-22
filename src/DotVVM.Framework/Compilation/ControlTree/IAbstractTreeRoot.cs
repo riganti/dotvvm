@@ -5,7 +5,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
     public interface IAbstractTreeRoot : IAbstractContentNode
     {
 
-        Dictionary<string, List<string>> Directives { get; }
+        Dictionary<string, List<IAbstractDirective>> Directives { get; }
         
     }
 }

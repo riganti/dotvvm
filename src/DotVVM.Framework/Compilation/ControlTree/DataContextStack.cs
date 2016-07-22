@@ -6,28 +6,20 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public class DataContextStack : IDataContextStack
     {
-        public DataContextStack Parent { get; set; }
-        public Type DataContextType { get; set; }
-        public Type RootControlType { get; set; }
-        NamespaceImport[] namespaceImports;
-        public NamespaceImport[] NamespaceImports
-        {
-            get
-            {
-                return namespaceImports ?? (namespaceImports = Parent?.NamespaceImports);
-            }
+        public DataContextStack Parent { get; }
+        public Type DataContextType { get; }
+        public Type RootControlType { get; }
+        public IReadOnlyList<NamespaceImport> NamespaceImports { get; }
 
-            set
-            {
-                namespaceImports = value;
-            }
-        }
-
-        public DataContextStack(Type type, DataContextStack parent = null)
+        public DataContextStack(Type type, 
+            DataContextStack parent = null,
+            Type rootControlType = null,
+            IReadOnlyList<NamespaceImport> imports = null )
         {
             Parent = parent;
             DataContextType = type;
-            RootControlType = parent?.RootControlType;
+            RootControlType = rootControlType ?? parent?.RootControlType;
+            NamespaceImports = imports ?? parent?.NamespaceImports;
         }
         
         public IEnumerable<Type> Enumerable()

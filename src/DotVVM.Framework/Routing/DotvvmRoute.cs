@@ -141,7 +141,7 @@ namespace DotVVM.Framework.Routing
             if (Url[index] == ':')
             {
                 startIndex = index + 1;
-                index = Url.IndexOf('}');
+                index = Url.IndexOf('}', index);
                 if (index < 0)
                 {
                     throw new ArgumentException($"The route URL '{Url}' is not valid! It contains an unclosed parameter.");

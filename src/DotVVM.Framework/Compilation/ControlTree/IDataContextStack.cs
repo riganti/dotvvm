@@ -1,3 +1,6 @@
+using System.Collections.Generic;
+using System.Collections.Immutable;
+
 namespace DotVVM.Framework.Compilation.ControlTree
 {
     public interface IDataContextStack
@@ -6,6 +9,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         IDataContextStack Parent { get; }
 
-        NamespaceImport[] NamespaceImports { get; set; }
+        IReadOnlyList<NamespaceImport> NamespaceImports { get; }
     }
 }

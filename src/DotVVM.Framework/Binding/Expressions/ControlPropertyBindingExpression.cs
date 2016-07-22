@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public override object Evaluate(DotvvmBindableObject control, DotvvmProperty property)
         {
-            return ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty, setRootControl: true);
+            return ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty);
         }
     }
 }
