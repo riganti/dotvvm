@@ -531,7 +531,6 @@
     <Compile Include="Utils\ReflectionUtils.cs" />
     <Compile Include="Utils\TaskUtils.cs" />
     <Compile Include="ViewModel\AllowStaticCommandAttribute.cs" />
-    <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ChildViewModelsCache.cs" />
     <Compile Include="ViewModel\ClientExtenderAttribute.cs" />
     <Compile Include="ViewModel\Serialization\ClientExtenderInfo.cs" />
@@ -559,7 +558,6 @@
     <Compile Include="ViewModel\Validation\ViewModelValidator.cs" />
     <Compile Include="ViewModel\ProtectAttribute.cs" />
     <Compile Include="ViewModel\ProtectMode.cs" />
-    <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IDotvvmViewModel.cs" />
     <Compile Include="ViewModel\DotvvmViewModelBase.cs" />
   </ItemGroup>

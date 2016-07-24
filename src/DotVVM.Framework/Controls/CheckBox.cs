@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
@@ -24,6 +25,16 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<IEnumerable, CheckBox>(t => t.CheckedItems, null);
 
 
+        protected internal override void OnPreRender(IDotvvmRequestContext context)
+        {
+            base.OnPreRender(context);
+
+            if (HasBinding(CheckedItemsProperty) && (CheckedItems == null && DataContext != null))
+            {
+                throw new DotvvmControlException(this, $"The {nameof(CheckedItems)} property must not be null!");
+            }
+        }
+
         /// <summary>
         /// Renders the input tag.
         /// </summary>
@@ -36,10 +47,6 @@ namespace DotVVM.Framework.Controls
             }
             else if (!HasBinding(CheckedProperty) && HasBinding(CheckedItemsProperty))
             {
-                if (GetValue(CheckedItemsProperty) == null)
-                {
-                    throw new DotvvmControlException(this, "CheckedItems property cannot contain null!");
-                }
                 // collection mode
                 RenderCheckedItemsProperty(writer);
             }
@@ -74,7 +81,6 @@ namespace DotVVM.Framework.Controls
             });
         }
 
-
         protected virtual void RenderDotvvmCheckedPointerBinding(IHtmlWriter writer)
         {
             writer.AddKnockoutDataBind("dotvvm-checked-pointer", GetDotvvmCheckedPointerBindingValue());
@@ -84,8 +90,6 @@ namespace DotVVM.Framework.Controls
         {
             return "'checked'";
         }
-
-
 
         protected virtual void RenderCheckedItemsBinding(IHtmlWriter writer)
         {
