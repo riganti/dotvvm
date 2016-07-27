@@ -170,6 +170,8 @@
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
     <Compile Include="ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\RouteLink\RouteLinkEnabledFalseViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\RouteLink\TestRouteViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RouteLink\RouteLinkEnabledViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\DefaultViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageAViewModel.cs" />
@@ -423,6 +425,8 @@
     <Content Include="Views\ControlSamples\AuthenticatedView\AuthenticatedViewTest.dothtml" />
     <Content Include="Views\ControlSamples\RoleView\RoleViewTest.dothtml" />
     <Content Include="Views\ControlSamples\TextBox\TextBox_FormatDoubleProperty.dothtml" />
+    <Content Include="Views\ControlSamples\RouteLink\RouteLinkEnabledFalse.dothtml" />
+    <Content Include="Views\ControlSamples\RouteLink\TestRoute.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
