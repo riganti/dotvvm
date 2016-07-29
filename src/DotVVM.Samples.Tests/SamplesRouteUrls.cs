@@ -130,6 +130,7 @@ namespace Dotvvm.Samples.Tests
         public static string FeatureSamples_Serialization_Serialization => "FeatureSamples/Serialization/Serialization";
         public static string FeatureSamples_ServerComments_ServerComments => "FeatureSamples/ServerComments/ServerComments";
         public static string FeatureSamples_StaticCommand_StaticCommand => "FeatureSamples/StaticCommand/StaticCommand";
+        public static string FeatureSamples_Validation_Validationn => "FeatureSamples/Validation/Validation";
         public static string FeatureSamples_Validation_DateTimeValidation => "FeatureSamples/Validation/DateTimeValidation";
         public static string FeatureSamples_Validation_DateTimeValidation_NullableDateTime => "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
         public static string FeatureSamples_Validation_DynamicValidation => "FeatureSamples/Validation/DynamicValidation";
