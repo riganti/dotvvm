@@ -213,16 +213,16 @@ namespace DotVVM.Framework.Controls
             return GetClosestControlBindingTarget(out numberOfDataContextChanges);
         }
 
-		/// <summary>
-		/// Gets the closest control binding target and returns number of DataContext changes since the target.
-		/// </summary>
-		public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
-			GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
+        /// <summary>
+        /// Gets the closest control binding target and returns number of DataContext changes since the target.
+        /// </summary>
+        public DotvvmBindableObject GetClosestControlBindingTarget(out int numberOfDataContextChanges) =>
+            GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
 
-		/// <summary>
-		/// Gets the closest control with specified property value and returns number of DataContext changes since the target.
-		/// </summary>
-		public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, bool> filterFunction)
+        /// <summary>
+        /// Gets the closest control with specified property value and returns number of DataContext changes since the target.
+        /// </summary>
+        public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, bool> filterFunction)
         {
             var current = this;
             numberOfDataContextChanges = 0;
@@ -300,6 +300,35 @@ namespace DotVVM.Framework.Controls
         public virtual IEnumerable<DotvvmBindableObject> GetLogicalChildren()
         {
             return Enumerable.Empty<DotvvmBindableObject>();
+        }
+
+        /// <summary>
+        /// Copies the value of a property from this <see cref="DotvvmBindableObject"/> (source) to a property of another <see cref="DotvvmBindableObject"/> (target).
+        /// </summary>
+        /// <exception cref="NotSupportedException">Gets thrown if copying fails and 'throwOnFailure' is set to true</exception>
+        /// <param name="sourceProperty">The <see cref="DotvvmProperty"/> whose value will be copied</param>
+        /// <param name="target">The <see cref="DotvvmBindableObject"/> that holds the value of the 'targetProperty'</param>
+        /// <param name="targetProperty">The <see cref="DotvvmProperty"/> to which 'sourceProperty' will be copied</param>
+        /// <param name="throwOnFailure">Determines whether to throw a <see cref="NotSupportedException"/> if copying fails</param>
+        protected void CopyProperty(DotvvmProperty sourceProperty, DotvvmBindableObject target, DotvvmProperty targetProperty, bool throwOnFailure = false)
+        {
+            if (throwOnFailure && !targetProperty.MarkupOptions.AllowBinding && !targetProperty.MarkupOptions.AllowHardCodedValue)
+            {
+                throw new NotSupportedException($"TargetProperty: {targetProperty.FullName} doesn't allow bindings nor hard coded values");
+            }
+
+            if (targetProperty.MarkupOptions.AllowBinding && HasBinding(sourceProperty))
+            {
+                target.SetBinding(targetProperty, GetBinding(sourceProperty));
+            }
+            else if (targetProperty.MarkupOptions.AllowHardCodedValue && IsPropertySet(sourceProperty))
+            {
+                target.SetValue(targetProperty, GetValue(sourceProperty));
+            }
+            else if (throwOnFailure)
+            {
+                throw new NotSupportedException($"Value of {sourceProperty.FullName} couldn't be copied to targetProperty: {targetProperty.FullName}, because {targetProperty.FullName} is not set.");
+            }
         }
     }
 }
