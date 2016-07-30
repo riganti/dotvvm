@@ -7,13 +7,18 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
-    public class ResolvedDirective : IAbstractDirective
+    public class ResolvedDirective : ResolvedTreeNode, IAbstractDirective
     {
-        public DothtmlDirectiveNode DirectiveNode { get; set; }
 
-        public ResolvedTreeRoot Parent { get; set; }
-        IAbstractTreeRoot IAbstractDirective.Parent => Parent;
+        public string Value => ((DothtmlDirectiveNode)DothtmlNode).Value;
 
-        public string Value => DirectiveNode.Value;
+        public override void Accept(IResolvedControlTreeVisitor visitor)
+        {
+            visitor.VisitDirective(this);
+        }
+
+        public override void AcceptChildren(IResolvedControlTreeVisitor visitor)
+        {
+        }
     }
 }

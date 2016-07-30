@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     parsingError = exception;
                 }
             }
-            return treeBuilder.BuildBinding(bindingOptions, node, context, parsingError, resultType, expression);
+            return treeBuilder.BuildBinding(bindingOptions, context, node, resultType, parsingError, expression);
         }
 
         protected override object ConvertValue(string value, ITypeDescriptor propertyType)

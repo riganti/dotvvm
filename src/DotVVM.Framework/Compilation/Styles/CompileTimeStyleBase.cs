@@ -24,9 +24,9 @@ namespace DotVVM.Framework.Compilation.Styles
             {
                 foreach (var attr in SetHtmlAttributes)
                 {
-                    if(control.HtmlAttributes == null || !control.HtmlAttributes.ContainsKey(attr.Key) || attr.Value.append)
+                    if(!control.HtmlAttributes.ContainsKey(attr.Key) || attr.Value.append)
                     {
-                        control.SetHtmlAttribute(attr.Key, attr.Value.value);
+                        control.SetHtmlAttribute(new ResolvedHtmlAttributeValue(attr.Key, attr.Value.value));
                     }
                 }
             }

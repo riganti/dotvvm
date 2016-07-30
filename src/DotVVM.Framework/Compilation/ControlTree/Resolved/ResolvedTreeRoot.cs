@@ -15,7 +15,16 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             Directives = directives.ToDictionary(d => d.Key, d => d.Value.ToList());
             directives.SelectMany(d => d.Value).ToList().ForEach(d => { ((ResolvedDirective)d).Parent = this; });
         }
-        
+
+        public override void AcceptChildren(IResolvedControlTreeVisitor visitor)
+        {
+            foreach (var dir in Directives.Values)
+            {
+                dir.ForEach(d => (d as ResolvedDirective)?.Accept(visitor));
+            }
+
+            base.AcceptChildren(visitor);
+        }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)
         {

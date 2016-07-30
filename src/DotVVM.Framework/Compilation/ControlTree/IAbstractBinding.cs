@@ -3,11 +3,8 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
-    public interface IAbstractBinding 
+    public interface IAbstractBinding : IAbstractTreeNode
     {
-
-        DothtmlBindingNode BindingNode { get; }
-
         Type BindingType { get; }
 
         string Value { get; }
@@ -15,8 +12,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IDataContextStack DataContextTypeStack { get; }
         
         ITypeDescriptor ResultType { get; }
-
-        IAbstractTreeNode Parent { get; }
 
     }
 }
