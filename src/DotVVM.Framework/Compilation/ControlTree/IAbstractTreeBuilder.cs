@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         
         IAbstractDirective BuildDirective(DothtmlDirectiveNode node);
 
-        IAbstractHtmlAttributeValue BuildHtmlAttributeValue(string Name, object value, DothtmlAttributeNode dothtmlNode);
+        IAbstractHtmlAttributeValue BuildHtmlAttributeValue(string Name, string value, DothtmlAttributeNode dothtmlNode);
 
         IAbstractHtmlAttributeBinding BuildHtmlAttributeBinding(string Name, IAbstractBinding binding, DothtmlAttributeNode dothtmlNode);
 

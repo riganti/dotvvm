@@ -8,6 +8,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public interface IAbstractHtmlAttributeValue : IAbstractHtmlAttributeSetter
     {
-        object Value { get; }
+        string Value { get; }
     }
 }

@@ -65,7 +65,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedDirective() { DothtmlNode = node };
         }
 
-        public IAbstractHtmlAttributeValue BuildHtmlAttributeValue (string name, object value, DothtmlAttributeNode dothtmlNode)
+        public IAbstractHtmlAttributeValue BuildHtmlAttributeValue (string name, string value, DothtmlAttributeNode dothtmlNode)
         {
             return new ResolvedHtmlAttributeValue(name, value) { DothtmlNode = dothtmlNode };
         }

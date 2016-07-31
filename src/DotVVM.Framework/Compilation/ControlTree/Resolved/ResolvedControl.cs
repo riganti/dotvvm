@@ -29,6 +29,21 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         
         public void SetHtmlAttribute(ResolvedHtmlAttributeSetter value)
         {
+            ResolvedHtmlAttributeSetter currentSetter;
+            if (HtmlAttributes.TryGetValue(value.Name, out currentSetter))
+            {
+                if (!(currentSetter is ResolvedHtmlAttributeValue) || !(value is ResolvedHtmlAttributeValue))
+                {
+                    throw new NotSupportedException("multiple binding values are not supported in one attribute");
+                }
+                var currentValueSetter = (ResolvedHtmlAttributeValue)currentSetter;
+                var newValueSetter = (ResolvedHtmlAttributeValue)value;
+
+                var joinedValue = Controls.HtmlWriter.JoinAttributeValues(currentValueSetter.Name, currentValueSetter.Value, newValueSetter.Value);
+
+                value = new ResolvedHtmlAttributeValue(currentValueSetter.Name, joinedValue) { DothtmlNode = currentValueSetter.DothtmlNode };
+            }
+
             HtmlAttributes[value.Name] = value;
             value.Parent = this;
         }

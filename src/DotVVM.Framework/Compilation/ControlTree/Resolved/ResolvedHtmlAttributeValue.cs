@@ -11,9 +11,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     public class ResolvedHtmlAttributeValue : ResolvedHtmlAttributeSetter, IAbstractHtmlAttributeValue
     {
 
-        public object Value { get; set; }
+        public string Value { get; set; }
 
-        public ResolvedHtmlAttributeValue(string name, object value)
+        public ResolvedHtmlAttributeValue(string name, string value)
             :base(name)
         {
             Value = value;

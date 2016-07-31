@@ -369,7 +369,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     try
                     {
-                        treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute.ValueNode, dataContext));
+                        treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
                     }
                     catch (NotSupportedException ex)
                     {
@@ -449,7 +449,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 // if the property is not found, add it as an HTML attribute
                 try
                 {
-                    treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute.ValueNode, dataContext));
+                    treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
                 }
                 catch (NotSupportedException ex)
                 {
@@ -463,9 +463,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        private IAbstractHtmlAttributeSetter ProcessAttributeValue(DothtmlValueNode valueNode, IDataContextStack dataContext)
+        private IAbstractHtmlAttributeSetter ProcessAttributeValue(DothtmlAttributeNode attribute, IDataContextStack dataContext)
         {
-            var attribute = (DothtmlAttributeNode)valueNode.ParentNode;
+            var valueNode = attribute.ValueNode;
 
             if (valueNode is DothtmlValueBindingNode)
             {
