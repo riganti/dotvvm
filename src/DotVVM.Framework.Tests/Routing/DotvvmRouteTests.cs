@@ -278,7 +278,7 @@ namespace DotVVM.Framework.Tests.Routing
         [ExpectedException(typeof(ArgumentException))]
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameterConstraint()
         {
-            var route = new DotvvmRoute("{Id:int", null, null, null);
+            var route = new DotvvmRoute("{Id:int", null, null, null, new DefaultRouteParameterTypes());
 
             var result = route.BuildUrl(new { });
         }
@@ -287,7 +287,7 @@ namespace DotVVM.Framework.Tests.Routing
         [TestMethod]
         public void DotvvmRoute_BuildUrl_ParameterConstraint_Int()
         {
-            var route = new DotvvmRoute("Article/id_{Id:int}/{Title}", null, null, null);
+            var route = new DotvvmRoute("Article/id_{Id:int}/{Title}", null, null, null, new DefaultRouteParameterTypes());
 
             IDictionary<string, object> parameters;
             var result = route.IsMatch("Article/id_15/test", out parameters);
@@ -301,10 +301,30 @@ namespace DotVVM.Framework.Tests.Routing
 		[TestMethod]
 		public void DotvvmRoute_Performace()
 		{
-			var route = new DotvvmRoute("Article/{name}@{domain}/{id:int}", null, null, null);
+			var route = new DotvvmRoute("Article/{name}@{domain}/{id:int}", null, null,null, new DefaultRouteParameterTypes());
 
 			IDictionary<string, object> parameters;
 			Assert.IsFalse(route.IsMatch("Article/f" + new string('@', 2000) + "f/4f", out parameters));
 		}
+
+        [TestMethod]
+        public void DotvvmRoute_CustomParamType()
+        {
+            var route = new DotvvmRoute("Test/{name:name}/4f", null, null, null, new DefaultRouteParameterTypes() { {"name", new GenericRouteParameterType("[a-z]+", e => e) } });
+            IDictionary<string, object> parameters;
+
+            Assert.IsTrue(route.IsMatch("Test/sometext/4f", out parameters));
+            Assert.IsFalse(route.IsMatch("Test/some2text/4f", out parameters));
+        }
+
+        [TestMethod]
+        [ExpectedException(typeof(ArgumentException))]
+        public void DotvvmRoute_MissingCustomParamType()
+        {
+            var route = new DotvvmRoute("Test/{name:name}", null, null, null, new DefaultRouteParameterTypes());
+            IDictionary<string, object> parameters;
+
+            route.IsMatch("Test/lower_text/4f", out parameters);
+        }
     }
 }
