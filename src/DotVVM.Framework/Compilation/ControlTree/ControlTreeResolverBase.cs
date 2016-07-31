@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var viewModelType = FindType(viewmodelDirective.Value);
             if (viewModelType == null)
             {
-                viewmodelDirective.DirectiveNode.AddError($"The type '{viewmodelDirective.Value}' required in the @viewModel directive was not found!");
+                viewmodelDirective.DothtmlNode.AddError($"The type '{viewmodelDirective.Value}' required in the @viewModel directive was not found!");
             }
 
             return viewModelType;
@@ -252,10 +252,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var literal = treeBuilder.BuildControl(literalMetadata, node, dataContext);
 
             var textBinding = ProcessBinding(bindingNode, dataContext);
-            var textProperty = treeBuilder.BuildPropertyBinding(Literal.TextProperty, textBinding);
+            var textProperty = treeBuilder.BuildPropertyBinding(Literal.TextProperty, textBinding, null);
             treeBuilder.SetProperty(literal, textProperty);
 
-            var renderSpanElement = treeBuilder.BuildPropertyValue(Literal.RenderSpanElementProperty, false);
+            var renderSpanElement = treeBuilder.BuildPropertyValue(Literal.RenderSpanElementProperty, false, null);
             treeBuilder.SetProperty(literal, renderSpanElement);
 
             return literal;
@@ -369,7 +369,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 {
                     try
                     {
-                        treeBuilder.SetHtmlAttribute(control, attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
+                        treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
                     }
                     catch (NotSupportedException ex)
                     {
@@ -427,7 +427,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                             attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");
                     }
                     var binding = ProcessBinding(bindingNode, dataContext);
-                    var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding);
+                    var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding, attribute);
                     treeBuilder.SetProperty(control, bindingProperty);
                 }
                 else
@@ -440,7 +440,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
                     var textValue = attribute.ValueNode as DothtmlValueTextNode;
                     var value = ConvertValue(textValue.Text, property.PropertyType);
-                    var propertyValue = treeBuilder.BuildPropertyValue(property, value);
+                    var propertyValue = treeBuilder.BuildPropertyValue(property, value, attribute);
                     treeBuilder.SetProperty(control, propertyValue);
                 }
             }
@@ -449,7 +449,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 // if the property is not found, add it as an HTML attribute
                 try
                 {
-                    treeBuilder.SetHtmlAttribute(control, attribute.AttributeName, ProcessAttributeValue(attribute.ValueNode, dataContext));
+                    treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
                 }
                 catch (NotSupportedException ex)
                 {
@@ -463,15 +463,17 @@ namespace DotVVM.Framework.Compilation.ControlTree
             }
         }
 
-        private object ProcessAttributeValue(DothtmlValueNode valueNode, IDataContextStack dataContext)
+        private IAbstractHtmlAttributeSetter ProcessAttributeValue(DothtmlAttributeNode attribute, IDataContextStack dataContext)
         {
+            var valueNode = attribute.ValueNode;
+
             if (valueNode is DothtmlValueBindingNode)
             {
-                return ProcessBinding((valueNode as DothtmlValueBindingNode).BindingNode, dataContext);
+                return treeBuilder.BuildHtmlAttributeBinding(attribute.AttributeName, ProcessBinding((valueNode as DothtmlValueBindingNode).BindingNode, dataContext), attribute);
             }
             else
             {
-                return WebUtility.HtmlDecode((valueNode as DothtmlValueTextNode)?.Text);
+                return treeBuilder.BuildHtmlAttributeValue(attribute.AttributeName, WebUtility.HtmlDecode((valueNode as DothtmlValueTextNode)?.Text), attribute);
             }
         }
 
@@ -491,7 +493,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode.HasFlag(MappingMode.InnerElement))
                     {
                         content.Clear();
-                        treeBuilder.SetProperty(control, ProcessElementProperty(control, property, element.Content));
+                        treeBuilder.SetProperty(control, ProcessElementProperty(control, property, element.Content, element));
 
                         foreach (var attr in element.Attributes)
                             attr.AddError("Attributes can't be set on element property.");
@@ -519,7 +521,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                             c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
                 }
                 else if (!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value)))
-                    treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content));
+                    treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content, null));
             }
             else
             {
@@ -553,7 +555,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Processes the element which contains property value.
         /// </summary>
-        private IAbstractPropertySetter ProcessElementProperty(IAbstractControl control, IPropertyDescriptor property, IEnumerable<DothtmlNode> elementContent)
+        private IAbstractPropertySetter ProcessElementProperty(IAbstractControl control, IPropertyDescriptor property, IEnumerable<DothtmlNode> elementContent, DothtmlElementNode propertyWrapperElement)
         {
             // resolve data context
             var dataContext = control.DataContextTypeStack;
@@ -563,7 +565,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (IsTemplateProperty(property))
             {
                 // template
-                return treeBuilder.BuildPropertyTemplate(property, ProcessTemplate(control, elementContent, dataContext));
+                return treeBuilder.BuildPropertyTemplate(property, ProcessTemplate(control, elementContent, dataContext), propertyWrapperElement);
             }
             else if (IsCollectionProperty(property))
             {
@@ -579,14 +581,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         c => c.DothtmlNode.AddError($"Control type {c.Metadata.Type.FullName} can't be used in collection of type {collectionType.FullName}."));
                 }
 
-                return treeBuilder.BuildPropertyControlCollection(property, collection.ToArray());
+                return treeBuilder.BuildPropertyControlCollection(property, collection.ToArray(), propertyWrapperElement);
             }
             else if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(string))))
             {
                 // string property
                 var strings = FilterNodes<DothtmlLiteralNode>(elementContent, property);
                 var value = string.Concat(strings.Select(s => s.Value));
-                return treeBuilder.BuildPropertyValue(property, value);
+                return treeBuilder.BuildPropertyValue(property, value, propertyWrapperElement);
             }
             else if (IsControlProperty(property))
             {
@@ -599,17 +601,17 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
                 if (children.Count == 1)
                 {
-                    return treeBuilder.BuildPropertyControl(property, ProcessObjectElement(children[0], dataContext));
+                    return treeBuilder.BuildPropertyControl(property, ProcessObjectElement(children[0], dataContext), propertyWrapperElement);
                 }
                 else
                 {
-                    return treeBuilder.BuildPropertyControl(property, null);
+                    return treeBuilder.BuildPropertyControl(property, null, propertyWrapperElement);
                 }
             }
             else
             {
                 control.DothtmlNode.AddError($"The property '{property.FullName}' is not supported!");
-                return treeBuilder.BuildPropertyValue(property, null);
+                return treeBuilder.BuildPropertyValue(property, null, propertyWrapperElement);
             }
         }
 
@@ -666,11 +668,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var baseType = FindType(baseControlDirective.Value);
                 if (baseType == null)
                 {
-                    baseControlDirective.DirectiveNode.AddError($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
+                    baseControlDirective.DothtmlNode.AddError($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
                 }
                 else if (!baseType.IsAssignableTo(new ResolvedTypeDescriptor(typeof(DotvvmMarkupControl))))
                 {
-                    baseControlDirective.DirectiveNode.AddError("Markup controls must derive from DotvvmMarkupControl class!");
+                    baseControlDirective.DothtmlNode.AddError("Markup controls must derive from DotvvmMarkupControl class!");
                     wrapperType = baseType;
                 }
                 else

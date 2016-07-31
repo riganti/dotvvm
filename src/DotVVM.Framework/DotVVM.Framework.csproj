@@ -177,6 +177,9 @@
     <Compile Include="Compilation\ControlTree\IAbstractContentNode.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractControl.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractDirective.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractHtmlAttributeBinding.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractHtmlAttributeSetter.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractHtmlAttributeValue.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractPropertyBinding.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractPropertyControl.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractPropertyControlCollection.cs" />
@@ -200,6 +203,9 @@
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedControl.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedControlTreeVisitor.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedDirective.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedHtmlAttributeBinding.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedHtmlAttributeSetter.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedHtmlAttributeValue.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyBinding.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyControl.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyControlCollection.cs" />

@@ -125,7 +125,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class=active />");
 
             var control = root.Content.First();
-            Assert.AreEqual("active", control.HtmlAttributes["class"]);
+            var attribute = control.HtmlAttributes["class"] as IAbstractHtmlAttributeValue;
+            Assert.AreEqual("active", attribute.Value);
 
             Assert.AreEqual(root, control.Parent);
         }
@@ -137,12 +138,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class='{value: Length}' />");
 
             var control = root.Content.First();
-            var binding = (ResolvedBinding)control.HtmlAttributes["class"];
-            Assert.IsNull(binding.ParsingError);
-            Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(binding.ResultType));
+            var attribute = ((ResolvedHtmlAttributeBinding) control.HtmlAttributes["class"]);
+            Assert.IsNull(attribute.Binding.ParsingError);
+            Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(attribute.Binding.ResultType));
 
             Assert.AreEqual(root, control.Parent);
-            Assert.AreEqual(control, binding.Parent);
+            Assert.AreEqual(attribute, attribute.Binding.Parent);
+            Assert.AreEqual(control, attribute.Parent);
         }
 
         [TestMethod]
@@ -387,7 +389,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div onclick='ahoj &gt; lao' />
  ");
 			var column = root.Content.First(t => t.Metadata.Name == nameof(HtmlGenericControl));
-			Assert.AreEqual(column.HtmlAttributes["onclick"], "ahoj > lao");
+            var attribute = (column.HtmlAttributes["onclick"] as ResolvedHtmlAttributeValue);
+            Assert.AreEqual(attribute.Value, "ahoj > lao");
 		}
 
 		private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")

@@ -8,14 +8,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     public class ResolvedControl : ResolvedContentNode, IAbstractControl
     {
         public Dictionary<DotvvmProperty, ResolvedPropertySetter> Properties { get; set; } = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
-        
-        public Dictionary<string, object> HtmlAttributes { get; set; }
+        public Dictionary<string, ResolvedHtmlAttributeSetter> HtmlAttributes { get; set; } = new Dictionary<string, ResolvedHtmlAttributeSetter>();
 
         public object[] ConstructorParameters { get; set; }
 
         IEnumerable<IPropertyDescriptor> IAbstractControl.PropertyNames => Properties.Keys;
 
-        IReadOnlyDictionary<string, object> IAbstractControl.HtmlAttributes => HtmlAttributes;
+        IEnumerable<IAbstractHtmlAttributeSetter> IAbstractControl.HtmlAttributes => HtmlAttributes.Values;
 
         public ResolvedControl(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
             : base(metadata, node, dataContext)
@@ -28,21 +27,25 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             value.Parent = this;
         }
         
-        public void SetHtmlAttribute(string attributeName, object value)
+        public void SetHtmlAttribute(ResolvedHtmlAttributeSetter value)
         {
-            if (HtmlAttributes == null) HtmlAttributes = new Dictionary<string, object>();
-            object currentValue;
-            if (HtmlAttributes.TryGetValue(attributeName, out currentValue))
+            ResolvedHtmlAttributeSetter currentSetter;
+            if (HtmlAttributes.TryGetValue(value.Name, out currentSetter))
             {
-                if (!(value is string && currentValue is string)) throw new NotSupportedException("multiple binding values are not supported in one attribute");
-                HtmlAttributes[attributeName] = Controls.HtmlWriter.JoinAttributeValues(attributeName, (string)currentValue, (string)value);
-            }
-            else HtmlAttributes[attributeName] = value;
+                if (!(currentSetter is ResolvedHtmlAttributeValue) || !(value is ResolvedHtmlAttributeValue))
+                {
+                    throw new NotSupportedException("multiple binding values are not supported in one attribute");
+                }
+                var currentValueSetter = (ResolvedHtmlAttributeValue)currentSetter;
+                var newValueSetter = (ResolvedHtmlAttributeValue)value;
 
-            if (value is ResolvedBinding)
-            {
-                ((ResolvedBinding) value).Parent = this;
+                var joinedValue = Controls.HtmlWriter.JoinAttributeValues(currentValueSetter.Name, currentValueSetter.Value, newValueSetter.Value);
+
+                value = new ResolvedHtmlAttributeValue(currentValueSetter.Name, joinedValue) { DothtmlNode = currentValueSetter.DothtmlNode };
             }
+
+            HtmlAttributes[value.Name] = value;
+            value.Parent = this;
         }
 
         public override void Accept(IResolvedControlTreeVisitor visitor)
@@ -56,6 +59,11 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             {
                 prop.Accept(visitor);
             }
+            foreach (var att in HtmlAttributes.Values)
+            {
+                att.Accept(visitor);
+            }
+
             base.AcceptChildren(visitor);
         }
 
