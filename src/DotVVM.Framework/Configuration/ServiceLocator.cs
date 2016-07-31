@@ -22,8 +22,6 @@ namespace DotVVM.Framework.Configuration
             singletonInstances.TryRemove(typeof(T), out temp); //removes old service instance and allows to create new one
         }
 
-
-
         public T GetService<T>()
         {
             var service = (T)factories[typeof (T)]();
@@ -31,7 +29,18 @@ namespace DotVVM.Framework.Configuration
             return service;
         }
 
+        public T GetService<T>(T @default)
+        {
+            if (!HasService<T>()) return @default;
 
+            var service =  (T) factories[typeof(T)]();
+            return service == null ? @default : service;
+        }
+
+        public bool HasService<T>()
+        {
+            return factories.ContainsKey(typeof(T));
+        }
 
 
         private Func<object> CreateSingletonFactory<T>(Func<T> factory)

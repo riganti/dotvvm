@@ -210,6 +210,7 @@ namespace DotVVM.Framework.Configuration
             configuration.ServiceLocator.RegisterSingleton<IBindingExpressionBuilder>(() => new BindingExpressionBuilder());
             configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBindingIdGenerator());
             configuration.ServiceLocator.RegisterSingleton<IControlUsageValidator>(() => new DefaultControlUsageValidator());
+            configuration.ServiceLocator.RegisterSingleton<IDictionary<string, IRouteParameterType>>(() => new DefaultRouteParameterTypes());
         }
 
 
