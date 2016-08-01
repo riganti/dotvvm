@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>DotVVM</id>
-        <version>1.0.1</version>
+        <version>1.0.1.1</version>
         <authors>RIGANTI</authors>
         <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
         <projectUrl>http://github.org/riganti/dotvvm</projectUrl>
@@ -20,7 +20,7 @@
                 <dependency id="Microsoft.CodeAnalysis.Analyzers" version="1.0.0" />
                 <dependency id="Microsoft.CodeAnalysis.CSharp" version="1.0.0" />
                 <dependency id="Newtonsoft.Json" version="8.0.3" />
-                <dependency id="DotVVM.Core" version="1.0.1" />
+                <dependency id="DotVVM.Core" version="1.0.1.1" />
             </group>
         </dependencies>
     </metadata>
