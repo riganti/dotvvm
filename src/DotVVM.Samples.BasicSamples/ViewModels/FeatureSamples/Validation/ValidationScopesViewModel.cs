@@ -8,7 +8,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
 {
-    public class ValidationViewModel : DotvvmViewModelBase
+    public class ValidationScopesViewModel : DotvvmViewModelBase
     {
         public string Title { get; set; }
 
@@ -28,7 +28,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation
             return base.Init();
         }
 
-        public ValidationViewModel()
+        public ValidationScopesViewModel()
         {
             Title = "Hello from DotVVM!";
         }

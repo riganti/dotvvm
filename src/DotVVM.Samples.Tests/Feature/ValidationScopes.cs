@@ -10,19 +10,18 @@ using Riganti.Utils.Testing.SeleniumCore;
 namespace DotVVM.Samples.Tests.Feature
 {
     [TestClass]
-    public class Validation: SeleniumTestBase
+    public class ValidationScopes: SeleniumTestBase
     {
         [TestMethod]
-        public void ValidationTest()
+        public void Feature_ValidationScopesTest()
         {
             RunInAllBrowsers(browser =>
             {
-                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_Validationn);
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Validation_ValidationScopes);
 
                 browser.First("input[type=button]").Click();
 
-                browser.First("li").CheckIfInnerText(i => i.Contains("The Text field is required."));
-
+                browser.First("li").CheckIfInnerText(i => i.Contains("The Value field is required."));
             });
         }
     }

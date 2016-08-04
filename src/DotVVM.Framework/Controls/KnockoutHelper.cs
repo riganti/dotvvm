@@ -10,23 +10,6 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
 {
-    public class PostbackScriptOptions
-    {
-        public bool UseWindowSetTimeout { get; set; }
-        public bool? ReturnValue { get; set; }
-        public bool IsOnChange { get; set; }
-        public string ElementAccessor { get; set; }
-
-        public PostbackScriptOptions(bool useWindowSetTimeout = false,
-            bool? returnValue = false, bool isOnChange = false, string elementAccessor = "this")
-        {
-            UseWindowSetTimeout = useWindowSetTimeout;
-            ReturnValue = returnValue;
-            IsOnChange = isOnChange;
-            ElementAccessor = elementAccessor;
-        }
-    }
-
     public static class KnockoutHelper
     {
         public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction = null,
@@ -198,17 +181,16 @@ namespace DotVVM.Framework.Controls
 
             // find the closest control
             int dataSourceChanges;
-            var validationTargetControl = control.GetClosestWithPropertyValue(out dataSourceChanges, c => c.GetValueBinding(Validation.TargetProperty) != null);
+            var validationTargetControl = control.GetClosestWithPropertyValue(out dataSourceChanges, c => c.IsPropertySet(Validation.TargetProperty, false));
             if (validationTargetControl == null)
             {
                 return "$root";
             }
 
             // reparent the expression to work in current DataContext
-            // FIXME: This does not work:
             var validationBindingExpression = validationTargetControl.GetValueBinding(Validation.TargetProperty);
             string validationExpression = validationBindingExpression.GetKnockoutBindingExpression();
-            validationExpression = string.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parent.")) + validationExpression;
+            validationExpression = string.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parentContext.")) + validationExpression;
 
             return validationExpression;
         }
