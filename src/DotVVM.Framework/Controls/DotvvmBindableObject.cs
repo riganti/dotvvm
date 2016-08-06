@@ -305,16 +305,16 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Copies the value of a property from this <see cref="DotvvmBindableObject"/> (source) to a property of another <see cref="DotvvmBindableObject"/> (target).
         /// </summary>
-        /// <exception cref="NotSupportedException">Gets thrown if copying fails and 'throwOnFailure' is set to true</exception>
+        /// <exception cref="DotvvmControlException">Gets thrown if copying fails and <paramref name="throwOnFailure"/> is set to true</exception>
         /// <param name="sourceProperty">The <see cref="DotvvmProperty"/> whose value will be copied</param>
-        /// <param name="target">The <see cref="DotvvmBindableObject"/> that holds the value of the 'targetProperty'</param>
-        /// <param name="targetProperty">The <see cref="DotvvmProperty"/> to which 'sourceProperty' will be copied</param>
-        /// <param name="throwOnFailure">Determines whether to throw a <see cref="NotSupportedException"/> if copying fails</param>
+        /// <param name="target">The <see cref="DotvvmBindableObject"/> that holds the value of the <paramref name="targetProperty"/></param>
+        /// <param name="targetProperty">The <see cref="DotvvmProperty"/> to which <paramref name="sourceProperty"/> will be copied</param>
+        /// <param name="throwOnFailure">Determines whether to throw an exception if copying fails</param>
         protected void CopyProperty(DotvvmProperty sourceProperty, DotvvmBindableObject target, DotvvmProperty targetProperty, bool throwOnFailure = false)
         {
             if (throwOnFailure && !targetProperty.MarkupOptions.AllowBinding && !targetProperty.MarkupOptions.AllowHardCodedValue)
             {
-                throw new NotSupportedException($"TargetProperty: {targetProperty.FullName} doesn't allow bindings nor hard coded values");
+                throw new DotvvmControlException(this, $"TargetProperty: {targetProperty.FullName} doesn't allow bindings nor hard coded values");
             }
 
             if (targetProperty.MarkupOptions.AllowBinding && HasBinding(sourceProperty))
@@ -327,7 +327,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (throwOnFailure)
             {
-                throw new NotSupportedException($"Value of {sourceProperty.FullName} couldn't be copied to targetProperty: {targetProperty.FullName}, because {targetProperty.FullName} is not set.");
+                throw new DotvvmControlException(this, $"Value of {sourceProperty.FullName} couldn't be copied to targetProperty: {targetProperty.FullName}, because {targetProperty.FullName} is not set.");
             }
         }
     }

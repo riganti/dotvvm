@@ -212,7 +212,7 @@
     <Compile Include="ViewModels\FeatureSamples\Validation\NullableDateTimeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\EssentialTypeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NullValidationTargetViewModel.cs" />
-    <Compile Include="ViewModels\FeatureSamples\Validation\ValidationViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\ValidationScopesViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelNesting\NestedViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewSizable.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
@@ -443,7 +443,7 @@
     <Content Include="Views\FeatureSamples\Resources\CdnScriptPriority.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidation.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidationPage.dothtml" />
-    <Content Include="Views\FeatureSamples\Validation\Validation.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\ValidationScopes.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

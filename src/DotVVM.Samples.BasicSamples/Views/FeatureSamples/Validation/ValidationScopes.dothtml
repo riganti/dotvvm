@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.ValidationViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.ValidationScopesViewModel, DotVVM.Samples.BasicSamples
 
 <!DOCTYPE html>
 
@@ -8,12 +8,15 @@
     <title></title>
 </head>
 <body>
-    <h1>{{value: Title}}</h1>
+    <h1>Validation Nesting Sample</h1>
     
     <div DataContext="{value: SubModel}">
         <div Validation.Target="{value: _this}">
-            <dot:TextBox Text="{value:  Value}" />
+            
+            <dot:TextBox Text="{value: Value}" />
+
             <dot:ValidationSummary />
+
             <div DataContext="{value: ComponentContext}">
                 <dot:Button Click="{command: _parent.DoSomehting()}" Text="Do something" />
             </div>

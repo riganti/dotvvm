@@ -356,6 +356,7 @@
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\PostBackHandler.cs" />
     <Compile Include="Controls\PostBackHandlerCollection.cs" />
+    <Compile Include="Controls\PostbackScriptOptions.cs" />
     <Compile Include="Controls\RenderMode.cs" />
     <Compile Include="Controls\RenderSettings.cs" />
     <Compile Include="Controls\RoleView.cs" />
