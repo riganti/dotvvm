@@ -81,9 +81,14 @@ namespace DotVVM.Framework.Compilation.Parser
 
 
         /// <summary>
+        /// Performs default tokenizer action
+        /// </summary>
+        public abstract void Tokenize(IReader reader);
+
+        /// <summary>
         /// Tokenizes the input.
         /// </summary>
-        public void Tokenize(IReader reader)
+        protected bool TokenizeInternal(IReader reader, Func<bool> readFunction)
         {
             this.reader = reader;
 
@@ -98,19 +103,17 @@ namespace DotVVM.Framework.Compilation.Parser
                 Tokens.Clear();
                 CurrentTokenChars.Clear();
 
-                TokenizeCore();
+                return readFunction();
+            }
+            catch (Exception ex) when (ex.Message == "Assertion failed!")
+            {
+                return false;
             }
             finally
             {
                 reader.Dispose();
             }
         }
-
-        /// <summary>
-        /// Tokenizes the core.
-        /// </summary>
-        protected abstract void TokenizeCore();
-
 
         /// <summary>
         /// Skips the whitespace.

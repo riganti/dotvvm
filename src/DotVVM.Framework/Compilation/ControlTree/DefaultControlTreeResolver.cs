@@ -34,7 +34,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         protected override IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, ITypeDescriptor wrapperType = null, IDataContextStack parentDataContextStack = null,  IReadOnlyList<NamespaceImport> namespaceImports = null)
         {
-            return new DataContextStack(ResolvedTypeDescriptor.ToSystemType(viewModelType), parentDataContextStack as DataContextStack, ResolvedTypeDescriptor.ToSystemType(wrapperType), namespaceImports);
+            return new DataContextStack(
+                ResolvedTypeDescriptor.ToSystemType(viewModelType),
+                parentDataContextStack as DataContextStack,
+                ResolvedTypeDescriptor.ToSystemType(wrapperType), namespaceImports);
         }
 
         protected override IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context)
