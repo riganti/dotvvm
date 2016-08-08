@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
-        <id>DotVVM.DynamicData.nuspec</id>
+        <id>DotVVM.DynamicData</id>
         <version>0.1.0</version>
         <authors>RIGANTI</authors>
         <licenseUrl>https://github.com/riganti/dotvvm-dynamic-data/blob/master/LICENSE</licenseUrl>
