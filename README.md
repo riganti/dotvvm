@@ -130,7 +130,7 @@ only fields from this group.
 </div>
 ``` 
 
-By default, the form is rendered using the [TableDynamicFormBuilder](blob/master/src/DotVVM.Framework.DynamicData/DotVVM.Framework.Controls.DynamicData/Builders/TableDynamicFormBuilder.cs) class. 
+By default, the form is rendered using the [TableDynamicFormBuilder](./src/DotVVM.Framework.DynamicData/DotVVM.Framework.Controls.DynamicData/Builders/TableDynamicFormBuilder.cs) class. 
 This class renders HTML table with rows for each of the form fields. 
 
 You can write your own form builder and register it in the `DotvvmStartup.cs` class. The builder must implement the `IFormBuilder` interface.
@@ -148,8 +148,8 @@ If you have implemented your own form builder and there is a chance that it migh
 Currently, the framework supports `TextBox` and `CheckBox` editors, which can edit string, numeric, date-time and boolean values. 
 If you want to support any other data type, you can implement your own editor and grid column. 
 
-You need to derive from the [FormEditorProviderBase](blob/master/src/DotVVM.Framework.DynamicData(DotVVM.Framework.Controls.DynamicData/PropertyHandlers/FormEditors/FormEditorProviderBase.cs) to implement a custom editor 
-in the form, and to derive from the [GridColumnProviderBase](blob/master/src/DotVVM.Framework.DynamicData(DotVVM.Framework.Controls.DynamicData/PropertyHandlers/GridColumns/GridColumnProviderBase.cs) to implement about
+You need to derive from the [FormEditorProviderBase](./src/DotVVM.Framework.DynamicData/DotVVM.Framework.Controls.DynamicData/PropertyHandlers/FormEditors/FormEditorProviderBase.cs) to implement a custom editor 
+in the form, and to derive from the [GridColumnProviderBase](./src/DotVVM.Framework.DynamicData/DotVVM.Framework.Controls.DynamicData/PropertyHandlers/GridColumns/GridColumnProviderBase.cs) to implement about
 custom GridView column.
 
 Then, you have to register the editor in the `DotvvmStartup.cs` file. Please note that the order of editor providers and grid columns matters. The Dynamic Data will use the first provider which returns `CanHandleProperty = true`
