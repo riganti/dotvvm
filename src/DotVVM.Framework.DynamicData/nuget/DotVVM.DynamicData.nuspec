@@ -4,8 +4,8 @@
         <id>DotVVM.DynamicData.nuspec</id>
         <version>0.1.0</version>
         <authors>RIGANTI</authors>
-        <licenseUrl>https://github.com/riganti/dotvvm-dynamicdata/blob/master/LICENSE</licenseUrl>
-        <projectUrl>http://github.org/riganti/dotvvm-dynamicdata</projectUrl>
+        <licenseUrl>https://github.com/riganti/dotvvm-dynamic-data/blob/master/LICENSE</licenseUrl>
+        <projectUrl>http://github.org/riganti/dotvvm-dynamic-data</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>Dynamic Data implementation for DotVVM.</description>
         <summary />
