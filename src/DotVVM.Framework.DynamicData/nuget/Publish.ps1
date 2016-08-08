@@ -1,4 +1,4 @@
-param([String]$key, [String]$server)
+param([String]$key, [String]$server = "")
 
 del ./DotVVM.DynamicData.*.nupkg
 
@@ -7,4 +7,9 @@ del ./DotVVM.DynamicData.*.nupkg
 $file = dir ./DotVVM.DynamicData.*.nupkg
 $file = $file.Name
 
-& ..\Tools\nuget.exe push $file $key -Source $server
+if ($server -eq "") {
+	& ..\Tools\nuget.exe push $file $key
+}
+else {
+	& ..\Tools\nuget.exe push $file $key -Source $server
+}
