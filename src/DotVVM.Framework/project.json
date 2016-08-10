@@ -20,7 +20,8 @@
     "System.Security.Cryptography.Algorithms": "4.2.0",
     "System.Threading.Thread": "4.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
-    "System.Runtime": "4.1.0"
+    "System.Runtime": "4.1.0",
+    "Microsoft.Extensions.DependencyInjection": "1.0.0"
   },
   "resource": [
 

@@ -10,6 +10,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -293,7 +294,7 @@ test <dot:Literal><a /></dot:Literal>";
 
 
 
-        private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
+        private static DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
             {
@@ -301,12 +302,14 @@ test <dot:Literal><a /></dot:Literal>";
             }
             markupFiles[fileName + ".dothtml"] = markup;
 
-            var dotvvmConfiguration = context.Configuration;
+            var dotvvmConfiguration = DotvvmConfiguration.CreateDefault(services =>
+			{
+				services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
+			});
             dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
             dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
             dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
             dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
-            dotvvmConfiguration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new FakeMarkupFileLoader(markupFiles));
             dotvvmConfiguration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
 
             var controlBuilderFactory = dotvvmConfiguration.ServiceLocator.GetService<IControlBuilderFactory>();

@@ -22,6 +22,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using System.Globalization;
 using System.Reflection;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -115,14 +116,21 @@ namespace DotVVM.Framework.Configuration
             Styles = new StyleRepository();
         }
 
+        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> configureServices = null)
+		{
+			var serviceCollection = new ServiceCollection();
+			serviceCollection.AddDotvvmServices();
+			configureServices?.Invoke(serviceCollection);
+			return serviceCollection.BuildServiceProvider().GetService<DotvvmConfiguration>();
+		}
+
         /// <summary>
         /// Creates the default configuration.
         /// </summary>
-        public static DotvvmConfiguration CreateDefault()
+        public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider)
         {
             var configuration = new DotvvmConfiguration();
-
-            InitDefaultServices(configuration);
+			configuration.ServiceLocator = new ServiceLocator(serviceProvider);
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
             configuration.Markup.Controls.AddRange(new[]
@@ -185,34 +193,6 @@ namespace DotVVM.Framework.Configuration
 
             RegisterGlobalizeResources(configuration);
         }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        private static void InitDefaultServices(DotvvmConfiguration configuration)
-        {
-            configuration.ServiceLocator = new ServiceLocator();
-            configuration.ServiceLocator.RegisterSingleton<IViewModelProtector>(() => new DefaultViewModelProtector(configuration));
-            configuration.ServiceLocator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IDotvvmViewBuilder>(() => new DefaultDotvvmViewBuilder(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IViewModelLoader>(() => new DefaultViewModelLoader());
-            configuration.ServiceLocator.RegisterSingleton<IViewModelValidationMetadataProvider>(() => new AttributeViewModelValidationMetadataProvider());
-            configuration.ServiceLocator.RegisterSingleton<IValidationRuleTranslator>(() => new ViewModelValidationRuleTranslator());
-            configuration.ServiceLocator.RegisterSingleton<IViewModelValidator>(() => new ViewModelValidator(configuration.ServiceLocator.GetService<IViewModelSerializationMapper>()));
-            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializationMapper>(() => new ViewModelSerializationMapper(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration) { SendDiff = true });
-            configuration.ServiceLocator.RegisterSingleton<IOutputRenderer>(() => new DefaultOutputRenderer());
-            configuration.ServiceLocator.RegisterSingleton<IDotvvmPresenter>(() => new DotvvmPresenter(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
-            configuration.ServiceLocator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IControlTreeResolver>(() => new DefaultControlTreeResolver(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IAbstractTreeBuilder>(() => new ResolvedTreeBuilder());
-            configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IBindingExpressionBuilder>(() => new BindingExpressionBuilder());
-            configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBindingIdGenerator());
-            configuration.ServiceLocator.RegisterSingleton<IControlUsageValidator>(() => new DefaultControlUsageValidator());
-        }
-
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)
         {

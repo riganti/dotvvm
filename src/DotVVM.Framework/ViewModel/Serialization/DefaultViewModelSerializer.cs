@@ -28,7 +28,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelSerializationMapper viewModelMapper;
         private readonly DotvvmConfiguration configuration;
 
-        public bool SendDiff { get; set; }
+		public bool SendDiff { get; set; } = true;
 
         public Formatting JsonFormatting { get; set; }
 
@@ -36,19 +36,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper)
         {
-            this.viewModelProtector = configuration.ServiceLocator.GetService<IViewModelProtector>();
+			this.viewModelProtector = protector;
             this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
-            this.viewModelMapper = configuration.ServiceLocator.GetService<IViewModelSerializationMapper>();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
-        /// </summary>
-        public DefaultViewModelSerializer(IViewModelProtector viewModelProtector)
-        {
-            this.viewModelProtector = viewModelProtector;
+            this.viewModelMapper = serializationMapper;
         }
 
         /// <summary>

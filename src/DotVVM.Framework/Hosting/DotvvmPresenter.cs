@@ -53,23 +53,23 @@ namespace DotVVM.Framework.Hosting
             ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
-        /// </summary>
-        public DotvvmPresenter(
-            IDotvvmViewBuilder dotvvmViewBuilder,
-            IViewModelLoader viewModelLoader,
-            IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRenderer,
-            ICsrfProtector csrfProtector
-        )
-        {
-            DotvvmViewBuilder = dotvvmViewBuilder;
-            ViewModelLoader = viewModelLoader;
-            ViewModelSerializer = viewModelSerializer;
-            OutputRenderer = outputRenderer;
-            CsrfProtector = csrfProtector;
-        }
+        ///// <summary>
+        ///// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
+        ///// </summary>
+        //public DotvvmPresenter(
+        //    IDotvvmViewBuilder dotvvmViewBuilder,
+        //    IViewModelLoader viewModelLoader,
+        //    IViewModelSerializer viewModelSerializer,
+        //    IOutputRenderer outputRenderer,
+        //    ICsrfProtector csrfProtector
+        //)
+        //{
+        //    DotvvmViewBuilder = dotvvmViewBuilder;
+        //    ViewModelLoader = viewModelLoader;
+        //    ViewModelSerializer = viewModelSerializer;
+        //    OutputRenderer = outputRenderer;
+        //    CsrfProtector = csrfProtector;
+        //}
 
         /// <summary>
         /// Processes the request.

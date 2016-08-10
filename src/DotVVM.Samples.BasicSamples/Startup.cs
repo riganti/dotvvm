@@ -25,6 +25,8 @@ namespace DotVVM.Samples.BasicSamples
 		{
 			services.AddDataProtection();
             services.AddWebEncoders();
+			services.AddDotvvmServices();
+			services.AddSingleton<IUploadedFileStorage>(s => new FileSystemUploadedFileStorage(Path.Combine(s.GetService<DotvvmConfiguration>().ApplicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -111,9 +113,6 @@ namespace DotVVM.Samples.BasicSamples
 			// use DotVVM
 			DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
 			dotvvmConfiguration.Debug = true;
-
-			dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
-				() => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
 
 			// use static files
 			app.UseStaticFiles(new StaticFileOptions

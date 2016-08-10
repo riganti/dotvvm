@@ -44,10 +44,10 @@ namespace DotVVM.Compiler
             if (Options.BindingClassName == null) Options.BindingClassName = Options.BindingsAssemblyName + "." + "CompiledBindings";
         }
 
-        static DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath)
+        DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath)
             => cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}", key =>
             {
-                return OwinInitializer.InitDotVVM(assembly, webSitePath);
+                return OwinInitializer.InitDotVVM(assembly, webSitePath, bindingCompiler, this);
             });
 
         private void Init()
@@ -61,8 +61,6 @@ namespace DotVVM.Compiler
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFrom(Options.WebSiteAssembly));
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath);
             bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), configuration);
-            configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => bindingCompiler);
-            configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new OfflineCompilationControlResolver(configuration, this));
             if (Options.DothtmlFiles == null) Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
             controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
             fileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();

@@ -15,6 +15,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -28,12 +29,14 @@ namespace DotVVM.Framework.Tests.Runtime
 		[TestInitialize]
 		public void TestInit()
 		{
-			configuration = DotvvmConfiguration.CreateDefault();
-			configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(() => DataProtectionProvider.Create("dkljfaskldjsalkhdj"));
+			configuration = DotvvmConfiguration.CreateDefault(services =>
+			{
+				services.AddSingleton<IDataProtectionProvider>(DataProtectionProvider.Create("akjdlsakjdlasd"));
+			});
 			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
 			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
 
-			serializer = new DefaultViewModelSerializer(configuration);
+			serializer = configuration.ServiceLocator.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
 			context = new DotvvmRequestContext()
 			{
 				Configuration = configuration,

@@ -5,6 +5,8 @@ using DotVVM.Framework.Configuration;
 using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.Extensions.DependencyInjection;
+using System;
 #if Owin
 using AppBuilder = Owin.IApplicationBuilder;
 #else
@@ -15,19 +17,17 @@ namespace DotVVM.Framework.Hosting
 {
     public static class AppBuilderExtensions
     {
-        public static DotvvmConfiguration CreateConfiguration(string applicationRootDirectory)
+        public static DotvvmConfiguration CreateConfiguration(string applicationRootDirectory, IServiceProvider serviceProvider)
         {
-            // load or create default configuration
-            var configuration = DotvvmConfiguration.CreateDefault();
+			// load or create default configuration
+			var configuration = serviceProvider.GetService<DotvvmConfiguration>();
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
             return configuration;
         }
 
         internal static DotvvmConfiguration UseDotVVM(this AppBuilder app, string applicationRootDirectory, bool errorPages = true)
         {
-            var configuration = CreateConfiguration(applicationRootDirectory);
-			var protect = app.ApplicationServices.GetDataProtectionProvider();
-			configuration.ServiceLocator.RegisterSingleton(() => app.ApplicationServices);
+            var configuration = CreateConfiguration(applicationRootDirectory, app.ApplicationServices);
 #if Owin
             configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(app.GetDataProtectionProvider);
 #endif
