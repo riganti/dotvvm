@@ -21,6 +21,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public override void AcceptChildren(IResolvedControlTreeVisitor visitor)
         {
+            Binding?.Accept(visitor);
         }
 
         IAbstractBinding IAbstractPropertyBinding.Binding => Binding;

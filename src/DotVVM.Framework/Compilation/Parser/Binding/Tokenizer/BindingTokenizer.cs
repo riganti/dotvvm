@@ -15,8 +15,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 
         public bool IsOperator(char c) => operatorCharacters.Contains(c);
 
+        public override void Tokenize(IReader reader)
+        {
+            TokenizeInternal(reader, () => { TokenizeBindingValue(); return true; });
+        }
+
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        protected override void TokenizeCore()
+        private void TokenizeBindingValue()
         {
             while (Peek() != NullChar)
             {

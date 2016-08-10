@@ -12,6 +12,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -124,7 +125,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class=active />");
 
             var control = root.Content.First();
-            Assert.AreEqual("active", control.HtmlAttributes["class"]);
+            var attribute = control.HtmlAttributes["class"] as IAbstractHtmlAttributeValue;
+            Assert.AreEqual("active", attribute.Value);
 
             Assert.AreEqual(root, control.Parent);
         }
@@ -136,12 +138,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class='{value: Length}' />");
 
             var control = root.Content.First();
-            var binding = (ResolvedBinding)control.HtmlAttributes["class"];
-            Assert.IsNull(binding.ParsingError);
-            Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(binding.ResultType));
+            var attribute = ((ResolvedHtmlAttributeBinding) control.HtmlAttributes["class"]);
+            Assert.IsNull(attribute.Binding.ParsingError);
+            Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(attribute.Binding.ResultType));
 
             Assert.AreEqual(root, control.Parent);
-            Assert.AreEqual(control, binding.Parent);
+            Assert.AreEqual(attribute, attribute.Binding.Parent);
+            Assert.AreEqual(control, attribute.Parent);
         }
 
         [TestMethod]
@@ -375,11 +378,22 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var column = root.Content.First(t => t.Metadata.Name == nameof(GridViewTemplateColumn));
             Assert.IsFalse(column.DothtmlNode.HasNodeErrors, column.DothtmlNode.NodeErrors.FirstOrDefault());
             var template = (column.Properties.FirstOrDefault(p => p.Key.Name == nameof(GridViewTemplateColumn.ContentTemplate)).Value as ResolvedPropertyTemplate)?.Content;
-            Assert.IsTrue(template.Any(n => n.DothtmlNode  is DothtmlBindingNode));
-            Assert.IsTrue(template.Any(n => n.DothtmlNode  is DothtmlElementNode && n.Metadata.Name == "Literal"));
+            Assert.IsTrue(template.Any(n => n.DothtmlNode is DothtmlBindingNode));
+            Assert.IsTrue(template.Any(n => n.DothtmlNode is DothtmlElementNode && n.Metadata.Name == "Literal"));
         }
 
-        private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
+		[TestMethod]
+		public void ResolvedTree_UnescapedAttributeValue()
+		{
+			var root = ParseSource(@"
+<div onclick='ahoj &gt; lao' />
+ ");
+			var column = root.Content.First(t => t.Metadata.Name == nameof(HtmlGenericControl));
+            var attribute = (column.HtmlAttributes["onclick"] as ResolvedHtmlAttributeValue);
+            Assert.AreEqual(attribute.Value, "ahoj > lao");
+		}
+
+		private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
             tokenizer.Tokenize(new StringReader(markup));

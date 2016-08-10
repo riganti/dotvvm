@@ -11,9 +11,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     public class ResolvedTreeBuilder : IAbstractTreeBuilder
     {
 
-        public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext)
+        public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
         {
-            return new ResolvedTreeRoot((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext);
+            return new ResolvedTreeRoot((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext, directives);
         }
 
         public IAbstractControl BuildControl(IControlResolverMetadata metadata, DothtmlNode node, IDataContextStack dataContext)
@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedControl((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext);
         }
 
-        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, DothtmlBindingNode node, IDataContextStack dataContext, Exception parsingError, ITypeDescriptor resultType, object customData)
+        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, ITypeDescriptor resultType = null, Exception parsingError=null,  object customData = null)
         {
             return new ResolvedBinding()
             {
@@ -30,39 +30,54 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 Expression = (Expression)customData,
                 DataContextTypeStack = (DataContextStack)dataContext,
                 ParsingError = parsingError,
-                BindingNode = node,
+                DothtmlNode = node,
                 ResultType = resultType
             };
         }
 
-        public IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding)
+        public IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding, DothtmlAttributeNode sourceAttribute)
         {
-            return new ResolvedPropertyBinding((DotvvmProperty)property, (ResolvedBinding)binding);
+            return new ResolvedPropertyBinding((DotvvmProperty)property, (ResolvedBinding)binding) { DothtmlNode = sourceAttribute };
         }
 
-        public IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl control)
+        public IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl control, DothtmlElementNode wrapperElement)
         {
-            return new ResolvedPropertyControl((DotvvmProperty)property, (ResolvedControl)control);
+            return new ResolvedPropertyControl((DotvvmProperty)property, (ResolvedControl)control) { DothtmlNode = wrapperElement };
         }
 
-        public IAbstractPropertyControlCollection BuildPropertyControlCollection(IPropertyDescriptor property, IEnumerable<IAbstractControl> controls)
+        public IAbstractPropertyControlCollection BuildPropertyControlCollection(IPropertyDescriptor property, IEnumerable<IAbstractControl> controls, DothtmlElementNode wrapperElement)
         {
-            return new ResolvedPropertyControlCollection((DotvvmProperty)property, controls.Cast<ResolvedControl>().ToList());
+            return new ResolvedPropertyControlCollection((DotvvmProperty)property, controls.Cast<ResolvedControl>().ToList()) { DothtmlNode = wrapperElement };
         }
 
-        public IAbstractPropertyTemplate BuildPropertyTemplate(IPropertyDescriptor property, IEnumerable<IAbstractControl> templateControls)
+        public IAbstractPropertyTemplate BuildPropertyTemplate(IPropertyDescriptor property, IEnumerable<IAbstractControl> templateControls, DothtmlElementNode wrapperElement)
         {
-            return new ResolvedPropertyTemplate((DotvvmProperty)property, templateControls.Cast<ResolvedControl>().ToList());
+            return new ResolvedPropertyTemplate((DotvvmProperty)property, templateControls.Cast<ResolvedControl>().ToList()) { DothtmlNode = wrapperElement };
         }
 
-        public IAbstractPropertyValue BuildPropertyValue(IPropertyDescriptor property, object value)
+        public IAbstractPropertyValue BuildPropertyValue(IPropertyDescriptor property, object value, DothtmlNode sourceNode)
         {
-            return new ResolvedPropertyValue((DotvvmProperty)property, value);
+            return new ResolvedPropertyValue((DotvvmProperty)property, value) { DothtmlNode = sourceNode };
         }
 
-        public void SetHtmlAttribute(IAbstractControl control, string attributeName, object value)
+        public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)
         {
-            ((ResolvedControl) control).SetHtmlAttribute(attributeName, value);
+            return new ResolvedDirective() { DothtmlNode = node };
+        }
+
+        public IAbstractHtmlAttributeValue BuildHtmlAttributeValue (string name, string value, DothtmlAttributeNode dothtmlNode)
+        {
+            return new ResolvedHtmlAttributeValue(name, value) { DothtmlNode = dothtmlNode };
+        }
+
+        public IAbstractHtmlAttributeBinding BuildHtmlAttributeBinding(string name, IAbstractBinding binding, DothtmlAttributeNode dothtmlNode)
+        {
+            return new ResolvedHtmlAttributeBinding(name, (ResolvedBinding)binding) { DothtmlNode = dothtmlNode };
+        }
+
+        public void SetHtmlAttribute(IAbstractControl control, IAbstractHtmlAttributeSetter attributeSetter)
+        {
+            ((ResolvedControl)control).SetHtmlAttribute((ResolvedHtmlAttributeSetter)attributeSetter);
         }
 
         public void SetProperty(IAbstractControl control, IAbstractPropertySetter setter)

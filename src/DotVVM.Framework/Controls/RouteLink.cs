@@ -66,15 +66,30 @@ namespace DotVVM.Framework.Controls
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             RouteLinkHelpers.WriteRouteLinkHrefAttribute(RouteName, this, UrlSuffixProperty, writer, context);
-
+           
             writer.AddKnockoutDataBind("text", this, TextProperty, () =>
             {
                 shouldRenderText = true;
             });
-            var enabledBinding = GetValueBinding(EnabledProperty);
-            if (enabledBinding != null) WriteEnabledBinding(writer, enabledBinding);
+            
+            var enabledBinding = GetValueRaw(EnabledProperty);
+
+            if (enabledBinding is bool)
+            {
+                WriteEnabledBinding(writer, (bool) enabledBinding);
+            }
+            else if (enabledBinding is IValueBinding)
+            {
+                WriteEnabledBinding(writer, (IValueBinding) enabledBinding);
+            }
 
             base.AddAttributesToRender(writer, context);
+        }
+
+        protected virtual void WriteEnabledBinding(IHtmlWriter writer, bool binding)
+        {
+            writer.AddKnockoutDataBind("dotvvmEnable", binding.ToString().ToLower());
+            writer.AddAttribute("onclick", "return !this.hasAttribute('disabled');");
         }
 
         protected virtual void WriteEnabledBinding(IHtmlWriter writer, IValueBinding binding)

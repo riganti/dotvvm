@@ -18,8 +18,7 @@ namespace DotVVM.Framework.Tests.Binding
     {
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object));
-            context.RootControlType = control?.GetType() ?? typeof(DotvvmControl);
+            var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object), rootControlType: control?.GetType() ?? typeof(DotvvmControl));
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = new DataContextStack(contexts[i].GetType(), context);
@@ -32,6 +31,57 @@ namespace DotVVM.Framework.Tests.Binding
         public object ExecuteBinding(string expression, params object[] contexts)
         {
             return ExecuteBinding(expression, contexts, null);
+        }
+
+        [TestMethod]
+        public void BindingCompiler_FullNameResourceBinding()
+        {
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("DotVVM.Framework.Tests.Resource1.ResourceKey123"));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_NamespaceResourceBinding()
+        {
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            {
+                new NamespaceImport("DotVVM.Framework.Tests")
+            }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_MoreNamespacesResourceBinding()
+        {
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            {
+                new NamespaceImport("DotVVM.Framework.Tests0"),
+                new NamespaceImport("DotVVM.Framework.Tests"),
+                new NamespaceImport("DotVVM.Framework.Tests2")
+            }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_NamespaceAliasResourceBinding()
+        {
+            Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("ghg.Resource1.ResourceKey123", new object[0], null, new NamespaceImport[]
+            {
+                new NamespaceImport("DotVVM.Framework.Tests","ghg")
+            }));
+        }
+
+        [TestMethod]
+        public void BindingCompiler_ResourceBindingException()
+        {
+            try
+            {
+                Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.NotExist", new object[0], null, new NamespaceImport[]
+                    {
+                        new NamespaceImport("DotVVM.Framework.Tests")
+                    }));
+            }
+            catch (Exception x)
+            {
+                Assert.AreEqual(x.Message, "could not find static member NotExist on type DotVVM.Framework.Tests.Resource1");
+            }
         }
 
         [TestMethod]

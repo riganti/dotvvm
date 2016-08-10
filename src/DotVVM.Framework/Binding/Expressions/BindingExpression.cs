@@ -45,10 +45,10 @@ namespace DotVVM.Framework.Binding.Expressions
             UpdateDelegate(dataContexts, control, value);
         }
 
-        protected object ExecDelegate(DotvvmBindableObject contextControl, bool seeThis, bool setRootControl = false)
+        protected object ExecDelegate(DotvvmBindableObject contextControl, bool seeThis)
         {
             var dataContexts = GetDataContexts(contextControl, seeThis);
-            var control = setRootControl ? GetRootControl(contextControl) : null;
+            var control = GetRootControl(contextControl);
             try
             {
                 return Delegate(dataContexts, control);

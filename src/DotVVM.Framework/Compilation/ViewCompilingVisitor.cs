@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Compilation
             {
                 foreach (var directive in view.Directives)
                 {
-                    emitter.EmitAddDirective(pageName, directive.Key, directive.Value.First());
+                    emitter.EmitAddDirective(pageName, directive.Key, directive.Value.First().Value);
                 }
             }
 
@@ -151,23 +151,32 @@ namespace DotVVM.Framework.Compilation
             SetProperty(controlName, propertyTemplate.Property, SyntaxFactory.IdentifierName(templateName));
         }
 
-        protected void ProcessHtmlAttributes(string controlName, IDictionary<string, object> attributes, DataContextStack dataContext)
+        protected void ProcessHtmlAttributes(string controlName, Dictionary<string, ResolvedHtmlAttributeSetter> attributes, DataContextStack dataContext)
         {
-            foreach (var attr in attributes)
+            foreach (var attr in attributes.Values)
             {
-                var value = ProcessBindingOrValue(attr.Value, dataContext);
-                emitter.EmitAddHtmlAttribute(controlName, attr.Key, value);
+                var value = ProcessBindingOrValue(attr, dataContext);
+                emitter.EmitAddHtmlAttribute(controlName, attr.Name, value);
             }
         }
 
         /// <summary>
         /// Emits value or binding and returns 
         /// </summary>
-        protected ExpressionSyntax ProcessBindingOrValue(object obj, DataContextStack dataContext)
+        protected ExpressionSyntax ProcessBindingOrValue(ResolvedHtmlAttributeSetter attribute, DataContextStack dataContext)
         {
-            var binding = obj as ResolvedBinding;
-            if (binding != null) return ProcessBinding(binding, typeof(object));
-            else return emitter.EmitValue(obj);
+            if (attribute is ResolvedHtmlAttributeValue)
+            {
+                return emitter.EmitValue(((ResolvedHtmlAttributeValue)attribute).Value);
+            }
+            else if (attribute is ResolvedHtmlAttributeBinding)
+            {
+                return ProcessBinding(((ResolvedHtmlAttributeBinding)attribute).Binding, typeof(object));
+            }
+            else
+            {
+                throw new NotSupportedException("Attribute type not supported.");
+            }
         }
 
         /// <summary>

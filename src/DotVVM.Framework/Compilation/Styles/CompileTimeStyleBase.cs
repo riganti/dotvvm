@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -20,21 +21,31 @@ namespace DotVVM.Framework.Compilation.Styles
 
         protected virtual void ApplyStyle(ResolvedControl control)
         {
-            if(SetHtmlAttributes != null)
+            if (SetHtmlAttributes != null)
             {
                 foreach (var attr in SetHtmlAttributes)
                 {
-                    if(control.HtmlAttributes == null || !control.HtmlAttributes.ContainsKey(attr.Key) || attr.Value.append)
+                    if (!control.HtmlAttributes.ContainsKey(attr.Key) || attr.Value.append)
                     {
-                        control.SetHtmlAttribute(attr.Key, attr.Value.value);
+                        ResolvedHtmlAttributeSetter setter = null;
+                        if (attr.Value.value is ResolvedBinding)
+                        {
+                            setter = new ResolvedHtmlAttributeBinding(attr.Key, (ResolvedBinding)attr.Value.value);
+                        }
+                        else
+                        {
+                            setter = new ResolvedHtmlAttributeValue(attr.Key, (string)attr.Value.value);
+                        }
+
+                        control.SetHtmlAttribute(setter);
                     }
                 }
             }
-            if(SetProperties != null)
+            if (SetProperties != null)
             {
                 foreach (var prop in SetProperties)
                 {
-                    if(!control.Properties.ContainsKey(prop.Key))
+                    if (!control.Properties.ContainsKey(prop.Key))
                     {
                         control.Properties.Add(prop.Key, prop.Value);
                     }

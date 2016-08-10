@@ -12,10 +12,8 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Security;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
-using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Owin.Security.DataProtection;
+using Moq;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -36,28 +34,29 @@ namespace DotVVM.Framework.Tests.Runtime
 			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
 			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
 
-			serializer = configuration.ServiceLocator.GetService<IViewModelSerializer>() as DefaultViewModelSerializer;
-			context = new DotvvmRequestContext()
-			{
-				Configuration = configuration,
-				HttpContext = new Microsoft.AspNetCore.Http.Fakes.StubHttpContext()
-				{
-					RequestGet = () => new Microsoft.AspNetCore.Http.Fakes.StubHttpRequest()
-					{
-						Host = new Microsoft.AspNetCore.Http.HostString("localhost", 8628),
-						PathBase = new Microsoft.AspNetCore.Http.PathString(""),
-						Path = new Microsoft.AspNetCore.Http.PathString("/Sample1"),
-						Scheme = "http",
-						QueryString = new QueryString(""),
-						HeadersGet = () => new HeaderDictionary(new Dictionary<string, StringValues>()),
-					},
-					UserGet = () => new WindowsPrincipal(WindowsIdentity.GetAnonymous()),
-				},
-				ResourceManager = new ResourceManager(configuration),
-				Presenter = configuration.RouteTable.GetDefaultPresenter(),
-				ViewModelSerializer = serializer
-			};
-		}
+            var requestMock = new Mock<IOwinRequest>();
+            requestMock.SetupGet(m => m.Uri).Returns(new Uri("http://localhost:8628/Sample1"));
+            requestMock.SetupGet(m => m.User).Returns(new WindowsPrincipal(WindowsIdentity.GetAnonymous()));
+            requestMock.SetupGet(m => m.Headers).Returns(new HeaderDictionary(new Dictionary<string, string[]>()));
+            requestMock.SetupGet(m => m.Environment).Returns(new Dictionary<string, object>()
+            {
+                { "owin.RequestPathBase", "" }
+            });
+
+            var contextMock = new Mock<IOwinContext>();
+            contextMock.SetupGet(m => m.Request).Returns(requestMock.Object);
+
+
+            serializer = new DefaultViewModelSerializer(configuration);
+            context = new DotvvmRequestContext()
+            {
+                Configuration = configuration,
+                OwinContext = contextMock.Object,
+                ResourceManager = new ResourceManager(configuration),
+                Presenter = configuration.RouteTable.GetDefaultPresenter(),
+                ViewModelSerializer = serializer
+            };
+        }
 
 
 
