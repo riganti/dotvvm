@@ -282,6 +282,14 @@ namespace DotVVM.Framework.Tests.Binding
             Assert.AreEqual(TestNamespace2.TestClass2.Property + TestNamespace1.TestClass1.Property, result);
         }
 
+		[TestMethod]
+		public void BindingCompiler_Valid_TypeAlias()
+		{
+            var result = ExecuteBinding("Alias.Property", new object[0], null, 
+				new NamespaceImport[] { new NamespaceImport("DotVVM.Framework.Tests.Binding.TestNamespace2.TestClass2", alias: "Alias") });
+            Assert.AreEqual(TestNamespace2.TestClass2.Property, result);
+		}
+
 
 		[TestMethod]
 		public void BindingCompiler_Valid_ToStringConstantConversion()
@@ -306,7 +314,6 @@ namespace DotVVM.Framework.Tests.Binding
 			var testViewModel = new TestViewModel();
 			var result = ExecuteBinding("_this", new[] { testViewModel }, null, expectedType: typeof(string));
 		}
-
     }
     class TestViewModel
 	{

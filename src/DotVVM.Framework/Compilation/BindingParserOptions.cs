@@ -29,8 +29,14 @@ namespace DotVVM.Framework.Compilation
 			if (import.HasAlias)
 				return t =>
 				{
-					if (t.Length > import.Alias.Length + 1 && t.StartsWith(import.Alias, StringComparison.Ordinal) && t[import.Alias.Length] == '.')
-						return TypeRegistry.CreateStatic(ReflectionUtils.FindType(import.Namespace + "." + t.Substring(import.Alias.Length + 1)));
+					if (t.Length > import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
+					{
+						string name;
+						if (t == import.Alias) name = import.Namespace;
+						else if (t.Length > import.Alias.Length + 1 && t[import.Alias.Length] == '.') name = import.Namespace + "." + t.Substring(import.Alias.Length + 1);
+						else return null;
+						return TypeRegistry.CreateStatic(ReflectionUtils.FindType(name));
+					}
 					else return null;
 				};
 			else return t => TypeRegistry.CreateStatic(ReflectionUtils.FindType(import.Namespace + "." + t));
