@@ -87,12 +87,18 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
-            AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({0})"), 0);
-            AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})"), 1, true);
+            AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({0})", (m, c, a) => ToStringCheck(c)), 0);
+            AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})", (m, c, a) => ToStringCheck(a[0])), 1, true);
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             BindingPageInfo.RegisterJavascriptTranslations();
         }
+
+		static bool ToStringCheck(Expression expr)
+		{
+			while (expr.NodeType == ExpressionType.Convert) expr = ((UnaryExpression)expr).Operand;
+			return expr.Type.IsPrimitive;
+		}
 
         public DataContextStack DataContexts { get; set; }
 
@@ -146,7 +152,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 var target = Translate(property.Expression);
                 var value = Translate(expression.Right);
-                return TryTranslateMethodCall(target, new[] { value }, (property.Member as PropertyInfo)?.SetMethod) ??
+                return TryTranslateMethodCall(target, new[] { value }, (property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
                     SetProperty(target, property.Member as PropertyInfo, value);
             }
             throw new NotSupportedException($"can not assign expression of type {expression.Left.NodeType}");
@@ -203,7 +209,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             var args = expression.Arguments.Select(Translate).ToArray();
             var method = setter ? expression.Indexer.SetMethod : expression.Indexer.GetMethod;
 
-            var result = TryTranslateMethodCall(target, args, method);
+            var result = TryTranslateMethodCall(target, args, method, expression.Object, expression.Arguments.ToArray());
             if (result != null) return result;
             return target + "[" + args.Single() + "]()";
         }
@@ -233,24 +239,24 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var thisExpression = expression.Object == null ? null : ParenthesizedTranslate(expression, expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
-            var result = TryTranslateMethodCall(thisExpression, args, expression.Method);
+            var result = TryTranslateMethodCall(thisExpression, args, expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
                 throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can not be translated to Javascript");
             return result;
         }
 
-        protected string TryTranslateMethodCall(string context, string[] args, MethodInfo method)
+        protected string TryTranslateMethodCall(string context, string[] args, MethodInfo method, Expression contextExpression, Expression[] argsExpressions)
         {
             if (method == null) return null;
             IJsMethodTranslator translator;
-            if (MethodTranslators.TryGetValue(method, out translator))
+            if (MethodTranslators.TryGetValue(method, out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
             {
                 return translator.TranslateCall(context, args, method);
             }
             if (method.IsGenericMethod)
             {
                 var genericMethod = method.GetGenericMethodDefinition();
-                if (MethodTranslators.TryGetValue(genericMethod, out translator))
+                if (MethodTranslators.TryGetValue(genericMethod, out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
                 {
                     return translator.TranslateCall(context, args, method);
                 }
@@ -262,7 +268,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     var map = method.DeclaringType.GetInterfaceMap(iface);
                     var imIndex = Array.IndexOf(map.TargetMethods, method);
-                    if (imIndex >= 0 && MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]))
+                    if (imIndex >= 0 && MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
                         return MethodTranslators[map.InterfaceMethods[imIndex]].TranslateCall(context, args, method);
                 }
             }
@@ -272,7 +278,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 if (m2 != null)
                 {
-                    var r2 = TryTranslateMethodCall(context, args, m2);
+                    var r2 = TryTranslateMethodCall(context, args, m2, contextExpression, argsExpressions);
                     if (r2 != null) return r2;
                 }
             }
@@ -281,12 +287,12 @@ namespace DotVVM.Framework.Compilation.Javascript
 				var m2 = typeof(Array).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
 				if (m2 != null)
 				{
-					var r2 = TryTranslateMethodCall(context, args, m2);
+					var r2 = TryTranslateMethodCall(context, args, m2, contextExpression, argsExpressions);
 					if (r2 != null) return r2;
 				}
 			}
 			var baseMethod = method.GetBaseDefinition();
-            if (baseMethod != null && baseMethod != method) return TryTranslateMethodCall(context, args, baseMethod);
+            if (baseMethod != null && baseMethod != method) return TryTranslateMethodCall(context, args, baseMethod, contextExpression, argsExpressions);
             else return null;
         }
 
@@ -298,7 +304,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             var method = expression.Method;
             if (method != null)
             {
-                var mTranslate = TryTranslateMethodCall(null, new[] { left, right }, expression.Method);
+                var mTranslate = TryTranslateMethodCall(null, new[] { left, right }, expression.Method, null, new[] { expression.Left, expression.Right });
                 if (mTranslate != null) return mTranslate;
             }
             string op = null;
@@ -353,7 +359,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             var method = expression.Method;
             if (method != null)
             {
-                var mTranslate = TryTranslateMethodCall(null, new[] { operand }, expression.Method);
+                var mTranslate = TryTranslateMethodCall(null, new[] { operand }, expression.Method, null, new[] { expression.Operand });
                 if (mTranslate != null) return mTranslate;
             }
             string op = null;
@@ -398,13 +404,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (expression.Expression == null)
             {
                 // static
-                return TryTranslateMethodCall(null, new string[0], getter) ??
+                return TryTranslateMethodCall(null, new string[0], getter, null, new Expression[0]) ??
                     JavascriptCompilationHelper.CompileConstant((
                         ((expression.Member as FieldInfo)?.GetValue(null) ?? (expression.Member as PropertyInfo)?.GetValue(null))));
             }
             else
             {
-                return TryTranslateMethodCall(ParenthesizedTranslate(expression, expression.Expression), new string[0], getter) ??
+                return TryTranslateMethodCall(ParenthesizedTranslate(expression, expression.Expression), new string[0], getter, expression.Expression, new Expression[0]) ??
                     TranslateViewModelProperty(ParenthesizedTranslate(expression, expression.Expression), expression.Member);
             }
         }

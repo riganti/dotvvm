@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Tests.Binding
     [TestClass]
     public class BindingCompilationTests
     {
-        public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null)
+        public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
         {
             var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object), rootControlType: control?.GetType() ?? typeof(DotvvmControl));
             for (int i = 1; i < contexts.Length; i++)
@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") }.Concat(imports ?? Enumerable.Empty<NamespaceImport>()).ToArray()));
-            return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, typeof(object)).Compile()(contexts, control);
+            return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, expectedType ?? typeof(object)).Compile()(contexts, control);
         }
 
         public object ExecuteBinding(string expression, params object[] contexts)
@@ -283,59 +283,88 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
 
-        class TestViewModel
-        {
-            public string StringProp { get; set; }
+		[TestMethod]
+		public void BindingCompiler_Valid_ToStringConstantConversion()
+		{
+			var result = ExecuteBinding("false", new object[0], null, expectedType: typeof(string));
+			Assert.AreEqual("False", result);
+		}
 
-            public TestViewModel2 TestViewModel2 { get; set; }
-            public TestEnum EnumProperty { get; set; }
-            public string StringProp2 { get; set; }
 
-            public string SetStringProp(string a, int b)
-            {
-                var p = StringProp;
-                StringProp = a + b;
-                return p;
-            }
+		[TestMethod]
+		public void BindingCompiler_Valid_ToStringConversion()
+		{
+			var testViewModel = new TestViewModel();
+			var result = ExecuteBinding("Identity(42)", new[] { testViewModel }, null, expectedType: typeof(string));
+			Assert.AreEqual("42", result);
+		}
 
-            public T Identity<T>(T param)
-                => param;
+		[TestMethod]
+		[ExpectedException(typeof(InvalidOperationException))]
+		public void BindingCompiler_InValid_ToStringConversion()
+		{
+			var testViewModel = new TestViewModel();
+			var result = ExecuteBinding("_this", new[] { testViewModel }, null, expectedType: typeof(string));
+		}
 
-            public Type GetType<T>(T param)
-            {
-                return typeof(T);
-            }
-
-            public string Cat<T>(T obj, string str = null)
-            {
-                return obj.ToString() + (str ?? StringProp);
-            }
-
-            public int GetCharCode(char ch)
-                => (int)ch;
-
-            public bool BoolMethodExecuted { get; set; }
-            public bool BoolMethod()
-            {
-                BoolMethodExecuted = true;
-                return false;
-            }
-        }
-
-        class TestViewModel2
-        {
-            public int MyProperty { get; set; }
-            public string SomeString { get; set; }
-
-            public IList<Something> Collection { get; set; }
-        }
-
-        class Something
-        {
-            public bool Value { get; set; }
-        }
     }
-    enum TestEnum
+    class TestViewModel
+	{
+		public string StringProp { get; set; }
+
+		public TestViewModel2 TestViewModel2 { get; set; }
+		public TestEnum EnumProperty { get; set; }
+		public string StringProp2 { get; set; }
+
+		public string SetStringProp(string a, int b)
+		{
+			var p = StringProp;
+			StringProp = a + b;
+			return p;
+		}
+
+		public T Identity<T>(T param)
+			=> param;
+
+		public Type GetType<T>(T param)
+		{
+			return typeof(T);
+		}
+
+		public string Cat<T>(T obj, string str = null)
+		{
+			return obj.ToString() + (str ?? StringProp);
+		}
+
+		public int GetCharCode(char ch)
+			=> (int)ch;
+
+		public bool BoolMethodExecuted { get; set; }
+		public bool BoolMethod()
+		{
+			BoolMethodExecuted = true;
+			return false;
+		}
+	}
+
+	class TestViewModel2
+	{
+		public int MyProperty { get; set; }
+		public string SomeString { get; set; }
+
+		public IList<Something> Collection { get; set; }
+
+		public override string ToString()
+		{
+			return SomeString + ": " + MyProperty;
+		}
+	}
+
+	class Something
+	{
+		public bool Value { get; set; }
+	}
+	enum TestEnum
     {
         A,
         B,
