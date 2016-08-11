@@ -1,5 +1,6 @@
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
@@ -51,9 +52,7 @@ namespace DotVVM.Samples.BasicSamples
             // import namespaces
             config.Markup.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace1", "TestNamespaceAlias"));
             config.Markup.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace2"));
-
         }
-
     }
 }
  

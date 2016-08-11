@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			placeholderMetadata = new Lazy<IControlResolverMetadata>(() => controlResolver.ResolveControl(new ResolvedTypeDescriptor(typeof(PlaceHolder))));
 		}
 
-		public static HashSet<string> SingleValueDirectives = new HashSet<string>(StringComparer.InvariantCultureIgnoreCase)
+		public static HashSet<string> SingleValueDirectives = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
 		{
 			ParserConstants.BaseTypeDirective,
 			ParserConstants.MasterPageDirective,
@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		{
 			var directives = new Dictionary<string, IReadOnlyList<IAbstractDirective>>(StringComparer.CurrentCultureIgnoreCase);
 
-			foreach (var directiveGroup in root.Directives.GroupBy(d => d.Name, StringComparer.InvariantCultureIgnoreCase))
+			foreach (var directiveGroup in root.Directives.GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase))
 			{
 				if (SingleValueDirectives.Contains(directiveGroup.Key) && directiveGroup.Count() > 1)
 				{
@@ -663,7 +663,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		{
 			var wrapperType = GetDefaultWrapperType(fileName);
 
-			var baseControlDirective = node.Directives.SingleOrDefault(d => string.Equals(d.Name, ParserConstants.BaseTypeDirective, StringComparison.OrdinalIgnoreCase));
+			var baseControlDirective = !directives.ContainsKey(ParserConstants.BaseTypeDirective)
+					? null
+					: directives[ParserConstants.BaseTypeDirective].SingleOrDefault();
+
 			if (baseControlDirective != null)
 			{
 				var baseType = FindType(baseControlDirective.Value);
