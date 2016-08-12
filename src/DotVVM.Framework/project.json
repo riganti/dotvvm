@@ -6,8 +6,6 @@
     "Microsoft.AspNetCore.DataProtection.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Localization": "1.0.0",
     "Microsoft.AspNetCore.Owin": "1.0.0",
-    "Microsoft.CodeAnalysis.Common": "1.3.0",
-    "Microsoft.CodeAnalysis.CSharp": "1.3.0",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
     "Microsoft.Extensions.Localization": "1.0.0",
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
@@ -21,7 +19,9 @@
     "System.Threading.Thread": "4.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
     "System.Runtime": "4.1.0",
-    "Microsoft.Extensions.DependencyInjection": "1.0.0"
+    "Microsoft.Extensions.DependencyInjection": "1.0.0",
+    "Microsoft.CodeAnalysis.Common": "1.3.2",
+    "Microsoft.CodeAnalysis.CSharp": "1.3.2"
   },
   "resource": [
 
@@ -42,8 +42,8 @@
         "define": [ "DotNetCore" ]
       },
       "dependencies": {
-        "System.Runtime.Loader": "4.0.0-rc2-23712",
-        "NETStandard.Library": "1.6.0"
+        "NETStandard.Library": "1.6.0",
+        "System.Runtime.Loader": "4.0.0"
       }
     },
     "net461": {

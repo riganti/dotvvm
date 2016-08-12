@@ -32,6 +32,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Compiler", "DotVVM.C
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DotVVM.Core", "DotVVM.Core\DotVVM.Core.xproj", "{45FA2F43-D92B-4A9B-9B93-9AB519AD0127}"
 EndProject
+Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "Dotvvm.Dotnetcore", "Dotvvm.Dotnetcore\Dotvvm.Dotnetcore.xproj", "{0D53D15D-24D2-4504-88A5-B161F62DB611}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dotvvm.Common", "Dotvvm.Common\Dotvvm.Common.csproj", "{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -121,6 +125,26 @@ Global
 		{45FA2F43-D92B-4A9B-9B93-9AB519AD0127}.TestFirefox|Any CPU.Build.0 = Release|Any CPU
 		{45FA2F43-D92B-4A9B-9B93-9AB519AD0127}.TestIE|Any CPU.ActiveCfg = Release|Any CPU
 		{45FA2F43-D92B-4A9B-9B93-9AB519AD0127}.TestIE|Any CPU.Build.0 = Release|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.TestChrome|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.TestChrome|Any CPU.Build.0 = Debug|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.TestFirefox|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.TestFirefox|Any CPU.Build.0 = Debug|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.TestIE|Any CPU.ActiveCfg = Debug|Any CPU
+		{0D53D15D-24D2-4504-88A5-B161F62DB611}.TestIE|Any CPU.Build.0 = Debug|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.TestChrome|Any CPU.ActiveCfg = Release|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.TestChrome|Any CPU.Build.0 = Release|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.TestFirefox|Any CPU.ActiveCfg = Release|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.TestFirefox|Any CPU.Build.0 = Release|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.TestIE|Any CPU.ActiveCfg = Release|Any CPU
+		{D57F1370-7DB5-40E1-9CF5-B31DACFB2B88}.TestIE|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
