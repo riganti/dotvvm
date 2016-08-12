@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Hosting
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
             // file upload handler
-            if (url == HostingConstants.FileUploadHandlerMatchUrl)
+            if (url == HostingConstants.FileUploadHandlerMatchUrl || url.StartsWith(HostingConstants.FileUploadHandlerMatchUrl  + "?", StringComparison.OrdinalIgnoreCase))
             {
                 return ProcessMultipartRequest(context);
             }
@@ -78,10 +78,14 @@ namespace DotVVM.Framework.Hosting
             await RenderResponse(context, isPost, errorMessage, uploadedFiles);
         }
 
+		private bool ShouldReturnJsonResponse(IOwinContext context) =>
+			context.Request.Headers.Get(HostingConstants.DotvvmFileUploadAsyncHeaderName) == "true" ||
+			context.Request.Query.Get("returnJson") == "true";
+
         private async Task RenderResponse(IOwinContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var outputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
-            if (isPost && context.Request.Headers.Get(HostingConstants.DotvvmFileUploadAsyncHeaderName) == "true")
+            if (isPost && ShouldReturnJsonResponse(context))
             {
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
