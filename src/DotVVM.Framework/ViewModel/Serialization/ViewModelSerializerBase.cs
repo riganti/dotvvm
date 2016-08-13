@@ -1,7 +1,6 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -13,12 +12,10 @@ using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using System.Security;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
-    public class DefaultViewModelSerializer : IViewModelSerializer
+    public abstract class ViewModelSerializerBase
     {
         private const string GeneralViewModelRecomendations = "Check out general viewMode recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
 
@@ -28,7 +25,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelSerializationMapper viewModelMapper;
         private readonly DotvvmConfiguration configuration;
 
-		public bool SendDiff { get; set; } = true;
+        public bool SendDiff { get; set; } = true;
 
         public Formatting JsonFormatting { get; set; }
 
@@ -36,9 +33,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper)
+        public ViewModelSerializerBase(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper)
         {
-			this.viewModelProtector = protector;
+            this.viewModelProtector = protector;
             this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
             this.viewModelMapper = serializationMapper;
         }
@@ -91,7 +88,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            result["url"] = new Uri(context.HttpContext.Request.GetDisplayUrl()).PathAndQuery;
+            result["url"] = new Uri(GetDisplayUrl(context)).PathAndQuery;
             result["virtualDirectory"] = DotvvmMiddleware.GetVirtualDirectory(context.HttpContext);
             if (context.ResultIdFragment != null)
             {
@@ -112,6 +109,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             context.ViewModelJson = result;
         }
+
+        protected abstract string GetDisplayUrl(IDotvvmRequestContext context);
 
         protected virtual JsonSerializer CreateJsonSerializer()
         {

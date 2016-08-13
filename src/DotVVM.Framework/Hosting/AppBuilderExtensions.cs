@@ -2,7 +2,6 @@ using System.Diagnostics.Contracts;
 using System.IO;
 using System.Reflection;
 using DotVVM.Framework.Configuration;
-using Microsoft.AspNetCore.DataProtection;
 using Newtonsoft.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;

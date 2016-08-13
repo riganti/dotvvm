@@ -20,9 +20,9 @@ namespace DotVVM.Framework.Hosting
 	{
 		public static void AddDotvvmServices(this IServiceCollection services)
 		{
-			services.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
-			services.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
-			services.AddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
+			//services.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
+			//services.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+			//services.AddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
 			services.AddSingleton<IViewModelLoader, DefaultViewModelLoader>();
 			services.AddSingleton<IViewModelValidationMetadataProvider, AttributeViewModelValidationMetadataProvider>();
 			services.AddSingleton<IValidationRuleTranslator, ViewModelValidationRuleTranslator>();

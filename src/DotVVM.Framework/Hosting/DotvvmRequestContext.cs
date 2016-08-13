@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Hosting
 {
     public class DotvvmRequestContext : IDotvvmRequestContext
     {
-        internal string CsrfToken { get; set; }
+        public string CsrfToken { get; set; }
 
         /// <summary>
         /// Gets the underlying <see cref="Context"/> object for this HTTP request.
@@ -81,11 +81,11 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public ModelState ModelState { get; private set; }
 
-        internal Dictionary<string, string> PostBackUpdatedControls { get; private set; }
+        public Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 
-        internal JObject ViewModelJson { get; set; }
+        public JObject ViewModelJson { get; set; }
 
-        internal JObject ReceivedViewModelJson { get; set; }
+        public JObject ReceivedViewModelJson { get; set; }
 
         /// <summary>
         /// Gets the query string parameters specified in the URL of the current HTTP request.
