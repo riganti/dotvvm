@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Compilation
 			if (import.HasAlias)
 				return t =>
 				{
-					if (t.Length > import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
+					if (t.Length >= import.Alias.Length && t.StartsWith(import.Alias, StringComparison.Ordinal))
 					{
 						string name;
 						if (t == import.Alias) name = import.Namespace;
