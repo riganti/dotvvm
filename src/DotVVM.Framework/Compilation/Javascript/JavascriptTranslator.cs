@@ -94,11 +94,11 @@ namespace DotVVM.Framework.Compilation.Javascript
             BindingPageInfo.RegisterJavascriptTranslations();
         }
 
-		static bool ToStringCheck(Expression expr)
-		{
-			while (expr.NodeType == ExpressionType.Convert) expr = ((UnaryExpression)expr).Operand;
-			return expr.Type.IsPrimitive;
-		}
+        static bool ToStringCheck(Expression expr)
+        {
+            while (expr.NodeType == ExpressionType.Convert) expr = ((UnaryExpression)expr).Operand;
+            return expr.Type.IsPrimitive;
+        }
 
         public DataContextStack DataContexts { get; set; }
 
@@ -219,7 +219,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (expression.Name == "_this") return "$data";
             if (expression.Name == "_parent") return "$parent";
             if (expression.Name == "_root") return "$root";
-            if (expression.Name.StartsWith("_parent", StringComparison.Ordinal)) return $"$parents[{ int.Parse(expression.Name.Substring("_parent".Length)) }]";
+            if (expression.Name.StartsWith("_parent", StringComparison.Ordinal)) return $"$parents[{ int.Parse(expression.Name.Substring("_parent".Length)) - 1 }]";
             if (expression.Name == "_control")
             {
                 var c = DataContexts.Parents().Count();
@@ -282,16 +282,16 @@ namespace DotVVM.Framework.Compilation.Javascript
                     if (r2 != null) return r2;
                 }
             }
-			if (method.DeclaringType == typeof(Array))
-			{
-				var m2 = typeof(Array).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
-				if (m2 != null)
-				{
-					var r2 = TryTranslateMethodCall(context, args, m2, contextExpression, argsExpressions);
-					if (r2 != null) return r2;
-				}
-			}
-			var baseMethod = method.GetBaseDefinition();
+            if (method.DeclaringType == typeof(Array))
+            {
+                var m2 = typeof(Array).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
+                if (m2 != null)
+                {
+                    var r2 = TryTranslateMethodCall(context, args, m2, contextExpression, argsExpressions);
+                    if (r2 != null) return r2;
+                }
+            }
+            var baseMethod = method.GetBaseDefinition();
             if (baseMethod != null && baseMethod != method) return TryTranslateMethodCall(context, args, baseMethod, contextExpression, argsExpressions);
             else return null;
         }
