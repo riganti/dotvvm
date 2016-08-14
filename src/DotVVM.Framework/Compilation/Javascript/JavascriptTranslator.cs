@@ -268,8 +268,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     var map = method.DeclaringType.GetInterfaceMap(iface);
                     var imIndex = Array.IndexOf(map.TargetMethods, method);
-                    if (imIndex >= 0 && MethodTranslators.ContainsKey(map.InterfaceMethods[imIndex]) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
-                        return MethodTranslators[map.InterfaceMethods[imIndex]].TranslateCall(context, args, method);
+                    if (imIndex >= 0 && MethodTranslators.TryGetValue(map.InterfaceMethods[imIndex], out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
+                        return translator.TranslateCall(context, args, method);
                 }
             }
             if (method.DeclaringType.IsGenericType && !method.DeclaringType.IsGenericTypeDefinition)
