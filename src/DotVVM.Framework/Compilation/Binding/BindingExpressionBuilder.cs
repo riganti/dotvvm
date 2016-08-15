@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Binding
             try
             {
                 var tokenizer = new BindingTokenizer();
-                tokenizer.Tokenize(new StringReader(expression));
+                tokenizer.Tokenize(expression);
 
                 var parser = new BindingParser();
                 parser.Tokens = tokenizer.Tokens;

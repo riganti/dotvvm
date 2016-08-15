@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
         protected IList<DothtmlToken> Tokenize(string markup)
         {
             var t = new DothtmlTokenizer();
-            t.Tokenize(new StringReader(markup));
+            t.Tokenize(markup);
             return t.Tokens;
         }
 

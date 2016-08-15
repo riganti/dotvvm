@@ -198,7 +198,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         {
             // tokenize
             var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(new StringReader(expression));
+            tokenizer.Tokenize(expression);
             var tokens = tokenizer.Tokens;
 
             // ensure that whole input was tokenized and that there are no holes
