@@ -396,7 +396,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 		private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(markup));
+            tokenizer.Tokenize(markup);
 
             var parser = new DothtmlParser();
             var tree = parser.Parse(tokenizer.Tokens);

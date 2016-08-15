@@ -596,7 +596,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         private static BindingParser SetupParser(string expression)
         {
             var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(new StringReader(expression));
+            tokenizer.Tokenize(expression);
             var parser = new BindingParser();
             parser.Tokens = tokenizer.Tokens;
             return parser;

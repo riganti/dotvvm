@@ -22,7 +22,7 @@ this is a test content";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
 
@@ -52,7 +52,7 @@ this is a test content";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             // first line
@@ -67,7 +67,7 @@ this is a test content";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
 
@@ -85,7 +85,7 @@ this is a test content";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
             
             var i = 0;
@@ -111,7 +111,7 @@ this is a test content";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -136,7 +136,7 @@ this is a test content";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -160,7 +160,7 @@ test";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -191,7 +191,7 @@ test";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -223,7 +223,7 @@ test";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -255,7 +255,7 @@ test";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -286,7 +286,7 @@ test";
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;

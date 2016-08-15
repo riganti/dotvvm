@@ -12,14 +12,14 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
     /// </summary>
     public class DothtmlTokenizer : TokenizerBase<DothtmlToken, DothtmlTokenType>
     {
-        public override void Tokenize(IReader reader)
+        public override void Tokenize(string sourceText)
         {
-            TokenizeInternal(reader, () => { ReadDocument(); return true; });
+            TokenizeInternal(sourceText, () => { ReadDocument(); return true; });
         }
 
-        public bool TokenizeBinding(IReader reader, bool usesDoubleBraces = false)
+        public bool TokenizeBinding(string sourceText, bool usesDoubleBraces = false)
         {
-            return TokenizeInternal(reader, () => 
+            return TokenizeInternal(sourceText, () => 
             {
                 ReadBinding(usesDoubleBraces);
                 //Finished?
@@ -339,7 +339,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         private ReadElementType ReadServerComment()
         {
             CreateToken(DothtmlTokenType.OpenServerComment);
-            if (ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false))
+            if (ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false, nestString: "<%--"))
             {
                 CreateToken(DothtmlTokenType.CloseComment);
                 return ReadElementType.ServerComment;

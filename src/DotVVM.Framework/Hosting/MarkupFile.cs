@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser;
-using StringReader = DotVVM.Framework.Compilation.Parser.StringReader;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -26,7 +25,7 @@ namespace DotVVM.Framework.Hosting
 
 
 
-        public Func<IReader> ContentsReaderFactory { get; private set; }
+        public Func<string> ContentsReaderFactory { get; private set; }
 
         public string FileName { get; private set; }
 
@@ -40,14 +39,14 @@ namespace DotVVM.Framework.Hosting
             FileName = fileName;
             FullPath = fullPath;
             LastWriteDateTimeUtc = File.GetLastWriteTimeUtc(fullPath);
-            ContentsReaderFactory = () => new FileReader(fullPath);
+            ContentsReaderFactory = () => File.ReadAllText(fullPath);
         }
 
         internal MarkupFile(string fileName, string fullPath, string contents)
         {
             FileName = fileName;
             FullPath = fullPath;
-            ContentsReaderFactory = () => new StringReader(contents);
+            ContentsReaderFactory = () => contents;
         }
 
         public override bool Equals(object obj)

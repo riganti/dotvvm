@@ -281,11 +281,9 @@
     <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlToken.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlTokenizer.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlTokenType.cs" />
-    <Compile Include="Compilation\Parser\IReader.cs" />
     <Compile Include="Compilation\Parser\NullTokenError.cs" />
     <Compile Include="Compilation\Parser\DotvvmParserException.cs" />
     <Compile Include="Compilation\Parser\SimpleTokenError.cs" />
-    <Compile Include="Compilation\Parser\StringReader.cs" />
     <Compile Include="Compilation\Parser\TextRange.cs" />
     <Compile Include="Compilation\Parser\TokenBase.cs" />
     <Compile Include="Compilation\Parser\TokenError.cs" />
@@ -511,7 +509,6 @@
     <Compile Include="Utils\ExceptionUtils.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
-    <Compile Include="Hosting\FileReader.cs" />
     <Compile Include="Hosting\IMarkupFileLoader.cs" />
     <Compile Include="Hosting\IDotvvmPresenter.cs" />
     <Compile Include="Hosting\MarkupFile.cs" />
