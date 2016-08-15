@@ -63,6 +63,21 @@ namespace DotVVM.Samples.Tests.Control
                    .CheckIfInnerTextEquals("2");
                 boxes.ElementAt(2).First("input[type=checkbox]")
                     .CheckIfIsNotChecked();
+
+                // checked visible
+                var v = boxes.ElementAt(4);
+                boxes.ElementAt(4).ElementAt("input[type=checkbox]", 0).CheckIfIsDisplayed();
+                boxes.ElementAt(4).ElementAt("input[type=checkbox]", 1).CheckIfIsNotDisplayed();
+
+                boxes.ElementAt(4).Single("input[data-ui=switch]").Click();
+
+                boxes.ElementAt(4).ElementAt("input[type=checkbox]", 0).CheckIfIsNotDisplayed();
+                boxes.ElementAt(4).ElementAt("input[type=checkbox]", 1).CheckIfIsDisplayed();
+
+                // dataContext change
+                boxes.ElementAt(5).First("input[type=checkbox]").Click();
+                boxes.ElementAt(5).First("span.result")
+                    .CheckIfInnerTextEquals("true");
             });
         }
     }
