@@ -23,7 +23,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
             {
                 throw new Exception("DotVVM context was not found!");
             }
-			prop = System.IO.File.OpenRead("c:/users/exyi/downloads/setup.exe");
         }
 
         public override Task Init()
