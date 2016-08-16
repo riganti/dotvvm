@@ -247,6 +247,7 @@
     <Compile Include="Compilation\Parser\Binding\Parser\BindingParserNodeVisitor.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\ConditionalExpressionBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\FunctionCallBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\GenericTypeExpression.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\IBindingParserNodeContext.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\IdentifierNameBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\LiteralExpressionBindingParserNode.cs" />

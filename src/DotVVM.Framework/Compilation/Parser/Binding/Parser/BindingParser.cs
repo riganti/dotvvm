@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using System.Diagnostics;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
@@ -25,7 +26,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 if (lastIndex == CurrentIndex)
                 {
                     var extraToken = Read();
-                    expressions.Add( CreateNode(new LiteralExpressionBindingParserNode(extraToken.Text), lastIndex, "Unexpected token"));
+                    expressions.Add(CreateNode(new LiteralExpressionBindingParserNode(extraToken.Text), lastIndex, "Unexpected token"));
                 }
 
                 lastIndex = CurrentIndex;
@@ -34,7 +35,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 expressions.Add(extraNode);
             }
 
-            return CreateNode( new MultiExpressionBindingParserNode(expressions), startIndex, OnEnd() ? null : $"Unexpected token: {Peek().Text}");
+            return CreateNode(new MultiExpressionBindingParserNode(expressions), startIndex, OnEnd() ? null : $"Unexpected token: {Peek().Text}");
         }
 
         public BindingParserNode ReadExpression()
@@ -207,7 +208,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.AddOperator || @operator == BindingTokenType.SubtractOperator)
                 {
-                    
+
                     Read();
                     var second = ReadAdditiveExpression();
                     return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
@@ -250,13 +251,14 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     return CreateNode(new UnaryOperatorBindingParserNode(target, @operator), startIndex, isOperatorUnsupported ? $"Usupported operator {operatorToken.Text}" : null);
                 }
             }
-            return CreateNode(ReadIdentifierExpression(), startIndex);
+            return CreateNode(ReadIdentifierExpression(false), startIndex);
         }
 
-        private BindingParserNode ReadIdentifierExpression()
+        private BindingParserNode ReadIdentifierExpression(bool onlyTypeName)
         {
             var startIndex = CurrentIndex;
-            BindingParserNode expression = ReadAtomicExpression();
+            BindingParserNode expression = onlyTypeName ? ReadIdentifierNameExpression() : ReadAtomicExpression();
+
 
             var next = Peek();
             int previousIndex = -1;
@@ -270,38 +272,17 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     var member = ReadIdentifierNameExpression();
                     expression = CreateNode(new MemberAccessBindingParserNode(expression, member), startIndex);
                 }
-                else if (next.Type == BindingTokenType.OpenParenthesis)
+                else if (!onlyTypeName && next.Type == BindingTokenType.OpenParenthesis)
                 {
-                    // function call
-                    Read();
-                    var arguments = new List<BindingParserNode>();
-                    int previousInnerIndex = -1;
-                    while (Peek() != null && Peek().Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
-                    {
-                        previousInnerIndex = CurrentIndex;
-                        if (arguments.Count > 0)
-                        {
-                            SkipWhiteSpace();
-                            if (IsCurrentTokenIncorrect(BindingTokenType.Comma))
-                                arguments.Add(CreateNode(new LiteralExpressionBindingParserNode(null), CurrentIndex, "The ',' was expected"));
-                            else Read();
-                        }
-                        arguments.Add(ReadExpression());
-                    }
-                    var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
-                    Read();
-                    SkipWhiteSpace();
-                    expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
+                    expression = ReadFunctionCall(startIndex, expression);
                 }
-                else if (next.Type == BindingTokenType.OpenArrayBrace)
+                else if (!onlyTypeName && next.Type == BindingTokenType.OpenArrayBrace)
                 {
-                    // array access
-                    Read();
-                    var innerExpression = ReadExpression();
-                    var error = IsCurrentTokenIncorrect(BindingTokenType.CloseArrayBrace);
-                    Read();
-                    SkipWhiteSpace();
-                    expression = CreateNode(new ArrayAccessBindingParserNode(expression, innerExpression), startIndex, error ? "The ']' was expected." : null);
+                    expression = ReadArrayAccess(startIndex, expression);
+                }
+                else if (AreGenericArgumentsAllowed(expression, next))
+                {
+                    expression = ReadGenericArguments(startIndex, expression);
                 }
                 else
                 {
@@ -310,6 +291,90 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
                 next = Peek();
             }
+            return expression;
+        }
+
+        private static bool AreGenericArgumentsAllowed(BindingParserNode expression, BindingToken next)
+        {
+            return next.Type == BindingTokenType.LessThanOperator && (expression is MemberAccessBindingParserNode || expression is IdentifierNameBindingParserNode);
+        }
+
+        private BindingParserNode ReadGenericArguments(int startIndex, BindingParserNode expression)
+        {
+            Debug.Assert(Peek() != null && Peek().Type == BindingTokenType.LessThanOperator);
+            SetRestorePoint();
+
+
+            var next = Read();
+            bool failure = false;
+            var previousIndex = -1;
+            var arguments = new List<BindingParserNode>();
+
+            while (true)
+            {
+                if (previousIndex == CurrentIndex || next == null)
+                {
+                    failure = true;
+                    break;
+                }
+
+                previousIndex = CurrentIndex;
+
+                SkipWhiteSpace();
+                arguments.Add(ReadIdentifierExpression(true));
+                SkipWhiteSpace();
+
+                if (Peek()?.Type != BindingTokenType.Comma) { break; }
+                Read();
+            }
+
+            failure &= Peek()?.Type == BindingTokenType.GreaterThanOperator;
+
+            if (!failure)
+            {
+                Read();
+                ClearRestorePoint();
+                return CreateNode(new GenericTypeBindingParserNode(expression, arguments), startIndex);
+            }
+
+            Restore();
+            return expression;
+        }
+
+        private BindingParserNode ReadArrayAccess(int startIndex, BindingParserNode expression)
+        {
+            // array access
+            Read();
+            var innerExpression = ReadExpression();
+            var error = IsCurrentTokenIncorrect(BindingTokenType.CloseArrayBrace);
+            Read();
+            SkipWhiteSpace();
+            expression = CreateNode(new ArrayAccessBindingParserNode(expression, innerExpression), startIndex, error ? "The ']' was expected." : null);
+            return expression;
+        }
+
+        private BindingParserNode ReadFunctionCall(int startIndex, BindingParserNode expression)
+        {
+            // function call
+            Read();
+            var arguments = new List<BindingParserNode>();
+            int previousInnerIndex = -1;
+            while (Peek() != null && Peek().Type != BindingTokenType.CloseParenthesis && previousInnerIndex != CurrentIndex)
+            {
+                previousInnerIndex = CurrentIndex;
+                if (arguments.Count > 0)
+                {
+                    SkipWhiteSpace();
+                    if (IsCurrentTokenIncorrect(BindingTokenType.Comma))
+                        arguments.Add(CreateNode(new LiteralExpressionBindingParserNode(null), CurrentIndex, "The ',' was expected"));
+                    else Read();
+                }
+                arguments.Add(ReadExpression());
+            }
+            var error = IsCurrentTokenIncorrect(BindingTokenType.CloseParenthesis);
+            Read();
+            SkipWhiteSpace();
+            expression = CreateNode(new FunctionCallBindingParserNode(expression, arguments), startIndex, error ? "The ')' was expected." : null);
             return expression;
         }
 
