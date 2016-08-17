@@ -13,6 +13,8 @@ namespace DotVVM.Framework.Storage
         public Guid FileId { get; set; }
 
         public string FileName { get; set; }
-        
+
+        public bool Accepted { get; set; } = true;
+
     }
 }
