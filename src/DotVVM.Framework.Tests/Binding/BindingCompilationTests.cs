@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             catch (Exception x)
             {
-                Assert.AreEqual(x.Message, "could not find static member NotExist on type DotVVM.Framework.Tests.Resource1");
+                Assert.AreEqual(x.Message, "Could not find static member NotExist on type DotVVM.Framework.Tests.Resource1.");
             }
         }
 

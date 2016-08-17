@@ -16,16 +16,18 @@ namespace DotVVM.Framework.Compilation.Binding
             Contract.Requires(target != null);
 
             if (target is MethodGroupExpression)
-                throw new Exception("can not access member on method group");
+                throw new Exception("Can not access member on method group.");
 
             var type = target.Type;
+			if (type == typeof(UnknownTypeSentinel)) if (throwExceptions) throw new Exception($"Type of '{target}' could not be resolved."); else return null;
+
             var isStatic = target is StaticClassIdentifierExpression;
             var members = type.GetMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
                 .Where(m => m.Name == name)
                 .ToArray();
             if (members.Length == 0)
             {
-                if (throwExceptions) throw new Exception($"could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }");
+                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
                 else return null;
             }
             if (members.Length == 1)
@@ -319,5 +321,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             return result.Expression;
         }
-    }
+
+		public sealed class UnknownTypeSentinel { }
+	}
 }

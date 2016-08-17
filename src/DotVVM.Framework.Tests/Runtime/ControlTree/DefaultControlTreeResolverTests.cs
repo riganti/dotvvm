@@ -79,14 +79,29 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
             Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("couldn't be evaluated"));
+            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Could not resolve identifier"));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
             Assert.AreEqual(textBinding, textBinding.Binding.Parent);
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void ResolvedTree_SingleControlWithBinding_BindingError_MissingViewModelDirectiveThisId()
+		{
+			var root = ParseSource(@"<dot:Button Text='{value: _this.Test}' />");
+
+			var control = root.Content.First();
+			var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
+			Assert.IsNotNull(textBinding.Binding.ParsingError);
+			Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Type of '_this' could not be resolved."));
+
+			Assert.AreEqual(root, control.Parent);
+			Assert.AreEqual(control, textBinding.Parent);
+			Assert.AreEqual(textBinding, textBinding.Binding.Parent);
+		}
+
+		[TestMethod]
         public void ResolvedTree_SingleControlWithBinding_ValidBinding_UnknownViewModel()
         {
             var root = ParseSource(@"@viewModel invalid
@@ -95,7 +110,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
             Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("couldn't be evaluated"));
+            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Could not resolve identifier"));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);

@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public static TypeRegistry AddTypeSymbols(TypeRegistry reg, DataContextStack dataContext)
         {
-            var namespaces = dataContext.Enumerable().Select(t => t.Namespace).Except(new[] { "System" }).Distinct();
+            var namespaces = dataContext.Enumerable().Select(t => t?.Namespace).Except(new[] { "System", null }).Distinct();
             return reg.AddSymbols(new[]
             {
                 // ViewModel is alias for current viewmodel type
@@ -79,25 +79,27 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             if (dataContext.RootControlType != null)
             {
-                yield return Expression.Parameter(dataContext.RootControlType, "_control");
+                yield return CreateParameter(dataContext.RootControlType, "_control");
             }
-            yield return Expression.Parameter(dataContext.DataContextType, "_this");
-            yield return Expression.Parameter(typeof(BindingPageInfo), "_page");
+            yield return CreateParameter(dataContext.DataContextType, "_this");
+            yield return CreateParameter(typeof(BindingPageInfo), "_page");
             var index = 1;
             while (dataContext.Parent != null)
             {
                 dataContext = dataContext.Parent;
                 if (index == 1)
                 {
-                    yield return Expression.Parameter(dataContext.DataContextType, "_parent");
+                    yield return CreateParameter(dataContext.DataContextType, "_parent");
                 }
                 else
                 {
-                    yield return Expression.Parameter(dataContext.DataContextType, "_parent" + index);
+                    yield return CreateParameter(dataContext.DataContextType, "_parent" + index);
                 }
                 index++;
             }
-            yield return Expression.Parameter(dataContext.DataContextType, "_root");
+            yield return CreateParameter(dataContext.DataContextType, "_root");
         }
+
+		static ParameterExpression CreateParameter(Type type, string name) => Expression.Parameter(type ?? typeof(ExpressionHelper.UnknownTypeSentinel), name);
     }
 }
