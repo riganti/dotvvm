@@ -295,7 +295,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(text.Binding.ParsingError);
+            Assert.IsNotNull(text.Binding.ParsingError);
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, dataSource.Parent);
