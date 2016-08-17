@@ -117,7 +117,18 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(textBinding, textBinding.Binding.Parent);
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void ResolvedTree_SingleControlWithBinding_ValidBinding_UnknownViewModelInKnownOne()
+		{
+			var root = ParseSource(@"@viewModel System.String
+<dot:Repeater DataSource='{value: inkaalid}'><dot:Button Text='{value: _parent.Substring(0, 3)}' /></dot:Repeater>");
+
+			var control = root.Content.First().Properties.Values.OfType<ResolvedPropertyTemplate>().First().Content.First();
+			var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
+			Assert.IsNull(textBinding.Binding.ParsingError);
+		}
+
+		[TestMethod]
         public void ResolvedTree_SingleControlWithBinding_ValidBinding()
         {
             var root = ParseSource(@"@viewModel System.String, mscorlib

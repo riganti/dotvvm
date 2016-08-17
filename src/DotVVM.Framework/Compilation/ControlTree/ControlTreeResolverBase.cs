@@ -778,8 +778,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 				type = attribute.GetChildDataContextType(type, dataContext, control, property);
 				if (type == null) break;
 			}
-			if (type == null) return dataContext;
-			else return CreateDataContextTypeStack(type, parentDataContextStack: dataContext);
+			return CreateDataContextTypeStack(type, parentDataContextStack: dataContext);
 		}
 
 
