@@ -328,7 +328,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 Read();
             }
 
-            failure &= Peek()?.Type == BindingTokenType.GreaterThanOperator;
+            failure |= Peek()?.Type != BindingTokenType.GreaterThanOperator;
 
             if (!failure)
             {

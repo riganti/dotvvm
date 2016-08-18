@@ -47,10 +47,19 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitMultiExpression((MultiExpressionBindingParserNode)node);
             }
+            else if (node is GenericTypeBindingParserNode)
+            {
+                return VisitGenericType((GenericTypeBindingParserNode)node);
+            }
             else
             {
                 throw new NotSupportedException($"The node of type {node.GetType()} is not supported!");
             }
+        }
+
+        protected T VisitGenericType(GenericTypeBindingParserNode node)
+        {
+            return DefaultVisit(node);
         }
 
         protected virtual T VisitArrayAccess(ArrayAccessBindingParserNode node)

@@ -259,6 +259,7 @@
     <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingToken.cs" />
     <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingTokenizer.cs" />
     <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingTokenType.cs" />
+    <Compile Include="Compilation\Parser\Binding\Tokenizer\TokenTypeDispalay.cs" />
     <Compile Include="Compilation\Parser\ParserConstants.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlAttributeNode.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlBindingNode.cs" />
@@ -526,6 +527,7 @@
     <Compile Include="Routing\DotvvmRoute.cs" />
     <Compile Include="Routing\DotvvmRouteTable.cs" />
     <Compile Include="Routing\RouteBase.cs" />
+    <Compile Include="Utils\FunctionalExtensions.cs" />
     <Compile Include="Utils\HttpAbstractions\BufferedReadStream.cs" />
     <Compile Include="Utils\HttpAbstractions\KeyValueAccumulator.cs" />
     <Compile Include="Utils\HttpAbstractions\MultipartReader.cs" />

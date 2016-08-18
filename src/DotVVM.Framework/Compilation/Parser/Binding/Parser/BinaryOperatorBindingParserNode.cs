@@ -8,8 +8,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class BinaryOperatorBindingParserNode : BindingParserNode
     {
-        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} <E> {Operator} <E>";
-
         public BindingParserNode FirstExpression { get; private set; }
         public BindingParserNode SecondExpression { get; private set; }
         public BindingTokenType Operator { get; private set; }
@@ -28,5 +26,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => new[] { FirstExpression, SecondExpression };
+
+        public override string ToDisplayString() => $"{FirstExpression.ToDisplayString()}{Operator.ToDisplayString()}{SecondExpression.ToDisplayString()}";
     }
 }

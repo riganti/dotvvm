@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
+    [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class GenericTypeBindingParserNode : BindingParserNode
     {
         public BindingParserNode TargetExpression { get; private set; }
@@ -27,5 +29,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => new[] { TargetExpression }.Concat(TypeArguments);
+
+        public override string ToDisplayString()
+            => $"{TargetExpression.ToDisplayString()}<{string.Join(", ", TypeArguments.Select(e => e.ToDisplayString()))}>";
+
     }
 }
