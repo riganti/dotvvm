@@ -214,35 +214,36 @@ namespace DotVVM.Framework.Controls
         {
             for (var eventType = lastLifeCycleEvent + 1; eventType <= targetEventType; eventType++)
             {
-                var action = GetPageLifeCycleEventAction(eventType, context);
                 lastProcessedControl = parent;
-                action(parent);
+                switch (eventType)
+                {
+                    case LifeCycleEventType.PreInit:
+                        parent.OnPreInit(context);
+                        break;
+                    case LifeCycleEventType.Init:
+                        parent.OnInit(context);
+                        break;
+                    case LifeCycleEventType.Load:
+                        parent.OnLoad(context);
+                        break;
+                    case LifeCycleEventType.PreRender:
+                        parent.OnPreRender(context);
+                        break;
+                    case LifeCycleEventType.PreRenderComplete:
+                        parent.OnPreRenderComplete(context);
+                        break;
+                    default:
+                        throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
+                }
+
+                lastLifeCycleEvent = eventType;
 
                 foreach (var child in controls)
                 {
                     child.Children.InvokeMissedPageLifeCycleEvent(context, eventType, ref lastProcessedControl);
                 }
-                lastLifeCycleEvent = eventType;
             }
-        }
 
-        private static Action<DotvvmControl> GetPageLifeCycleEventAction(LifeCycleEventType eventType, IDotvvmRequestContext context)
-        {
-            switch (eventType)
-            {
-                case LifeCycleEventType.PreInit:
-                    return c => c.OnPreInit(context);
-                case LifeCycleEventType.Init:
-                    return c => c.OnInit(context);
-                case LifeCycleEventType.Load:
-                    return c => c.OnLoad(context);
-                case LifeCycleEventType.PreRender:
-                    return c => c.OnPreRender(context);
-                case LifeCycleEventType.PreRenderComplete:
-                    return c => c.OnPreRenderComplete(context);
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(eventType), eventType, null);
-            }
         }
 
 
