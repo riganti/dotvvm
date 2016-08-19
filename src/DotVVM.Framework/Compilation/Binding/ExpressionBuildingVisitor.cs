@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
+using DotVVM.Framework.Utils;
+using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -209,7 +211,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitIdentifierName(IdentifierNameBindingParserNode node)
         {
-            var expr = ExpressionHelper.GetMember(Scope, node.Name, throwExceptions: false) ??
+            var typeParameters = node is GenericNameBindingParserNode
+                ? ResolveGenericArgumets(node.CastTo<GenericNameBindingParserNode>())
+                : null;
+
+            var expr = ExpressionHelper.GetMember(Scope, node.Name, typeParameters, throwExceptions: false) ??
                 Registry.Resolve(node.Name, throwException: false);
             if (expr == null) return new UnknownStaticClassIdentifierExpression(node.Name);
             return expr;
@@ -227,14 +233,44 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitMemberAccess(MemberAccessBindingParserNode node)
         {
-            var identifier = node.MemberNameExpression.Name;
+            var nameNode = node.MemberNameExpression;
+            var typeParameters = nameNode is GenericNameBindingParserNode
+                ? ResolveGenericArgumets(nameNode.CastTo<GenericNameBindingParserNode>())
+                : null;
+            var identifierName = (typeParameters?.Count() ?? 0) > 0
+                ? $"{nameNode.Name}`{typeParameters.Count()}"
+                : nameNode.Name;
+
             var target = Visit(node.TargetExpression);
-            if(target is UnknownStaticClassIdentifierExpression)
+
+            if (target is UnknownStaticClassIdentifierExpression)
             {
-                var name = (target as UnknownStaticClassIdentifierExpression).Name + "." + identifier;
-                return Registry.Resolve(name, throwException: false) ?? new UnknownStaticClassIdentifierExpression(name);
+                var name = (target as UnknownStaticClassIdentifierExpression).Name + "." + identifierName;
+
+                var resolvedTypeExpression = Registry.Resolve(name, throwException: false) ?? new UnknownStaticClassIdentifierExpression(name);
+
+                if (typeParameters != null)
+                {
+                    var resolvedType = resolvedTypeExpression.Type.MakeGenericType(typeParameters);
+                    resolvedTypeExpression = new StaticClassIdentifierExpression(resolvedType);
+                }
+                return resolvedTypeExpression;
             }
-            return ExpressionHelper.GetMember(target, identifier);
+
+            return ExpressionHelper.GetMember(target, nameNode.Name, typeParameters);
+        }
+
+        private Type[] ResolveGenericArgumets(GenericNameBindingParserNode node)
+        {
+            var parameters = new Type[node.TypeArguments.Count];
+
+            for (int i = 0; i < node.TypeArguments.Count; i++)
+            {
+                var typeArgument = node.TypeArguments[i];
+
+                parameters[i] = Visit(typeArgument).Type;
+            }
+            return parameters;
         }
     }
 }

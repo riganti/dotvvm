@@ -215,6 +215,7 @@
     <Compile Include="ViewModels\FeatureSamples\Validation\ValidationScopesViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelNesting\NestedViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewSizable.cs" />
+    <Compile Include="ViewModels\GenericTestingClass.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
@@ -428,6 +429,7 @@
     <Content Include="Views\ControlSamples\TextBox\TextBox_FormatDoubleProperty.dothtml" />
     <Content Include="Views\ControlSamples\RouteLink\RouteLinkEnabledFalse.dothtml" />
     <Content Include="Views\ControlSamples\RouteLink\TestRoute.dothtml" />
+    <Content Include="Views\FeatureSamples\GenericTypes\List.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

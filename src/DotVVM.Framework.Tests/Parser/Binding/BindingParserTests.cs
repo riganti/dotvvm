@@ -597,15 +597,15 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             var memberAccess = node as MemberAccessBindingParserNode;
             Assert.IsNotNull(memberAccess);
-            var target = memberAccess.TargetExpression as GenericTypeBindingParserNode;
+            var target = memberAccess.TargetExpression as MemberAccessBindingParserNode;
             var enumerator = memberAccess.MemberNameExpression as IdentifierNameBindingParserNode;
             Assert.IsNotNull(target);
             Assert.IsTrue(enumerator?.Name == "Enumerator");
-            var arg0 = target.TypeArguments[0] as IdentifierNameBindingParserNode;
-            var list = target.TargetExpression as MemberAccessBindingParserNode;
-            Assert.IsTrue(arg0?.Name == "string");
-            Assert.IsTrue(list?.MemberNameExpression.Name == "List");
-            Assert.IsTrue(list?.TargetExpression is MemberAccessBindingParserNode);
+            var genericName = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>();
+
+            Assert.IsTrue(genericName.Name == "List");
+            Assert.IsTrue(genericName.TypeArguments.Count == 1);
+            Assert.IsTrue(genericName.TypeArguments[0].CastTo<IdentifierNameBindingParserNode>().Name == "string");
         }
 
         [TestMethod]
@@ -614,19 +614,19 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parser = SetupParser("System.Collections.Generic.Dictionary<string, int>.ValueCollection");
             var node = parser.ReadExpression();
 
-            var memberAccess = node as MemberAccessBindingParserNode;
-            Assert.IsNotNull(memberAccess);
-            var target = memberAccess.TargetExpression as GenericTypeBindingParserNode;
-            var valueCollection = memberAccess.MemberNameExpression as IdentifierNameBindingParserNode;
-            Assert.IsNotNull(target);
-            Assert.IsNotNull(valueCollection);
-            var arg0 = target.TypeArguments[0] as IdentifierNameBindingParserNode;
-            var arg1 = target.TypeArguments[1] as IdentifierNameBindingParserNode;
-            var dictionary = target.TargetExpression as MemberAccessBindingParserNode;
+            var memberAccess = node.CastTo<MemberAccessBindingParserNode>();
+            var target = memberAccess.TargetExpression.CastTo<MemberAccessBindingParserNode>();
+            var valueCollection = memberAccess.MemberNameExpression.CastTo<IdentifierNameBindingParserNode>();
+            var genericType = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>();
+
+            Assert.IsTrue(genericType.Name == "Dictionary");
+            Assert.IsTrue(valueCollection.Name == "ValueCollection");
+
+            var arg0 = genericType.TypeArguments[0].CastTo<IdentifierNameBindingParserNode>();
+            var arg1 = genericType.TypeArguments[1].CastTo<IdentifierNameBindingParserNode>();
+
             Assert.IsTrue(arg0?.Name == "string");
             Assert.IsTrue(arg1?.Name == "int");
-            Assert.IsTrue(dictionary?.MemberNameExpression.Name == "Dictionary");
-            Assert.IsTrue(dictionary?.TargetExpression is MemberAccessBindingParserNode);
         }
 
         [TestMethod]
@@ -638,18 +638,17 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             var memberAccess = node as MemberAccessBindingParserNode;
             Assert.IsNotNull(memberAccess);
-            var target = memberAccess.TargetExpression as GenericTypeBindingParserNode;
+            var target = memberAccess.TargetExpression as MemberAccessBindingParserNode;
             var valueCollection = memberAccess.MemberNameExpression as IdentifierNameBindingParserNode;
             Assert.IsNotNull(target);
             Assert.IsNotNull(valueCollection);
-            var arg0 = target.TypeArguments[0] as GenericTypeBindingParserNode;
-            var arg1 = target.TypeArguments[1] as GenericTypeBindingParserNode;
-            var dictionary = target.TargetExpression as MemberAccessBindingParserNode;
+
+            var arg0 = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>()
+                .TypeArguments[0].CastTo<GenericNameBindingParserNode>();
+            var arg1 = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>()
+                .TypeArguments[1].CastTo<GenericNameBindingParserNode>();
 
             Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
-
-            Assert.IsTrue(dictionary?.MemberNameExpression.Name == "Dictionary");
-            Assert.IsTrue(dictionary?.TargetExpression is MemberAccessBindingParserNode);
         }
 
         [TestMethod]
@@ -666,8 +665,8 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             parser = SetupParser(originalString);
             var multi = parser.ReadMultiExpression() as MultiExpressionBindingParserNode;
 
-            
-            
+
+
             Assert.IsTrue(multi.Expressions.Count == 4);
             Assert.IsTrue(multi.Expressions[0] is BinaryOperatorBindingParserNode);
             //Then there is whitespace, comma it doesnt metter much how those are parsed just that they are eaten away
@@ -701,7 +700,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parser = SetupParser(originalString);
             var node = parser.ReadExpression();
 
-            Assert.IsTrue(node is GenericTypeBindingParserNode);
+            Assert.IsTrue(node is MemberAccessBindingParserNode);
             Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
         }
 

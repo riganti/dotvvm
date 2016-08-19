@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public class GenericTypeBindingParserNode : BindingParserNode
+    public class GenericNameBindingParserNode : IdentifierNameBindingParserNode
     {
-        public BindingParserNode TargetExpression { get; private set; }
         public List<BindingParserNode> TypeArguments { get; private set; } = new List<BindingParserNode>();
 
-        public GenericTypeBindingParserNode(BindingParserNode targetExpresion, List<BindingParserNode> typeArguments)
+        public GenericNameBindingParserNode(string name, List<BindingParserNode> typeArguments) : base(name)
         {
-            TargetExpression = targetExpresion;
             TypeArguments = typeArguments;
         }
 
@@ -23,15 +21,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             return
                 base.EnumerateNodes()
-                    .Concat(TargetExpression.EnumerateNodes())
                     .Concat(TypeArguments.SelectMany(a => a.EnumerateNodes()));
         }
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
-            => new[] { TargetExpression }.Concat(TypeArguments);
+            => TypeArguments;
 
         public override string ToDisplayString()
-            => $"{TargetExpression.ToDisplayString()}<{string.Join(", ", TypeArguments.Select(e => e.ToDisplayString()))}>";
-
+           => $"{base.ToDisplayString()}<{string.Join(", ", TypeArguments.Select(e => e.ToDisplayString()))}>";
     }
 }

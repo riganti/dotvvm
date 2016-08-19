@@ -280,64 +280,12 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                 {
                     expression = ReadArrayAccess(startIndex, expression);
                 }
-                else if (AreGenericArgumentsAllowed(expression, next))
-                {
-                    expression = ReadGenericArguments(startIndex, expression);
-                }
                 else
                 {
                     break;
                 }
-
                 next = Peek();
             }
-            return expression;
-        }
-
-        private static bool AreGenericArgumentsAllowed(BindingParserNode expression, BindingToken next)
-        {
-            return next.Type == BindingTokenType.LessThanOperator && (expression is MemberAccessBindingParserNode || expression is IdentifierNameBindingParserNode);
-        }
-
-        private BindingParserNode ReadGenericArguments(int startIndex, BindingParserNode expression)
-        {
-            Debug.Assert(Peek() != null && Peek().Type == BindingTokenType.LessThanOperator);
-            SetRestorePoint();
-
-
-            var next = Read();
-            bool failure = false;
-            var previousIndex = -1;
-            var arguments = new List<BindingParserNode>();
-
-            while (true)
-            {
-                if (previousIndex == CurrentIndex || next == null)
-                {
-                    failure = true;
-                    break;
-                }
-
-                previousIndex = CurrentIndex;
-
-                SkipWhiteSpace();
-                arguments.Add(ReadIdentifierExpression(true));
-                SkipWhiteSpace();
-
-                if (Peek()?.Type != BindingTokenType.Comma) { break; }
-                Read();
-            }
-
-            failure |= Peek()?.Type != BindingTokenType.GreaterThanOperator;
-
-            if (!failure)
-            {
-                Read();
-                ClearRestorePoint();
-                return CreateNode(new GenericTypeBindingParserNode(expression, arguments), startIndex);
-            }
-
-            Restore();
             return expression;
         }
 
@@ -465,11 +413,57 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 var identifier = Read();
                 SkipWhiteSpace();
+
+                if (Peek()!=null && Peek().Type == BindingTokenType.LessThanOperator)
+                {
+                    return ReadGenericArguments(startIndex, identifier);
+                }
+
                 return CreateNode(new IdentifierNameBindingParserNode(identifier.Text), startIndex);
             }
 
             // create virtual empty identifier expression
             return CreateNode(new IdentifierNameBindingParserNode("") { NodeErrors = { "Identifier name was expected!" } }, startIndex);
+        }
+
+        private IdentifierNameBindingParserNode ReadGenericArguments(int startIndex, BindingToken identifier)
+        {
+            Debug.Assert(Peek() != null && Peek().Type == BindingTokenType.LessThanOperator);
+            SetRestorePoint();
+
+            var next = Read();
+            bool failure = false;
+            var previousIndex = -1;
+            var arguments = new List<BindingParserNode>();
+
+            while (true)
+            {
+                if (previousIndex == CurrentIndex || next == null)
+                {
+                    failure = true;
+                    break;
+                }
+
+                previousIndex = CurrentIndex;
+
+                SkipWhiteSpace();
+                arguments.Add(ReadIdentifierExpression(true));
+                SkipWhiteSpace();
+
+                if (Peek()?.Type != BindingTokenType.Comma) { break; }
+                Read();
+            }
+
+            failure |= Peek()?.Type != BindingTokenType.GreaterThanOperator;
+
+            if (!failure)
+            {
+                Read();
+                ClearRestorePoint();
+                return CreateNode(new GenericNameBindingParserNode(identifier.Text, arguments), startIndex);
+            }
+            Restore();
+            return CreateNode(new IdentifierNameBindingParserNode(identifier.Text), startIndex);
         }
 
         private static object ParseNumberLiteral(string text, out string error)

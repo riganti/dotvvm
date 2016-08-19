@@ -20,12 +20,15 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var type = target.Type;
             var isStatic = target is StaticClassIdentifierExpression;
+            var isGeneric = typeArguments != null && typeArguments.Length != 0;
+            var memberName = isGeneric ? $"{name}`{typeArguments.Length}" : name;
+
             var members = type.GetMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
-                .Where(m => m.Name == name)
+                .Where(m => m.Name == memberName)
                 .ToArray();
             if (members.Length == 0)
             {
-                if (throwExceptions) throw new Exception($"could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }");
+                if (throwExceptions) throw new Exception($"could not find { (isStatic ? "static" : "instance") } member { memberName } on type { type.FullName }");
                 else return null;
             }
             if (members.Length == 1)
@@ -43,7 +46,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (members[0] is Type)
                 {
-                    return Expression.Constant(null, (Type)members[0]);
+                    var nonGenericType = (Type)members[0];
+                    return isGeneric 
+                        ? Expression.Constant(null, nonGenericType)
+                        : Expression.Constant(null, nonGenericType.MakeGenericType(typeArguments));
                 }
             }
             return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments };

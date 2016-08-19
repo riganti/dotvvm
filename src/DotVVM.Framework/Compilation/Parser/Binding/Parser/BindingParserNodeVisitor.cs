@@ -47,9 +47,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitMultiExpression((MultiExpressionBindingParserNode)node);
             }
-            else if (node is GenericTypeBindingParserNode)
+            else if (node is GenericNameBindingParserNode)
             {
-                return VisitGenericType((GenericTypeBindingParserNode)node);
+                return VisitGenericName((GenericNameBindingParserNode)node);
             }
             else
             {
@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
         }
 
-        protected T VisitGenericType(GenericTypeBindingParserNode node)
+        protected virtual T VisitGenericName(GenericNameBindingParserNode node)
         {
             return DefaultVisit(node);
         }

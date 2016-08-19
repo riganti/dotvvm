@@ -146,6 +146,7 @@
     <Compile Include="Binding\Expressions\StaticCommandBindingExpression.cs" />
     <Compile Include="Binding\Expressions\ValueBindingExpression.cs" />
     <Compile Include="Binding\DotvvmProperty.cs" />
+    <Compile Include="Compilation\Binding\GenericTypeExpression.cs" />
     <Compile Include="Compilation\ControlTree\DataContextStackManipulationAttribute.cs" />
     <Compile Include="Compilation\BindingCompilationAttribute.cs" />
     <Compile Include="Compilation\BindingCompiler.cs" />
@@ -247,7 +248,7 @@
     <Compile Include="Compilation\Parser\Binding\Parser\BindingParserNodeVisitor.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\ConditionalExpressionBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\FunctionCallBindingParserNode.cs" />
-    <Compile Include="Compilation\Parser\Binding\Parser\GenericTypeExpression.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\GenericNameBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\IBindingParserNodeContext.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\IdentifierNameBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\LiteralExpressionBindingParserNode.cs" />
