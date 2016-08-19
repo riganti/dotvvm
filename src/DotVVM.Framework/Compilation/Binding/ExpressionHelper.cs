@@ -23,14 +23,14 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var isStatic = target is StaticClassIdentifierExpression;
             var isGeneric = typeArguments != null && typeArguments.Length != 0;
-            var memberName = isGeneric ? $"{name}`{typeArguments.Length}" : name;
+            var genericName = isGeneric ? $"{name}`{typeArguments.Length}" : name;
 
             var members = type.GetMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
-                .Where(m => m.Name == memberName)
+                .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name )
                 .ToArray();
             if (members.Length == 0)
             {
-                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }");
+                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name  } on type { type.FullName }");
                 else return null;
             }
             if (members.Length == 1)
