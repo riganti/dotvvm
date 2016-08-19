@@ -14,6 +14,18 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         public static string Arg2 { get; } = new TArg2().ToString();
     }
 
+    public class TestingClass
+    {
+        public static string GenericFunction<TArg1, TArg2>()
+            where TArg1 : new()
+            where TArg2 : new()
+        {
+            var arg1 = new TArg1();
+            var arg2 = new TArg2();
+            return $"Hello from static generic method arg1:{arg1.ToString()} arg2:{arg2.ToString()}";
+        }
+    }
+
     public class TestParameter
     {
         public override string ToString()
