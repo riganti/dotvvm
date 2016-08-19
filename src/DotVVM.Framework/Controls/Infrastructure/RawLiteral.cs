@@ -8,7 +8,7 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls.Infrastructure
 {
-    public class RawLiteral: DotvvmControl
+    public sealed class RawLiteral: DotvvmControl
     {
         public string EncodedText { get; }
         public string UnencodedText { get; }
@@ -18,6 +18,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             EncodedText = text;
             UnencodedText = unencodedText;
             IsWhitespace = isWhitespace;
+			LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
