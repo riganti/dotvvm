@@ -61,10 +61,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			// actually resolved when the control builder is ready and the metadata are complete.
 			var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, fileName));
 
-			var dataContextTypeStack =
-				(viewModelType != null && wrapperType != null)
-				? CreateDataContextTypeStack(viewModelType, wrapperType, null, namespaceImports)
-				: null;
+			var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, wrapperType, null, namespaceImports);
 
 			var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives);
 
@@ -781,8 +778,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 				type = attribute.GetChildDataContextType(type, dataContext, control, property);
 				if (type == null) break;
 			}
-			if (type == null) return dataContext;
-			else return CreateDataContextTypeStack(type, parentDataContextStack: dataContext);
+			return CreateDataContextTypeStack(type, parentDataContextStack: dataContext);
 		}
 
 

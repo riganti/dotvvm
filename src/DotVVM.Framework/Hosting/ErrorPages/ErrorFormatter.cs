@@ -209,7 +209,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             template.Formatters = Formatters.Select(f => f(exception, owin)).Where(t => t != null).ToArray();
             template.ErrorCode = owin.Response.StatusCode;
             template.ErrorDescription = "Unhandled exception occured";
-            template.Summary = exception.GetType().FullName + ": " + LimitLength(exception.Message, 200);
+            template.Summary = exception.GetType().FullName + ": " + LimitLength(exception.Message, 600);
 
             return template.TransformText();
         }
@@ -253,7 +253,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             if (length < source.Length)
             {
-                return source.Substring(length - ending.Length) + ending;
+                return source.Substring(0, length - ending.Length) + ending;
             }
             else
             {

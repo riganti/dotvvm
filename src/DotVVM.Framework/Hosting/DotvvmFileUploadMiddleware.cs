@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -18,6 +19,8 @@ namespace DotVVM.Framework.Hosting
 {
     public class DotvvmFileUploadMiddleware : OwinMiddleware
     {
+        private static readonly Regex baseMimeTypeRegex = new Regex(@"/.*$");
+        private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$");
         private readonly DotvvmConfiguration configuration;
 
 
@@ -133,7 +136,7 @@ namespace DotVVM.Framework.Hosting
             while ((section = await multiPartReader.ReadNextSectionAsync()) != null)
             {
                 // process the section
-                var result = await StoreFile(section, fileStore);
+                var result = await StoreFile(context, section, fileStore);
                 if (result != null)
                 {
                     uploadedFiles.Add(result);
@@ -144,16 +147,52 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Stores the file and returns an object that will be sent to the client.
         /// </summary>
-        private async Task<UploadedFile> StoreFile(MultipartSection section, IUploadedFileStorage fileStore)
+        private async Task<UploadedFile> StoreFile(IOwinContext context, MultipartSection section, IUploadedFileStorage fileStore)
         {
             var fileId = await fileStore.StoreFile(section.Body);
-            var fileName = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
+            var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
+            var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
+            var mimeType = section.ContentType ?? string.Empty;
 
             return new UploadedFile()
             {
                 FileId = fileId,
-                FileName = fileName.Success ? fileName.Value : string.Empty
+                FileName = fileName,
+                Accepted = IsAccepted(context, fileName, mimeType)
             };
+        }
+
+        private bool IsAccepted(IOwinContext context, string fileName, string mimeType)
+        {
+            var accept = context.Request.Query["accept"];
+
+            if (string.IsNullOrEmpty(accept))
+            {
+                return true;
+            }
+
+            return accept.Split(',').Any(type =>
+            {
+                type = type.Trim();
+
+                if (type.StartsWith("."))
+                {
+                    return string.Equals(type, Path.GetExtension(fileName), StringComparison.InvariantCultureIgnoreCase);
+                }
+
+                if (wildcardMimeTypeRegex.IsMatch(type))
+                {
+                    var baseMimeType = baseMimeTypeRegex.Replace(mimeType, string.Empty);
+                    return baseMimeType == baseMimeTypeRegex.Replace(type, string.Empty);
+                }
+
+                if (mimeType.Length > 0)
+                {
+                    return type == mimeType;
+                }
+
+                return false;
+            });
         }
     }
 }

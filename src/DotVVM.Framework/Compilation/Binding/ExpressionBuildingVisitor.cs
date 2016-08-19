@@ -218,6 +218,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var expr = ExpressionHelper.GetMember(Scope, node.Name, typeParameters, throwExceptions: false) ??
                 Registry.Resolve(node.Name, throwException: false);
             if (expr == null) return new UnknownStaticClassIdentifierExpression(node.Name);
+			if (expr is ParameterExpression && expr.Type == typeof(ExpressionHelper.UnknownTypeSentinel)) throw new Exception($"Type of '{expr}' could not be resolved.");
             return expr;
         }
 

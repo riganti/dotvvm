@@ -537,6 +537,7 @@
     <Compile Include="Utils\HttpAbstractions\StreamHelperExtensions.cs" />
     <Compile Include="Utils\JsonUtils.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="Utils\SecureGuidGenerator.cs" />
     <Compile Include="Utils\TaskUtils.cs" />
     <Compile Include="ViewModel\AllowStaticCommandAttribute.cs" />
     <Compile Include="ViewModel\ChildViewModelsCache.cs" />
