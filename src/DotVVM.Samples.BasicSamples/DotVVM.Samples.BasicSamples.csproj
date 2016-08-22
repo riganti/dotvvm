@@ -125,6 +125,8 @@
     <Compile Include="Startup.cs" />
     <Compile Include="SwitchMiddleware.cs" />
     <Compile Include="SwitchMiddlewareCase.cs" />
+    <Compile Include="TestNamespace3\TestModel.cs" />
+    <Compile Include="TestNamespace3\WrongTestModel.cs" />
     <Compile Include="TestNamespace2\SubNamespace\Class1.cs" />
     <Compile Include="TestNamespace2\TestClass2.cs" />
     <Compile Include="TestNamespace1\TestClass1.cs" />
@@ -190,6 +192,7 @@
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
     <Compile Include="ViewModels\Errors\EncryptedPropertyInValueBindingViewModel.cs" />
     <Compile Include="ViewModels\Errors\FieldInValueBindingViewModel.cs" />
+    <Compile Include="ViewModels\Errors\MarkupControlInvalidViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
@@ -406,6 +409,8 @@
     <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage_ContentTest.dothtml" />
     <Content Include="Views\Errors\EncryptedPropertyInValueBinding.dothtml" />
     <Content Include="Views\Errors\FieldInValueBinding.dothtml" />
+    <Content Include="Views\Errors\MarkupControlInvalidViewModel.dotcontrol" />
+    <Content Include="Views\Errors\MarkupControlInvalidViewModel.dothtml" />
     <Content Include="Views\ControlSamples\GridView\LargeGrid.dothtml" />
     <Content Include="Views\ControlSamples\CheckBox\CheckboxInRepeater.dothtml" />
     <Content Include="Views\ControlSamples\CheckBox\CheckBox_CheckedItems_NullCollection.dothtml" />
