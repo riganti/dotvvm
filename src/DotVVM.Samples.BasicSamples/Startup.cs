@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.IO;
 using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Storage;
+using DotVVM.Framework.Security;
+using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -27,10 +30,14 @@ namespace DotVVM.Samples.BasicSamples
             services.AddWebEncoders();
 			services.AddDotvvmServices();
 			services.AddSingleton<IUploadedFileStorage>(s => new FileSystemUploadedFileStorage(Path.Combine(s.GetService<DotvvmConfiguration>().ApplicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
-		}
+            services.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
+            services.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+            services.AddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
+            services.AddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
+        }
 
-		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
+        // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
+        public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
 		{
             app.UseCookieAuthentication(new CookieAuthenticationOptions
             {
@@ -112,7 +119,11 @@ namespace DotVVM.Samples.BasicSamples
 
 			// use DotVVM
 			DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
-			dotvvmConfiguration.Debug = true;
+            //services.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
+            //services.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+            //services.AddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
+            //services.AddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
+            dotvvmConfiguration.Debug = true;
 
 			// use static files
 			app.UseStaticFiles(new StaticFileOptions

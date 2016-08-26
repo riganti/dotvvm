@@ -9,20 +9,14 @@ using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using Microsoft.AspNetCore.Http;
 
-#if Owin
-using Context = Microsoft.Owin.HttpContext;
-#else
-using Context = Microsoft.AspNetCore.Http.HttpContext;
-#endif
-
 namespace DotVVM.Framework.Hosting
 {
     public interface IDotvvmRequestContext
     {
         /// <summary>
-        /// Gets the underlying <see cref="HttpContext"/> object for this HTTP request.
+        /// Gets the underlying object for this HTTP request.
         /// </summary>
-        Context HttpContext { get; }
+        IHttpContext HttpContext { get; }
 
         /// <summary>
         /// Gets the view model for the current request.

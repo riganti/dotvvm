@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DotVVM.Samples.BasicSamples.Resources {
+namespace DotVVM.Samples.AspentCoreSample.Resources {
     using System;
     using System.Reflection;
     

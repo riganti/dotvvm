@@ -18,11 +18,6 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
-#if Owin
-using Context = Microsoft.Owin.HttpContext;
-#else
-using Context = Microsoft.AspNetCore.Http.HttpContext;
-#endif
 
 namespace DotVVM.Framework.Hosting
 {
@@ -361,22 +356,22 @@ namespace DotVVM.Framework.Hosting
             return result as Task ?? (result == null ? TaskUtils.GetCompletedTask() : Task.FromResult(result));
         }
 
-        public static bool DetermineIsPostBack(Context context)
+        public static bool DetermineIsPostBack(IHttpContext context)
         {
             return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.SpaPostBackHeaderName);
         }
 
-        public static bool DetermineSpaRequest(Context context)
+        public static bool DetermineSpaRequest(IHttpContext context)
         {
             return !string.IsNullOrEmpty(context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName]);
         }
 
-        public static bool DeterminePartialRendering(Context context)
+        public static bool DeterminePartialRendering(IHttpContext context)
         {
             return DetermineIsPostBack(context) || DetermineSpaRequest(context);
         }
 
-        public static string DetermineSpaContentPlaceHolderUniqueId(Context context)
+        public static string DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
         {
             return context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName];
         }

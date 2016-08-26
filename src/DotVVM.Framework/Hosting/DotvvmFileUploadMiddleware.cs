@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Hosting
             this.configuration = configuration;
         }
 
-        public Task Invoke(HttpContext context)
+        public Task Invoke(IHttpContext context)
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        private async Task ProcessMultipartRequest(HttpContext context)
+        private async Task ProcessMultipartRequest(IHttpContext context)
         {
             // verify the request
             var isPost = context.Request.Method == "POST";
@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Hosting
             await RenderResponse(context, isPost, errorMessage, uploadedFiles);
         }
 
-        private async Task RenderResponse(HttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
+        private async Task RenderResponse(IHttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var outputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
             if (isPost && context.Request.Headers[HostingConstants.DotvvmFileUploadAsyncHeaderName] == "true")
@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        private async Task SaveFiles(HttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
+        private async Task SaveFiles(IHttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
         {
             // get the file store
             var fileStore = configuration.ServiceLocator.GetService<IUploadedFileStorage>();

@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Hosting
             // create the context
             var dotvvmContext = new DotvvmRequestContext()
             {
-                HttpContext = context,
+                HttpContext = new DotvvmHttpContext(context),
                 Configuration = Configuration,
                 ResourceManager = new ResourceManager(Configuration),
                 ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
@@ -113,7 +113,7 @@ namespace DotVVM.Framework.Hosting
             return false;
         }
 
-        public static bool IsInCurrentVirtualDirectory(HttpContext context, ref string url)
+        public static bool IsInCurrentVirtualDirectory(IHttpContext context, ref string url)
         {
             var virtualDirectory = GetVirtualDirectory(context);
             if (url.StartsWith(virtualDirectory, StringComparison.Ordinal))
@@ -127,12 +127,12 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Determines the current OWIN virtual directory.
         /// </summary>
-        public static string GetVirtualDirectory(HttpContext context)
+        public static string GetVirtualDirectory(IHttpContext context)
         {
             return context.Request.PathBase.Value.Trim('/');
         }
 
-        public static string GetCleanRequestUrl(HttpContext context)
+        public static string GetCleanRequestUrl(Http context)
         {
             return context.Request.Path.Value.TrimStart('/').TrimEnd('/');
         }

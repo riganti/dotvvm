@@ -16,11 +16,11 @@ namespace DotVVM.Framework.Runtime
 
         Task WriteViewModelResponse(DotvvmRequestContext context, DotvvmView view);
 
-        Task RenderPlainJsonResponse(HttpContext context, object data);
+        Task RenderPlainJsonResponse(IHttpContext context, object data);
 
-        Task RenderHtmlResponse(HttpContext context, string html);
+        Task RenderHtmlResponse(IHttpContext context, string html);
 
-        Task RenderPlainTextResponse(HttpContext context, string text);
+        Task RenderPlainTextResponse(IHttpContext context, string text);
         void RenderPostbackUpdatedControls(DotvvmRequestContext context, DotvvmView page);
     }
 }

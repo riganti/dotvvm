@@ -13,41 +13,17 @@ using Context = Microsoft.Owin.HttpContext;
 using Context = Microsoft.AspNetCore.Http.HttpContext;
 #endif
 
-namespace DotVVM.Framework.Hosting
+namespace DotVVM.Framework.Hosting.Middlewares
 {
     /// <summary>
     /// Provides access to embedded resources in the DotVVM.Framework assembly.
     /// </summary>
-    public class DotvvmEmbeddedResourceMiddleware
+    public abstract class ADotvvmEmbeddedResourceMiddleware
     {
-        private readonly RequestDelegate next;
-
-        public DotvvmEmbeddedResourceMiddleware(RequestDelegate next)
-        {
-            this.next = next;
-        }
-
-        public Task Invoke(HttpContext context)
-        {
-            var url = DotvvmMiddleware.GetCleanRequestUrl(context);
-
-            // embedded resource handler URL
-            if (url.StartsWith(HostingConstants.ResourceHandlerMatchUrl, StringComparison.Ordinal))
-            {
-                return RenderEmbeddedResource(context);
-            }
-            else
-            {
-                return next(context);
-            }
-        }
-
-
-
         /// <summary>
         /// Renders the embedded resource.
         /// </summary>
-        private async Task RenderEmbeddedResource(HttpContext context)
+        private async Task RenderEmbeddedResource(IHttpContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 

@@ -24,9 +24,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
         }
 
-        protected override string GetDisplayUrl(IDotvvmRequestContext context)
+        protected override string GetPathAndQuery(IDotvvmRequestContext context)
         {
-            return context.HttpContext.Request.GetDisplayUrl();
+
+            return new Uri(context.HttpContext.Request.GetDisplayUrl()).PathAndQuery;
         }
     }
 }

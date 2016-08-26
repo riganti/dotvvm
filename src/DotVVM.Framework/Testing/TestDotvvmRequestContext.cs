@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Testing
 {
     public class TestDotvvmRequestContext : IDotvvmRequestContext
     {
-        public HttpContext HttpContext { get; set; }
+        public IHttpContext HttpContext { get; set; }
         public object ViewModel { get; set; }
         public DotvvmConfiguration Configuration { get; set; }
         public RouteBase Route { get; set; }

@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(serializedViewModel);
         }
 
-        public async Task RenderPlainJsonResponse(HttpContext context, object data)
+        public async Task RenderPlainJsonResponse(IHttpContext context, object data)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "application/json; charset=utf-8";
@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
         }
 
-        public async Task RenderHtmlResponse(HttpContext context, string html)
+        public async Task RenderHtmlResponse(IHttpContext context, string html)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/html; charset=utf-8";
@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(html);
         }
 
-        public async Task RenderPlainTextResponse(HttpContext context, string text)
+        public async Task RenderPlainTextResponse(IHttpContext context, string text)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/plain; charset=utf-8";

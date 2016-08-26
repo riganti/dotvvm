@@ -21,14 +21,14 @@ namespace DotVVM.Framework.Hosting
             this.configuration = configuration;
         }
 
-        public Task Invoke(HttpContext context)
+        public Task Invoke(IHttpContext context)
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
             return url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal) ? RenderReturnedFile(context) : next(context);
         }
 
-        private async Task RenderReturnedFile(HttpContext context)
+        private async Task RenderReturnedFile(IHttpContext context)
         {
             var returnedFileStorage = configuration.ServiceLocator.GetService<IReturnedFileStorage>();
             ReturnedFileMetadata metadata;
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     foreach (var header in metadata.AdditionalHeaders)
                     {
-                        context.Response.Headers.Add(new KeyValuePair<string, StringValues>(header.Key, new StringValues(header.Value)));
+                        context.Response.Headers.Add(new KeyValuePair<string, string>(header.Key, new StringValues(header.Value)));
                     }
                 }
 

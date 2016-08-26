@@ -19,11 +19,6 @@ using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
 
-#if Owin
-using Context = Microsoft.Owin.HttpContext;
-#else
-using Context = Microsoft.AspNetCore.Http.HttpContext;
-#endif
 
 namespace DotVVM.Framework.Hosting
 {
@@ -32,9 +27,9 @@ namespace DotVVM.Framework.Hosting
         public string CsrfToken { get; set; }
 
         /// <summary>
-        /// Gets the underlying <see cref="Context"/> object for this HTTP request.
+        /// Gets the underlying object for this HTTP request.
         /// </summary>
-        public Context HttpContext { get; internal set; }
+        public IHttpContext HttpContext { get;  set; }
 
         /// <summary>
         /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.
@@ -44,7 +39,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the global configuration of DotVVM.
         /// </summary>
-        public DotvvmConfiguration Configuration { get; internal set; }
+        public DotvvmConfiguration Configuration { get;  set; }
 
         /// <summary>
         /// Gets the route that was used for this request.
@@ -64,7 +59,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
         /// </summary>
-        public ResourceManager ResourceManager { get; internal set; }
+        public ResourceManager ResourceManager { get;  set; }
 
         /// <summary>
         /// Gets the view model object for the current HTTP request.
@@ -239,7 +234,7 @@ namespace DotVVM.Framework.Hosting
         /// Renders the redirect response.
         /// </summary>
         /// <param name="forceRefresh"></param>
-        public static void SetRedirectResponse(Context httpContext, string url, int statusCode, bool forceRefresh = false)
+        public static void SetRedirectResponse(IHttpContext httpContext, string url, int statusCode, bool forceRefresh = false)
         {
             if (!DotvvmPresenter.DeterminePartialRendering(httpContext))
             {
@@ -256,7 +251,7 @@ namespace DotVVM.Framework.Hosting
 
                 httpContext.Response.StatusCode = 200;
                 httpContext.Response.ContentType = "application/json";
-                httpContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, forceRefresh));
+                httpContext.Response.Write(ViewModelSerializerBase.GenerateRedirectActionResponse(url, forceRefresh));
             }
         }
 
@@ -303,7 +298,7 @@ namespace DotVVM.Framework.Hosting
         /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
         /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.dothtml' will be translated to '/virtDir/myPage.dothtml'.
         /// </summary>
-        public static string TranslateVirtualPath(string virtualUrl, HttpContext httpContext)
+        public static string TranslateVirtualPath(string virtualUrl, IHttpContext httpContext)
         {
             if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             {

@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Hosting
         /// Fixes the response created by the OWIN Security Challenge call to be accepted by DotVVM client library.
         /// </summary>
 			
-        public static void ApplyRedirectResponse(HttpContext context, string redirectUri)
+        public static void ApplyRedirectResponse(IHttpContext context, string redirectUri)
         {
 
 			if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)

@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization {
+namespace DotVVM.Samples.AspentCoreSample.Views.FeatureSamples.Localization {
     using System;
     using System.Reflection;
     

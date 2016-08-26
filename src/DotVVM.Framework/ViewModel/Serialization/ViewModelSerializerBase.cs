@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -15,7 +16,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
-    public abstract class ViewModelSerializerBase
+    public abstract class ViewModelSerializerBase : IViewModelSerializer
     {
         private const string GeneralViewModelRecomendations = "Check out general viewMode recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
 
@@ -88,7 +89,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            result["url"] = new Uri(GetDisplayUrl(context)).PathAndQuery;
+            result["url"] = GetPathAndQuery(context);
             result["virtualDirectory"] = DotvvmMiddleware.GetVirtualDirectory(context.HttpContext);
             if (context.ResultIdFragment != null)
             {
@@ -110,7 +111,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             context.ViewModelJson = result;
         }
 
-        protected abstract string GetDisplayUrl(IDotvvmRequestContext context);
+        protected abstract string GetPathAndQuery(IDotvvmRequestContext context);
 
         protected virtual JsonSerializer CreateJsonSerializer()
         {

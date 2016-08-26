@@ -17,7 +17,8 @@
     "System.Runtime": "4.1.0",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
     "Microsoft.CodeAnalysis.Common": "1.3.2",
-    "Microsoft.CodeAnalysis.CSharp": "1.3.2"
+    "Microsoft.CodeAnalysis.CSharp": "1.3.2",
+    "System.Linq": "4.1.0"
   },
   "resource": [
 
