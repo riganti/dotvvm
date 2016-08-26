@@ -13,6 +13,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     {
         protected override bool IsWhiteSpace(BindingToken t) => t.Type == BindingTokenType.WhiteSpace;
 
+        public BindingParserNode ReadNamespaceOrTypeName()
+        {
+            return ReadIdentifierExpression(true);
+        }
+
         public BindingParserNode ReadMultiExpression()
         {
             var startIndex = CurrentIndex;

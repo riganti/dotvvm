@@ -63,5 +63,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             node.AcceptChildren(this);
         }
+
+        public void VisitImportDirective(ResolvedImportDirective importDirective)
+        {
+            DefaultVisit(importDirective);
+        }
     }
 }

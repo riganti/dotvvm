@@ -199,6 +199,8 @@
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\NastyChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ClientExtenders\PasswordStrengthViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Directives\ImportDirectiveInvalidViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Directives\ImportDirectiveViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
@@ -430,6 +432,8 @@
     <Content Include="Views\ControlSamples\RouteLink\RouteLinkEnabledFalse.dothtml" />
     <Content Include="Views\ControlSamples\RouteLink\TestRoute.dothtml" />
     <Content Include="Views\FeatureSamples\GenericTypes\List.dothtml" />
+    <Content Include="Views\FeatureSamples\Directives\ImportDirectiveInvalid.dothtml" />
+    <Content Include="Views\FeatureSamples\Directives\ImportDirective.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
@@ -467,7 +471,7 @@
       <LastGenOutput>Localization_Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Resource.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\FeatureSamples\Localization\Localization2.resx">

@@ -23,6 +23,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitFunctionCall((FunctionCallBindingParserNode)node);
             }
+            else if (node is GenericNameBindingParserNode)
+            {
+                return VisitGenericName((GenericNameBindingParserNode)node);
+            }
             else if (node is IdentifierNameBindingParserNode)
             {
                 return VisitIdentifierName((IdentifierNameBindingParserNode)node);
@@ -46,10 +50,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             else if (node is MultiExpressionBindingParserNode)
             {
                 return VisitMultiExpression((MultiExpressionBindingParserNode)node);
-            }
-            else if (node is GenericNameBindingParserNode)
-            {
-                return VisitGenericName((GenericNameBindingParserNode)node);
             }
             else
             {

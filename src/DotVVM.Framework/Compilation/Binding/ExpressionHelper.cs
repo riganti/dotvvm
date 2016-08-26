@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public static class ExpressionHelper
     {
-        public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true)
+        public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
         {
             Contract.Requires(target != null);
 
@@ -22,6 +22,7 @@ namespace DotVVM.Framework.Compilation.Binding
 			if (type == typeof(UnknownTypeSentinel)) if (throwExceptions) throw new Exception($"Type of '{target}' could not be resolved."); else return null;
 
             var isStatic = target is StaticClassIdentifierExpression;
+
             var isGeneric = typeArguments != null && typeArguments.Length != 0;
             var genericName = isGeneric ? $"{name}`{typeArguments.Length}" : name;
 
@@ -30,11 +31,13 @@ namespace DotVVM.Framework.Compilation.Binding
                 .ToArray();
             if (members.Length == 0)
             {
-                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name  } on type { type.FullName }");
+                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name  } on type { type.FullName }.");
                 else return null;
             }
             if (members.Length == 1)
             {
+                if(!(members[0] is Type) && onlyMemberTypes) { throw new Exception("Only type names are supported."); } 
+
                 var instance = isStatic ? null : target;
                 if (members[0] is PropertyInfo)
                 {
