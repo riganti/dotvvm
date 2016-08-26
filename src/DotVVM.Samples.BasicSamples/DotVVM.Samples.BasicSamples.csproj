@@ -275,6 +275,7 @@
     </Compile>
     <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.cs" />
     <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidation.cs" />
+    <Compile Include="Views\FeatureSamples\MarkupControl\MarkupControlRegistrationControl.cs" />
     <Compile Include="Views\FeatureSamples\MarkupControl\TextEditorControl.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -455,6 +456,7 @@
     <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidation.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidationPage.dothtml" />
     <Content Include="Views\FeatureSamples\Validation\ValidationScopes.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\MarkupControlRegistrationControl.dotcontrol" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
