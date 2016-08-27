@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     public class ResolvedControl : ResolvedContentNode, IAbstractControl
     {
         public Dictionary<DotvvmProperty, ResolvedPropertySetter> Properties { get; set; } = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
-        public Dictionary<string, ResolvedHtmlAttributeSetter> HtmlAttributes { get; set; } = new Dictionary<string, ResolvedHtmlAttributeSetter>();
+		public Dictionary<PropertyGroupMember, ResolvedPropertySetter> PropertyGroupMembers = new Dictionary<PropertyGroupMember, ResolvedPropertySetter>();
 
         public object[] ConstructorParameters { get; set; }
 
@@ -26,6 +26,11 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             Properties[value.Property] = value;
             value.Parent = this;
         }
+
+		public void SetPropertyGroupMember(PropertyGroupMember member, ResolvedPropertySetter setter)
+		{
+
+		}
         
         public void SetHtmlAttribute(ResolvedHtmlAttributeSetter value)
         {

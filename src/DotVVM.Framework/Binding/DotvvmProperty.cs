@@ -28,10 +28,10 @@ namespace DotVVM.Framework.Binding
         public string Name { get; private set; }
 
         [JsonIgnore]
-        ITypeDescriptor IPropertyDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
+        ITypeDescriptor IControlAttributeDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
 
         [JsonIgnore]
-        ITypeDescriptor IPropertyDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
+        ITypeDescriptor IControlAttributeDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
 
         /// <summary>
         /// Gets the default value of the property.

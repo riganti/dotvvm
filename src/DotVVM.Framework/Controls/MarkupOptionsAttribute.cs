@@ -26,10 +26,20 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Name { get; set; }
 
-        /// <summary>
-        /// Gets or sets the mapping mode.
-        /// </summary>
-        public MappingMode MappingMode { get; set; } = MappingMode.Attribute;
+		/// <summary>
+		/// Determines if multiple property assignments can be merged into one value
+		/// </summary>
+		public bool AllowValueMerging { get; set; }
+
+		/// <summary>
+		/// Type with non parametric contstructor which implements IAttributeValueMerger interface
+		/// </summary>
+		public Type AttributeValueMerger { get; set; }
+
+		/// <summary>
+		/// Gets or sets the mapping mode.
+		/// </summary>
+		public MappingMode MappingMode { get; set; } = MappingMode.Attribute;
 
         public bool Required { get; set; }
     }
