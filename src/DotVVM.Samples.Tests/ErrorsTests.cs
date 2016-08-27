@@ -263,6 +263,21 @@ namespace DotVVM.Samples.Tests
 			});
 		}
 
+	    [TestMethod]
+	    public void Error_MarkupControl_InvalidViewModel()
+	    {
+			RunInAllBrowsers(browser =>
+			{
+				browser.NavigateToUrl(SamplesRouteUrls.Errors_MarkupControlInvalidViewModel);
+                browser.First("p.summary")
+                    .CheckIfInnerText(
+                        s =>
+                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
+                            s.Contains("requires a DataContext of type")
+                        );
+            });
+	    }
+
 		[TestMethod]
 		public void Exception_GitHubRedirect()
 		{
@@ -312,5 +327,6 @@ namespace DotVVM.Samples.Tests
 
 			});
 		}
+
 	}
 }

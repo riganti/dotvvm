@@ -69,21 +69,21 @@ namespace DotVVM.Framework.Tests.Binding
 			}));
 		}
 
-		[TestMethod]
-		public void BindingCompiler_ResourceBindingException()
-		{
-			try
-			{
-				Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.NotExist", new object[0], null, new NamespaceImport[]
-					{
-						new NamespaceImport("DotVVM.Framework.Tests")
-					}));
-			}
-			catch (Exception x)
-			{
-				Assert.AreEqual(x.Message, "Could not find static member NotExist on type DotVVM.Framework.Tests.Resource1.");
-			}
-		}
+        [TestMethod]
+        public void BindingCompiler_ResourceBindingException()
+        {
+            try
+            {
+                Assert.AreEqual(Resource1.ResourceKey123, ExecuteBinding("Resource1.NotExist", new object[0], null, new NamespaceImport[]
+                    {
+                        new NamespaceImport("DotVVM.Framework.Tests")
+                    }));
+            }
+            catch (Exception x)
+            {
+                Assert.AreEqual("Could not find static member NotExist on type DotVVM.Framework.Tests.Resource1.", x.Message);
+            }
+        }
 
 		[TestMethod]
 		public void BindingCompiler_Valid_JustProperty()

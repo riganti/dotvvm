@@ -9,7 +9,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedDirective : ResolvedTreeNode, IAbstractDirective
     {
-
         public string Value => ((DothtmlDirectiveNode)DothtmlNode).Value;
 
         public override void Accept(IResolvedControlTreeVisitor visitor)

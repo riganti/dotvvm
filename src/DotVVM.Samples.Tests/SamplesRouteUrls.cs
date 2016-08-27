@@ -82,7 +82,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string Errors_EncryptedPropertyInValueBinding => "Errors/EncryptedPropertyInValueBinding";
 			public static string Errors_FieldInValueBinding => "Errors/FieldInValueBinding";
 			public static string Errors_InvalidViewModel => "Errors/InvalidViewModel";
-			public static string Errors_MalformedBinding => "Errors/MalformedBinding";
+            		public static string Errors_MalformedBinding => "Errors/MalformedBinding";
+            		public static string Errors_MarkupControlInvalidViewModel => "Errors/MarkupControlInvalidViewModel";
 			public static string Errors_MasterPageRequiresDifferentViewModel => "Errors/MasterPageRequiresDifferentViewModel";
 			public static string Errors_MissingRequiredProperty => "Errors/MissingRequiredProperty";
 			public static string Errors_MissingRequiredProperty2 => "Errors/MissingRequiredProperty2";
