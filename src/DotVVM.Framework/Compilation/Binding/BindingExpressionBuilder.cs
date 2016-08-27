@@ -83,10 +83,9 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             yield return CreateParameter(dataContext.DataContextType, "_this");
             yield return CreateParameter(typeof(BindingPageInfo), "_page");
-            var index = 1;
-            while (dataContext.Parent != null)
+            var index = 0;
+            while (dataContext != null)
             {
-                dataContext = dataContext.Parent;
                 if (index == 1)
                 {
                     yield return CreateParameter(dataContext.DataContextType, "_parent");
@@ -95,6 +94,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     yield return CreateParameter(dataContext.DataContextType, "_parent" + index);
                 }
+                dataContext = dataContext.Parent;
                 index++;
             }
             yield return CreateParameter(dataContext.DataContextType, "_root");
