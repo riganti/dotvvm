@@ -12,94 +12,92 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
-    public class BindingExpressionBuilder : IBindingExpressionBuilder
-    {
+	public class BindingExpressionBuilder : IBindingExpressionBuilder
+	{
 
-        public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options)
-        {
-            try
-            {
-                var tokenizer = new BindingTokenizer();
-                tokenizer.Tokenize(expression);
+		public Expression Parse(string expression, DataContextStack dataContexts, BindingParserOptions options)
+		{
+			try
+			{
+				var tokenizer = new BindingTokenizer();
+				tokenizer.Tokenize(expression);
 
-                var parser = new BindingParser();
-                parser.Tokens = tokenizer.Tokens;
-                var node = parser.ReadExpression();
-                if (!parser.OnEnd())
-                {
-                    throw new BindingCompilationException(
-                        $"Unexpected token '{expression.Substring(0, parser.Peek().StartPosition)} ---->{parser.Peek().Text}<---- {expression.Substring(parser.Peek().StartPosition + parser.Peek().Length)}'",
-                        null, new TokenBase[] { parser.Peek() });
-                }
-                foreach (var n in node.EnumerateNodes())
-                {
-                    if (n.HasNodeErrors) throw new BindingCompilationException(string.Join(", ", n.NodeErrors), n);
-                }
+				var parser = new BindingParser();
+				parser.Tokens = tokenizer.Tokens;
+				var node = parser.ReadExpression();
+				if (!parser.OnEnd())
+				{
+					throw new BindingCompilationException(
+						$"Unexpected token '{expression.Substring(0, parser.Peek().StartPosition)} ---->{parser.Peek().Text}<---- {expression.Substring(parser.Peek().StartPosition + parser.Peek().Length)}'",
+						null, new TokenBase[] { parser.Peek() });
+				}
+				foreach (var n in node.EnumerateNodes())
+				{
+					if (n.HasNodeErrors) throw new BindingCompilationException(string.Join(", ", n.NodeErrors), n);
+				}
 
-                var symbols = InitSymbols(dataContexts);
-                symbols = options.AddTypes(symbols);
+				var symbols = InitSymbols(dataContexts);
+				symbols = options.AddTypes(symbols);
 
-                var visitor = new ExpressionBuildingVisitor(symbols);
-                visitor.Scope = symbols.Resolve(options.ScopeParameter);
-                return visitor.Visit(node);
-            }
-            catch (Exception ex)
-            {
-                ex.ForInnerExceptions<BindingCompilationException>(bce =>
-                {
-                    if (bce.Expression == null) bce.Expression = expression;
-                });
-                throw;
-            }
-        }
+				var visitor = new ExpressionBuildingVisitor(symbols);
+				visitor.Scope = symbols.Resolve(options.ScopeParameter);
+				return visitor.Visit(node);
+			}
+			catch (Exception ex)
+			{
+				ex.ForInnerExceptions<BindingCompilationException>(bce =>
+				{
+					if (bce.Expression == null) bce.Expression = expression;
+				});
+				throw;
+			}
+		}
 
-        public static TypeRegistry InitSymbols(DataContextStack dataContext)
-        {
-            return AddTypeSymbols(TypeRegistry.Default.AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d))), dataContext);
-        }
+		public static TypeRegistry InitSymbols(DataContextStack dataContext)
+		{
+			return AddTypeSymbols(TypeRegistry.Default.AddSymbols(GetParameters(dataContext).Select(d => new KeyValuePair<string, Expression>(d.Name, d))), dataContext);
+		}
 
-        public static TypeRegistry AddTypeSymbols(TypeRegistry reg, DataContextStack dataContext)
-        {
-            var namespaces = dataContext.Enumerable().Select(t => t?.Namespace).Except(new[] { "System", null }).Distinct();
-            return reg.AddSymbols(new[]
-            {
+		public static TypeRegistry AddTypeSymbols(TypeRegistry reg, DataContextStack dataContext)
+		{
+			var namespaces = dataContext.Enumerable().Select(t => t?.Namespace).Except(new[] { "System", null }).Distinct();
+			return reg.AddSymbols(new[]
+			{
                 // ViewModel is alias for current viewmodel type
                 new KeyValuePair<string, Expression>("ViewModel", TypeRegistry.CreateStatic(dataContext.DataContextType)),
                 // RootViewModel alias for root view model type
                 new KeyValuePair<string, Expression>("RootViewModel", TypeRegistry.CreateStatic(dataContext.Enumerable().Last())),
-            })
-            // alias for any viewModel in hierarchy :
-            .AddSymbols(dataContext.Enumerable()
-                .Select((t, i) => new KeyValuePair<string, Expression>($"Parent{i}ViewModel", TypeRegistry.CreateStatic(t))))
-            // import all viewModel namespaces
-            .AddSymbols(namespaces.Select(ns => (Func<string, Expression>)(typeName => TypeRegistry.CreateStatic(ReflectionUtils.FindType(ns + "." + typeName)))));
-        }
+			})
+			// alias for any viewModel in hierarchy :
+			.AddSymbols(dataContext.Enumerable()
+				.Select((t, i) => new KeyValuePair<string, Expression>($"Parent{i}ViewModel", TypeRegistry.CreateStatic(t))))
+			// import all viewModel namespaces
+			.AddSymbols(namespaces.Select(ns => (Func<string, Expression>)(typeName => TypeRegistry.CreateStatic(ReflectionUtils.FindType(ns + "." + typeName)))));
+		}
 
-        public static IEnumerable<ParameterExpression> GetParameters(DataContextStack dataContext)
-        {
-            if (dataContext.RootControlType != null)
-            {
-                yield return CreateParameter(dataContext.RootControlType, "_control");
-            }
-            yield return CreateParameter(dataContext.DataContextType, "_this");
-            yield return CreateParameter(typeof(BindingPageInfo), "_page");
-            var index = 0;
-            while (dataContext != null)
-            {
-                if (index == 1)
-                {
-                    yield return CreateParameter(dataContext.DataContextType, "_parent");
-                }
-                else
-                {
-                    yield return CreateParameter(dataContext.DataContextType, "_parent" + index);
-                }
-                dataContext = dataContext.Parent;
-                index++;
-            }
-            yield return CreateParameter(dataContext.DataContextType, "_root");
-        }
+		public static IEnumerable<ParameterExpression> GetParameters(DataContextStack dataContext)
+		{
+			if (dataContext.RootControlType != null)
+			{
+				yield return CreateParameter(dataContext.RootControlType, "_control");
+			}
+			yield return CreateParameter(dataContext.DataContextType, "_this");
+			yield return CreateParameter(typeof(BindingPageInfo), "_page");
+			var index = 0;
+			while (dataContext != null)
+			{
+				if (index == 1)
+					yield return CreateParameter(dataContext.DataContextType, "_parent");
+				yield return CreateParameter(dataContext.DataContextType, "_parent" + index);
+				if (dataContext.Parent == null)
+				{
+					yield return CreateParameter(dataContext.DataContextType, "_root");
+				}
+				dataContext = dataContext.Parent;
+				index++;
+			}
+		}
 
 		static ParameterExpression CreateParameter(Type type, string name) => Expression.Parameter(type ?? typeof(ExpressionHelper.UnknownTypeSentinel), name);
-    }
+	}
 }

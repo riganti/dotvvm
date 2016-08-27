@@ -219,8 +219,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (expression.Name == "_this") return "$data";
             if (expression.Name == "_parent") return "$parent";
             if (expression.Name == "_root") return "$root";
-            if (expression.Name.StartsWith("_parent", StringComparison.Ordinal)) return $"$parents[{ int.Parse(expression.Name.Substring("_parent".Length)) - 1 }]";
-            if (expression.Name == "_control")
+            if (expression.Name.StartsWith("_parent", StringComparison.Ordinal))
+			{
+				var pIndex = int.Parse(expression.Name.Substring("_parent".Length));
+				if (pIndex == 0) return "$data";
+				else if (pIndex == 1) return "$parent";
+				else return $"$parents[{ pIndex - 1 }]";
+			}
+
+			if (expression.Name == "_control")
             {
                 var c = DataContexts.Parents().Count();
                 string context = string.Concat(Enumerable.Repeat("$parentContext.", c));

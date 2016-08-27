@@ -25,6 +25,7 @@ namespace DotVVM.Framework.Tests.Binding
 			}
 			var parser = new BindingExpressionBuilder();
 			var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") }.Concat(imports ?? Enumerable.Empty<NamespaceImport>()).ToArray()));
+			Array.Reverse(contexts);
 			return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, expectedType ?? typeof(object)).Compile()(contexts, control);
 		}
 
