@@ -201,9 +201,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return result;
         }
 
-        public List<Func<Exception, HttpContext, IErrorSectionFormatter>> Formatters = new List<Func<Exception, HttpContext, IErrorSectionFormatter>>();
+        public List<Func<Exception, IHttpContext, IErrorSectionFormatter>> Formatters = new List<Func<Exception, IHttpContext, IErrorSectionFormatter>>();
 
-        public string ErrorHtml(Exception exception, HttpContext context)
+        public string ErrorHtml(Exception exception, IHttpContext context)
         {
             var template = new ErrorPageTemplate();
             template.Formatters = Formatters.Select(f => f(exception, context)).Where(t => t != null).ToArray();

@@ -3,7 +3,7 @@ using Microsoft.Extensions.Primitives;
 
 namespace DotVVM.Framework.Hosting
 {
-    public interface IQueryCollection : IEnumerable<KeyValuePair<string, StringValues>>
+    public interface IQueryCollection : IEnumerable<KeyValuePair<string, string>>
     {
         string this[string key] { get; }
 

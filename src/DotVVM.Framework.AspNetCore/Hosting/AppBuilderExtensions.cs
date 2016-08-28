@@ -6,11 +6,8 @@ using Newtonsoft.Json;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
-#if Owin
-using AppBuilder = Owin.IApplicationBuilder;
-#else
+using DotVVM.Framework.Hosting.Middlewares;
 using AppBuilder = Microsoft.AspNetCore.Builder.IApplicationBuilder;
-#endif
 
 namespace DotVVM.Framework.Hosting
 {

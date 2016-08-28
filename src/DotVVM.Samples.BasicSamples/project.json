@@ -8,8 +8,6 @@
     "Microsoft.AspNetCore.Server.IISIntegration": "1.0.0",
     "Microsoft.AspNetCore.Server.Kestrel": "1.0.0",
     "Microsoft.Extensions.Logging.Console": "1.0.0",
-    "DotVVM.Core": "1.0.0-*",
-    "DotVVM.Framework": "1.0.0-*",
     "Microsoft.Extensions.DependencyInjection.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Http.Abstractions": "1.0.0",
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",
@@ -20,7 +18,9 @@
     "System.Security.Cryptography.Algorithms": "4.2.0",
     "System.Diagnostics.StackTrace": "4.0.1",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
-    "DotVVM.Framework.AspNetCore": "1.0.0-*"
+    "DotVVM.Framework.AspNetCore": "1.0.0-*",
+    "DotVVM.Framework": "1.0.0-*",
+    "DotVVM.Core": "1.0.0-*"
   },
 
   "tools": {

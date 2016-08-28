@@ -15,6 +15,7 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 using System.Diagnostics;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
@@ -34,7 +35,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.
         /// </summary>
-        public IDotvvmPresenter Presenter { get; internal set; }
+        public IDotvvmPresenter Presenter { get; set; }
 
         /// <summary>
         /// Gets the global configuration of DotVVM.
@@ -44,17 +45,17 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the route that was used for this request.
         /// </summary>
-        public RouteBase Route { get; internal set; }
+        public RouteBase Route { get;  set; }
 
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
         /// </summary>
-        public bool IsPostBack { get; internal set; }
+        public bool IsPostBack { get;  set; }
 
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
         /// </summary>
-        public IDictionary<string, object> Parameters { get; internal set; }
+        public IDictionary<string, object> Parameters { get;  set; }
 
         /// <summary>
         /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
@@ -85,7 +86,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the query string parameters specified in the URL of the current HTTP request.
         /// </summary>
-        public IDictionary<string, object> Query { get; internal set; }
+        public IDictionary<string, object> Query { get;  set; }
 
         /// <summary>
         /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
@@ -302,7 +303,7 @@ namespace DotVVM.Framework.Hosting
         {
             if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             {
-                var url = DotvvmMiddleware.GetVirtualDirectory(httpContext) + "/" + virtualUrl.Substring(2);
+                var url = DotvvmMiddlewareBase.GetVirtualDirectory(httpContext) + "/" + virtualUrl.Substring(2);
                 if (!url.StartsWith("/", StringComparison.Ordinal))
                 {
                     url = "/" + url;

@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
-    public class DotvvmEmbeddedResourceMiddleware : ADotvvmEmbeddedResourceMiddleware
+    public class DotvvmEmbeddedResourceMiddleware
     {
         private readonly RequestDelegate next;
 

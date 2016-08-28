@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Hosting
             this.configuration = configuration;
         }
 
-        public Task Invoke(IHttpContext context)
+        public Task Invoke(HttpContext context)
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        private async Task ProcessMultipartRequest(IHttpContext context)
+        private async Task ProcessMultipartRequest(HttpContext context)
         {
             // verify the request
             var isPost = context.Request.Method == "POST";
@@ -79,19 +79,20 @@ namespace DotVVM.Framework.Hosting
             await RenderResponse(context, isPost, errorMessage, uploadedFiles);
         }
 
-        private async Task RenderResponse(IHttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
+        private async Task RenderResponse(HttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var outputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
+            var convertedContext = DotvvmMiddleware.ConvertHttpContext(context);
             if (isPost && context.Request.Headers[HostingConstants.DotvvmFileUploadAsyncHeaderName] == "true")
             {
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
                 {
-                    await outputRenderer.RenderPlainJsonResponse(context, uploadedFiles);
+                    await outputRenderer.RenderPlainJsonResponse(convertedContext, uploadedFiles);
                 }
                 else
                 {
-                    await outputRenderer.RenderPlainTextResponse(context, errorMessage);
+                    await outputRenderer.RenderPlainTextResponse(convertedContext, errorMessage);
                     context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                 }
             }
@@ -115,11 +116,11 @@ namespace DotVVM.Framework.Hosting
                             JsonConvert.SerializeObject(errorMessage));
                     }
                 }
-                await outputRenderer.RenderHtmlResponse(context, template.TransformText());
+                await outputRenderer.RenderHtmlResponse(convertedContext, template.TransformText());
             }
         }
 
-        private async Task SaveFiles(IHttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
+        private async Task SaveFiles(HttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
         {
             // get the file store
             var fileStore = configuration.ServiceLocator.GetService<IUploadedFileStorage>();

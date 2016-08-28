@@ -8,6 +8,7 @@ namespace DotVVM.Framework.Hosting
     public interface IHttpResponse
     {
         IHeaderCollection Headers { get; set; }
+        IHttpContext Context { get; }
         int StatusCode { get; set; }
         string ContentType { get; set; }
         Stream Body { get; set; }

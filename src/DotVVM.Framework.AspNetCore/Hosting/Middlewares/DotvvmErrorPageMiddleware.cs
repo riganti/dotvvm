@@ -13,7 +13,7 @@ using Microsoft.AspNetCore.Http;
 //using Context = Microsoft.Owin.HttpContext;
 //#endif
 
-namespace DotVVM.Framework.Hosting
+namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmErrorPageMiddleware
     {
@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Hosting
             {
 
                 var text = (Formatter ?? (Formatter = ErrorFormatter.CreateDefault()))
-                    .ErrorHtml(error, context);
+                    .ErrorHtml(error, DotvvmMiddleware.ConvertHttpContext(context));
                 return context.Response.WriteAsync(text);
             }
             catch (Exception exc)
@@ -64,5 +64,6 @@ namespace DotVVM.Framework.Hosting
                 throw new Exception("Error occured inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
             }
         }
+
     }
 }

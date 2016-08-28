@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Hosting
 			this.next = next;
         }
 
-        public Task Invoke(IHttpContext context)
+        public Task Invoke(HttpContext context)
         {
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
 
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the embedded resource.
         /// </summary>
-        private Task RenderResponse(IHttpContext context)
+        private Task RenderResponse(HttpContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/javascript";

@@ -6,6 +6,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Concurrent;
 using System.Threading;
+using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Hosting
     /// <summary>
     /// A middleware that handles DotVVM HTTP requests.
     /// </summary>
-    public class DotvvmMiddleware
+    public class DotvvmMiddleware : DotvvmMiddlewareBase
     {
         public readonly DotvvmConfiguration Configuration;
 
@@ -43,13 +44,7 @@ namespace DotVVM.Framework.Hosting
                 VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
             }
             // create the context
-            var dotvvmContext = new DotvvmRequestContext()
-            {
-                HttpContext = new DotvvmHttpContext(context),
-                Configuration = Configuration,
-                ResourceManager = new ResourceManager(Configuration),
-                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
-            };
+            var dotvvmContext = CreateDotvvmContext(context);
             context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
 
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
@@ -88,6 +83,46 @@ namespace DotVVM.Framework.Hosting
             await next(context);
         }
 
+
+        public static IHttpContext ConvertHttpContext(HttpContext context)
+        {
+            var httpContext = new DotvvmHttpContext(
+                context,
+                new DotvvmHttpAuthentication(context.Authentication)
+                );
+
+            httpContext.Response = new DotvvmHttpResponse(
+                context.Response,
+                httpContext,
+                new DotvvmHeaderCollection(context.Response.Headers)
+                );
+
+            httpContext.Request = new DotvvmHttpRequest(
+                context.Request,
+                httpContext,
+                new DotvvmHttpPathString(context.Request.Path),
+                new DotvvmHttpPathString(context.Request.PathBase),
+                new DotvvmQueryCollection(context.Request.Query),
+                new DotvvmHeaderCollection(context.Request.Headers),
+                new DotvvmCookieCollection(context.Request.Cookies)
+                );
+
+            return httpContext;
+        }
+
+        protected DotvvmRequestContext CreateDotvvmContext(HttpContext context)
+        {
+            
+                        
+             return new DotvvmRequestContext()
+             {
+                 HttpContext =  ConvertHttpContext(context),
+                 Configuration = Configuration,
+                 ResourceManager = new ResourceManager(Configuration),
+                 ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
+             };
+        }
+
         /// <summary>
         /// Attempts to recognize request made by Googlebot in its effort to crawl links for AJAX SPAs.
         /// </summary>
@@ -123,16 +158,21 @@ namespace DotVVM.Framework.Hosting
             }
             return false;
         }
-        
+
         /// <summary>
-        /// Determines the current OWIN virtual directory.
+        /// Determines the current virtual directory.
         /// </summary>
-        public static string GetVirtualDirectory(IHttpContext context)
+        public static string GetVirtualDirectory(HttpContext context)
         {
             return context.Request.PathBase.Value.Trim('/');
         }
 
-        public static string GetCleanRequestUrl(Http context)
+        /// <summary>
+        /// Get clean request url without slashes.
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public static string GetCleanRequestUrl(HttpContext context)
         {
             return context.Request.Path.Value.TrimStart('/').TrimEnd('/');
         }

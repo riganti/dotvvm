@@ -13,7 +13,8 @@ namespace DotVVM.Framework.Hosting
 
 
         public DotvvmHttpRequest(HttpRequest originalRequest, IHttpContext httpContext,
-            IPathString path, IPathString pathBase, IQueryCollection query, IHeaderCollection headers )
+            IPathString path, IPathString pathBase, IQueryCollection query, IHeaderCollection headers,
+            ICookieCollection cookies)
         {
             OriginalRequest = originalRequest;
             HttpContext = httpContext;
@@ -21,6 +22,7 @@ namespace DotVVM.Framework.Hosting
             Path = path;
             Query = query;
             Headers = headers;
+            Cookies = cookies;
         }
 
         public string Method
@@ -62,6 +64,7 @@ namespace DotVVM.Framework.Hosting
         }
 
         public IQueryCollection Query { get; }
+        public ICookieCollection Cookies { get; set; }
         public IHeaderCollection Headers { get; }
     }
 }

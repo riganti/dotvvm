@@ -1,4 +1,5 @@
-﻿using System.Security.Claims;
+﻿using System.Collections.Generic;
+using System.Security.Claims;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -8,6 +9,6 @@ namespace DotVVM.Framework.Hosting
         IHttpRequest Request { get; set; }
         IHttpResponse Response { get; set; }
         IAuthentication Authentication { get; }
-
+        IDictionary<object, object> Items { get; set; }
     }
 }
