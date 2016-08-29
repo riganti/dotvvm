@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using DotVVM.Framework.ViewModel;
 using System.Threading.Tasks;
+using DotVVM.Framework.AspNetCore.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 {
@@ -18,7 +19,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
             claims.Add(new Claim(ClaimTypes.Name, "Brock"));
             claims.Add(new Claim(ClaimTypes.Email, "brockallen@gmail.com"));
             var id = new ClaimsIdentity(claims, "ApplicationCookie");
-            await Context.HttpContext.Authentication.SignInAsync("Scheme2", new ClaimsPrincipal(new[] { id }));
+            await Context.GetAuthenticationManager().SignInAsync("Scheme2", new ClaimsPrincipal(new[] { id }));
 
             Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
 	    }

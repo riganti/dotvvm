@@ -7,7 +7,6 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using DotVVM.Framework.Hosting.Middlewares;
-using AppBuilder = Microsoft.AspNetCore.Builder.IApplicationBuilder;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -21,7 +20,7 @@ namespace DotVVM.Framework.Hosting
             return configuration;
         }
 
-        internal static DotvvmConfiguration UseDotVVM(this AppBuilder app, string applicationRootDirectory, bool errorPages = true)
+        internal static DotvvmConfiguration UseDotVVM(this IApplicationBuilder app, string applicationRootDirectory, bool errorPages = true)
         {
             var configuration = CreateConfiguration(applicationRootDirectory, app.ApplicationServices);
 #if Owin
@@ -43,7 +42,7 @@ namespace DotVVM.Framework.Hosting
             return configuration;
         }
 
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this AppBuilder app, string applicationRootDirectory, bool errorPages = true)
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootDirectory, bool errorPages = true)
             where TStartup: IDotvvmStartup, new()
         {
             var config = app.UseDotVVM(applicationRootDirectory, errorPages);

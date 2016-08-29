@@ -80,7 +80,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ViewModelNesting
             public async Task Init()
             {
                 await Task.Delay(100);
-                if (!Context.Query.ContainsKey("Id")) Context.RedirectToUrl(new UriBuilder(Context.HttpContext.Request.GetDisplayUrl()) { Query = "Id=13" }.Uri.ToString());
+                if (!Context.Query.ContainsKey("Id")) Context.RedirectToUrl(new UriBuilder(Context.HttpContext.Request.Url.ToString()) { Query = "Id=13" }.Uri.ToString());
                 Initialized = true;
             }
 

@@ -100,7 +100,7 @@ namespace DotVVM.Framework.Hosting
             {
                 // old browser - return HTML
                 var template = new FileUploadPageTemplate();
-                template.FormPostUrl = DotvvmRequestContext.TranslateVirtualPath("~/" + HostingConstants.FileUploadHandlerMatchUrl, context);
+                template.FormPostUrl = DotvvmRequestContext.TranslateVirtualPath("~/" + HostingConstants.FileUploadHandlerMatchUrl, DotvvmMiddleware.ConvertHttpContext(context));
                 template.AllowMultipleFiles = context.Request.Query["multiple"] == "true";
 
                 if (isPost)

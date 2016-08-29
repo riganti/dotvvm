@@ -6,6 +6,7 @@ using DotVVM.Framework.ViewModel;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using System.Net;
+using DotVVM.Framework.AspNetCore.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 {
@@ -35,7 +36,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 
         public async Task Login()
         {
-            var auth = Context.HttpContext.Authentication;
+            var auth = Context.GetAuthenticationManager();
             await auth.SignOutAsync("Scheme1");
             var id = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, UserName)

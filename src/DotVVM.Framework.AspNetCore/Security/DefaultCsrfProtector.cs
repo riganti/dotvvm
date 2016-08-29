@@ -10,6 +10,7 @@ using DotVVM.Framework.Hosting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
+using DotVVM.Framework.AspNetCore.Hosting;
 
 namespace DotVVM.Framework.Security
 {
@@ -82,7 +83,8 @@ namespace DotVVM.Framework.Security
         private byte[] GetOrCreateSessionId(IDotvvmRequestContext context, bool canGenerate = true)
         {
             if (context == null) throw new ArgumentNullException(nameof(context));
-            var sessionIdCookieName = GetSessionIdCookieName(context);
+			var originalHttpContext = context.GetAspNetCoreContext();
+			var sessionIdCookieName = GetSessionIdCookieName(context);
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
 
             // Get cookie manager
@@ -94,7 +96,7 @@ namespace DotVVM.Framework.Security
             var protector = this.protectionProvider.CreateProtector(PURPOSE_SID);
 
             // Get cookie value
-            var sidCookieValue = mgr.GetRequestCookie(context.HttpContext, sessionIdCookieName);
+            var sidCookieValue = mgr.GetRequestCookie(originalHttpContext, sessionIdCookieName);
 
             if (!string.IsNullOrWhiteSpace(sidCookieValue))
             {
@@ -127,7 +129,7 @@ namespace DotVVM.Framework.Security
                 // Save to cookie
                 sidCookieValue = Convert.ToBase64String(protectedSid);
                 mgr.AppendResponseCookie(
-                    context.HttpContext,
+					originalHttpContext,
                     sessionIdCookieName,                                // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value
                     new CookieOptions
@@ -147,10 +149,10 @@ namespace DotVVM.Framework.Security
 
         private string GetSessionIdCookieName(IDotvvmRequestContext context)
         {
-            var domain = context.HttpContext.Request.Host.Host;
-            if (context.HttpContext.Request.Host.Port != (context.HttpContext.Request.IsHttps ? 443 : 80))
+            var domain = context.HttpContext.Request.Url.Host;
+            if (context.HttpContext.Request.Url.Port != (context.HttpContext.Request.IsHttps ? 443 : 80))
             {
-                domain += "-" + context.HttpContext.Request.Host.Port;
+                domain += "-" + context.HttpContext.Request.Url.Port;
             }
             return string.Format(context.Configuration.Security.SessionIdCookieName, domain);
         }

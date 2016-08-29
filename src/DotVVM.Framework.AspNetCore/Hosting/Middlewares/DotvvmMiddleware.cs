@@ -86,27 +86,31 @@ namespace DotVVM.Framework.Hosting
 
         public static IHttpContext ConvertHttpContext(HttpContext context)
         {
-            var httpContext = new DotvvmHttpContext(
-                context,
-                new DotvvmHttpAuthentication(context.Authentication)
-                );
+			var httpContext = context.Features.Get<IHttpContext>();
+			if (httpContext == null)
+			{
+				httpContext = new DotvvmHttpContext(
+					context,
+					new DotvvmHttpAuthentication(context.Authentication)
+					);
 
-            httpContext.Response = new DotvvmHttpResponse(
-                context.Response,
-                httpContext,
-                new DotvvmHeaderCollection(context.Response.Headers)
-                );
+				httpContext.Response = new DotvvmHttpResponse(
+					context.Response,
+					httpContext,
+					new DotvvmHeaderCollection(context.Response.Headers)
+					);
 
-            httpContext.Request = new DotvvmHttpRequest(
-                context.Request,
-                httpContext,
-                new DotvvmHttpPathString(context.Request.Path),
-                new DotvvmHttpPathString(context.Request.PathBase),
-                new DotvvmQueryCollection(context.Request.Query),
-                new DotvvmHeaderCollection(context.Request.Headers),
-                new DotvvmCookieCollection(context.Request.Cookies)
-                );
-
+				httpContext.Request = new DotvvmHttpRequest(
+					context.Request,
+					httpContext,
+					new DotvvmHttpPathString(context.Request.Path),
+					new DotvvmHttpPathString(context.Request.PathBase),
+					new DotvvmQueryCollection(context.Request.Query),
+					new DotvvmHeaderCollection(context.Request.Headers),
+					new DotvvmCookieCollection(context.Request.Cookies)
+					);
+				context.Features.Set(httpContext);
+			}
             return httpContext;
         }
 
@@ -157,14 +161,6 @@ namespace DotVVM.Framework.Hosting
                 return true;
             }
             return false;
-        }
-
-        /// <summary>
-        /// Determines the current virtual directory.
-        /// </summary>
-        public static string GetVirtualDirectory(HttpContext context)
-        {
-            return context.Request.PathBase.Value.Trim('/');
         }
 
         /// <summary>

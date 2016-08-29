@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System;
+using System.IO;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -9,12 +10,12 @@ namespace DotVVM.Framework.Hosting
         string Scheme { get; set; }
         string ContentType { get; set; }
         bool IsHttps { get; set; }
-        string GetDisplayUrl();
         IPathString Path { get; set; }
         IPathString PathBase { get; set; }
         Stream Body { get; set; }
         IQueryCollection Query { get; }
         ICookieCollection Cookies { get; set; }
         IHeaderCollection Headers { get; }
+		Uri Url { get; }
     }
 }

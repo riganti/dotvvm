@@ -2,6 +2,7 @@
 using DotVVM.Framework.Hosting;
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -23,6 +24,7 @@ namespace DotVVM.Framework.Hosting
             Query = query;
             Headers = headers;
             Cookies = cookies;
+			Url = new Uri(OriginalRequest.GetDisplayUrl());
         }
 
         public string Method
@@ -49,11 +51,6 @@ namespace DotVVM.Framework.Hosting
             set { OriginalRequest.IsHttps = value; }
         }
 
-        public string GetDisplayUrl()
-        {
-            return OriginalRequest.GetDisplayUrl();
-        }
-
         public IPathString Path { get; set; }
         public IPathString PathBase { get; set; }
 
@@ -66,5 +63,7 @@ namespace DotVVM.Framework.Hosting
         public IQueryCollection Query { get; }
         public ICookieCollection Cookies { get; set; }
         public IHeaderCollection Headers { get; }
+
+		public Uri Url { get; }
     }
 }

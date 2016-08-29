@@ -16,7 +16,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
-    public abstract class ViewModelSerializerBase : IViewModelSerializer
+    public class DefaultViewModelSerializer : IViewModelSerializer
     {
         private const string GeneralViewModelRecomendations = "Check out general viewMode recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
 
@@ -34,7 +34,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public ViewModelSerializerBase(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper)
         {
             this.viewModelProtector = protector;
             this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
@@ -89,8 +89,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            result["url"] = GetPathAndQuery(context);
-            result["virtualDirectory"] = DotvvmMiddleware.GetVirtualDirectory(context.HttpContext);
+            result["url"] = context.HttpContext.Request.Url.PathAndQuery;
+            result["virtualDirectory"] = context.HttpContext.Request.PathBase.Value?.Trim('/') ?? "";
             if (context.ResultIdFragment != null)
             {
                 result["resultIdFragment"] = context.ResultIdFragment;
@@ -110,8 +110,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
             context.ViewModelJson = result;
         }
-
-        protected abstract string GetPathAndQuery(IDotvvmRequestContext context);
 
         protected virtual JsonSerializer CreateJsonSerializer()
         {

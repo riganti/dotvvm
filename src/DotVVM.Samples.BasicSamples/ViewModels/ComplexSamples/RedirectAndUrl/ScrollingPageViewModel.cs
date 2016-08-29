@@ -26,14 +26,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.RedirectAndUrl
         public void GoToParagraph2WithRedirectToUrl()
         {
             Message = "GoToParagraph2_With_RedirectToUrl";
-			var path = Context.HttpContext.Request.GetDisplayUrl();
+			var path = Context.HttpContext.Request.Url.ToString();
             Context.RedirectToUrl($"{path}#paragraph2");
         }
 
         public void TestQueryString()
         {
             Message = "TestQuerystring";
-            var path = Context.HttpContext.Request.GetDisplayUrl();
+            var path = Context.HttpContext.Request.Url.ToString();
             Context.RedirectToUrl($"{path}?q='delf'&meep");
         }
 

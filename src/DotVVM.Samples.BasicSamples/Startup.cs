@@ -33,7 +33,6 @@ namespace DotVVM.Samples.BasicSamples
             services.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
             services.AddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
-            services.AddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.

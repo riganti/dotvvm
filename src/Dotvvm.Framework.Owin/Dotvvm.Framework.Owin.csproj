@@ -50,7 +50,6 @@
     <Compile Include="Security\DefaultCsrfProtector.cs" />
     <Compile Include="Security\DefaultViewModelProtector.cs" />
     <Compile Include="Security\ProtectionHelpers.cs" />
-    <Compile Include="ViewModel\Serialization\DefaultViewModelSerializer.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.xproj">

@@ -252,7 +252,7 @@ namespace DotVVM.Framework.Hosting
 
                 httpContext.Response.StatusCode = 200;
                 httpContext.Response.ContentType = "application/json";
-                httpContext.Response.Write(ViewModelSerializerBase.GenerateRedirectActionResponse(url, forceRefresh));
+                httpContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, forceRefresh));
             }
         }
 

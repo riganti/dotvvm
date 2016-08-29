@@ -5,6 +5,7 @@ using System.Text;
 using DotVVM.Framework.ViewModel;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using DotVVM.Framework.AspNetCore.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.AuthenticatedView
 {
@@ -20,13 +21,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.AuthenticatedVie
                 },
                 "ApplicationCookie");
 
-            await Context.HttpContext.Authentication.SignInAsync("Scheme3", new ClaimsPrincipal(identity));
+            await Context.GetAuthenticationManager().SignInAsync("Scheme3", new ClaimsPrincipal(identity));
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 
         public async Task SignOut()
         {
-            await Context.HttpContext.Authentication.SignOutAsync("Scheme3");
+            await Context.GetAuthenticationManager().SignOutAsync("Scheme3");
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 
