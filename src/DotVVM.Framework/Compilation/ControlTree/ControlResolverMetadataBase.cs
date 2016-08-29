@@ -13,7 +13,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private readonly ControlMarkupOptionsAttribute attribute;
 
         private readonly Lazy<Dictionary<string, IPropertyDescriptor>> properties;
-        public Dictionary<string, IPropertyDescriptor> Properties => properties.Value;
+        public IReadOnlyDictionary<string, IPropertyDescriptor> Properties => properties.Value;
+
+		private readonly Lazy<List<IPropertyGroupDescriptor>> _propertyGroups;
+		public IReadOnlyList<IPropertyGroupDescriptor> PropertyGroups => _propertyGroups.Value;
 
 
         public string Namespace => controlType.Type.Namespace;
@@ -77,8 +80,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 LoadProperties(result);
                 return result;
             });
+			this._propertyGroups = new Lazy<List<IPropertyGroupDescriptor>>(() =>
+			{
+				var propertyGroups = new List<IPropertyGroupDescriptor>();
+				LoadPropertyGroups(propertyGroups);
+				return propertyGroups;
+			});
         }
 
         protected abstract void LoadProperties(Dictionary<string, IPropertyDescriptor> result);
+
+		protected abstract void LoadPropertyGroups(List<IPropertyGroupDescriptor> result);
     }
 }

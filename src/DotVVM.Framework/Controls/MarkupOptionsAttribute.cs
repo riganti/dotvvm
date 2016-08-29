@@ -1,3 +1,4 @@
+using DotVVM.Framework.Compilation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -34,7 +35,7 @@ namespace DotVVM.Framework.Controls
 		/// <summary>
 		/// Type with non parametric contstructor which implements IAttributeValueMerger interface
 		/// </summary>
-		public Type AttributeValueMerger { get; set; }
+		public Type AttributeValueMerger { get; set; } = typeof(DefaultAttributeValueMerger);
 
 		/// <summary>
 		/// Gets or sets the mapping mode.

@@ -6,10 +6,13 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
-	public struct PropertyGroupMember: IEquatable<PropertyGroupMember>
+	public struct PropertyGroupMember: IEquatable<PropertyGroupMember>, IPropertyGroupMember
 	{
 		public readonly string Name;
 		public readonly PropertyGroupDescriptor Group;
+
+		string IPropertyGroupMember.Name => Name;
+		IPropertyGroupDescriptor IPropertyGroupMember.PropertyGroup => Group;
 
 		public PropertyGroupMember(PropertyGroupDescriptor group, string name)
 		{

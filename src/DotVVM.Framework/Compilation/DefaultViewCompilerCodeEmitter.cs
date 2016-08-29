@@ -9,6 +9,7 @@ using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -32,7 +33,7 @@ namespace DotVVM.Framework.Compilation
         public const string GetControlBuilderFunctionName = nameof(IControlBuilderFactory.GetControlBuilder);
         public const string DataContextTypePropertyName = nameof(IControlBuilder.DataContextType);
 
-
+		private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties;
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
         public SyntaxTree SyntaxTree { get; private set; }
@@ -46,7 +47,7 @@ namespace DotVVM.Framework.Compilation
         }
 
 
-        private List<ClassDeclarationSyntax> otherClassDeclarations = new List<ClassDeclarationSyntax>();
+        private List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
 
         public string EmitCreateVariable(ExpressionSyntax expression)
         {
@@ -75,7 +76,7 @@ namespace DotVVM.Framework.Compilation
                 constructorArguments = new object[] { };
             }
 
-            UsedAssemblies.Add(type.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(type.Assembly);
             return EmitCreateObject(ParseTypeName(type), constructorArguments.Select(EmitValue));
         }
 
@@ -118,7 +119,7 @@ namespace DotVVM.Framework.Compilation
 
         public ExpressionSyntax EmitAttributeInitializer(CustomAttributeData attr)
         {
-            UsedAssemblies.Add(attr.AttributeType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(attr.AttributeType.Assembly);
             return SyntaxFactory.ObjectCreationExpression(
                 ParseTypeName(attr.AttributeType),
                 SyntaxFactory.ArgumentList(
@@ -144,7 +145,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            UsedAssemblies.Add(controlType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(controlType.Assembly);
 
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
@@ -253,7 +254,7 @@ namespace DotVVM.Framework.Compilation
             }
             if (value is Type)
             {
-                UsedAssemblies.Add((value as Type).GetTypeInfo().Assembly);
+                UsedAssemblies.Add((value as Type).Assembly);
                 return SyntaxFactory.TypeOfExpression(ParseTypeName((value as Type)));
             }
 
@@ -265,9 +266,9 @@ namespace DotVVM.Framework.Compilation
                 return EmitStrangeIntegerValue(Convert.ToInt64(value), type);
             }
 
-            if (type.GetTypeInfo().IsEnum)
+            if (type.IsEnum)
             {
-                UsedAssemblies.Add(type.GetTypeInfo().Assembly);
+                UsedAssemblies.Add(type.Assembly);
                 return
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -325,6 +326,84 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
+		public ExpressionSyntax CreateDotvvmPropertyIdentifier(DotvvmProperty property)
+		{
+			if (property is GroupedDotvvmProperty)
+			{
+				var gprop = (GroupedDotvvmProperty)property;
+				string fieldName;
+				if (!cachedGroupedDotvvmProperties.TryGetValue(gprop, out fieldName))
+				{
+					fieldName = $"_staticCachedGroupProperty_{cachedGroupedDotvvmProperties.Count}";
+					cachedGroupedDotvvmProperties.Add(gprop, fieldName);
+					otherDeclarations.Add(SyntaxFactory.FieldDeclaration(
+						SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(typeof(GroupedDotvvmProperty).FullName),
+							SyntaxFactory.SingletonSeparatedList(
+								SyntaxFactory.VariableDeclarator(fieldName)
+								.WithInitializer(SyntaxFactory.EqualsValueClause(
+									SyntaxFactory.InvocationExpression(
+										SyntaxFactory.ParseName(gprop.PropertyGroup.DeclaringType.FullName + "." + gprop.PropertyGroup.DescriptorField.Name
+											+ "." + nameof(PropertyGroupDescriptor.GetDotvvmProperty)),
+										SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
+											SyntaxFactory.Argument(this.EmitStringLiteral(gprop.GroupMemberName))
+										))
+									)
+								))
+							)
+						)
+					));
+				}
+				return SyntaxFactory.ParseName(fieldName);
+			}
+			else
+			{
+				return SyntaxFactory.ParseName(property.DescriptorFullName);
+			}
+		}
+
+        /// <summary>
+        /// Emits the set attached property.
+        /// </summary>
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value)
+        {
+            UsedAssemblies.Add(property.DeclaringType.Assembly);
+            UsedAssemblies.Add(property.PropertyType.Assembly);
+
+			if (property.IsVirtual)
+			{
+				var gProperty = property as GroupedDotvvmProperty;
+				if (gProperty != null && gProperty.PropertyGroup.PropertyGroupMode == PropertyGroupMode.ValueCollection)
+				{
+					EmitAddToDictionary(controlName, property.CastTo<GroupedDotvvmProperty>().PropertyGroup.PropertyName, gProperty.GroupMemberName, EmitValue(value));
+				}
+				else
+				{
+					EmitSetProperty(controlName, property.PropertyInfo.Name, EmitValue(value));
+				}
+			}
+
+			CurrentStatements.Add(
+				SyntaxFactory.ExpressionStatement(
+					SyntaxFactory.InvocationExpression(
+						SyntaxFactory.MemberAccessExpression(
+							SyntaxKind.SimpleMemberAccessExpression,
+							CreateDotvvmPropertyIdentifier(property),
+                            SyntaxFactory.IdentifierName("SetValue")
+                        ),
+                        SyntaxFactory.ArgumentList(
+                            SyntaxFactory.SeparatedList(
+                                new[] {
+									SyntaxFactory.Argument(SyntaxFactory.IdentifierName(controlName)),
+                                    SyntaxFactory.Argument(
+                                        EmitValue(value)
+                                    )
+                                }
+                            )
+                        )
+                    )
+                )
+            );
+        }
 
         /// <summary>
         /// Emits the code that adds the specified value as a child item in the collection.
@@ -367,54 +446,10 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
-        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
-            EmitSetDotvvmProperty(controlName, property, EmitValue(value));
-        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
-        {
-            UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
-
-            if (property.IsVirtual)
-            {
-                EmitSetProperty(controlName, property.PropertyInfo.Name, EmitValue(value));
-            }
-            else
-            {
-                CurrentStatements.Add(
-                    SyntaxFactory.ExpressionStatement(
-                        SyntaxFactory.InvocationExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.ParseName(property.DescriptorFullName),
-                                SyntaxFactory.IdentifierName("SetValue")
-                            ),
-                            SyntaxFactory.ArgumentList(
-                                SyntaxFactory.SeparatedList(
-                                    new[] {
-                                    SyntaxFactory.Argument(SyntaxFactory.IdentifierName(controlName)),
-                                    SyntaxFactory.Argument(value)
-                                    }
-                                )
-                            )
-                        )
-                    )
-                );
-            }
-        }
-
-
         /// <summary>
         /// Emits the add HTML attribute.
         /// </summary>
-        public void EmitAddHtmlAttribute(string controlName, string name, string value)
-        {
-            EmitAddHtmlAttribute(controlName, name, EmitValue(value));
-        }
-
-        /// <summary>
-        /// Emits the add HTML attribute.
-        /// </summary>
-        public void EmitAddHtmlAttribute(string controlName, string name, ExpressionSyntax valueSyntax)
+        public void EmitAddToDictionary(string controlName, string propertyName, string key, ExpressionSyntax valueSyntax)
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
@@ -430,7 +465,7 @@ namespace DotVVM.Framework.Compilation
                                 SyntaxFactory.SeparatedList(
                                     new[]
                                     {
-                                        SyntaxFactory.Argument(EmitStringLiteral(name))
+                                        SyntaxFactory.Argument(EmitStringLiteral(key))
                                     }
                                 )
                             )
@@ -526,7 +561,7 @@ namespace DotVVM.Framework.Compilation
 
         public string EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
         {
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(property.PropertyType.Assembly);
 
             if (property.IsVirtual)
             {
@@ -650,7 +685,7 @@ namespace DotVVM.Framework.Compilation
             {
                 return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
             }
-            else if (!type.GetTypeInfo().IsGenericType)
+            else if (!type.IsGenericType)
             {
                 return SyntaxFactory.ParseTypeName(type.FullName);
             }
@@ -694,12 +729,12 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
-            UsedAssemblies.Add(BuilderDataContextType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(BuilderDataContextType.Assembly);
 
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(
                     SyntaxFactory.List<MemberDeclarationSyntax>(
-                        otherClassDeclarations.Concat(new[]
+                        new[]
                         {
                             SyntaxFactory.ClassDeclaration(className)
                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
@@ -739,11 +774,11 @@ namespace DotVVM.Framework.Compilation
                                                 .WithExpressionBody(
                                                     SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(ResultControlType))))
                                                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                                        })
+                                        }).Concat(otherDeclarations)
                                     )
                                 )
-                        })
-                    )
+                        }
+					)
                 )
             );
 
@@ -788,7 +823,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public void EmitControlClass(Type baseType, string className)
         {
-            otherClassDeclarations.Add(
+            otherDeclarations.Add(
                 SyntaxFactory.ClassDeclaration(className)
                     .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                     .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]

@@ -238,12 +238,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var bindingNode = (DothtmlBindingNode)node;
             var literal = treeBuilder.BuildControl(literalMetadata.Value, node, dataContext);
 
-            var textBinding = ProcessBinding(bindingNode, dataContext);
-            var textProperty = treeBuilder.BuildPropertyBinding(Literal.TextProperty, textBinding, null);
-            treeBuilder.SetProperty(literal, textProperty);
+			var textBinding = ProcessBinding(bindingNode, dataContext);
+			var textProperty = treeBuilder.BuildPropertyBinding(Literal.TextProperty, textBinding, null);
+			string error;
+			treeBuilder.AddProperty(literal, textProperty, out error); // this can't fail
 
-            var renderSpanElement = treeBuilder.BuildPropertyValue(Literal.RenderSpanElementProperty, false, null);
-            treeBuilder.SetProperty(literal, renderSpanElement);
+			var renderSpanElement = treeBuilder.BuildPropertyValue(Literal.RenderSpanElementProperty, false, null);
+			treeBuilder.AddProperty(literal, renderSpanElement, out error);
 
             return literal;
         }
@@ -255,23 +256,23 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             object[] constructorParameters;
 
-            // build control
-            var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
-            if (controlMetadata == null)
-            {
-                controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters);
-                constructorParameters = new[] { element.FullTagName };
-                element.AddError($"The control <{element.FullTagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
-            }
-            var control = treeBuilder.BuildControl(controlMetadata, element, dataContext);
-            control.ConstructorParameters = constructorParameters;
-
-            // resolve data context
-            var dataContextAttribute = element.Attributes.FirstOrDefault(a => a.AttributeName == "DataContext");
-            if (dataContextAttribute != null)
-            {
-                ProcessAttribute(dataContextAttribute, control, dataContext);
-            }
+			// build control
+			var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
+			if (controlMetadata == null)
+			{
+				controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters);
+				constructorParameters = new[] { element.FullTagName };
+				element.AddError($"The control <{element.FullTagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
+			}
+			var control = treeBuilder.BuildControl(controlMetadata, element, dataContext);
+			control.ConstructorParameters = constructorParameters;
+			
+			// resolve data context
+			var dataContextAttribute = element.Attributes.FirstOrDefault(a => a.AttributeName == "DataContext");
+			if (dataContextAttribute != null)
+			{
+				ProcessAttribute(dataContextAttribute, control, dataContext);
+			}
 
             IAbstractPropertySetter dataContextProperty;
             if (control.TryGetProperty(DotvvmBindableObject.DataContextProperty, out dataContextProperty) && dataContextProperty is IAbstractPropertyBinding)
@@ -378,37 +379,38 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         static HashSet<string> treatBindingAsHardCodedValue = new HashSet<string> { "resource" };
 
-        /// <summary>
-        /// Processes the attribute node.
-        /// </summary>
-        private void ProcessAttribute(DothtmlAttributeNode attribute, IAbstractControl control, IDataContextStack dataContext)
-        {
-            if (attribute.AttributePrefix == "html")
-            {
-                if (!control.Metadata.HasHtmlAttributesCollection)
-                {
-                    attribute.AddError($"The control '{control.Metadata.Type.FullName}' cannot use HTML attributes!");
-                }
-                else
-                {
-                    try
-                    {
-                        treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
-                    }
-                    catch (NotSupportedException ex)
-                    {
-                        if (ex.InnerException == null) throw;
-                        else attribute.AddError(ex.Message);
-                    }
-                }
-                return;
-            }
+		/// <summary>
+		/// Processes the attribute node.
+		/// </summary>
+		private void ProcessAttribute(DothtmlAttributeNode attribute, IAbstractControl control, IDataContextStack dataContext)
+		{
+			//T+ html: prefix
+			//if (attribute.AttributePrefix == "html")
+			//{
+			//	if (!control.Metadata.HasHtmlAttributesCollection)
+			//	{
+			//		attribute.AddError($"The control '{control.Metadata.Type.FullName}' cannot use HTML attributes!");
+			//	}
+			//	else
+			//	{
+			//		try
+			//		{
+			//			treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
+			//		}
+			//		catch (NotSupportedException ex)
+			//		{
+			//			if (ex.InnerException == null) throw;
+			//			else attribute.AddError(ex.Message);
+			//		}
+			//	}
+			//	return;
+			//}
 
-            if (!string.IsNullOrEmpty(attribute.AttributePrefix))
-            {
-                attribute.AddError("Attributes with XML namespaces are not supported!");
-                return;
-            }
+			//if (!string.IsNullOrEmpty(attribute.AttributePrefix))
+			//{
+			//	attribute.AddError("Attributes with XML namespaces are not supported!");
+			//	return;
+			//}
 
             // find the property
             var property = FindProperty(control.Metadata, attribute.AttributeName);
@@ -427,9 +429,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     return;
                 }
 
-                // set the property
-                if (attribute.ValueNode == null)
-                {
+				// set the property
+				if (attribute.ValueNode == null)
+				{
                     // implicitly set boolean property
                     if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))))
                     {
@@ -438,135 +440,127 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     else attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
                 }
                 else if (attribute.ValueNode is DothtmlValueBindingNode)
-                {
-                    // binding
-                    var bindingNode = (attribute.ValueNode as DothtmlValueBindingNode).BindingNode;
-                    if (property.IsVirtual)
-                    {
-                        attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain bindings because it's not DotvvmProperty.");
-                    }
-                    else if (treatBindingAsHardCodedValue.Contains(bindingNode.Name))
-                    {
-                        if (!property.MarkupOptions.AllowHardCodedValue)
-                            attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding, it can contain only hard-coded value or resource binding.");
-                    }
-                    else
-                    {
-                        if (!property.MarkupOptions.AllowBinding)
-                            attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");
-                    }
-                    var binding = ProcessBinding(bindingNode, dataContext);
-                    var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding, attribute);
-                    treeBuilder.SetProperty(control, bindingProperty);
+				{
+					// binding
+					var bindingNode = (attribute.ValueNode as DothtmlValueBindingNode).BindingNode;
+					if (property.IsVirtual && !property.IsBindingProperty && property.PropertyType.FullName != "System.Object")
+					{
+						attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain bindings because it's not DotvvmProperty.");
+					}
+					else if (treatBindingAsHardCodedValue.Contains(bindingNode.Name))
+					{
+						if (!property.MarkupOptions.AllowHardCodedValue)
+							attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding, it can contain only hard-coded value or resource binding.");
+					}
+					else
+					{
+						if (!property.MarkupOptions.AllowBinding)
+							attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");
+					}
+					var binding = ProcessBinding(bindingNode, dataContext);
+					var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding, attribute);
+                    string error;
+                    if (!treeBuilder.AddProperty(control, bindingProperty, out error)) attribute.AddError(error);
                 }
                 else
-                {
-                    // hard-coded value in markup
-                    if (!property.MarkupOptions.AllowHardCodedValue)
-                    {
-                        attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain hard coded value.");
-                    }
+				{
+					// hard-coded value in markup
+					if (!property.MarkupOptions.AllowHardCodedValue)
+					{
+						attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain hard coded value.");
+					}
 
-                    var textValue = attribute.ValueNode as DothtmlValueTextNode;
-                    var value = ConvertValue(textValue.Text, property.PropertyType);
-                    var propertyValue = treeBuilder.BuildPropertyValue(property, value, attribute);
-                    treeBuilder.SetProperty(control, propertyValue);
+					var textValue = attribute.ValueNode as DothtmlValueTextNode;
+					var value = ConvertValue(textValue.Text, property.PropertyType);
+					var propertyValue = treeBuilder.BuildPropertyValue(property, value, attribute);
+                    string error;
+                    if (!treeBuilder.AddProperty(control, propertyValue, out error)) attribute.AddError(error);
                 }
             }
-            else if (control.Metadata.HasHtmlAttributesCollection)
-            {
-                // if the property is not found, add it as an HTML attribute
-                try
-                {
-                    treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
-                }
-                catch (NotSupportedException ex)
-                {
-                    if (ex.InnerException == null) throw;
-                    else attribute.AddError(ex.Message);
-                }
-            }
-            else
-            {
-                attribute.AddError($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not allow HTML attributes!");
-            }
-        }
+			//else if (control.Metadata.HasHtmlAttributesCollection)
+			//{
+			//	// if the property is not found, add it as an HTML attribute
+			//	try
+			//	{
+			//		treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
+			//	}
+			//	catch (NotSupportedException ex)
+			//	{
+			//		if (ex.InnerException == null) throw;
+			//		else attribute.AddError(ex.Message);
+			//	}
+			//}
+			else
+			{
+				attribute.AddError($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not allow HTML attributes!");
+			}
+		}
 
-        private IAbstractHtmlAttributeSetter ProcessAttributeValue(DothtmlAttributeNode attribute, IDataContextStack dataContext)
-        {
-            var valueNode = attribute.ValueNode;
+		/// <summary>
+		/// Processes the content of the control node.
+		/// </summary>
+		public void ProcessControlContent(IAbstractControl control, IEnumerable<DothtmlNode> nodes)
+		{
+			var content = new List<DothtmlNode>();
+			bool properties = true;
+			foreach (var node in nodes)
+			{
+				var element = node as DothtmlElementNode;
+				if (element != null && properties)
+				{
+					var property = FindProperty(control.Metadata, element.TagName);
+					if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode.HasFlag(MappingMode.InnerElement))
+					{
+						content.Clear();
+						string error;
+						if (treeBuilder.AddProperty(control, ProcessElementProperty(control, property, element.Content, element), out error)) element.AddError(error);
 
-            if (valueNode is DothtmlValueBindingNode)
-            {
-                return treeBuilder.BuildHtmlAttributeBinding(attribute.AttributeName, ProcessBinding((valueNode as DothtmlValueBindingNode).BindingNode, dataContext), attribute);
-            }
-            else
-            {
-                return treeBuilder.BuildHtmlAttributeValue(attribute.AttributeName, WebUtility.HtmlDecode((valueNode as DothtmlValueTextNode)?.Text), attribute);
-            }
-        }
-
-        /// <summary>
-        /// Processes the content of the control node.
-        /// </summary>
-        public void ProcessControlContent(IAbstractControl control, IEnumerable<DothtmlNode> nodes)
-        {
-            var content = new List<DothtmlNode>();
-            bool properties = true;
-            foreach (var node in nodes)
-            {
-                var element = node as DothtmlElementNode;
-                if (element != null && properties)
-                {
-                    var property = FindProperty(control.Metadata, element.TagName);
-                    if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode.HasFlag(MappingMode.InnerElement))
-                    {
-                        content.Clear();
-                        treeBuilder.SetProperty(control, ProcessElementProperty(control, property, element.Content, element));
-
-                        foreach (var attr in element.Attributes)
-                            attr.AddError("Attributes can't be set on element property.");
-                    }
-                    else
-                    {
-                        content.Add(node);
-                        if (node.IsNotEmpty())
-                        {
-                            properties = false;
-                        }
-                    }
-                }
-                else
-                {
-                    content.Add(node);
-                }
-            }
-            if (control.Metadata.DefaultContentProperty != null)
-            {
-                if (control.HasProperty(control.Metadata.DefaultContentProperty))
-                {
-                    foreach (var c in content)
-                        if (c.IsNotEmpty())
-                            c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
-                }
-                else if (!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value)))
-                    treeBuilder.SetProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content, null));
-            }
-            else
-            {
-                if (!control.Metadata.IsContentAllowed)
-                {
-                    foreach (var item in content)
-                    {
-                        if (item.IsNotEmpty())
-                        {
-                            item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
-                        }
-                    }
-                }
-                else ResolveControlContentImmediately(control, content);
-            }
-        }
+						foreach (var attr in element.Attributes)
+							attr.AddError("Attributes can't be set on element property.");
+					}
+					else
+					{
+						content.Add(node);
+						if (node.IsNotEmpty())
+						{
+							properties = false;
+						}
+					}
+				}
+				else
+				{
+					content.Add(node);
+				}
+			}
+			if (control.Metadata.DefaultContentProperty != null)
+			{
+				if (control.HasProperty(control.Metadata.DefaultContentProperty))
+				{
+					foreach (var c in content)
+						if (c.IsNotEmpty())
+							c.AddError($"Property { control.Metadata.DefaultContentProperty.FullName } was already set.");
+				}
+				else if (!content.All(c => c is DothtmlLiteralNode && string.IsNullOrWhiteSpace(((DothtmlLiteralNode)c).Value))) {
+					string error;
+					if (!treeBuilder.AddProperty(control, ProcessElementProperty(control, control.Metadata.DefaultContentProperty, content, null), out error))
+						content.First().AddError(error);
+				}
+			}
+			else
+			{
+				if (!control.Metadata.IsContentAllowed)
+				{
+					foreach (var item in content)
+					{
+						if (item.IsNotEmpty())
+						{
+							item.AddError($"Content not allowed inside {control.Metadata.Type.Name}.");
+						}
+					}
+				}
+				else ResolveControlContentImmediately(control, content);
+			}
+		}
 
         /// <summary>
         /// Resolves the content of the control immediately during the parsing.
@@ -747,8 +741,18 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 return FindGlobalProperty(name);
             }
 
-            return null;
-        }
+			// try property group
+			foreach (var group in parentMetadata.PropertyGroups)
+			{
+				if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase))
+				{
+					var concreteName = name.Substring(group.Prefix.Length);
+					return group.GetDotvvmProperty(concreteName);
+				}
+			}
+
+			return null;
+		}
 
         /// <summary>
         /// Checks that the element can have inner contents.

@@ -11,5 +11,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		string PropertyName { get; }
 		string Prefix { get; }
 		ITypeDescriptor CollectionType { get; }
+		bool CaseSensitive { get; }
+		IPropertyDescriptor GetDotvvmProperty(string name);
 	}
 }
