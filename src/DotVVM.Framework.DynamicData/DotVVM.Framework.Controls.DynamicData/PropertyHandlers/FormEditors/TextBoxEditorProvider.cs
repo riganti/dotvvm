@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Reflection;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 
@@ -29,6 +30,11 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             textBox.ValueType = TextBoxHelper.GetValueType(property.PropertyInfo);
             textBox.FormatString = property.FormatString;
             textBox.SetBinding(TextBox.TextProperty, context.CreateValueBinding(property.PropertyInfo.Name));
+
+            if (property.DataType == DataType.Password)
+            {
+                textBox.Type = TextBoxType.Password;
+            }
         }
         
         

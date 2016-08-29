@@ -26,6 +26,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         {
             var displayAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayAttribute>();
             var displayFormatAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayFormatAttribute>();
+            var dataTypeAttribute = pair.PropertyInfo.GetCustomAttribute<DataTypeAttribute>();
 
             return new PropertyDisplayMetadata()
             {
@@ -35,7 +36,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 GroupName = displayAttribute?.GetGroupName(),
                 FormatString = displayFormatAttribute?.DataFormatString,
                 NullDisplayText = displayFormatAttribute?.NullDisplayText,
-                AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true
+                AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true,
+                DataType = dataTypeAttribute?.DataType
             };
         }
 

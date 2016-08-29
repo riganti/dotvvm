@@ -17,18 +17,22 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// <summary>
         /// Registers the Dynamic Data controls and return the Dynamic Data configuration.
         /// </summary>
-        public static DynamicDataConfiguration AddDynamicDataConfiguration(this DotvvmConfiguration config)
+        public static DynamicDataConfiguration AddDynamicDataConfiguration(this DotvvmConfiguration config, DynamicDataConfiguration dynamicDataConfiguration = null)
         {
+            if (dynamicDataConfiguration == null)
+            {
+                dynamicDataConfiguration = new DynamicDataConfiguration();
+            }
+
             config.Markup.AddCodeControl("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).Assembly.GetName().Name);
 
             var propertyDisplayMetadataProvider = new DataAnnotationsPropertyDisplayMetadataProvider();
 
             config.ServiceLocator.RegisterSingleton<IPropertyDisplayMetadataProvider>(() => propertyDisplayMetadataProvider);
             config.ServiceLocator.RegisterSingleton<IEntityPropertyListProvider>(() => new DefaultEntityPropertyListProvider(propertyDisplayMetadataProvider));
-            config.ServiceLocator.RegisterSingleton<IFormBuilder>(() => new TableDynamicFormBuilder());
-
-            var dynamicDataConfiguration = new DynamicDataConfiguration();
             config.ServiceLocator.RegisterSingleton<DynamicDataConfiguration>(() => dynamicDataConfiguration);
+            config.ServiceLocator.RegisterSingleton<IFormBuilder>(() => dynamicDataConfiguration.FormBuilder);
+
             return dynamicDataConfiguration;
         }
 

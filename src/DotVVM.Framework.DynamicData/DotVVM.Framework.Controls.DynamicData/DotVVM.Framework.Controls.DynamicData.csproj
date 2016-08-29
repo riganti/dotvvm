@@ -95,6 +95,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Builders\BootstrapFormGroupBuilder.cs" />
     <Compile Include="Builders\FormBuilderBase.cs" />
     <Compile Include="Builders\TableDynamicFormBuilder.cs" />
     <Compile Include="Builders\IFormBuilder.cs" />

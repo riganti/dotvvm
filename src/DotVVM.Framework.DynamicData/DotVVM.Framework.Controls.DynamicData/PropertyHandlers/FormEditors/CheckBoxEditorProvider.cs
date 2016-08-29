@@ -10,6 +10,8 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
         {
             return UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
         }
+        
+        public override bool CanValidate => true;
 
         public override bool RenderDefaultLabel => false;
 
