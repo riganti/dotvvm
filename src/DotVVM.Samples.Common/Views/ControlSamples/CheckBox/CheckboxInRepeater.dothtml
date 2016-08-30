@@ -1,0 +1,32 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.CheckBox.CheckboxInRepeaterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <fieldset>
+        <!--<dot:Repeater DataSource="{value: CheckBoxes}">
+            <ItemTemplate>
+                <dot:CheckBox Text="{value: CheckedValue}" CheckedItems="{value: _parent.Colors}" CheckedValue="{value: CheckedValue}"
+                              Changed="{command: _parent.UpdateSelectedColors()}" Visible="{value: Visible}" />
+            </ItemTemplate>
+        </dot:Repeater>-->
+
+        <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'one'}"
+                      Changed="{command: UpdateSelectedColors()}" id="checkbox-one" />
+        <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'two'}"
+                      Changed="{command: UpdateSelectedColors()}" id="checkbox-two" />
+        <dot:CheckBox CheckedItems="{value: Colors}" CheckedValue="{value: 'three'}"
+                      Changed="{command: UpdateSelectedColors()}" id="checkbox-three" />
+
+        <dot:Button Text="Set checked state on server" Click="{command: SetCheckedItems()}" id="set-server-values" />
+        <span data-ui="buttongroup-repeater-checkbox-checkedItems-value">{{value: SelectedColors}}</span>
+    </fieldset>
+</body>
+</html>
+
+

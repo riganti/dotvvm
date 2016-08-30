@@ -1,5 +1,0 @@
-@viewModel System.Object
-@baseType DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl.ControlPropertyUpdating, DotVVM.Samples.BasicSamples
-
-{{controlProperty: ControlProperty + " HUHA"}}
-<dot:Button Text="Update control property" Click="{controlCommand: UpdateProperty()}" />

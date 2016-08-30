@@ -1,6 +1,0 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.MasterPageViewModel, DotVVM.Samples.BasicSamples
-@masterPage  Views/FeatureSamples/NestedMasterPages/Root.dotmaster
-<dot:Content  ContentPlaceHolderID="MainContent">	
-	<h2>Nested Masterpage</h2>
-	<dot:ContentPlaceHolder ID="MainContent" />
-</dot:Content>

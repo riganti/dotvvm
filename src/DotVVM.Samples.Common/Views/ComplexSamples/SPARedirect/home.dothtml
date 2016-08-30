@@ -1,0 +1,11 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect.HomeViewModel
+@masterPage Views/ComplexSamples/SPARedirect/site.dotmaster
+
+<dot:Content ContentPlaceHolderID="SpaHost">
+
+    <p>Welcome home.</p>
+
+    <dot:Button Click="{command: SignOut()}" Text="Sign Out" />
+
+</dot:Content>
+

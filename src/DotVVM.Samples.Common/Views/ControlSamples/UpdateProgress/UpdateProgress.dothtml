@@ -1,0 +1,22 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.UpdateProgress.UpdateProgressViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+	<h1>UpdateProgress control</h1>
+
+	<dot:Button Text="Test" Click="{command: Test()}" />
+	<dot:Button Text="Test File Download" Click="{command: TestFileDownload()}" />
+
+	<dot:UpdateProgress class="update-progress">
+		Loading...
+	</dot:UpdateProgress>
+
+</body>
+</html>

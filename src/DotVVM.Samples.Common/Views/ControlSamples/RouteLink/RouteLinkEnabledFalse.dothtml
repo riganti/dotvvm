@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RouteLink.RouteLinkEnabledFalseViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <p>
+        This RouteLink should not redirect you to the Route
+        <dot:RouteLink Enabled="false" RouteName="ControlSamples_RouteLink_TestRoute" Text="Test" />
+    </p>
+    <p>
+        This RouteLink should not redirect you to the Route
+        <dot:RouteLink Enabled="{{value: false}}" RouteName="ControlSamples_RouteLink_TestRoute" Text="Test" />
+    </p>
+</body>
+</html>
+
+

@@ -1,0 +1,6 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.MasterPageViewModel, DotVVM.Samples.Common
+@masterPage  Views/FeatureSamples/NestedMasterPages/Nested.dotmaster
+
+<dot:content ContentPlaceHolderID="MainContent">
+	<h3> Root -> Nested -> This content</h3>
+</dot:content>

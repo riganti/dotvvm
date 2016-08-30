@@ -1,0 +1,30 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.GridViewStaticCommandViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div class="container">
+        <h1>GridView with IGridViewDataSet</h1>
+        <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered">
+            <Columns>
+                <!-- comment inside columns collection -->
+                <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+                <dot:GridViewTemplateColumn HeaderText="Action">
+                    <ContentTemplate>
+                        <dot:Button Click="{command: _root.DeleteCustomerData(CustomerId)}" Text="Static command delete" />
+                    </ContentTemplate>
+                </dot:GridViewTemplateColumn>
+            </Columns>
+
+            <!-- comment inside control -->
+        </dot:GridView>
+        <dot:DataPager DataSet="{value: CustomersDataSet}" class="pagination" />
+    </div>
+</body>
+</html>

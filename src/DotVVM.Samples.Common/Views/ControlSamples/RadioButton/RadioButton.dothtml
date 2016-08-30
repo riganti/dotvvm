@@ -1,0 +1,37 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RadioButton.RadioButtonViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>RadioButton test</h1>
+		
+		<div class="row">
+			<div class="col-md-6">
+
+				<fieldset>
+					<legend>Data-bound RadioButtons</legend>
+
+					<p>
+						<dot:Repeater DataSource="{value: DBRBChoices}">
+							<ItemTemplate>
+								<dot:RadioButton Text="{value: Title}" GroupName="group2" CheckedItem="{value: _parent.DBRB}" CheckedValue="{value: Id}" /> 
+								&nbsp; &nbsp;
+							</ItemTemplate>
+						</dot:Repeater>
+						<dot:Button Text="Postback" Click="{command: UpdateDBRB()}" />
+						&nbsp; &nbsp;
+						<span>{{value: DBRBResult}}</span>
+					</p>
+				</fieldset>
+
+			</div>
+		</div>
+	</div>
+
+</body>
+</html>
+

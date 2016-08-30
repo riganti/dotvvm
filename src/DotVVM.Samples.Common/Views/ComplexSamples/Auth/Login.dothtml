@@ -1,0 +1,30 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth.LoginViewModel
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Login</title>
+</head>
+<body>
+	<div class="container">
+		<h1>Login</h1>
+		
+		<fieldset>
+			<legend>Login form</legend>
+			<p>This is sample without db - you don't have to know password :)</p>
+			<dot:AuthenticatedView>
+				<p>
+					You are already logged in, go to <a href="Login">the page only for logged users</a>
+				</p>
+			</dot:AuthenticatedView>
+			<p>User name: <dot:TextBox Text="{value: UserName}" /></p>
+			<p>
+				<dot:CheckBox ID="adminRole" Text="Admin role" Checked="{value: AdminRole}" />
+			</p>
+			<p><dot:Button Text="Login" Click="{command: Login()}" /></p>
+		</fieldset>
+
+		<a href="SecuredPage">Page for authenticated</a>
+	</div>
+</body>
+</html>

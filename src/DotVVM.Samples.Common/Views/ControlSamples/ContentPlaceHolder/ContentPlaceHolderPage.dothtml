@@ -1,0 +1,5 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ContentPlaceHolder.ContentPlaceHolderPageViewModel, DotVVM.Samples.Common
+@masterPage Views/ControlSamples/ContentPlaceHolder/ContentPlaceHolderMasterPage.dotmaster
+
+<dot:Content ContentPlaceHolderID="MainHtmlBody"></dot:Content>
+
