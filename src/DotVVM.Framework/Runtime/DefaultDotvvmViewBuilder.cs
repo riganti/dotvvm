@@ -12,17 +12,17 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Runtime
 {
-    public abstract class DotvvmViewBuilderBase : IDotvvmViewBuilder
+    public class DefaultDotvvmViewBuilder : IDotvvmViewBuilder
     {
 
         protected IMarkupFileLoader markupFileLoader;
 
         protected IControlBuilderFactory controlBuilderFactory;
 
-        protected DotvvmViewBuilderBase(DotvvmConfiguration configuration)
+        public DefaultDotvvmViewBuilder(IMarkupFileLoader markupFileLoader, IControlBuilderFactory builderFactory)
         {
-            markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
-            controlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            this.markupFileLoader = markupFileLoader;
+            this.controlBuilderFactory = builderFactory;
         }
 
         /// <summary>
@@ -64,9 +64,22 @@ namespace DotVVM.Framework.Runtime
         /// If the request is SPA request, we need to verify that the page contains the same SpaContentPlaceHolder.
         /// Also we need to check that the placeholder is the same.
         /// </summary>
-        protected abstract void VerifySpaRequest(DotvvmRequestContext context, DotvvmView page);
-
-  
+        protected void VerifySpaRequest(DotvvmRequestContext context, DotvvmView page)
+        {
+            if (context.IsSpaRequest)
+            {
+                var spaContentPlaceHolders = page.GetAllDescendants().OfType<SpaContentPlaceHolder>().ToList();
+                if (spaContentPlaceHolders.Count > 1)
+                {
+                    throw new Exception("Multiple controls of type <dot:SpaContentPlaceHolder /> found on the page! This control can be used only once!");   // TODO: exception handling
+                }
+                if (spaContentPlaceHolders.Count == 0 || spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId() != context.GetSpaContentPlaceHolderUniqueId())
+                {
+                    // the client has loaded different page which does not contain current SpaContentPlaceHolder - he needs to be redirected
+                    context.RedirectToUrl(context.HttpContext.Request.Url.ToString());
+                }
+            }
+        }
 
         /// <summary>
         /// Determines whether the page is nested in master page.

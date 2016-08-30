@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Runtime.Filters
             // check for [NotAuthorized] attribute
             if (context.ViewModel != null && !CanBeAuthorized(context.ViewModel.GetType())) return;
             // TODO: async action filters
-            var user = AuthScheme == null ? context.HttpContext.User : context.HttpContext.Authentication.GetAuthenticateInfoAsync(AuthScheme).Result.Principal;
+            var user = AuthScheme == null ? context.HttpContext.User : context.HttpContext.Authentication.TryAuthenticateAsync(AuthScheme).Result;
 
             // the user must not be anonymous
             if (user == null || !user.Identity.IsAuthenticated)

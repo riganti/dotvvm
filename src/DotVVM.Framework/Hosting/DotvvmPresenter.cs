@@ -38,13 +38,14 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
         /// </summary>
-        public DotvvmPresenter(DotvvmConfiguration configuration)
+        public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer, 
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector)
         {
-            DotvvmViewBuilder = configuration.ServiceLocator.GetService<IDotvvmViewBuilder>();
-            ViewModelLoader = configuration.ServiceLocator.GetService<IViewModelLoader>();
-            ViewModelSerializer = configuration.ServiceLocator.GetService<IViewModelSerializer>();
-            OutputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
-            CsrfProtector = configuration.ServiceLocator.GetService<ICsrfProtector>();
+            DotvvmViewBuilder = viewBuilder;
+            ViewModelLoader = viewModelLoader;
+            ViewModelSerializer = viewModelSerializer;
+            OutputRenderer = outputRender;
+            CsrfProtector = csrfProtector;
             ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 

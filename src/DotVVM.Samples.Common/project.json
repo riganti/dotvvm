@@ -9,6 +9,9 @@
   "frameworks": {
     "netstandard1.6": {
       "imports": "dnxcore50"
+    },
+    "net461": {
+
     }
   }
 }

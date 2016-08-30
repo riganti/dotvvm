@@ -14,8 +14,8 @@ namespace DotVVM.Framework.Hosting
     {
         public static DotvvmConfiguration CreateConfiguration(string applicationRootDirectory, IServiceProvider serviceProvider)
         {
-			// load or create default configuration
-			var configuration = serviceProvider.GetService<DotvvmConfiguration>();
+            // load or create default configuration
+            var configuration = serviceProvider.GetService<DotvvmConfiguration>();
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
             return configuration;
         }

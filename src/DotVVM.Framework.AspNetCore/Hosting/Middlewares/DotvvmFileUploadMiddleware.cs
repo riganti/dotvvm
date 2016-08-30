@@ -14,7 +14,7 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 using Microsoft.AspNetCore.Http;
 
-namespace DotVVM.Framework.Hosting
+namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmFileUploadMiddleware
     {

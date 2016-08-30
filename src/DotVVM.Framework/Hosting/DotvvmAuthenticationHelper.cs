@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using System.Net;
 
 namespace DotVVM.Framework.Hosting

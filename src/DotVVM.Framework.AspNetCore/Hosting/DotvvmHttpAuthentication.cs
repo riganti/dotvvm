@@ -1,4 +1,6 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http.Authentication;
 
 namespace DotVVM.Framework.Hosting
@@ -17,9 +19,9 @@ namespace DotVVM.Framework.Hosting
             return OriginalAuthentication.ChallengeAsync(authenticationScheme);
         }
 
-        public Task<AuthenticateInfo> GetAuthenticateInfoAsync(string authenticationScheme)
+        public async Task<ClaimsPrincipal> TryAuthenticateAsync(string authScheme)
         {
-            return OriginalAuthentication.GetAuthenticateInfoAsync(authenticationScheme);
+            return (await OriginalAuthentication.GetAuthenticateInfoAsync(authScheme)).Principal;
         }
     }
 }

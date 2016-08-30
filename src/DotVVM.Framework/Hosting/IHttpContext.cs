@@ -6,9 +6,9 @@ namespace DotVVM.Framework.Hosting
     public interface IHttpContext
     {
         ClaimsPrincipal User { get; set; }
-        IHttpRequest Request { get; set; }
-        IHttpResponse Response { get; set; }
+        IHttpRequest Request { get; }
+        IHttpResponse Response { get; }
         IAuthentication Authentication { get; }
-        IDictionary<object, object> Items { get; set; }
+        IDictionary<object, object> Items { get; }
     }
 }

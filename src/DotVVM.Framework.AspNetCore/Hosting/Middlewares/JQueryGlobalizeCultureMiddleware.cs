@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
 using Microsoft.AspNetCore.Http;
 
-namespace DotVVM.Framework.Hosting
+namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class JQueryGlobalizeCultureMiddleware
     {

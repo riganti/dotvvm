@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Storage;
-using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Runtime
 {

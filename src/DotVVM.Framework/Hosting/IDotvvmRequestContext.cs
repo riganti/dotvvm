@@ -7,7 +7,6 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
-using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -154,7 +153,7 @@ namespace DotVVM.Framework.Hosting
         /// <param name="fileName">Name of file.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="additionalHeaders">Additional headers.</param>
-        void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null);
+        void ReturnFile(byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null);
 
         /// <summary>
         /// Sends data stream to client.
@@ -163,6 +162,6 @@ namespace DotVVM.Framework.Hosting
         /// <param name="fileName">Name of file.</param>
         /// <param name="mimeType">MIME type.</param>
         /// <param name="additionalHeaders">Additional headers.</param>
-        void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null);
+        void ReturnFile(Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null);
     }
 }

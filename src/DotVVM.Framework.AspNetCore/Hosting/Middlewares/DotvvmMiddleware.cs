@@ -40,7 +40,8 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public async Task Invoke(HttpContext context)
         {
-            if (Interlocked.Exchange(ref configurationSaved, 1) == 0) {
+            if (Interlocked.Exchange(ref configurationSaved, 1) == 0)
+            {
                 VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
             }
             // create the context
@@ -65,7 +66,7 @@ namespace DotVVM.Framework.Hosting
                 dotvvmContext.Route = route;
                 dotvvmContext.Parameters = parameters;
                 dotvvmContext.Query = context.Request.Query
-                    .ToDictionary(d => d.Key, d => d.Value.Count == 1 ? (object) d.Value[0] : d.Value.ToArray());
+                    .ToDictionary(d => d.Key, d => d.Value.Count == 1 ? (object)d.Value[0] : d.Value.ToArray());
 
                 try
                 {
@@ -78,7 +79,7 @@ namespace DotVVM.Framework.Hosting
                     return;
                 }
             }
-            
+
             // we cannot handle the request, pass it to another component
             await next(context);
         }
@@ -86,45 +87,46 @@ namespace DotVVM.Framework.Hosting
 
         public static IHttpContext ConvertHttpContext(HttpContext context)
         {
-			var httpContext = context.Features.Get<IHttpContext>();
-			if (httpContext == null)
-			{
-				httpContext = new DotvvmHttpContext(
-					context,
-					new DotvvmHttpAuthentication(context.Authentication)
-					);
+            var httpContext = context.Features.Get<IHttpContext>();
+            if (httpContext == null)
+            {
+                httpContext = new DotvvmHttpContext(
+                    context,
+                    new DotvvmHttpAuthentication(context.Authentication))
+                {
+                    Response = new DotvvmHttpResponse(
+                        context.Response,
+                        httpContext,
+                        new DotvvmHeaderCollection(context.Response.Headers)
+                    ),
 
-				httpContext.Response = new DotvvmHttpResponse(
-					context.Response,
-					httpContext,
-					new DotvvmHeaderCollection(context.Response.Headers)
-					);
+                    Request = new DotvvmHttpRequest(
+                        context.Request,
+                        httpContext,
+                        new DotvvmHttpPathString(context.Request.Path),
+                        new DotvvmHttpPathString(context.Request.PathBase),
+                        new DotvvmQueryCollection(context.Request.Query),
+                        new DotvvmHeaderCollection(context.Request.Headers),
+                        new DotvvmCookieCollection(context.Request.Cookies)
+                    )
+                };
 
-				httpContext.Request = new DotvvmHttpRequest(
-					context.Request,
-					httpContext,
-					new DotvvmHttpPathString(context.Request.Path),
-					new DotvvmHttpPathString(context.Request.PathBase),
-					new DotvvmQueryCollection(context.Request.Query),
-					new DotvvmHeaderCollection(context.Request.Headers),
-					new DotvvmCookieCollection(context.Request.Cookies)
-					);
-				context.Features.Set(httpContext);
-			}
+                context.Features.Set(httpContext);
+            }
             return httpContext;
         }
 
         protected DotvvmRequestContext CreateDotvvmContext(HttpContext context)
         {
-            
-                        
-             return new DotvvmRequestContext()
-             {
-                 HttpContext =  ConvertHttpContext(context),
-                 Configuration = Configuration,
-                 ResourceManager = new ResourceManager(Configuration),
-                 ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
-             };
+
+
+            return new DotvvmRequestContext()
+            {
+                HttpContext = ConvertHttpContext(context),
+                Configuration = Configuration,
+                ResourceManager = new ResourceManager(Configuration),
+                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
+            };
         }
 
         /// <summary>

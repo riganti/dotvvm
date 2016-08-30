@@ -9,6 +9,7 @@ using DotVVM.Framework.Configuration;
 using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Hosting;
 using Microsoft.Owin.Security.DataProtection;
+using DotVVM.Framework.AspNetCore.Hosting;
 
 namespace DotVVM.Framework.Security
 {
@@ -26,9 +27,9 @@ namespace DotVVM.Framework.Security
 
         private IDataProtectionProvider protectionProvider;
 
-        public DefaultCsrfProtector(DotvvmConfiguration configuration)
+        public DefaultCsrfProtector(IDataProtectionProvider protectionProvider)
         {
-            this.protectionProvider = configuration.ServiceLocator.GetService<IDataProtectionProvider>();
+            this.protectionProvider = protectionProvider;
         }
 
         public string GenerateToken(IDotvvmRequestContext context)
@@ -93,7 +94,7 @@ namespace DotVVM.Framework.Security
             var protector = this.protectionProvider.Create(PURPOSE_SID);
 
             // Get cookie value
-            var sidCookieValue = mgr.GetRequestCookie(context.OwinContext, sessionIdCookieName);
+            var sidCookieValue = mgr.GetRequestCookie(context.GetOwinContext(), sessionIdCookieName);
 
             if (!string.IsNullOrWhiteSpace(sidCookieValue))
             {
@@ -126,13 +127,13 @@ namespace DotVVM.Framework.Security
                 // Save to cookie
                 sidCookieValue = Convert.ToBase64String(protectedSid);
                 mgr.AppendResponseCookie(
-                    context.OwinContext,
+                    context.GetOwinContext(),
                     sessionIdCookieName,                                // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value
                     new Microsoft.Owin.CookieOptions
                     {
                         HttpOnly = true,                                // Don't allow client script access
-                        Secure = context.OwinContext.Request.IsSecure   // If request goes trough HTTPS, mark as secure only
+                        Secure = context.HttpContext.Request.IsHttps   // If request goes trough HTTPS, mark as secure only
                     });
 
                 // Return newly generated SID
@@ -146,10 +147,10 @@ namespace DotVVM.Framework.Security
 
         private string GetSessionIdCookieName(IDotvvmRequestContext context)
         {
-            var domain = context.OwinContext.Request.Uri.Host;
-            if (!context.OwinContext.Request.Uri.IsDefaultPort)
+            var domain = context.HttpContext.Request.Url.Host;
+            if (!context.HttpContext.Request.Url.IsDefaultPort)
             {
-                domain += "-" + context.OwinContext.Request.Uri.Port;
+                domain += "-" + context.HttpContext.Request.Url.Port;
             }
             return string.Format(context.Configuration.Security.SessionIdCookieName, domain);
         }

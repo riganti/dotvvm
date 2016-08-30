@@ -1,11 +1,12 @@
-﻿using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http.Authentication;
+﻿using System.Security.Claims;
+using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Hosting
 {
     public interface IAuthentication
     {
         Task ChallengeAsync(string authenticationScheme);
-        Task<AuthenticateInfo> GetAuthenticateInfoAsync(string authenticationScheme);
+        //Task<AuthenticateInfo> GetAuthenticateInfoAsync(string authenticationScheme);
+        Task<ClaimsPrincipal> TryAuthenticateAsync(string authScheme);
     }
 }

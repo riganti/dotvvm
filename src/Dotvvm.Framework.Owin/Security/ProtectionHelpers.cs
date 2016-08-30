@@ -2,7 +2,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Hosting;
-using Microsoft.AspNetCore.Http.Extensions;
 
 namespace DotVVM.Framework.Security
 {
@@ -10,7 +9,7 @@ namespace DotVVM.Framework.Security
     {
         public static string GetRequestIdentity(IDotvvmRequestContext context)
         {
-            return context.HttpContext.Request.GetEncodedUrl();
+            return context.HttpContext.Request.Url.ToString();
         }
 
         public static string GetUserIdentity(IDotvvmRequestContext context)

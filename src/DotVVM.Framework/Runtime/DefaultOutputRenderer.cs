@@ -9,7 +9,6 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Binding;
-using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Runtime
 {

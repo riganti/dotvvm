@@ -98,9 +98,6 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("compiledViewsAssemblies")]
         public List<string> CompiledViewsAssemblies { get; set; } = new List<string>() { "CompiledViews.dll" };
 
-
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmConfiguration"/> class.
         /// </summary>
@@ -117,21 +114,28 @@ namespace DotVVM.Framework.Configuration
         }
 
         public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> configureServices = null)
-		{
-			var serviceCollection = new ServiceCollection();
+        {
+            var serviceCollection = new ServiceCollection();
             //todo - change to component, not extension (problem with end-point platform specific package)
-			serviceCollection.AddDotvvmServices();
-			configureServices?.Invoke(serviceCollection);
-			return serviceCollection.BuildServiceProvider().GetService<DotvvmConfiguration>();
-		}
+            serviceCollection.AddDotvvmServices();
+            configureServices?.Invoke(serviceCollection);
+            var config = CreateDefault(new ServiceLocator(serviceCollection));
+            serviceCollection.AddSingleton(config);
+            return config;
+        }
 
         /// <summary>
         /// Creates the default configuration.
         /// </summary>
         public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider)
         {
+            return CreateDefault(new ServiceLocator(serviceProvider));
+        }
+
+        private static DotvvmConfiguration CreateDefault(ServiceLocator serviceLocator)
+        {
             var configuration = new DotvvmConfiguration();
-			configuration.ServiceLocator = new ServiceLocator(serviceProvider);
+            configuration.ServiceLocator = serviceLocator;
 
             configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
             configuration.Markup.Controls.AddRange(new[]

@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Hosting
 {
     public interface IHttpResponse
     {
-        IHeaderCollection Headers { get; set; }
+        IHeaderCollection Headers { get; }
         IHttpContext Context { get; }
         int StatusCode { get; set; }
         string ContentType { get; set; }

@@ -8,7 +8,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
-using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Hosting.ErrorPages
 {

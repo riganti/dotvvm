@@ -40,12 +40,15 @@ namespace DotVVM.Framework.Hosting
 
         public void Write(string text)
         {
-            OriginalResponse.Write(text);
+            using (var writer = new StreamWriter(OriginalResponse.Body))
+            {
+                writer.Write(text);
+            }
         }
 
         public void Write(byte[] data)
         {
-            OriginalResponse.Write(data.ToString());
+            OriginalResponse.Body.Write(data, 0, data.Length);
         }
 
         public void Write(byte[] data, int offset, int count)

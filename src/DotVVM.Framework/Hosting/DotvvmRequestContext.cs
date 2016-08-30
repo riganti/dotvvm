@@ -18,7 +18,6 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
-using Microsoft.AspNetCore.Http;
 
 
 namespace DotVVM.Framework.Hosting
@@ -259,7 +258,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the current DotVVM context.
         /// </summary>
-        public static DotvvmRequestContext GetCurrent(HttpContext httpContext)
+        public static DotvvmRequestContext GetCurrent(IHttpContext httpContext)
         {
             return (DotvvmRequestContext)httpContext.Items[HostingConstants.DotvvmRequestContextOwinKey];
         }
@@ -319,14 +318,14 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Redirects the client to the specified file.
         /// </summary>
-        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null)
+        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
         {
             var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
             var metadata = new ReturnedFileMetadata()
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value.ToArray())
+                AdditionalHeaders = additionalHeaders?.GroupBy(k => k.Key, k => k.Value)?.ToDictionary(k => k.Key, k => k.ToArray())
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata).Result;
@@ -336,14 +335,14 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Redirects the client to the specified file.
         /// </summary>
-        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null)
+        public void ReturnFile(Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
         {
             var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
             var metadata = new ReturnedFileMetadata()
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value.ToArray())
+                AdditionalHeaders = additionalHeaders?.GroupBy(k => k.Key, k => k.Value)?.ToDictionary(k => k.Key, k => k.ToArray())
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;

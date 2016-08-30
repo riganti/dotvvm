@@ -8,7 +8,6 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
-using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Testing
 {
@@ -94,12 +93,12 @@ namespace DotVVM.Framework.Testing
             return virtualUrl;
         }
 
-        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders)
         {
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
         }
 
-        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public void ReturnFile(Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders)
         {
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
         }

@@ -8,7 +8,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Generic;
 
-namespace DotVVM.Framework.Hosting
+namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmReturnedFileMiddleware
     {
