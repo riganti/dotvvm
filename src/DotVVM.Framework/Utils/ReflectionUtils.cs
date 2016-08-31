@@ -25,6 +25,16 @@ namespace DotVVM.Framework.Utils
 #endif
 		}
 
+        public static bool IsAssemblyNamespace(string fullName)
+            => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
+
+        public static ISet<string> GetAllNamespaces()
+            => new HashSet<string>(AppDomain.CurrentDomain.GetAssemblies()
+                .SelectMany(a => a.GetTypes()
+                .Select(t => t.Namespace))
+                .Distinct()
+                .ToList());
+
         /// <summary>
         /// Gets the property name from lambda expression, e.g. 'a => a.FirstName'
         /// </summary>

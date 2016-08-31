@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected override IControlType FindMarkupControl(string file)
         {
             var controlBuilder = controlBuilderFactory.GetControlBuilder(file);
-            return new ControlType(controlBuilder.ControlType, controlBuilder.GetType(), file);
+            return new ControlType(controlBuilder.ControlType, controlBuilder.GetType(), file, controlBuilder.DataContextType);
         }
 
         /// <summary>

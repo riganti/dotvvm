@@ -618,7 +618,7 @@ test";
         public static DothtmlRootNode ParseMarkup(string markup)
         {
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(markup));
+            tokenizer.Tokenize(markup);
             var parser = new DothtmlParser();
             var node = parser.Parse(tokenizer.Tokens);
             return node;

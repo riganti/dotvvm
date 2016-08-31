@@ -11,6 +11,8 @@ using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using BindingParser = DotVVM.Framework.Compilation.Parser.Binding.Parser.BindingParser;
+using a = System.Collections.Generic.Dictionary<string, int>.ValueCollection;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.Parser.Binding
 {
@@ -587,6 +589,143 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             });
         }
 
+        [TestMethod]
+        public void BindingParser_GenericExpresion_SimpleList()
+        {
+            var parser = SetupParser("System.Collections.Generic.List<string>.Enumerator");
+            var node = parser.ReadExpression();
+
+            var memberAccess = node as MemberAccessBindingParserNode;
+            Assert.IsNotNull(memberAccess);
+            var target = memberAccess.TargetExpression as MemberAccessBindingParserNode;
+            var enumerator = memberAccess.MemberNameExpression as IdentifierNameBindingParserNode;
+            Assert.IsNotNull(target);
+            Assert.IsTrue(enumerator?.Name == "Enumerator");
+            var genericName = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>();
+
+            Assert.IsTrue(genericName.Name == "List");
+            Assert.IsTrue(genericName.TypeArguments.Count == 1);
+            Assert.IsTrue(genericName.TypeArguments[0].CastTo<IdentifierNameBindingParserNode>().Name == "string");
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericExpresion_Dictionary()
+        {
+            var parser = SetupParser("System.Collections.Generic.Dictionary<string, int>.ValueCollection");
+            var node = parser.ReadExpression();
+
+            var memberAccess = node.CastTo<MemberAccessBindingParserNode>();
+            var target = memberAccess.TargetExpression.CastTo<MemberAccessBindingParserNode>();
+            var valueCollection = memberAccess.MemberNameExpression.CastTo<IdentifierNameBindingParserNode>();
+            var genericType = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>();
+
+            Assert.IsTrue(genericType.Name == "Dictionary");
+            Assert.IsTrue(valueCollection.Name == "ValueCollection");
+
+            var arg0 = genericType.TypeArguments[0].CastTo<IdentifierNameBindingParserNode>();
+            var arg1 = genericType.TypeArguments[1].CastTo<IdentifierNameBindingParserNode>();
+
+            Assert.IsTrue(arg0?.Name == "string");
+            Assert.IsTrue(arg1?.Name == "int");
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericExpresion_DictionaryTupleInside()
+        {
+            var originalString = "System.Collections.Generic.Dictionary<Tuple<bool, bool>, Tuple<string, int>>.ValueCollection";
+            var parser = SetupParser(originalString);
+            var node = parser.ReadExpression();
+
+            var memberAccess = node as MemberAccessBindingParserNode;
+            Assert.IsNotNull(memberAccess);
+            var target = memberAccess.TargetExpression as MemberAccessBindingParserNode;
+            var valueCollection = memberAccess.MemberNameExpression as IdentifierNameBindingParserNode;
+            Assert.IsNotNull(target);
+            Assert.IsNotNull(valueCollection);
+
+            var arg0 = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>()
+                .TypeArguments[0].CastTo<GenericNameBindingParserNode>();
+            var arg1 = target.MemberNameExpression.CastTo<GenericNameBindingParserNode>()
+                .TypeArguments[1].CastTo<GenericNameBindingParserNode>();
+
+            Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericExpresion_DictionaryTupleInside_Invalid()
+        {
+            var originalString = "System.Collections.Generic.Dictionary<Tuple<bool, bool>, Tuple<string, int>.ValueCollection";
+            var parser = SetupParser(originalString);
+            var node = parser.ReadExpression();
+
+            //expecting  ...Dictionary(LessThan)Tuple... because reading generic type failed and it could not read (comma) 
+            //so ended at the end of binary expression
+            Assert.IsTrue(string.Equals("System.Collections.Generic.Dictionary<Tuple<bool, bool>", node.ToDisplayString()));
+
+            parser = SetupParser(originalString);
+            var multi = parser.ReadMultiExpression() as MultiExpressionBindingParserNode;
+
+
+
+            Assert.IsTrue(multi.Expressions.Count == 4);
+            Assert.IsTrue(multi.Expressions[0] is BinaryOperatorBindingParserNode);
+            //Then there is whitespace, comma it doesnt metter much how those are parsed just that they are eaten away
+            Assert.IsTrue(multi.Expressions[3] is MemberAccessBindingParserNode);
+
+            //With multiple expesions we are able to eat the evil extra tokens and finis the expresion 
+            //Expresion Tuple<string, int>.ValueCollection is parsed correctly
+            Assert.IsTrue(string.Equals(multi.Expressions[0].ToDisplayString(), "System.Collections.Generic.Dictionary<Tuple<bool, bool>"));
+            Assert.IsTrue(string.Equals(multi.Expressions[1].ToDisplayString(), ""));
+            Assert.IsTrue(string.Equals(multi.Expressions[2].ToDisplayString(), ","));
+            Assert.IsTrue(string.Equals(multi.Expressions[3].ToDisplayString(), "Tuple<string, int>.ValueCollection"));
+
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericExpresion_JustComparision()
+        {
+            var originalString = "System.Collections.Generic.Dictionary<Tuple.Count&&Meep>Squeee";
+            var parser = SetupParser(originalString);
+            var node = parser.ReadExpression();
+
+            //Just comparition no generics or anything
+            Assert.IsTrue(node is BinaryOperatorBindingParserNode);
+            Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericExpresion_MultipleInside()
+        {
+            var originalString = "System.Collections.Generic.Dictionary<Generic.List<Generic.List<Generic.Set<Generic.List<System.String>>>>>";
+            var parser = SetupParser(originalString);
+            var node = parser.ReadExpression();
+
+            Assert.IsTrue(node is MemberAccessBindingParserNode);
+            Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
+        }
+
+        [TestMethod]
+        public void BindingParser_GenericExpresion_MemberAccessInsteadOfType_Invalid()
+        {
+            var originalString = "System.Collections.Generic.Dictionary<Generic.List<int>.Items[0].Delf()>";
+            var parser = SetupParser(originalString);
+            var node = parser.ReadExpression();
+
+            Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
+
+            //OK display string's the same but is the tree OK?
+            var secondComparision = node.CastTo<BinaryOperatorBindingParserNode>()
+                .SecondExpression.CastTo<BinaryOperatorBindingParserNode>();
+
+            Assert.IsTrue(
+                secondComparision.FirstExpression.As<FunctionCallBindingParserNode>()
+                .TargetExpression.CastTo<MemberAccessBindingParserNode>()
+                .MemberNameExpression.CastTo<IdentifierNameBindingParserNode>().Name == "Delf");
+
+            Assert.IsTrue(secondComparision.SecondExpression
+                .As<IdentifierNameBindingParserNode>().Name == "");
+        }
+
         private static BindingParserNode Parse(string expression)
         {
             BindingParser parser = SetupParser(expression);
@@ -596,7 +735,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         private static BindingParser SetupParser(string expression)
         {
             var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(new StringReader(expression));
+            tokenizer.Tokenize(expression);
             var parser = new BindingParser();
             parser.Tokens = tokenizer.Tokens;
             return parser;

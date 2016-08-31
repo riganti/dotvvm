@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -159,7 +159,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -202,7 +202,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -247,7 +247,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -289,7 +289,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -331,7 +331,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -373,7 +373,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -392,7 +392,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -419,7 +419,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -442,7 +442,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -465,7 +465,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -496,7 +496,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -527,7 +527,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -542,7 +542,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            var result = tokenizer.TokenizeBinding(new StringReader(input), false);
+            var result = tokenizer.TokenizeBinding(input, false);
 
             Assert.IsTrue(result);
             CheckForErrors(tokenizer, input.Length);
@@ -561,7 +561,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            var result =tokenizer.TokenizeBinding(new StringReader(input), false);
+            var result =tokenizer.TokenizeBinding(input, false);
 
             Assert.IsTrue(result);
             CheckForErrors(tokenizer, input.Length);
@@ -580,7 +580,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            var result = tokenizer.TokenizeBinding(new StringReader(input), false);
+            var result = tokenizer.TokenizeBinding(input, false);
 
             Assert.IsFalse(result);
         }
@@ -592,7 +592,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            var result = tokenizer.TokenizeBinding(new StringReader(input), false);
+            var result = tokenizer.TokenizeBinding(input, false);
 
             Assert.IsFalse(result);
         }
@@ -604,7 +604,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            var result = tokenizer.TokenizeBinding(new StringReader(input), false);
+            var result = tokenizer.TokenizeBinding(input, false);
 
             Assert.IsFalse(result);
         }
@@ -616,7 +616,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            var result = tokenizer.TokenizeBinding(new StringReader(input), false);
+            var result = tokenizer.TokenizeBinding(input, false);
 
             Assert.IsFalse(result);
         }
@@ -628,7 +628,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            var result = tokenizer.TokenizeBinding(new StringReader(input), false);
+            var result = tokenizer.TokenizeBinding(input, false);
 
             Assert.IsTrue(result);
             CheckForErrors(tokenizer, input.Length);

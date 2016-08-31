@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -14,6 +15,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, ITypeDescriptor resultType = null, Exception parsingError = null, object customData = null);
         
         IAbstractDirective BuildDirective(DothtmlDirectiveNode node);
+
+        IAbstractImportDirective BuildImportDirective(DothtmlDirectiveNode node, string alias, BindingParserNode nameSyntax);
 
         IAbstractHtmlAttributeValue BuildHtmlAttributeValue(string Name, string value, DothtmlAttributeNode dothtmlNode);
 

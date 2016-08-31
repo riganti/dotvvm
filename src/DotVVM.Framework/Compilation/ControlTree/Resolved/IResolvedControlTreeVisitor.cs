@@ -13,5 +13,6 @@
         void VisitHtmlAttributeValue(ResolvedHtmlAttributeValue htmlAttributeValue);
         void VisitHtmlAttributeBinding(ResolvedHtmlAttributeBinding htmlAttributeBinding);
         void VisitDirective(ResolvedDirective directive);
+        void VisitImportDirective(ResolvedImportDirective importDirective);
     }
 }

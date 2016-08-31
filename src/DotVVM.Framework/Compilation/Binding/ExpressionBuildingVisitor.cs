@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq.Expressions;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
+using DotVVM.Framework.Utils;
+using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -10,7 +12,10 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         public TypeRegistry Registry { get; set; }
         public Expression Scope { get; set; }
+        public bool ResolveOnlyTypeName { get; set; }
+
         private List<Exception> currentErrors;
+
 
         public ExpressionBuildingVisitor(TypeRegistry registry)
         {
@@ -76,6 +81,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var errors = currentErrors;
             try
             {
+                ThrowIfNotTypeNameRelevant(node);
                 return base.Visit(node);
             }
             finally
@@ -209,10 +215,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitIdentifierName(IdentifierNameBindingParserNode node)
         {
-            var expr = ExpressionHelper.GetMember(Scope, node.Name, throwExceptions: false) ??
-                Registry.Resolve(node.Name, throwException: false);
-            if (expr == null) return new UnknownStaticClassIdentifierExpression(node.Name);
-            return expr;
+            return GetMemberOrTypeExpression(node, null);
         }
 
         protected override Expression VisitConditionalExpression(ConditionalExpressionBindingParserNode node)
@@ -227,14 +230,72 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitMemberAccess(MemberAccessBindingParserNode node)
         {
-            var identifier = node.MemberNameExpression.Name;
+            var nameNode = node.MemberNameExpression;
+            var typeParameters = nameNode is GenericNameBindingParserNode
+                ? ResolveGenericArgumets(nameNode.CastTo<GenericNameBindingParserNode>())
+                : null;
+            var identifierName = (typeParameters?.Count() ?? 0) > 0
+                ? $"{nameNode.Name}`{typeParameters.Count()}"
+                : nameNode.Name;
+
             var target = Visit(node.TargetExpression);
-            if(target is UnknownStaticClassIdentifierExpression)
+
+            if (target is UnknownStaticClassIdentifierExpression)
             {
-                var name = (target as UnknownStaticClassIdentifierExpression).Name + "." + identifier;
-                return Registry.Resolve(name, throwException: false) ?? new UnknownStaticClassIdentifierExpression(name);
+                var name = (target as UnknownStaticClassIdentifierExpression).Name + "." + identifierName;
+
+                var resolvedTypeExpression = Registry.Resolve(name, throwException: false) ?? new UnknownStaticClassIdentifierExpression(name);
+
+                if (typeParameters != null)
+                {
+                    var resolvedType = resolvedTypeExpression.Type.MakeGenericType(typeParameters);
+                    resolvedTypeExpression = new StaticClassIdentifierExpression(resolvedType);
+                }
+                return resolvedTypeExpression;
             }
-            return ExpressionHelper.GetMember(target, identifier);
+
+            return ExpressionHelper.GetMember(target, nameNode.Name, typeParameters, onlyMemberTypes: ResolveOnlyTypeName);
+        }
+
+        protected override Expression VisitGenericName(GenericNameBindingParserNode node)
+        {
+            var typeParameters = ResolveGenericArgumets(node.CastTo<GenericNameBindingParserNode>());
+
+            return GetMemberOrTypeExpression(node, typeParameters);
+        }
+
+        private Expression GetMemberOrTypeExpression(IdentifierNameBindingParserNode node, Type[] typeParameters)
+        {
+            
+            var expr = 
+                Scope == null 
+                ? Registry.Resolve(node.Name, throwException: false)
+                : (ExpressionHelper.GetMember(Scope, node.Name, typeParameters, throwExceptions: false, onlyMemberTypes: ResolveOnlyTypeName) ?? Registry.Resolve(node.Name, throwException: false));
+
+            if (expr == null) return new UnknownStaticClassIdentifierExpression(node.Name);
+            if (expr is ParameterExpression && expr.Type == typeof(ExpressionHelper.UnknownTypeSentinel)) throw new Exception($"Type of '{expr}' could not be resolved.");
+            return expr;
+        }
+
+        private Type[] ResolveGenericArgumets(GenericNameBindingParserNode node)
+        {
+            var parameters = new Type[node.TypeArguments.Count];
+
+            for (int i = 0; i < node.TypeArguments.Count; i++)
+            {
+                var typeArgument = node.TypeArguments[i];
+
+                parameters[i] = Visit(typeArgument).Type;
+            }
+            return parameters;
+        }
+
+        private void ThrowIfNotTypeNameRelevant(BindingParserNode node)
+        {
+            if (ResolveOnlyTypeName && !(node is MemberAccessBindingParserNode) && !(node is IdentifierNameBindingParserNode))
+            {
+                throw new Exception("Only type name is supported.");
+            }
         }
     }
 }

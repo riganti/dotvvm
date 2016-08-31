@@ -18,7 +18,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DefaultViewModelSerializer : IViewModelSerializer
     {
-        private const string GeneralViewModelRecomendations = "Check out general viewMode recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
+        private const string GeneralViewModelRecomendations = "Check out general viewModel recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
 
         private CommandResolver commandResolver = new CommandResolver();
 

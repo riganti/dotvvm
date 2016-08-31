@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Compilation
             {
                 if (par.Length > 1)
                     yield return GetParameter(1, ParserConstants.ParentSpecialBindingProperty, vmArray, par);
-                for (int i = 1; i < par.Length; i++)
+                for (int i = 0; i < par.Length; i++)
                 {
                     yield return GetParameter(i, ParserConstants.ParentSpecialBindingProperty + i, vmArray, par);
                 }

@@ -42,10 +42,17 @@ namespace DotVVM.Framework.Controls
         internal override void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
         {
             var dep = Dependencies?.Split(',') ?? new string[] { ResourceConstants.DotvvmResourceName };
-            context.ResourceManager.AddStartupScript("inlinescript_" + (ClientID ?? (string)GetDotvvmUniqueId()), Script, dep);
+            context.ResourceManager.AddStartupScript("inlinescript_" + (ClientID ?? GetScriptUniqueId()), Script, dep);
 
             base.OnPreRenderComplete(context);
         }
+
+		private string GetScriptUniqueId()
+		{
+			var uniqueId = GetDotvvmUniqueId() as string;
+			if (uniqueId == null) throw new DotvvmControlException(this, $"Can not generate ID for InlineScript inside client template. Try to assign it ID manually.");
+			return uniqueId;
+		}
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {

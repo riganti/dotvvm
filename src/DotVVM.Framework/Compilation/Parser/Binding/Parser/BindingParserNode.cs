@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public abstract class BindingParserNode
     {
-        protected virtual string DebuggerDisplay => $"(S: {StartPosition}, L: {Length}) E: {NodeErrors.Count}";
+        protected string DebuggerDisplay => $"(S: {StartPosition}, L: {Length}, Err: {NodeErrors.Count}): {ToDisplayString()}";
 
         public int StartPosition { get; internal set; }
 
@@ -46,6 +46,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         }
 
         public abstract IEnumerable<BindingParserNode> EnumerateChildNodes();
+
+        public abstract string ToDisplayString();
 
     }
 }

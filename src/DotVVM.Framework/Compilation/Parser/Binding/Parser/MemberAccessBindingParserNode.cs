@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,8 +8,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class MemberAccessBindingParserNode : BindingParserNode
     {
-        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} <E>.<E>";
-
         public BindingParserNode TargetExpression { get; set; }
         public IdentifierNameBindingParserNode MemberNameExpression { get; set; }
 
@@ -28,5 +27,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => new[] { TargetExpression, MemberNameExpression };
+
+        public override string ToDisplayString()
+            => $"{TargetExpression.ToDisplayString()}.{MemberNameExpression.ToDisplayString()}";
     }
 }

@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -7,8 +8,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ArrayAccessBindingParserNode : BindingParserNode
     {
-        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} [<E>]";
-
         public BindingParserNode TargetExpression { get; private set; }
         public BindingParserNode ArrayIndexExpression { get; private set; }
 
@@ -25,5 +24,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => new[] { TargetExpression, ArrayIndexExpression };
+
+        public override string ToDisplayString() => $"{TargetExpression.ToDisplayString()}[{ArrayIndexExpression.ToDisplayString()}]";
     }
 }

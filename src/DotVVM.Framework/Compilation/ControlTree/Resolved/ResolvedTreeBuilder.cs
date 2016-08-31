@@ -5,6 +5,9 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
+using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -21,7 +24,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedControl((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext);
         }
 
-        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, ITypeDescriptor resultType = null, Exception parsingError=null,  object customData = null)
+        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, ITypeDescriptor resultType = null, Exception parsingError = null, object customData = null)
         {
             return new ResolvedBinding()
             {
@@ -60,12 +63,54 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedPropertyValue((DotvvmProperty)property, value) { DothtmlNode = sourceNode };
         }
 
+        public IAbstractImportDirective BuildImportDirective(DothtmlDirectiveNode node, string alias, BindingParserNode nameSyntax)
+        {
+            var visitor = new ExpressionBuildingVisitor(TypeRegistry.DirectivesDefault)
+            {
+                ResolveOnlyTypeName = true,
+                Scope = null
+            };
+
+            Expression expression;
+            try
+            {
+                expression = visitor.Visit(nameSyntax);
+            }
+            catch(Exception ex)
+            {
+                node.AddError($"{nameSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
+                return new ResolvedImportDirective(alias, nameSyntax, null, false);
+            }
+
+            if (expression is UnknownStaticClassIdentifierExpression)
+            {
+                var namespaceValid = expression
+                    .CastTo<UnknownStaticClassIdentifierExpression>().Name
+                    .Apply(ReflectionUtils.IsAssemblyNamespace);
+
+                if(!namespaceValid)
+                {
+                    node.AddError($"{nameSyntax.ToDisplayString()} is unknown type or namespace.");
+                }
+
+                return new ResolvedImportDirective(alias, nameSyntax, null, namespaceValid) { DothtmlNode = node };
+
+            }
+            else if(expression is StaticClassIdentifierExpression)
+            {
+                return new ResolvedImportDirective(alias, nameSyntax, expression.Type, true) { DothtmlNode = node };
+            }
+
+            node.AddError($"{nameSyntax.ToDisplayString()} is not a type or namespace.");
+            return new ResolvedImportDirective(alias, nameSyntax, null, false);
+        }
+
         public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)
         {
             return new ResolvedDirective() { DothtmlNode = node };
         }
 
-        public IAbstractHtmlAttributeValue BuildHtmlAttributeValue (string name, string value, DothtmlAttributeNode dothtmlNode)
+        public IAbstractHtmlAttributeValue BuildHtmlAttributeValue(string name, string value, DothtmlAttributeNode dothtmlNode)
         {
             return new ResolvedHtmlAttributeValue(name, value) { DothtmlNode = dothtmlNode };
         }

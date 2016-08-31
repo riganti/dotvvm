@@ -223,9 +223,33 @@ namespace DotVVM.Framework.Compilation
             {
                 return EmitBooleanLiteral((bool)value);
             }
-            if (value is int || value is long || value is ulong || value is uint || value is decimal || value is float || value is double)
+            if (value is int)
             {
-                return EmitStandartNumericLiteral(value);
+                return EmitStandardNumericLiteral((int)value);
+            }
+            if (value is long)
+            {
+                return EmitStandardNumericLiteral((long)value);
+            }
+            if (value is ulong)
+            {
+                return EmitStandardNumericLiteral((ulong)value);
+            }
+            if (value is uint)
+            {
+                return EmitStandardNumericLiteral((uint)value);
+            }
+            if (value is decimal)
+            {
+                return EmitStandardNumericLiteral((decimal)value);
+            }
+            if (value is float)
+            {
+                return EmitStandardNumericLiteral((float)value);
+            }
+            if (value is double)
+            {
+                return EmitStandardNumericLiteral((double)value);
             }
             if (value is Type)
             {
@@ -475,7 +499,37 @@ namespace DotVVM.Framework.Compilation
             return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
         }
 
-        private LiteralExpressionSyntax EmitStandartNumericLiteral(dynamic value)
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(int value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(long value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(ulong value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(uint value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(decimal value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(float value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(double value)
         {
             return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
         }
