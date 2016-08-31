@@ -118,8 +118,6 @@ namespace DotVVM.Framework.Hosting
 
         protected DotvvmRequestContext CreateDotvvmContext(HttpContext context)
         {
-
-
             return new DotvvmRequestContext()
             {
                 HttpContext = ConvertHttpContext(context),

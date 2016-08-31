@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Security.Claims;
 
 namespace DotVVM.Framework.Hosting
@@ -9,6 +10,8 @@ namespace DotVVM.Framework.Hosting
         IHttpRequest Request { get; }
         IHttpResponse Response { get; }
         IAuthentication Authentication { get; }
-        IDictionary<object, object> Items { get; }
+        T GetItem<T>(string key);
+        void SetItem<T>(string key, T value);
+        IEnumerable<Tuple<string, IEnumerable<KeyValuePair<string, object>>>> GetEnvironmentTabs();
     }
 }

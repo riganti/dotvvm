@@ -260,7 +260,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public static DotvvmRequestContext GetCurrent(IHttpContext httpContext)
         {
-            return (DotvvmRequestContext)httpContext.Items[HostingConstants.DotvvmRequestContextOwinKey];
+            return httpContext.GetItem<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
         }
 
         /// <summary>

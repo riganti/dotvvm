@@ -205,7 +205,9 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         public string ErrorHtml(Exception exception, IHttpContext context)
         {
             var template = new ErrorPageTemplate();
-            template.Formatters = Formatters.Select(f => f(exception, context)).Where(t => t != null).ToArray();
+            template.Formatters = Formatters.Select(f => f(exception, context))
+                .Concat(context.GetEnvironmentTabs().Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
+                .Where(t => t != null).ToArray();
             template.ErrorCode = context.Response.StatusCode;
             template.ErrorDescription = "Unhandled exception occured";
             template.Summary = exception.GetType().FullName + ": " + LimitLength(exception.Message, 200);
@@ -220,7 +222,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter { Exception = f.LoadException(e) });
             f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
             f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Environment", "env", o.Items));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo
             {
                 Title = "Loader Exceptions",
