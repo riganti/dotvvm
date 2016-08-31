@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.Errors.MarkupControlInvalidViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.Errors.MarkupControlInvalidViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

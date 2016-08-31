@@ -152,7 +152,7 @@ namespace DotVVM.Framework.Compilation.Binding
 		public static bool IsStringConversionAllowed(Type fromType)
 		{
 			// allow primitive types, IConvertibles, types that override ToString
-			return fromType.IsPrimitive || typeof(IConvertible).IsAssignableFrom(fromType) || fromType.GetMethod("ToString", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null)?.DeclaringType != typeof(object);
+			return fromType.GetTypeInfo().IsPrimitive || typeof(IConvertible).IsAssignableFrom(fromType) || fromType.GetTypeInfo().GetMethod("ToString", Type.EmptyTypes)?.DeclaringType != typeof(object);
 		}
 
         public static Expression ToStringConversion(Expression src)

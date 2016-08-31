@@ -13,11 +13,15 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmFileUploadMiddleware
     {
+        private static readonly Regex baseMimeTypeRegex = new Regex(@"/.*$");
+        private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$");
+
         private readonly DotvvmConfiguration configuration;
 		private readonly RequestDelegate next;
 
@@ -27,22 +31,23 @@ namespace DotVVM.Framework.Hosting.Middlewares
             this.configuration = configuration;
         }
 
-        public Task Invoke(HttpContext context)
+        public Task Invoke(HttpContext aspContext)
         {
+            var context = DotvvmMiddleware.ConvertHttpContext(aspContext);
             var url = DotvvmMiddleware.GetCleanRequestUrl(context);
             
             // file upload handler
-            if (url == HostingConstants.FileUploadHandlerMatchUrl)
+            if (url == HostingConstants.FileUploadHandlerMatchUrl || url.StartsWith(HostingConstants.FileUploadHandlerMatchUrl  + "?", StringComparison.OrdinalIgnoreCase))
             {
                 return ProcessMultipartRequest(context);
             }
             else
             {
-                return next(context);
+                return next(aspContext);
             }
         }
 
-        private async Task ProcessMultipartRequest(HttpContext context)
+        private async Task ProcessMultipartRequest(IHttpContext context)
         {
             // verify the request
             var isPost = context.Request.Method == "POST";
@@ -79,20 +84,23 @@ namespace DotVVM.Framework.Hosting.Middlewares
             await RenderResponse(context, isPost, errorMessage, uploadedFiles);
         }
 
-        private async Task RenderResponse(HttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
+        private bool ShouldReturnJsonResponse(IHttpContext context) =>
+            context.Request.Headers[HostingConstants.DotvvmFileUploadAsyncHeaderName] == "true" ||
+            context.Request.Query["returnJson"] == "true";
+
+        private async Task RenderResponse(IHttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
             var outputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
-            var convertedContext = DotvvmMiddleware.ConvertHttpContext(context);
-            if (isPost && context.Request.Headers[HostingConstants.DotvvmFileUploadAsyncHeaderName] == "true")
+            if (isPost && ShouldReturnJsonResponse(context))
             {
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
                 {
-                    await outputRenderer.RenderPlainJsonResponse(convertedContext, uploadedFiles);
+                    await outputRenderer.RenderPlainJsonResponse(context, uploadedFiles);
                 }
                 else
                 {
-                    await outputRenderer.RenderPlainTextResponse(convertedContext, errorMessage);
+                    await outputRenderer.RenderPlainTextResponse(context, errorMessage);
                     context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
                 }
             }
@@ -100,7 +108,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             {
                 // old browser - return HTML
                 var template = new FileUploadPageTemplate();
-                template.FormPostUrl = DotvvmRequestContext.TranslateVirtualPath("~/" + HostingConstants.FileUploadHandlerMatchUrl, DotvvmMiddleware.ConvertHttpContext(context));
+                template.FormPostUrl = DotvvmRequestContext.TranslateVirtualPath("~/" + HostingConstants.FileUploadHandlerMatchUrl, context);
                 template.AllowMultipleFiles = context.Request.Query["multiple"] == "true";
 
                 if (isPost)
@@ -116,11 +124,11 @@ namespace DotVVM.Framework.Hosting.Middlewares
                             JsonConvert.SerializeObject(errorMessage));
                     }
                 }
-                await outputRenderer.RenderHtmlResponse(convertedContext, template.TransformText());
+                await outputRenderer.RenderHtmlResponse(context, template.TransformText());
             }
         }
 
-        private async Task SaveFiles(HttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
+        private async Task SaveFiles(IHttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
         {
             // get the file store
             var fileStore = configuration.ServiceLocator.GetService<IUploadedFileStorage>();
@@ -131,7 +139,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             while ((section = await multiPartReader.ReadNextSectionAsync()) != null)
             {
                 // process the section
-                var result = await StoreFile(section, fileStore);
+                var result = await StoreFile(context, section, fileStore);
                 if (result != null)
                 {
                     uploadedFiles.Add(result);
@@ -142,16 +150,53 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// <summary>
         /// Stores the file and returns an object that will be sent to the client.
         /// </summary>
-        private async Task<UploadedFile> StoreFile(MultipartSection section, IUploadedFileStorage fileStore)
+        private async Task<UploadedFile> StoreFile(IHttpContext context, MultipartSection section, IUploadedFileStorage fileStore)
         {
             var fileId = await fileStore.StoreFile(section.Body);
-            var fileName = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
+            var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
+            var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
+            var mimeType = section.ContentType ?? string.Empty;
 
             return new UploadedFile()
             {
                 FileId = fileId,
-                FileName = fileName.Success ? fileName.Value : string.Empty
+                FileName = fileName,
+                Accepted = IsAccepted(context, fileName, mimeType)
             };
         }
+
+        private bool IsAccepted(IHttpContext context, string fileName, string mimeType)
+        {
+            var accept = context.Request.Query["accept"];
+
+            if (string.IsNullOrEmpty(accept))
+            {
+                return true;
+            }
+
+            return accept.Split(',').Any(type =>
+            {
+                type = type.Trim();
+
+                if (type.StartsWith(".", StringComparison.Ordinal))
+                {
+                    return string.Equals(type, Path.GetExtension(fileName), StringComparison.OrdinalIgnoreCase);
+                }
+
+                if (wildcardMimeTypeRegex.IsMatch(type))
+                {
+                    var baseMimeType = baseMimeTypeRegex.Replace(mimeType, string.Empty);
+                    return baseMimeType == baseMimeTypeRegex.Replace(type, string.Empty);
+                }
+
+                if (mimeType.Length > 0)
+                {
+                    return type == mimeType;
+                }
+
+                return false;
+            });
+        }
+
     }
 }

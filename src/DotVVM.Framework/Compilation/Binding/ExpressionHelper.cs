@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 {
                     var nonGenericType = (TypeInfo)members[0];
                     return isGeneric 
-                        ? Expression.Constant(null, nonGenericType)
+                        ? Expression.Constant(null, nonGenericType.UnderlyingSystemType)
                         : Expression.Constant(null, nonGenericType.MakeGenericType(typeArguments));
                 }
             }

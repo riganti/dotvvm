@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.TestingClass, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.TestingClass, DotVVM.Samples.Common
 @import VM = DotVVM.Samples.BasicSamples.ViewModels
 <!DOCTYPE html>
 
@@ -10,7 +10,7 @@
 
 <body ClientIDMode="Static">
     {{resource: GenericInstanceFunction<VM.TestParameter, VM.TestParameter>()}}<br/>
-    {{resource: DotVVM.Samples.BasicSamples.ViewModels.GenericTestingClass<DotVVM.Samples.BasicSamples.ViewModels.TestParameter, DotVVM.Samples.BasicSamples.ViewModels.TestParameter>.Arg1}}<br/>
+    {{resource: DotVVM.Samples.BasicSamples.ViewModels.GenericTestingClass<DotVVM.Samples.BasicSamples.ViewModels.TestParameter, DotVVM.Samples.Common.ViewModels.TestParameter>.Arg1}}<br/>
     {{resource: VM.GenericTestingClass<VM.TestParameter, VM.TestParameter>.Arg1}}<br/>
     {{resource: VM.TestingClass.GenericStaticFunction<VM.TestParameter, VM.TestParameter>()}}<br/>
 </body>

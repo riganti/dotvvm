@@ -29,8 +29,8 @@ namespace DotVVM.Framework.Utils
             => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
 
         public static ISet<string> GetAllNamespaces()
-            => new HashSet<string>(AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes()
+            => new HashSet<string>(GetAllAssemblies()
+                .SelectMany(a => a.GetLoadableTypes()
                 .Select(t => t.Namespace))
                 .Distinct()
                 .ToList());

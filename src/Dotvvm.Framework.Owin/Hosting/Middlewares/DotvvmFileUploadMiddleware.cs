@@ -159,7 +159,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             {
                 FileId = fileId,
                 FileName = fileName,
-                //IsAccpeted = IsAccepted(context, fileName, mimeType)
+                Accepted = IsAccepted(context, fileName, mimeType)
             };
         }
 
@@ -176,9 +176,9 @@ namespace DotVVM.Framework.Hosting.Middlewares
             {
                 type = type.Trim();
 
-                if (type.StartsWith("."))
+                if (type.StartsWith(".", StringComparison.Ordinal))
                 {
-                    return string.Equals(type, Path.GetExtension(fileName), StringComparison.InvariantCultureIgnoreCase);
+                    return string.Equals(type, Path.GetExtension(fileName), StringComparison.OrdinalIgnoreCase);
                 }
 
                 if (wildcardMimeTypeRegex.IsMatch(type))

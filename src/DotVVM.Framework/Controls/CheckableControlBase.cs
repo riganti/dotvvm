@@ -1,5 +1,4 @@
 using System;
-using System.Net.Mime;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;

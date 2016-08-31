@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         static bool ToStringCheck(Expression expr)
         {
             while (expr.NodeType == ExpressionType.Convert) expr = ((UnaryExpression)expr).Operand;
-            return expr.Type.IsPrimitive;
+            return expr.Type.GetTypeInfo().IsPrimitive;
         }
 
         public DataContextStack DataContexts { get; set; }

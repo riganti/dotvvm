@@ -1,5 +1,5 @@
 ﻿@viewModel System.Object, mscorlib
-@baseType DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl.MarkupControlRegistrationControl, DotVVM.Samples.BasicSamples
+@baseType DotVVM.Samples.BasicSamples.Views.FeatureSamples.MarkupControl.MarkupControlRegistrationControl, DotVVM.Samples.Common
 
 <h2>{{controlProperty: Name}}</h2>
 <p>

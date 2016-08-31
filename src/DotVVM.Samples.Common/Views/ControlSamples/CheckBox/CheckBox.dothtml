@@ -16,11 +16,11 @@
                     <legend>Single CheckBox</legend>
 
                     <p>
-                        <dot:CheckBox Text="Simple Test" Checked="{value: SCB}" />
+                        <dot:CheckBox Text="Simple Test" Checked="{value: Checked}" />
                         &nbsp; &nbsp;
-                        <dot:Button Text="Postback" Click="{command: UpdateSCB()}" />
+                        <dot:Button Text="Postback" Click="{command: UpdateCheckedDescription()}" />
                         &nbsp; &nbsp;
-                        <span class="result">{{value: SCBResult}}</span>
+                        <span class="result">{{value: CheckedDescription}}</span>
                     </p>
                 </fieldset>
 
@@ -31,15 +31,15 @@
                     <legend>Multiple CheckBoxes</legend>
 
                     <p>
-                        <dot:CheckBox Text="Red" CheckedItems="{value: MCB}" CheckedValue="r" />
+                        <dot:CheckBox Text="Red" CheckedItems="{value: CheckedItems}" CheckedValue="r" />
                         &nbsp; &nbsp;
-                        <dot:CheckBox Text="Green" CheckedItems="{value: MCB}" CheckedValue="g" />
+                        <dot:CheckBox Text="Green" CheckedItems="{value: CheckedItems}" CheckedValue="g" />
                         &nbsp; &nbsp;
-                        <dot:CheckBox Text="Blue" CheckedItems="{value: MCB}" CheckedValue="b" />
+                        <dot:CheckBox Text="Blue" CheckedItems="{value: CheckedItems}" CheckedValue="b" />
                         &nbsp; &nbsp;
-                        <dot:Button Text="Postback" Click="{command: UpdateMCB()}" />
+                        <dot:Button Text="Postback" Click="{command: UpdateCheckedItemsDescription()}" />
                         &nbsp; &nbsp;
-                        <span class="result">{{value: MCBResult}}</span>
+                        <span class="result">{{value: CheckedItemsDescription}}</span>
                     </p>
                 </fieldset>
 
@@ -58,11 +58,40 @@
                     <legend>Text binding CheckBox</legend>
 
                     <p>
-                        <dot:CheckBox Text="{value: Text}" Checked="{value: SCB}" />
+                        <dot:CheckBox Text="{value: Text}" Checked="{value: Checked}" />
                         &nbsp; &nbsp;
-                        <dot:Button Text="Postback" Click="{command: UpdateSCB()}" />
+                        <dot:Button Text="Postback" Click="{command: UpdateCheckedDescription()}" />
                         &nbsp; &nbsp;
-                        <span class="result">{{value: SCBResult}}</span>
+                        <span class="result">{{value: CheckedDescription}}</span>
+                    </p>
+                </fieldset>
+
+            </div>
+            <div class="col-md-6">
+                <fieldset>
+                    <legend>Visible</legend>
+
+                    <p>
+                        <dot:CheckBox Text="Visible" Checked="{value: Checked}" Visible="{value: Visible}" />
+                        <dot:CheckBox Text="Hidden" Checked="{value: Checked}" Visible="{value: !Visible}" />
+                        &nbsp; &nbsp;
+                        <dot:Button Text="Switch" Click="{command: Visible = !Visible}" data-ui="switch" />
+                        &nbsp; &nbsp;
+                        <span>Visible property: </span>
+                        <span class="result">{{value: Visible}}</span>
+                    </p>
+                </fieldset>
+
+            </div>
+            <div class="col-md-6">
+                <fieldset>
+                    <legend>DataContext Change</legend>
+                    <p>
+                        <dot:CheckBox DataContext="{value: Bomb}"
+                                      Text="{value: Name}"
+                                      Checked="{value: HasPin}" />
+                        &nbsp; &nbsp;
+                        <span class="result">{{value: Bomb.HasPin}}</span>
                     </p>
                 </fieldset>
 

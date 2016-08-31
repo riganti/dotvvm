@@ -187,7 +187,7 @@ namespace DotVVM.Samples.Tests
 
 				//TODO:  !!! In error page, viewModel directive should by underlined !!!
 				browser.First("p.summary").CheckIfInnerText(s => s.Contains("Master page requires viewModel"));
-				//browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.BasicSamples"));
+				//browser.First("[class='errorUnderline']").CheckIfInnerText(s => s.Contains("DotVVM.Samples.BasicSamples.ViewModels.EmptyViewModel, DotVVM.Samples.Common"));
 			});
 		}
 

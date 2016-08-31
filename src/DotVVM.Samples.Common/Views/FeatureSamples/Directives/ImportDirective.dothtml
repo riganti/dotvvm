@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives.ImportDirectiveViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives.ImportDirectiveViewModel, DotVVM.Samples.Common
 @import NS = DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives1
 @import DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.DirectivesNonAlias
 @import Texts = DotVVM.Samples.BasicSamples.Resources.Resource
