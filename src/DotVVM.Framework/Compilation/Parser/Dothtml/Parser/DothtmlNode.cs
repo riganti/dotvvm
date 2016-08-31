@@ -21,6 +21,9 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             if (nodeErrors == null) nodeErrors = new List<string>();
             nodeErrors.Add(error);
         }
+
+        public List<string> NodeWarnings { get; } = new List<string>();
+
         public bool HasNodeErrors
         {
             get { return nodeErrors != null && nodeErrors.Count > 0; }
