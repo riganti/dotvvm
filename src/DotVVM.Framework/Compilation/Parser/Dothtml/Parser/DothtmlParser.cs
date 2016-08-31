@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                                 var beginTagName = beginTag.FullTagName;
                                 if (!beginTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    element.NodeWarnings.Add($"The closing tag '</{beginTagName}>' doesn't have a matching opening tag!");
+                                    element.NodeWarnings.Add($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
                                     ResolveWrongClosingTag(element);
                                     beginTag = ElementHierarchy.Peek() as DothtmlElementNode;
 
