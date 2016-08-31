@@ -483,7 +483,7 @@ test";
 
             var visitor = new HierarchyBuildingVisitor
             {
-                CursorPosition = 84
+                CursorPosition = 83
             };
 
             root.Accept(visitor);
