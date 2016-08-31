@@ -188,6 +188,6 @@ FakesAssemblies/
 /src/DotVVM.Framework.Tests.Javascript/tests/*.js
 /src/DotVVM.Framework.Tests.Javascript/tests/*.js.map
 /src/DotVVM.Framework.Tests.Javascript/*.js
-/src/DotVVM.Samples.BasicSamples/Temp/Upload
+/src/DotVVM.Samples.Common/Temp/Upload
 
 *project.lock.json

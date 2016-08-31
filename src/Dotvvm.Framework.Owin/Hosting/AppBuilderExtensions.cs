@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Hosting
                 c.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 c.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 c.AddSingleton<IDataProtectionProvider>(s => new DefaultDataProtectionProvider(app));
-                registerServices(c);
+                registerServices?.Invoke(c);
             });
 #if Owin
             configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(app.GetDataProtectionProvider);

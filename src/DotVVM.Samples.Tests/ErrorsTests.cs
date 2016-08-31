@@ -243,10 +243,6 @@ namespace DotVVM.Samples.Tests
 				browser.First("label[for=menu_radio_reqHeaders]").Click();
 				browser.First("#container_reqHeaders").CheckIfIsDisplayed();
 
-				//click Environment
-				browser.First("label[for=menu_radio_env]").Click();
-				browser.First("#container_env").CheckIfIsDisplayed();
-
 				//click DotVVM Markup
 				browser.First("label[for=menu_radio_dothtml]").Click();
 				browser.First("#container_dothtml").CheckIfIsDisplayed();
