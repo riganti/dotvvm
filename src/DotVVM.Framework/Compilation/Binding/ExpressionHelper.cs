@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 .ToArray();
             if (members.Length == 0)
             {
-                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name  } on type { type.FullName }.");
+                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
                 else return null;
             }
             if (members.Length == 1)
