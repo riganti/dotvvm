@@ -14,13 +14,24 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public DothtmlNode ParentNode { get; set; }
 
+        private List<string> nodeWarnings;
         private List<string> nodeErrors;
+
+        public IEnumerable<string> NodeWarnings => nodeWarnings ?? Enumerable.Empty<string>();
         public IEnumerable<string> NodeErrors => nodeErrors ?? Enumerable.Empty<string>();
+
         public void AddError(string error)
         {
             if (nodeErrors == null) nodeErrors = new List<string>();
             nodeErrors.Add(error);
         }
+        public void AddWarning(string error)
+        {
+            if(nodeWarnings == null) nodeWarnings = new List<string>();
+            nodeWarnings.Add(error);
+        }
+
+
         public bool HasNodeErrors
         {
             get { return nodeErrors != null && nodeErrors.Count > 0; }

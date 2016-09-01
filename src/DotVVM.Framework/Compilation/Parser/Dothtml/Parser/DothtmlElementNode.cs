@@ -52,6 +52,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             result.AddRange(Attributes);
             if (InnerComments != null) result.AddRange(InnerComments);
             result.AddRange(Content);
+            if (CorrespondingEndTag != null) result.Add(CorrespondingEndTag);
 
             return result;
         }

@@ -239,7 +239,7 @@ test";
 
             Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
             Assert.AreEqual("", ((DothtmlElementNode)nodes[1]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[1]).HasNodeErrors);
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).NodeWarnings.Any());
 
             Assert.AreEqual(" dot:ContentPlaceHolder > ", ((DothtmlLiteralNode)nodes[2]).Value);
         }
@@ -254,7 +254,7 @@ test";
 
             Assert.IsTrue(((DothtmlElementNode)nodes[0]).IsClosingTag);
             Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[0]).HasNodeErrors);
+            Assert.IsTrue(((DothtmlElementNode)nodes[0]).NodeWarnings.Any());
         }
 
         [TestMethod]
@@ -281,11 +281,11 @@ test";
 
             Assert.IsTrue(((DothtmlElementNode)nodes[0]).IsClosingTag);
             Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[0]).HasNodeErrors);
+            Assert.IsTrue(((DothtmlElementNode)nodes[0]).NodeWarnings.Any());
 
             Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
             Assert.AreEqual("b", ((DothtmlElementNode)nodes[1]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[1]).HasNodeErrors);
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).NodeWarnings.Any());
         }
 
         [TestMethod]
@@ -298,15 +298,15 @@ test";
 
             Assert.IsFalse(((DothtmlElementNode)nodes[0]).IsClosingTag);
             Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
-            Assert.IsFalse(((DothtmlElementNode)nodes[0]).HasNodeErrors);
+            Assert.IsFalse(((DothtmlElementNode)nodes[0]).NodeWarnings.Any());
 
             Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
             Assert.AreEqual("b", ((DothtmlElementNode)nodes[1]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[1]).HasNodeErrors);
+            Assert.IsTrue(((DothtmlElementNode)nodes[1]).NodeWarnings.Any());
 
             Assert.IsTrue(((DothtmlElementNode)nodes[2]).IsClosingTag);
             Assert.AreEqual("a", ((DothtmlElementNode)nodes[2]).FullTagName);
-            Assert.IsTrue(((DothtmlElementNode)nodes[2]).HasNodeErrors);
+            Assert.IsTrue(((DothtmlElementNode)nodes[2]).NodeWarnings.Any());
         }
 
 
@@ -483,7 +483,7 @@ test";
 
             var visitor = new HierarchyBuildingVisitor
             {
-                CursorPosition = 84
+                CursorPosition = 83
             };
 
             root.Accept(visitor);
