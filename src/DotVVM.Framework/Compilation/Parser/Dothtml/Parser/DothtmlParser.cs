@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                             // close tag
                             if (ElementHierarchy.Count <= 1)
                             {
-                                element.NodeWarnings.Add($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
+                                element.AddWarning($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
                                 CurrentElementContent.Add(element);
                             }
                             else
@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                                 var beginTagName = beginTag.FullTagName;
                                 if (!beginTagName.Equals(element.FullTagName, StringComparison.OrdinalIgnoreCase))
                                 {
-                                    element.NodeWarnings.Add($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
+                                    element.AddWarning($"The closing tag '</{element.FullTagName}>' doesn't have a matching opening tag!");
                                     ResolveWrongClosingTag(element);
                                     beginTag = ElementHierarchy.Peek() as DothtmlElementNode;
 
