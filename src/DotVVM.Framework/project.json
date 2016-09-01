@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.4-pre",
   "dependencies": {
     "DotVVM.Core": "1.0.0-*",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
@@ -54,5 +54,8 @@
     "grunt-typescript": "*"
   },
   "exclude": [ "node_modules" ],
-  "buildOptions": { "keyFile": "dotvvmwizard.snk" },
+  "buildOptions": {
+    "keyFile": "dotvvmwizard.snk",
+    "xmlDoc": true
+  },
 }

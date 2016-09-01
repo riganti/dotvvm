@@ -1,5 +1,5 @@
 {
-  "version": "1.0.0-*",
+  "version": "1.0.4-pre",
   "dependencies": {
     "System.ComponentModel.Annotations": "4.1.0",
     "System.Linq": "4.1.0",
@@ -19,5 +19,8 @@
   "buildOptions": {
     "define": [ "DotNetCore" ]
   },
-  "compilationOptions": {"keyFile": "dotvvmwizard.snk"}
+  "compilationOptions": {
+    "keyFile": "dotvvmwizard.snk",
+    "xmlDoc": true
+  }
 }

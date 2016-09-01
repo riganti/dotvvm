@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>DotVVM.Core</id>
-        <version>1.0.3-pre</version>
+        <version>1.0.3.1</version>
         <authors>RIGANTI</authors>
         <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
         <projectUrl>http://github.org/riganti/dotvvm</projectUrl>
@@ -12,15 +12,18 @@
 			DotVVM is an OWIN-based ASP.NET framework that allows you to write rich client applications using the MVVM pattern without writing javascript code.
 		</description>
         <summary />
-	<iconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</iconUrl>
+    	<iconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</iconUrl>
         <language />
         <tags>dotvvm asp.net mvvm owin</tags>
         <dependencies>
-            <group targetFramework=".NETFramework4.5.1" />
+            <group targetFramework=".NETFramework4.6.1" />
+            <group targetFramework=".NETStandard1.6" />
         </dependencies>
     </metadata>
     <files>
-        <file src="..\..\DotVVM.Core\bin\Debug\DotVVM.Core.dll" target="lib\net451\DotVVM.Core.dll" />
-        <file src="..\..\DotVVM.Core\bin\Debug\DotVVM.Core.xml" target="lib\net451\DotVVM.Core.xml" />
+        <file src="..\..\DotVVM.Core\bin\Debug\net461\DotVVM.Core.dll" target="lib\net461\DotVVM.Core.dll" />
+        <file src="..\..\DotVVM.Core\bin\Debug\net461\DotVVM.Core.xml" target="lib\net461\DotVVM.Core.xml" />
+        <file src="..\..\DotVVM.Core\bin\Debug\netstandard1.6\DotVVM.Core.dll" target="lib\netstandard1.6\DotVVM.Core.dll" />
+        <file src="..\..\DotVVM.Core\bin\Debug\netstandard1.6\DotVVM.Core.xml" target="lib\netstandard1.6\DotVVM.Core.xml" />
     </files>
 </package>
