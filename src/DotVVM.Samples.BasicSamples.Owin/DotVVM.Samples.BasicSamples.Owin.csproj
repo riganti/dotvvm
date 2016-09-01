@@ -219,11 +219,10 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.Analyzers.dll" />
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <ProjectReference Include="..\Dotvvm.Framework.Owin\Dotvvm.Framework.Owin.csproj">
+    <ProjectReference Include="..\DotVVM.Framework.Hosting.Owin\Dotvvm.Framework.Hosting.Owin.csproj">
       <Project>{d05cf4ad-da99-4a91-a127-1aa8d860fbad}</Project>
-      <Name>Dotvvm.Framework.Owin</Name>
+      <Name>Dotvvm.Framework.Hosting.Owin</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>
