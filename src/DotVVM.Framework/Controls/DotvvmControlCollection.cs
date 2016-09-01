@@ -140,7 +140,10 @@ namespace DotVVM.Framework.Controls
             SetParent(item);
             controls.Insert(index, item);
 
-            item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
+            if (lastLifeCycleEvent != LifeCycleEventType.None)
+            {
+                item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
+            }
         }
 
 
@@ -183,12 +186,15 @@ namespace DotVVM.Framework.Controls
                 throw new DotvvmControlException(parent, "The control cannot be added to the collection because it already has a different parent! Remove it from the original collection first.");
             }
             item.Parent = parent;
-			var setrq = parent;
-			while (setrq != null && (item.LifecycleRequirements & ~setrq.LifecycleRequirements) != ControlLifecycleRequirements.None)
+
+            // Iterates through all parents and ORs the LifecycleRequirements
+			var currentParent = parent;
+			while (currentParent != null && (item.LifecycleRequirements & ~currentParent.LifecycleRequirements) != ControlLifecycleRequirements.None)
 			{
-				setrq.LifecycleRequirements |= item.LifecycleRequirements;
-				setrq = setrq.Parent;
+				currentParent.LifecycleRequirements |= item.LifecycleRequirements;
+				currentParent = currentParent.Parent;
 			}
+
             if (item.GetValue(Internal.UniqueIDProperty) == null)
             {
                 item.SetValue(Internal.UniqueIDProperty, parent.GetValue(Internal.UniqueIDProperty) + "a" + Count);
