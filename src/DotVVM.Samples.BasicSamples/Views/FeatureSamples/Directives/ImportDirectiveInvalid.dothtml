@@ -1,7 +1,7 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Directives.ImportDirectiveInvalidViewModel, DotVVM.Samples.BasicSamples
 
+@import jjj * ddd
 @import aaaa(mm, dd)
-@import System
 @import System.jsskadkldl
 @import asafasffsa
 @import System.Collections.Generic.List<mmm>

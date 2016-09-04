@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         
         IAbstractDirective BuildDirective(DothtmlDirectiveNode node);
 
-        IAbstractImportDirective BuildImportDirective(DothtmlDirectiveNode node, string alias, BindingParserNode nameSyntax);
+        IAbstractImportDirective BuildImportDirective(DothtmlDirectiveNode node, BindingParserNode aliasSyntax, BindingParserNode nameSyntax);
 
         IAbstractHtmlAttributeValue BuildHtmlAttributeValue(string Name, string value, DothtmlAttributeNode dothtmlNode);
 
