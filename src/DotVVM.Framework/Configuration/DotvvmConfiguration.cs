@@ -22,6 +22,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
 using System.Globalization;
 using System.Reflection;
+using DotVVM.Framework.Hosting.Middlewares;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
@@ -98,6 +99,9 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("compiledViewsAssemblies")]
         public List<string> CompiledViewsAssemblies { get; set; } = new List<string>() { "CompiledViews.dll" };
 
+        [JsonIgnore]
+        public List<Type> RequestMiddlewares { get; private set; }
+
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmConfiguration"/> class.
         /// </summary>
@@ -111,6 +115,7 @@ namespace DotVVM.Framework.Configuration
             Runtime = new DotvvmRuntimeConfiguration();
             Debug = true;
             Styles = new StyleRepository();
+            RequestMiddlewares = new List<Type>();
         }
 
         public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> configureServices = null)
