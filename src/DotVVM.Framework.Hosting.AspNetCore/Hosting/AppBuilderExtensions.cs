@@ -24,6 +24,11 @@ namespace DotVVM.Framework.Hosting
         {
             // load or create default configuration
             var configuration = serviceProvider.GetService<DotvvmConfiguration>();
+
+            if (configuration == null)
+            {
+                new InvalidOperationException("Service provider does not contain DotvvmConfiguration service. Make sure you have Dotvvm services registered in ConfigureServices method of your Startup class.");
+            }
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
             return configuration;
         }
