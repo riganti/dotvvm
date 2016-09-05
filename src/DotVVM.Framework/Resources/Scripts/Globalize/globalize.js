@@ -877,15 +877,15 @@ formatCustomNumber = function (value, format, formatInfo) {
     //split the decimal for the format string if any.
     var format = format.split(decimal);
     //Fix the decimal first, toFixed will auto fill trailing zero.
-    value = toFixed(value, format[1] && format[1].length);
+    value = toFixed(value, format.length > 1 ? format[1].length : 0);
     value = +(value) + ''; //convert number to string to trim off *all* trailing decimal zero(es)
 
     //fill back any trailing zero according to format
-    var posTrailZero = format[1] && format[1].lastIndexOf('0'); //look for last zero in format
+    var posTrailZero = format.length > 1 ? format[1].lastIndexOf('0') : 0; //look for last zero in format
     var part = value.split(decimal);
 
     //integer will get !part[1]
-    if (!part[1] || part[1] && part[1].length <= posTrailZero) {
+    if (format.length > 1 && (!part[1] || part[1] && part[1].length <= posTrailZero)) {
         value = (+value).toFixed(posTrailZero + 1);
     }
     var szSep = format[0].split(group); //look for separator
@@ -922,7 +922,7 @@ formatCustomNumber = function (value, format, formatInfo) {
         value[0] = str;
     }
 
-    value[1] = (format[1] && value[1]) ? formatInfo["."] + value[1] : "";
+    value[1] = (format.length > 1 && value.length > 1) ? formatInfo["."] + value[1] : "";
     return (isNegative ? '-' : '') + value[0] + value[1]; //put back any negation and combine integer and fraction.
 };
 
