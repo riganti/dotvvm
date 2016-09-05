@@ -433,7 +433,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     // implicitly set boolean property
                     if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))))
                     {
-                        treeBuilder.SetProperty(control, treeBuilder.BuildPropertyValue(property, true));
+                        treeBuilder.SetProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute));
                     }
                     attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
                 }
