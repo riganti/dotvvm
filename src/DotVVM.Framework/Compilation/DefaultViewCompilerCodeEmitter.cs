@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Compilation
                 constructorArguments = new object[] { };
             }
 
-            UsedAssemblies.Add(type.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(type.Assembly);
             return EmitCreateObject(ParseTypeName(type), constructorArguments.Select(EmitValue));
         }
 
@@ -118,7 +118,7 @@ namespace DotVVM.Framework.Compilation
 
         public ExpressionSyntax EmitAttributeInitializer(CustomAttributeData attr)
         {
-            UsedAssemblies.Add(attr.AttributeType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(attr.AttributeType.Assembly);
             return SyntaxFactory.ObjectCreationExpression(
                 ParseTypeName(attr.AttributeType),
                 SyntaxFactory.ArgumentList(
@@ -144,7 +144,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            UsedAssemblies.Add(controlType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(controlType.Assembly);
 
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
@@ -253,7 +253,7 @@ namespace DotVVM.Framework.Compilation
             }
             if (value is Type)
             {
-                UsedAssemblies.Add((value as Type).GetTypeInfo().Assembly);
+                UsedAssemblies.Add((value as Type).Assembly);
                 return SyntaxFactory.TypeOfExpression(ParseTypeName((value as Type)));
             }
 
@@ -265,9 +265,9 @@ namespace DotVVM.Framework.Compilation
                 return EmitStrangeIntegerValue(Convert.ToInt64(value), type);
             }
 
-            if (type.GetTypeInfo().IsEnum)
+            if (type.IsEnum)
             {
-                UsedAssemblies.Add(type.GetTypeInfo().Assembly);
+                UsedAssemblies.Add(type.Assembly);
                 return
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -325,94 +325,6 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
-        /// <summary>
-        /// Emits the set DotvvmProperty statement.
-        /// </summary>
-        public void EmitSetValue(string controlName, DotvvmProperty property, ExpressionSyntax valueSyntax)
-        {
-            UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
-
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetValue")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[]
-                            {
-                                SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName)),
-                                SyntaxFactory.Argument(valueSyntax)
-                            })
-                        )
-                    )
-                )
-            );
-        }
-
-        /// <summary>
-        /// Emits the set binding statement.
-        /// </summary>
-        public void EmitSetBinding(string controlName, string propertyName, ExpressionSyntax binding)
-        {
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetBinding")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[] {
-                                SyntaxFactory.Argument(SyntaxFactory.ParseName(propertyName)),
-                                SyntaxFactory.Argument(binding)
-                            })
-                        )
-                    )
-                )
-            );
-        }
-
-        /// <summary>
-        /// Emits the set attached property.
-        /// </summary>
-        public void EmitSetAttachedProperty(string controlName, DotvvmProperty property, object value)
-        {
-            UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
-
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetValue")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(
-                                new[] {
-                                    SyntaxFactory.Argument(
-                                        SyntaxFactory.MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            ParseTypeName(property.DeclaringType),
-                                            SyntaxFactory.IdentifierName(property.Name + "Property")
-                                        )
-                                    ),
-                                    SyntaxFactory.Argument(
-                                        EmitValue(value)
-                                    )
-                                }
-                            )
-                        )
-                    )
-                )
-            );
-        }
 
         /// <summary>
         /// Emits the code that adds the specified value as a child item in the collection.
@@ -453,6 +365,41 @@ namespace DotVVM.Framework.Compilation
                     )
                 )
             );
+        }
+
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
+            EmitSetDotvvmProperty(controlName, property, EmitValue(value));
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
+        {
+            UsedAssemblies.Add(property.DeclaringType.Assembly);
+            UsedAssemblies.Add(property.PropertyType.Assembly);
+
+            if (property.IsVirtual)
+            {
+                EmitSetProperty(controlName, property.PropertyInfo.Name, EmitValue(value));
+            }
+            else
+            {
+                CurrentStatements.Add(
+                    SyntaxFactory.ExpressionStatement(
+                        SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.ParseName(property.DescriptorFullName),
+                                SyntaxFactory.IdentifierName("SetValue")
+                            ),
+                            SyntaxFactory.ArgumentList(
+                                SyntaxFactory.SeparatedList(
+                                    new[] {
+                                    SyntaxFactory.Argument(SyntaxFactory.IdentifierName(controlName)),
+                                    SyntaxFactory.Argument(value)
+                                    }
+                                )
+                            )
+                        )
+                    )
+                );
+            }
         }
 
 
@@ -579,7 +526,7 @@ namespace DotVVM.Framework.Compilation
 
         public string EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
         {
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(property.PropertyType.Assembly);
 
             if (property.IsVirtual)
             {
@@ -703,7 +650,7 @@ namespace DotVVM.Framework.Compilation
             {
                 return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
             }
-            else if (!type.GetTypeInfo().IsGenericType)
+            else if (!type.IsGenericType)
             {
                 return SyntaxFactory.ParseTypeName(type.FullName);
             }
@@ -747,7 +694,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
-            UsedAssemblies.Add(BuilderDataContextType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(BuilderDataContextType.Assembly);
 
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(

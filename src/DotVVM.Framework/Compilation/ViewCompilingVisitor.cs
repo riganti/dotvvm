@@ -41,8 +41,8 @@ namespace DotVVM.Framework.Compilation
             // build the statements
             emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName, typeof(DotvvmControl), emitter.EmitControlBuilderParameter());
             var pageName = emitter.EmitCreateObject(wrapperClassName);
-            emitter.EmitSetAttachedProperty(pageName, Internal.UniqueIDProperty, pageName);
-            emitter.EmitSetAttachedProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
+            emitter.EmitSetDotvvmProperty(pageName, Internal.UniqueIDProperty, pageName);
+            emitter.EmitSetDotvvmProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
             if (typeof(DotvvmView).IsAssignableFrom(view.Metadata.Type))
                 emitter.EmitSetProperty(pageName, nameof(DotvvmView.ViewModelType), emitter.EmitValue(view.DataContextTypeStack.DataContextType));
             if (view.Metadata.Type.IsAssignableFrom(typeof(DotvvmView)) || typeof(DotvvmMarkupControl).IsAssignableFrom(view.Metadata.Type))
@@ -77,14 +77,7 @@ namespace DotVVM.Framework.Compilation
 
         private void SetProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
-            if (property.IsVirtual)
-            {
-                emitter.EmitSetProperty(controlName, property.PropertyInfo.Name, value);
-            }
-            else
-            {
-                emitter.EmitSetValue(controlName, property, value);
-            }
+            emitter.EmitSetDotvvmProperty(controlName, property, value);
         }
 
         private void SetPropertyValue(string controlName, DotvvmProperty property, object value)
@@ -98,7 +91,7 @@ namespace DotVVM.Framework.Compilation
 
         public override void VisitPropertyBinding(ResolvedPropertyBinding propertyBinding)
         {
-            emitter.EmitSetBinding(controlName, propertyBinding.Property.DescriptorFullName, ProcessBinding(propertyBinding.Binding, propertyBinding.Property.IsBindingProperty ? typeof(object) : propertyBinding.Property.PropertyType));
+            emitter.EmitSetDotvvmProperty(controlName, propertyBinding.Property, ProcessBinding(propertyBinding.Binding, propertyBinding.Property.IsBindingProperty ? typeof(object) : propertyBinding.Property.PropertyType));
             base.VisitPropertyBinding(propertyBinding);
         }
 
@@ -211,12 +204,12 @@ namespace DotVVM.Framework.Compilation
                 name = emitter.EmitInvokeControlBuilder(control.Metadata.Type, control.Metadata.VirtualPath);
             }
             // set unique id
-            emitter.EmitSetAttachedProperty(name, Internal.UniqueIDProperty, name);
+            emitter.EmitSetDotvvmProperty(name, Internal.UniqueIDProperty, name);
 
             if (control.DothtmlNode != null && control.DothtmlNode.Tokens.Count > 0)
             {
                 // set line number
-                emitter.EmitSetAttachedProperty(name, Internal.MarkupLineNumberProperty, control.DothtmlNode.Tokens.First().LineNumber);
+                emitter.EmitSetDotvvmProperty(name, Internal.MarkupLineNumberProperty, control.DothtmlNode.Tokens.First().LineNumber);
             }
 
             if (control.HtmlAttributes != null && control.Metadata.HasHtmlAttributesCollection)

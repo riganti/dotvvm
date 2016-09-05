@@ -14,6 +14,36 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     {
         protected override bool IsWhiteSpace(BindingToken t) => t.Type == BindingTokenType.WhiteSpace;
 
+        public BindingParserNode ReadDirectiveValue()
+        {
+            var startIndex = CurrentIndex;
+            var first = ReadNamespaceOrTypeName();
+
+            if (Peek() != null)
+            {
+                var @operator = Peek().Type;
+                if (@operator == BindingTokenType.AssignOperator)
+                {
+                    Read();
+                    var second = ReadNamespaceOrTypeName();
+
+                    if (first is IdentifierNameBindingParserNode && !(first is GenericNameBindingParserNode))
+                    {
+                        return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
+                    }
+                    else
+                    {
+                        first.NodeErrors.Add("Only simple name is allowed as alias.");
+                    }
+                }
+                else
+                {
+                    first.NodeErrors.Add($"Unexpected operator: {@operator}, expecting assigment (=).");
+                }
+            }
+            return first;
+        }
+
         public BindingParserNode ReadNamespaceOrTypeName()
         {
             return ReadIdentifierExpression(true);
