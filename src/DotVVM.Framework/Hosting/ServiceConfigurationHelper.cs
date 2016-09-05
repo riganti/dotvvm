@@ -18,10 +18,10 @@ namespace DotVVM.Framework.Hosting
 {
     public static class ServiceConfigurationHelper
     {
-        public static void AddDotvvmServices(this IServiceCollection services)
+        public static void AddDotvvmCoreServices(IServiceCollection services)
         {
-            //services.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             //services.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+            //services.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.AddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.AddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
             services.AddSingleton<IViewModelLoader, DefaultViewModelLoader>();

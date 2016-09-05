@@ -117,7 +117,7 @@ namespace DotVVM.Framework.Configuration
         {
             var serviceCollection = new ServiceCollection();
             //todo - change to component, not extension (problem with end-point platform specific package)
-            serviceCollection.AddDotvvmServices();
+            ServiceConfigurationHelper.AddDotvvmCoreServices(serviceCollection);
             configureServices?.Invoke(serviceCollection);
             var config = CreateDefault(new ServiceLocator(serviceCollection));
             serviceCollection.AddSingleton(config);

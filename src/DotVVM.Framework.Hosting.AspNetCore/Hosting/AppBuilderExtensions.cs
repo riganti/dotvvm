@@ -7,11 +7,19 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Security;
 
 namespace DotVVM.Framework.Hosting
 {
     public static class AppBuilderExtensions
     {
+        public static void AddDotvvmServices(this IServiceCollection collection)
+        {
+            ServiceConfigurationHelper.AddDotvvmCoreServices(collection);
+            collection.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+            collection.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
+        }
+
         public static DotvvmConfiguration CreateConfiguration(string applicationRootDirectory, IServiceProvider serviceProvider)
         {
             // load or create default configuration

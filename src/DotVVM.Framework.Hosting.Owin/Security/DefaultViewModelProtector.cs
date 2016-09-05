@@ -2,7 +2,7 @@ using System;
 using System.Text;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Owin.Security.DataProtection;
 
 namespace DotVVM.Framework.Security
 {
@@ -16,9 +16,9 @@ namespace DotVVM.Framework.Security
 
         private IDataProtectionProvider protectionProvider;
 
-        public DefaultViewModelProtector(DotvvmConfiguration configuration)
+        public DefaultViewModelProtector(IDataProtectionProvider protectionProvider)
         {
-            this.protectionProvider = configuration.ServiceLocator.GetService<IDataProtectionProvider>();
+            this.protectionProvider = protectionProvider;
         }
 
         public string Protect(string serializedData, IDotvvmRequestContext context)
@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Security
             // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.CreateProtector(PRIMARY_PURPOSE, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.Create(PRIMARY_PURPOSE, userIdentity, requestIdentity);
 
             // Return protected view model data
             var dataToProtect = Encoding.UTF8.GetBytes(serializedData);
@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Security
             // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.CreateProtector(PRIMARY_PURPOSE, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.Create(PRIMARY_PURPOSE, userIdentity, requestIdentity);
 
             // Return unprotected view model data
             var dataToUnprotect = Convert.FromBase64String(protectedData);
