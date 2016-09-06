@@ -419,7 +419,6 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(attribute.Value, "ahoj > lao");
 		}
 
-		private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         [TestMethod]
         public void ResolvedTree_ImplicitBooleanValue()
         {

@@ -401,9 +401,9 @@ namespace DotVVM.Framework.Tests.Routing
         }
 
         [TestMethod]
-        public void DotvvmRoute_Performace()
+        public void DotvvmRoute_Performance()
         {
-            var route = new DotvvmRoute("Article/{name}@{domain}/{id:int}", null, null, null);
+            var route = new DotvvmRoute("Article/{name}@{domain}/{id:int}", null, null, null, configuration);
             IDictionary<string, object> parameters;
             Assert.IsFalse(route.IsMatch("Article/f" + new string('@', 2000) + "f/4f", out parameters));
         }

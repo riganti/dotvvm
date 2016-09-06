@@ -15,7 +15,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 using Moq;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.DataProtection;
-using Microsoft.AspNetCore.Http;
+using Microsoft.Owin;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -36,17 +36,15 @@ namespace DotVVM.Framework.Tests.Runtime
 			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
 			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
 
-            var requestMock = new Mock<HttpRequest>();
-            requestMock.SetupGet(m => m.Path).Returns("/Sample1");
-            requestMock.SetupGet(m => m.PathBase).Returns("");
-            requestMock.SetupGet(m => m.Host).Returns(new HostString("localhost"));
-            requestMock.SetupGet(m => m.Protocol).Returns("http");
-			requestMock.SetupGet(m => m.Scheme).Returns("http");
-			requestMock.SetupGet(m => m.QueryString).Returns(new QueryString(""));
-            requestMock.SetupGet(m => m.Method).Returns("GET");
-            requestMock.SetupGet(m => m.Headers).Returns(new HeaderDictionary());
 
-            var contextMock = new Mock<HttpContext>();
+            var requestMock = new Mock<IHttpRequest>();
+            requestMock.SetupGet(m => m.Path).Returns(new DotvvmHttpPathString(new PathString("/Sample1")));
+            requestMock.SetupGet(m => m.PathBase).Returns(new DotvvmHttpPathString(new PathString("")));
+			requestMock.SetupGet(m => m.Scheme).Returns("http");
+            requestMock.SetupGet(m => m.Method).Returns("GET");
+            requestMock.SetupGet(m => m.Headers).Returns(new DotvvmHeaderCollection(new HeaderDictionary(new Dictionary<string, string[]>())));
+
+            var contextMock = new Mock<IHttpContext>();
             contextMock.SetupGet(m => m.Request).Returns(requestMock.Object);
             contextMock.SetupGet(m => m.User).Returns(new WindowsPrincipal(WindowsIdentity.GetAnonymous()));
 
