@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Compilation
                 constructorArguments = new object[] { };
             }
 
-            UsedAssemblies.Add(type.Assembly);
+            UsedAssemblies.Add(type.GetTypeInfo().Assembly);
             return EmitCreateObject(ParseTypeName(type), constructorArguments.Select(EmitValue));
         }
 
@@ -118,7 +118,7 @@ namespace DotVVM.Framework.Compilation
 
         public ExpressionSyntax EmitAttributeInitializer(CustomAttributeData attr)
         {
-            UsedAssemblies.Add(attr.AttributeType.Assembly);
+            UsedAssemblies.Add(attr.AttributeType.GetTypeInfo().Assembly);
             return SyntaxFactory.ObjectCreationExpression(
                 ParseTypeName(attr.AttributeType),
                 SyntaxFactory.ArgumentList(
@@ -144,7 +144,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            UsedAssemblies.Add(controlType.Assembly);
+            UsedAssemblies.Add(controlType.GetTypeInfo().Assembly);
 
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
@@ -253,7 +253,7 @@ namespace DotVVM.Framework.Compilation
             }
             if (value is Type)
             {
-                UsedAssemblies.Add((value as Type).Assembly);
+                UsedAssemblies.Add((value as Type).GetTypeInfo().Assembly);
                 return SyntaxFactory.TypeOfExpression(ParseTypeName((value as Type)));
             }
 
@@ -265,9 +265,9 @@ namespace DotVVM.Framework.Compilation
                 return EmitStrangeIntegerValue(Convert.ToInt64(value), type);
             }
 
-            if (type.IsEnum)
+            if (type.GetTypeInfo().IsEnum)
             {
-                UsedAssemblies.Add(type.Assembly);
+                UsedAssemblies.Add(type.GetTypeInfo().Assembly);
                 return
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -371,8 +371,8 @@ namespace DotVVM.Framework.Compilation
             EmitSetDotvvmProperty(controlName, property, EmitValue(value));
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
-            UsedAssemblies.Add(property.DeclaringType.Assembly);
-            UsedAssemblies.Add(property.PropertyType.Assembly);
+            UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
 
             if (property.IsVirtual)
             {
@@ -526,7 +526,7 @@ namespace DotVVM.Framework.Compilation
 
         public string EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
         {
-            UsedAssemblies.Add(property.PropertyType.Assembly);
+            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
 
             if (property.IsVirtual)
             {
@@ -650,7 +650,7 @@ namespace DotVVM.Framework.Compilation
             {
                 return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
             }
-            else if (!type.IsGenericType)
+            else if (!type.GetTypeInfo().IsGenericType)
             {
                 return SyntaxFactory.ParseTypeName(type.FullName);
             }
@@ -694,7 +694,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
-            UsedAssemblies.Add(BuilderDataContextType.Assembly);
+            UsedAssemblies.Add(BuilderDataContextType.GetTypeInfo().Assembly);
 
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(
