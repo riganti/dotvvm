@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Controls
         public static DotvvmProperty EnabledProperty = DotvvmProperty.Register<bool, Validation>(() => EnabledProperty, true, true);
 
         [AttachedProperty(typeof(object))]
+        [MarkupOptions(AllowHardCodedValue = false)]
         public static DotvvmProperty TargetProperty = DotvvmProperty.Register<object, Validation>(() => TargetProperty, null, true);
 
     }

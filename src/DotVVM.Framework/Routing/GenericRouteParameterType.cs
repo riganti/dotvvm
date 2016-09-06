@@ -6,17 +6,29 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Routing
 {
-    public class GenericRouteParameterType : IRouteParameterType
+    public class GenericRouteParameterType : IRouteParameterConstraint
     {
-        string partRegex;
-        public string GetPartRegex()
-            => partRegex;
+        public delegate bool TryParseDelegate<T>(string val, out T value);
+        Func<string, string> partRegex;
+        public string GetPartRegex(string parameter)
+            => partRegex(parameter);
 
-        Func<string, object> parser;
-        public object ParseString(string value)
-            => parser == null ? value : parser(value);
+        Func<string, string, ParameterParseResult> parser;
+        public ParameterParseResult ParseString(string value, string parameter)
+            => parser == null ? ParameterParseResult.Create(value) : parser(value, parameter);
 
-        public GenericRouteParameterType(string partRegex, Func<string, object> parser = null)
+        public static GenericRouteParameterType Create(string partRegex) => new GenericRouteParameterType(s => partRegex);
+        public static GenericRouteParameterType Create<T>(string partRegex, TryParseDelegate<T> parser)
+        {
+            return new GenericRouteParameterType(s => partRegex, (s, p) =>
+            {
+                T r;
+                if (parser(s, out r)) return ParameterParseResult.Create((object)r);
+                else return ParameterParseResult.Failed;
+            });
+        }
+
+        public GenericRouteParameterType(Func<string, string> partRegex, Func<string, string, ParameterParseResult> parser = null)
         {
             this.partRegex = partRegex;
             this.parser = parser;

@@ -399,7 +399,6 @@
     <Compile Include="Runtime\ControlLifeCycleMock.cs" />
     <Compile Include="Runtime\ControlTree\DefaultControlTreeResolverTests.cs" />
     <Compile Include="Runtime\ControlTree\ValueConversionTests.cs" />
-    <Compile Include="Runtime\DefaultViewModelSerializerTests.cs" />
     <Compile Include="Runtime\DotvvmControlCollectionTests.cs" />
     <Compile Include="Runtime\ResourceManagerTests.cs" />
     <Compile Include="Routing\DotvvmRouteTests.cs" />

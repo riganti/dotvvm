@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Routing
             var defaultParameters = GetRouteDefaultParameters(file);
             var presenterFactory = GetRoutePresenterFactory(file);
 
-            return new DotvvmRoute(url, file.AppRelativePath, defaultParameters, presenterFactory)
+            return new DotvvmRoute(url, file.AppRelativePath, defaultParameters, presenterFactory, configuration)
             {
                 RouteName = routeName
             };

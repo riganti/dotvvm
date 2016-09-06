@@ -367,6 +367,7 @@ namespace DotVVM.Framework.Controls
             {
                 var cell = new HtmlGenericControl("td");
                 row.Children.Add(cell);
+                SetCellAttributes(column, cell, false);
                 if (isInEditMode && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);

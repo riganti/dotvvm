@@ -82,6 +82,9 @@ namespace DotVVM.Framework.Configuration
         [System.ComponentModel.DefaultValue(true)]
         public bool Debug { get; set; }
 
+        [JsonIgnore]
+        public Dictionary<string, IRouteParameterConstraint> RouteConstraints { get; } = new Dictionary<string, IRouteParameterConstraint>();
+
         /// <summary>
         /// Whether DotVVM compiler should generate runtime debug info for bindings. It can be useful, but may also cause unexpected problems.
         /// </summary>
@@ -122,7 +125,7 @@ namespace DotVVM.Framework.Configuration
         {
             var serviceCollection = new ServiceCollection();
             //todo - change to component, not extension (problem with end-point platform specific package)
-            serviceCollection.AddDotvvmServices();
+            ServiceConfigurationHelper.AddDotvvmCoreServices(serviceCollection);
             configureServices?.Invoke(serviceCollection);
             var config = CreateDefault(new ServiceLocator(serviceCollection));
             serviceCollection.AddSingleton(config);
@@ -148,9 +151,50 @@ namespace DotVVM.Framework.Configuration
                 new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" }
             });
 
+            RegisterConstraints(configuration);
             RegisterResources(configuration);
 
             return configuration;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
+        static void RegisterConstraints(DotvvmConfiguration configuration)
+        {
+            configuration.RouteConstraints.Add("alpha", GenericRouteParameterType.Create("[a-zA-Z]*?"));
+            configuration.RouteConstraints.Add("bool", GenericRouteParameterType.Create<bool>("true|false", bool.TryParse));
+            configuration.RouteConstraints.Add("decimal", GenericRouteParameterType.Create<decimal>("-?[0-9.e]*?", decimal.TryParse));
+            configuration.RouteConstraints.Add("double", GenericRouteParameterType.Create<double>("-?[0-9.e]*?", double.TryParse));
+            configuration.RouteConstraints.Add("float", GenericRouteParameterType.Create<float>("-?[0-9.e]*?", float.TryParse));
+            configuration.RouteConstraints.Add("guid", GenericRouteParameterType.Create<Guid>("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", Guid.TryParse));
+            configuration.RouteConstraints.Add("int", GenericRouteParameterType.Create<int>("-?[0-9]*?", int.TryParse));
+            configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]*?", int.TryParse));
+            configuration.RouteConstraints.Add("length", new GenericRouteParameterType(p => "[^/]{" + p + "}"));
+            configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", long.TryParse));
+            configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
+            {
+                double value;
+                if (!double.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                if (double.Parse(parameter) < value) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(value);
+            }));
+            configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
+            {
+                double value;
+                if (!double.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                if (double.Parse(parameter) > value) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(value);
+            }));
+            configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
+            {
+                double value;
+                if (!double.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                var split = parameter.Split(',');
+                if (double.Parse(split[0]) > value || double.Parse(split[1]) < value) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(value);
+            }));
+            configuration.RouteConstraints.Add("maxLength", new GenericRouteParameterType(p => "[^/]{0," + p + "}"));
+            configuration.RouteConstraints.Add("minLength", new GenericRouteParameterType(p => "[^/]{" + p + ",}"));
+            configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => p));
         }
 
         private static void RegisterResources(DotvvmConfiguration configuration)

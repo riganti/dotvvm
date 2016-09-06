@@ -135,7 +135,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             => ResolveNamespaceImportsCore(directives, root).ToImmutableList();
 
         private IEnumerable<NamespaceImport> ResolveNamespaceImportsCore(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root)
-            => directives.Values.SelectMany(d=> d).OfType<IAbstractImportDirective>().Select(d => new NamespaceImport(d.NameSyntax.ToDisplayString(), d.Alias));
+            => directives.Values.SelectMany(d => d).OfType<IAbstractImportDirective>()
+            .Where(d => !d.HasError)
+            .Select(d => new NamespaceImport(d.NameSyntax.ToDisplayString(), d.AliasSyntax.As<IdentifierNameBindingParserNode>()?.Name));
 
         /// <summary>
         /// Processes the parser node and builds a control.
@@ -344,43 +346,34 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         protected virtual IAbstractDirective ProcessImportDirective(DothtmlDirectiveNode directiveNode)
         {
-            var split = directiveNode.Value.Split('=');
-            string alias = null;
-            string namespaceOrType = null;
-
-            if (split.Length == 1)
-            {
-                namespaceOrType = split[0].Trim();
-            }
-            else if (split.Length == 2)
-            {
-                alias = split[0].Trim();
-                namespaceOrType = split[1].Trim();
-            }
-            else
-            {
-                directiveNode.AddError("Directive value is invalid. Allowed formats are: <Alias> = <Namespace>, <Namespace>, <Alias> = <Full type name>.");
-            }
-
             var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(namespaceOrType);
+            tokenizer.Tokenize(directiveNode.ValueNode.Text);
             var parser = new BindingParser()
             {
                 Tokens = tokenizer.Tokens
             };
-            var valueSyntaxRoot = parser.ReadNamespaceOrTypeName();
+            var valueSyntaxRoot = parser.ReadDirectiveValue();
 
             if (!parser.OnEnd())
             {
-                directiveNode.AddError("Directive value is invalid. Expected full type or namespace name.");
+                directiveNode.AddError($"Unexpected token: {parser.Peek()?.Text}.");
             }
 
-            foreach (var valueSyntaxNode in valueSyntaxRoot.EnumerateNodes())
+            BindingParserNode alias = null;
+            BindingParserNode name = null;
+            if (valueSyntaxRoot is BinaryOperatorBindingParserNode)
             {
-                valueSyntaxNode.NodeErrors.ForEach(directiveNode.AddError);
+                var assigment = valueSyntaxRoot.CastTo<BinaryOperatorBindingParserNode>();
+
+                alias = assigment.FirstExpression;
+                name = assigment.SecondExpression;
+            }
+            else
+            {
+                name = valueSyntaxRoot;
             }
 
-            return treeBuilder.BuildImportDirective(directiveNode, alias, valueSyntaxRoot);
+            return treeBuilder.BuildImportDirective(directiveNode, alias, name);
         }
 
         static HashSet<string> treatBindingAsHardCodedValue = new HashSet<string> { "resource" };
@@ -430,8 +423,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
                 if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute))
                 {
-                    attribute.AddError($"The property '{property.FullName}' cannot be used as a control attribute!");
-                    return;
+                    // implicitly set boolean property
+                    if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))))
+                    {
+                        treeBuilder.SetProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute));
+                    }
+                    attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
                 }
 
                 // set the property

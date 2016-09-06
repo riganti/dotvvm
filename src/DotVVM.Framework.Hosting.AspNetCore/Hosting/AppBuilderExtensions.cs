@@ -7,15 +7,28 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Security;
 
 namespace DotVVM.Framework.Hosting
 {
     public static class AppBuilderExtensions
     {
+        public static void AddDotvvmServices(this IServiceCollection collection)
+        {
+            ServiceConfigurationHelper.AddDotvvmCoreServices(collection);
+            collection.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+            collection.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
+        }
+
         public static DotvvmConfiguration CreateConfiguration(string applicationRootDirectory, IServiceProvider serviceProvider)
         {
             // load or create default configuration
             var configuration = serviceProvider.GetService<DotvvmConfiguration>();
+
+            if (configuration == null)
+            {
+                new InvalidOperationException("Service provider does not contain DotvvmConfiguration service. Make sure you have Dotvvm services registered in ConfigureServices method of your Startup class.");
+            }
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
             return configuration;
         }

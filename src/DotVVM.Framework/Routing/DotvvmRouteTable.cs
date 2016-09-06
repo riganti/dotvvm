@@ -15,8 +15,13 @@ namespace DotVVM.Framework.Routing
     public class DotvvmRouteTable : IEnumerable<RouteBase>
     {
         private readonly DotvvmConfiguration configuration;
-        
+
         private List<KeyValuePair<string, RouteBase>> list = new List<KeyValuePair<string, RouteBase>>();
+
+        /// <summary>
+        /// Dictionary for faster checking of duplicate entries when adding. 
+        /// </summary>
+        private Dictionary<string, RouteBase> dictionary = new Dictionary<string, RouteBase>(StringComparer.OrdinalIgnoreCase);
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRouteTable"/> class.
@@ -49,7 +54,7 @@ namespace DotVVM.Framework.Routing
                 presenterFactory = GetDefaultPresenter;
             }
 
-            Add(routeName, new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory));
+            Add(routeName, new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory, configuration));
         }
 
         /// <summary>
@@ -57,18 +62,21 @@ namespace DotVVM.Framework.Routing
         /// </summary>
         public void Add(string routeName, RouteBase route)
         {
-            if (list.Any(r => string.Equals(r.Key, routeName, StringComparison.OrdinalIgnoreCase)))
+            if (dictionary.ContainsKey(routeName))
             {
                 throw new InvalidOperationException($"The route with name '{routeName}' has already been registered!");
             }
             // internal assign routename 
             route.RouteName = routeName;
+
+            // The list is used for finding the routes because it keeps the ordering, the dictionary is for checking duplicates
             list.Add(new KeyValuePair<string, RouteBase>(routeName, route));
+            dictionary.Add(routeName, route);
         }
 
         public bool Contains(string routeName)
         {
-            return list.Any(r => string.Equals(r.Key, routeName, StringComparison.OrdinalIgnoreCase));
+            return dictionary.ContainsKey(routeName);
         }
 
         public RouteBase this[string routeName]

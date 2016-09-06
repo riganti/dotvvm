@@ -63,8 +63,16 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedPropertyValue((DotvvmProperty)property, value) { DothtmlNode = sourceNode };
         }
 
-        public IAbstractImportDirective BuildImportDirective(DothtmlDirectiveNode node, string alias, BindingParserNode nameSyntax)
+        public IAbstractImportDirective BuildImportDirective(
+            DothtmlDirectiveNode node, 
+            BindingParserNode aliasSyntax,
+            BindingParserNode nameSyntax)
         {
+            foreach (var syntaxNode in nameSyntax.EnumerateNodes().Concat(aliasSyntax?.EnumerateNodes() ?? Enumerable.Empty<BindingParserNode>()))
+            {
+                syntaxNode.NodeErrors.ForEach(node.AddError);
+            }
+
             var visitor = new ExpressionBuildingVisitor(TypeRegistry.DirectivesDefault)
             {
                 ResolveOnlyTypeName = true,
@@ -79,7 +87,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             catch(Exception ex)
             {
                 node.AddError($"{nameSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
-                return new ResolvedImportDirective(alias, nameSyntax, null, false);
+                return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
             }
 
             if (expression is UnknownStaticClassIdentifierExpression)
@@ -93,16 +101,16 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                     node.AddError($"{nameSyntax.ToDisplayString()} is unknown type or namespace.");
                 }
 
-                return new ResolvedImportDirective(alias, nameSyntax, null, namespaceValid) { DothtmlNode = node };
+                return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
 
             }
             else if(expression is StaticClassIdentifierExpression)
             {
-                return new ResolvedImportDirective(alias, nameSyntax, expression.Type, true) { DothtmlNode = node };
+                return new ResolvedImportDirective(aliasSyntax, nameSyntax, expression.Type) { DothtmlNode = node };
             }
 
             node.AddError($"{nameSyntax.ToDisplayString()} is not a type or namespace.");
-            return new ResolvedImportDirective(alias, nameSyntax, null, false);
+            return new ResolvedImportDirective(aliasSyntax, nameSyntax, null);
         }
 
         public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)

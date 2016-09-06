@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Compilation.Parser.Binding.Parser;
+﻿using DotVVM.Framework.Compilation.Parser;
+using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public interface IAbstractImportDirective : IAbstractDirective
     {
-        string Alias { get; }
+        BindingParserNode AliasSyntax { get; }
         BindingParserNode NameSyntax { get; }
 
         bool IsNamespace { get; }

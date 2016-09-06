@@ -325,94 +325,6 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
-        /// <summary>
-        /// Emits the set DotvvmProperty statement.
-        /// </summary>
-        public void EmitSetValue(string controlName, DotvvmProperty property, ExpressionSyntax valueSyntax)
-        {
-            UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
-
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetValue")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[]
-                            {
-                                SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName)),
-                                SyntaxFactory.Argument(valueSyntax)
-                            })
-                        )
-                    )
-                )
-            );
-        }
-
-        /// <summary>
-        /// Emits the set binding statement.
-        /// </summary>
-        public void EmitSetBinding(string controlName, string propertyName, ExpressionSyntax binding)
-        {
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetBinding")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[] {
-                                SyntaxFactory.Argument(SyntaxFactory.ParseName(propertyName)),
-                                SyntaxFactory.Argument(binding)
-                            })
-                        )
-                    )
-                )
-            );
-        }
-
-        /// <summary>
-        /// Emits the set attached property.
-        /// </summary>
-        public void EmitSetAttachedProperty(string controlName, DotvvmProperty property, object value)
-        {
-            UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
-
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetValue")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(
-                                new[] {
-                                    SyntaxFactory.Argument(
-                                        SyntaxFactory.MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            ParseTypeName(property.DeclaringType),
-                                            SyntaxFactory.IdentifierName(property.Name + "Property")
-                                        )
-                                    ),
-                                    SyntaxFactory.Argument(
-                                        EmitValue(value)
-                                    )
-                                }
-                            )
-                        )
-                    )
-                )
-            );
-        }
 
         /// <summary>
         /// Emits the code that adds the specified value as a child item in the collection.
@@ -453,6 +365,41 @@ namespace DotVVM.Framework.Compilation
                     )
                 )
             );
+        }
+
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
+            EmitSetDotvvmProperty(controlName, property, EmitValue(value));
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
+        {
+            UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
+            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
+
+            if (property.IsVirtual)
+            {
+                EmitSetProperty(controlName, property.PropertyInfo.Name, EmitValue(value));
+            }
+            else
+            {
+                CurrentStatements.Add(
+                    SyntaxFactory.ExpressionStatement(
+                        SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.ParseName(property.DescriptorFullName),
+                                SyntaxFactory.IdentifierName("SetValue")
+                            ),
+                            SyntaxFactory.ArgumentList(
+                                SyntaxFactory.SeparatedList(
+                                    new[] {
+                                    SyntaxFactory.Argument(SyntaxFactory.IdentifierName(controlName)),
+                                    SyntaxFactory.Argument(value)
+                                    }
+                                )
+                            )
+                        )
+                    )
+                );
+            }
         }
 
 

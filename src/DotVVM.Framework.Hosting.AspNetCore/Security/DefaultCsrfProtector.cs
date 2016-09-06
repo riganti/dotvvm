@@ -28,9 +28,9 @@ namespace DotVVM.Framework.Security
 
         private IDataProtectionProvider protectionProvider;
 
-        public DefaultCsrfProtector(DotvvmConfiguration configuration)
+        public DefaultCsrfProtector(IDataProtectionProvider protectionProvider)
         {
-            this.protectionProvider = configuration.ServiceLocator.GetService<IDataProtectionProvider>();
+            this.protectionProvider = protectionProvider;
         }
 
         public string GenerateToken(IDotvvmRequestContext context)
