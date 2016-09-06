@@ -6,11 +6,11 @@
     "Microsoft.AspNetCore.Http.Extensions": "1.0.0",
     "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0",
     "Microsoft.AspNetCore.DataProtection": "1.0.0",
-    "DotVVM.Framework": "1.0.0"
+    "DotVVM.Framework": "1.0.4-pre"
   },
 
   "frameworks": {
-    "netstandard1.6": {
+    "NETCoreApp1.0": {
       "imports": "dnxcore50"
     }
   }

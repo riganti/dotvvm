@@ -23,17 +23,7 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty CheckedItemsProperty =
             DotvvmProperty.Register<IEnumerable, CheckBox>(t => t.CheckedItems, null);
-
-
-        protected internal override void OnPreRender(IDotvvmRequestContext context)
-        {
-            base.OnPreRender(context);
-
-            if (HasBinding(CheckedItemsProperty) && (CheckedItems == null && DataContext != null))
-            {
-                throw new DotvvmControlException(this, $"The {nameof(CheckedItems)} property must not be null!");
-            }
-        }
+        
 
         /// <summary>
         /// Renders the input tag.
