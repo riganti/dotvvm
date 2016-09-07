@@ -1,7 +1,7 @@
 {
   "version": "1.0.4-pre",
   "frameworks": {
-    "NETCoreApp1.0": {
+    "netstandard1.6": {
       "imports": "dnxcore50",
       "buildOptions": { "keyFile": "dotvvmwizard.snk" },
       "dependencies": {

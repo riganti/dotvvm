@@ -8,7 +8,7 @@
     "Microsoft.Extensions.DependencyInjection": "1.0.0"
   },
   "frameworks": {
-    "NETCoreApp1.0": {
+    "netstandard1.6": {
       "imports": [
         "dnxcore50"
       ],
