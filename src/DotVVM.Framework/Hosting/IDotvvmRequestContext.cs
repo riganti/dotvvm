@@ -119,22 +119,22 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectToUrl(string url, bool forceRefresh = false);
+        void RedirectToUrl(string url, bool replaceInHistory = false, bool allowSpaRedirect = false);
 
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectToRoute(string routeName, object newRouteValues = null, bool forceRefresh = false);
+        void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true);
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectToUrlPermanent(string url, bool forceRefresh = false);
+        void RedirectToUrlPermanent(string url, bool replaceInHistory = false, bool allowSpaRedirect = false);
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectToRoutePermanent(string routeName, object newRouteValues = null, bool forceRefresh = false);
+        void RedirectToRoutePermanent(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true);
 
         /// <summary>
         /// Ends the request execution when the <see cref="DotvvmRequestContext.ModelState"/> is not valid and displays the validation errors in <see cref="ValidationSummary"/> control.

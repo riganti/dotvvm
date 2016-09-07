@@ -480,7 +480,7 @@ class DotVVM {
         if (resultObject.replace != null) replace = resultObject.replace;
         var url;
         // redirect
-        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && !replace) {
+        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
             if (url === "#!") {

@@ -183,46 +183,46 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToUrl(string url, bool forceRefresh = false)
+        public void RedirectToUrl(string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect, forceRefresh);
+            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect, replaceInHistory, allowSpaRedirect);
             InterruptRequest();
         }
 
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToRoute(string routeName, object newRouteValues = null, bool forceRefresh = false)
+        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectToUrl(url, forceRefresh);
+            RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
         }
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToUrlPermanent(string url, bool forceRefresh = false)
+        public void RedirectToUrlPermanent(string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently, forceRefresh);
+            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently, replaceInHistory, allowSpaRedirect);
             InterruptRequest();
         }
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToRoutePermanent(string routeName, object newRouteValues = null, bool forceRefresh = false)
+        public void RedirectToRoutePermanent(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectToUrlPermanent(url, forceRefresh);
+            RedirectToUrlPermanent(url, replaceInHistory, allowSpaRedirect);
         }
 
         /// <summary>
         /// Renders the redirect response.
         /// </summary>
         /// <param name="forceRefresh"></param>
-        public static void SetRedirectResponse(IOwinContext owinContext, string url, int statusCode, bool forceRefresh = false)
+        public static void SetRedirectResponse(IOwinContext owinContext, string url, int statusCode, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
             if (!DotvvmPresenter.DeterminePartialRendering(owinContext))
             {
@@ -231,15 +231,15 @@ namespace DotVVM.Framework.Hosting
             }
             else
             {
-                if (DotvvmPresenter.DetermineIsPostBack(owinContext) && DotvvmPresenter.DetermineSpaRequest(owinContext) && !forceRefresh && !url.Contains("//"))
-                {
-                    // if we are in SPA postback, redirect should point at #! URL
-                    url = "#!" + url;
-                }
+                //if (DotvvmPresenter.DetermineIsPostBack(owinContext) && DotvvmPresenter.DetermineSpaRequest(owinContext) && !url.Contains("//"))
+                //{
+                //    // if we are in SPA postback, redirect should point at #! URL
+                //    url = "#!" + url;
+                //}
 
                 owinContext.Response.StatusCode = 200;
                 owinContext.Response.ContentType = "application/json";
-                owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, forceRefresh));
+                owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, replaceInHistory, allowSpaRedirect));
             }
         }
 
