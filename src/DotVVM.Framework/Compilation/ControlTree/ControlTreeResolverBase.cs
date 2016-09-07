@@ -423,18 +423,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
                 if (!property.MarkupOptions.MappingMode.HasFlag(MappingMode.Attribute))
                 {
-                    // implicitly set boolean property
-                    if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))))
-                    {
-                        treeBuilder.SetProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute));
-                    }
-                    attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
+                    attribute.AddError($"The property '{property.FullName}' cannot be used as a control attribute!");
+                    return;
                 }
 
                 // set the property
                 if (attribute.ValueNode == null)
                 {
-                    attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
+                    // implicitly set boolean property
+                    if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))))
+                    {
+                        treeBuilder.SetProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute));
+                    }
+                    else attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
                 }
                 else if (attribute.ValueNode is DothtmlValueBindingNode)
                 {
