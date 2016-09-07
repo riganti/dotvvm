@@ -279,6 +279,13 @@ var DotVVM = (function () {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
     };
+    DotVVM.prototype.processPassedId = function (id, context) {
+        if (typeof id == "string" || id == null)
+            return id;
+        if (typeof id == "object" && id.expr)
+            return this.evaluator.evaluateOnViewModel(context, id.expr);
+        throw new Error("invalid argument");
+    };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers) {
         var _this = this;
         if (this.isPostBackProhibited(sender))
@@ -327,7 +334,7 @@ var DotVVM = (function () {
             viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
             currentPath: path,
             command: command,
-            controlUniqueId: controlUniqueId,
+            controlUniqueId: this.processPassedId(controlUniqueId, context),
             validationTargetPath: validationTargetPath || null,
             renderedResources: this.viewModels[viewModelName].renderedResources
         };

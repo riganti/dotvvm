@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Controls
             if (expression is ControlCommandBindingExpression)
             {
                 var target = (DotvvmControl)control.GetClosestControlBindingTarget();
-                uniqueControlId = target.GetDotvvmUniqueId() as string;
+                uniqueControlId = target.GetDotvvmUniqueId();
             }
 
             var arguments = new List<string>()
@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Controls
                 "'root'",
                 options.ElementAccessor,
                 "[" + String.Join(", ", GetContextPath(control).Reverse().Select(p => '"' + p + '"')) + "]",
-                (uniqueControlId is IValueBinding ? ((IValueBinding)uniqueControlId).GetKnockoutBindingExpression() : "'" + (string) uniqueControlId + "'"),
+                (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(), '\'', StringEscapeHandling.Default) + "}" : "'" + (string) uniqueControlId + "'"),
                 options.UseWindowSetTimeout ? "true" : "false",
                 JsonConvert.SerializeObject(GetValidationTargetExpression(control)),
                 "null",
