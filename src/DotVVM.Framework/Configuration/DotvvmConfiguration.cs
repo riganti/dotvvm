@@ -76,7 +76,6 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets whether the application should run in debug mode.
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [System.ComponentModel.DefaultValue(true)]
         public bool Debug { get; set; }
 
         /// <summary>
@@ -96,9 +95,6 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("compiledViewsAssemblies")]
         public List<string> CompiledViewsAssemblies { get; set; } = new List<string>() { "CompiledViews.dll" };
 
-
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmConfiguration"/> class.
         /// </summary>
@@ -110,7 +106,6 @@ namespace DotVVM.Framework.Configuration
             Resources = new DotvvmResourceRepository();
             Security = new DotvvmSecurityConfiguration();
             Runtime = new DotvvmRuntimeConfiguration();
-            Debug = true;
             Styles = new StyleRepository();
         }
 
