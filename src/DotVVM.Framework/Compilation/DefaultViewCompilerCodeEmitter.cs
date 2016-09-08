@@ -15,11 +15,7 @@ namespace DotVVM.Framework.Compilation
     public class DefaultViewCompilerCodeEmitter
     {
 
-        private int CurrentControlIndex
-        {
-            get { return methods.Peek().ControlIndex; }
-            set { methods.Peek().ControlIndex = value; }
-        }
+        private int CurrentControlIndex;
 
         private List<StatementSyntax> CurrentStatements
         {

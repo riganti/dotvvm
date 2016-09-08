@@ -11,8 +11,6 @@ namespace DotVVM.Framework.Compilation
 
         public string Name { get; set; }
 
-        public int ControlIndex { get; set; }
-
         public ParameterListSyntax Parameters { get; set; }
 
         public TypeSyntax ReturnType { get; set; }
