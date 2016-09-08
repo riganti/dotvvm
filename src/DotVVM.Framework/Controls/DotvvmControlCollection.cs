@@ -16,6 +16,7 @@ namespace DotVVM.Framework.Controls
         private List<DotvvmControl> controls = new List<DotvvmControl>();
 
         private LifeCycleEventType lastLifeCycleEvent;
+        private bool isInvokingEvent;
 
 
         /// <summary>
@@ -137,13 +138,8 @@ namespace DotVVM.Framework.Controls
         /// <param name="item">The object to insert into the <see cref="T:System.Collections.Generic.IList`1" />.</param>
         public void Insert(int index, DotvvmControl item)
         {
-            SetParent(item);
             controls.Insert(index, item);
-
-            if (lastLifeCycleEvent != LifeCycleEventType.None)
-            {
-                item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
-            }
+            SetParent(item);
         }
 
 
@@ -169,10 +165,8 @@ namespace DotVVM.Framework.Controls
             set
             {
                 controls[index].Parent = null;
-                SetParent(value);
                 controls[index] = value;
-
-                controls[index].Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
+                SetParent(value);
             }
         }
 
@@ -188,12 +182,37 @@ namespace DotVVM.Framework.Controls
             item.Parent = parent;
 
             // Iterates through all parents and ORs the LifecycleRequirements
-			var currentParent = parent;
-			while (currentParent != null && (item.LifecycleRequirements & ~currentParent.LifecycleRequirements) != ControlLifecycleRequirements.None)
-			{
-				currentParent.LifecycleRequirements |= item.LifecycleRequirements;
-				currentParent = currentParent.Parent;
-			}
+            var updatedLastEvent = lastLifeCycleEvent;
+            {
+                var currentParent = parent;
+                bool lifecycleEventUpdatingDisabled = false;
+                while (currentParent != null && (item.LifecycleRequirements & ~currentParent.LifecycleRequirements) != ControlLifecycleRequirements.None)
+                {
+                    // set parent's Requirements to match the OR of all children
+                    currentParent.LifecycleRequirements |= item.LifecycleRequirements;
+
+                    // if the parent has greater last lifecycle event, update local
+                    if (!lifecycleEventUpdatingDisabled && currentParent.Children.lastLifeCycleEvent > updatedLastEvent) updatedLastEvent = currentParent.Children.lastLifeCycleEvent;
+                    if (!lifecycleEventUpdatingDisabled && currentParent.Children.isInvokingEvent) lifecycleEventUpdatingDisabled = true;
+                    currentParent = currentParent.Parent;
+                }
+                if (!lifecycleEventUpdatingDisabled && currentParent != null && currentParent.Children.lastLifeCycleEvent > updatedLastEvent) updatedLastEvent = currentParent.Children.lastLifeCycleEvent;
+            }
+
+            // update ancestor's last event
+            if (updatedLastEvent > lastLifeCycleEvent)
+            {
+                var currentParent = parent;
+                while (!currentParent.Children.isInvokingEvent && currentParent.Children.lastLifeCycleEvent > updatedLastEvent && currentParent.Parent != null)
+                {
+                    currentParent = currentParent.Parent;
+                }
+                currentParent.Children.InvokeMissedPageLifeCycleEvents(updatedLastEvent, true);
+            }
+            else
+            {
+                item.Children.InvokeMissedPageLifeCycleEvents(lastLifeCycleEvent, isMissingInvoke: true);
+            }
 
             if (item.GetValue(Internal.UniqueIDProperty) == null)
             {
@@ -206,6 +225,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         private void InvokeMissedPageLifeCycleEvents(LifeCycleEventType targetEventType, bool isMissingInvoke)
         {
+            if (lastLifeCycleEvent >= targetEventType || parent.LifecycleRequirements == ControlLifecycleRequirements.None) return;
             var context = (IDotvvmRequestContext)parent.GetValue(Internal.RequestContextProperty);
             DotvvmControl lastProcessedControl = parent;
             try
@@ -224,6 +244,7 @@ namespace DotVVM.Framework.Controls
 
         private void InvokeMissedPageLifeCycleEvent(IDotvvmRequestContext context, LifeCycleEventType targetEventType, bool isMissingInvoke, ref DotvvmControl lastProcessedControl)
         {
+            isInvokingEvent = true;
             for (var eventType = lastLifeCycleEvent + 1; eventType <= targetEventType; eventType++)
             {
 				var reqflag = (1 << ((int)eventType - 1));
@@ -258,18 +279,8 @@ namespace DotVVM.Framework.Controls
                     child.Children.InvokeMissedPageLifeCycleEvent(context, eventType, isMissingInvoke && eventType == targetEventType, ref lastProcessedControl);
                 }
             }
-
+            isInvokingEvent = false;
         }
-
-
-        private void SetLastLifeCycleEvent(LifeCycleEventType eventType)
-        {
-            if (lastLifeCycleEvent < eventType)
-            {
-                lastLifeCycleEvent = eventType;
-            }
-        }
-
 
         /// <summary>
         /// Invokes the specified method on all controls in the page control tree.
