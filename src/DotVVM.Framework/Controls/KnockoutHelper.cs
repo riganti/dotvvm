@@ -204,11 +204,51 @@ namespace DotVVM.Framework.Controls
         }
 
         /// <summary>
+        /// Writes text iff the property contains hard-coded value OR
+        /// writes knockout text binding iff the property contains binding
+        /// </summary>
+        /// <param name="wrapperTag">Name of wrapper tag, null => knockout binding comment</param>
+        public static void WriteTextOrBinding(this IHtmlWriter writer, DotvvmBindableObject obj, DotvvmProperty property, string wrapperTag = null)
+        {
+            var valueBinding = obj.GetValueBinding(property);
+            if (valueBinding != null)
+            {
+                if (wrapperTag == null)
+                {
+                    writer.WriteKnockoutDataBindComment("text", valueBinding.GetKnockoutBindingExpression());
+                    writer.WriteKnockoutDataBindEndComment();
+                }
+                else
+                {
+                    writer.AddKnockoutDataBind("text", valueBinding.GetKnockoutBindingExpression());
+                    writer.RenderBeginTag(wrapperTag);
+                    writer.RenderEndTag();
+                }
+            }
+            else
+            {
+                if (wrapperTag != null) writer.RenderBeginTag(wrapperTag);
+                writer.WriteText(obj.GetValue(property).ToString());
+                if (wrapperTag != null) writer.RenderEndTag();
+            }
+        }
+
+        /// <summary>
+        /// Returns Javascript expression that represents the property value (even if the property contains hardcoded value)
+        /// </summary>
+        public static string GetKnockoutBindingExpression(this DotvvmBindableObject obj, DotvvmProperty property)
+        {
+            var binding = obj.GetValueBinding(property);
+            if (binding != null) return binding.GetKnockoutBindingExpression();
+            return JsonConvert.SerializeObject(obj.GetValue(property));
+        }
+
+        /// <summary>
         /// Encodes the string so it can be used in Javascript code.
         /// </summary>
-        public static string MakeStringLiteral(string value)
+        public static string MakeStringLiteral(string value, bool useApos = true)
         {
-            return "'" + value.Replace("'", "''") + "'";
+            return JsonConvert.ToString(value, useApos ? '\'' : '"', StringEscapeHandling.Default);
         }
 
         public static string ConvertToCamelCase(string name)
