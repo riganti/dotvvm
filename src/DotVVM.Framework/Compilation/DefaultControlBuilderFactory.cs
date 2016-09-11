@@ -141,7 +141,6 @@ namespace DotVVM.Framework.Compilation
             if (File.Exists(fileName)) return Assembly.LoadFile(fileName);
             if (Path.IsPathRooted(fileName)) return null;
             var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
-            string a;
             foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
             {
                 // get already loaded assembly
@@ -151,12 +150,23 @@ namespace DotVVM.Framework.Compilation
                     if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
                 }
             }
-            foreach (var assembly in new []{ typeof(DefaultControlBuilderFactory).Assembly.GetCodeBasePath(), configuration.ApplicationPhysicalPath })
+
+            foreach (var assembliesPath in new []{ typeof(DefaultControlBuilderFactory).Assembly.GetCodeBasePath(), configuration.ApplicationPhysicalPath })
             {
-                if (!string.IsNullOrEmpty(assembly))
+                if (!string.IsNullOrEmpty(assembliesPath))
                 {
-                    a = Path.Combine(Path.GetDirectoryName(assembly), fileName);
-                    if (File.Exists(a)) return Assembly.LoadFile(a);
+                    string possibleFileName;
+                    var dirName = Path.GetDirectoryName(assembliesPath);
+                    if (dirName != null)
+                    {
+                        possibleFileName = Path.Combine(dirName, fileName);
+                    }
+                    else
+                    {
+                        possibleFileName = Path.Combine(assembliesPath, fileName);
+                    }
+
+                    if (File.Exists(possibleFileName)) return Assembly.LoadFile(possibleFileName);
                 }
             }
             return null;
