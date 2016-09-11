@@ -1,7 +1,11 @@
-﻿namespace DotVVM.Framework.Compilation.ControlTree.Resolved
+﻿using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+
+namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public abstract class ResolvedTreeNode : IAbstractTreeNode, IResolvedTreeNode
     {
+        public virtual DothtmlNode DothtmlNode { get; set; }
+
         public ResolvedTreeNode Parent { get; set; }
 
         private ResolvedTreeRoot treeRoot;

@@ -23,7 +23,7 @@ namespace DotVVM.Framework.PerfTests
         public void TokenizeAndParse()
         {
             var t = new DothtmlTokenizer();
-            t.Tokenize(new StringReader(data));
+            t.Tokenize(data);
             var p = new DothtmlParser();
             var node = p.Parse(t.Tokens);
         }
@@ -31,7 +31,7 @@ namespace DotVVM.Framework.PerfTests
         public void Tokenize()
         {
             var t = new DothtmlTokenizer();
-            t.Tokenize(new StringReader(data));
+            t.Tokenize(data);
         }
     }
 }

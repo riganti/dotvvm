@@ -173,6 +173,12 @@ class DotVVM {
             });
     }
 
+    private processPassedId(id: any, context: any): string {
+        if (typeof id == "string" || id == null) return id;
+        if (typeof id == "object" && id.expr) return this.evaluator.evaluateOnViewModel(context, id.expr);
+        throw new Error("invalid argument");
+    }
+
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs> {
         if (this.isPostBackProhibited(sender)) return new DotvvmPromise<DotvvmAfterPostBackEventArgs>().reject("rejected");
 
@@ -199,6 +205,7 @@ class DotVVM {
             return promise;
         }
 
+
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // prevent double postbacks
@@ -224,7 +231,7 @@ class DotVVM {
             viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),
             currentPath: path,
             command: command,
-            controlUniqueId: controlUniqueId,
+            controlUniqueId: this.processPassedId(controlUniqueId, context),
             validationTargetPath: validationTargetPath || null,
             renderedResources: this.viewModels[viewModelName].renderedResources
         };
@@ -473,7 +480,7 @@ class DotVVM {
         if (resultObject.replace != null) replace = resultObject.replace;
         var url;
         // redirect
-        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && !replace) {
+        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
             if (url === "#!") {

@@ -15,8 +15,13 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
 
         public bool IsOperator(char c) => operatorCharacters.Contains(c);
 
+        public override void Tokenize(string sourceText)
+        {
+            TokenizeInternal(sourceText, () => { TokenizeBindingValue(); return true; });
+        }
+
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        protected override void TokenizeCore()
+        private void TokenizeBindingValue()
         {
             while (Peek() != NullChar)
             {
@@ -180,7 +185,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Tokenizer
                         }
                         else
                         {
-                            EnsureUnsupportedOperator(BindingTokenType.GreaterThanOperator);
+                            //I need to take somting like >>>> into accout if it si something like
+                            //>&*% or whatever, it will be other operator's problem.
+                            CreateToken(BindingTokenType.GreaterThanOperator);
                         }
                         break;
 

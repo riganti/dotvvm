@@ -79,14 +79,29 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
             Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("couldn't be evaluated"));
+            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Could not resolve identifier"));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
             Assert.AreEqual(textBinding, textBinding.Binding.Parent);
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void ResolvedTree_SingleControlWithBinding_BindingError_MissingViewModelDirectiveThisId()
+		{
+			var root = ParseSource(@"<dot:Button Text='{value: _this.Test}' />");
+
+			var control = root.Content.First();
+			var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
+			Assert.IsNotNull(textBinding.Binding.ParsingError);
+			Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Type of '_this' could not be resolved."));
+
+			Assert.AreEqual(root, control.Parent);
+			Assert.AreEqual(control, textBinding.Parent);
+			Assert.AreEqual(textBinding, textBinding.Binding.Parent);
+		}
+
+		[TestMethod]
         public void ResolvedTree_SingleControlWithBinding_ValidBinding_UnknownViewModel()
         {
             var root = ParseSource(@"@viewModel invalid
@@ -95,14 +110,25 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
             Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("couldn't be evaluated"));
+            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Could not resolve identifier"));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
             Assert.AreEqual(textBinding, textBinding.Binding.Parent);
         }
 
-        [TestMethod]
+		[TestMethod]
+		public void ResolvedTree_SingleControlWithBinding_ValidBinding_UnknownViewModelInKnownOne()
+		{
+			var root = ParseSource(@"@viewModel System.String
+<dot:Repeater DataSource='{value: inkaalid}'><dot:Button Text='{value: _parent.Substring(0, 3)}' /></dot:Repeater>");
+
+			var control = root.Content.First().Properties.Values.OfType<ResolvedPropertyTemplate>().First().Content.First();
+			var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
+			Assert.IsNull(textBinding.Binding.ParsingError);
+		}
+
+		[TestMethod]
         public void ResolvedTree_SingleControlWithBinding_ValidBinding()
         {
             var root = ParseSource(@"@viewModel System.String, mscorlib
@@ -125,7 +151,8 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class=active />");
 
             var control = root.Content.First();
-            Assert.AreEqual("active", control.HtmlAttributes["class"]);
+            var attribute = control.HtmlAttributes["class"] as IAbstractHtmlAttributeValue;
+            Assert.AreEqual("active", attribute.Value);
 
             Assert.AreEqual(root, control.Parent);
         }
@@ -137,12 +164,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class='{value: Length}' />");
 
             var control = root.Content.First();
-            var binding = (ResolvedBinding)control.HtmlAttributes["class"];
-            Assert.IsNull(binding.ParsingError);
-            Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(binding.ResultType));
+            var attribute = ((ResolvedHtmlAttributeBinding) control.HtmlAttributes["class"]);
+            Assert.IsNull(attribute.Binding.ParsingError);
+            Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(attribute.Binding.ResultType));
 
             Assert.AreEqual(root, control.Parent);
-            Assert.AreEqual(control, binding.Parent);
+            Assert.AreEqual(attribute, attribute.Binding.Parent);
+            Assert.AreEqual(control, attribute.Parent);
         }
 
         [TestMethod]
@@ -267,7 +295,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(text.Binding.ParsingError);
+            Assert.IsNotNull(text.Binding.ParsingError);
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, dataSource.Parent);
@@ -387,13 +415,14 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div onclick='ahoj &gt; lao' />
  ");
 			var column = root.Content.First(t => t.Metadata.Name == nameof(HtmlGenericControl));
-			Assert.AreEqual(column.HtmlAttributes["onclick"], "ahoj > lao");
+            var attribute = (column.HtmlAttributes["onclick"] as ResolvedHtmlAttributeValue);
+            Assert.AreEqual(attribute.Value, "ahoj > lao");
 		}
 
 		private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(markup));
+            tokenizer.Tokenize(markup);
 
             var parser = new DothtmlParser();
             var tree = parser.Parse(tokenizer.Tokens);

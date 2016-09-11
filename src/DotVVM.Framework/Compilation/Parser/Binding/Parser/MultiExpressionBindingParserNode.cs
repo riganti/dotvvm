@@ -24,5 +24,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => Expressions;
+
+        public override string ToDisplayString()
+            => string.Join(" ",Expressions.Select(e => e.ToDisplayString()));
     }
 }

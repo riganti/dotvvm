@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -159,7 +159,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -202,7 +202,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -247,7 +247,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -289,7 +289,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -331,7 +331,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -365,7 +365,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
             Assert.IsTrue(tokenizer.Tokens[i].HasError);
             Assert.AreEqual(DothtmlTokenType.CloseTag, tokenizer.Tokens[i++].Type);
         }
-    
+
         [TestMethod]
         public void DothtmlTokenizer_BindingParsing_Invalid_BindingInPlainText_NotClosed()
         {
@@ -373,7 +373,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -392,7 +392,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -419,7 +419,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -442,7 +442,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -465,7 +465,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -496,7 +496,7 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
@@ -527,12 +527,116 @@ namespace DotVVM.Framework.Tests.Parser.Dothtml
 
             // parse
             var tokenizer = new DothtmlTokenizer();
-            tokenizer.Tokenize(new StringReader(input));
+            tokenizer.Tokenize(input);
             CheckForErrors(tokenizer, input.Length);
 
             var i = 0;
             Assert.AreEqual(1, tokenizer.Tokens.Count);
             Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[i++].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_TokenizeBinding_Valid_OneBrace()
+        {
+            var input = @"{binding: FirstName}";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            var result = tokenizer.TokenizeBinding(input, false);
+
+            Assert.IsTrue(result);
+            CheckForErrors(tokenizer, input.Length);
+
+            Assert.AreEqual(6, tokenizer.Tokens.Count);
+            Assert.AreEqual(DothtmlTokenType.OpenBinding, tokenizer.Tokens[0].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[1].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[4].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[5].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_TokenizeBinding_Valid_DoubleBrace_NotStated()
+        {
+            var input = @"{{binding: FirstName}}";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            var result =tokenizer.TokenizeBinding(input, false);
+
+            Assert.IsTrue(result);
+            CheckForErrors(tokenizer, input.Length);
+
+            Assert.AreEqual(6, tokenizer.Tokens.Count);
+            Assert.AreEqual(DothtmlTokenType.OpenBinding, tokenizer.Tokens[0].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[1].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[4].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[5].Type);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_TokenizeBinding_Valid_InvalidTextAround()
+        {
+            var input = @"dfds dsfsffds {binding: FirstName}fdsdsf";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            var result = tokenizer.TokenizeBinding(input, false);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_TokenizeBinding_Invalid_InvalidTextEnd()
+        {
+            var input = @"{binding: FirstName}fdsdsf";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            var result = tokenizer.TokenizeBinding(input, false);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_TokenizeBinding_Invalid_UnfinishedText()
+        {
+            var input = @"{binding: ""FirstName}fdsdsf";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            var result = tokenizer.TokenizeBinding(input, false);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_TokenizeBinding_Invalid_Unclosed()
+        {
+            var input = @"{binding: FirstName";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            var result = tokenizer.TokenizeBinding(input, false);
+
+            Assert.IsFalse(result);
+        }
+
+        [TestMethod]
+        public void DothtmlTokenizer_TokenizeBinding_Valid_StringInside()
+        {
+            var input = @"{binding: FirstName + ""{not: Binding}""}";
+
+            // parse
+            var tokenizer = new DothtmlTokenizer();
+            var result = tokenizer.TokenizeBinding(input, false);
+
+            Assert.IsTrue(result);
+            CheckForErrors(tokenizer, input.Length);
+            Assert.AreEqual(6, tokenizer.Tokens.Count);
+            Assert.AreEqual(DothtmlTokenType.OpenBinding, tokenizer.Tokens[0].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[1].Type);
+            Assert.AreEqual(DothtmlTokenType.Text, tokenizer.Tokens[4].Type);
+            Assert.AreEqual(DothtmlTokenType.CloseBinding, tokenizer.Tokens[5].Type);
         }
     }
 }

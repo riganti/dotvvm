@@ -9,5 +9,10 @@
         void VisitPropertyTemplate(ResolvedPropertyTemplate propertyTemplate);
         void VisitPropertyControlCollection(ResolvedPropertyControlCollection propertyControlCollection);
         void VisitPropertyControl(ResolvedPropertyControl propertyControl);
+        void VisitBinding(ResolvedBinding binding);
+        void VisitHtmlAttributeValue(ResolvedHtmlAttributeValue htmlAttributeValue);
+        void VisitHtmlAttributeBinding(ResolvedHtmlAttributeBinding htmlAttributeBinding);
+        void VisitDirective(ResolvedDirective directive);
+        void VisitImportDirective(ResolvedImportDirective importDirective);
     }
 }

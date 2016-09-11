@@ -22,6 +22,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
 		private ConcurrentDictionary<string, IControlType> cachedTagMappings = new ConcurrentDictionary<string, IControlType>(StringComparer.OrdinalIgnoreCase);
 		private ConcurrentDictionary<IControlType, IControlResolverMetadata> cachedMetadata = new ConcurrentDictionary<IControlType, IControlResolverMetadata>();
 
+		private readonly Lazy<IControlResolverMetadata> htmlGenericControlMetadata;
+
 		/// <summary>
 		/// Initializes a new instance of the <see cref="ControlResolverBase"/> class.
 		/// </summary>
@@ -32,6 +34,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			{
 				BindingTypes[ccc] = BindingTypes[ccc].AddImports(configuration.Markup.ImportedNamespaces);
 			}
+
+
+			htmlGenericControlMetadata = new Lazy<IControlResolverMetadata>(() => ResolveControl(new ResolvedTypeDescriptor(typeof(HtmlGenericControl))));
 		}
 
 		/// <summary>
@@ -43,7 +48,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			if (string.IsNullOrEmpty(tagPrefix))
 			{
 				activationParameters = new object[] { tagName };
-				return ResolveControl(new ResolvedTypeDescriptor(typeof(HtmlGenericControl)));
+				return htmlGenericControlMetadata.Value;
 			}
 
 			// find cached value

@@ -12,6 +12,25 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
     /// </summary>
     public class DothtmlTokenizer : TokenizerBase<DothtmlToken, DothtmlTokenType>
     {
+        public override void Tokenize(string sourceText)
+        {
+            TokenizeInternal(sourceText, () => { ReadDocument(); return true; });
+        }
+
+        public bool TokenizeBinding(string sourceText, bool usesDoubleBraces = false)
+        {
+            return TokenizeInternal(sourceText, () => 
+            {
+                ReadBinding(usesDoubleBraces);
+                //Finished?
+                Assert(Peek() == NullChar);
+                //Propertly opened/closed
+                Assert((Tokens.FirstOrDefault()?.Length ?? 0) > 0);
+                Assert((Tokens.LastOrDefault()?.Length ?? 0) > 0);
+                return true;
+            });
+        }
+
         /// <summary>
         /// Gets the type of the text token.
         /// </summary>
@@ -29,9 +48,9 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         }
 
         /// <summary>
-        /// Tokenizes the input.
+        /// Tokenizes whole dothtml document from start to end.
         /// </summary>
-        protected override void TokenizeCore()
+        private void ReadDocument()
         {
             var directivesAllowed = true;
 
@@ -320,7 +339,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         private ReadElementType ReadServerComment()
         {
             CreateToken(DothtmlTokenType.OpenServerComment);
-            if (ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false))
+            if (ReadTextUntil(DothtmlTokenType.CommentBody, "--%>", false, nestString: "<%--"))
             {
                 CreateToken(DothtmlTokenType.CloseComment);
                 return ReadElementType.ServerComment;
@@ -476,10 +495,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             if (Peek() == '{')
             {
                 // binding
-                if (!ReadBinding(false))
-                {
-                    return false;
-                }
+                ReadBinding(false);
             }
             else
             {
@@ -515,7 +531,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
         /// <summary>
         /// Reads the binding.
         /// </summary>
-        private bool ReadBinding(bool doubleCloseBrace)
+        private void ReadBinding(bool doubleCloseBrace)
         {
             // read open brace
             Assert(Peek() == '{');
@@ -570,7 +586,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                     {
                         CreateToken(DothtmlTokenType.Text, errorProvider: t => CreateTokenError());
                         CreateToken(DothtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenBinding, DothtmlTokenizerErrors.BindingNotClosed));
-                        return true;
+                        return;
                     }
                     else
                     {
@@ -584,7 +600,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             if (Peek() != '}')
             {
                 CreateToken(DothtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenBinding, DothtmlTokenizerErrors.BindingNotClosed));
-                return true;
+                return;
             }
             Read();
 
@@ -593,12 +609,11 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
                 if (Peek() != '}')
                 {
                     CreateToken(DothtmlTokenType.CloseBinding, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenBinding, DothtmlTokenizerErrors.DoubleBraceBindingNotClosed));
-                    return true;
+                    return;
                 }
                 Read();
             }
             CreateToken(DothtmlTokenType.CloseBinding);
-            return true;
         }
 
         protected override DothtmlToken NewToken()

@@ -7,8 +7,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class FunctionCallBindingParserNode : BindingParserNode
     {
-        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} <E> ({string.Join(", ",ArgumentExpressions.Select(e=> "<E>"))})";
-
         public BindingParserNode TargetExpression { get; private set; }
         public List<BindingParserNode> ArgumentExpressions { get; private set; }
 
@@ -28,5 +26,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => new[] { TargetExpression }.Concat(ArgumentExpressions);
+
+        public override string ToDisplayString() => $"{TargetExpression.ToDisplayString()}({string.Join(", ", ArgumentExpressions.Select(e => e.ToDisplayString()))})";
     }
 }

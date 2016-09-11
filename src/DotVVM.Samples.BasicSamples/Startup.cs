@@ -77,7 +77,7 @@ namespace DotVVM.Samples.BasicSamples
                             || c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/RoleView"), next =>
                         new CookieAuthenticationMiddleware(next, app, new CookieAuthenticationOptions()
                         {
-                            AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie                            
+                            AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie
                         })
                     ),
                 }
@@ -91,6 +91,8 @@ namespace DotVVM.Samples.BasicSamples
 
             dotvvmConfiguration.ServiceLocator.RegisterSingleton<IUploadedFileStorage>(
                 () => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
+            dotvvmConfiguration.ServiceLocator.RegisterSingleton<IReturnedFileStorage>(
+                () => new FileSystemReturnedFileStorage(Path.Combine(applicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
 
             // use static files
             app.UseStaticFiles(new StaticFileOptions()

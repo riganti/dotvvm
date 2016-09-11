@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -8,8 +9,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class UnaryOperatorBindingParserNode : BindingParserNode
     {
-        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} {Operator}<E>";
-
         public BindingParserNode InnerExpression { get; private set; }
         public BindingTokenType Operator { get; private set; }
 
@@ -26,5 +25,8 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => new[] { InnerExpression };
+
+        public override string ToDisplayString()
+            => $"{Operator.ToDisplayString()}{InnerExpression}";
     }
 }

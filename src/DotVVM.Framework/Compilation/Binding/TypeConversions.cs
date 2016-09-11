@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -144,12 +145,19 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 result = ToStringConversion(src);
             }
-            if (throwException && result == null) throw new InvalidOperationException($"could not implicitly convert expression of type { src.Type } to { destType }");
+            if (throwException && result == null) throw new InvalidOperationException($"Could not implicitly convert expression of type { src.Type } to { destType }.");
             return result;
         }
 
+		public static bool IsStringConversionAllowed(Type fromType)
+		{
+			// allow primitive types, IConvertibles, types that override ToString
+			return fromType.IsPrimitive || typeof(IConvertible).IsAssignableFrom(fromType) || fromType.GetMethod("ToString", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null)?.DeclaringType != typeof(object);
+		}
+
         public static Expression ToStringConversion(Expression src)
         {
+			if (!IsStringConversionAllowed(src.Type)) return null;
             if (src.NodeType == ExpressionType.Constant)
             {
                 var constant = (ConstantExpression)src;

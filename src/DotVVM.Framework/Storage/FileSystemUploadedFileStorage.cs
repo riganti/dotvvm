@@ -3,6 +3,7 @@ using System.IO;
 using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Storage
 {
@@ -38,7 +39,7 @@ namespace DotVVM.Framework.Storage
         /// </summary>
         public async Task<Guid> StoreFile(Stream stream)
         {
-            var id = Guid.NewGuid();
+            var id = SecureGuidGenerator.GenerateGuid();
             using (var fs = new FileStream(GetFileName(id), FileMode.OpenOrCreate, FileAccess.Write))
             {
                 await stream.CopyToAsync(fs);

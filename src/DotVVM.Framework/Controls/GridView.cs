@@ -224,10 +224,7 @@ namespace DotVVM.Framework.Controls
 
             var gridViewDataSet = DataSource as IGridViewDataSet;
 
-            // workaroud: header template must have to be one level nested, because it is in the Columns property which nests the dataContext to the item type
-            // on server we need null, to be Convertible to Item type and on client the best is empty object, because with will hide the inner content when it is null
             var headerRow = new HtmlGenericControl("tr");
-            //headerRow.SetBinding(DataContextProperty, new ValueBindingExpression(h => null, "{}"));
             head.Children.Add(headerRow);
             foreach (var column in Columns)
             {
@@ -245,7 +242,6 @@ namespace DotVVM.Framework.Controls
             if (FilterPlacement == GridViewFilterPlacement.ExtraRow)
             {
                 headerRow = new HtmlGenericControl("tr");
-                headerRow.SetBinding(DataContextProperty, new ValueBindingExpression(h => null, "{}"));
                 head.Children.Add(headerRow);
                 foreach (var column in Columns)
                 {
@@ -371,6 +367,7 @@ namespace DotVVM.Framework.Controls
             {
                 var cell = new HtmlGenericControl("td");
                 row.Children.Add(cell);
+                SetCellAttributes(column, cell, false);
                 if (isInEditMode && column.IsEditable)
                 {
                     column.CreateEditControls(context, cell);

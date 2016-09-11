@@ -146,6 +146,7 @@
     <Compile Include="Binding\Expressions\StaticCommandBindingExpression.cs" />
     <Compile Include="Binding\Expressions\ValueBindingExpression.cs" />
     <Compile Include="Binding\DotvvmProperty.cs" />
+    <Compile Include="Compilation\Binding\GenericTypeExpression.cs" />
     <Compile Include="Compilation\ControlTree\DataContextStackManipulationAttribute.cs" />
     <Compile Include="Compilation\BindingCompilationAttribute.cs" />
     <Compile Include="Compilation\BindingCompiler.cs" />
@@ -177,6 +178,10 @@
     <Compile Include="Compilation\ControlTree\IAbstractContentNode.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractControl.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractDirective.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractHtmlAttributeBinding.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractHtmlAttributeSetter.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractHtmlAttributeValue.cs" />
+    <Compile Include="Compilation\ControlTree\IAbstractImportDirective.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractPropertyBinding.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractPropertyControl.cs" />
     <Compile Include="Compilation\ControlTree\IAbstractPropertyControlCollection.cs" />
@@ -200,6 +205,10 @@
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedControl.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedControlTreeVisitor.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedDirective.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedHtmlAttributeBinding.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedHtmlAttributeSetter.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedHtmlAttributeValue.cs" />
+    <Compile Include="Compilation\ControlTree\Resolved\ResolvedImportDirective.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyBinding.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyControl.cs" />
     <Compile Include="Compilation\ControlTree\Resolved\ResolvedPropertyControlCollection.cs" />
@@ -241,6 +250,7 @@
     <Compile Include="Compilation\Parser\Binding\Parser\BindingParserNodeVisitor.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\ConditionalExpressionBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\FunctionCallBindingParserNode.cs" />
+    <Compile Include="Compilation\Parser\Binding\Parser\GenericNameBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\IBindingParserNodeContext.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\IdentifierNameBindingParserNode.cs" />
     <Compile Include="Compilation\Parser\Binding\Parser\LiteralExpressionBindingParserNode.cs" />
@@ -252,6 +262,7 @@
     <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingToken.cs" />
     <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingTokenizer.cs" />
     <Compile Include="Compilation\Parser\Binding\Tokenizer\BindingTokenType.cs" />
+    <Compile Include="Compilation\Parser\Binding\Tokenizer\TokenTypeDispalay.cs" />
     <Compile Include="Compilation\Parser\ParserConstants.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlAttributeNode.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Parser\DothtmlBindingNode.cs" />
@@ -275,11 +286,9 @@
     <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlToken.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlTokenizer.cs" />
     <Compile Include="Compilation\Parser\Dothtml\Tokenizer\DothtmlTokenType.cs" />
-    <Compile Include="Compilation\Parser\IReader.cs" />
     <Compile Include="Compilation\Parser\NullTokenError.cs" />
     <Compile Include="Compilation\Parser\DotvvmParserException.cs" />
     <Compile Include="Compilation\Parser\SimpleTokenError.cs" />
-    <Compile Include="Compilation\Parser\StringReader.cs" />
     <Compile Include="Compilation\Parser\TextRange.cs" />
     <Compile Include="Compilation\Parser\TokenBase.cs" />
     <Compile Include="Compilation\Parser\TokenError.cs" />
@@ -350,6 +359,7 @@
     <Compile Include="Controls\PostBack.cs" />
     <Compile Include="Controls\PostBackHandler.cs" />
     <Compile Include="Controls\PostBackHandlerCollection.cs" />
+    <Compile Include="Controls\PostbackScriptOptions.cs" />
     <Compile Include="Controls\RenderMode.cs" />
     <Compile Include="Controls\RenderSettings.cs" />
     <Compile Include="Controls\RoleView.cs" />
@@ -504,7 +514,6 @@
     <Compile Include="Utils\ExceptionUtils.cs" />
     <Compile Include="Utils\ExpressionUtils.cs" />
     <Compile Include="Hosting\DefaultMarkupFileLoader.cs" />
-    <Compile Include="Hosting\FileReader.cs" />
     <Compile Include="Hosting\IMarkupFileLoader.cs" />
     <Compile Include="Hosting\IDotvvmPresenter.cs" />
     <Compile Include="Hosting\MarkupFile.cs" />
@@ -521,6 +530,7 @@
     <Compile Include="Routing\DotvvmRoute.cs" />
     <Compile Include="Routing\DotvvmRouteTable.cs" />
     <Compile Include="Routing\RouteBase.cs" />
+    <Compile Include="Utils\FunctionalExtensions.cs" />
     <Compile Include="Utils\HttpAbstractions\BufferedReadStream.cs" />
     <Compile Include="Utils\HttpAbstractions\KeyValueAccumulator.cs" />
     <Compile Include="Utils\HttpAbstractions\MultipartReader.cs" />
@@ -529,9 +539,9 @@
     <Compile Include="Utils\HttpAbstractions\StreamHelperExtensions.cs" />
     <Compile Include="Utils\JsonUtils.cs" />
     <Compile Include="Utils\ReflectionUtils.cs" />
+    <Compile Include="Utils\SecureGuidGenerator.cs" />
     <Compile Include="Utils\TaskUtils.cs" />
     <Compile Include="ViewModel\AllowStaticCommandAttribute.cs" />
-    <Compile Include="ViewModel\BindAttribute.cs" />
     <Compile Include="ViewModel\ChildViewModelsCache.cs" />
     <Compile Include="ViewModel\ClientExtenderAttribute.cs" />
     <Compile Include="ViewModel\Serialization\ClientExtenderInfo.cs" />
@@ -559,7 +569,6 @@
     <Compile Include="ViewModel\Validation\ViewModelValidator.cs" />
     <Compile Include="ViewModel\ProtectAttribute.cs" />
     <Compile Include="ViewModel\ProtectMode.cs" />
-    <Compile Include="ViewModel\Direction.cs" />
     <Compile Include="ViewModel\IDotvvmViewModel.cs" />
     <Compile Include="ViewModel\DotvvmViewModelBase.cs" />
   </ItemGroup>

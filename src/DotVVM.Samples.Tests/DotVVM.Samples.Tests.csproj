@@ -109,6 +109,7 @@
     <Compile Include="Control\CheckBoxInRepeaterTests.cs" />
     <Compile Include="Control\ContentPlaceHolderTests.cs" />
     <Compile Include="Control\HtmlLiteralTests.cs" />
+    <Compile Include="Control\RouteLinkEnabledFalse.cs" />
     <Compile Include="Control\RouteLinkEnabledTests.cs" />
     <Compile Include="Control\ServerCommentsTests.cs" />
     <Compile Include="Control\SpaContentPlaceHolderTests.cs" />
@@ -150,6 +151,7 @@
     <Compile Include="Feature\DoublePostBackPrevention.cs" />
     <Compile Include="Feature\SimpleValidationTests.cs" />
     <Compile Include="Feature\StaticCommandTests.cs" />
+    <Compile Include="Feature\ValidationScopes.cs" />
     <Compile Include="Feature\ValidationRulesLoadOnPostbackTests.cs" />
     <Compile Include="Feature\ViewModelDeserializationTests.cs" />
     <Compile Include="Feature\ViewModelProtectionTests.cs" />

@@ -61,6 +61,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_RepeaterWrapperTag_RepeaterWrapperTag => "ControlSamples/RepeaterWrapperTag/RepeaterWrapperTag";
 			public static string ControlSamples_RoleView_RoleViewTest => "ControlSamples/RoleView/RoleViewTest";
 			public static string ControlSamples_RouteLink_RouteLinkEnabled => "ControlSamples/RouteLink/RouteLinkEnabled";
+			public static string ControlSamples_RouteLink_RouteLinkEnabledFalse => "ControlSamples/RouteLink/RouteLinkEnabledFalse";
+			public static string ControlSamples_RouteLink_TestRoute => "ControlSamples/RouteLink/TestRoute";
 			public static string ControlSamples_SpaContentPlaceHolder_Default => "ControlSamples/SpaContentPlaceHolder/Default";
 			public static string ControlSamples_SpaContentPlaceHolder_PageA => "ControlSamples/SpaContentPlaceHolder/PageA";
 			public static string ControlSamples_SpaContentPlaceHolder_PageB => "ControlSamples/SpaContentPlaceHolder/PageB";
@@ -70,6 +72,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_TextBox_IntBoundTextBox => "ControlSamples/TextBox/IntBoundTextBox";
 			public static string ControlSamples_TextBox_TextBox => "ControlSamples/TextBox/TextBox";
 			public static string ControlSamples_TextBox_TextBox_Format => "ControlSamples/TextBox/TextBox_Format";
+			public static string ControlSamples_TextBox_TextBox_FormatDoubleProperty => "ControlSamples/TextBox/TextBox_FormatDoubleProperty";
 			public static string ControlSamples_UpdateProgress_UpdateProgress => "ControlSamples/UpdateProgress/UpdateProgress";
 			public static string ControlSamples_ValidationSummary_RecursiveValidationSummary => "ControlSamples/ValidationSummary/RecursiveValidationSummary";
 			public static string Errors_BindingInvalidCommand => "Errors/BindingInvalidCommand";
@@ -79,7 +82,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string Errors_EncryptedPropertyInValueBinding => "Errors/EncryptedPropertyInValueBinding";
 			public static string Errors_FieldInValueBinding => "Errors/FieldInValueBinding";
 			public static string Errors_InvalidViewModel => "Errors/InvalidViewModel";
-			public static string Errors_MalformedBinding => "Errors/MalformedBinding";
+            		public static string Errors_MalformedBinding => "Errors/MalformedBinding";
+            		public static string Errors_MarkupControlInvalidViewModel => "Errors/MarkupControlInvalidViewModel";
 			public static string Errors_MasterPageRequiresDifferentViewModel => "Errors/MasterPageRequiresDifferentViewModel";
 			public static string Errors_MissingRequiredProperty => "Errors/MissingRequiredProperty";
 			public static string Errors_MissingRequiredProperty2 => "Errors/MissingRequiredProperty2";
@@ -112,6 +116,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Localization_Localization_ResourceTypeDirective => "FeatureSamples/Localization/Localization_ResourceTypeDirective";
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdatedByServer => "FeatureSamples/MarkupControl/ControlPropertyUpdatedByServer";
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdating => "FeatureSamples/MarkupControl/ControlPropertyUpdating";
+			public static string FeatureSamples_MarkupControl_ControlPropertyValidationPage => "FeatureSamples/MarkupControl/ControlPropertyValidationPage";
 			public static string FeatureSamples_MarkupControl_MarkupControlRegistration => "FeatureSamples/MarkupControl/MarkupControlRegistration";
 			public static string FeatureSamples_NestedMasterPages_Content => "FeatureSamples/NestedMasterPages/Content";
 			public static string FeatureSamples_PostBack_PostBackHandlers => "FeatureSamples/PostBack/PostBackHandlers";
@@ -135,6 +140,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Validation_RegexValidation => "FeatureSamples/Validation/RegexValidation";
 			public static string FeatureSamples_Validation_SimpleValidation => "FeatureSamples/Validation/SimpleValidation";
 			public static string FeatureSamples_Validation_ValidationRulesLoadOnPostback => "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
+			public static string FeatureSamples_Validation_ValidationScopes => "FeatureSamples/Validation/ValidationScopes";
 			public static string FeatureSamples_ViewModelDeserialization_DoesNotDropObject => "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
 			public static string FeatureSamples_ViewModelNesting_NestedViewModel => "FeatureSamples/ViewModelNesting/NestedViewModel";
 			public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";

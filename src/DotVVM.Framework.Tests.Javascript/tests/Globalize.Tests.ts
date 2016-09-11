@@ -55,4 +55,44 @@ describe("Globalize.js custom number format", () => {
     it("Decimal Number 9 negative number", () => {
         expect(dotvvm_Globalize.format(-123456789.98765, "#,##0.0##", "en-US")).toBe("-123,456,789.988");
     });
+
+    it("Decimal to integer Number 1", () => {
+        expect(dotvvm_Globalize.format(123456789.98765, "#,##0", "en-US")).toBe("123,456,790");
+    });
+
+    it("Decimal to integer Number 2 negative number", () => {
+        expect(dotvvm_Globalize.format(-123456789.98765, "#,##0", "en-US")).toBe("-123,456,790");
+    });
+
+    it("Decimal to integer Number 3", () => {
+        expect(dotvvm_Globalize.format(12.98765, "#,000", "en-US")).toBe("013");
+    });
+
+    it("Decimal to integer Number 4", () => {
+        expect(dotvvm_Globalize.format(1234.98765, "#,000", "en-US")).toBe("1,235");
+    });
+
+    it("Integer Number 1", () => {
+        expect(dotvvm_Globalize.format(1234, "#0,000", "en-US")).toBe("1,234");
+    });
+
+    it("Integer Number 2", () => {
+        expect(dotvvm_Globalize.format(1234, "#,##0", "en-US")).toBe("1,234");
+    });
+
+    it("Integer Number 3", () => {
+        expect(dotvvm_Globalize.format(-1234, "#,##0", "en-US")).toBe("-1,234");
+    });
+
+    it("Integer Number 4", () => {
+        expect(dotvvm_Globalize.format(1234, "00", "en-US")).toBe("1234");
+    });
+
+    it("Integer Number 5", () => {
+        expect(dotvvm_Globalize.format(1, "00", "en-US")).toBe("01");
+    });
+
+    it("Integer Number 6", () => {
+        expect(dotvvm_Globalize.format(-1, "00", "en-US")).toBe("-01");
+    });
 });

@@ -6,9 +6,9 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     [DebuggerDisplay("{Type.Name}: {Value}")]
-    public class ResolvedBinding : IAbstractBinding
+    public class ResolvedBinding : ResolvedTreeNode, IAbstractBinding
     {
-        public DothtmlBindingNode BindingNode { get; set; }
+        public DothtmlBindingNode BindingNode => (DothtmlBindingNode)DothtmlNode;
 
         public Type BindingType { get; set; }
 
@@ -23,10 +23,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public ITypeDescriptor ResultType { get; set; }
 
         IDataContextStack IAbstractBinding.DataContextTypeStack => DataContextTypeStack;
-        
-        public ResolvedTreeNode Parent { get; set; }
 
-        IAbstractTreeNode IAbstractBinding.Parent => Parent;
+        IAbstractTreeNode IAbstractTreeNode.Parent => Parent;
 
         public DebugInfoExpression DebugInfo { get; set; }
 
@@ -34,9 +32,18 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         {
             if (ParsingError != null)
             {
-                throw new DotvvmCompilationException($"The binding '{{{ BindingType.Name }: { Value }}}' is not valid!", ParsingError, BindingNode.Tokens);
+                throw new DotvvmCompilationException($"The binding '{{{ BindingType.Name }: { Value }}}' is not valid!", ParsingError, DothtmlNode.Tokens);
             }
             return Expression;
+        }
+
+        public override void Accept(IResolvedControlTreeVisitor visitor)
+        {
+            visitor.VisitBinding(this);
+        }
+
+        public override void AcceptChildren(IResolvedControlTreeVisitor visitor)
+        {          
         }
     }
 }

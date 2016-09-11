@@ -16,14 +16,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels
         public string Title { get; set; }
         public List<RouteBase> Routes { get; set; }
 
-
-        public DefaultViewModel()
+		public DefaultViewModel()
         {
             if (HttpContext.Current.GetOwinContext().GetDotvvmContext() == null)
             {
                 throw new Exception("DotVVM context was not found!");
             }
-
         }
 
         public override Task Init()

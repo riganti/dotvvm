@@ -7,12 +7,8 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
-    public interface IAbstractDirective
+    public interface IAbstractDirective : IAbstractTreeNode
     {
-        DothtmlDirectiveNode DirectiveNode { get; }
-
         string Value { get; }
-
-        IAbstractTreeRoot Parent { get; }
     }
 }

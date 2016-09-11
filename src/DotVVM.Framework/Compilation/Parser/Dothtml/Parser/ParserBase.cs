@@ -44,6 +44,28 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             return null;
         }
 
+        private Stack<int> _restorePoints = new Stack<int>(); 
+        protected void SetRestorePoint()
+        {
+            _restorePoints.Push(CurrentIndex);
+        }
+
+        protected void ClearRestorePoint()
+        {
+            if(_restorePoints.Count > 0)
+            {
+                _restorePoints.Pop();
+            }
+        }
+
+        protected void Restore()
+        {
+            if(_restorePoints.Count != 0)
+            {
+                CurrentIndex = _restorePoints.Pop();
+            }
+        }
+
         protected AggregateList<TToken>.Part PeekPart()
         {
             return new AggregateList<TToken>.Part(Tokens, CurrentIndex, (CurrentIndex < Tokens.Count) ? 1: 0);

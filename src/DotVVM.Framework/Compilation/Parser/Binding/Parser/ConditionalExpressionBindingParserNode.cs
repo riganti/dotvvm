@@ -7,8 +7,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class ConditionalExpressionBindingParserNode : BindingParserNode
     {
-        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} <E>?<T>:<F>";
-
         public BindingParserNode ConditionExpression { get; private set; }
         public BindingParserNode TrueExpression { get; private set; }
         public BindingParserNode FalseExpression { get; private set; }
@@ -31,5 +29,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => new[] { ConditionExpression, TrueExpression, FalseExpression };
+
+        public override string ToDisplayString() => $"{ConditionExpression.ToDisplayString()}?{TrueExpression.ToDisplayString()}:{FalseExpression.ToDisplayString()}";
     }
 }

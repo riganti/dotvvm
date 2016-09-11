@@ -7,8 +7,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
     public class IdentifierNameBindingParserNode : BindingParserNode
     {
-        protected override string DebuggerDisplay => $"{base.DebuggerDisplay} Identifier: {Name}";
-
         public string Name { get; private set; }
 
         public IdentifierNameBindingParserNode(string name)
@@ -18,5 +16,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public override IEnumerable<BindingParserNode> EnumerateChildNodes()
             => Enumerable.Empty<BindingParserNode>();
+
+        public override string ToDisplayString() => $"{Name}";
     }
 }

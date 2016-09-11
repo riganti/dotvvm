@@ -15,11 +15,7 @@ namespace DotVVM.Framework.Compilation
     public class DefaultViewCompilerCodeEmitter
     {
 
-        private int CurrentControlIndex
-        {
-            get { return methods.Peek().ControlIndex; }
-            set { methods.Peek().ControlIndex = value; }
-        }
+        private int CurrentControlIndex;
 
         private List<StatementSyntax> CurrentStatements
         {
@@ -223,9 +219,33 @@ namespace DotVVM.Framework.Compilation
             {
                 return EmitBooleanLiteral((bool)value);
             }
-            if (value is int || value is long || value is ulong || value is uint || value is decimal || value is float || value is double)
+            if (value is int)
             {
-                return EmitStandartNumericLiteral(value);
+                return EmitStandardNumericLiteral((int)value);
+            }
+            if (value is long)
+            {
+                return EmitStandardNumericLiteral((long)value);
+            }
+            if (value is ulong)
+            {
+                return EmitStandardNumericLiteral((ulong)value);
+            }
+            if (value is uint)
+            {
+                return EmitStandardNumericLiteral((uint)value);
+            }
+            if (value is decimal)
+            {
+                return EmitStandardNumericLiteral((decimal)value);
+            }
+            if (value is float)
+            {
+                return EmitStandardNumericLiteral((float)value);
+            }
+            if (value is double)
+            {
+                return EmitStandardNumericLiteral((double)value);
             }
             if (value is Type)
             {
@@ -301,94 +321,6 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
-        /// <summary>
-        /// Emits the set DotvvmProperty statement.
-        /// </summary>
-        public void EmitSetValue(string controlName, DotvvmProperty property, ExpressionSyntax valueSyntax)
-        {
-            UsedAssemblies.Add(property.DeclaringType.Assembly);
-            UsedAssemblies.Add(property.PropertyType.Assembly);
-
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetValue")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[]
-                            {
-                                SyntaxFactory.Argument(SyntaxFactory.ParseName(property.DescriptorFullName)),
-                                SyntaxFactory.Argument(valueSyntax)
-                            })
-                        )
-                    )
-                )
-            );
-        }
-
-        /// <summary>
-        /// Emits the set binding statement.
-        /// </summary>
-        public void EmitSetBinding(string controlName, string propertyName, ExpressionSyntax binding)
-        {
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetBinding")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(new[] {
-                                SyntaxFactory.Argument(SyntaxFactory.ParseName(propertyName)),
-                                SyntaxFactory.Argument(binding)
-                            })
-                        )
-                    )
-                )
-            );
-        }
-
-        /// <summary>
-        /// Emits the set attached property.
-        /// </summary>
-        public void EmitSetAttachedProperty(string controlName, DotvvmProperty property, object value)
-        {
-            UsedAssemblies.Add(property.DeclaringType.Assembly);
-            UsedAssemblies.Add(property.PropertyType.Assembly);
-
-            CurrentStatements.Add(
-                SyntaxFactory.ExpressionStatement(
-                    SyntaxFactory.InvocationExpression(
-                        SyntaxFactory.MemberAccessExpression(
-                            SyntaxKind.SimpleMemberAccessExpression,
-                            SyntaxFactory.IdentifierName(controlName),
-                            SyntaxFactory.IdentifierName("SetValue")
-                        ),
-                        SyntaxFactory.ArgumentList(
-                            SyntaxFactory.SeparatedList(
-                                new[] {
-                                    SyntaxFactory.Argument(
-                                        SyntaxFactory.MemberAccessExpression(
-                                            SyntaxKind.SimpleMemberAccessExpression,
-                                            ParseTypeName(property.DeclaringType),
-                                            SyntaxFactory.IdentifierName(property.Name + "Property")
-                                        )
-                                    ),
-                                    SyntaxFactory.Argument(
-                                        EmitValue(value)
-                                    )
-                                }
-                            )
-                        )
-                    )
-                )
-            );
-        }
 
         /// <summary>
         /// Emits the code that adds the specified value as a child item in the collection.
@@ -429,6 +361,41 @@ namespace DotVVM.Framework.Compilation
                     )
                 )
             );
+        }
+
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
+            EmitSetDotvvmProperty(controlName, property, EmitValue(value));
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
+        {
+            UsedAssemblies.Add(property.DeclaringType.Assembly);
+            UsedAssemblies.Add(property.PropertyType.Assembly);
+
+            if (property.IsVirtual)
+            {
+                EmitSetProperty(controlName, property.PropertyInfo.Name, EmitValue(value));
+            }
+            else
+            {
+                CurrentStatements.Add(
+                    SyntaxFactory.ExpressionStatement(
+                        SyntaxFactory.InvocationExpression(
+                            SyntaxFactory.MemberAccessExpression(
+                                SyntaxKind.SimpleMemberAccessExpression,
+                                SyntaxFactory.ParseName(property.DescriptorFullName),
+                                SyntaxFactory.IdentifierName("SetValue")
+                            ),
+                            SyntaxFactory.ArgumentList(
+                                SyntaxFactory.SeparatedList(
+                                    new[] {
+                                    SyntaxFactory.Argument(SyntaxFactory.IdentifierName(controlName)),
+                                    SyntaxFactory.Argument(value)
+                                    }
+                                )
+                            )
+                        )
+                    )
+                );
+            }
         }
 
 
@@ -475,7 +442,37 @@ namespace DotVVM.Framework.Compilation
             return SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(value));
         }
 
-        private LiteralExpressionSyntax EmitStandartNumericLiteral(dynamic value)
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(int value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(long value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(ulong value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(uint value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(decimal value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(float value)
+        {
+            return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
+        }
+
+        private LiteralExpressionSyntax EmitStandardNumericLiteral(double value)
         {
             return SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression, SyntaxFactory.Literal(value));
         }

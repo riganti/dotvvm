@@ -11,25 +11,33 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public static class ExpressionHelper
     {
-        public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true)
+        public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
         {
             Contract.Requires(target != null);
 
             if (target is MethodGroupExpression)
-                throw new Exception("can not access member on method group");
+                throw new Exception("Can not access member on method group.");
 
             var type = target.Type;
+			if (type == typeof(UnknownTypeSentinel)) if (throwExceptions) throw new Exception($"Type of '{target}' could not be resolved."); else return null;
+
             var isStatic = target is StaticClassIdentifierExpression;
+
+            var isGeneric = typeArguments != null && typeArguments.Length != 0;
+            var genericName = isGeneric ? $"{name}`{typeArguments.Length}" : name;
+
             var members = type.GetMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
-                .Where(m => m.Name == name)
+                .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name )
                 .ToArray();
             if (members.Length == 0)
             {
-                if (throwExceptions) throw new Exception($"could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }");
+                if (throwExceptions) throw new Exception($"Could not find { (isStatic ? "static" : "instance") } member { name } on type { type.FullName }.");
                 else return null;
             }
             if (members.Length == 1)
             {
+                if(!(members[0] is Type) && onlyMemberTypes) { throw new Exception("Only type names are supported."); } 
+
                 var instance = isStatic ? null : target;
                 if (members[0] is PropertyInfo)
                 {
@@ -43,7 +51,10 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
                 else if (members[0] is Type)
                 {
-                    return Expression.Constant(null, (Type)members[0]);
+                    var nonGenericType = (Type)members[0];
+                    return isGeneric 
+                        ? Expression.Constant(null, nonGenericType)
+                        : Expression.Constant(null, nonGenericType.MakeGenericType(typeArguments));
                 }
             }
             return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments };
@@ -319,5 +330,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             return result.Expression;
         }
-    }
+
+		public sealed class UnknownTypeSentinel { }
+	}
 }

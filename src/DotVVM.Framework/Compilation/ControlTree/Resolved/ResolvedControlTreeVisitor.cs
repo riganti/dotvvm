@@ -1,4 +1,6 @@
-﻿namespace DotVVM.Framework.Compilation.ControlTree.Resolved
+﻿using System;
+
+namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public abstract class ResolvedControlTreeVisitor : IResolvedControlTreeVisitor
     {
@@ -37,10 +39,34 @@
             DefaultVisit(propertyControl);
         }
 
+        public void VisitBinding(ResolvedBinding binding)
+        {
+            DefaultVisit(binding);
+        }
+
+        public void VisitHtmlAttributeValue(ResolvedHtmlAttributeValue htmlAttributeValue)
+        {
+            DefaultVisit(htmlAttributeValue);
+        }
+
+        public void VisitHtmlAttributeBinding(ResolvedHtmlAttributeBinding htmlAttributeBinding)
+        {
+            DefaultVisit(htmlAttributeBinding);
+        }
+
+        public void VisitDirective(ResolvedDirective directive)
+        {
+            DefaultVisit(directive);
+        }
 
         public virtual void DefaultVisit(IResolvedTreeNode node)
         {
             node.AcceptChildren(this);
+        }
+
+        public void VisitImportDirective(ResolvedImportDirective importDirective)
+        {
+            DefaultVisit(importDirective);
         }
     }
 }

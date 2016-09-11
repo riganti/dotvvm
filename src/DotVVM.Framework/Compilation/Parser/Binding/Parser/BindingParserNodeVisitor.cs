@@ -23,6 +23,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitFunctionCall((FunctionCallBindingParserNode)node);
             }
+            else if (node is GenericNameBindingParserNode)
+            {
+                return VisitGenericName((GenericNameBindingParserNode)node);
+            }
             else if (node is IdentifierNameBindingParserNode)
             {
                 return VisitIdentifierName((IdentifierNameBindingParserNode)node);
@@ -51,6 +55,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 throw new NotSupportedException($"The node of type {node.GetType()} is not supported!");
             }
+        }
+
+        protected virtual T VisitGenericName(GenericNameBindingParserNode node)
+        {
+            return DefaultVisit(node);
         }
 
         protected virtual T VisitArrayAccess(ArrayAccessBindingParserNode node)

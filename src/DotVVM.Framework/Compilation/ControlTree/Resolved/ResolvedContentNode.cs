@@ -5,8 +5,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public abstract class ResolvedContentNode : ResolvedTreeNode, IAbstractContentNode 
     {
-        public DothtmlNode DothtmlNode { get; set; }
-
         public List<ResolvedControl> Content { get; set; }
 
         public ControlResolverMetadata Metadata { get; set; }

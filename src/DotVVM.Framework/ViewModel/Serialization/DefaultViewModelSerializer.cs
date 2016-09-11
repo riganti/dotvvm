@@ -19,7 +19,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DefaultViewModelSerializer : IViewModelSerializer
     {
-        private const string GeneralViewModelRecomendations = "Check out general viewMode recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
+        private const string GeneralViewModelRecomendations = "Check out general viewModel recomedation at http://www.dotvvm.com/docs/tutorials/basics-viewmodels";
 
         private CommandResolver commandResolver = new CommandResolver();
 
@@ -171,16 +171,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Serializes the redirect action.
         /// </summary>
-        public static string GenerateRedirectActionResponse(string url, bool replace = false)
+        public static string GenerateRedirectActionResponse(string url, bool replace, bool allowSpa)
         {
             // create result object
             var result = new JObject();
             result["url"] = url;
             result["action"] = "redirect";
-            if (replace)
-            {
-                result["replace"] = true;
-            }
+            if (replace) result["replace"] = true;
+            if (allowSpa) result["allowSpa"] = true;
             return result.ToString(Formatting.None);
         }
 

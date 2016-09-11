@@ -125,6 +125,8 @@
     <Compile Include="Startup.cs" />
     <Compile Include="SwitchMiddleware.cs" />
     <Compile Include="SwitchMiddlewareCase.cs" />
+    <Compile Include="TestNamespace3\TestModel.cs" />
+    <Compile Include="TestNamespace3\WrongTestModel.cs" />
     <Compile Include="TestNamespace2\SubNamespace\Class1.cs" />
     <Compile Include="TestNamespace2\TestClass2.cs" />
     <Compile Include="TestNamespace1\TestClass1.cs" />
@@ -170,6 +172,8 @@
     <Compile Include="ViewModels\ControlSamples\Repeater\NestedRepeater.cs" />
     <Compile Include="ViewModels\ControlSamples\Repeater\RouteLink.cs" />
     <Compile Include="ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\RouteLink\RouteLinkEnabledFalseViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\RouteLink\TestRouteViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\RouteLink\RouteLinkEnabledViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\DefaultViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageAViewModel.cs" />
@@ -188,6 +192,7 @@
     <Compile Include="ViewModels\ControlSamples\ValidationSummary\RecursiveValidationSummary.cs" />
     <Compile Include="ViewModels\Errors\EncryptedPropertyInValueBindingViewModel.cs" />
     <Compile Include="ViewModels\Errors\FieldInValueBindingViewModel.cs" />
+    <Compile Include="ViewModels\Errors\MarkupControlInvalidViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ActionFilterErrorHandling\ActionFilterPageErrorHandlingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\BindingContexts\BindingContextViewModel.cs" />
@@ -197,10 +202,13 @@
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\ChildViewModelInvokeMethodsViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ChildViewModelInvokeMethods\NastyChildViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ClientExtenders\PasswordStrengthViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Directives\ImportDirectiveInvalidViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Directives\ImportDirectiveViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyValidationPageViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\MarkupControl\CommandBindingInRepeater.cs" />
     <Compile Include="ViewModels\FeatureSamples\PostBack\PostBackUpdateRepeaterViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Redirect\RedirectingPresenter.cs" />
     <Compile Include="ViewModels\FeatureSamples\Resources\CdnScriptPriorityViewModel.cs" />
@@ -210,8 +218,10 @@
     <Compile Include="ViewModels\FeatureSamples\Validation\NullableDateTimeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\EssentialTypeValidationViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Validation\NullValidationTargetViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Validation\ValidationScopesViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\ViewModelNesting\NestedViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\GridView\GridViewSizable.cs" />
+    <Compile Include="ViewModels\GenericTestingClass.cs" />
     <Compile Include="ViewModels\QueryStringLocalizableViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\DoublePostBackPrevention\DoublePostBackPrevention.cs" />
     <Compile Include="ViewModels\FeatureSamples\Formatting\Formatting.cs" />
@@ -264,8 +274,10 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>Localization2.resx</DependentUpon>
     </Compile>
+    <Compile Include="Views\FeatureSamples\MarkupControl\MyButton.cs" />
     <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.cs" />
     <Compile Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidation.cs" />
+    <Compile Include="Views\FeatureSamples\MarkupControl\MarkupControlRegistrationControl.cs" />
     <Compile Include="Views\FeatureSamples\MarkupControl\TextEditorControl.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -402,6 +414,8 @@
     <Content Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage_ContentTest.dothtml" />
     <Content Include="Views\Errors\EncryptedPropertyInValueBinding.dothtml" />
     <Content Include="Views\Errors\FieldInValueBinding.dothtml" />
+    <Content Include="Views\Errors\MarkupControlInvalidViewModel.dotcontrol" />
+    <Content Include="Views\Errors\MarkupControlInvalidViewModel.dothtml" />
     <Content Include="Views\ControlSamples\GridView\LargeGrid.dothtml" />
     <Content Include="Views\ControlSamples\CheckBox\CheckboxInRepeater.dothtml" />
     <Content Include="Views\ControlSamples\CheckBox\CheckBox_CheckedItems_NullCollection.dothtml" />
@@ -423,6 +437,12 @@
     <Content Include="Views\ControlSamples\AuthenticatedView\AuthenticatedViewTest.dothtml" />
     <Content Include="Views\ControlSamples\RoleView\RoleViewTest.dothtml" />
     <Content Include="Views\ControlSamples\TextBox\TextBox_FormatDoubleProperty.dothtml" />
+    <Content Include="Views\ControlSamples\RouteLink\RouteLinkEnabledFalse.dothtml" />
+    <Content Include="Views\ControlSamples\RouteLink\TestRoute.dothtml" />
+    <Content Include="Views\FeatureSamples\GenericTypes\List.dothtml" />
+    <Content Include="Views\FeatureSamples\Directives\ImportDirectiveInvalid.dothtml" />
+    <Content Include="Views\FeatureSamples\Directives\ImportDirective.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\MyButton.dotcontrol" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
@@ -438,6 +458,9 @@
     <Content Include="Views\FeatureSamples\Resources\CdnScriptPriority.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidation.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlPropertyValidationPage.dothtml" />
+    <Content Include="Views\FeatureSamples\Validation\ValidationScopes.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\MarkupControlRegistrationControl.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\CommandBindingInRepeater.dothtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
@@ -459,7 +482,7 @@
       <LastGenOutput>Localization_Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Resources\Resource.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resource.Designer.cs</LastGenOutput>
     </EmbeddedResource>
     <EmbeddedResource Include="Views\FeatureSamples\Localization\Localization2.resx">
