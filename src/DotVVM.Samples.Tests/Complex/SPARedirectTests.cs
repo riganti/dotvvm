@@ -21,25 +21,25 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.Wait(1000);
 
                 //check url
-                browser.CheckUrl(s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect#!/ComplexSamples/SPARedirect"));
+                browser.CheckUrl(s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
 
                 // login to the app
                 browser.First("input[type=button]").CheckAttribute("value", "Login").Click().Wait(1000);
 
                 //check url
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPARedirect#!/ComplexSamples/SPARedirect"));
+                browser.CheckUrl(s => s.Contains("ComplexSamples/SPARedirect"));
 
                 // sign out
                 browser.First("input[type=button]").CheckAttribute("value", "Sign Out").Click().Wait(1000);
                 
                 //check url
-                browser.CheckUrl(s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect#!/ComplexSamples/SPARedirect"));
+                browser.CheckUrl(s => s.Contains("/ComplexSamples/SPARedirect/login?ReturnUrl=%2FComplexSamples%2FSPARedirect"));
 
                 // login to the app
                 browser.First("input[type=button]").CheckAttribute("value", "Login").Click().Wait(1000);
 
                 //check url
-                browser.CheckUrl(s => s.Contains("ComplexSamples/SPARedirect#!/ComplexSamples/SPARedirect"));
+                browser.CheckUrl(s => s.Contains("ComplexSamples/SPARedirect"));
 
                 // sign out
                 browser.First("input[type=button]").CheckAttribute("value", "Sign Out").Click().Wait(1000);
