@@ -33,7 +33,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // use the back button
                 browser.NavigateBack();
-                browser.Wait();
+                browser.Wait(1000);
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Default");
@@ -41,11 +41,11 @@ namespace DotVVM.Samples.Tests.Complex
                 
                 // exit SPA using the back button
                 browser.NavigateBack();
-                browser.Wait();
+                browser.Wait(1000);
 
                 // reenter SPA
                 browser.NavigateForward();
-                browser.Wait();
+                browser.Wait(1000);
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Default");
@@ -53,7 +53,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // go forward to the test page
                 browser.NavigateForward();
-                browser.Wait();
+                browser.Wait(1000);
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Test");
@@ -68,7 +68,7 @@ namespace DotVVM.Samples.Tests.Complex
 
                 // go back to the test page
                 browser.NavigateBack();
-                browser.Wait();
+                browser.Wait(1000);
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Test");
@@ -76,7 +76,7 @@ namespace DotVVM.Samples.Tests.Complex
                 
                 // go back to the default page
                 browser.NavigateBack();
-                browser.Wait();
+                browser.Wait(1000);
 
                 // check url and page contents
                 browser.Single("h2").CheckIfTextEquals("Default");
