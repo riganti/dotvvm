@@ -58,9 +58,9 @@ namespace DotVVM.Framework.Hosting
             url = url.Trim('/');
 
             // remove SPA identifier from the URL
-            if (url.StartsWith(HostingConstants.SpaUrlIdentifier + "/"))
+            if (url.StartsWith(HostingConstants.SpaUrlIdentifier))
             {
-                url = url.Substring(HostingConstants.SpaUrlIdentifier.Length + 1);
+                url = url.Substring(HostingConstants.SpaUrlIdentifier.Length).Trim('/');
             }
 
             // find the route
