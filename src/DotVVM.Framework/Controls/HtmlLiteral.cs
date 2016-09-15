@@ -19,7 +19,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the HTML that will be rendered in the control.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
         public string Html
         {
             get { return (string)GetValue(HtmlProperty); }
