@@ -14,6 +14,7 @@
         public const string SpaContentPlaceHolderHeaderName = "X-DotVVM-SpaContentPlaceHolder";
         public const string SpaPostBackHeaderName = "X-DotVVM-PostBack";
         public const string SpaContentPlaceHolderID = "__dot_SpaContentPlaceHolder";
+        public const string SpaUrlIdentifier = "___dotvvm-spa___";
 
         public const string SpaContentPlaceHolderDataAttributeName = "data-dotvvm-spacontentplaceholder";
         public const string SpaContentPlaceHolderDefaultRouteDataAttributeName = "data-dotvvm-spacontentplaceholder-defaultroute";

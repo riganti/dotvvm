@@ -57,6 +57,12 @@ namespace DotVVM.Framework.Hosting
             }
             url = url.Trim('/');
 
+            // remove SPA identifier from the URL
+            if (url.StartsWith(HostingConstants.SpaUrlIdentifier))
+            {
+                url = url.Substring(HostingConstants.SpaUrlIdentifier.Length).Trim('/');
+            }
+
             // find the route
             IDictionary<string, object> parameters = null;
             var route = Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));

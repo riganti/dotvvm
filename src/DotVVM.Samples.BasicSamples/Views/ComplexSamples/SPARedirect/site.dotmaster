@@ -11,7 +11,7 @@
 
     <h1>Test App</h1>
 
-    <dot:SpaContentPlaceHolder ID="SpaHost" DefaultRouteName="ComplexSamples_SPARedirect_home" />
+    <dot:SpaContentPlaceHolder ID="SpaHost" />
     
 </body>
 </html>

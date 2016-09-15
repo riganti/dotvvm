@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Runtime
         {
             // return the response
             context.OwinContext.Response.ContentType = "text/html; charset=utf-8";
-            context.OwinContext.Response.Headers["Cache-Control"] = "no-cache";
+            SetCacheHeaders(context.OwinContext);
             var html = RenderPage(context, view);
             await context.OwinContext.Response.WriteAsync(html);
         }
@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Runtime
         {
             // return the response
             context.OwinContext.Response.ContentType = "application/json; charset=utf-8";
-            context.OwinContext.Response.Headers["Cache-Control"] = "no-cache";
+            SetCacheHeaders(context.OwinContext);
             var serializedViewModel = context.GetSerializedViewModel();
             await context.OwinContext.Response.WriteAsync(serializedViewModel);
         }
@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Runtime
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "application/json; charset=utf-8";
-            context.Response.Headers["Cache-Control"] = "no-cache";
+            SetCacheHeaders(context);
             await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
         }
 
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Runtime
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/html; charset=utf-8";
-            context.Response.Headers["Cache-Control"] = "no-cache";
+            SetCacheHeaders(context);
             await context.Response.WriteAsync(html);
         }
 
@@ -105,8 +105,15 @@ namespace DotVVM.Framework.Runtime
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/plain; charset=utf-8";
-            context.Response.Headers["Cache-Control"] = "no-cache";
+            SetCacheHeaders(context);
             await context.Response.WriteAsync(text);
+        }
+
+        private static void SetCacheHeaders(IOwinContext context)
+        {
+            context.Response.Headers["Cache-Control"] = "no-cache";
+            context.Response.Headers["Pragma"] = "no-cache";
+            context.Response.Expires = DateTimeOffset.UtcNow.AddYears(-1);
         }
 
 

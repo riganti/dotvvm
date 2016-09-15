@@ -141,9 +141,12 @@
     <Compile Include="ViewModels\ComplexSamples\ServerRendering\AddingIntoEmptyRepeaterViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\ServerRendering\ArticleDTO.cs" />
     <Compile Include="ViewModels\ComplexSamples\ServerRendering\ControlUsageSampleViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\SPA\DefaultViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\SPA\SiteViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPARedirect\HomeViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPARedirect\LoginViewModel.cs" />
     <Compile Include="ViewModels\ComplexSamples\SPAViewModelReapplication\SPAViewModelReapplicationViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\SPA\TestViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\AuthenticatedView\AuthenticatedViewTestViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\Button\ButtonTagNameViewModel.cs" />
     <Compile Include="ViewModels\ControlSamples\CheckBox\CheckBoxViewModel2.cs" />
@@ -443,6 +446,9 @@
     <Content Include="Views\FeatureSamples\Directives\ImportDirectiveInvalid.dothtml" />
     <Content Include="Views\FeatureSamples\Directives\ImportDirective.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\MyButton.dotcontrol" />
+    <Content Include="Views\ComplexSamples\SPA\site.dotmaster" />
+    <Content Include="Views\ComplexSamples\SPA\default.dothtml" />
+    <Content Include="Views\ComplexSamples\SPA\test.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
