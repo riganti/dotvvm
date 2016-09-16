@@ -67,5 +67,19 @@ namespace DotVVM.Framework.Pipeline
 
             return last.Invoke(_passable);
         }
+
+        /// <summary>
+        /// Set action after all pipes and run processing.
+        /// </summary>
+        /// <param name="func"></param>
+        /// <returns></returns>
+        public void Then(Action<TPassable> func)
+        {
+            VoidPipeBase<TPassable> last = new VoidFinalPipe<TPassable>(func);
+            _pipes.Reverse();
+            _pipes.ForEach(e => last = new VoidNormalPipe<TPassable>(e, _action, last));
+
+            last.Invoke(_passable);
+        }
     }
 }
