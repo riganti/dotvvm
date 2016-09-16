@@ -40,10 +40,8 @@ namespace DotVVM.Framework.Hosting
 
         public void Write(string text)
         {
-            using (var writer = new StreamWriter(OriginalResponse.Body))
-            {
-                writer.Write(text);
-            }
+            var writer = new StreamWriter(OriginalResponse.Body) { AutoFlush = true};
+            writer.Write(text);
         }
 
         public void Write(byte[] data)
