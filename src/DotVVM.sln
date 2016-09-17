@@ -39,7 +39,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Samples.BasicSamples
 EndProject
 Project("{8BB2217D-0F2D-49D1-97BC-3654ED321F3B}") = "DotVVM.Framework.Hosting.AspNetCore", "DotVVM.Framework.Hosting.AspNetCore\DotVVM.Framework.Hosting.AspNetCore.xproj", "{C5AF6A0D-5416-44D4-B14D-8FFDD1B0E99B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Dotvvm.Framework.Hosting.Owin", "DotVVM.Framework.Hosting.Owin\Dotvvm.Framework.Hosting.Owin.csproj", "{D05CF4AD-DA99-4A91-A127-1AA8D860FBAD}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Hosting.Owin", "DotVVM.Framework.Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj", "{D05CF4AD-DA99-4A91-A127-1AA8D860FBAD}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DotVVM.Framework.Tests.Owin", "DotVVM.Framework.Tests.Owin\DotVVM.Framework.Tests.Owin.csproj", "{945E94F1-E515-49DB-99BC-BB1460154945}"
 EndProject
