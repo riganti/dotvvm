@@ -1,8 +1,7 @@
 ﻿{
   "version": "1.0.0-*",
   "buildOptions": {
-    "emitEntryPoint": true,
-    "outputName": "dotnet-dotvvm"
+    "emitEntryPoint": true
   },
 
   "dependencies": {

@@ -1,9 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Tools.SeleniumGenerator;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
 
 namespace DotVVM.CommandLine.Commands.Implementation
 {
@@ -41,7 +44,12 @@ namespace DotVVM.CommandLine.Commands.Implementation
                 Console.WriteLine($"Generating stub for {file}...");
 
                 var generator = new SeleniumHelperGenerator();
-                generator.ProcessMarkupFile(file, DotvvmConfiguration.CreateDefault());
+                var tree = generator.ProcessMarkupFile(file, DotvvmConfiguration.CreateDefault(), new SeleniumGeneratorConfiguration()
+                {
+                    TargetNamespace = "SeleniumStubs"
+                });
+                
+                File.WriteAllText(file + ".UiTest.cs", tree.ToString());
             }
         }
 

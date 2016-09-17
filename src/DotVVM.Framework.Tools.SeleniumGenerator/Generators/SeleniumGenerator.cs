@@ -4,6 +4,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
@@ -38,9 +39,10 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
                 {
                     index++;
                 }
+                uniqueName = uniqueName + index;
             }
             context.UsedNames.Add(uniqueName);
-
+            context.UniqueName = uniqueName;
 
             // determine the selector
             var selector = TryGetNameFromProperty(context.Control, UITests.SelectorProperty);
@@ -49,6 +51,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
                 selector = uniqueName;
                 // TODO: update the markup
             }
+            context.Selector = selector;
 
             return GetDeclarationsCore(context);
         }
@@ -90,7 +93,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
         protected string TryGetNameFromProperty(ResolvedControl control, DotvvmProperty property)
         {
             IAbstractPropertySetter setter;
-            if (control.TryGetProperty(UITests.NameProperty, out setter))
+            if (control.TryGetProperty(property, out setter))
             {
                 if (setter is ResolvedPropertyValue)
                 {
@@ -157,5 +160,28 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
 
         protected abstract IEnumerable<MemberDeclarationSyntax> GetDeclarationsCore(SeleniumGeneratorContext context);
 
+        protected MemberDeclarationSyntax GeneratePropertyForProxy(SeleniumGeneratorContext context, string typeName)
+        {
+            return SyntaxFactory.PropertyDeclaration(
+                    SyntaxFactory.ParseTypeName(typeName),
+                    context.UniqueName
+                )
+                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                .AddAccessorListAccessors(
+                    SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
+                        .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
+                )
+                .WithInitializer(SyntaxFactory.EqualsValueClause(
+                    SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(typeName))
+                        .WithArgumentList(
+                            SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[]
+                            {
+                                SyntaxFactory.Argument(SyntaxFactory.ThisExpression()),
+                                SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(context.Selector)))
+                            }))
+                        )
+                ))
+                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+        }
     }
 }
