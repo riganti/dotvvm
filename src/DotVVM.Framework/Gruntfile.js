@@ -42,9 +42,9 @@
                 }
             }
         }
-    })
+    });
 
     grunt.loadNpmTasks('grunt-runtime-t4-template-task');
 
-    grunt.loadNpmTasks('grunt-typescript')
+    grunt.loadNpmTasks('grunt-typescript');
 }
