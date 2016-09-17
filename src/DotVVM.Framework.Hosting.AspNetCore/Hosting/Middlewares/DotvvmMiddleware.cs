@@ -54,18 +54,10 @@ namespace DotVVM.Framework.Hosting
                 var dotvvmContext = CreateDotvvmContext(context);
                 context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
 
-                // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
-                string url;
-                if (!TryParseGooglebotHashbangEscapedFragment(context.Request.QueryString, out url))
-                {
-                    url = context.Request.Path.Value;
-                }
-                url = url.Trim('/');
-
                 await new Pipeline<IDotvvmRequestContext>()
                     .Send(dotvvmContext)
                     .Through(dotvvmContext.Configuration.RequestMiddlewares)
-                    .Then(p => ProcessRouting((DotvvmRequestContext)p, context, url));
+                    .Then(p => ProcessRouting((DotvvmRequestContext)p, context));
             }
             catch (NoRouteException)
             {
@@ -79,10 +71,17 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         /// <param name="dotvvmContext"></param>
         /// <param name="originalContext"></param>
-        /// <param name="url"></param>
         /// <returns></returns>
-        public async Task ProcessRouting(DotvvmRequestContext dotvvmContext, HttpContext originalContext, string url)
+        public async Task ProcessRouting(DotvvmRequestContext dotvvmContext, HttpContext originalContext)
         {
+            // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
+            string url;
+            if (!TryParseGooglebotHashbangEscapedFragment(originalContext.Request.QueryString, out url))
+            {
+                url = originalContext.Request.Path.Value;
+            }
+            url = url.Trim('/');
+
             // find the route
             IDictionary<string, object> parameters = null;
             var route = Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
