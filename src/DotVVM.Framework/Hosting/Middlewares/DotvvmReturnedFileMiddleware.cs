@@ -4,31 +4,22 @@ using System.Net;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Storage;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Primitives;
 using System.Collections.Generic;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
-    public class DotvvmReturnedFileMiddleware
+    public class DotvvmReturnedFileMiddleware : IMiddleware
     {
         private readonly DotvvmConfiguration configuration;
-		private readonly RequestDelegate next;
 
-		public DotvvmReturnedFileMiddleware(RequestDelegate next, DotvvmConfiguration configuration)
+        public Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
         {
-			this.next = next;
-            this.configuration = configuration;
+            var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
+
+            return url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal) ? RenderReturnedFile(request.HttpContext) : next(request);
         }
 
-        public Task Invoke(HttpContext context)
-        {
-            var url = DotvvmMiddleware.GetCleanRequestUrl(context);
-            
-            return url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal) ? RenderReturnedFile(context) : next(context);
-        }
-
-        private async Task RenderReturnedFile(HttpContext context)
+        private async Task RenderReturnedFile(IHttpContext context)
         {
             var returnedFileStorage = configuration.ServiceLocator.GetService<IReturnedFileStorage>();
             ReturnedFileMetadata metadata;
@@ -42,7 +33,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 {
                     foreach (var header in metadata.AdditionalHeaders)
                     {
-                        context.Response.Headers.Add(new KeyValuePair<string, StringValues>(header.Key, new StringValues(header.Value)));
+                        context.Response.Headers.Add(new KeyValuePair<string, string[]>(header.Key, header.Value));
                     }
                 }
 

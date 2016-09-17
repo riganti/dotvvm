@@ -6,11 +6,14 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;
 using System.Collections.Concurrent;
 using System.Threading;
+using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
+using DotVVM.Framework.Pipeline;
+using DotVVM.Framework.Routing;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -32,6 +35,7 @@ namespace DotVVM.Framework.Hosting
             this.next = next;
             Configuration = configuration;
         }
+
         private int configurationSaved = 0;
         private readonly RequestDelegate next;
 
@@ -40,19 +44,41 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public async Task Invoke(HttpContext context)
         {
-            if (Interlocked.Exchange(ref configurationSaved, 1) == 0)
+            try
             {
-                VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
-            }
-            // create the context
-            var dotvvmContext = CreateDotvvmContext(context);
-            context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
+                if (Interlocked.Exchange(ref configurationSaved, 1) == 0)
+                {
+                    VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
+                }
+                // create the context
+                var dotvvmContext = CreateDotvvmContext(context);
+                context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
 
+                await new Pipeline<IDotvvmRequestContext>()
+                    .Send(dotvvmContext)
+                    .Through(dotvvmContext.Configuration.RequestMiddlewares)
+                    .Then(p => ProcessRouting((DotvvmRequestContext)p, context));
+            }
+            catch (NoRouteException)
+            {
+                //no route, so continue to the next middleware whatever it is
+                await next(context);
+            }
+        }
+
+        /// <summary>
+        /// Handle routing process.
+        /// </summary>
+        /// <param name="dotvvmContext"></param>
+        /// <param name="originalContext"></param>
+        /// <returns></returns>
+        public async Task ProcessRouting(DotvvmRequestContext dotvvmContext, HttpContext originalContext)
+        {
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
             string url;
-            if (!TryParseGooglebotHashbangEscapedFragment(context.Request.QueryString, out url))
+            if (!TryParseGooglebotHashbangEscapedFragment(originalContext.Request.QueryString, out url))
             {
-                url = context.Request.Path.Value;
+                url = originalContext.Request.Path.Value;
             }
             url = url.Trim('/');
 
@@ -60,28 +86,23 @@ namespace DotVVM.Framework.Hosting
             IDictionary<string, object> parameters = null;
             var route = Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
 
-            if (route != null)
+            //check if route exists
+            if (route == null) throw new NoRouteException();
+
+            dotvvmContext.Route = route;
+            dotvvmContext.Parameters = parameters;
+            dotvvmContext.Query = originalContext.Request.Query
+                .ToDictionary(d => d.Key, d => d.Value.Count == 1 ? (object) d.Value[0] : d.Value.ToArray());
+
+            try
             {
-                // handle the request
-                dotvvmContext.Route = route;
-                dotvvmContext.Parameters = parameters;
-                dotvvmContext.Query = context.Request.Query
-                    .ToDictionary(d => d.Key, d => d.Value.Count == 1 ? (object)d.Value[0] : d.Value.ToArray());
-
-                try
-                {
-                    await route.ProcessRequest(dotvvmContext);
-                    return;
-                }
-                catch (DotvvmInterruptRequestExecutionException)
-                {
-                    // the response has already been generated, do nothing
-                    return;
-                }
+                await route.ProcessRequest(dotvvmContext);
             }
-
-            // we cannot handle the request, pass it to another component
-            await next(context);
+            catch (DotvvmInterruptRequestExecutionException)
+            {
+                // the response has already been generated, do nothing
+                return;
+            }
         }
 
 
@@ -98,8 +119,7 @@ namespace DotVVM.Framework.Hosting
                         context.Response,
                         httpContext,
                         new DotvvmHeaderCollection(context.Response.Headers)
-                    ),
-
+                        ),
                     Request = new DotvvmHttpRequest(
                         context.Request,
                         httpContext,
@@ -108,7 +128,7 @@ namespace DotVVM.Framework.Hosting
                         new DotvvmQueryCollection(context.Request.Query),
                         new DotvvmHeaderCollection(context.Request.Headers),
                         new DotvvmCookieCollection(context.Request.Cookies)
-                    )
+                        )
                 };
 
                 context.Features.Set(httpContext);

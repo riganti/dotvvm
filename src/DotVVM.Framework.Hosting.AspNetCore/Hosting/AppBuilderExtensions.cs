@@ -43,12 +43,11 @@ namespace DotVVM.Framework.Hosting
             // add middlewares
             if (errorPages)
                 app.UseMiddleware<DotvvmErrorPageMiddleware>();
-            
-            app.UseMiddleware<DotvvmEmbeddedResourceMiddleware>();
-            app.UseMiddleware<DotvvmFileUploadMiddleware>(configuration);
-            app.UseMiddleware<JQueryGlobalizeCultureMiddleware>();
 
-            app.UseMiddleware<DotvvmReturnedFileMiddleware>(configuration);
+            configuration.RequestMiddlewares.Add(typeof(DotvvmEmbeddedResourceMiddleware));
+            configuration.RequestMiddlewares.Add(typeof(DotvvmFileUploadMiddleware));
+            configuration.RequestMiddlewares.Add(typeof(JQueryGlobalizeCultureMiddleware));
+            configuration.RequestMiddlewares.Add(typeof(DotvvmReturnedFileMiddleware));
 
             app.UseMiddleware<DotvvmMiddleware>(configuration);
 

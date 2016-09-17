@@ -2,40 +2,32 @@
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
-    public class DotvvmEmbeddedResourceMiddleware
+    public class DotvvmEmbeddedResourceMiddleware : IMiddleware
     {
-        private readonly RequestDelegate next;
-
-        public DotvvmEmbeddedResourceMiddleware(RequestDelegate next)
+        public Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
         {
-            this.next = next;
-        }
-
-        public Task Invoke(HttpContext context)
-        {
-            var url = DotvvmMiddleware.GetCleanRequestUrl(context);
+            var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
             // embedded resource handler URL
             if (url.StartsWith(HostingConstants.ResourceHandlerMatchUrl, StringComparison.Ordinal))
             {
-                return RenderEmbeddedResource(context);
+                return RenderEmbeddedResource(request.HttpContext);
             }
             else
             {
-                return next(context);
+                return next(request);
             }
         }
 
         /// <summary>
         /// Renders the embedded resource.
         /// </summary>
-        private async Task RenderEmbeddedResource(HttpContext context)
+        private async Task RenderEmbeddedResource(IHttpContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 
@@ -60,5 +52,6 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 await resourceStream.CopyToAsync(context.Response.Body);
             }
         }
+
     }
 }

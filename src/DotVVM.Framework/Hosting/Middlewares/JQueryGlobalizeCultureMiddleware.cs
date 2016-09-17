@@ -7,39 +7,29 @@ using System.Net;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Parser;
-using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
-    public class JQueryGlobalizeCultureMiddleware
+    public class JQueryGlobalizeCultureMiddleware : IMiddleware
     {
-		private readonly RequestDelegate next;
-
-		public JQueryGlobalizeCultureMiddleware(RequestDelegate next)
+        public Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
         {
-			this.next = next;
-        }
-
-        public Task Invoke(HttpContext context)
-        {
-            var url = DotvvmMiddleware.GetCleanRequestUrl(context);
+            var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
             if (url.StartsWith(HostingConstants.GlobalizeCultureUrlPath, StringComparison.Ordinal))
             {
-                return RenderResponse(context);
+                return RenderResponse(request.HttpContext);
             }
             else
             {
-                return next(context);
+                return next(request);
             }
         }
-
-
 
         /// <summary>
         /// Renders the embedded resource.
         /// </summary>
-        private Task RenderResponse(HttpContext context)
+        private Task RenderResponse(IHttpContext context)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/javascript";

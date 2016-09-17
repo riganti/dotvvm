@@ -18,10 +18,10 @@
     "System.Security.Cryptography.Algorithms": "4.2.0",
     "System.Diagnostics.StackTrace": "4.0.1",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
-    "DotVVM.Framework": "1.0.0-*",
-    "DotVVM.Core": "1.0.0-*",
+    "DotVVM.Framework": "1.0.4-*",
+    "DotVVM.Core": "1.0.4-*",
     "DotVVM.Samples.Common": "1.0.0-*",
-    "DotVVM.Framework.Hosting.AspNetCore": "1.0.0-*"
+    "DotVVM.Framework.Hosting.AspNetCore": "1.0.4-*"
   },
 
   "tools": {

@@ -12,38 +12,32 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
-using Microsoft.AspNetCore.Http;
 using System.IO;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
-    public class DotvvmFileUploadMiddleware
+    public class DotvvmFileUploadMiddleware : IMiddleware
     {
         private static readonly Regex baseMimeTypeRegex = new Regex(@"/.*$");
         private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$");
 
-        private readonly DotvvmConfiguration configuration;
-		private readonly RequestDelegate next;
+        private DotvvmConfiguration _configuration;
 
-		public DotvvmFileUploadMiddleware(RequestDelegate next, DotvvmConfiguration configuration)
-        {
-			this.next = next;
-            this.configuration = configuration;
-        }
 
-        public Task Invoke(HttpContext aspContext)
+        public Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
         {
-            var context = DotvvmMiddleware.ConvertHttpContext(aspContext);
-            var url = DotvvmMiddleware.GetCleanRequestUrl(context);
-            
+            _configuration = request.Configuration;
+            var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
+
             // file upload handler
-            if (url == HostingConstants.FileUploadHandlerMatchUrl || url.StartsWith(HostingConstants.FileUploadHandlerMatchUrl  + "?", StringComparison.OrdinalIgnoreCase))
+            if (url == HostingConstants.FileUploadHandlerMatchUrl ||
+                url.StartsWith(HostingConstants.FileUploadHandlerMatchUrl + "?", StringComparison.OrdinalIgnoreCase))
             {
-                return ProcessMultipartRequest(context);
+                return ProcessMultipartRequest(request.HttpContext);
             }
             else
             {
-                return next(aspContext);
+                return next(request);
             }
         }
 
@@ -90,7 +84,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
         private async Task RenderResponse(IHttpContext context, bool isPost, string errorMessage, List<UploadedFile> uploadedFiles)
         {
-            var outputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
+            var outputRenderer = _configuration.ServiceLocator.GetService<IOutputRenderer>();
             if (isPost && ShouldReturnJsonResponse(context))
             {
                 // modern browser - return JSON
@@ -131,7 +125,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         private async Task SaveFiles(IHttpContext context, Group boundary, List<UploadedFile> uploadedFiles)
         {
             // get the file store
-            var fileStore = configuration.ServiceLocator.GetService<IUploadedFileStorage>();
+            var fileStore = _configuration.ServiceLocator.GetService<IUploadedFileStorage>();
 
             // parse the stream
             var multiPartReader = new MultipartReader(boundary.Value, context.Request.Body);
@@ -197,6 +191,5 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 return false;
             });
         }
-
     }
 }
