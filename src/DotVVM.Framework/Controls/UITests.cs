@@ -15,6 +15,9 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty NameProperty =
             DotvvmProperty.Register<string, UITests>(() => NameProperty, isValueInherited: false);
+        
+        public static readonly DotvvmProperty SelectorProperty =
+            DotvvmProperty.Register<string, UITests>(() => SelectorProperty, isValueInherited: false);
 
     }
 }

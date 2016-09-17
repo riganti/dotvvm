@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "DotVVM.CommandLine": {
+      "commandName": "Project",
+      "commandLineArgs": "gut Views/Login.dothtml",
+      "workingDirectory": "d:\\Work\\DotvvmSamples\\Checkbook\\src\\CheckBook.App"
+    }
+  }
+}

@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Tools.SeleniumGenerator;
 
 namespace DotVVM.CommandLine.Commands.Implementation
 {
@@ -38,7 +40,8 @@ namespace DotVVM.CommandLine.Commands.Implementation
             {
                 Console.WriteLine($"Generating stub for {file}...");
 
-
+                var generator = new SeleniumHelperGenerator();
+                generator.ProcessMarkupFile(file, DotvvmConfiguration.CreateDefault());
             }
         }
 

@@ -3,11 +3,13 @@
 
   "dependencies": {
     "NETStandard.Library": "1.6.0",
-    "DotVVM.Framework": "1.0.4-*"
+    "DotVVM.Framework": "1.0.4-*",
+    "Microsoft.CodeAnalysis.Common": "1.3.2",
+    "Microsoft.CodeAnalysis.CSharp": "1.3.2"
   },
 
   "frameworks": {
-    "netstandard1.6": {
+    "netcoreapp1.0": {
       "imports": "dnxcore50"
     }
   }
