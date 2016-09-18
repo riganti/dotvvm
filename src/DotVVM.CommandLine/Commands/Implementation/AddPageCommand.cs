@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Implementation
 {
@@ -11,7 +12,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
         public override string Usage => "dotvvm add page <NAME>\ndotvvm ap <NAME>";
 
-        public override bool CanHandle(Arguments args)
+        public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "add", StringComparison.CurrentCultureIgnoreCase)
                 && string.Equals(args[1], "page", StringComparison.CurrentCultureIgnoreCase))
@@ -29,7 +30,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
             return false;
         }
 
-        public override void Handle(Arguments args)
+        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             var name = args[0];
             if (string.IsNullOrEmpty(name))

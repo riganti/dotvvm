@@ -10,9 +10,10 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 {
     public class SeleniumHelperVisitor : ResolvedControlTreeVisitor
     {
-        public List<MemberDeclarationSyntax> ExportedDeclarations { get; } = new List<MemberDeclarationSyntax>();
+        public Stack<HelperDefinition> HelperDefinitionsStack { get; private set; } = new Stack<HelperDefinition>();
 
         public HashSet<string> UsedNames { get; } = new HashSet<string>();
+
 
 
         private static Dictionary<Type, ISeleniumGenerator> generators = new Dictionary<Type, ISeleniumGenerator>()
@@ -21,6 +22,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
             { typeof(CheckBox), new CheckBoxGenerator() },
             { typeof(Button), new ButtonGenerator() }
         };
+
 
 
         public override void VisitControl(ResolvedControl control)
@@ -34,7 +36,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     Control = control,
                     UsedNames = UsedNames
                 };
-                ExportedDeclarations.AddRange(generator.GetDeclarations(context));
+                generator.AddDeclarations(HelperDefinitionsStack.Peek(), context);
             }
             else
             {

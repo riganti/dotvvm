@@ -6,7 +6,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
     public interface ISeleniumGenerator
     {
 
-        IEnumerable<MemberDeclarationSyntax> GetDeclarations(SeleniumGeneratorContext context);
+        void AddDeclarations(HelperDefinition helper, SeleniumGeneratorContext context);
 
     }
 }

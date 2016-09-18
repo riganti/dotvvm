@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
         /// <summary>
         /// Gets a list of declarations emitted by the control.
         /// </summary>
-        public IEnumerable<MemberDeclarationSyntax> GetDeclarations(SeleniumGeneratorContext context)
+        public void AddDeclarations(HelperDefinition helper, SeleniumGeneratorContext context)
         {
             // determine the name
             var uniqueName = DetermineName(context);
@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
             }
             context.Selector = selector;
 
-            return GetDeclarationsCore(context);
+            AddDeclarationsCore(helper, context);
         }
 
 
@@ -158,8 +158,6 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
         }
 
 
-        protected abstract IEnumerable<MemberDeclarationSyntax> GetDeclarationsCore(SeleniumGeneratorContext context);
-
         protected MemberDeclarationSyntax GeneratePropertyForProxy(SeleniumGeneratorContext context, string typeName)
         {
             return SyntaxFactory.PropertyDeclaration(
@@ -170,8 +168,15 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
                 .AddAccessorListAccessors(
                     SyntaxFactory.AccessorDeclaration(SyntaxKind.GetAccessorDeclaration)
                         .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken))
-                )
-                .WithInitializer(SyntaxFactory.EqualsValueClause(
+                );
+        }
+
+        protected StatementSyntax GenerateInitializerForProxy(SeleniumGeneratorContext context, string propertyName, string typeName)
+        {
+            return SyntaxFactory.ExpressionStatement(
+                SyntaxFactory.AssignmentExpression(
+                    SyntaxKind.SimpleAssignmentExpression,
+                    SyntaxFactory.IdentifierName(propertyName),
                     SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(typeName))
                         .WithArgumentList(
                             SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[]
@@ -180,8 +185,11 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
                                 SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(context.Selector)))
                             }))
                         )
-                ))
-                .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken));
+                )
+            );
         }
+
+        protected abstract void AddDeclarationsCore(HelperDefinition helper, SeleniumGeneratorContext context);
+
     }
 }

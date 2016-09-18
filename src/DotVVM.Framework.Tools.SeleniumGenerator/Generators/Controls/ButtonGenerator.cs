@@ -15,9 +15,11 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators.Controls
         public override bool CanUseControlContentForName => true;
 
 
-        protected override IEnumerable<MemberDeclarationSyntax> GetDeclarationsCore(SeleniumGeneratorContext context)
+        protected override void AddDeclarationsCore(HelperDefinition helper, SeleniumGeneratorContext context)
         {
-            yield return GeneratePropertyForProxy(context, "DotVVM.Framework.Testing.SeleniumHelpers.ButtonProxy");
+            var type = "DotVVM.Framework.Testing.SeleniumHelpers.Proxies.ButtonProxy";
+            helper.Members.Add(GeneratePropertyForProxy(context, type));
+            helper.ConstructorStatements.Add(GenerateInitializerForProxy(context, context.UniqueName, type));
         }
         
     }

@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine.Commands
 {
@@ -12,15 +14,15 @@ namespace DotVVM.CommandLine.Commands
 
         public abstract string Usage { get; }
 
-        public abstract bool CanHandle(Arguments args);
+        public abstract bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata);
 
-        public abstract void Handle(Arguments args);
+        public abstract void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata);
 
 
         protected string[] ExpandFileNames(string name)
         {
             // TODO: add wildcard support
-            return new[] { name };
+            return new[] { Path.GetFullPath(name) };
         }
 
     }

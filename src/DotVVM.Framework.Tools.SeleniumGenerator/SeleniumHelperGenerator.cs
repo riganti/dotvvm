@@ -5,6 +5,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Tools.SeleniumGenerator.Generators;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,23 +22,36 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
 
             // traverse the tree
             var visitor = new SeleniumHelperVisitor();
+            visitor.HelperDefinitionsStack.Push(new HelperDefinition() { Name = seleniumConfiguration.HelperName });
             visitor.VisitView((ResolvedTreeRoot)tree);
 
             // return the class
-            var name = Path.GetFileNameWithoutExtension(filePath);
             return CSharpSyntaxTree.Create(
                 SyntaxFactory.CompilationUnit().WithMembers(SyntaxFactory.List(new MemberDeclarationSyntax[]
                 {
                     SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(seleniumConfiguration.TargetNamespace))
                         .WithMembers(SyntaxFactory.List(new MemberDeclarationSyntax[]
                         {
-                            SyntaxFactory.ClassDeclaration(name)
-                                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
-                                .WithMembers(SyntaxFactory.List(visitor.ExportedDeclarations))
+                            GenerateClass(visitor.HelperDefinitionsStack.Pop())
                         }))
                 }))
                 .NormalizeWhitespace()
             );
+        }
+
+        private MemberDeclarationSyntax GenerateClass(HelperDefinition helperDefinition)
+        {
+            return SyntaxFactory.ClassDeclaration(helperDefinition.Name)
+                .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new [] {
+                    SyntaxFactory.SimpleBaseType(SyntaxFactory.ParseTypeName("DotVVM.Framework.Testing.SeleniumHelpers.Proxies.SeleniumHelperBase"))
+                 })))
+                .WithMembers(SyntaxFactory.List(helperDefinition.Members))
+                .AddMembers(
+                    SyntaxFactory.ConstructorDeclaration(helperDefinition.Name)
+                        .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
+                        .WithBody(SyntaxFactory.Block(helperDefinition.ConstructorStatements))
+                );
         }
 
         private IAbstractTreeRoot ResolveControlTree(string filePath, DotvvmConfiguration dotvvmConfiguration)
@@ -58,5 +72,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
     public class SeleniumGeneratorConfiguration
     {
         public string TargetNamespace { get; set; }
+
+        public string HelperName { get; set; }
     }
 }

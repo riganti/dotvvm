@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Implementation
 {
@@ -12,7 +13,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
         public override string Usage => "dotvvm create project <TEMPLATE> <NAME>\ndotvvm cp <TEMPLATE> <NAME>";
 
 
-        public override bool CanHandle(Arguments args)
+        public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             if (string.Equals(args[0], "create", StringComparison.CurrentCultureIgnoreCase) 
                 && string.Equals(args[1], "project", StringComparison.CurrentCultureIgnoreCase))
@@ -30,7 +31,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
             return false;
         }
 
-        public override void Handle(Arguments args)
+        public override void Handle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
             var template = args[0];
             if (string.IsNullOrEmpty(template))
