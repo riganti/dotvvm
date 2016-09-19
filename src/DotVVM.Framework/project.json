@@ -1,77 +1,36 @@
 {
   "version": "1.0.4-pre",
+
   "dependencies": {
-    "DotVVM.Core": "1.0.4-pre",
+    "DotVVM.Core": "1.0.4-*",
+    "Microsoft.CodeAnalysis.CSharp": "1.3.2",
+    "Microsoft.Extensions.DependencyInjection": "1.0.0",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
-    "Newtonsoft.Json": "9.0.1",
-    "Microsoft.Extensions.DependencyInjection": "1.0.0"
+    "Newtonsoft.Json": "9.0.1"
   },
+
   "frameworks": {
     "netstandard1.6": {
-      "imports": [
-        "dnxcore50"
-      ],
-      "buildOptions": {
-        "keyFile": "dotvvmwizard.snk",
-        "define": [ "DotNetCore" ]
-      },
       "dependencies": {
-        "NETStandard.Library": "1.6.0",
-        "System.Runtime.Loader": "4.0.0",
-        "Microsoft.CodeAnalysis.Common": "1.3.2",
-        "Microsoft.CodeAnalysis.CSharp": "1.3.2",
         "System.Collections.Specialized": "4.0.1",
-        "System.ComponentModel.Annotations": "4.1.0",
         "System.Diagnostics.Contracts": "4.0.1",
         "System.Diagnostics.Process": "4.1.0",
         "System.Diagnostics.StackTrace": "4.0.1",
-        "System.Reflection.Extensions": "4.0.1",
-        "System.Security.Cryptography.Algorithms": "4.2.0",
-        "System.Threading.Thread": "4.0.0",
-        "System.Runtime": "4.1.0",
-        "System.Linq": "4.1.0",
-        "System.Security.Claims": "4.0.1"
-      }
-    },
-    "net461": {
-      "buildOptions": { "keyFile": "dotvvmwizard.snk" },
-      "dependencies": {
-        "Microsoft.CodeAnalysis.Common": "1.0.0",
-        "Microsoft.CodeAnalysis.CSharp": "1.0.0"
-      }
-    },
-    "netcoreapp1.0": {
-      "imports": [
-        "dnxcore50"
-      ],
-      "buildOptions": {
-        "keyFile": "dotvvmwizard.snk",
-        "define": [ "DotNetCore" ]
-      },
-      "dependencies": {
-        "NETStandard.Library": "1.6.0",
         "System.Runtime.Loader": "4.0.0",
-        "Microsoft.CodeAnalysis.Common": "1.3.2",
-        "Microsoft.CodeAnalysis.CSharp": "1.3.2",
-        "System.Collections.Specialized": "4.0.1",
-        "System.ComponentModel.Annotations": "4.1.0",
-        "System.Diagnostics.Contracts": "4.0.1",
-        "System.Diagnostics.Process": "4.1.0",
-        "System.Diagnostics.StackTrace": "4.0.1",
-        "System.Reflection.Extensions": "4.0.1",
-        "System.Security.Cryptography.Algorithms": "4.2.0",
-        "System.Threading.Thread": "4.0.0",
-        "System.Runtime": "4.1.0",
-        "System.Linq": "4.1.0",
-        "System.Security.Claims": "4.0.1"
+        "System.Security.Claims": "4.0.1",
+        "System.Threading.Thread": "4.0.0"
+      },
+      "buildOptions": {
+        "define": ["DotNetCore"]
       }
-    }
+    },
+    "net461": { }
   },
-  "exclude": [ "node_modules" ],
+
   "buildOptions": {
     "keyFile": "dotvvmwizard.snk",
-    "xmlDoc": true,
+    "compile": { "exclude": ["node_modules"] },
     "embed": [
       "Resources/Scripts/DotVVM.js",
       "Resources/Scripts/knockout-latest.js",
@@ -79,6 +38,7 @@
       "Resources/Scripts/DotVVM.Debug.js",
       "Resources/Scripts/DotVVM.FileUpload.css",
       "Resources/Scripts/Globalize/globalize.js"
-    ]
+    ],
+    "xmlDoc": true
   }
 }

@@ -2,30 +2,18 @@
   "version": "1.0.0-*",
   "testRunner": "xunit",
   "dependencies": {
-    "xunit": "2.2.0-beta2-build3300",
-    "Moq": "4.6.25-alpha",
-    "DotVVM.Framework.Hosting.AspNetCore": "1.0.4-pre",
+    "dotnet-test-xunit": "2.2.0-*",
     "DotVVM.Framework": "1.0.4-pre",
-    "dotnet-test-xunit": "2.2.0-preview2-build1029",
-    "Microsoft.NETCore.Portable.Compatibility": "1.0.0",
-    "System.Diagnostics.TraceSource": "4.0.0"
+    "DotVVM.Framework.Hosting.AspNetCore": "1.0.4-pre",
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0"
+    },
+    "Moq": "4.6.38-*",
+    "xunit": "2.2.0-*"
   },
 
   "frameworks": {
-    "netcoreapp1.0": {
-      "dependencies": {
-        "Microsoft.NETCore.App": {
-          "type": "platform",
-          "version": "1.0.0"
-        },
-        "System.Runtime": "4.1.0"
-      },
-      "imports": [
-        "dotnet5.6",
-        "net451",
-        "dnxcore50",
-        "portable-net45+win8"
-      ]
-    }
+    "netcoreapp1.0": {}
   }
 }
