@@ -24,6 +24,7 @@
 
   "buildOptions": {
     "keyFile": "dotvvmwizard.snk",
-    "xmlDoc": true
+    "xmlDoc": true,
+    "nowarn": [ "CS1591" ]
   }
 }

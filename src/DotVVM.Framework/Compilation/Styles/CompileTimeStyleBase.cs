@@ -8,8 +8,7 @@ namespace DotVVM.Framework.Compilation.Styles
 {
     public abstract class CompileTimeStyleBase : IStyle
     {
-        internal Dictionary<string, HtmlAttributeInsertionInfo> SetHtmlAttributes { get; set; }
-        internal Dictionary<DotvvmProperty, ResolvedPropertySetter> SetProperties { get; set; }
+        internal Dictionary<DotvvmProperty, PropertyInsertionInfo> SetProperties { get; } = new Dictionary<DotvvmProperty, PropertyInsertionInfo>();
 
         public IStyleApplicator Applicator => new StyleApplicator(this);
 
@@ -21,33 +20,34 @@ namespace DotVVM.Framework.Compilation.Styles
 
         protected virtual void ApplyStyle(ResolvedControl control)
         {
-            if (SetHtmlAttributes != null)
-            {
-                foreach (var attr in SetHtmlAttributes)
-                {
-                    if (!control.HtmlAttributes.ContainsKey(attr.Key) || attr.Value.append)
-                    {
-                        ResolvedHtmlAttributeSetter setter = null;
-                        if (attr.Value.value is ResolvedBinding)
-                        {
-                            setter = new ResolvedHtmlAttributeBinding(attr.Key, (ResolvedBinding)attr.Value.value);
-                        }
-                        else
-                        {
-                            setter = new ResolvedHtmlAttributeValue(attr.Key, (string)attr.Value.value);
-                        }
+            //if (SetHtmlAttributes != null)
+            //{
+            //    foreach (var attr in SetHtmlAttributes)
+            //    {
+            //        if (!control.HtmlAttributes.ContainsKey(attr.Key) || attr.Value.append)
+            //        {
+            //            ResolvedHtmlAttributeSetter setter = null;
+            //            if (attr.Value.value is ResolvedBinding)
+            //            {
+            //                setter = new ResolvedHtmlAttributeBinding(attr.Key, (ResolvedBinding)attr.Value.value);
+            //            }
+            //            else
+            //            {
+            //                setter = new ResolvedHtmlAttributeValue(attr.Key, (string)attr.Value.value);
+            //            }
 
-                        control.SetHtmlAttribute(setter);
-                    }
-                }
-            }
+            //            control.SetHtmlAttribute(setter);
+            //        }
+            //    }
+            //}
             if (SetProperties != null)
             {
                 foreach (var prop in SetProperties)
                 {
                     if (!control.Properties.ContainsKey(prop.Key))
                     {
-                        control.Properties.Add(prop.Key, prop.Value);
+                        string error;
+                        control.SetProperty(prop.Value.Value, prop.Value.Append, out error);
                     }
                 }
             }
@@ -68,10 +68,16 @@ namespace DotVVM.Framework.Compilation.Styles
             }
         }
 
-        public struct HtmlAttributeInsertionInfo
+        public struct PropertyInsertionInfo
         {
-            public object value;
-            public bool append;
+            public readonly ResolvedPropertySetter Value;
+            public readonly bool Append;
+
+            public PropertyInsertionInfo(ResolvedPropertySetter value, bool append)
+            {
+                this.Value = value;
+                this.Append = append;
+            }
         }
     }
 }

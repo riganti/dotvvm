@@ -6,12 +6,12 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
-	public interface IPropertyGroupDescriptor: IControlAttributeDescriptor
-	{
-		string PropertyName { get; }
-		string Prefix { get; }
-		ITypeDescriptor CollectionType { get; }
-		bool CaseSensitive { get; }
-		IPropertyDescriptor GetDotvvmProperty(string name);
-	}
+    public interface IPropertyGroupDescriptor: IControlAttributeDescriptor
+    {
+        string PropertyName { get; }
+        string Prefix { get; }
+        ITypeDescriptor CollectionType { get; }
+        bool CaseSensitive { get; }
+        IPropertyDescriptor GetDotvvmProperty(string name);
+    }
 }

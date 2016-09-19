@@ -15,8 +15,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private readonly Lazy<Dictionary<string, IPropertyDescriptor>> properties;
         public IReadOnlyDictionary<string, IPropertyDescriptor> Properties => properties.Value;
 
-		private readonly Lazy<List<IPropertyGroupDescriptor>> _propertyGroups;
-		public IReadOnlyList<IPropertyGroupDescriptor> PropertyGroups => _propertyGroups.Value;
+        private readonly Lazy<List<IPropertyGroupDescriptor>> _propertyGroups;
+        public IReadOnlyList<IPropertyGroupDescriptor> PropertyGroups => _propertyGroups.Value;
 
 
         public string Namespace => controlType.Type.Namespace;
@@ -66,11 +66,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         [JsonIgnore]
         public abstract DataContextChangeAttribute[] DataContextChangeAttributes { get; }
-		[JsonIgnore]
-		public abstract DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
+        [JsonIgnore]
+        public abstract DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
 
 
-		public ControlResolverMetadataBase(IControlType controlType)
+        public ControlResolverMetadataBase(IControlType controlType)
         {
             this.controlType = controlType;
             this.attribute = controlType?.Type?.GetControlMarkupOptionsAttribute();
@@ -80,16 +80,16 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 LoadProperties(result);
                 return result;
             });
-			this._propertyGroups = new Lazy<List<IPropertyGroupDescriptor>>(() =>
-			{
-				var propertyGroups = new List<IPropertyGroupDescriptor>();
-				LoadPropertyGroups(propertyGroups);
-				return propertyGroups;
-			});
+            this._propertyGroups = new Lazy<List<IPropertyGroupDescriptor>>(() =>
+            {
+                var propertyGroups = new List<IPropertyGroupDescriptor>();
+                LoadPropertyGroups(propertyGroups);
+                return propertyGroups;
+            });
         }
 
         protected abstract void LoadProperties(Dictionary<string, IPropertyDescriptor> result);
 
-		protected abstract void LoadPropertyGroups(List<IPropertyGroupDescriptor> result);
+        protected abstract void LoadPropertyGroups(List<IPropertyGroupDescriptor> result);
     }
 }

@@ -20,21 +20,21 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
         public string TagName { get; protected set; }
 
-		//      /// <summary>
-		//      /// Gets the attributes.
-		//      /// </summary>
-		//      [MarkupOptions(MappingMode = MappingMode.Exclude, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof())]
-		//[PropertyGroup("")]
-		public Dictionary<string, object> Attributes { get; private set; }
+        /// <summary>
+        /// Gets the attributes.
+        /// </summary>
+        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true)]
+        [PropertyGroup("")]
+        public Dictionary<string, object> Attributes { get; private set; }
 
-		[MarkupOptions(MappingMode = MappingMode.Attribute, AllowHardCodedValue = true, AllowBinding = true, AllowValueMerging = true)]
-		public static PropertyGroupDescriptor AttributeGroupDescriptor = 
-			PropertyGroupDescriptor.Create<HtmlGenericControl, string>("", "Attribute");
+        //[MarkupOptions(MappingMode = MappingMode.Attribute, AllowHardCodedValue = true, AllowBinding = true, AllowValueMerging = true)]
+        //public static PropertyGroupDescriptor AttributeGroupDescriptor = 
+        //    PropertyGroupDescriptor.Create<HtmlGenericControl, string>("", "Attribute");
 
-		/// <summary>
-		/// Gets or sets whether the control is visible.
-		/// </summary>
-		[MarkupOptions(AllowHardCodedValue = false)]
+        /// <summary>
+        /// Gets or sets whether the control is visible.
+        /// </summary>
+        [MarkupOptions(AllowHardCodedValue = false)]
         public bool Visible
         {
             get { return (bool)GetValue(VisibleProperty); }
