@@ -31,22 +31,22 @@ namespace DotVVM.Samples.BasicSamples
                         {
                             LoginPath = new PathString("/ComplexSamples/Auth/Login"),
                             AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                            Provider = new CookieAuthenticationProvider()
-                            {
-                                OnApplyRedirect = c =>
-                                {
-                                    // redirect to login page on 401 request
-                                    if (c.Response.StatusCode == 401 && c.Request.Method == "GET")
-                                    {
-                                        c.Response.StatusCode = 302;
-                                        c.Response.Headers["Location"] = c.RedirectUri;
-                                    }
-                                    // do not do anything on redirection to returnurl
-                                    // to not return page when ViewModel is expected
-                                    // we should implement this in DotVVM framework,
-                                    // not samples
-                                }
-                            }
+                            //Provider = new CookieAuthenticationProvider()
+                            //{
+                            //    OnApplyRedirect = c =>
+                            //    {
+                            //        // redirect to login page on 401 request
+                            //        if (c.Response.StatusCode == 401 && c.Request.Method == "GET")
+                            //        {
+                            //            c.Response.StatusCode = 302;
+                            //            c.Response.Headers["Location"] = c.RedirectUri;
+                            //        }
+                            //        // do not do anything on redirection to returnurl
+                            //        // to not return page when ViewModel is expected
+                            //        // we should implement this in DotVVM framework,
+                            //        // not samples
+                            //    }
+                            //}
                         })
                     ),
                     new SwitchMiddlewareCase(
@@ -55,22 +55,22 @@ namespace DotVVM.Samples.BasicSamples
                         {
                             LoginPath = new PathString("/ComplexSamples/SPARedirect/login"),
                             AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
-                            Provider = new CookieAuthenticationProvider()
-                            {
-                                OnApplyRedirect = c =>
-                                {
-                                    // redirect to login page on 401 request
-                                    if (c.Response.StatusCode == 401 && c.Request.Method == "GET")
-                                    {
-                                        c.Response.StatusCode = 302;
-                                        c.Response.Headers["Location"] = c.RedirectUri;
-                                    }
-                                    // do not do anything on redirection to returnurl
-                                    // to not return page when ViewModel is expected
-                                    // we should implement this in DotVVM framework,
-                                    // not samples
-                                }
-                            }
+                            //Provider = new CookieAuthenticationProvider()
+                            //{
+                            //    OnApplyRedirect = c =>
+                            //    {
+                            //        // redirect to login page on 401 request
+                            //        if (c.Response.StatusCode == 401 && c.Request.Method == "GET")
+                            //        {
+                            //            c.Response.StatusCode = 302;
+                            //            c.Response.Headers["Location"] = c.RedirectUri;
+                            //        }
+                            //        // do not do anything on redirection to returnurl
+                            //        // to not return page when ViewModel is expected
+                            //        // we should implement this in DotVVM framework,
+                            //        // not samples
+                            //    }
+                            //}
                         })
                     ),
                      new SwitchMiddlewareCase(
