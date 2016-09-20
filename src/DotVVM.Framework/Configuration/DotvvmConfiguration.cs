@@ -23,6 +23,7 @@ using DotVVM.Framework.ViewModel.Validation;
 using System.Globalization;
 using System.Reflection;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
@@ -162,34 +163,34 @@ namespace DotVVM.Framework.Configuration
         {
             configuration.RouteConstraints.Add("alpha", GenericRouteParameterType.Create("[a-zA-Z]*?"));
             configuration.RouteConstraints.Add("bool", GenericRouteParameterType.Create<bool>("true|false", bool.TryParse));
-            configuration.RouteConstraints.Add("decimal", GenericRouteParameterType.Create<decimal>("-?[0-9.e]*?", decimal.TryParse));
-            configuration.RouteConstraints.Add("double", GenericRouteParameterType.Create<double>("-?[0-9.e]*?", double.TryParse));
-            configuration.RouteConstraints.Add("float", GenericRouteParameterType.Create<float>("-?[0-9.e]*?", float.TryParse));
+            configuration.RouteConstraints.Add("decimal", GenericRouteParameterType.Create<decimal>("-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("double", GenericRouteParameterType.Create<double>("-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("float", GenericRouteParameterType.Create<float>("-?[0-9.e]*?", Invariant.TryParse));
             configuration.RouteConstraints.Add("guid", GenericRouteParameterType.Create<Guid>("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", Guid.TryParse));
-            configuration.RouteConstraints.Add("int", GenericRouteParameterType.Create<int>("-?[0-9]*?", int.TryParse));
-            configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]*?", int.TryParse));
+            configuration.RouteConstraints.Add("int", GenericRouteParameterType.Create<int>("-?[0-9]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]*?", Invariant.TryParse));
             configuration.RouteConstraints.Add("length", new GenericRouteParameterType(p => "[^/]{" + p + "}"));
-            configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", long.TryParse));
+            configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", Invariant.TryParse));
             configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
             {
                 double value;
-                if (!double.TryParse(valueString, out value)) return ParameterParseResult.Failed;
-                if (double.Parse(parameter) < value) return ParameterParseResult.Failed;
+                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                if (double.Parse(parameter, CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
             configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
             {
                 double value;
-                if (!double.TryParse(valueString, out value)) return ParameterParseResult.Failed;
-                if (double.Parse(parameter) > value) return ParameterParseResult.Failed;
+                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                if (double.Parse(parameter, CultureInfo.InvariantCulture) > value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
             configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
             {
                 double value;
-                if (!double.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
                 var split = parameter.Split(',');
-                if (double.Parse(split[0]) > value || double.Parse(split[1]) < value) return ParameterParseResult.Failed;
+                if (double.Parse(split[0], CultureInfo.InvariantCulture) > value || double.Parse(split[1], CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
                 return ParameterParseResult.Create(value);
             }));
             configuration.RouteConstraints.Add("maxLength", new GenericRouteParameterType(p => "[^/]{0," + p + "}"));
