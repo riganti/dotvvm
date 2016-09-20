@@ -83,10 +83,7 @@ namespace DotVVM.Framework.Hosting
         public static IHttpContext ConvertHttpContext(IOwinContext context)
         {
             if (context.Environment.ContainsKey(typeof(IHttpContext).FullName)) return (IHttpContext)context.Environment[typeof(IHttpContext).FullName];
-            var httpContext = new DotvvmHttpContext(
-                context,
-                new DotvvmHttpAuthentication(context.Authentication)
-                );
+            var httpContext = new DotvvmHttpContext(context);
 
             httpContext.Response = new DotvvmHttpResponse(
                 context.Response,

@@ -8,16 +8,14 @@ namespace DotVVM.Framework.Hosting
 {
     public class DotvvmHttpContext : IHttpContext
     {
-        public DotvvmHttpContext(IOwinContext originalContext, IAuthentication authentication)
+        public DotvvmHttpContext(IOwinContext originalContext)
         {
             OriginalContext = originalContext;
-            Authentication = authentication;
         }
 
-        public ClaimsPrincipal User { get; set; }
+        public ClaimsPrincipal User => OriginalContext.Authentication.User;
         public IHttpRequest Request { get; set; }
         public IHttpResponse Response { get; set; }
-        public IAuthentication Authentication { get; }
         public IOwinContext OriginalContext { get; }
 
         public T GetItem<T>(string key) => OriginalContext.Get<T>(key);

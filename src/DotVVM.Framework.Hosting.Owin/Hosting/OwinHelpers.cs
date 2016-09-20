@@ -17,6 +17,7 @@ namespace DotVVM.Framework.AspNetCore.Hosting
 			return concreteContext.OriginalContext;
 		}
 
-		public static IAuthenticationManager GetOwinAuthenticationManager(this IDotvvmRequestContext context) => context.GetOwinContext().Authentication;
+		public static IAuthenticationManager GetAuthentication(this IDotvvmRequestContext context) 
+            => context.GetOwinContext().Authentication;
     }
 }

@@ -1,27 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Runtime.Filters;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 {
-    [Authorize(AuthScheme = "Scheme1")]
+    [Authorize(ActiveAuthenticationSchemes = "Scheme1")]
     public class SecuredPageViewModel : DotvvmViewModelBase
     {
         private static string Message = "server: Hello!";
-
-        public string MessageEditor { get; set; }
-
-        public string LastMessage { get; set; }
 
         public SecuredPageViewModel()
         {
             LastMessage = Message;
         }
 
-        [Authorize("admin", AuthScheme = "Scheme1")]
+        public string MessageEditor { get; set; }
+
+        public string LastMessage { get; set; }
+
+        [Authorize(Roles = "admin", ActiveAuthenticationSchemes = "Scheme1")]
         public void ReplaceMessage()
         {
             Message = LastMessage = string.Format("{0}: {1}",

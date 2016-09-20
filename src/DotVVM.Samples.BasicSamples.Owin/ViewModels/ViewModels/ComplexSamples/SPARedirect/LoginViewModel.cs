@@ -19,7 +19,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
             claims.Add(new Claim(ClaimTypes.Name, "Brock"));
             claims.Add(new Claim(ClaimTypes.Email, "brockallen@gmail.com"));
             var id = new ClaimsIdentity(claims, "ApplicationCookie");
-            Context.GetOwinAuthenticationManager().SignIn(id);
+            Context.GetAuthentication().SignIn(id);
 
             Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
 	    }

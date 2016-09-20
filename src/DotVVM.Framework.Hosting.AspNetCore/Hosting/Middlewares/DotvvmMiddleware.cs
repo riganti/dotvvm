@@ -111,9 +111,7 @@ namespace DotVVM.Framework.Hosting
             var httpContext = context.Features.Get<IHttpContext>();
             if (httpContext == null)
             {
-                httpContext = new DotvvmHttpContext(
-                    context,
-                    new DotvvmHttpAuthentication(context.Authentication))
+                httpContext = new DotvvmHttpContext(context)
                 {
                     Response = new DotvvmHttpResponse(
                         context.Response,

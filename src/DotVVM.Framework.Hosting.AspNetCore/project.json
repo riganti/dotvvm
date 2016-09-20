@@ -5,11 +5,16 @@
     "DotVVM.Framework": "1.0.4-*",
     "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0",
     "Microsoft.AspNetCore.DataProtection": "1.0.0",
-    "Microsoft.AspNetCore.Http.Extensions": "1.0.0"
+    "Microsoft.AspNetCore.Http.Extensions": "1.0.0",
+    "Microsoft.AspNetCore.Authorization": "1.0.0"
   },
 
   "frameworks": {
     "netstandard1.6": {},
     "net461": {}
+  },
+
+  "buildOptions": {
+    "xmlDoc": true
   }
 }

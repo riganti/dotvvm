@@ -21,13 +21,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.AuthenticatedVie
                 },
                 "ApplicationCookie");
 
-            Context.GetOwinAuthenticationManager().SignIn(identity);
+            Context.GetAuthentication().SignIn(identity);
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 
         public void SignOut()
         {
-            Context.GetOwinAuthenticationManager().SignOut();
+            Context.GetAuthentication().SignOut();
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 

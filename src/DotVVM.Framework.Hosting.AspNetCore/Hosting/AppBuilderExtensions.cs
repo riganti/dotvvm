@@ -1,13 +1,10 @@
-using System.Diagnostics.Contracts;
-using System.IO;
-using System.Reflection;
+using System;
 using DotVVM.Framework.Configuration;
-using Newtonsoft.Json;
+using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Runtime.Filters;
+using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System;
-using DotVVM.Framework.Hosting.Middlewares;
-using DotVVM.Framework.Security;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -15,6 +12,7 @@ namespace DotVVM.Framework.Hosting
     {
         public static void AddDotvvmServices(this IServiceCollection collection)
         {
+            collection.AddAuthorization();
             ServiceConfigurationHelper.AddDotvvmCoreServices(collection);
             collection.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
             collection.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
@@ -27,8 +25,10 @@ namespace DotVVM.Framework.Hosting
 
             if (configuration == null)
             {
-                new InvalidOperationException("Service provider does not contain DotvvmConfiguration service. Make sure you have Dotvvm services registered in ConfigureServices method of your Startup class.");
+                throw new InvalidOperationException("Service provider does not contain DotvvmConfiguration service. Make sure you have Dotvvm services registered in ConfigureServices method of your Startup class.");
             }
+
+            configuration.Runtime.GlobalFilters.Add(new AuthorizeFilterAttribute());
             configuration.ApplicationPhysicalPath = applicationRootDirectory;
             return configuration;
         }
@@ -39,10 +39,12 @@ namespace DotVVM.Framework.Hosting
 #if Owin
             configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(app.GetDataProtectionProvider);
 #endif
-            
+
             // add middlewares
             if (errorPages)
+            {
                 app.UseMiddleware<DotvvmErrorPageMiddleware>();
+            }
 
             configuration.RequestMiddlewares.Add(typeof(DotvvmEmbeddedResourceMiddleware));
             configuration.RequestMiddlewares.Add(typeof(DotvvmFileUploadMiddleware));
@@ -55,7 +57,7 @@ namespace DotVVM.Framework.Hosting
         }
 
         public static DotvvmConfiguration UseDotVVM<TStartup>(this IApplicationBuilder app, string applicationRootDirectory, bool errorPages = true)
-            where TStartup: IDotvvmStartup, new()
+            where TStartup : IDotvvmStartup, new()
         {
             var config = app.UseDotVVM(applicationRootDirectory, errorPages);
             new TStartup().Configure(config, applicationRootDirectory);

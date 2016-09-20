@@ -23,13 +23,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.RoleView
                 .Concat(DesiredRoles.Select(r => new Claim(ClaimTypes.Role, r))),
                 "ApplicationCookie");
 
-            Context.GetOwinAuthenticationManager().SignIn(identity);
+            Context.GetAuthentication().SignIn(identity);
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 
         public void SignOut()
         {
-            Context.GetOwinAuthenticationManager().SignOut();
+            Context.GetAuthentication().SignOut();
             Context.RedirectToRoute(Context.Route.RouteName);
         }
 

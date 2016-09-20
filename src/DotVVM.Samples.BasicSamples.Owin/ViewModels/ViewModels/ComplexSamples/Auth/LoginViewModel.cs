@@ -36,7 +36,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth
 
         public async Task Login()
         {
-            var auth = Context.GetOwinAuthenticationManager();
+            var auth = Context.GetAuthentication();
             auth.SignOut();
             var id = new ClaimsIdentity(new Claim[] {
                     new Claim(ClaimTypes.Name, UserName)

@@ -9,16 +9,14 @@ namespace DotVVM.Framework.Hosting
 {
     public class DotvvmHttpContext : IHttpContext
     {
-        public DotvvmHttpContext(HttpContext originalContext, IAuthentication authentication)
+        public DotvvmHttpContext(HttpContext originalContext)
         {
             OriginalContext = originalContext;
-            Authentication = authentication;
         }
 
-        public ClaimsPrincipal User { get; set; }
+        public ClaimsPrincipal User => OriginalContext.User;
         public IHttpRequest Request { get; set; }
         public IHttpResponse Response { get; set; }
-        public IAuthentication Authentication { get; }
         public HttpContext OriginalContext { get; }
 
         public T GetItem<T>(string key)

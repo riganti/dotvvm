@@ -200,6 +200,7 @@
     <Compile Include="Startup.cs" />
     <Compile Include="SwitchMiddlewareCase.cs" />
     <Compile Include="ViewModels\ViewModels\ComplexSamples\Auth\LoginViewModel.cs" />
+    <Compile Include="ViewModels\ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
     <Compile Include="ViewModels\ViewModels\ComplexSamples\SPARedirect\HomeViewModel.cs" />
     <Compile Include="ViewModels\ViewModels\ComplexSamples\SPARedirect\LoginViewModel.cs" />
     <Compile Include="ViewModels\ViewModels\ControlSamples\AuthnticatedView\AuthenticatedViewTestViewModel.cs" />

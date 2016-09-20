@@ -5,13 +5,13 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 {
-    [Authorize(AuthScheme = "Scheme2")]
+    [Authorize()]
 	public class HomeViewModel : DotvvmViewModelBase
 	{
 
         public void SignOut()
         {
-            Context.GetOwinAuthenticationManager().SignOut("Scheme2");
+            Context.GetAuthentication().SignOut("ApplicationCookie");
             
             Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
         }
