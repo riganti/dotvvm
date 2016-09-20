@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Compilation
         {
             lastMetadata = view.Metadata;
             var wrapperClassName = CreateControlClass(className, view.Metadata.Type);
-            emitter.UsedAssemblies.Add(view.Metadata.Type.Assembly);
+            emitter.UseType(view.Metadata.Type);
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
             emitter.ResultControlType = wrapperClassName;
             // build the statements
