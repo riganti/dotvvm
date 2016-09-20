@@ -1,4 +1,4 @@
-echo restoring dot net core packages
+@echo restoring dot net core packages
 dotnet restore ../../DotVVM.CommandLine
 dotnet restore ../../DotVVM.Core
 dotnet restore ../../DotVVM.Framework
