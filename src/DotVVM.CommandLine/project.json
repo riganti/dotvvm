@@ -1,6 +1,5 @@
-﻿{
+{
   "version": "1.0.0-*",
-
   "dependencies": {
     "DotVVM.Framework.Tools.SeleniumGenerator": "1.0.0-*",
     "Microsoft.NETCore.App": {
@@ -8,12 +7,14 @@
       "version": "1.0.1"
     }
   },
-
   "frameworks": {
     "netcoreapp1.0": { }
   },
-
   "buildOptions": {
     "emitEntryPoint": true
+  },
+  "configurations": {
+    "AspNetCore": {},
+    "Owin": {}
   }
 }

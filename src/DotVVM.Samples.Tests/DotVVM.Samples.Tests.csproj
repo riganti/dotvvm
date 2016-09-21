@@ -63,6 +63,15 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Owin|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Owin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Riganti.Utils.Testing.SeleniumCore, Version=0.7.7.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.0.7.7\lib\net45\Riganti.Utils.Testing.SeleniumCore.dll</HintPath>
@@ -184,6 +193,15 @@
       <DependentUpon>App.config</DependentUpon>
     </None>
     <None Include="App.TestIE.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.Release.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.Owin.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.AspNetCore.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
     <None Include="packages.config" />
