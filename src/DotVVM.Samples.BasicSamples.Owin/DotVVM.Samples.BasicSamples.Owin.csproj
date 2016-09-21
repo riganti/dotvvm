@@ -215,6 +215,7 @@
     <Content Include="Web.config" />
     <Content Include="packages.config" />
     <Content Include="test.zip" />
+    <None Include="Properties\PublishProfiles\CI FileSystem.pubxml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
