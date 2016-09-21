@@ -11,6 +11,6 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Processes the request.
         /// </summary>
-        Task ProcessRequest(DotvvmRequestContext context);
+        Task ProcessRequest(IDotvvmRequestContext context);
     }
 }

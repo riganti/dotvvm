@@ -186,7 +186,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public abstract Task ProcessRequest(DotvvmRequestContext context);
+        public abstract Task ProcessRequest(IDotvvmRequestContext context);
 
     }
 }

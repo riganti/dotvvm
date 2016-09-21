@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Hosting
                 await new Pipeline<IDotvvmRequestContext>()
                     .Send(dotvvmContext)
                     .Through(dotvvmContext.Configuration.RequestMiddlewares)
-                    .Then(p => ProcessRouting((DotvvmRequestContext)p, context));
+                    .Then(p => ProcessRouting(p, context));
             }
             catch (NoRouteException)
             {
@@ -72,7 +72,7 @@ namespace DotVVM.Framework.Hosting
         /// <param name="dotvvmContext"></param>
         /// <param name="originalContext"></param>
         /// <returns></returns>
-        public async Task ProcessRouting(DotvvmRequestContext dotvvmContext, HttpContext originalContext)
+        public async Task ProcessRouting(IDotvvmRequestContext dotvvmContext, HttpContext originalContext)
         {
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
             string url;

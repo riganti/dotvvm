@@ -64,12 +64,12 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the view model object for the current HTTP request.
         /// </summary>
-        public object ViewModel { get; internal set; }
+        public object ViewModel { get; set; }
 
         /// <summary>
         /// Gets the top-level control representing the whole view for the current request.
         /// </summary>
-        public DotvvmView View { get; internal set; }
+        public DotvvmView View { get; set; }
 
         /// <summary>
         /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel.
@@ -108,7 +108,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets or sets the exception that occured when the command was executed.
         /// </summary>
-        public Exception CommandException { get; internal set; }
+        public Exception CommandException { get; set; }
 
         /// <summary>
         /// Gets or sets new url fragment (tha part after #) to be set on client
@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// WORKAROUND: .NET for some reason resets CurrentCulture when exited viewModel method, this is changing it back
         /// </summary>
-        internal void ResetCulture()
+        public void ResetCulture()
         {
             if (currentCulture != null) CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = currentCulture;
         }
@@ -280,7 +280,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the serialized view model.
         /// </summary>
-        internal string GetSerializedViewModel()
+        public string GetSerializedViewModel()
         {
             return ViewModelSerializer.SerializeViewModel(this);
         }

@@ -6,16 +6,16 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public interface IViewModelSerializer
     {
-        void BuildViewModel(DotvvmRequestContext context);
+        void BuildViewModel(IDotvvmRequestContext context);
 
-        string SerializeViewModel(DotvvmRequestContext context);
+        string SerializeViewModel(IDotvvmRequestContext context);
         
         string SerializeModelState(IDotvvmRequestContext context);
 
-        void PopulateViewModel(DotvvmRequestContext context, string serializedPostData);
+        void PopulateViewModel(IDotvvmRequestContext context, string serializedPostData);
 
-        void ResolveCommand(DotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo);
+        void ResolveCommand(IDotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo);
 
-        void AddPostBackUpdatedControls(DotvvmRequestContext context);
+        void AddPostBackUpdatedControls(IDotvvmRequestContext context);
     }
 }

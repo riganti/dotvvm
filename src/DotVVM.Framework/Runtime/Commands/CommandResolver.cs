@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Resolves the command called on the DotvvmControl.
         /// </summary>
-        public ActionInfo GetFunction(DotvvmControl targetControl, DotvvmControl viewRootControl, DotvvmRequestContext context, string[] path, string commandId)
+        public ActionInfo GetFunction(DotvvmControl targetControl, DotvvmControl viewRootControl, IDotvvmRequestContext context, string[] path, string commandId)
         {
             // event validation
             var validationTargetPath = context.ModelState.ValidationTargetPath;
@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Runtime.Commands
         /// <summary>
         /// Resolves the command called on the ViewModel.
         /// </summary>
-        public ActionInfo GetFunction(DotvvmControl viewRootControl, DotvvmRequestContext context, string[] path, string command)
+        public ActionInfo GetFunction(DotvvmControl viewRootControl, IDotvvmRequestContext context, string[] path, string command)
         {
             return GetFunction(null, viewRootControl, context, path, command);
         }
