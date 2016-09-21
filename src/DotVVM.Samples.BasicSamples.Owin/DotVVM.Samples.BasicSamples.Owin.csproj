@@ -207,8 +207,14 @@
     <Compile Include="ViewModels\ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Scripts\ClientExtenders.js" />
+    <Content Include="Scripts\colResizable-1.5.min.js" />
+    <Content Include="Scripts\GridViewSizable.js" />
+    <Content Include="Scripts\testResource.js" />
+    <Content Include="Scripts\testResource2.js" />
     <Content Include="Web.config" />
     <Content Include="packages.config" />
+    <Content Include="test.zip" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
