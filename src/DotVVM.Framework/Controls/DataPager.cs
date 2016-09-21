@@ -179,7 +179,7 @@ namespace DotVVM.Framework.Controls
                 if (!true.Equals(enabledValue)) previousLink.SetValue(LinkButton.EnabledProperty, enabledValue);
                 previousLi.Children.Add(previousLink);
                 content.Children.Add(previousLi);
-                
+
                 // number fields
                 numbersPlaceHolder = new PlaceHolder();
                 content.Children.Add(numbersPlaceHolder);
@@ -201,7 +201,7 @@ namespace DotVVM.Framework.Controls
 
                     i++;
                 }
-                
+
                 // next button
                 nextLi = new HtmlGenericControl("li");
                 var nextLink = new LinkButton();
@@ -251,15 +251,27 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
         }
 
+        protected override void AddVisibleAttributeOrBinding(IHtmlWriter writer)
+        {
+            if (HideWhenOnlyOnePage && GetValue(VisibleProperty) as bool? != false)
+            {
+                writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression()}).PagesCount() > 1");
+            }
+            else
+            {
+                writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
+            }
+
+            if (GetValue(VisibleProperty) as bool? == false)
+            {
+                writer.AddStyleAttribute("display", "none");
+            }
+        }
+
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (HasValueBinding(EnabledProperty))
                 writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression() }}}");
-
-            if (HideWhenOnlyOnePage)
-            {
-                writer.AddKnockoutDataBind("visible", "ko.unwrap(" + GetDataSetBinding().GetKnockoutBindingExpression() + ").PagesCount() > 1");
-            }
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
             writer.RenderBeginTag("ul");
@@ -275,7 +287,7 @@ namespace DotVVM.Framework.Controls
 
             // render template
             writer.WriteKnockoutForeachComment("NearPageIndexes");
-        
+
             // render page number
             numbersPlaceHolder.Children.Clear();
             HtmlGenericControl li;
