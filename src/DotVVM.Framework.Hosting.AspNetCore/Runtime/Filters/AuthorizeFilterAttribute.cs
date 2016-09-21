@@ -105,7 +105,7 @@ namespace DotVVM.Framework.Runtime.Filters
             => viewModelType.GetTypeInfo().GetCustomAttributes().OfType<IAuthorizeData>().Select(WrapInAuthorizeAttribute);
 
         private IEnumerable<IAuthorizeData> GetAuthorizeData(ActionInfo actionInfo)
-            => actionInfo.Binding.ActionFilters.OfType<IAuthorizeData>().Select(WrapInAuthorizeAttribute);
+            => actionInfo?.Binding?.ActionFilters != null ? actionInfo.Binding.ActionFilters.OfType<IAuthorizeData>().Select(WrapInAuthorizeAttribute) : Enumerable.Empty<IAuthorizeData>();
 
         private bool IsAnonymousAllowed(object viewModel)
             => viewModel != null && isAnonymousAllowedCache.GetOrAdd(viewModel.GetType(), t => t.GetTypeInfo().GetCustomAttributes().OfType<IAllowAnonymous>().Any());

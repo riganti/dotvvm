@@ -63,10 +63,7 @@ namespace DotVVM.Samples.BasicSamples
             dotvvmConfiguration.Debug = true;
 
             // use static files
-            app.UseStaticFiles(new StaticFileOptions
-            {
-                FileProvider = new Microsoft.Extensions.FileProviders.PhysicalFileProvider(applicationPhysicalPath)
-            });
+            app.UseStaticFiles();
         }
     }
 }

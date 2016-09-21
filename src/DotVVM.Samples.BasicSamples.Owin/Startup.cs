@@ -95,10 +95,7 @@ namespace DotVVM.Samples.BasicSamples
             dotvvmConfiguration.Debug = true;
 
             // use static files
-            app.UseStaticFiles(new StaticFileOptions()
-            {
-                FileSystem = new PhysicalFileSystem(applicationPhysicalPath)
-            });
+            app.UseStaticFiles();
         }
     }
 }
