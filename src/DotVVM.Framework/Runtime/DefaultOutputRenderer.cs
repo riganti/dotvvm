@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {
-        protected string RenderPage(DotvvmRequestContext context, DotvvmView view)
+        protected string RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
             // embed resource links
             EmbedResourceLinks(view);
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Runtime
             }
         }
 
-        public async Task WriteHtmlResponse(DotvvmRequestContext context, DotvvmView view)
+        public async Task WriteHtmlResponse(IDotvvmRequestContext context, DotvvmView view)
         {
             // return the response
             context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Runtime
             await context.HttpContext.Response.WriteAsync(html);
         }
 
-        public void RenderPostbackUpdatedControls(DotvvmRequestContext context, DotvvmView page)
+        public void RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
         {
             var stack = new Stack<DotvvmControl>();
             stack.Push(page);
@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Runtime
         }
 
 
-        public async Task WriteViewModelResponse(DotvvmRequestContext context, DotvvmView view)
+        public async Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
         {
             // return the response
             context.HttpContext.Response.ContentType = "application/json; charset=utf-8";

@@ -19,9 +19,9 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Resources_CdnUnavailableResourceLoad);
-                browser.Wait();
 
                 // verify that if CDN is not available, local script loads
+                browser.WaitFor(browser.HasAlert, 5000, "An alert was expected to open!");
                 browser.CheckIfAlertTextEquals("javascript resource loaded!");
                 browser.ConfirmAlert();
             });
@@ -34,9 +34,9 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Resources_CdnScriptPriority);
-                browser.Wait();
 
-                // verify that if CDN is available, local script doesn't load
+                // verify that if CDN is not available, local script loads
+                browser.WaitFor(browser.HasAlert, 5000, "An alert was expected to open!");
                 browser.CheckIfAlertTextEquals("javascript resource loaded!");
                 browser.ConfirmAlert();
             });

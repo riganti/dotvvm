@@ -32,11 +32,14 @@ namespace DotVVM.Framework.Tests.Runtime
 			configuration = DotvvmConfiguration.CreateDefault(services =>
 			{
 				services.AddSingleton<IDataProtectionProvider>(new DpapiDataProtectionProvider("DotVVM Tests"));
-			});
+                services.AddTransient<IViewModelProtector, DefaultViewModelProtector>();
+                services.AddTransient<ICsrfProtector, DefaultCsrfProtector>();
+            });
 			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
 			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");
 
             var requestMock = new Mock<IHttpRequest>();
+            requestMock.SetupGet(m => m.Url).Returns(new Uri("http://localhost:8628/Sample1"));
             requestMock.SetupGet(m => m.Path).Returns(new DotvvmHttpPathString(new PathString("/Sample1")));
             requestMock.SetupGet(m => m.PathBase).Returns(new DotvvmHttpPathString(new PathString("")));
 			requestMock.SetupGet(m => m.Scheme).Returns("http");

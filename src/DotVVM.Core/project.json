@@ -1,10 +1,8 @@
 {
   "version": "1.0.4-pre",
-
   "dependencies": {
     "NETStandard.Library": "1.6.0"
   },
-
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {
@@ -21,10 +19,13 @@
       }
     }
   },
-
   "buildOptions": {
     "keyFile": "dotvvmwizard.snk",
     "xmlDoc": true,
-    "nowarn": [ "CS1591" ]
+    "nowarn":  [ "CS1591" ]
+  },
+  "configurations": {
+    "AspNetCore": {},
+    "Owin": {}
   }
 }

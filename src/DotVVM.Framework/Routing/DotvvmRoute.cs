@@ -254,7 +254,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public override Task ProcessRequest(DotvvmRequestContext context)
+        public override Task ProcessRequest(IDotvvmRequestContext context)
         {
             context.Presenter = presenterFactory();
             return context.Presenter.ProcessRequest(context);

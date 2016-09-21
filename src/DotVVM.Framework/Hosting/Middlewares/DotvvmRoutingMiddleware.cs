@@ -34,20 +34,19 @@ namespace DotVVM.Framework.Hosting.Middlewares
         }
 
 
-        public async Task<bool> Handle(IDotvvmRequestContext dotvvmContext)
+        public async Task<bool> Handle(IDotvvmRequestContext context)
         {
-            var context = (DotvvmRequestContext)dotvvmContext;
             // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
             string url;
-            if (!TryParseGooglebotHashbangEscapedFragment(dotvvmContext.HttpContext.Request.QueryString, out url))
+            if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.QueryString, out url))
             {
-                url = dotvvmContext.HttpContext.Request.Path.Value;
+                url = context.HttpContext.Request.Path.Value;
             }
             url = url.Trim('/');
 
             // find the route
             IDictionary<string, object> parameters = null;
-            var route = dotvvmContext.Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
+            var route = context.Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
 
             //check if route exists
             if (route == null) return false;
