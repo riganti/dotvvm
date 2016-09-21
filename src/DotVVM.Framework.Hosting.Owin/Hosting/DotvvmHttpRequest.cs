@@ -58,6 +58,12 @@ namespace DotVVM.Framework.Hosting
             set { OriginalRequest.Body = value; }
         }
 
+        public string QueryString
+        {
+            get { return OriginalRequest.QueryString.Value; }
+            set { OriginalRequest.QueryString = new QueryString(value); }
+        }
+
         public IQueryCollection Query { get; }
         public ICookieCollection Cookies { get; set; }
         public IHeaderCollection Headers { get; }

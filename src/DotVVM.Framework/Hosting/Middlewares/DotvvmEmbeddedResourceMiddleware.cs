@@ -4,23 +4,25 @@ using System.Reflection;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyModel;
 using System.Linq;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmEmbeddedResourceMiddleware : IMiddleware
     {
-        public Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
+        public async Task<bool> Handle(IDotvvmRequestContext request)
         {
             var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
             // embedded resource handler URL
             if (url.StartsWith(HostingConstants.ResourceHandlerMatchUrl, StringComparison.Ordinal))
             {
-                return RenderEmbeddedResource(request.HttpContext);
+                await RenderEmbeddedResource(request.HttpContext);
+                return true;
             }
             else
             {
-                return next(request);
+                return false;
             }
         }
 
@@ -32,8 +34,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             context.Response.StatusCode = (int)HttpStatusCode.OK;
 
             var resourceName = context.Request.Query["name"].ToString();
-            var assemblyName = DependencyContext.Default.GetDefaultAssemblyNames().FirstOrDefault(a => a.Name == context.Request.Query["assembly"]);
-            var assembly = Assembly.Load(assemblyName);
+            var assembly = ReflectionUtils.GetAllAssemblies().FirstOrDefault(a => a.GetName().Name == context.Request.Query["assembly"]);
             if (resourceName.EndsWith(".js", StringComparison.Ordinal))
             {
                 context.Response.ContentType = "text/javascript";
@@ -52,6 +53,5 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 await resourceStream.CopyToAsync(context.Response.Body);
             }
         }
-
     }
 }

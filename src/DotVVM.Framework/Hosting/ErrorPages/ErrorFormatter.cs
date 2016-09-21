@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             m.Message = exception.Message;
             m.OriginalException = exception;
             m.TypeName = exception.GetType().FullName;
-            var frames = new StackTrace(exception, true).GetFrames();
+            var frames = new StackTrace(exception, true).GetFrames() ?? new StackFrame[0];
             var stack = new List<StackFrameModel>();
             bool skipping = existingTrace != null;
             for (int i = frames.Length - 1; i >= 0; i--)

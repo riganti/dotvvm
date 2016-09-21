@@ -14,6 +14,7 @@ namespace DotVVM.Framework.Hosting
         IPathString PathBase { get; }
         Stream Body { get; }
         IQueryCollection Query { get; }
+        string QueryString { get; }
         ICookieCollection Cookies { get; }
         IHeaderCollection Headers { get; }
 		Uri Url { get; }

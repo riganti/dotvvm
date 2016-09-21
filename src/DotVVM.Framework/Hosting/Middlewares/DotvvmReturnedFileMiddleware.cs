@@ -12,11 +12,16 @@ namespace DotVVM.Framework.Hosting.Middlewares
     {
         private readonly DotvvmConfiguration configuration;
 
-        public Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
+        public async Task<bool> Handle(IDotvvmRequestContext request)
         {
             var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
-            return url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal) ? RenderReturnedFile(request.HttpContext) : next(request);
+            if (url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal))
+            {
+                await RenderReturnedFile(request.HttpContext);
+                return true;
+            }
+            else return false;
         }
 
         private async Task RenderReturnedFile(IHttpContext context)

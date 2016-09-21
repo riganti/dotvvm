@@ -95,12 +95,8 @@
     <Compile Include="Hosting\DotvvmHttpRequest.cs" />
     <Compile Include="Hosting\DotvvmHttpResponse.cs" />
     <Compile Include="Hosting\DotvvmQueryCollection.cs" />
-    <Compile Include="Hosting\Middlewares\DotvvmEmbeddedResourceMiddleware.cs" />
     <Compile Include="Hosting\Middlewares\DotvvmErrorPageMiddleware.cs" />
-    <Compile Include="Hosting\Middlewares\DotvvmFileUploadMiddleware.cs" />
     <Compile Include="Hosting\Middlewares\DotvvmMiddleware.cs" />
-    <Compile Include="Hosting\Middlewares\DotvvmReturnedFileMiddleware.cs" />
-    <Compile Include="Hosting\Middlewares\JQueryGlobalizeCultureMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\DefaultCsrfProtector.cs" />
     <Compile Include="Security\DefaultViewModelProtector.cs" />

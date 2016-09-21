@@ -12,17 +12,18 @@ namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class JQueryGlobalizeCultureMiddleware : IMiddleware
     {
-        public Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
+        public async Task<bool> Handle(IDotvvmRequestContext request)
         {
             var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
             if (url.StartsWith(HostingConstants.GlobalizeCultureUrlPath, StringComparison.Ordinal))
             {
-                return RenderResponse(request.HttpContext);
+                await RenderResponse(request.HttpContext);
+                return true;
             }
             else
             {
-                return next(request);
+                return false;
             }
         }
 

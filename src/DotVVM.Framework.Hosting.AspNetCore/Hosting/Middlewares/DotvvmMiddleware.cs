@@ -12,7 +12,6 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
-using DotVVM.Framework.Pipeline;
 using DotVVM.Framework.Routing;
 
 namespace DotVVM.Framework.Hosting
@@ -24,85 +23,40 @@ namespace DotVVM.Framework.Hosting
     {
         public readonly DotvvmConfiguration Configuration;
 
-        private const string GooglebotHashbangEscapedFragment = "_escaped_fragment_=";
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware"/> class.
         /// </summary>
-        public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration)
+        public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares)
         {
             this.next = next;
             Configuration = configuration;
+            this.middlewares = middlewares;
         }
 
         private int configurationSaved = 0;
         private readonly RequestDelegate next;
+        private readonly IList<IMiddleware> middlewares;
 
         /// <summary>
         /// Process an individual request.
         /// </summary>
         public async Task Invoke(HttpContext context)
         {
-            try
+            if (Interlocked.Exchange(ref configurationSaved, 1) == 0)
             {
-                if (Interlocked.Exchange(ref configurationSaved, 1) == 0)
-                {
-                    VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
-                }
-                // create the context
-                var dotvvmContext = CreateDotvvmContext(context);
-                context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
-
-                await new Pipeline<IDotvvmRequestContext>()
-                    .Send(dotvvmContext)
-                    .Through(dotvvmContext.Configuration.RequestMiddlewares)
-                    .Then(p => ProcessRouting((DotvvmRequestContext)p, context));
+                VisualStudioHelper.DumpConfiguration(Configuration, Configuration.ApplicationPhysicalPath);
             }
-            catch (NoRouteException)
+            // create the context
+            var dotvvmContext = CreateDotvvmContext(context);
+            context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
+
+            foreach (var middleware in middlewares)
             {
-                //no route, so continue to the next middleware whatever it is
-                await next(context);
+                if (await middleware.Handle(dotvvmContext)) return;
             }
-        }
 
-        /// <summary>
-        /// Handle routing process.
-        /// </summary>
-        /// <param name="dotvvmContext"></param>
-        /// <param name="originalContext"></param>
-        /// <returns></returns>
-        public async Task ProcessRouting(DotvvmRequestContext dotvvmContext, HttpContext originalContext)
-        {
-            // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
-            string url;
-            if (!TryParseGooglebotHashbangEscapedFragment(originalContext.Request.QueryString, out url))
-            {
-                url = originalContext.Request.Path.Value;
-            }
-            url = url.Trim('/');
-
-            // find the route
-            IDictionary<string, object> parameters = null;
-            var route = Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
-
-            //check if route exists
-            if (route == null) throw new NoRouteException();
-
-            dotvvmContext.Route = route;
-            dotvvmContext.Parameters = parameters;
-            dotvvmContext.Query = originalContext.Request.Query
-                .ToDictionary(d => d.Key, d => d.Value.Count == 1 ? (object) d.Value[0] : d.Value.ToArray());
-
-            try
-            {
-                await route.ProcessRequest(dotvvmContext);
-            }
-            catch (DotvvmInterruptRequestExecutionException)
-            {
-                // the response has already been generated, do nothing
-                return;
-            }
+            await next(context);
         }
 
 
@@ -141,33 +95,8 @@ namespace DotVVM.Framework.Hosting
                 HttpContext = ConvertHttpContext(context),
                 Configuration = Configuration,
                 ResourceManager = new ResourceManager(Configuration),
-                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
+                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>(),
             };
-        }
-
-        /// <summary>
-        /// Attempts to recognize request made by Googlebot in its effort to crawl links for AJAX SPAs.
-        /// </summary>
-        /// <param name="queryString">
-        /// The query string of the request to try to match the Googlebot hashbang escaped fragment on.
-        /// </param>
-        /// <param name="url">
-        /// The plain URL string that the hasbang escaped fragment represents.
-        /// </param>
-        /// <returns>
-        /// <code>true</code>, if the URL contains valid Googlebot hashbang escaped fragment; otherwise <code>false</code>.
-        /// </returns>
-        /// <seealso cref="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started"/>
-        private bool TryParseGooglebotHashbangEscapedFragment(QueryString queryString, out string url)
-        {
-            if (queryString.Value.StartsWith(GooglebotHashbangEscapedFragment, StringComparison.Ordinal))
-            {
-                url = queryString.Value.Substring(GooglebotHashbangEscapedFragment.Length);
-                return true;
-            }
-
-            url = null;
-            return false;
         }
 
         public static bool IsInCurrentVirtualDirectory(IHttpContext context, ref string url)

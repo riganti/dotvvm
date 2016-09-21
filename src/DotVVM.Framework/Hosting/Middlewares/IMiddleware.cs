@@ -9,8 +9,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// Handle given request.
         /// </summary>
         /// <param name="request"></param>
-        /// <param name="next"></param>
-        /// <returns></returns>
-        Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next);
+        /// <returns>Whether the request is handled or if the next middleware should be invoked.</returns>
+        Task<bool> Handle(IDotvvmRequestContext request);
     }
 }

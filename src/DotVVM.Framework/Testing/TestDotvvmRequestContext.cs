@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Testing
         public IDictionary<string, object> Parameters { get; set; }
         public ResourceManager ResourceManager { get; set; }
         public ModelState ModelState { get; set; }
-        public IDictionary<string, object> Query { get; set; }
+        public IQueryCollection Query { get; set; }
         public bool IsCommandExceptionHandled { get; set; }
         public bool IsPageExceptionHandled { get; set; }
         public Exception CommandException { get; set; }
