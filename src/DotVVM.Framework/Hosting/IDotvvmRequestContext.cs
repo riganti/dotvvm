@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the query string parameters specified in the URL of the current HTTP request.
         /// </summary>
-        IQueryCollection Query { get; set; }
+        IQueryCollection Query { get; }
 
 		/// <summary>
 		/// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 

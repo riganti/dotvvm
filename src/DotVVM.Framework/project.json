@@ -36,7 +36,7 @@
       "Resources/Scripts/DotVVM.FileUpload.css",
       "Resources/Scripts/Globalize/globalize.js"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
     "nowarn": [ "CS1591" ]
   },
   "configurations": {
