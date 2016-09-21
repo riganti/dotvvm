@@ -18,6 +18,7 @@ namespace DotVVM.Samples.Tests.Feature
         public void Feature_DateTimeSerialization()
         {
             var culture = new CultureInfo("cs-CZ");
+            CultureInfo.CurrentCulture = new CultureInfo("en");
 
             RunInAllBrowsers(browser =>
             {

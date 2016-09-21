@@ -1,12 +1,14 @@
 {
   "version": "1.0.0-*",
-
   "dependencies": {
     "DotVVM.Framework": "1.0.4-*"
   },
-
   "frameworks": {
     "netstandard1.6": {},
     "net461": {}
+  },
+  "configurations": {
+    "AspNetCore": {},
+    "Owin": {}
   }
 }
