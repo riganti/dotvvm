@@ -274,7 +274,7 @@ namespace DotVVM.Samples.Tests
             });
         }
 
-        [TestMethod]
+        [TestMethod, Ignore]
         public void Exception_GitHubRedirect()
         {
             RunInAllBrowsers(browser =>
