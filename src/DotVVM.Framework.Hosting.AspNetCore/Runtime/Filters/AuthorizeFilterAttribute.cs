@@ -123,6 +123,8 @@ namespace DotVVM.Framework.Runtime.Filters
             {
                 context.Authentication.ChallengeAsync().Wait();
             }
+
+            throw new DotvvmInterruptRequestExecutionException("User unauthorized");
         }
 
         private ClaimsPrincipal MergeUserPrincipal(ClaimsPrincipal existingPrincipal, ClaimsPrincipal additionalPrincipal)

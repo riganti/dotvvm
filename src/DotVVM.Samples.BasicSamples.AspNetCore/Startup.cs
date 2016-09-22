@@ -1,22 +1,15 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using DotVVM.Framework;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.Routing;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Storage;
 using DotVVM.Framework.Security;
-using DotVVM.Framework.ViewModel.Serialization;
-using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Storage;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Hosting.Internal;
-using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -37,25 +30,34 @@ namespace DotVVM.Samples.BasicSamples
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
+            app.UseCookieAuthentication(new CookieAuthenticationOptions {
                 LoginPath = new PathString("/ComplexSamples/Auth/Login"),
-                AuthenticationScheme = "Scheme1"
+                AuthenticationScheme = "Scheme1",
+                Events = new CookieAuthenticationEvents {
+                    OnRedirectToReturnUrl = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri),
+                    OnRedirectToAccessDenied = c => DotvvmAuthentication.SetStatusCode(c.HttpContext, 403),
+                    OnRedirectToLogin = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri),
+                    OnRedirectToLogout = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri)
+                }
             });
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
+            app.UseCookieAuthentication(new CookieAuthenticationOptions {
                 LoginPath = new PathString("/ComplexSamples/SPARedirect/login"),
-                AuthenticationScheme = "Scheme2"
+                AuthenticationScheme = "Scheme2",
+                Events = new CookieAuthenticationEvents {
+                    OnRedirectToReturnUrl = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri),
+                    OnRedirectToAccessDenied = c => DotvvmAuthentication.SetStatusCode(c.HttpContext, 403),
+                    OnRedirectToLogin = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri),
+                    OnRedirectToLogout = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri)
+                }
             });
-            app.UseCookieAuthentication(new CookieAuthenticationOptions
-            {
+            app.UseCookieAuthentication(new CookieAuthenticationOptions {
                 AuthenticationScheme = "Scheme3"
             });
 
             var applicationPhysicalPath = Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "DotVVM.Samples.Common");
 
             // use DotVVM
-            DotvvmConfiguration dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
+            var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath);
             //services.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             //services.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
             //services.AddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();

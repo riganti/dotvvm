@@ -86,7 +86,7 @@
     <Compile Include="Runtime\Filters\AuthorizeAttribute.cs" />
     <Compile Include="Runtime\Filters\NotAuthorizedAttribute.cs" />
     <Compile Include="Hosting\AppBuilderExtensions.cs" />
-    <Compile Include="Hosting\DotvvmAuthenticationHelper.cs" />
+    <Compile Include="Hosting\DotvvmAuthentication.cs" />
     <Compile Include="Hosting\OwinHelpers.cs" />
     <Compile Include="Hosting\DotvvmCookieCollection.cs" />
     <Compile Include="Hosting\DotvvmHeaderCollection.cs" />

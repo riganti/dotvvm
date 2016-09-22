@@ -90,6 +90,8 @@ namespace DotVVM.Framework.Runtime.Filters
             {
                 context.Response.StatusCode = (int)HttpStatusCode.Forbidden;
             }
+
+            throw new DotvvmInterruptRequestExecutionException("User unauthorized");
         }
 
         /// <summary>
