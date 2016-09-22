@@ -145,25 +145,6 @@ namespace DotVVM.Framework.Compilation
         }
 
         /// <summary>
-        /// Emits value or binding and returns 
-        /// </summary>
-        protected ExpressionSyntax ProcessBindingOrValue(ResolvedHtmlAttributeSetter attribute, DataContextStack dataContext)
-        {
-            if (attribute is ResolvedHtmlAttributeValue)
-            {
-                return emitter.EmitValue(((ResolvedHtmlAttributeValue)attribute).Value);
-            }
-            else if (attribute is ResolvedHtmlAttributeBinding)
-            {
-                return ProcessBinding(((ResolvedHtmlAttributeBinding)attribute).Binding, typeof(object));
-            }
-            else
-            {
-                throw new NotSupportedException("Attribute type not supported.");
-            }
-        }
-
-        /// <summary>
         /// Emits control class definition if wrapper is DotvvmView and returns class name
         /// </summary>
         protected string CreateControlClass(string className, Type wrapperType)

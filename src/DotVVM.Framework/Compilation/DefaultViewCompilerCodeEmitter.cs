@@ -686,7 +686,7 @@ namespace DotVVM.Framework.Compilation
             }
             else if (!type.GetTypeInfo().IsGenericType)
             {
-                return SyntaxFactory.ParseTypeName(type.FullName);
+                return SyntaxFactory.ParseTypeName(type.FullName.Replace('+', '.'));
             }
             else
             {

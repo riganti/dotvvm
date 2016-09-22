@@ -436,7 +436,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     if (property.PropertyType.IsEqualTo(new ResolvedTypeDescriptor(typeof(bool))))
                     {
                         string error;
-                        if (treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute), out error)) attribute.AddError(error);
+                        if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute), out error)) attribute.AddError(error);
                     }
                     else attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
                 }
@@ -472,25 +472,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     }
 
                     var textValue = attribute.ValueNode as DothtmlValueTextNode;
-                    var value = ConvertValue(textValue.Text, property.PropertyType);
+                    var value = ConvertValue(WebUtility.HtmlDecode(textValue.Text), property.PropertyType);
                     var propertyValue = treeBuilder.BuildPropertyValue(property, value, attribute);
                     string error;
                     if (!treeBuilder.AddProperty(control, propertyValue, out error)) attribute.AddError(error);
                 }
             }
-            //else if (control.Metadata.HasHtmlAttributesCollection)
-            //{
-            //    // if the property is not found, add it as an HTML attribute
-            //    try
-            //    {
-            //        treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
-            //    }
-            //    catch (NotSupportedException ex)
-            //    {
-            //        if (ex.InnerException == null) throw;
-            //        else attribute.AddError(ex.Message);
-            //    }
-            //}
             else
             {
                 attribute.AddError($"The control '{control.Metadata.Type}' does not have a property '{attribute.AttributeName}' and does not allow HTML attributes!");
@@ -514,7 +501,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     {
                         content.Clear();
                         string error;
-                        if (treeBuilder.AddProperty(control, ProcessElementProperty(control, property, element.Content, element), out error)) element.AddError(error);
+                        if (!treeBuilder.AddProperty(control, ProcessElementProperty(control, property, element.Content, element), out error)) element.AddError(error);
 
                         foreach (var attr in element.Attributes)
                             attr.AddError("Attributes can't be set on element property.");

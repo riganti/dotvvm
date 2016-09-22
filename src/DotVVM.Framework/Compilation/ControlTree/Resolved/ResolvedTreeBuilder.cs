@@ -118,16 +118,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedDirective() { DothtmlNode = node };
         }
 
-        public IAbstractHtmlAttributeValue BuildHtmlAttributeValue(string name, string value, DothtmlAttributeNode dothtmlNode)
-        {
-            return new ResolvedHtmlAttributeValue(name, value) { DothtmlNode = dothtmlNode };
-        }
-
-        public IAbstractHtmlAttributeBinding BuildHtmlAttributeBinding(string name, IAbstractBinding binding, DothtmlAttributeNode dothtmlNode)
-        {
-            return new ResolvedHtmlAttributeBinding(name, (ResolvedBinding)binding) { DothtmlNode = dothtmlNode };
-        }
-
         public bool AddProperty(IAbstractControl control, IAbstractPropertySetter setter, out string error)
         {
             return ((ResolvedControl)control).SetProperty((ResolvedPropertySetter)setter, false, out error);
