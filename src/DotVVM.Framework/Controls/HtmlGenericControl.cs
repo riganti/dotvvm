@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Controls
 {
@@ -22,8 +23,13 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the attributes.
         /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Exclude)]
+        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true)]
+        [PropertyGroup("")]
         public Dictionary<string, object> Attributes { get; private set; }
+
+        //[MarkupOptions(MappingMode = MappingMode.Attribute, AllowHardCodedValue = true, AllowBinding = true, AllowValueMerging = true)]
+        //public static PropertyGroupDescriptor AttributeGroupDescriptor = 
+        //    PropertyGroupDescriptor.Create<HtmlGenericControl, string>("", "Attribute");
 
         /// <summary>
         /// Gets or sets whether the control is visible.

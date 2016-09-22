@@ -32,9 +32,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         IAbstractPropertyValue BuildPropertyValue(IPropertyDescriptor property, object value, DothtmlNode sourceAttributeNode);
 
-        void SetHtmlAttribute(IAbstractControl control, IAbstractHtmlAttributeSetter attributeSetter);
-
-        void SetProperty(IAbstractControl control, IAbstractPropertySetter setter);
+        bool AddProperty(IAbstractControl control, IAbstractPropertySetter setter, out string error);
 
         void AddChildControl(IAbstractContentNode control, IAbstractControl child);
 

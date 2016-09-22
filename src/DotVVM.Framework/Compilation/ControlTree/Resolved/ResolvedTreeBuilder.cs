@@ -128,14 +128,9 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedHtmlAttributeBinding(name, (ResolvedBinding)binding) { DothtmlNode = dothtmlNode };
         }
 
-        public void SetHtmlAttribute(IAbstractControl control, IAbstractHtmlAttributeSetter attributeSetter)
+        public bool AddProperty(IAbstractControl control, IAbstractPropertySetter setter, out string error)
         {
-            ((ResolvedControl)control).SetHtmlAttribute((ResolvedHtmlAttributeSetter)attributeSetter);
-        }
-
-        public void SetProperty(IAbstractControl control, IAbstractPropertySetter setter)
-        {
-            ((ResolvedControl)control).SetProperty((ResolvedPropertySetter)setter);
+            return ((ResolvedControl)control).SetProperty((ResolvedPropertySetter)setter, false, out error);
         }
 
         public void AddChildControl(IAbstractContentNode control, IAbstractControl child)
