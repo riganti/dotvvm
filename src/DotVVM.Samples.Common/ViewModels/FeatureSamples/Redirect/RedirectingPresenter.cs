@@ -8,7 +8,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect
 {
     public class RedirectingPresenter : IDotvvmPresenter
     {
-        public Task ProcessRequest(DotvvmRequestContext context)
+        public Task ProcessRequest(IDotvvmRequestContext context)
         {
             context.RedirectToRoute("FeatureSamples_Redirect_Redirect");
 

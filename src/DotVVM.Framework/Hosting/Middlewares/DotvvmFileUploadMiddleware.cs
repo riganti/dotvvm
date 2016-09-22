@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         private DotvvmConfiguration _configuration;
 
 
-        public Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
+        public async Task<bool> Handle(IDotvvmRequestContext request)
         {
             _configuration = request.Configuration;
             var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
@@ -33,11 +33,12 @@ namespace DotVVM.Framework.Hosting.Middlewares
             if (url == HostingConstants.FileUploadHandlerMatchUrl ||
                 url.StartsWith(HostingConstants.FileUploadHandlerMatchUrl + "?", StringComparison.OrdinalIgnoreCase))
             {
-                return ProcessMultipartRequest(request.HttpContext);
+                await ProcessMultipartRequest(request.HttpContext);
+                return true;
             }
             else
             {
-                return next(request);
+                return false;
             }
         }
 

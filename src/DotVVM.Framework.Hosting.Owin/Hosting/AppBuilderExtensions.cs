@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Owin;
 using DotVVM.Framework.Security;
 using Microsoft.Owin.Security.DataProtection;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -38,14 +39,16 @@ namespace DotVVM.Framework.Hosting
             // add middlewares
             if (errorPages)
                 app.Use<DotvvmErrorPageMiddleware>();
-            
-            app.Use<DotvvmEmbeddedResourceMiddleware>();
-            app.Use<DotvvmFileUploadMiddleware>(configuration);
-            app.Use<JQueryGlobalizeCultureMiddleware>();
 
-            app.Use<DotvvmReturnedFileMiddleware>(configuration);
+            var middlewares = new List<IMiddleware>();
 
-            app.Use<DotvvmMiddleware>(configuration);
+            middlewares.Add(new DotvvmEmbeddedResourceMiddleware());
+            middlewares.Add(new DotvvmFileUploadMiddleware());
+            middlewares.Add(new JQueryGlobalizeCultureMiddleware());
+            middlewares.Add(new DotvvmReturnedFileMiddleware());
+            middlewares.Add(new DotvvmRoutingMiddleware());
+
+            app.Use<DotvvmMiddleware>(configuration, middlewares);
 
             return configuration;
         }

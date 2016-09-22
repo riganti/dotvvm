@@ -106,15 +106,15 @@ namespace DotVVM.Framework.Compilation
                     typeof(RuntimeBinderException).GetTypeInfo().Assembly,
                     typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly,
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
-					Assembly.Load(new AssemblyName("mscorlib")),
+                    Assembly.Load(new AssemblyName("mscorlib")),
 #if DotNetCore
-				    Assembly.Load(new AssemblyName("System.Runtime")),
-					Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
-					Assembly.Load(new AssemblyName("System.Collections"))
+                    Assembly.Load(new AssemblyName("System.Runtime")),
+                    Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
+                    Assembly.Load(new AssemblyName("System.Collections"))
 #else
-					typeof(System.Collections.Generic.List<>).Assembly
+                    typeof(System.Collections.Generic.List<>).Assembly
 #endif
-			}.Concat(configuration.Markup.Assemblies.Select(e => Assembly.Load(new AssemblyName(e)))).Distinct()
+            }.Concat(configuration.Markup.Assemblies.Select(e => Assembly.Load(new AssemblyName(e)))).Distinct()
                 .Select(a => assemblyCache.GetAssemblyMetadata(a)))
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
@@ -134,7 +134,7 @@ namespace DotVVM.Framework.Compilation
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {
-					var assembly = AssemblyLoader.LoadRaw(ms.ToArray());
+                    var assembly = AssemblyLoader.LoadRaw(ms.ToArray());
                     assemblyCache.AddAssembly(assembly, compilation.ToMetadataReference());
                     return assembly;
                 }
@@ -155,5 +155,5 @@ namespace DotVVM.Framework.Compilation
             var assembly = BuildAssembly(compilation);
             return GetControlBuilder(assembly, namespaceName, className);
         }
-	}
+    }
 }

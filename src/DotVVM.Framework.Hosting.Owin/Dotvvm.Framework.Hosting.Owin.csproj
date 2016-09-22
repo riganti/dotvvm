@@ -38,6 +38,26 @@
   <PropertyGroup>
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'AspNetCore|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\AspNetCore\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\DotVVM.Framework.Owin.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Owin|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Owin\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DocumentationFile>bin\Debug\DotVVM.Framework.Owin.xml</DocumentationFile>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="Microsoft.Extensions.DependencyInjection, Version=1.0.0.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
       <HintPath>..\packages\Microsoft.Extensions.DependencyInjection.1.0.0\lib\netstandard1.1\Microsoft.Extensions.DependencyInjection.dll</HintPath>
@@ -95,12 +115,8 @@
     <Compile Include="Hosting\DotvvmHttpRequest.cs" />
     <Compile Include="Hosting\DotvvmHttpResponse.cs" />
     <Compile Include="Hosting\DotvvmQueryCollection.cs" />
-    <Compile Include="Hosting\Middlewares\DotvvmEmbeddedResourceMiddleware.cs" />
     <Compile Include="Hosting\Middlewares\DotvvmErrorPageMiddleware.cs" />
-    <Compile Include="Hosting\Middlewares\DotvvmFileUploadMiddleware.cs" />
     <Compile Include="Hosting\Middlewares\DotvvmMiddleware.cs" />
-    <Compile Include="Hosting\Middlewares\DotvvmReturnedFileMiddleware.cs" />
-    <Compile Include="Hosting\Middlewares\JQueryGlobalizeCultureMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Security\DefaultCsrfProtector.cs" />
     <Compile Include="Security\DefaultViewModelProtector.cs" />

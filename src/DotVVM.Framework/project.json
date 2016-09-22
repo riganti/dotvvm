@@ -1,6 +1,5 @@
 {
   "version": "1.0.4-pre",
-
   "dependencies": {
     "DotVVM.Core": "1.0.4-*",
     "Microsoft.CodeAnalysis.CSharp": "1.3.2",
@@ -9,7 +8,6 @@
     "Microsoft.Extensions.PlatformAbstractions": "1.0.0",
     "Newtonsoft.Json": "9.0.1"
   },
-
   "frameworks": {
     "netstandard1.6": {
       "dependencies": {
@@ -27,10 +25,9 @@
     },
     "net461": {}
   },
-
   "buildOptions": {
     "keyFile": "dotvvmwizard.snk",
-    "compile": { "exclude": ["node_modules"] },
+    "compile": { "exclude": [ "node_modules" ] },
     "embed": [
       "Resources/Scripts/DotVVM.js",
       "Resources/Scripts/knockout-latest.js",
@@ -39,6 +36,11 @@
       "Resources/Scripts/DotVVM.FileUpload.css",
       "Resources/Scripts/Globalize/globalize.js"
     ],
-    "xmlDoc": true
+    "xmlDoc": true,
+    "nowarn": [ "CS1591" ]
+  },
+  "configurations": {
+    "AspNetCore": {},
+    "Owin": {}
   }
 }

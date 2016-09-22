@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Runtime
         /// <summary>
         /// Builds the <see cref="DotvvmView"/> for the specified HTTP request, resolves the master page hierarchy and performs the composition.
         /// </summary>
-        public DotvvmView BuildView(DotvvmRequestContext context)
+        public DotvvmView BuildView(IDotvvmRequestContext context)
         {
             // get the page markup
             var markup = markupFileLoader.GetMarkupFileVirtualPath(context);
@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Runtime
         /// If the request is SPA request, we need to verify that the page contains the same SpaContentPlaceHolder.
         /// Also we need to check that the placeholder is the same.
         /// </summary>
-        protected void VerifySpaRequest(DotvvmRequestContext context, DotvvmView page)
+        protected void VerifySpaRequest(IDotvvmRequestContext context, DotvvmView page)
         {
             if (context.IsSpaRequest)
             {

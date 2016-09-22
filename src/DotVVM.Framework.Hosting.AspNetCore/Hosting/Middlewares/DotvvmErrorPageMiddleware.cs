@@ -5,13 +5,6 @@ using System.Net;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting.ErrorPages;
 using Microsoft.AspNetCore.Http;
-//#if DotNetCore
-//using AppBuilder = Microsoft.AspNetCore.Builder.IApplicationBuilder;
-//using Context = Microsoft.AspNetCore.Http.HttpContext;
-//#else
-//using AppBuilder = Owin.IApplicationBuilder;
-//using Context = Microsoft.Owin.HttpContext;
-//#endif
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {

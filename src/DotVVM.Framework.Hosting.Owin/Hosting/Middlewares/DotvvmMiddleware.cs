@@ -10,6 +10,7 @@ using System.Threading;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Hosting.Middlewares;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -20,17 +21,17 @@ namespace DotVVM.Framework.Hosting
     {
         public readonly DotvvmConfiguration Configuration;
 
-        private const string GooglebotHashbangEscapedFragment = "_escaped_fragment_=";
-
-
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMiddleware"/> class.
         /// </summary>
-        public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration) : base(next)
+        public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares) : base(next)
         {
             Configuration = configuration;
+            this.middlewares = middlewares;
         }
         private int configurationSaved = 0;
+        private readonly IList<IMiddleware> middlewares;
+
         /// <summary>
         /// Process an individual request.
         /// </summary>
@@ -44,42 +45,14 @@ namespace DotVVM.Framework.Hosting
             var dotvvmContext = CreateDotvvmContext(context);
             context.Set(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
 
-            // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
-            string url;
-            if (!TryParseGooglebotHashbangEscapedFragment(context.Request.QueryString, out url))
+            foreach (var middleware in middlewares)
             {
-                url = context.Request.Path.Value;
-            }
-            url = url.Trim('/');
-
-            // find the route
-            IDictionary<string, object> parameters = null;
-            var route = Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
-
-            if (route != null)
-            {
-                // handle the request
-                dotvvmContext.Route = route;
-                dotvvmContext.Parameters = parameters;
-                dotvvmContext.Query = context.Request.Query
-                    .ToDictionary(d => d.Key, d => d.Value.Length == 1 ? (object)d.Value[0] : d.Value);
-
-                try
-                {
-                    await route.ProcessRequest(dotvvmContext);
-                    return;
-                }
-                catch (DotvvmInterruptRequestExecutionException)
-                {
-                    // the response has already been generated, do nothing
-                    return;
-                }
+                if (await middleware.Handle(dotvvmContext)) return;
             }
 
             // we cannot handle the request, pass it to another component
             await Next.Invoke(context);
         }
-
         public static IHttpContext ConvertHttpContext(IOwinContext context)
         {
             if (context.Environment.ContainsKey(typeof(IHttpContext).FullName)) return (IHttpContext)context.Environment[typeof(IHttpContext).FullName];
@@ -113,31 +86,6 @@ namespace DotVVM.Framework.Hosting
                 ResourceManager = new ResourceManager(Configuration),
                 ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
             };
-        }
-
-        /// <summary>
-        /// Attempts to recognize request made by Googlebot in its effort to crawl links for AJAX SPAs.
-        /// </summary>
-        /// <param name="queryString">
-        /// The query string of the request to try to match the Googlebot hashbang escaped fragment on.
-        /// </param>
-        /// <param name="url">
-        /// The plain URL string that the hasbang escaped fragment represents.
-        /// </param>
-        /// <returns>
-        /// <code>true</code>, if the URL contains valid Googlebot hashbang escaped fragment; otherwise <code>false</code>.
-        /// </returns>
-        /// <seealso cref="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started"/>
-        private bool TryParseGooglebotHashbangEscapedFragment(QueryString queryString, out string url)
-        {
-            if (queryString.Value.StartsWith(GooglebotHashbangEscapedFragment, StringComparison.Ordinal))
-            {
-                url = queryString.Value.Substring(GooglebotHashbangEscapedFragment.Length);
-                return true;
-            }
-
-            url = null;
-            return false;
         }
 
         public static bool IsInCurrentVirtualDirectory(IHttpContext context, ref string url)

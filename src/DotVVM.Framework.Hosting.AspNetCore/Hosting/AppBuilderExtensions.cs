@@ -5,6 +5,7 @@ using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Generic;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -40,18 +41,21 @@ namespace DotVVM.Framework.Hosting
             configuration.ServiceLocator.RegisterSingleton<IDataProtectionProvider>(app.GetDataProtectionProvider);
 #endif
 
+            var middlewares = new List<IMiddleware>();
+
             // add middlewares
             if (errorPages)
             {
                 app.UseMiddleware<DotvvmErrorPageMiddleware>();
             }
 
-            configuration.RequestMiddlewares.Add(typeof(DotvvmEmbeddedResourceMiddleware));
-            configuration.RequestMiddlewares.Add(typeof(DotvvmFileUploadMiddleware));
-            configuration.RequestMiddlewares.Add(typeof(JQueryGlobalizeCultureMiddleware));
-            configuration.RequestMiddlewares.Add(typeof(DotvvmReturnedFileMiddleware));
+            middlewares.Add(new DotvvmEmbeddedResourceMiddleware());
+            middlewares.Add(new DotvvmFileUploadMiddleware());
+            middlewares.Add(new JQueryGlobalizeCultureMiddleware());
+            middlewares.Add(new DotvvmReturnedFileMiddleware());
+            middlewares.Add(new DotvvmRoutingMiddleware());
 
-            app.UseMiddleware<DotvvmMiddleware>(configuration);
+            app.UseMiddleware<DotvvmMiddleware>(configuration, middlewares);
 
             return configuration;
         }

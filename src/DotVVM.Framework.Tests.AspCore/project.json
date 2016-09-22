@@ -1,4 +1,4 @@
-﻿{
+{
   "version": "1.0.0-*",
   "testRunner": "xunit",
   "dependencies": {
@@ -12,8 +12,11 @@
     "Moq": "4.6.38-*",
     "xunit": "2.2.0-*"
   },
-
   "frameworks": {
     "netcoreapp1.0": {}
+  },
+  "configurations": {
+    "AspNetCore": {},
+    "Owin": {}
   }
 }

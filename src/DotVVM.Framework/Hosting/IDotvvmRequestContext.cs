@@ -7,6 +7,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -18,14 +19,36 @@ namespace DotVVM.Framework.Hosting
         IHttpContext HttpContext { get; }
 
         /// <summary>
+        /// Csrf protection token.
+        /// </summary>
+        string CsrfToken { get; set; }
+
+        /// <summary>
+        /// WORKAROUND: .NET for some reason resets CurrentCulture when exited viewModel method, this is changing it back
+        /// </summary>
+        void ResetCulture();
+
+        JObject ReceivedViewModelJson { get; set; }
+      
+
+        /// <summary>
+        /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
+        /// </summary>
+        string GetSpaContentPlaceHolderUniqueId();
+
+        /// <summary>
         /// Gets the view model for the current request.
         /// </summary>
-        object ViewModel { get; }
+        object ViewModel { get; set; }
+
+        JObject ViewModelJson { get; set; }
+
+        Dictionary<string, string> PostBackUpdatedControls { get;}
 
         /// <summary>
         /// Gets the top-level control representing the whole view for the current request.
         /// </summary>
-        DotvvmView View { get; }
+        DotvvmView View { get; set; }
 
         /// <summary>
         /// Gets the global configuration of DotVVM.
@@ -33,19 +56,24 @@ namespace DotVVM.Framework.Hosting
         DotvvmConfiguration Configuration { get; }
 
         /// <summary>
+        /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.
+        /// </summary>
+        IDotvvmPresenter Presenter { get; set; }
+
+        /// <summary>
         /// Gets the route that was used for this request.
         /// </summary>
-        RouteBase Route { get; }
+        RouteBase Route { get; set; }
 
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
         /// </summary>
-        bool IsPostBack { get; }
+        bool IsPostBack { get; set; }
 
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
         /// </summary>
-        IDictionary<string, object> Parameters { get; }
+        IDictionary<string, object> Parameters { get; set; }
 
         /// <summary>
         /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
@@ -60,7 +88,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the query string parameters specified in the URL of the current HTTP request.
         /// </summary>
-        IDictionary<string, object> Query { get; }
+        IQueryCollection Query { get; }
 
 		/// <summary>
 		/// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
@@ -77,7 +105,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets or sets the exception that occured when the command was executed.
         /// </summary>
-        Exception CommandException { get; }
+        Exception CommandException { get; set; }
 
         /// <summary>
         /// Gets a value indicating whether the HTTP request wants to render only content of a specific SpaContentPlaceHolder.
@@ -113,6 +141,11 @@ namespace DotVVM.Framework.Hosting
         /// Interrupts the execution of the current request.
         /// </summary>
         void InterruptRequest();
+
+        /// <summary>
+        /// Gets the serialized view model.
+        /// </summary>
+        string GetSerializedViewModel();
 
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.

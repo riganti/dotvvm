@@ -4,7 +4,6 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Pipeline;
 using Microsoft.AspNetCore.Http.Internal;
 using Moq;
 using Xunit;
@@ -50,32 +49,26 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
         [Fact]
         public async void TestFinalFuncion()
         {
-            await new Pipeline<IDotvvmRequestContext>()
-                .Send(_requestContext)
-                .Through()
-                .Then<Task>(async context => { context.HttpContext.Response.Write(FinalFunction); });
-
+            _requestContext.HttpContext.Response.Write(FinalFunction);
             Assert.Equal(FinalFunction, ReadResponseBody());
         }
 
         [Fact]
-        public async void TestBeforeMiddleware()
+        public void TestBeforeMiddleware()
         {
-            await new Pipeline<IDotvvmRequestContext>()
-                .Send(_requestContext)
-                .Through(typeof(BeforeMiddleware))
-                .Then<Task>(async context => { context.HttpContext.Response.Write(FinalFunction); });
+            new BeforeMiddleware().Handle(_requestContext, 
+                async context => { context.HttpContext.Response.Write(FinalFunction); })
+                .Wait();
 
             Assert.Equal(BeforeFunction + FinalFunction, ReadResponseBody());
         }
 
         [Fact]
-        public async void TestAfterMiddleware()
+        public void TestAfterMiddleware()
         {
-            await new Pipeline<IDotvvmRequestContext>()
-                .Send(_requestContext)
-                .Through(typeof(AfterMiddleware))
-                .Then<Task>(async context => { context.HttpContext.Response.Write(FinalFunction); });
+            new AfterMiddleware().Handle(_requestContext, 
+                async context => { context.HttpContext.Response.Write(FinalFunction); })
+                .Wait();
 
             Assert.Equal(FinalFunction + AfterFunction, ReadResponseBody());
         }
@@ -83,10 +76,10 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
         [Fact]
         public async void TestAllMiddleware()
         {
-            await new Pipeline<IDotvvmRequestContext>()
-                .Send(_requestContext)
-                .Through(typeof(BeforeMiddleware), typeof(AfterMiddleware))
-                .Then<Task>(async context => { context.HttpContext.Response.Write(FinalFunction); });
+            new BeforeMiddleware().Handle(_requestContext, 
+                c => new AfterMiddleware().Handle(c, 
+                async context => { context.HttpContext.Response.Write(FinalFunction); }))
+                .Wait();
 
             Assert.Equal(BeforeFunction + FinalFunction + AfterFunction, ReadResponseBody());
         }

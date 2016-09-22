@@ -44,7 +44,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Serializes the view model.
         /// </summary>
-        public string SerializeViewModel(DotvvmRequestContext context)
+        public string SerializeViewModel(IDotvvmRequestContext context)
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
@@ -57,7 +57,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(DotvvmRequestContext context)
+        public void BuildViewModel(IDotvvmRequestContext context)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
@@ -192,7 +192,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// Populates the view model from the data received from the request.
         /// </summary>
         /// <returns></returns>
-        public void PopulateViewModel(DotvvmRequestContext context, string serializedPostData)
+        public void PopulateViewModel(IDotvvmRequestContext context, string serializedPostData)
         {
 
             // get properties
@@ -230,7 +230,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Resolves the command for the specified post data.
         /// </summary>
-        public void ResolveCommand(DotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo)
+        public void ResolveCommand(IDotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo)
         {
             // get properties
             var data = JObject.Parse(serializedPostData);
@@ -265,7 +265,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Adds the post back updated controls.
         /// </summary>
-        public void AddPostBackUpdatedControls(DotvvmRequestContext context)
+        public void AddPostBackUpdatedControls(IDotvvmRequestContext context)
         {
             var result = new JObject();
             foreach (var control in context.PostBackUpdatedControls)

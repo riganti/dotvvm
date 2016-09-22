@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public async Task ProcessRequest(DotvvmRequestContext context)
+        public async Task ProcessRequest(IDotvvmRequestContext context)
         {
             try
             {
@@ -92,7 +92,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         /// <param name="context"></param>
         /// <returns></returns>
-        public async Task ProcessRequestCore(DotvvmRequestContext context)
+        public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
             if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
             {
@@ -271,7 +271,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        public async Task ProcessStaticCommandRequest(DotvvmRequestContext context)
+        public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
         {
             JObject postData;
             using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
@@ -318,7 +318,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        protected Task ExecuteCommand(ActionInfo action, DotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
+        protected Task ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
         {
             // run OnCommandExecuting on action filters
             foreach (var filter in methodFilters)
