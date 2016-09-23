@@ -1,8 +1,12 @@
+using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Controls;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
@@ -21,7 +25,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
         /// Gets a value indicating whether the content of the control can be used to generate the control name.
         /// </summary>
         public abstract bool CanUseControlContentForName { get; }
-
+        
 
         /// <summary>
         /// Gets a list of declarations emitted by the control.
@@ -45,15 +49,33 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
             context.UniqueName = uniqueName;
 
             // determine the selector
-            var selector = TryGetNameFromProperty(context.Control, UITests.SelectorProperty);
+            var selector = TryGetNameFromProperty(context.Control, UITests.NameProperty);
             if (selector == null)
             {
                 selector = uniqueName;
-                // TODO: update the markup
+
+                AddUITestNameProperty(helper, context, uniqueName);
             }
             context.Selector = selector;
 
             AddDeclarationsCore(helper, context);
+        }
+
+        public virtual bool CanAddDeclarations(HelperDefinition helperDefinition, SeleniumGeneratorContext context)
+        {
+            return true;
+        }
+
+        private void AddUITestNameProperty(HelperDefinition helper, SeleniumGeneratorContext context, string uniqueName)
+        {
+            // find end of the tag
+            var token = context.Control.DothtmlNode.Tokens.First(t => t.Type == DothtmlTokenType.CloseTag || t.Type == DothtmlTokenType.Slash);
+            
+            helper.MarkupFileModifications.Add(new MarkupFileInsertText()
+            {
+                Text = " UITests.Name=\"" + uniqueName + "\"",
+                Position = token.StartPosition
+            });
         }
 
 

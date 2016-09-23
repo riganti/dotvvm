@@ -1,12 +1,15 @@
 ﻿using OpenQA.Selenium;
 
-namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
+namespace DotVVM.Framework.Testing.SeleniumHelpers
 {
     public abstract class SeleniumHelperBase
     {
 
-        public IWebDriver WebDriver { get; set; }
+        public IWebDriver WebDriver { get; private set; }
 
-        
+        public SeleniumHelperBase(IWebDriver webDriver)
+        {
+            WebDriver = webDriver;
+        }
     }
 }

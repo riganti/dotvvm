@@ -17,5 +17,6 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
         
         public List<HelperDefinition> Children { get; } = new List<HelperDefinition>();
 
+        public List<MarkupFileModification> MarkupFileModifications { get; } = new List<MarkupFileModification>();
     }
 }

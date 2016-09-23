@@ -67,8 +67,10 @@
     <Compile Include="HelperBase.cs" />
     <Compile Include="Proxies\ButtonProxy.cs" />
     <Compile Include="Proxies\CheckBoxProxy.cs" />
+    <Compile Include="Proxies\LiteralProxy.cs" />
     <Compile Include="Proxies\TextBoxProxy.cs" />
     <Compile Include="Proxies\WebElementProxyBase.cs" />
+    <Compile Include="SeleniumTest.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

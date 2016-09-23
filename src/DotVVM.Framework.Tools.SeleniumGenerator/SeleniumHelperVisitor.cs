@@ -20,7 +20,8 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
         {
             { typeof(TextBox), new TextBoxGenerator() },
             { typeof(CheckBox), new CheckBoxGenerator() },
-            { typeof(Button), new ButtonGenerator() }
+            { typeof(Button), new ButtonGenerator() },
+            { typeof(Literal), new LiteralGenerator() }
         };
 
 
@@ -36,12 +37,16 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                     Control = control,
                     UsedNames = UsedNames
                 };
-                generator.AddDeclarations(HelperDefinitionsStack.Peek(), context);
+
+                var helperDefinition = HelperDefinitionsStack.Peek();
+                if (generator.CanAddDeclarations(helperDefinition, context))
+                {
+                    generator.AddDeclarations(helperDefinition, context);
+                    return;
+                }
             }
-            else
-            {
-                base.VisitControl(control);
-            }
+
+            base.VisitControl(control);
         }
     }
 }
