@@ -8,5 +8,6 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
 
         void AddDeclarations(HelperDefinition helper, SeleniumGeneratorContext context);
 
+        bool CanAddDeclarations(HelperDefinition helperDefinition, SeleniumGeneratorContext context);
     }
 }

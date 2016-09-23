@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
-    public interface IAbstractHtmlAttributeValue : IAbstractHtmlAttributeSetter
-    {
-        string Value { get; }
-    }
+	public interface IGroupedPropertyDescriptor
+	{
+	}
 }

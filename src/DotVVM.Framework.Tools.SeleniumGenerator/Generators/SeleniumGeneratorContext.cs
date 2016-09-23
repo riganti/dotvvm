@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
         public string UniqueName { get; set; }
 
         public HashSet<string> UsedNames { get; set; }
-        
+
+        public SeleniumHelperVisitor Visitor { get; set; }
     }
 }

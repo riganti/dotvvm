@@ -44,16 +44,6 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             DefaultVisit(binding);
         }
 
-        public void VisitHtmlAttributeValue(ResolvedHtmlAttributeValue htmlAttributeValue)
-        {
-            DefaultVisit(htmlAttributeValue);
-        }
-
-        public void VisitHtmlAttributeBinding(ResolvedHtmlAttributeBinding htmlAttributeBinding)
-        {
-            DefaultVisit(htmlAttributeBinding);
-        }
-
         public void VisitDirective(ResolvedDirective directive)
         {
             DefaultVisit(directive);

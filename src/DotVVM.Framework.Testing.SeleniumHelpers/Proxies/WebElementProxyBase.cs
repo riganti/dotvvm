@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium;
+﻿using System.Linq;
+using OpenQA.Selenium;
 
 namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 {
@@ -17,7 +18,8 @@ namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 
         protected IWebElement FindElement()
         {
-            return Helper.WebDriver.FindElement(By.CssSelector(Selector));
+            var selector = Helper.BuildElementSelector(Selector);
+            return Helper.WebDriver.FindElement(By.CssSelector(selector));
         }
 
     }

@@ -27,7 +27,7 @@
         <legend>ChildViewModel does not call base method</legend>
         <fieldset>
             <legend>Child Init call count should be equals to one</legend>
-            <dot:Literal data-ui="NastyInitCount" ui- Text="{value: NastyChildViewModel.InitCount}" />
+            <dot:Literal data-ui="NastyInitCount" Text="{value: NastyChildViewModel.InitCount}" />
         </fieldset>
         <fieldset>
             <legend>Child Load call count should be equals to one</legend>
