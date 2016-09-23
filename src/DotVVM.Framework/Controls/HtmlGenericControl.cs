@@ -27,6 +27,11 @@ namespace DotVVM.Framework.Controls
         [PropertyGroup("")]
         public Dictionary<string, object> Attributes { get; private set; }
 
+        public static PropertyGroupDescriptor CssClassesGroupDescriptor =
+            PropertyGroupDescriptor.Create<HtmlGenericControl, string>("Class-", "CssClasses");
+
+        public VirtualPropertyGroupDictionary<string> CssClasses => new VirtualPropertyGroupDictionary<string>(this, CssClassesGroupDescriptor);
+
         //[MarkupOptions(MappingMode = MappingMode.Attribute, AllowHardCodedValue = true, AllowBinding = true, AllowValueMerging = true)]
         //public static PropertyGroupDescriptor AttributeGroupDescriptor = 
         //    PropertyGroupDescriptor.Create<HtmlGenericControl, string>("", "Attribute");
@@ -119,6 +124,14 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddKnockoutDataBind("attr", attrBindingGroup);
                 }
+
+                KnockoutBindingGroup cssClassBindingGroup = null;
+                foreach (var cssClass in CssClasses.Properties)
+                {
+                    if (cssClassBindingGroup == null) cssClassBindingGroup = new KnockoutBindingGroup();
+                    cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass, null);
+                }
+                if (cssClassBindingGroup != null) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
 
                 // handle Visible property
                 AddVisibleAttributeOrBinding(writer);
