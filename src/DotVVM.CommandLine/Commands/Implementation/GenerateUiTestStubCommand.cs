@@ -86,14 +86,15 @@ namespace DotVVM.CommandLine.Commands.Implementation
 
                 // generate the file
                 var generator = new SeleniumHelperGenerator();
-                var tree = generator.ProcessMarkupFile(file, DotvvmConfiguration.CreateDefault(), new SeleniumGeneratorConfiguration()
+                var config = new SeleniumGeneratorConfiguration()
                 {
                     TargetNamespace = Helpers.GetNamespaceFromFullType(fullTypeName),
-                    HelperName = Helpers.GetTypeNameFromFullType(fullTypeName)
-                });
+                    HelperName = Helpers.GetTypeNameFromFullType(fullTypeName),
+                    HelperFileFullPath = targetFileName,
+                    ViewFullPath = file
+                };
 
-                // write the file
-                File.WriteAllText(targetFileName, tree.ToString(), Encoding.UTF8);
+                generator.ProcessMarkupFile(DotvvmConfiguration.CreateDefault(), config);
             }
         }
     }

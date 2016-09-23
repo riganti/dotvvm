@@ -11,11 +11,14 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
 
         public string Name { get; set; }
 
+        public HashSet<string> UsedNames { get; } = new HashSet<string>();
+        
         public List<MemberDeclarationSyntax> Members { get; } = new List<MemberDeclarationSyntax>();
 
         public List<StatementSyntax> ConstructorStatements { get; } = new List<StatementSyntax>();
         
         public List<HelperDefinition> Children { get; } = new List<HelperDefinition>();
 
+        public List<MarkupFileModification> MarkupFileModifications { get; } = new List<MarkupFileModification>();
     }
 }

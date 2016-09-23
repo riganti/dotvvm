@@ -16,14 +16,14 @@ namespace DotVVM.Framework.Utils
 {
     public static class ReflectionUtils
     {
-		public static IEnumerable<Assembly> GetAllAssemblies()
-		{
+        public static IEnumerable<Assembly> GetAllAssemblies()
+        {
 #if DotNetCore
-			return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load);
+            return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load);
 #else
-			return AppDomain.CurrentDomain.GetAssemblies();
+            return AppDomain.CurrentDomain.GetAssemblies();
 #endif
-		}
+        }
 
         public static bool IsAssemblyNamespace(string fullName)
             => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
@@ -113,7 +113,7 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static object ConvertValue(object value, Type type)
         {
-			var typeinfo = type.GetTypeInfo();
+            var typeinfo = type.GetTypeInfo();
             // handle null values
             if ((value == null) && (typeinfo.IsValueType))
                 return Activator.CreateInstance(type);
@@ -128,8 +128,8 @@ namespace DotVVM.Framework.Utils
                 }
                 else
                 {
-					// value is not null
-					type = Nullable.GetUnderlyingType(type); typeinfo = type.GetTypeInfo();
+                    // value is not null
+                    type = Nullable.GetUnderlyingType(type); typeinfo = type.GetTypeInfo();
                 }
             }
 
@@ -275,5 +275,14 @@ namespace DotVVM.Framework.Utils
         {
             return Nullable.GetUnderlyingType(type) != null;
         }
+
+        public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true)
+            where T : Attribute => 
+            (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
+
+        public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true)
+            where T : Attribute =>
+            attributeProvider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
+
     }
 }

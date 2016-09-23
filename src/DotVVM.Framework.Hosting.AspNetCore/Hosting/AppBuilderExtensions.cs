@@ -1,11 +1,11 @@
 using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.DependencyInjection;
-using System.Collections.Generic;
 
 namespace DotVVM.Framework.Hosting
 {

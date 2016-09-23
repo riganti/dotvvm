@@ -1,16 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using Microsoft.Owin;
-using DotVVM.Framework.Configuration;
-using DotVVM.Framework.ResourceManagement;
-using System.Collections.Concurrent;
 using System.Threading;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.ViewModel;
-using DotVVM.Framework.ViewModel.Serialization;
+using System.Threading.Tasks;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.ResourceManagement;
+using DotVVM.Framework.ViewModel.Serialization;
+using Microsoft.Owin;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -20,17 +16,18 @@ namespace DotVVM.Framework.Hosting
     public class DotvvmMiddleware : OwinMiddleware
     {
         public readonly DotvvmConfiguration Configuration;
+        private readonly IList<IMiddleware> middlewares;
+        private int configurationSaved;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DotvvmMiddleware"/> class.
+        /// Initializes a new instance of the <see cref="DotvvmMiddleware" /> class.
         /// </summary>
-        public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares) : base(next)
+        public DotvvmMiddleware(OwinMiddleware next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares)
+            : base(next)
         {
             Configuration = configuration;
             this.middlewares = middlewares;
         }
-        private int configurationSaved = 0;
-        private readonly IList<IMiddleware> middlewares;
 
         /// <summary>
         /// Process an individual request.
@@ -44,6 +41,7 @@ namespace DotVVM.Framework.Hosting
             // create the context
             var dotvvmContext = CreateDotvvmContext(context);
             context.Set(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
+            dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
 
             foreach (var middleware in middlewares)
             {
@@ -53,16 +51,20 @@ namespace DotVVM.Framework.Hosting
             // we cannot handle the request, pass it to another component
             await Next.Invoke(context);
         }
+
         public static IHttpContext ConvertHttpContext(IOwinContext context)
         {
-            if (context.Environment.ContainsKey(typeof(IHttpContext).FullName)) return (IHttpContext)context.Environment[typeof(IHttpContext).FullName];
+            if (context.Environment.ContainsKey(typeof(IHttpContext).FullName))
+            {
+                return (IHttpContext)context.Environment[typeof(IHttpContext).FullName];
+            }
             var httpContext = new DotvvmHttpContext(context);
 
             httpContext.Response = new DotvvmHttpResponse(
                 context.Response,
                 httpContext,
                 new DotvvmHeaderCollection(context.Response.Headers)
-                );
+            );
 
             httpContext.Request = new DotvvmHttpRequest(
                 context.Request,
@@ -72,15 +74,14 @@ namespace DotVVM.Framework.Hosting
                 new DotvvmQueryCollection(context.Request.Query),
                 new DotvvmHeaderCollection(context.Request.Headers),
                 new DotvvmCookieCollection(context.Request.Cookies)
-                );
+            );
             context.Environment[typeof(IHttpContext).FullName] = httpContext;
             return httpContext;
         }
 
         protected DotvvmRequestContext CreateDotvvmContext(IOwinContext context)
         {
-            return new DotvvmRequestContext()
-            {
+            return new DotvvmRequestContext {
                 HttpContext = ConvertHttpContext(context),
                 Configuration = Configuration,
                 ResourceManager = new ResourceManager(Configuration),
