@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators.Controls
 {
     public class LiteralGenerator : SeleniumGenerator<Literal>
     {
-        private static readonly DotvvmProperty[] nameProperties = new[] { TextBox.TextProperty };
+        private static readonly DotvvmProperty[] nameProperties = new[] { Literal.TextProperty };
 
         public override DotvvmProperty[] NameProperties => nameProperties;
 

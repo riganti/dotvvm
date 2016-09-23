@@ -180,10 +180,26 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
         }
 
 
-        protected MemberDeclarationSyntax GeneratePropertyForProxy(SeleniumGeneratorContext context, string typeName)
+        private static TypeSyntax ParseTypeName(string typeName, params string[] genericTypeNames)
+        {
+            if (genericTypeNames.Length == 0)
+            {
+                return SyntaxFactory.ParseTypeName(typeName);
+            }
+            else
+            {
+                return SyntaxFactory.GenericName(typeName)
+                    .WithTypeArgumentList(SyntaxFactory.TypeArgumentList(SyntaxFactory.SeparatedList(
+                            genericTypeNames.Select(n => SyntaxFactory.ParseTypeName(n)))
+                    ));
+            }
+        }
+        
+
+        protected MemberDeclarationSyntax GeneratePropertyForProxy(SeleniumGeneratorContext context, string typeName, params string[] genericTypeNames)
         {
             return SyntaxFactory.PropertyDeclaration(
-                    SyntaxFactory.ParseTypeName(typeName),
+                    ParseTypeName(typeName, genericTypeNames),
                     context.UniqueName
                 )
                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
@@ -193,13 +209,13 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
                 );
         }
 
-        protected StatementSyntax GenerateInitializerForProxy(SeleniumGeneratorContext context, string propertyName, string typeName)
+        protected StatementSyntax GenerateInitializerForProxy(SeleniumGeneratorContext context, string propertyName, string typeName, params string[] genericTypeNames)
         {
             return SyntaxFactory.ExpressionStatement(
                 SyntaxFactory.AssignmentExpression(
                     SyntaxKind.SimpleAssignmentExpression,
                     SyntaxFactory.IdentifierName(propertyName),
-                    SyntaxFactory.ObjectCreationExpression(SyntaxFactory.ParseTypeName(typeName))
+                    SyntaxFactory.ObjectCreationExpression(ParseTypeName(typeName, genericTypeNames))
                         .WithArgumentList(
                             SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new[]
                             {

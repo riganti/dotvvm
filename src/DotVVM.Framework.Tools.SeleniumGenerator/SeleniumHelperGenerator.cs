@@ -62,11 +62,9 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
         {
             // traverse the tree
             var visitor = new SeleniumHelperVisitor();
-            visitor.HelperDefinitionsStack.Push(new HelperDefinition() { Name = seleniumConfiguration.HelperName });
+            visitor.PushScope(new HelperDefinition() { Name = seleniumConfiguration.HelperName });
             visitor.VisitView((ResolvedTreeRoot) tree);
-
-            var helper = visitor.HelperDefinitionsStack.Pop();
-            return helper;
+            return visitor.PopScope();
         }
 
         private MemberDeclarationSyntax GenerateHelperClassContents(HelperDefinition helperDefinition)
@@ -82,14 +80,25 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator
                         .WithParameterList(SyntaxFactory.ParameterList(SyntaxFactory.SeparatedList(new []
                         {
                             SyntaxFactory.Parameter(SyntaxFactory.Identifier("webDriver"))
-                                .WithType(SyntaxFactory.ParseTypeName("OpenQA.Selenium.IWebDriver"))
+                                .WithType(SyntaxFactory.ParseTypeName("OpenQA.Selenium.IWebDriver")),
+                            SyntaxFactory.Parameter(SyntaxFactory.Identifier("parentHelper"))
+                                .WithType(SyntaxFactory.ParseTypeName("DotVVM.Framework.Testing.SeleniumHelpers.SeleniumHelperBase"))
+                                .WithDefault(SyntaxFactory.EqualsValueClause(SyntaxFactory.IdentifierName("null"))),
+                            SyntaxFactory.Parameter(SyntaxFactory.Identifier("selectorPrefix"))
+                                .WithType(SyntaxFactory.ParseTypeName("System.String"))
+                                .WithDefault(SyntaxFactory.EqualsValueClause(SyntaxFactory.LiteralExpression(SyntaxKind.StringLiteralExpression, SyntaxFactory.Literal(""))))
                         })))
                         .WithInitializer(SyntaxFactory.ConstructorInitializer(SyntaxKind.BaseConstructorInitializer, SyntaxFactory.ArgumentList(SyntaxFactory.SeparatedList(new []
                         {
-                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName("webDriver"))
+                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName("webDriver")),
+                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName("parentHelper")),
+                            SyntaxFactory.Argument(SyntaxFactory.IdentifierName("selectorPrefix"))
                         }))))
                         .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                         .WithBody(SyntaxFactory.Block(helperDefinition.ConstructorStatements))
+                )
+                .AddMembers(
+                    helperDefinition.Children.Select(GenerateHelperClassContents).ToArray()
                 );
         }
 
