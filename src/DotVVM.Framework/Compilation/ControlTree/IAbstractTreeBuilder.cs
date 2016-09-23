@@ -18,10 +18,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         IAbstractImportDirective BuildImportDirective(DothtmlDirectiveNode node, BindingParserNode aliasSyntax, BindingParserNode nameSyntax);
 
-        IAbstractHtmlAttributeValue BuildHtmlAttributeValue(string Name, string value, DothtmlAttributeNode dothtmlNode);
-
-        IAbstractHtmlAttributeBinding BuildHtmlAttributeBinding(string Name, IAbstractBinding binding, DothtmlAttributeNode dothtmlNode);
-
         IAbstractPropertyBinding BuildPropertyBinding(IPropertyDescriptor property, IAbstractBinding binding, DothtmlAttributeNode sourceAttributeNode);
 
         IAbstractPropertyControl BuildPropertyControl(IPropertyDescriptor property, IAbstractControl control, DothtmlElementNode wrapperElementNode);
@@ -32,9 +28,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         IAbstractPropertyValue BuildPropertyValue(IPropertyDescriptor property, object value, DothtmlNode sourceAttributeNode);
 
-        void SetHtmlAttribute(IAbstractControl control, IAbstractHtmlAttributeSetter attributeSetter);
-
-        void SetProperty(IAbstractControl control, IAbstractPropertySetter setter);
+        bool AddProperty(IAbstractControl control, IAbstractPropertySetter setter, out string error);
 
         void AddChildControl(IAbstractContentNode control, IAbstractControl child);
 

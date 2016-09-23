@@ -77,8 +77,8 @@ namespace DotVVM.Framework.Compilation
 
         private void SetProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
-            emitter.EmitSetDotvvmProperty(controlName, property, value);
-        }
+			emitter.EmitSetDotvvmProperty(controlName, property, value);
+		}
 
         private void SetPropertyValue(string controlName, DotvvmProperty property, object value)
             => SetProperty(controlName, property, emitter.EmitValue(value));
@@ -144,34 +144,6 @@ namespace DotVVM.Framework.Compilation
             SetProperty(controlName, propertyTemplate.Property, SyntaxFactory.IdentifierName(templateName));
         }
 
-        protected void ProcessHtmlAttributes(string controlName, Dictionary<string, ResolvedHtmlAttributeSetter> attributes, DataContextStack dataContext)
-        {
-            foreach (var attr in attributes.Values)
-            {
-                var value = ProcessBindingOrValue(attr, dataContext);
-                emitter.EmitAddHtmlAttribute(controlName, attr.Name, value);
-            }
-        }
-
-        /// <summary>
-        /// Emits value or binding and returns 
-        /// </summary>
-        protected ExpressionSyntax ProcessBindingOrValue(ResolvedHtmlAttributeSetter attribute, DataContextStack dataContext)
-        {
-            if (attribute is ResolvedHtmlAttributeValue)
-            {
-                return emitter.EmitValue(((ResolvedHtmlAttributeValue)attribute).Value);
-            }
-            else if (attribute is ResolvedHtmlAttributeBinding)
-            {
-                return ProcessBinding(((ResolvedHtmlAttributeBinding)attribute).Binding, typeof(object));
-            }
-            else
-            {
-                throw new NotSupportedException("Attribute type not supported.");
-            }
-        }
-
         /// <summary>
         /// Emits control class definition if wrapper is DotvvmView and returns class name
         /// </summary>
@@ -212,10 +184,6 @@ namespace DotVVM.Framework.Compilation
                 emitter.EmitSetDotvvmProperty(name, Internal.MarkupLineNumberProperty, control.DothtmlNode.Tokens.First().LineNumber);
             }
 
-            if (control.HtmlAttributes != null && control.Metadata.HasHtmlAttributesCollection)
-            {
-                ProcessHtmlAttributes(name, control.HtmlAttributes, control.DataContextTypeStack);
-            }
             return name;
         }
 

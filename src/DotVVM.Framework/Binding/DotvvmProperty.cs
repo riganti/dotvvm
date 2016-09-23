@@ -28,10 +28,10 @@ namespace DotVVM.Framework.Binding
         public string Name { get; private set; }
 
         [JsonIgnore]
-        ITypeDescriptor IPropertyDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
+        ITypeDescriptor IControlAttributeDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
 
         [JsonIgnore]
-        ITypeDescriptor IPropertyDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
+        ITypeDescriptor IControlAttributeDescriptor.PropertyType => new ResolvedTypeDescriptor(PropertyType);
 
         /// <summary>
         /// Gets the default value of the property.
@@ -174,48 +174,53 @@ namespace DotVVM.Framework.Binding
         /// Registers the specified DotVVM property.
         /// </summary>
         public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false, DotvvmProperty property = null)
-        {
-            var fullName = typeof(TDeclaringType).FullName + "." + propertyName;
-            var field = typeof (TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-            if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
+		{
+			var field = typeof(TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+			if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
 
-            if (registeredProperties.ContainsKey(fullName)) throw new ArgumentException($"Property is already registered: {fullName}");
-        
-            return registeredProperties.GetOrAdd(fullName, _ =>
-            {
-                var propertyInfo = typeof(TDeclaringType).GetProperty(propertyName);
-                var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>() 
-                    ?? field?.GetCustomAttribute<MarkupOptionsAttribute>()
-                    ?? new MarkupOptionsAttribute()
-                {
-                    AllowBinding = true,
-                    AllowHardCodedValue = true,
-                    MappingMode = MappingMode.Attribute,
-                    Name = propertyName
-                };
-                if (string.IsNullOrEmpty(markupOptions.Name))
-                {
-                    markupOptions.Name = propertyName;
-                }
+			return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), defaultValue, isValueInherited, property, field);
+		}
 
-                if (property == null) property = new DotvvmProperty();
-                property.Name = propertyName;
-                property.DefaultValue = defaultValue;
-                property.DeclaringType = typeof(TDeclaringType);
-                property.PropertyType = typeof(TPropertyType);
-                property.IsValueInherited = isValueInherited;
-                property.PropertyInfo = propertyInfo;
-                property.DataContextChangeAttributes = (propertyInfo != null ? propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) : field.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
+		public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object defaultValue, bool isValueInherited, DotvvmProperty property, MemberInfo field)
+		{
+			var fullName = declaringType.FullName + "." + propertyName;
+
+			if (registeredProperties.ContainsKey(fullName)) throw new ArgumentException($"Property is already registered: {fullName}");
+
+			return registeredProperties.GetOrAdd(fullName, _ =>
+			{
+				var propertyInfo = declaringType.GetProperty(propertyName);
+				var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
+					?? field?.GetCustomAttribute<MarkupOptionsAttribute>()
+					?? new MarkupOptionsAttribute()
+					{
+						AllowBinding = true,
+						AllowHardCodedValue = true,
+						MappingMode = MappingMode.Attribute,
+						Name = propertyName
+					};
+				if (string.IsNullOrEmpty(markupOptions.Name))
+				{
+					markupOptions.Name = propertyName;
+				}
+
+				if (property == null) property = new DotvvmProperty();
+				property.Name = propertyName;
+				property.DefaultValue = defaultValue;
+				property.DeclaringType = declaringType;
+				property.PropertyType = propertyType;
+				property.IsValueInherited = isValueInherited;
+				property.PropertyInfo = propertyInfo;
+				property.DataContextChangeAttributes = (propertyInfo != null ? propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) : field.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
 				property.DataContextManipulationAttribute = propertyInfo != null ? propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) : field.GetCustomAttribute<DataContextStackManipulationAttribute>();
 				if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{fullName}'.");
 				property.MarkupOptions = markupOptions;
-                property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
-                return property;
-            });
-        }
+				property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
+				return property;
+			});
+		}
 
-
-        public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
+		public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
             => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                where !registeredProperties.ContainsKey(p.DeclaringType.FullName + "." + p.Name)
                let markupOptions = GetVirtualPropertyMarkupOptions(p)

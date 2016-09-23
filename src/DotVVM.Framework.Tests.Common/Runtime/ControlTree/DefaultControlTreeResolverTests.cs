@@ -151,7 +151,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class=active />");
 
             var control = root.Content.First();
-            var attribute = control.HtmlAttributes["class"] as IAbstractHtmlAttributeValue;
+            var attribute = control.GetHtmlAttribute("class") as IAbstractPropertyValue;
             Assert.AreEqual("active", attribute.Value);
 
             Assert.AreEqual(root, control.Parent);
@@ -164,7 +164,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:Button class='{value: Length}' />");
 
             var control = root.Content.First();
-            var attribute = ((ResolvedHtmlAttributeBinding) control.HtmlAttributes["class"]);
+            var attribute = ((ResolvedPropertyBinding) control.GetHtmlAttribute("class"));
             Assert.IsNull(attribute.Binding.ParsingError);
             Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(attribute.Binding.ResultType));
 
@@ -364,7 +364,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:RequiredResource Name='ggg11' html:class='jshfsjhfkj'>
 ");
             var control = root.Content.First(r => r.Metadata.Name == nameof(RequiredResource));
-            Assert.AreEqual(0, control.HtmlAttributes?.Count ?? 0);
+            Assert.AreEqual(0, control.Properties.OfType<GroupedDotvvmProperty>().Where(a => a.PropertyGroup.Prefix == "").Count());
             Assert.IsTrue(((DothtmlElementNode)control.DothtmlNode).Attributes.Any(a => a.HasNodeErrors));
         }
 
@@ -415,7 +415,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <div onclick='ahoj &gt; lao' />
  ");
 			var column = root.Content.First(t => t.Metadata.Name == nameof(HtmlGenericControl));
-            var attribute = (column.HtmlAttributes["onclick"] as ResolvedHtmlAttributeValue);
+            var attribute = (column.GetHtmlAttribute("onclick") as ResolvedPropertyValue);
             Assert.AreEqual(attribute.Value, "ahoj > lao");
 		}
 

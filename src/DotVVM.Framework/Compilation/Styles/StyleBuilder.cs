@@ -5,6 +5,8 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using System.Reflection;
+using DotVVM.Framework.Compilation.ControlTree;
+using System.Linq;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -37,16 +39,22 @@ namespace DotVVM.Framework.Compilation.Styles
             return SetDotvvmProperty(GetProperty(propertyName), value);
         }
 
-        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object value)
+        public StyleBuilder<T> SetDotvvmProperty(ResolvedPropertySetter setter, bool append = true)
         {
-            style.SetProperties[property] = new ResolvedPropertyValue(property, value);
+            style.SetProperties[setter.Property] = new CompileTimeStyleBase.PropertyInsertionInfo(setter, append);
             return this;
         }
 
-        public StyleBuilder<T> SetAttribute(string attribute, object value, bool append = false)
+        public StyleBuilder<T> SetDotvvmProperty(DotvvmProperty property, object value, bool append = true) => 
+            SetDotvvmProperty(new ResolvedPropertyValue(property, value), append);
+
+        public StyleBuilder<T> SetAttribute(string attribute, object value, bool append = false) => 
+            SetPropertyGroupMember("", attribute, value, append);
+
+        public StyleBuilder<T> SetPropertyGroupMember(string prefix, string memberName, object value, bool append = true)
         {
-            style.SetHtmlAttributes[attribute] = new CompileTimeStyleBase.HtmlAttributeInsertionInfo { value = value, append = append };
-            return this;
+            var prop = PropertyGroupDescriptor.GetPropertyGroups(typeof(T)).Single(p => p.Prefix == prefix);
+            return SetDotvvmProperty(prop.GetDotvvmProperty(memberName), value, append);
         }
 
         public StyleBuilder<T> WithCondition(Func<StyleMatchContext, bool> condition)
@@ -74,8 +82,6 @@ namespace DotVVM.Framework.Compilation.Styles
         {
             public Style(bool exactTypeMatch = false, Func<StyleMatchContext, bool> matcher = null)
             {
-                SetHtmlAttributes = new Dictionary<string, HtmlAttributeInsertionInfo>();
-                SetProperties = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
                 Matcher = matcher;
                 ExactTypeMatch = exactTypeMatch;
             }
