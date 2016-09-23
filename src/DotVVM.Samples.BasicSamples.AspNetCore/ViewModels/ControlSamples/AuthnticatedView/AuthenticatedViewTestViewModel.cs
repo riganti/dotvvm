@@ -5,7 +5,7 @@ using System.Text;
 using DotVVM.Framework.ViewModel;
 using System.Security.Claims;
 using System.Threading.Tasks;
-using DotVVM.Framework.AspNetCore.Hosting;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.AuthenticatedView
 {

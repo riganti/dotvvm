@@ -2,7 +2,7 @@
 using System.Security.Claims;
 using DotVVM.Framework.ViewModel;
 using System.Threading.Tasks;
-using DotVVM.Framework.AspNetCore.Hosting;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
 {

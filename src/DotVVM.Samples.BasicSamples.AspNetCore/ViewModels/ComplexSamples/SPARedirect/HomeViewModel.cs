@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using DotVVM.Framework.AspNetCore.Hosting;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.ViewModel;
 

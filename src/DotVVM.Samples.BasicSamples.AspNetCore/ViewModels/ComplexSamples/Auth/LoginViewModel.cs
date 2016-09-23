@@ -1,6 +1,6 @@
 using System.Security.Claims;
 using System.Threading.Tasks;
-using DotVVM.Framework.AspNetCore.Hosting;
+using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth

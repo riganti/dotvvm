@@ -10,7 +10,6 @@ using DotVVM.Framework.Hosting;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using DotVVM.Framework.AspNetCore.Hosting;
 
 namespace DotVVM.Framework.Security
 {

@@ -3,7 +3,6 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Reflection;
-using DotVVM.Framework.AspNetCore.Hosting;
 using DotVVM.Framework.Hosting;
 using Microsoft.Owin;
 
