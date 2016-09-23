@@ -23,11 +23,6 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         string CsrfToken { get; set; }
 
-        /// <summary>
-        /// WORKAROUND: .NET for some reason resets CurrentCulture when exited viewModel method, this is changing it back
-        /// </summary>
-        void ResetCulture();
-
         JObject ReceivedViewModelJson { get; set; }
       
 
@@ -122,10 +117,15 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         string ResultIdFragment { get; set; }
 
-		/// <summary>
-		/// Changes the current culture of this HTTP request.
-		/// </summary>
-		void ChangeCurrentCulture(string cultureName);
+        /// <summary>
+        /// Changes the current culture of this HTTP request.
+        /// </summary>
+        void ChangeCurrentCulture(string cultureName);
+
+        /// <summary>
+        /// Changes the current culture of this HTTP request.
+        /// </summary>
+        void ChangeCurrentCulture(string cultureName, string uiCultureName);
 
         /// <summary>
         /// Returns current UI culture of this HTTP request.

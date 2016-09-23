@@ -152,20 +152,21 @@ namespace DotVVM.Framework.Hosting
             ModelState = new ModelState();
             PostBackUpdatedControls = new Dictionary<string, string>();
         }
-        private CultureInfo currentCulture;
+
         /// <summary>
         /// Changes the current culture of this HTTP request.
         /// </summary>
         public void ChangeCurrentCulture(string cultureName)
-        {
-            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = currentCulture = new CultureInfo(cultureName);
-        }
+            => ChangeCurrentCulture(cultureName, cultureName);
+
         /// <summary>
-        /// WORKAROUND: .NET for some reason resets CurrentCulture when exited viewModel method, this is changing it back
+        /// Changes the current culture of this HTTP request.
         /// </summary>
-        public void ResetCulture()
+        public void ChangeCurrentCulture(string cultureName, string uiCultureName)
         {
-            if (currentCulture != null) CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = currentCulture;
+            // TODO: document ASP.NET Core behavior
+            CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+            CultureInfo.CurrentUICulture = new CultureInfo(uiCultureName);
         }
 
         /// <summary>

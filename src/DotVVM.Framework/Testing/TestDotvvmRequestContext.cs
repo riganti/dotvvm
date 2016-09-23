@@ -16,10 +16,6 @@ namespace DotVVM.Framework.Testing
     {
         public IHttpContext HttpContext { get; set; }
         public string CsrfToken { get; set; }
-        public void ResetCulture()
-        {
-            throw new NotImplementedException();
-        }
 
         public JObject ReceivedViewModelJson { get; set; }
         public string GetSpaContentPlaceHolderUniqueId()
@@ -49,8 +45,12 @@ namespace DotVVM.Framework.Testing
         public DotvvmView View { get; set; }
 
         public void ChangeCurrentCulture(string cultureName)
+            => ChangeCurrentCulture(cultureName, cultureName);
+
+        public void ChangeCurrentCulture(string cultureName, string uiCultureName)
         {
-            CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = new CultureInfo(cultureName);
+            CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+            CultureInfo.CurrentUICulture = new CultureInfo(uiCultureName);
         }
 
         public CultureInfo GetCurrentUICulture()

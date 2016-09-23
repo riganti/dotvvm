@@ -7,6 +7,7 @@ using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -43,7 +44,13 @@ namespace DotVVM.Framework.Hosting
             // create the context
             var dotvvmContext = CreateDotvvmContext(context);
             context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
-            dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
+
+            var requestCultureFeature = context.Features.Get<IRequestCultureFeature>();
+
+            if (requestCultureFeature == null)
+            {
+                dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
+            }
 
             foreach (var middleware in middlewares)
             {
