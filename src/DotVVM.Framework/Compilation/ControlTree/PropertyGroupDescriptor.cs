@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         IPropertyDescriptor IPropertyGroupDescriptor.GetDotvvmProperty(string name) => GetDotvvmProperty(name);
         public DotvvmProperty GetDotvvmProperty(string name)
         {
-            return generatedProperties.GetOrAdd(name, n => GroupedDotvvmProperty.Register(this, name));
+            return generatedProperties.GetOrAdd(name, n => GroupedDotvvmProperty.Create(this, name));
         }
 
         public static Tuple<Type, MethodBase> GetValueType(Type declaringType)

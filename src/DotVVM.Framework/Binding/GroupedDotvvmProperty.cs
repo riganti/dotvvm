@@ -13,20 +13,22 @@ namespace DotVVM.Framework.Binding
         public PropertyGroupDescriptor PropertyGroup { get; private set; }
         public string GroupMemberName { get; private set; }
 
-        private static object registerLock = new object();
-        public static GroupedDotvvmProperty Register(PropertyGroupDescriptor group, string name)
+        public static GroupedDotvvmProperty Create(PropertyGroupDescriptor group, string name)
         {
-            GroupedDotvvmProperty prop;
-            lock (registerLock)
+            var propname = group.PropertyName + ":" + name;
+            var prop = new GroupedDotvvmProperty
             {
-                var propname = group.PropertyName + ":" + name;
-                if ((prop = DotvvmProperty.ResolveProperty(group.DeclaringType.Name + "." + propname) as GroupedDotvvmProperty) == null)
-                {
-                    prop = new GroupedDotvvmProperty { PropertyGroup = group, GroupMemberName = name };
-                    if (group.PropertyGroupMode == PropertyGroupMode.ValueCollection) prop.IsVirtual = true;
-                    DotvvmProperty.Register(propname, group.PropertyType, group.DeclaringType, group.DefaultValue, false, prop, (MemberInfo)group.DescriptorField ?? group.PropertyInfo);
-                }
-            }
+                PropertyGroup = group,
+                GroupMemberName = name,
+                PropertyType = group.PropertyType,
+                DeclaringType = group.DeclaringType,
+                DefaultValue = group.DefaultValue,
+                IsValueInherited = false,
+                Name = propname
+            };
+            if (group.PropertyGroupMode == PropertyGroupMode.ValueCollection) prop.IsVirtual = true;
+
+            DotvvmProperty.InitializeProperty(prop, (MemberInfo)group.DescriptorField ?? group.PropertyInfo);
             return prop;
         }
     }

@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets or sets the name of the property.
         /// </summary>
-        public string Name { get; private set; }
+        public string Name { get; protected set; }
 
         [JsonIgnore]
         ITypeDescriptor IControlAttributeDescriptor.DeclaringType => new ResolvedTypeDescriptor(DeclaringType);
@@ -36,22 +36,22 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets the default value of the property.
         /// </summary>
-        public object DefaultValue { get; private set; }
+        public object DefaultValue { get; protected set; }
 
         /// <summary>
         /// Gets the type of the property.
         /// </summary>
-        public Type PropertyType { get; private set; }
+        public Type PropertyType { get; protected set; }
 
         /// <summary>
         /// Gets the type of the class where the property is registered.
         /// </summary>
-        public Type DeclaringType { get; private set; }
+        public Type DeclaringType { get; protected set; }
 
         /// <summary>
         /// Gets whether the value can be inherited from the parent controls.
         /// </summary>
-        public bool IsValueInherited { get; private set; }
+        public bool IsValueInherited { get; protected set; }
 
         /// <summary>
         /// Gets or sets the Reflection property information.
@@ -93,8 +93,8 @@ namespace DotVVM.Framework.Binding
         [JsonIgnore]
         public DataContextChangeAttribute[] DataContextChangeAttributes { get; private set; }
 
-		[JsonIgnore]
-		public DataContextStackManipulationAttribute DataContextManipulationAttribute { get; private set; }
+        [JsonIgnore]
+        public DataContextStackManipulationAttribute DataContextManipulationAttribute { get; private set; }
 
         /// <summary>
         /// Prevents a default instance of the <see cref="DotvvmProperty"/> class from being created.
@@ -174,53 +174,60 @@ namespace DotVVM.Framework.Binding
         /// Registers the specified DotVVM property.
         /// </summary>
         public static DotvvmProperty Register<TPropertyType, TDeclaringType>(string propertyName, TPropertyType defaultValue = default(TPropertyType), bool isValueInherited = false, DotvvmProperty property = null)
-		{
-			var field = typeof(TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
-			if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
+        {
+            var field = typeof(TDeclaringType).GetField(propertyName + "Property", BindingFlags.Static | BindingFlags.Public | BindingFlags.NonPublic);
+            if (field == null) throw new ArgumentException($"'{typeof(TDeclaringType).Name}' does not contain static field '{propertyName}Property'.");
 
-			return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), defaultValue, isValueInherited, property, field);
-		}
+            return Register(propertyName, typeof(TPropertyType), typeof(TDeclaringType), defaultValue, isValueInherited, property, field);
+        }
 
-		public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object defaultValue, bool isValueInherited, DotvvmProperty property, MemberInfo field)
-		{
-			var fullName = declaringType.FullName + "." + propertyName;
+        public static DotvvmProperty Register(string propertyName, Type propertyType, Type declaringType, object defaultValue, bool isValueInherited, DotvvmProperty property, ICustomAttributeProvider attributeProvider)
+        {
+            var fullName = declaringType.FullName + "." + propertyName;
 
-			if (registeredProperties.ContainsKey(fullName)) throw new ArgumentException($"Property is already registered: {fullName}");
+            if (property == null) property = new DotvvmProperty();
 
-			return registeredProperties.GetOrAdd(fullName, _ =>
-			{
-				var propertyInfo = declaringType.GetProperty(propertyName);
-				var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
-					?? field?.GetCustomAttribute<MarkupOptionsAttribute>()
-					?? new MarkupOptionsAttribute()
-					{
-						AllowBinding = true,
-						AllowHardCodedValue = true,
-						MappingMode = MappingMode.Attribute,
-						Name = propertyName
-					};
-				if (string.IsNullOrEmpty(markupOptions.Name))
-				{
-					markupOptions.Name = propertyName;
-				}
+            property.Name = propertyName;
+            property.IsValueInherited = isValueInherited;
+            property.DeclaringType = declaringType;
+            property.PropertyType = propertyType;
+            property.DefaultValue = defaultValue;
 
-				if (property == null) property = new DotvvmProperty();
-				property.Name = propertyName;
-				property.DefaultValue = defaultValue;
-				property.DeclaringType = declaringType;
-				property.PropertyType = propertyType;
-				property.IsValueInherited = isValueInherited;
-				property.PropertyInfo = propertyInfo;
-				property.DataContextChangeAttributes = (propertyInfo != null ? propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) : field.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
-				property.DataContextManipulationAttribute = propertyInfo != null ? propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) : field.GetCustomAttribute<DataContextStackManipulationAttribute>();
-				if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{fullName}'.");
-				property.MarkupOptions = markupOptions;
-				property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
-				return property;
-			});
-		}
+            InitializeProperty(property, attributeProvider);
 
-		public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
+            if (!registeredProperties.TryAdd(property.DeclaringType.FullName + "." + property.Name, property)) throw new ArgumentException($"Property is already registered: {fullName}");
+
+            return property;
+        }
+
+        public static void InitializeProperty(DotvvmProperty property, ICustomAttributeProvider attributeProvider)
+        {
+            var propertyInfo = property.DeclaringType.GetProperty(property.Name);
+            var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
+                ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
+                ?? new MarkupOptionsAttribute()
+                {
+                    AllowBinding = true,
+                    AllowHardCodedValue = true,
+                    MappingMode = MappingMode.Attribute,
+                    Name = property.Name
+                };
+            if (string.IsNullOrEmpty(markupOptions.Name)) markupOptions.Name = property.Name;
+
+            if (property == null) property = new DotvvmProperty();
+            property.PropertyInfo = propertyInfo;
+            property.DataContextChangeAttributes = (propertyInfo != null ?
+                propertyInfo.GetCustomAttributes<DataContextChangeAttribute>(true) :
+                attributeProvider.GetCustomAttributes<DataContextChangeAttribute>()).ToArray();
+            property.DataContextManipulationAttribute = propertyInfo != null ?
+                propertyInfo.GetCustomAttribute<DataContextStackManipulationAttribute>(true) :
+                attributeProvider.GetCustomAttribute<DataContextStackManipulationAttribute>();
+            if (property.DataContextManipulationAttribute != null && property.DataContextChangeAttributes.Any()) throw new ArgumentException($"{nameof(DataContextChangeAttributes)} and {nameof(DataContextManipulationAttribute)} can not be set both at property '{property.FullName}'.");
+            property.MarkupOptions = markupOptions;
+            property.IsBindingProperty = typeof(IBinding).IsAssignableFrom(property.PropertyType);
+        }
+
+        public static IEnumerable<DotvvmProperty> GetVirtualProperties(Type controlType)
             => from p in controlType.GetProperties(BindingFlags.Public | BindingFlags.Instance)
                where !registeredProperties.ContainsKey(p.DeclaringType.FullName + "." + p.Name)
                let markupOptions = GetVirtualPropertyMarkupOptions(p)
@@ -268,7 +275,7 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public static DotvvmProperty ResolveProperty(string fullName, bool caseSensitive = true)
         {
-            return registeredProperties.Values.LastOrDefault(p => 
+            return registeredProperties.Values.LastOrDefault(p =>
                 p.FullName.Equals(fullName, caseSensitive ? StringComparison.Ordinal : StringComparison.OrdinalIgnoreCase));
         }
 
