@@ -1,9 +1,5 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using DotVVM.Framework.ViewModel;
 using System.Threading.Tasks;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization
 {
@@ -11,7 +7,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization
     {
         public override Task Init()
         {
-            if (Context.Query.ContainsKey("lang") && Context.Query["lang"] as string == "cs-CZ")
+            if (Context.Query.ContainsKey("lang") && Context.Query["lang"] == "cs-CZ")
             {
                 Context.ChangeCurrentCulture("cs-CZ");
             }
@@ -21,11 +17,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization
             }
 
             return base.Init();
-        }
-
-        public override Task Load()
-        {
-            return base.Load();
         }
     }
 }

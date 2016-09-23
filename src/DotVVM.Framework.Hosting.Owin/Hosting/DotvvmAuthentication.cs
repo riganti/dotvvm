@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public static void ApplyRedirect(IOwinContext context, string redirectUri)
         {
-            if (context.Response.StatusCode == 401)
+            if (context.Response.StatusCode == (int)HttpStatusCode.Unauthorized)
             {
                 DotvvmRequestContext.SetRedirectResponse(DotvvmMiddleware.ConvertHttpContext(context), redirectUri, (int)HttpStatusCode.Redirect, true);
             }

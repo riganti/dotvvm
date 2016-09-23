@@ -1,18 +1,12 @@
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.ResourceManagement;
-using System.Collections.Concurrent;
-using System.Threading;
-using DotVVM.Framework.Hosting.ErrorPages;
 using DotVVM.Framework.Hosting.Middlewares;
-using DotVVM.Framework.Runtime;
-using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.ViewModel.Serialization;
 using Microsoft.AspNetCore.Http;
-using DotVVM.Framework.Routing;
 
 namespace DotVVM.Framework.Hosting
 {
@@ -22,10 +16,13 @@ namespace DotVVM.Framework.Hosting
     public class DotvvmMiddleware : DotvvmMiddlewareBase
     {
         public readonly DotvvmConfiguration Configuration;
+        private readonly IList<IMiddleware> middlewares;
+        private readonly RequestDelegate next;
 
+        private int configurationSaved;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="DotvvmMiddleware"/> class.
+        /// Initializes a new instance of the <see cref="DotvvmMiddleware" /> class.
         /// </summary>
         public DotvvmMiddleware(RequestDelegate next, DotvvmConfiguration configuration, IList<IMiddleware> middlewares)
         {
@@ -33,10 +30,6 @@ namespace DotVVM.Framework.Hosting
             Configuration = configuration;
             this.middlewares = middlewares;
         }
-
-        private int configurationSaved = 0;
-        private readonly RequestDelegate next;
-        private readonly IList<IMiddleware> middlewares;
 
         /// <summary>
         /// Process an individual request.
@@ -50,6 +43,7 @@ namespace DotVVM.Framework.Hosting
             // create the context
             var dotvvmContext = CreateDotvvmContext(context);
             context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
+            dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
 
             foreach (var middleware in middlewares)
             {
@@ -59,19 +53,17 @@ namespace DotVVM.Framework.Hosting
             await next(context);
         }
 
-
         public static IHttpContext ConvertHttpContext(HttpContext context)
         {
             var httpContext = context.Features.Get<IHttpContext>();
             if (httpContext == null)
             {
-                httpContext = new DotvvmHttpContext(context)
-                {
+                httpContext = new DotvvmHttpContext(context) {
                     Response = new DotvvmHttpResponse(
                         context.Response,
                         httpContext,
                         new DotvvmHeaderCollection(context.Response.Headers)
-                        ),
+                    ),
                     Request = new DotvvmHttpRequest(
                         context.Request,
                         httpContext,
@@ -80,7 +72,7 @@ namespace DotVVM.Framework.Hosting
                         new DotvvmQueryCollection(context.Request.Query),
                         new DotvvmHeaderCollection(context.Request.Headers),
                         new DotvvmCookieCollection(context.Request.Cookies)
-                        )
+                    )
                 };
 
                 context.Features.Set(httpContext);
@@ -90,12 +82,11 @@ namespace DotVVM.Framework.Hosting
 
         protected DotvvmRequestContext CreateDotvvmContext(HttpContext context)
         {
-            return new DotvvmRequestContext()
-            {
+            return new DotvvmRequestContext {
                 HttpContext = ConvertHttpContext(context),
                 Configuration = Configuration,
                 ResourceManager = new ResourceManager(Configuration),
-                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>(),
+                ViewModelSerializer = Configuration.ServiceLocator.GetService<IViewModelSerializer>()
             };
         }
 
