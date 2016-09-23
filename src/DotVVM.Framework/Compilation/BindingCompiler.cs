@@ -150,7 +150,7 @@ namespace DotVVM.Framework.Compilation
             return SyntaxFactory.ElementAccessExpression(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.ParseTypeName(typeof(BindingCompiler).FullName),
+                    SyntaxFactory.ParseTypeName($"global::{typeof(BindingCompiler).FullName}"),
                     SyntaxFactory.IdentifierName(nameof(GlobalBindingList))
                 ),
                 SyntaxFactory.BracketedArgumentList(

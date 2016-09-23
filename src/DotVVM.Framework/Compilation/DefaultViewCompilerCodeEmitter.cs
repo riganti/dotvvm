@@ -337,7 +337,7 @@ namespace DotVVM.Framework.Compilation
                     fieldName = $"_staticCachedGroupProperty_{cachedGroupedDotvvmProperties.Count}";
                     cachedGroupedDotvvmProperties.Add(gprop, fieldName);
                     otherDeclarations.Add(SyntaxFactory.FieldDeclaration(
-                        SyntaxFactory.VariableDeclaration(SyntaxFactory.ParseTypeName(typeof(DotvvmProperty).FullName),
+                        SyntaxFactory.VariableDeclaration(ParseTypeName(typeof(DotvvmProperty)),
                             SyntaxFactory.SingletonSeparatedList(
                                 SyntaxFactory.VariableDeclarator(fieldName)
                                 .WithInitializer(SyntaxFactory.EqualsValueClause(
@@ -357,12 +357,13 @@ namespace DotVVM.Framework.Compilation
             }
             else
             {
-                return SyntaxFactory.ParseName(property.DescriptorFullName);
+                return SyntaxFactory.ParseName($"global::{property.DescriptorFullName}");
             }
         }
 
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
             EmitSetDotvvmProperty(controlName, property, EmitValue(value));
+
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
             UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
@@ -686,14 +687,14 @@ namespace DotVVM.Framework.Compilation
             }
             else if (!type.GetTypeInfo().IsGenericType)
             {
-                return SyntaxFactory.ParseTypeName(type.FullName.Replace('+', '.'));
+                return SyntaxFactory.ParseTypeName($"global::{type.FullName.Replace('+', '.')}");
             }
             else
             {
                 var fullName = type.GetGenericTypeDefinition().FullName;
                 if (fullName.Contains("`"))
                 {
-                    fullName = fullName.Substring(0, fullName.IndexOf("`"));
+                    fullName = fullName.Substring(0, fullName.IndexOf("`", StringComparison.Ordinal));
                 }
 
                 var parts = fullName.Split('.');
@@ -747,7 +748,7 @@ namespace DotVVM.Framework.Compilation
                                 ))
                                 .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
                                         SyntaxFactory.Attribute(
-                                            SyntaxFactory.ParseName(typeof(LoadControlBuilderAttribute).FullName),
+                                            SyntaxFactory.ParseName($"global::{typeof(LoadControlBuilderAttribute).FullName}"),
                                             SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
                                                 SyntaxFactory.AttributeArgument(EmitStringLiteral(fileName))
                                             }))
