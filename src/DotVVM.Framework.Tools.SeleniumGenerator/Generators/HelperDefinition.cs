@@ -11,6 +11,8 @@ namespace DotVVM.Framework.Tools.SeleniumGenerator.Generators
 
         public string Name { get; set; }
 
+        public HashSet<string> UsedNames { get; } = new HashSet<string>();
+        
         public List<MemberDeclarationSyntax> Members { get; } = new List<MemberDeclarationSyntax>();
 
         public List<StatementSyntax> ConstructorStatements { get; } = new List<StatementSyntax>();

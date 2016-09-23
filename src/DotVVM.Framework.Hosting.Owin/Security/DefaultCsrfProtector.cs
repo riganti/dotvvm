@@ -9,7 +9,6 @@ using DotVVM.Framework.Configuration;
 using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Hosting;
 using Microsoft.Owin.Security.DataProtection;
-using DotVVM.Framework.AspNetCore.Hosting;
 
 namespace DotVVM.Framework.Security
 {

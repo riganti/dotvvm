@@ -18,14 +18,10 @@ namespace DotVVM.Framework.Testing.SeleniumHelpers.Proxies
 
         protected IWebElement FindElement()
         {
-            return Helper.WebDriver.FindElement(UITestSelector(Selector));
+            var selector = Helper.BuildElementSelector(Selector);
+            return Helper.WebDriver.FindElement(By.CssSelector(selector));
         }
 
-        private By UITestSelector(string selector)
-        {
-            var css = string.Join(" ", selector.Split(' ').Select(p => $"[data-uitest-name={p}]"));
-            return By.CssSelector(css);
-        }
     }
     
 }

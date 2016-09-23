@@ -1,4 +1,6 @@
 using System;
+using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
@@ -8,6 +10,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -30,6 +33,11 @@ namespace DotVVM.Samples.BasicSamples
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
         {
+            var supportedCultures = new[] {
+                new CultureInfo("en-US"),
+                new CultureInfo("cs-CZ")
+            };
+
             app.UseCookieAuthentication(new CookieAuthenticationOptions {
                 LoginPath = new PathString("/ComplexSamples/Auth/Login"),
                 AuthenticationScheme = "Scheme1",
@@ -52,6 +60,15 @@ namespace DotVVM.Samples.BasicSamples
             });
             app.UseCookieAuthentication(new CookieAuthenticationOptions {
                 AuthenticationScheme = "Scheme3"
+            });
+
+            app.UseRequestLocalization(new RequestLocalizationOptions {
+                DefaultRequestCulture = new RequestCulture("en-US"),
+                SupportedCultures = supportedCultures,
+                SupportedUICultures = supportedCultures,
+                RequestCultureProviders = new List<IRequestCultureProvider> {
+                    new QueryStringRequestCultureProvider { QueryStringKey = "lang" }
+                }
             });
 
             var applicationPhysicalPath = Path.Combine(Path.GetDirectoryName(env.ContentRootPath), "DotVVM.Samples.Common");
