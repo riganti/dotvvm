@@ -13,6 +13,8 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Utils;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -86,22 +88,22 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(textBinding, textBinding.Binding.Parent);
         }
 
-		[TestMethod]
-		public void ResolvedTree_SingleControlWithBinding_BindingError_MissingViewModelDirectiveThisId()
-		{
-			var root = ParseSource(@"<dot:Button Text='{value: _this.Test}' />");
+        [TestMethod]
+        public void ResolvedTree_SingleControlWithBinding_BindingError_MissingViewModelDirectiveThisId()
+        {
+            var root = ParseSource(@"<dot:Button Text='{value: _this.Test}' />");
 
-			var control = root.Content.First();
-			var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-			Assert.IsNotNull(textBinding.Binding.ParsingError);
-			Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Type of '_this' could not be resolved."));
+            var control = root.Content.First();
+            var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
+            Assert.IsNotNull(textBinding.Binding.ParsingError);
+            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Type of '_this' could not be resolved."));
 
-			Assert.AreEqual(root, control.Parent);
-			Assert.AreEqual(control, textBinding.Parent);
-			Assert.AreEqual(textBinding, textBinding.Binding.Parent);
-		}
+            Assert.AreEqual(root, control.Parent);
+            Assert.AreEqual(control, textBinding.Parent);
+            Assert.AreEqual(textBinding, textBinding.Binding.Parent);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public void ResolvedTree_SingleControlWithBinding_ValidBinding_UnknownViewModel()
         {
             var root = ParseSource(@"@viewModel invalid
@@ -117,18 +119,18 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(textBinding, textBinding.Binding.Parent);
         }
 
-		[TestMethod]
-		public void ResolvedTree_SingleControlWithBinding_ValidBinding_UnknownViewModelInKnownOne()
-		{
-			var root = ParseSource(@"@viewModel System.String
+        [TestMethod]
+        public void ResolvedTree_SingleControlWithBinding_ValidBinding_UnknownViewModelInKnownOne()
+        {
+            var root = ParseSource(@"@viewModel System.String
 <dot:Repeater DataSource='{value: inkaalid}'><dot:Button Text='{value: _parent.Substring(0, 3)}' /></dot:Repeater>");
 
-			var control = root.Content.First().Properties.Values.OfType<ResolvedPropertyTemplate>().First().Content.First();
-			var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-			Assert.IsNull(textBinding.Binding.ParsingError);
-		}
+            var control = root.Content.First().Properties.Values.OfType<ResolvedPropertyTemplate>().First().Content.First();
+            var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
+            Assert.IsNull(textBinding.Binding.ParsingError);
+        }
 
-		[TestMethod]
+        [TestMethod]
         public void ResolvedTree_SingleControlWithBinding_ValidBinding()
         {
             var root = ParseSource(@"@viewModel System.String, mscorlib
@@ -408,16 +410,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsTrue(template.Any(n => n.DothtmlNode is DothtmlElementNode && n.Metadata.Name == "Literal"));
         }
 
-		[TestMethod]
-		public void ResolvedTree_UnescapedAttributeValue()
-		{
-			var root = ParseSource(@"
+        [TestMethod]
+        public void ResolvedTree_UnescapedAttributeValue()
+        {
+            var root = ParseSource(@"
 <div onclick='ahoj &gt; lao' />
  ");
-			var column = root.Content.First(t => t.Metadata.Name == nameof(HtmlGenericControl));
+            var column = root.Content.First(t => t.Metadata.Name == nameof(HtmlGenericControl));
             var attribute = (column.GetHtmlAttribute("onclick") as ResolvedPropertyValue);
             Assert.AreEqual(attribute.Value, "ahoj > lao");
-		}
+        }
 
         [TestMethod]
         public void ResolvedTree_ImplicitBooleanValue()
@@ -430,6 +432,66 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsFalse(checkBox.DothtmlNode.HasNodeErrors, checkBox.DothtmlNode.NodeErrors.FirstOrDefault());
             Assert.AreEqual(true, (checkBox.Properties.FirstOrDefault(p => p.Key.Name == nameof(CheckBox.Checked)).Value as ResolvedPropertyValue)?.Value);
         }
+
+        [TestMethod]
+        public void ResolvedTree_MergedAttributeValues()
+        {
+            var root = ParseSource(@"
+@viewModel System.Object
+<div class='a' class='b' />");
+            var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
+            Assert.AreEqual("a b", value.CastTo<ResolvedPropertyValue>().Value);
+        }
+
+
+        [TestMethod]
+        public void ResolvedTree_MergedAttributeValueAndBinding()
+        {
+            var root = ParseSource(@"
+@viewModel System.String
+<div class='a' class='{value: _this}' />");
+            var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
+            Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
+            Assert.AreEqual(expression.Method.Name, "Concat");
+            Assert.AreEqual(3, expression.Arguments.Count);
+            Assert.AreEqual("a", expression.Arguments[0].CastTo<ConstantExpression>().Value);
+            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
+            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_MergedAttributeValueAndResourceBinding()
+        {
+            var root = ParseSource(@"
+@viewModel System.String
+<div class='a' class='{resource: _this}' />");
+            var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
+            Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
+            Assert.AreEqual(expression.Method.Name, "Concat");
+            Assert.AreEqual(3, expression.Arguments.Count);
+            Assert.AreEqual("a", expression.Arguments[0].CastTo<ConstantExpression>().Value);
+            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
+            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_MergedAttributeBindings()
+        {
+            var root = ParseSource(@"
+@viewModel System.String
+<div class='{value: _this}' class='{value: _this}' />");
+            var value = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("class");
+            Assert.IsInstanceOfType(value, typeof(ResolvedPropertyBinding));
+            var expression = value.CastTo<ResolvedPropertyBinding>().Binding.GetExpression().CastTo<MethodCallExpression>();
+            Assert.AreEqual(expression.Method.Name, "Concat");
+            Assert.AreEqual(3, expression.Arguments.Count);
+            Assert.AreEqual("_this", expression.Arguments[0].CastTo<ParameterExpression>().Name);
+            Assert.AreEqual(" ", expression.Arguments[1].CastTo<ConstantExpression>().Value);
+            Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
+        }
+
 
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {

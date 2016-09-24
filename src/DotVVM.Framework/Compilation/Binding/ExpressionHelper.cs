@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 throw new Exception("Can not access member on method group.");
 
             var type = target.Type;
-			if (type == typeof(UnknownTypeSentinel)) if (throwExceptions) throw new Exception($"Type of '{target}' could not be resolved."); else return null;
+            if (type == typeof(UnknownTypeSentinel)) if (throwExceptions) throw new Exception($"Type of '{target}' could not be resolved."); else return null;
 
             var isStatic = target is StaticClassIdentifierExpression;
 
@@ -297,7 +297,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return indexProp[0];
         }
 
-        private static IEnumerable<CSharpArgumentInfo> GetBinderArguments(int count)
+        public static IEnumerable<CSharpArgumentInfo> GetBinderArguments(int count)
         {
             var arr = new CSharpArgumentInfo[count];
             for (int i = 0; i < count; i++)
@@ -307,7 +307,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return arr;
         }
 
-        private static Expression ApplyBinder(DynamicMetaObjectBinder binder, bool throwException, params Expression[] expressions)
+        public static Expression ApplyBinder(DynamicMetaObjectBinder binder, bool throwException, params Expression[] expressions)
         {
             var result = binder.Bind(DynamicMetaObject.Create(null, expressions[0]),
                 expressions.Skip(1).Select(e =>
@@ -331,6 +331,6 @@ namespace DotVVM.Framework.Compilation.Binding
             return result.Expression;
         }
 
-		public sealed class UnknownTypeSentinel { }
-	}
+        public sealed class UnknownTypeSentinel { }
+    }
 }

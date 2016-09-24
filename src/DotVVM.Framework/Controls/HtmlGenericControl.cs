@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Controls
 {
@@ -23,7 +24,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the attributes.
         /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true)]
+        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger))]
         [PropertyGroup("")]
         public Dictionary<string, object> Attributes { get; private set; }
 

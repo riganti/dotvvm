@@ -1,4 +1,5 @@
 ﻿using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,8 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Compilation
 {
-	public interface IAttributeValueMerger
-	{
-		IAbstractPropertySetter MergeValues(IAbstractPropertySetter a, IAbstractPropertySetter b, out string error);
-	}
+    public interface IAttributeValueMerger
+    {
+        ResolvedPropertySetter MergeValues(ResolvedPropertySetter a, ResolvedPropertySetter b, out string error);
+    }
 }
