@@ -208,6 +208,7 @@
     <Compile Include="ViewModels\FeatureSamples\Directives\ImportDirectiveInvalidViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Directives\ImportDirectiveViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\Directives\ViewModelMissingAssemblyViewModel.cs" />
+    <Compile Include="ViewModels\FeatureSamples\Localization\Localizatin_Control_PageViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatingViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyUpdatedByServerViewModel.cs" />
     <Compile Include="ViewModels\FeatureSamples\MarkupControl\ControlPropertyValidationPageViewModel.cs" />
@@ -449,6 +450,8 @@
     <Content Include="Views\ComplexSamples\SPA\site.dotmaster" />
     <Content Include="Views\ComplexSamples\SPA\default.dothtml" />
     <Content Include="Views\ComplexSamples\SPA\test.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localizatin_Control_Page.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_Control.dotcontrol" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
     <Content Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />

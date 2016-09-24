@@ -61,6 +61,24 @@ namespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Localized label for checkbox inside control.
+        /// </summary>
+        public static string LocalizedResourceInControl_CheckBox {
+            get {
+                return ResourceManager.GetString("LocalizedResourceInControl_CheckBox", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to Localized label for literal inside control .
+        /// </summary>
+        public static string LocalizedResourceInControl_Literal {
+            get {
+                return ResourceManager.GetString("LocalizedResourceInControl_Literal", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Nested page title.
         /// </summary>
         public static string NestedPageTitle {

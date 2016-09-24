@@ -10,7 +10,7 @@
 		
 		<p ID="localized-text">{{resource: DefaultDirectiveLocalization}}</p>
 		<p>&nbsp;</p>
-
+        
 		<h3>Switch Language</h3>
 		<ul>
 			<li><a href="Localization_DefaultDirective">English</a></li>
