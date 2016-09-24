@@ -15,8 +15,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
         private readonly Lazy<Dictionary<string, IPropertyDescriptor>> properties;
         public IReadOnlyDictionary<string, IPropertyDescriptor> Properties => properties.Value;
 
-        private readonly Lazy<List<IPropertyGroupDescriptor>> _propertyGroups;
-        public IReadOnlyList<IPropertyGroupDescriptor> PropertyGroups => _propertyGroups.Value;
+        private readonly Lazy<List<PropertyGroupMatcher>> _propertyGroups;
+        public IReadOnlyList<PropertyGroupMatcher> PropertyGroups => _propertyGroups.Value;
 
 
         public string Namespace => controlType.Type.Namespace;
@@ -80,9 +80,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 LoadProperties(result);
                 return result;
             });
-            this._propertyGroups = new Lazy<List<IPropertyGroupDescriptor>>(() =>
+            this._propertyGroups = new Lazy<List<PropertyGroupMatcher>>(() =>
             {
-                var propertyGroups = new List<IPropertyGroupDescriptor>();
+                var propertyGroups = new List<PropertyGroupMatcher>();
                 LoadPropertyGroups(propertyGroups);
                 return propertyGroups;
             });
@@ -90,6 +90,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         protected abstract void LoadProperties(Dictionary<string, IPropertyDescriptor> result);
 
-        protected abstract void LoadPropertyGroups(List<IPropertyGroupDescriptor> result);
+        protected abstract void LoadPropertyGroups(List<PropertyGroupMatcher> result);
     }
 }

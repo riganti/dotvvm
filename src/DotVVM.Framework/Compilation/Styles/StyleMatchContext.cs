@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public bool HasPropertyGroupMember(string prefix, string memberName)
         {
-            var prop = Control.Metadata.PropertyGroups.FirstOrDefault(p => p.Prefix == prefix);
+            var prop = Control.Metadata.PropertyGroups.FirstOrDefault(p => p.Prefix == prefix).PropertyGroup;
             return prop != null && HasProperty((DotvvmProperty)prop.GetDotvvmProperty(memberName));
         }
 

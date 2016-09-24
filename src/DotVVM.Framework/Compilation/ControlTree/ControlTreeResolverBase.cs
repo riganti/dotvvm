@@ -384,36 +384,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private void ProcessAttribute(DothtmlAttributeNode attribute, IAbstractControl control, IDataContextStack dataContext)
         {
-            //T+ html: prefix
-            //if (attribute.AttributePrefix == "html")
-            //{
-            //    if (!control.Metadata.HasHtmlAttributesCollection)
-            //    {
-            //        attribute.AddError($"The control '{control.Metadata.Type.FullName}' cannot use HTML attributes!");
-            //    }
-            //    else
-            //    {
-            //        try
-            //        {
-            //            treeBuilder.SetHtmlAttribute(control, ProcessAttributeValue(attribute, dataContext));
-            //        }
-            //        catch (NotSupportedException ex)
-            //        {
-            //            if (ex.InnerException == null) throw;
-            //            else attribute.AddError(ex.Message);
-            //        }
-            //    }
-            //    return;
-            //}
-
-            //if (!string.IsNullOrEmpty(attribute.AttributePrefix))
-            //{
-            //    attribute.AddError("Attributes with XML namespaces are not supported!");
-            //    return;
-            //}
+            var name = attribute.AttributePrefix == null ? attribute.AttributeName : attribute.AttributePrefix + ":" + attribute.AttributeName;
 
             // find the property
-            var property = FindProperty(control.Metadata, attribute.AttributeName);
+            var property = FindProperty(control.Metadata, name);
             if (property != null)
             {
                 if (control.HasProperty(property)) attribute.AttributeNameNode.AddError($"control '{ ((DothtmlElementNode)control.DothtmlNode).FullTagName }' already has property '{ attribute.AttributeName }'.");
@@ -736,7 +710,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase))
                 {
                     var concreteName = name.Substring(group.Prefix.Length);
-                    return group.GetDotvvmProperty(concreteName);
+                    return group.PropertyGroup.GetDotvvmProperty(concreteName);
                 }
             }
 

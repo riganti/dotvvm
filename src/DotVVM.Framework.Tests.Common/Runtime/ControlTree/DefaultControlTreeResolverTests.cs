@@ -366,7 +366,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 <dot:RequiredResource Name='ggg11' html:class='jshfsjhfkj'>
 ");
             var control = root.Content.First(r => r.Metadata.Name == nameof(RequiredResource));
-            Assert.AreEqual(0, control.Properties.OfType<GroupedDotvvmProperty>().Where(a => a.PropertyGroup.Prefix == "").Count());
+            Assert.AreEqual(0, control.Properties.OfType<GroupedDotvvmProperty>().Where(a => a.PropertyGroup.Prefixes.Contains("")).Count());
             Assert.IsTrue(((DothtmlElementNode)control.DothtmlNode).Attributes.Any(a => a.HasNodeErrors));
         }
 
@@ -492,6 +492,15 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("_this", expression.Arguments[2].CastTo<ParameterExpression>().Name);
         }
 
+
+        [TestMethod]
+        public void ResolvedTree_HtmlPrefixedAttributes()
+        {
+            var root = ParseSource(@"
+<div html:id='val' />");
+            var attr = root.Content.First(n => n.Metadata.Type == typeof(HtmlGenericControl)).GetHtmlAttribute("id");
+            Assert.AreEqual("val", attr.CastTo<ResolvedPropertyValue>().Value);
+        }
 
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {

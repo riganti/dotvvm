@@ -53,7 +53,7 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public StyleBuilder<T> SetPropertyGroupMember(string prefix, string memberName, object value, bool append = true)
         {
-            var prop = PropertyGroupDescriptor.GetPropertyGroups(typeof(T)).Single(p => p.Prefix == prefix);
+            var prop = PropertyGroupDescriptor.GetPropertyGroups(typeof(T)).Single(p => p.Prefixes.Contains(prefix));
             return SetDotvvmProperty(prop.GetDotvvmProperty(memberName), value, append);
         }
 

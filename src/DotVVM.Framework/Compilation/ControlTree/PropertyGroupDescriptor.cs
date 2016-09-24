@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public FieldInfo DescriptorField { get; }
 
-        public string Prefix { get; }
+        public string[] Prefixes { get; }
 
         public string PropertyName { get; }
 
@@ -46,14 +46,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         private ConcurrentDictionary<string, DotvvmProperty> generatedProperties = new ConcurrentDictionary<string, DotvvmProperty>();
 
-        private PropertyGroupDescriptor(PropertyInfo propertyInfo, string prefix, Type valueType, object defaultValue)
+        private PropertyGroupDescriptor(PropertyInfo propertyInfo, PrefixArray prefixes, Type valueType, object defaultValue)
         {
             this.PropertyInfo = propertyInfo;
             this.DeclaringType = propertyInfo.DeclaringType;
             this.CollectionType = propertyInfo.PropertyType;
             this.PropertyName = propertyInfo.Name;
             this.PropertyType = valueType;
-            this.Prefix = prefix;
+            this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.ValueCollection;
             this.DefaultValue = defaultValue;
 
@@ -66,7 +66,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             DataContextManipulationAttribute = dataContextManipulation;
         }
 
-        private PropertyGroupDescriptor(string prefix, Type valueType, FieldInfo descriptorField, string name, object defaultValue)
+        private PropertyGroupDescriptor(PrefixArray prefixes, Type valueType, FieldInfo descriptorField, string name, object defaultValue)
         {
             this.PropertyInfo = null;
             this.DescriptorField = descriptorField;
@@ -74,7 +74,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.CollectionType = null;
             this.PropertyName = name;
             this.PropertyType = valueType;
-            this.Prefix = prefix;
+            this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.GeneratedDotvvmProperty;
 
             var markupOptions = this.MarkupOptions = descriptorField.GetCustomAttribute<MarkupOptionsAttribute>(true) ?? new MarkupOptionsAttribute();
@@ -118,19 +118,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 var attribute = propertyInfo.GetCustomAttribute<PropertyGroupAttribute>();
                 var valueType = attribute.ValueType ?? GetValueType(propertyInfo.PropertyType).Item1;
-                return new PropertyGroupDescriptor(propertyInfo, attribute.Prefix, valueType, defaultValue);
+                return new PropertyGroupDescriptor(propertyInfo, attribute.Prefixes, valueType, defaultValue);
             });
         }
 
-        public static PropertyGroupDescriptor Create<TDeclaring, TValue>(string prefix, string name, TValue defaultValue = default(TValue)) =>
-            Create(typeof(TDeclaring), prefix, name, typeof(TValue), defaultValue);
-        public static PropertyGroupDescriptor Create(Type declaringType, string prefix, string name, Type valueType, object defaultValue)
+        public static PropertyGroupDescriptor Create<TDeclaring, TValue>(PrefixArray prefixes, string name, TValue defaultValue = default(TValue)) =>
+            Create(typeof(TDeclaring), prefixes, name, typeof(TValue), defaultValue);
+        public static PropertyGroupDescriptor Create(Type declaringType, PrefixArray prefixes, string name, Type valueType, object defaultValue)
         {
             return descriptorDictionary.GetOrAdd(declaringType.Name + "." + name, fullName =>
             {
                 var field = declaringType.GetField(name + "GroupDescriptor", BindingFlags.Public | BindingFlags.Static);
                 if (field == null) throw new InvalidOperationException($"Could not declare property group '{fullName}' because backing field was not found.");
-                return new PropertyGroupDescriptor(prefix, valueType, field, name, defaultValue);
+                return new PropertyGroupDescriptor(prefixes, valueType, field, name, defaultValue);
             });
         }
 
@@ -162,6 +162,24 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     yield return pg;
                 }
             }
+        }
+
+        public struct PrefixArray
+        {
+            public readonly string[] Values;
+
+            public PrefixArray(string[] values)
+            {
+                this.Values = values;
+            }
+
+            public PrefixArray(string value)
+            {
+                this.Values = new[] { value };
+            }
+
+            public static implicit operator PrefixArray(string val) => new PrefixArray(val);
+            public static implicit operator PrefixArray(string[] val) => new PrefixArray(val);
         }
     }
 

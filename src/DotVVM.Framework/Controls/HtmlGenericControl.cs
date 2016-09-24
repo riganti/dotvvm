@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Controls
         /// Gets the attributes.
         /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger))]
-        [PropertyGroup("")]
+        [PropertyGroup(new[] { "", "html:" })]
         public Dictionary<string, object> Attributes { get; private set; }
 
         public static PropertyGroupDescriptor CssClassesGroupDescriptor =
