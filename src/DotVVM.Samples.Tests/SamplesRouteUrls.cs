@@ -119,7 +119,9 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Localization_Localization_ResourceNamespaceDirective => "FeatureSamples/Localization/Localization_ResourceNamespaceDirective";
 			public static string FeatureSamples_Localization_Localization_ResourceTypeAndNamespaceDirectives => "FeatureSamples/Localization/Localization_ResourceTypeAndNamespaceDirectives";
 			public static string FeatureSamples_Localization_Localization_ResourceTypeDirective => "FeatureSamples/Localization/Localization_ResourceTypeDirective";
-			public static string FeatureSamples_MarkupControl_CommandBindingInRepeater => "FeatureSamples/MarkupControl/CommandBindingInRepeater";
+            public static string FeatureSamples_Localization_Localization_Control_Page => "FeatureSamples/Localization/Localization_Control_Page";
+
+            public static string FeatureSamples_MarkupControl_CommandBindingInRepeater => "FeatureSamples/MarkupControl/CommandBindingInRepeater";
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdatedByServer => "FeatureSamples/MarkupControl/ControlPropertyUpdatedByServer";
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdating => "FeatureSamples/MarkupControl/ControlPropertyUpdating";
 			public static string FeatureSamples_MarkupControl_ControlPropertyValidationPage => "FeatureSamples/MarkupControl/ControlPropertyValidationPage";

@@ -12,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization
     }
 
     public class Localizatin_ControlViewModel : DotvvmViewModelBase
-    {
+    { 
         public bool Checked { get; set; }
     }
 
