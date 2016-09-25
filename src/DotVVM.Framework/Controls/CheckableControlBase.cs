@@ -88,7 +88,7 @@ namespace DotVVM.Framework.Controls
         {
             base.OnPreRender(context);
 
-            isLabelRequired = HasBinding(TextProperty) || !string.IsNullOrEmpty(Text) || !HasOnlyWhiteSpaceContent();
+            isLabelRequired = HasValueBinding(TextProperty) || !string.IsNullOrEmpty(Text) || !HasOnlyWhiteSpaceContent();
         }
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -115,7 +115,7 @@ namespace DotVVM.Framework.Controls
 
             if (isLabelRequired)
             {
-                if (HasBinding(TextProperty))
+                if (HasValueBinding(TextProperty))
                 {
                     writer.AddKnockoutDataBind("text", GetValueBinding(TextProperty));
                     writer.RenderBeginTag(TagName);
