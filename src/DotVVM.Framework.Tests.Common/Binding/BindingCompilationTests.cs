@@ -10,6 +10,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Tests.Common;
 
 namespace DotVVM.Framework.Tests.Binding
 {

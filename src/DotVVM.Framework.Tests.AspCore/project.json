@@ -3,8 +3,12 @@
   "testRunner": "xunit",
   "dependencies": {
     "dotnet-test-xunit": "2.2.0-*",
-    "DotVVM.Framework": "1.0.4-pre",
-    "DotVVM.Framework.Hosting.AspNetCore": "1.0.4-pre",
+    "DotVVM.Framework": {
+      "target": "project"
+    },
+    "DotVVM.Framework.Hosting.AspNetCore": {
+      "target": "project"
+    },
     "Microsoft.NETCore.App": {
       "type": "platform",
       "version": "1.0.0"

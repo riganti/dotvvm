@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void JQueryGlobalizeGenerator()
         {
-            var cultureInfo = CultureInfo.GetCultureInfo("cs-cz");
+            var cultureInfo = new CultureInfo("cs-cz");
             var json = JQueryGlobalizeScriptCreator.BuildCultureInfoJson(cultureInfo);
             Assert.IsTrue(json.SelectToken("calendars.standard.days.namesAbbr").Values<string>().SequenceEqual(cultureInfo.DateTimeFormat.AbbreviatedDayNames));
             // TODO: add more assertions
