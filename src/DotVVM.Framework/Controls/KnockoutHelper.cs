@@ -181,7 +181,7 @@ namespace DotVVM.Framework.Controls
 
             // find the closest control
             int dataSourceChanges;
-            var validationTargetControl = control.GetClosestWithPropertyValue(out dataSourceChanges, c => c.IsPropertySet(Validation.TargetProperty, false));
+            var validationTargetControl = control.GetClosestControlValidationTarget(out dataSourceChanges);
             if (validationTargetControl == null)
             {
                 return "$root";

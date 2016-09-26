@@ -220,23 +220,37 @@ namespace DotVVM.Framework.Controls
             GetClosestWithPropertyValue(out numberOfDataContextChanges, control => (bool)control.GetValue(Internal.IsControlBindingTargetProperty));
 
         /// <summary>
+        /// Gets the closest control binding target and returns number of DataContext changes since the target.
+        /// </summary>
+        public DotvvmBindableObject GetClosestControlValidationTarget(out int numberOfDataContextChanges) =>
+            GetClosestWithPropertyValue(out numberOfDataContextChanges, c => c.IsPropertySet(Validation.TargetProperty, false), includeDataContextChangeOnMatchedControl: false);
+
+
+        /// <summary>
         /// Gets the closest control with specified property value and returns number of DataContext changes since the target.
         /// </summary>
-        public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, bool> filterFunction)
+        public DotvvmBindableObject GetClosestWithPropertyValue(out int numberOfDataContextChanges, Func<DotvvmBindableObject, bool> filterFunction, bool includeDataContextChangeOnMatchedControl = true)
         {
             var current = this;
             numberOfDataContextChanges = 0;
             while (current != null)
             {
+                var isMatched = false;
                 if (current.GetValueBinding(DataContextProperty, false) != null)
                 {
                     if (current.HasBinding(DataContextProperty) || current.HasBinding(Internal.PathFragmentProperty))
                     {
                         numberOfDataContextChanges++;
+                        isMatched = true;
                     }
                 }
                 if (filterFunction(current))
                 {
+                    if (isMatched && !includeDataContextChangeOnMatchedControl)
+                    {
+                        numberOfDataContextChanges--;
+                    }
+
                     break;
                 }
 

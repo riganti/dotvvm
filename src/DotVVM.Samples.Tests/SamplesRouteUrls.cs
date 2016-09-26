@@ -149,6 +149,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Validation_SimpleValidation => "FeatureSamples/Validation/SimpleValidation";
 			public static string FeatureSamples_Validation_ValidationRulesLoadOnPostback => "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
 			public static string FeatureSamples_Validation_ValidationScopes => "FeatureSamples/Validation/ValidationScopes";
+			public static string FeatureSamples_Validation_ValidationScopes2 => "FeatureSamples/Validation/ValidationScopes2";
 			public static string FeatureSamples_ViewModelDeserialization_DoesNotDropObject => "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
 			public static string FeatureSamples_ViewModelNesting_NestedViewModel => "FeatureSamples/ViewModelNesting/NestedViewModel";
 			public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";
