@@ -70,7 +70,7 @@ namespace DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Localized label for literal inside control .
+        ///   Looks up a localized string similar to Localized literal inside control .
         /// </summary>
         public static string LocalizedResourceInControl_Literal {
             get {
