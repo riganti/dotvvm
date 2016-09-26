@@ -19,6 +19,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_ServerRendering_ControlUsageSample => "ComplexSamples/ServerRendering/ControlUsageSample";
 			public static string ComplexSamples_ServerRendering_ControlUsageSampleRewriting => "ComplexSamples/ServerRendering/ControlUsageSampleRewriting";
 			public static string ComplexSamples_ServerRendering_MarkupControlInRepeaterEditing => "ComplexSamples/ServerRendering/MarkupControlInRepeaterEditing";
+			public static string ComplexSamples_SPA_default => "ComplexSamples/SPA/default";
+			public static string ComplexSamples_SPA_test => "ComplexSamples/SPA/test";
 			public static string ComplexSamples_SPARedirect_home => "ComplexSamples/SPARedirect/home";
 			public static string ComplexSamples_SPARedirect_login => "ComplexSamples/SPARedirect/login";
 			public static string ComplexSamples_SPAViewModelReapplication_pageA => "ComplexSamples/SPAViewModelReapplication/pageA";
@@ -83,8 +85,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string Errors_EncryptedPropertyInValueBinding => "Errors/EncryptedPropertyInValueBinding";
 			public static string Errors_FieldInValueBinding => "Errors/FieldInValueBinding";
 			public static string Errors_InvalidViewModel => "Errors/InvalidViewModel";
-            		public static string Errors_MalformedBinding => "Errors/MalformedBinding";
-            		public static string Errors_MarkupControlInvalidViewModel => "Errors/MarkupControlInvalidViewModel";
+			public static string Errors_MalformedBinding => "Errors/MalformedBinding";
+			public static string Errors_MarkupControlInvalidViewModel => "Errors/MarkupControlInvalidViewModel";
 			public static string Errors_MasterPageRequiresDifferentViewModel => "Errors/MasterPageRequiresDifferentViewModel";
 			public static string Errors_MissingRequiredProperty => "Errors/MissingRequiredProperty";
 			public static string Errors_MissingRequiredProperty2 => "Errors/MissingRequiredProperty2";
@@ -101,9 +103,12 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_ChildViewModelInvokeMethods_ChildViewModelInvokeMethods => "FeatureSamples/ChildViewModelInvokeMethods/ChildViewModelInvokeMethods";
 			public static string FeatureSamples_ClientExtenders_PasswordStrength => "FeatureSamples/ClientExtenders/PasswordStrength";
 			public static string FeatureSamples_DateTimeSerialization_DateTimeSerialization => "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
+			public static string FeatureSamples_Directives_ImportDirective => "FeatureSamples/Directives/ImportDirective";
+			public static string FeatureSamples_Directives_ImportDirectiveInvalid => "FeatureSamples/Directives/ImportDirectiveInvalid";
 			public static string FeatureSamples_Directives_ViewModelMissingAssembly => "FeatureSamples/Directives/ViewModelMissingAssembly";
 			public static string FeatureSamples_DoublePostBackPrevention_DoublePostBackPrevention => "FeatureSamples/DoublePostBackPrevention/DoublePostBackPrevention";
 			public static string FeatureSamples_Formatting_Formatting => "FeatureSamples/Formatting/Formatting";
+			public static string FeatureSamples_GenericTypes_List => "FeatureSamples/GenericTypes/List";
 			public static string FeatureSamples_HtmlTag_NonPairHtmlTag => "FeatureSamples/HtmlTag/NonPairHtmlTag";
 			public static string FeatureSamples_IdGeneration_IdGeneration => "FeatureSamples/IdGeneration/IdGeneration";
 			public static string FeatureSamples_JavascriptEvents_JavascriptEvents => "FeatureSamples/JavascriptEvents/JavascriptEvents";
@@ -115,6 +120,9 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Localization_Localization_ResourceNamespaceDirective => "FeatureSamples/Localization/Localization_ResourceNamespaceDirective";
 			public static string FeatureSamples_Localization_Localization_ResourceTypeAndNamespaceDirectives => "FeatureSamples/Localization/Localization_ResourceTypeAndNamespaceDirectives";
 			public static string FeatureSamples_Localization_Localization_ResourceTypeDirective => "FeatureSamples/Localization/Localization_ResourceTypeDirective";
+            public static string FeatureSamples_Localization_Localization_Control_Page => "FeatureSamples/Localization/Localization_Control_Page";
+
+            public static string FeatureSamples_MarkupControl_CommandBindingInRepeater => "FeatureSamples/MarkupControl/CommandBindingInRepeater";
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdatedByServer => "FeatureSamples/MarkupControl/ControlPropertyUpdatedByServer";
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdating => "FeatureSamples/MarkupControl/ControlPropertyUpdating";
 			public static string FeatureSamples_MarkupControl_ControlPropertyValidationPage => "FeatureSamples/MarkupControl/ControlPropertyValidationPage";
@@ -142,6 +150,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Validation_SimpleValidation => "FeatureSamples/Validation/SimpleValidation";
 			public static string FeatureSamples_Validation_ValidationRulesLoadOnPostback => "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
 			public static string FeatureSamples_Validation_ValidationScopes => "FeatureSamples/Validation/ValidationScopes";
+			public static string FeatureSamples_Validation_ValidationScopes2 => "FeatureSamples/Validation/ValidationScopes2";
 			public static string FeatureSamples_ViewModelDeserialization_DoesNotDropObject => "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
 			public static string FeatureSamples_ViewModelNesting_NestedViewModel => "FeatureSamples/ViewModelNesting/NestedViewModel";
 			public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";

@@ -12,7 +12,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
         {
             await Context.GetAuthentication().SignOutAsync("Scheme2");
 
-            Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
+            Context.RedirectToRoute("ComplexSamples_SPARedirect_home", allowSpaRedirect: false);
         }
     }
 }

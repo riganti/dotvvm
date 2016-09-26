@@ -128,6 +128,7 @@
     <Compile Include="Complex\FileUploadInRepeaterTests.cs" />
     <Compile Include="Complex\GridViewDataSetTests.cs" />
     <Compile Include="Complex\ChangedEventTests.cs" />
+    <Compile Include="Complex\SPATests.cs" />
     <Compile Include="Complex\SPARedirectTests.cs" />
     <Compile Include="Complex\SPAViewModelReaplicationTests.cs" />
     <Compile Include="Control\RoleViewTests.cs" />

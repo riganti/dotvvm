@@ -19,7 +19,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the HTML that will be rendered in the control.
         /// </summary>
-        [MarkupOptions(AllowHardCodedValue = false)]
         public string Html
         {
             get { return (string)GetValue(HtmlProperty); }
@@ -70,12 +69,12 @@ namespace DotVVM.Framework.Controls
 
             base.AddAttributesToRender(writer, context);
 
-            if (!RenderWrapperTag && !RenderOnServer && HasBinding(HtmlProperty))
+            if (!RenderWrapperTag && !RenderOnServer && HasValueBinding(HtmlProperty))
             {
                 throw new DotvvmControlException(this, "The HtmlLiteral control doesn't support client-side rendering without wrapper tag. Enable server rendering or the wrapper tag.");
             }
-
-            if (RenderWrapperTag && HasBinding(HtmlProperty))
+            
+            if (RenderWrapperTag && HasValueBinding(HtmlProperty))
             {
                 writer.AddKnockoutDataBind("html", this, HtmlProperty);
             }
@@ -87,7 +86,7 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderBeginTag(writer, context);
             }
-            else if (HasBinding(HtmlProperty))
+            else if (HasValueBinding(HtmlProperty))
             {
                 writer.WriteKnockoutDataBindComment("html", this, HtmlProperty);
             }
@@ -95,7 +94,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (RenderOnServer || !HasBinding(HtmlProperty))
+            if (RenderOnServer || !HasValueBinding(HtmlProperty))
             {
                 writer.WriteUnencodedText(Html);       
             }

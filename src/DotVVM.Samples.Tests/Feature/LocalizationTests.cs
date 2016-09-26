@@ -130,5 +130,31 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First("#localized-text").CheckIfInnerTextEquals("Defaultní nastavení z konfigurace", false);
             });
         }
+
+        [TestMethod]
+        public void Feature_Localization_Control_FullNames()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
+
+                browser.First("#localization-control-bare").Single("label span").CheckIfInnerTextEquals("LocalizedResourceInControl_CheckBox");
+                browser.First("#localization-control-bare").Single("span").CheckIfInnerTextEquals("LocalizedResourceInControl_Literal");
+
+            });
+        }
+
+        [TestMethod]
+        public void Feature_Localization_Control_ImportUsed()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
+
+                browser.First("#localization-control-import").Single("label span").CheckIfInnerTextEquals("LocalizedResourceInControl_CheckBox");
+                browser.First("#localization-control-import").Single("span").CheckIfInnerTextEquals("LocalizedResourceInControl_Literal");
+
+            });
+        }
     }
 }

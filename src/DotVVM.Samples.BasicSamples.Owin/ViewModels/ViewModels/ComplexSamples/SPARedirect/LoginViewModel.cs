@@ -21,7 +21,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPARedirect
             var id = new ClaimsIdentity(claims, "ApplicationCookie");
             Context.GetAuthentication().SignIn(id);
 
-            Context.RedirectToRoute("ComplexSamples_SPARedirect_home", forceRefresh: true);
+            Context.RedirectToRoute("ComplexSamples_SPARedirect_home", allowSpaRedirect: false);
 	    }
 
 	}

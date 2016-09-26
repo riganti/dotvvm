@@ -61,6 +61,11 @@ class DotVVM {
 
         // load the viewmodel
         var thisViewModel = this.viewModels[viewModelName] = JSON.parse((<HTMLInputElement>document.getElementById("__dot_viewmodel_" + viewModelName)).value);
+        if (thisViewModel.resources) {
+            for (var r in thisViewModel.resources) {
+                this.resourceSigns[r] = true;
+            }
+        }
         if (thisViewModel.renderedResources) {
             thisViewModel.renderedResources.forEach(r => this.resourceSigns[r] = true);
         }
@@ -102,15 +107,30 @@ class DotVVM {
 
     private handleHashChange(viewModelName: string, spaPlaceHolder: HTMLElement, isInitialPageLoad: boolean) {
         if (document.location.hash.indexOf("#!/") === 0) {
+            // the user requested navigation to another SPA page
             this.navigateCore(viewModelName, document.location.hash.substring(2));
+
         } else {
-            // redirect to the default URL
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
             if (url) {
+                // perform redirect to default page
                 url = "#!/" + url;
                 url = this.fixSpaUrlPrefix(url);
-                this.performRedirect(url, false);
+                this.performRedirect(url, isInitialPageLoad);
+
+            } else if (!isInitialPageLoad) {
+                // get startup URL and redirect there
+                url = document.location.toString();
+                var slashIndex = url.indexOf('/', 'https://'.length);
+                if (slashIndex > 0) {
+                    url = url.substring(slashIndex);
+                } else {
+                    url = "/";
+                }
+                this.navigateCore(viewModelName, url);
+
             } else {
+                // the page was loaded for the first time
                 this.isSpaReady(true);
                 spaPlaceHolder.style.display = "";
             }
@@ -173,6 +193,12 @@ class DotVVM {
             });
     }
 
+    private processPassedId(id: any, context: any): string {
+        if (typeof id == "string" || id == null) return id;
+        if (typeof id == "object" && id.expr) return this.evaluator.evaluateOnViewModel(context, id.expr);
+        throw new Error("invalid argument");
+    }
+
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs> {
         if (this.isPostBackProhibited(sender)) return new DotvvmPromise<DotvvmAfterPostBackEventArgs>().reject("rejected");
 
@@ -199,6 +225,7 @@ class DotVVM {
             return promise;
         }
 
+
         var viewModel = this.viewModels[viewModelName].viewModel;
 
         // prevent double postbacks
@@ -224,7 +251,7 @@ class DotVVM {
             viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),
             currentPath: path,
             command: command,
-            controlUniqueId: controlUniqueId,
+            controlUniqueId: this.processPassedId(controlUniqueId, context),
             validationTargetPath: validationTargetPath || null,
             renderedResources: this.viewModels[viewModelName].renderedResources
         };
@@ -408,6 +435,7 @@ class DotVVM {
         }
 
         // add virtual directory prefix
+        url = "/___dotvvm-spa___" + this.addLeadingSlash(url);
         var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
 
         // find SPA placeholder
@@ -416,7 +444,7 @@ class DotVVM {
             document.location.href = fullUrl;
             return;
         }
-
+        
         // send the request
         var spaPlaceHolderUniqueId = spaPlaceHolder.attributes["data-dotvvm-spacontentplaceholder"].value;
         this.getJSON(fullUrl, "GET", spaPlaceHolderUniqueId, result => {
@@ -478,7 +506,7 @@ class DotVVM {
         if (resultObject.replace != null) replace = resultObject.replace;
         var url;
         // redirect
-        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && !replace) {
+        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
             if (url === "#!") {
@@ -585,7 +613,7 @@ class DotVVM {
             context = context.$parentContext;
         }
     }
-
+    
     private postJSON(url: string, method: string, postData: any, success: (request: XMLHttpRequest) => void, error: (response: XMLHttpRequest) => void, preprocessRequest = (xhr: XMLHttpRequest) => { }) {
         var xhr = this.getXHR();
         xhr.open(method, url, true);

@@ -80,7 +80,6 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets whether the application should run in debug mode.
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
-        [System.ComponentModel.DefaultValue(true)]
         public bool Debug { get; set; }
 
         [JsonIgnore]
@@ -114,7 +113,6 @@ namespace DotVVM.Framework.Configuration
             Resources = new DotvvmResourceRepository();
             Security = new DotvvmSecurityConfiguration();
             Runtime = new DotvvmRuntimeConfiguration();
-            Debug = true;
             Styles = new StyleRepository();
         }
 

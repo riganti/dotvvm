@@ -16,11 +16,7 @@ namespace DotVVM.Framework.Compilation
     public class DefaultViewCompilerCodeEmitter
     {
 
-        private int CurrentControlIndex
-        {
-            get { return methods.Peek().ControlIndex; }
-            set { methods.Peek().ControlIndex = value; }
-        }
+        private int CurrentControlIndex;
 
         private List<StatementSyntax> CurrentStatements
         {
@@ -46,6 +42,14 @@ namespace DotVVM.Framework.Compilation
             get { return usedAssemblies; }
         }
 
+        public void UseType(Type type)
+        {
+            while (type != null)
+            {
+                UsedAssemblies.Add(type.GetTypeInfo().Assembly);
+                type = type.GetTypeInfo().BaseType;
+            }
+        }
 
         private List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
 
@@ -76,7 +80,7 @@ namespace DotVVM.Framework.Compilation
                 constructorArguments = new object[] { };
             }
 
-            UsedAssemblies.Add(type.GetTypeInfo().Assembly);
+            UseType(type);
             return EmitCreateObject(ParseTypeName(type), constructorArguments.Select(EmitValue));
         }
 
@@ -119,7 +123,7 @@ namespace DotVVM.Framework.Compilation
 
         public ExpressionSyntax EmitAttributeInitializer(CustomAttributeData attr)
         {
-            UsedAssemblies.Add(attr.AttributeType.GetTypeInfo().Assembly);
+            UseType(attr.AttributeType);
             return SyntaxFactory.ObjectCreationExpression(
                 ParseTypeName(attr.AttributeType),
                 SyntaxFactory.ArgumentList(
@@ -145,7 +149,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public string EmitInvokeControlBuilder(Type controlType, string virtualPath)
         {
-            UsedAssemblies.Add(controlType.GetTypeInfo().Assembly);
+            UseType(controlType);
 
             var builderName = "c" + CurrentControlIndex + "_builder";
             var untypedName = "c" + CurrentControlIndex + "_untyped";
@@ -254,7 +258,7 @@ namespace DotVVM.Framework.Compilation
             }
             if (value is Type)
             {
-                UsedAssemblies.Add((value as Type).GetTypeInfo().Assembly);
+                UseType(value as Type);
                 return SyntaxFactory.TypeOfExpression(ParseTypeName((value as Type)));
             }
 
@@ -268,7 +272,7 @@ namespace DotVVM.Framework.Compilation
 
             if (type.GetTypeInfo().IsEnum)
             {
-                UsedAssemblies.Add(type.GetTypeInfo().Assembly);
+                UseType(type);
                 return
                     SyntaxFactory.MemberAccessExpression(
                         SyntaxKind.SimpleMemberAccessExpression,
@@ -366,8 +370,8 @@ namespace DotVVM.Framework.Compilation
 
         public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
-            UsedAssemblies.Add(property.DeclaringType.GetTypeInfo().Assembly);
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
+            UseType(property.DeclaringType);
+            UseType(property.PropertyType);
 
             if (property.IsVirtual)
             {
@@ -561,7 +565,7 @@ namespace DotVVM.Framework.Compilation
 
         public string EmitEnsureCollectionInitialized(string parentName, DotvvmProperty property)
         {
-            UsedAssemblies.Add(property.PropertyType.GetTypeInfo().Assembly);
+            UseType(property.PropertyType);
 
             if (property.IsVirtual)
             {
@@ -729,7 +733,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public IEnumerable<SyntaxTree> BuildTree(string namespaceName, string className, string fileName)
         {
-            UsedAssemblies.Add(BuilderDataContextType.GetTypeInfo().Assembly);
+            UseType(BuilderDataContextType);
 
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(

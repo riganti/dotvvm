@@ -175,6 +175,11 @@ var DotVVM = (function () {
         this.addKnockoutBindingHandlers();
         // load the viewmodel
         var thisViewModel = this.viewModels[viewModelName] = JSON.parse(document.getElementById("__dot_viewmodel_" + viewModelName).value);
+        if (thisViewModel.resources) {
+            for (var r in thisViewModel.resources) {
+                this.resourceSigns[r] = true;
+            }
+        }
         if (thisViewModel.renderedResources) {
             thisViewModel.renderedResources.forEach(function (r) { return _this.resourceSigns[r] = true; });
         }
@@ -211,17 +216,31 @@ var DotVVM = (function () {
     };
     DotVVM.prototype.handleHashChange = function (viewModelName, spaPlaceHolder, isInitialPageLoad) {
         if (document.location.hash.indexOf("#!/") === 0) {
+            // the user requested navigation to another SPA page
             this.navigateCore(viewModelName, document.location.hash.substring(2));
         }
         else {
-            // redirect to the default URL
             var url = spaPlaceHolder.getAttribute("data-dotvvm-spacontentplaceholder-defaultroute");
             if (url) {
+                // perform redirect to default page
                 url = "#!/" + url;
                 url = this.fixSpaUrlPrefix(url);
-                this.performRedirect(url, false);
+                this.performRedirect(url, isInitialPageLoad);
+            }
+            else if (!isInitialPageLoad) {
+                // get startup URL and redirect there
+                url = document.location.toString();
+                var slashIndex = url.indexOf('/', 'https://'.length);
+                if (slashIndex > 0) {
+                    url = url.substring(slashIndex);
+                }
+                else {
+                    url = "/";
+                }
+                this.navigateCore(viewModelName, url);
             }
             else {
+                // the page was loaded for the first time
                 this.isSpaReady(true);
                 spaPlaceHolder.style.display = "";
             }
@@ -279,6 +298,13 @@ var DotVVM = (function () {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
     };
+    DotVVM.prototype.processPassedId = function (id, context) {
+        if (typeof id == "string" || id == null)
+            return id;
+        if (typeof id == "object" && id.expr)
+            return this.evaluator.evaluateOnViewModel(context, id.expr);
+        throw new Error("invalid argument");
+    };
     DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers) {
         var _this = this;
         if (this.isPostBackProhibited(sender))
@@ -327,7 +353,7 @@ var DotVVM = (function () {
             viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
             currentPath: path,
             command: command,
-            controlUniqueId: controlUniqueId,
+            controlUniqueId: this.processPassedId(controlUniqueId, context),
             validationTargetPath: validationTargetPath || null,
             renderedResources: this.viewModels[viewModelName].renderedResources
         };
@@ -505,6 +531,7 @@ var DotVVM = (function () {
             return;
         }
         // add virtual directory prefix
+        url = "/___dotvvm-spa___" + this.addLeadingSlash(url);
         var fullUrl = this.addLeadingSlash(this.concatUrl(this.viewModels[viewModelName].virtualDirectory || "", url));
         // find SPA placeholder
         var spaPlaceHolder = this.getSpaPlaceHolder();
@@ -568,7 +595,7 @@ var DotVVM = (function () {
             replace = resultObject.replace;
         var url;
         // redirect
-        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && !replace) {
+        if (this.getSpaPlaceHolder() && resultObject.url.indexOf("//") < 0 && resultObject.allowSpa) {
             // relative URL - keep in SPA mode, but remove the virtual directory
             url = "#!" + this.removeVirtualDirectoryFromUrl(resultObject.url, viewModelName);
             if (url === "#!") {

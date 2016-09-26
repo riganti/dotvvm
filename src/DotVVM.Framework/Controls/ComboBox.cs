@@ -13,11 +13,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public class ComboBox : SelectHtmlControlBase
     {
-
-        /// <summary>
-        /// Gets or sets a text of an empty item. This item is auto-generated and is not part of the DataSource collection. The empty item has a value of null.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
         public string EmptyItemText
         {
             get { return (string) GetValue(EmptyItemTextProperty); }
@@ -26,16 +21,13 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EmptyItemTextProperty 
             = DotvvmProperty.Register<string, ComboBox>(c => c.EmptyItemText, string.Empty);
 
-
-
-
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!RenderOnServer)
             {
-                if (!string.IsNullOrWhiteSpace(EmptyItemText))
+                if (IsPropertySet(EmptyItemTextProperty))
                 {
-                    writer.AddKnockoutDataBind("optionsCaption", KnockoutHelper.MakeStringLiteral(EmptyItemText));
+                    writer.AddKnockoutDataBind("optionsCaption", this.GetKnockoutBindingExpression(EmptyItemTextProperty));
                 }
             }
 
@@ -48,9 +40,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (!string.IsNullOrWhiteSpace(EmptyItemText))
                 {
-                    writer.RenderBeginTag("option");
-                    writer.WriteText(EmptyItemText);
-                    writer.RenderEndTag();
+                    writer.WriteTextOrBinding(this, EmptyItemTextProperty, wrapperTag: "option");
                 }
             }
 
