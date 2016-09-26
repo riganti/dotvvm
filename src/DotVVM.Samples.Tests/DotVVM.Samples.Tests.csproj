@@ -161,6 +161,7 @@
     <Compile Include="Feature\BindingContextsTests.cs" />
     <Compile Include="Feature\BindingPageInfoTests.cs" />
     <Compile Include="Feature\ChildViewModelInvokeMethodsTests.cs" />
+    <Compile Include="Feature\ConditionalCssClass.cs" />
     <Compile Include="Feature\DateTimeSerializationTests.cs" />
     <Compile Include="Feature\DirectivesTests.cs" />
     <Compile Include="Feature\HtmlTagTests.cs" />

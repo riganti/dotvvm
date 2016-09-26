@@ -112,6 +112,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_HtmlTag_NonPairHtmlTag => "FeatureSamples/HtmlTag/NonPairHtmlTag";
 			public static string FeatureSamples_IdGeneration_IdGeneration => "FeatureSamples/IdGeneration/IdGeneration";
 			public static string FeatureSamples_JavascriptEvents_JavascriptEvents => "FeatureSamples/JavascriptEvents/JavascriptEvents";
+			public static string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses => "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
 			public static string FeatureSamples_Localization_Localization => "FeatureSamples/Localization/Localization";
 			public static string FeatureSamples_Localization_Localization_DefaultDirective => "FeatureSamples/Localization/Localization_DefaultDirective";
 			public static string FeatureSamples_Localization_Localization_NestedPage_Full_Full => "FeatureSamples/Localization/Localization_NestedPage_Full_Full";
