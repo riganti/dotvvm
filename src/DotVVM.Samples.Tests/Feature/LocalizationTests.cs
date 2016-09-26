@@ -1,5 +1,8 @@
 ﻿using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using OpenQA.Selenium;
+using OpenQA.Selenium.Chrome;
+using OpenQA.Selenium.Firefox;
 using Riganti.Utils.Testing.SeleniumCore;
 using System;
 using System.Collections.Generic;
@@ -138,12 +141,14 @@ namespace DotVVM.Samples.Tests.Feature
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
 
-                browser.First("#localization-control-bare").Single("label span").CheckIfInnerTextEquals("LocalizedResourceInControl_CheckBox");
-                browser.First("#localization-control-bare").Single("span").CheckIfInnerTextEquals("LocalizedResourceInControl_Literal");
+                Assert.AreEqual("Localized label for checkbox inside control", 
+                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/label/span")).Text);
+                Assert.AreEqual("Localized literal inside control", 
+                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/span")).Text);
 
             });
         }
-
+        
         [TestMethod]
         public void Feature_Localization_Control_ImportUsed()
         {
@@ -151,8 +156,10 @@ namespace DotVVM.Samples.Tests.Feature
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
 
-                browser.First("#localization-control-import").Single("label span").CheckIfInnerTextEquals("LocalizedResourceInControl_CheckBox");
-                browser.First("#localization-control-import").Single("span").CheckIfInnerTextEquals("LocalizedResourceInControl_Literal");
+                Assert.AreEqual("Localized label for checkbox inside control",
+                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
+                Assert.AreEqual("Localized literal inside control", 
+                    browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
 
             });
         }

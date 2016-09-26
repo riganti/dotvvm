@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.MarkupControl.CommandBindingInRepeater, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.MarkupControl.CommandBindingInRepeater, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

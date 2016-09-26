@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.Localizatin_Control_PageViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.Localizatin_Control_PageViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

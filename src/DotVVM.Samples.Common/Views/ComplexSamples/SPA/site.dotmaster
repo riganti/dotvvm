@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.SiteViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.SiteViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.ValidationScopes2ViewModel, DotVVM.Samples.BasicSamples
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.ValidationScopes2ViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

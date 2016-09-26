@@ -121,7 +121,7 @@
     <value>Localized label for checkbox inside control</value>
   </data>
   <data name="LocalizedResourceInControl_Literal" xml:space="preserve">
-    <value>Localized label for literal inside control </value>
+    <value>Localized literal inside control </value>
   </data>
   <data name="NestedPageTitle" xml:space="preserve">
     <value>Nested page title</value>
