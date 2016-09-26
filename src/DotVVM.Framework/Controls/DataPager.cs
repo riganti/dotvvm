@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Controls
 
 
         /// <summary>
-        /// Gets or sets whether the pager should hide automatically when there is only one page of results.
+        /// Gets or sets whether the pager should hide automatically when there is only one page of results. Must not be set to true when using the Visible property.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
         public bool HideWhenOnlyOnePage
@@ -253,18 +253,18 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddVisibleAttributeOrBinding(IHtmlWriter writer)
         {
-            if (HideWhenOnlyOnePage && GetValue(VisibleProperty) as bool? != false)
+            if (IsPropertySet(VisibleProperty) && HideWhenOnlyOnePage)
+            {
+                throw new DotvvmControlException(this, $"The Visible property cannot be set when the value of the {nameof(HideWhenOnlyOnePage)} property is true!");
+            }
+
+            if (HideWhenOnlyOnePage)
             {
                 writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression()}).PagesCount() > 1");
             }
             else
             {
                 writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
-            }
-
-            if (GetValue(VisibleProperty) as bool? == false)
-            {
-                writer.AddStyleAttribute("display", "none");
             }
         }
 
