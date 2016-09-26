@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -18,13 +19,7 @@ namespace DotVVM.Framework.Tests.Runtime
     public class DefaultViewCompilerTests
     {
         private DotvvmRequestContext context;
-
-        [TestInitialize]
-        public void TestInit()
-        {
-            context = new DotvvmRequestContext();
-            context.Configuration = DotvvmConfiguration.CreateDefault();
-        }
+        
 
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_ElementWithAttributeProperty()
@@ -294,7 +289,7 @@ test <dot:Literal><a /></dot:Literal>";
 
 
 
-        private static DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
+        private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
             if (markupFiles == null)
             {
@@ -302,17 +297,20 @@ test <dot:Literal><a /></dot:Literal>";
             }
             markupFiles[fileName + ".dothtml"] = markup;
 
-            var dotvvmConfiguration = DotvvmConfiguration.CreateDefault(services =>
+            context = new DotvvmRequestContext();
+            context.Configuration = DotvvmConfiguration.CreateDefault(services =>
 			{
-				services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
+                services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
 			});
-            dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
-            dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
-            dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
-            dotvvmConfiguration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
-            dotvvmConfiguration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+            context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
-            var controlBuilderFactory = dotvvmConfiguration.ServiceLocator.GetService<IControlBuilderFactory>();
+            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
+            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
+            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
+            context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
+            context.Configuration.Markup.AddAssembly(Assembly.GetExecutingAssembly().GetName().Name);
+
+            var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
             var controlBuilder = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
             
             var result = controlBuilder.BuildControl(controlBuilderFactory);
