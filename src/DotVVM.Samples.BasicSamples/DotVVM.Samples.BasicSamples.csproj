@@ -451,7 +451,7 @@
     <Content Include="Views\ComplexSamples\SPA\site.dotmaster" />
     <Content Include="Views\ComplexSamples\SPA\default.dothtml" />
     <Content Include="Views\ComplexSamples\SPA\test.dothtml" />
-    <Content Include="Views\FeatureSamples\Localization\Localizatin_Control_Page.dothtml" />
+    <Content Include="Views\FeatureSamples\Localization\Localization_Control_Page.dothtml" />
     <Content Include="Views\FeatureSamples\Localization\Localization_Control.dotcontrol" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dothtml" />
     <None Include="Views\FeatureSamples\MarkupControl\ControlPropertyUpdating.dotcontrol" />
