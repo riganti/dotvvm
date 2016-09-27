@@ -53,11 +53,13 @@ namespace DotVVM.Framework.Tests.Binding
 		}
 
 		[TestMethod]
-		[ExpectedException(typeof(NotSupportedException))]
 		public void JavascriptCompilation_ToString_Invalid()
 		{
-			var js = CompileBinding("TestViewModel2", new[] { typeof(TestViewModel) }, typeof(string));
-		}
+            Assert.ThrowsException<NotSupportedException>(() =>
+            {
+                var js = CompileBinding("TestViewModel2", new[] { typeof(TestViewModel) }, typeof(string));
+            });
+        }
 
 		[TestMethod]
 		public void JavascriptCompilation_Parent()

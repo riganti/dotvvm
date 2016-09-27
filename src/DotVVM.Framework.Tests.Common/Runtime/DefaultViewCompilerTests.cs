@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Tests.Runtime
     public class DefaultViewCompilerTests
     {
         private DotvvmRequestContext context;
-        
+
 
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_ElementWithAttributeProperty()
@@ -49,7 +49,7 @@ test <dot:Literal Text='test' />";
             Assert.IsInstanceOfType(page.Children[0], typeof(RawLiteral));
             Assert.AreEqual("test ", ((RawLiteral)page.Children[0]).EncodedText);
             Assert.IsInstanceOfType(page.Children[1], typeof(Literal));
-            
+
             var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
             Assert.IsNotNull(binding);
             Assert.AreEqual("FirstName", binding.OriginalString);
@@ -94,32 +94,38 @@ test <dot:Literal Text='test' />";
 
 
         [TestMethod]
-        [ExpectedException(typeof(DotvvmCompilationException))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_TextInside()
         {
-            var markup = @"@viewModel System.Object, mscorlib
+            Assert.ThrowsException<DotvvmCompilationException>(() =>
+            {
+                var markup = @"@viewModel System.Object, mscorlib
 test <dot:Literal>aaa</dot:Literal>";
-            var page = CompileMarkup(markup);
+                var page = CompileMarkup(markup);
+            });
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DotvvmCompilationException))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_BindingAndWhiteSpaceInside()
         {
-            var markup = @"@viewModel System.Object, mscorlib
+            Assert.ThrowsException<DotvvmCompilationException>(() =>
+            {
+                var markup = @"@viewModel System.Object, mscorlib
 test <dot:Literal>{{value: FirstName}}  </dot:Literal>";
-            var page = CompileMarkup(markup);
+                var page = CompileMarkup(markup);
+            });
         }
 
         [TestMethod]
-        [ExpectedException(typeof(DotvvmCompilationException))]
         public void DefaultViewCompiler_CodeGeneration_ElementCannotHaveContent_ElementInside()
         {
-            var markup = @"@viewModel System.Object, mscorlib
+            Assert.ThrowsException<DotvvmCompilationException>(() =>
+     {
+         var markup = @"@viewModel System.Object, mscorlib
 test <dot:Literal><a /></dot:Literal>";
-            var page = CompileMarkup(markup);
+         var page = CompileMarkup(markup);
+     });
         }
-        
+
         [TestMethod]
         public void DefaultViewCompiler_CodeGeneration_Template()
         {
@@ -138,7 +144,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             DotvvmControl placeholder = new PlaceHolder();
             ((Repeater)page.Children[0]).ItemTemplate.BuildContent(context, placeholder);
-            
+
             Assert.AreEqual(3, placeholder.Children.Count);
             Assert.IsTrue(string.IsNullOrWhiteSpace(((RawLiteral)placeholder.Children[0]).EncodedText));
             Assert.AreEqual("p", ((HtmlGenericControl)placeholder.Children[1]).TagName);
@@ -185,7 +191,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             Assert.IsInstanceOfType(page, typeof(DotvvmView));
             Assert.IsInstanceOfType(page.Children[0], typeof(DotvvmView));
-            
+
             var literal = page.Children[0].Children[0];
             Assert.IsInstanceOfType(literal, typeof(Literal));
             Assert.AreEqual("aaa", ((Literal)literal).Text);
@@ -280,11 +286,13 @@ test <dot:Literal><a /></dot:Literal>";
 
 
         [TestMethod]
-        [ExpectedException(typeof(DotvvmCompilationException))]
         public void DefaultViewCompiler_CodeGeneration_Page_InvalidViewModelClass()
         {
-            var markup = "@viewModel nonexistingclass\r\n{{value: Test}}";
-            var page = CompileMarkup(markup);
+            Assert.ThrowsException<DotvvmCompilationException>(() =>
+            {
+                var markup = "@viewModel nonexistingclass\r\n{{value: Test}}";
+                var page = CompileMarkup(markup);
+            });
         }
 
 
@@ -299,9 +307,9 @@ test <dot:Literal><a /></dot:Literal>";
 
             context = new DotvvmRequestContext();
             context.Configuration = DotvvmConfiguration.CreateDefault(services =>
-			{
+            {
                 services.AddSingleton<IMarkupFileLoader>(new FakeMarkupFileLoader(markupFiles));
-			});
+            });
             context.Configuration.ApplicationPhysicalPath = Path.GetTempPath();
 
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test1", Src = "test1.dothtml" });
@@ -312,7 +320,7 @@ test <dot:Literal><a /></dot:Literal>";
 
             var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
             var controlBuilder = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
-            
+
             var result = controlBuilder.BuildControl(controlBuilderFactory);
             if (compileTwice)
             {
@@ -320,7 +328,7 @@ test <dot:Literal><a /></dot:Literal>";
             }
             return result;
         }
-        
+
     }
 
     public class ViewCompilerTestViewModel
@@ -330,7 +338,7 @@ test <dot:Literal><a /></dot:Literal>";
 
     public class TestControl : DotvvmMarkupControl
     {
-        
+
     }
 
     public class FakeMarkupFileLoader : IMarkupFileLoader
