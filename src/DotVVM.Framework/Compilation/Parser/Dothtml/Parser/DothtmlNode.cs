@@ -6,7 +6,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
     public abstract class DothtmlNode
     {
-        public int StartPosition => Tokens.First().StartPosition;
+        public int StartPosition => Tokens.FirstOrDefault()?.StartPosition ?? 0;
 
         public int Length => Tokens.Select(t => t.Length).Sum();
 

@@ -615,6 +615,20 @@ test";
             Assert.AreEqual(parentElement.TagName, "a");
         }
 
+        [TestMethod]
+        public void DothtmlParser_EmptyText()
+        {
+            var markup = string.Empty;
+            var root = ParseMarkup(markup);
+
+            Assert.IsTrue(root.StartPosition == 0);
+            Assert.IsTrue(root.Length == 0);
+            Assert.IsTrue(root.Tokens.Count == 0);
+            Assert.IsTrue(root.Content.Count == 0);
+            Assert.IsTrue(root.Directives.Count == 0);
+            Assert.IsTrue(root.Content.Count == 0);
+        }
+
         public static DothtmlRootNode ParseMarkup(string markup)
         {
             var tokenizer = new DothtmlTokenizer();
