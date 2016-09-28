@@ -410,6 +410,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         string error;
                         if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute), out error)) attribute.AddError(error);
                     }
+                    else if (property.MarkupOptions.AllowAttributeWithoutValue)
+                    {
+                        string error;
+                        if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, (property as DotVVM.Framework.Binding.DotvvmProperty)?.DefaultValue, attribute), out error)) attribute.AddError(error);
+                    }
                     else attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
                 }
                 else if (attribute.ValueNode is DothtmlValueBindingNode)

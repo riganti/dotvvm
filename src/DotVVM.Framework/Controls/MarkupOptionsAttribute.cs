@@ -42,6 +42,11 @@ namespace DotVVM.Framework.Controls
 		/// </summary>
 		public MappingMode MappingMode { get; set; } = MappingMode.Attribute;
 
+        /// <summary>
+        /// Determines whether attributes without value are alowed.
+        /// </summary>
+        public bool AllowAttributeWithoutValue { get; set; }
+
         public bool Required { get; set; }
     }
 }
