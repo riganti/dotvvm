@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace DotVVM.Framework.Tests.Common {
+namespace DotVVM.Framework.Tests {
     using System;
     using System.Reflection;
     
