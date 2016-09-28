@@ -390,8 +390,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var property = FindProperty(control.Metadata, name);
             if (property != null)
             {
-                if (control.HasProperty(property)) attribute.AttributeNameNode.AddError($"control '{ ((DothtmlElementNode)control.DothtmlNode).FullTagName }' already has property '{ attribute.AttributeName }'.");
-
                 if (property.IsBindingProperty || property.DataContextManipulationAttribute != null) // when DataContextManipulationAttribute is set, lets hope that author knows what is he doing.
                 {
                     dataContext = GetDataContextChange(dataContext, control, property);
