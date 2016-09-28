@@ -10,7 +10,6 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Tests.Common;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -186,7 +185,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Invalid_EnumStringComparison()
         {
-            Assert.ThrowsException<Exception>(() =>
+            Assert.ThrowsException<InvalidOperationException>(() =>
             {
                 var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
                 ExecuteBinding("Enum == 'ghfjdskdjhbvdksdj'", viewModel);
