@@ -7,22 +7,25 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Utils
 {
+
 #if DotNetCore
     using System.Runtime.Loader;
-	public class AssemblyLoader : AssemblyLoadContext
+	public class AssemblyLoader 
 	{
-		protected override Assembly Load(AssemblyName assemblyName) => Assembly.Load(assemblyName);
+	    
+	    public static Assembly LoadRaw(byte[] data) => AssemblyLoadContext.Default.LoadFromStream(new MemoryStream(data));
 
-		public static Assembly LoadRaw(byte[] data) => new AssemblyLoader().LoadFromStream(new MemoryStream(data));
-
-		public static Assembly LoadFile(string path) => new AssemblyLoader().LoadFromAssemblyPath(path);
+		public static Assembly LoadFile(string path) => AssemblyLoadContext.Default.LoadFromAssemblyPath(path);
+        
 	}
 #else
+
 	public class AssemblyLoader
 	{
 		public static Assembly LoadRaw(byte[] data) => Assembly.Load(data);
 
 		public static Assembly LoadFile(string path) => Assembly.LoadFile(path);
 	}
+
 #endif
 }
