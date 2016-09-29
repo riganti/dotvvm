@@ -1,6 +1,6 @@
-{
+﻿{
   "description": "ASP.NET MVVM Framework",
-  "version": "1.0.6-pre",
+  "version": "1.0.8-pre",
   "packOptions": {
     "id": "DotVVM",
     "owners": [ "RIGANTI s.r.o." ],

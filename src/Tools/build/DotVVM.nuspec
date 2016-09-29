@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>DotVVM</id>
-        <version>1.0.6-pre</version>
+        <version>1.0.8-pre</version>
         <authors>RIGANTI</authors>
         <owners>RIGANTI s.r.o.</owners>
         <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
@@ -15,7 +15,7 @@
         <tags>dotvvm,asp.net,mvvm,owin,dotnetcore</tags>
        <dependencies>
             <group targetFramework=".NETFramework4.6.1">
-                <dependency id="DotVVM.Core" version="[1.0.6-pre, )" />
+                <dependency id="DotVVM.Core" version="1.0.8-pre" />
                 <dependency id="Microsoft.CodeAnalysis.CSharp" version="[1.3.2, )" />
                 <dependency id="Microsoft.Extensions.DependencyInjection" version="[1.0.0, )" />
                 <dependency id="Microsoft.Extensions.DependencyModel" version="[1.0.0, )" />
@@ -30,7 +30,7 @@
                 <dependency id="System.Runtime.Loader" version="[4.0.0, )" />
                 <dependency id="System.Security.Claims" version="[4.0.1, )" />
                 <dependency id="System.Threading.Thread" version="[4.0.0, )" />
-                <dependency id="DotVVM.Core" version="[1.0.4-pre, )" />
+                <dependency id="DotVVM.Core" version="1.0.8-pre" />
                 <dependency id="Microsoft.CodeAnalysis.CSharp" version="[1.3.2, )" />
                 <dependency id="Microsoft.Extensions.DependencyInjection" version="[1.0.0, )" />
                 <dependency id="Microsoft.Extensions.DependencyModel" version="[1.0.0, )" />
@@ -42,7 +42,7 @@
     <files>
         <file src="..\..\DotVVM.Framework\bin\Release\net461\DotVVM.Framework.dll" target="lib\net461\DotVVM.Framework.dll" />
         <file src="..\..\DotVVM.Framework\bin\Release\net461\DotVVM.Framework.xml" target="lib\net461\DotVVM.Framework.xml" />
-        <file src="..\..\DotVVM.Compiler\bin\Release\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" /> 
+        <file src="..\..\DotVVM.Compiler\bin\Release\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />
         <file src="..\..\DotVVM.Framework\bin\Release\netstandard1.6\DotVVM.Framework.dll" target="lib\netstandard1.6\DotVVM.Framework.dll" />
         <file src="..\..\DotVVM.Framework\bin\Release\netstandard1.6\DotVVM.Framework.xml" target="lib\netstandard1.6\DotVVM.Framework.xml" />
     </files>

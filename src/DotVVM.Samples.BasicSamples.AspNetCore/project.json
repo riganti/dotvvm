@@ -1,7 +1,7 @@
 {
   "dependencies": {
-    "DotVVM.Framework": "1.0.4-*",
-    "DotVVM.Framework.Hosting.AspNetCore": "1.0.4-*",
+    "DotVVM.Framework": { "target": "project" },
+    "DotVVM.Framework.Hosting.AspNetCore": { "target": "project" },
     "DotVVM.Samples.Common": "1.0.0-*",
     "Microsoft.AspNetCore.Diagnostics": "1.0.0",
     "Microsoft.AspNetCore.Hosting.Abstractions": "1.0.0",

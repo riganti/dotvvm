@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+  <metadata>
+    <id>DotVVM.AspNetCore</id>
+      <version>1.0.8-pre</version>
+       <authors>RIGANTI</authors>
+        <owners>RIGANTI s.r.o.</owners>
+        <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
+        <projectUrl>http://github.org/riganti/dotvvm</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>DotVVM.AspNetCore is DotNet Core hosting layer for DotVVM projects.</description>
+        <summary />
+	      <iconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</iconUrl>
+        <language />
+        <tags>dotvvm,asp.net,mvvm,owin,dotnetcore</tags>
+    <dependencies>
+      <group targetFramework=".NETFramework4.6.1">
+        <dependency id="DotVVM.Framework" version="[1.0.6-pre, )" />
+        <dependency id="Microsoft.AspNetCore.Authentication.Cookies" version="[1.0.0, )" />
+        <dependency id="Microsoft.AspNetCore.DataProtection" version="[1.0.0, )" />
+        <dependency id="Microsoft.AspNetCore.Http.Extensions" version="[1.0.0, )" />
+        <dependency id="Microsoft.AspNetCore.Authorization" version="[1.0.0, )" />
+        <dependency id="Microsoft.AspNetCore.Localization" version="[1.0.0, )" />
+      </group>
+      <group targetFramework=".NETStandard1.6">
+        <dependency id="DotVVM.Framework" version="[1.0.6-pre, )" />
+        <dependency id="Microsoft.AspNetCore.Authentication.Cookies" version="[1.0.0, )" />
+        <dependency id="Microsoft.AspNetCore.DataProtection" version="[1.0.0, )" />
+        <dependency id="Microsoft.AspNetCore.Http.Extensions" version="[1.0.0, )" />
+        <dependency id="Microsoft.AspNetCore.Authorization" version="[1.0.0, )" />
+        <dependency id="Microsoft.AspNetCore.Localization" version="[1.0.0, )" />
+      </group>
+    </dependencies>
+  </metadata>
+    <files>
+        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\net461\DotVVM.Framework.Hosting.AspNetCore.dll" target="lib\net461\Dotvvm.Framework.Owin.dll" />
+        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\net461\DotVVM.Framework.Hosting.AspNetCore.xml" target="lib\net461\Dotvvm.Framework.Owin.xml" />
+        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\netstandard1.6\DotVVM.Framework.Hosting.AspNetCore.dll" target="lib\netstandard1.6\Dotvvm.Framework.Owin.dll" />
+        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\netstandard1.6\DotVVM.Framework.Hosting.AspNetCore.xml" target="lib\netstandard1.6\Dotvvm.Framework.Owin.xml" />
+    </files>
+</package>
