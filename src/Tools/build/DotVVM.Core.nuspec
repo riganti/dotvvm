@@ -2,24 +2,35 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>DotVVM.Core</id>
-        <version>1.0.3.1</version>
+        <version>1.0.6-pre</version>
         <authors>RIGANTI</authors>
+ 	<owners>RIGANTI s.r.o.</owners>
         <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
         <projectUrl>http://github.org/riganti/dotvvm</projectUrl>
         <requireLicenseAcceptance>false</requireLicenseAcceptance>
         <description>
 			Contains base classes and interfaces of DotVVM that might be useful in a business layer.
 			DotVVM is an OWIN-based ASP.NET framework that allows you to write rich client applications using the MVVM pattern without writing javascript code.
-		</description>
+	</description>
         <summary />
     	<iconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</iconUrl>
         <language />
-        <tags>dotvvm asp.net mvvm owin</tags>
-        <dependencies>
-            <group targetFramework=".NETFramework4.6.1" />
-            <group targetFramework=".NETStandard1.6" />
-        </dependencies>
+        <tags>dotvvm,asp.net,mvvm,owin,dotnetcore</tags>
+         <dependencies>
+     		 <group targetFramework=".NETFramework4.6.1">
+    			    <dependency id="NETStandard.Library" version="[1.6.0, )" />
+   		 </group>
+      		<group targetFramework=".NETStandard1.6">
+		        <dependency id="System.ComponentModel.Annotations" version="[4.1.0, )" />
+        		<dependency id="System.Linq.Queryable" version="[4.0.1, )" />
+        		<dependency id="NETStandard.Library" version="[1.6.0, )" />
+      		</group>
+    </dependencies>
+ <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework=".NETFramework4.6.1" />
+    </frameworkAssemblies>
     </metadata>
+   
     <files>
         <file src="..\..\DotVVM.Core\bin\Debug\net461\DotVVM.Core.dll" target="lib\net461\DotVVM.Core.dll" />
         <file src="..\..\DotVVM.Core\bin\Debug\net461\DotVVM.Core.xml" target="lib\net461\DotVVM.Core.xml" />

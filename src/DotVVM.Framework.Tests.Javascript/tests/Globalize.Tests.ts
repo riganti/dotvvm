@@ -1,4 +1,5 @@
-﻿describe("Globalize.js G number format", () => {
+﻿/// <reference path="../../dotvvm.framework/resources/scripts/typings/globalize/globalize.d.ts" />
+describe("Globalize.js G number format", () => {
 
     it("Zero", () => {
         expect(dotvvm_Globalize.format(10, "G", "en-US")).toBe("10");
