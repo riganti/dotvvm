@@ -50,19 +50,16 @@ namespace DotVVM.Samples.BasicSamples
                     )
                 }
             );
-
-            var applicationPhysicalPath = Path.Combine(Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath.TrimEnd('\\', '/')), "DotVVM.Samples.Common");
-
-            // use DotVVM
-            var dotvvmConfiguration = app.UseDotVVM<DotvvmStartup>(applicationPhysicalPath, registerServices: collection =>
+            
+            app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), builder: b =>
             {
-                collection.AddSingleton<IUploadedFileStorage>(
-                    p => new FileSystemUploadedFileStorage(Path.Combine(applicationPhysicalPath, "Temp"), TimeSpan.FromMinutes(30)));
+                b.AddFileSystemUploadedFileStorage("Temp");
             });
-            dotvvmConfiguration.Debug = true;
-
-            // use static files
+            
             app.UseStaticFiles();
         }
+
+        private string GetApplicationPath()
+            => Path.Combine(Path.GetDirectoryName(HostingEnvironment.ApplicationPhysicalPath.TrimEnd('\\', '/')), "DotVVM.Samples.Common");
     }
 }

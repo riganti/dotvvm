@@ -116,40 +116,45 @@ namespace DotVVM.Framework.Configuration
             Styles = new StyleRepository();
         }
 
-        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> configureServices = null)
+        /// <summary>
+        /// Creates the default configuration and optionally registers additional application services.
+        /// </summary>
+        /// <param name="registerServices">An action to register additional services.</param>
+        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
         {
-            var serviceCollection = new ServiceCollection();
-            //todo - change to component, not extension (problem with end-point platform specific package)
-            ServiceConfigurationHelper.AddDotvvmCoreServices(serviceCollection);
-            configureServices?.Invoke(serviceCollection);
-            var config = CreateDefault(new ServiceLocator(serviceCollection));
-            serviceCollection.AddSingleton(config);
+            var services = new ServiceCollection();
+            var config = CreateDefault(new ServiceLocator(services));
+            
+            services.AddDotVVMCore(config);
+            registerServices?.Invoke(services);
+            
             return config;
         }
 
         /// <summary>
-        /// Creates the default configuration.
+        /// Creates the default configuration using the given service provider.
         /// </summary>
-        public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider)
-        {
-            return CreateDefault(new ServiceLocator(serviceProvider));
-        }
+        /// <param name="serviceProvider">The service provider to resolve services from.</param>
+        public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider) 
+            => CreateDefault(new ServiceLocator(serviceProvider));
 
         private static DotvvmConfiguration CreateDefault(ServiceLocator serviceLocator)
         {
-            var configuration = new DotvvmConfiguration();
-            configuration.ServiceLocator = serviceLocator;
+            var config = new DotvvmConfiguration {
+                ServiceLocator = serviceLocator
+            };
 
-            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
-            configuration.Markup.Controls.AddRange(new[]
+            config.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
+
+            config.Markup.Controls.AddRange(new[]
             {
                 new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" }
             });
 
-            RegisterConstraints(configuration);
-            RegisterResources(configuration);
+            RegisterConstraints(config);
+            RegisterResources(config);
 
-            return configuration;
+            return config;
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
