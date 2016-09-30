@@ -15,7 +15,7 @@
         <tags>dotvvm,asp.net,mvvm,owin,dotnetcore</tags>
     <dependencies>
       <group targetFramework=".NETFramework4.6.1">
-        <dependency id="DotVVM.Framework" version="[1.0.6-pre, )" />
+        <dependency id="DotVVM" version="[1.0.8-pre, )" />
         <dependency id="Microsoft.AspNetCore.Authentication.Cookies" version="[1.0.0, )" />
         <dependency id="Microsoft.AspNetCore.DataProtection" version="[1.0.0, )" />
         <dependency id="Microsoft.AspNetCore.Http.Extensions" version="[1.0.0, )" />
@@ -23,7 +23,7 @@
         <dependency id="Microsoft.AspNetCore.Localization" version="[1.0.0, )" />
       </group>
       <group targetFramework=".NETStandard1.6">
-        <dependency id="DotVVM.Framework" version="[1.0.6-pre, )" />
+        <dependency id="DotVVM" version="[1.0.8-pre, )" />
         <dependency id="Microsoft.AspNetCore.Authentication.Cookies" version="[1.0.0, )" />
         <dependency id="Microsoft.AspNetCore.DataProtection" version="[1.0.0, )" />
         <dependency id="Microsoft.AspNetCore.Http.Extensions" version="[1.0.0, )" />
