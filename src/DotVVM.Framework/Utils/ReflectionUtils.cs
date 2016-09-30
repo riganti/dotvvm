@@ -11,6 +11,8 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using Microsoft.Extensions.PlatformAbstractions;
 using Microsoft.Extensions.DependencyModel;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DotVVM.Framework.Utils
 {
@@ -284,5 +286,14 @@ namespace DotVVM.Framework.Utils
             where T : Attribute =>
             attributeProvider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
 
+        public static string GetTypeHash(this Type type)
+        {
+            using (var sha1 = SHA1.Create())
+            {
+                var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(type.AssemblyQualifiedName));
+
+                return Convert.ToBase64String(hashBytes);
+            }
+        }
     }
 }

@@ -154,7 +154,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
                 }
-                if (rule.Count > 0) validationRules[map.Type.GetTypeId()] = rule;
+                if (rule.Count > 0) validationRules[map.Type.GetTypeHash()] = rule;
             }
             return validationRules;
         }
