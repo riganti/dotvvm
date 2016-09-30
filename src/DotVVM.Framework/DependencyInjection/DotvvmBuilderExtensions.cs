@@ -89,5 +89,14 @@ namespace Microsoft.Extensions.DependencyInjection
             configureAction(builder);
             return builder;
         }
+
+        /// <summary>
+        /// Indicates that the DotVVM configuration ends and allows to continue with the configuration of the <see cref="IServiceCollection"/>.
+        /// </summary>
+        /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
+        public static IServiceCollection Done(this IDotvvmBuilder builder)
+        {
+            return builder.Services;
+        }
     }
 }
