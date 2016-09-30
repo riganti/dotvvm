@@ -1,40 +1,34 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Runtime.Filters;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ActionFilterErrorHandling
 {
-	public class ActionFilterErrorHandlingViewModel : DotvvmViewModelBase
-	{
-
-	    public string Result { get; set; } = "no error";
+    public class ActionFilterErrorHandlingViewModel : DotvvmViewModelBase
+    {
+        public string Result { get; set; } = "no error";
 
         [ErrorHandlingActionFilter]
-	    public void HandledError()
-	    {
-	        throw new Exception("Error in command!");
-	    }
+        public void HandledError()
+        {
+            throw new Exception("Error in command!");
+        }
 
         public void Error()
         {
             throw new Exception("Error in command!");
         }
-
     }
 
     public class ErrorHandlingActionFilter : ExceptionFilterAttribute
     {
-        protected override void OnCommandException(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
+        protected override Task OnCommandExceptionAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
         {
-            ((ActionFilterErrorHandlingViewModel) context.ViewModel).Result = "error was handled";
+            ((ActionFilterErrorHandlingViewModel)context.ViewModel).Result = "error was handled";
             context.IsCommandExceptionHandled = true;
-
-            base.OnCommandException(context, actionInfo, ex);
+            return Task.CompletedTask;
         }
     }
 }
-

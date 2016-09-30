@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using Microsoft.Owin;
 
@@ -37,17 +38,17 @@ namespace DotVVM.Framework.Runtime.Filters
         public string[] Roles { get; set; }
 
         /// <inheritdoc />
-        protected override void OnViewModelCreated(IDotvvmRequestContext context)
+        protected override Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
         {
             Authorize(context);
-            base.OnViewModelCreated(context);
+            return Task.CompletedTask;
         }
 
         /// <inheritdoc />
-        protected override void OnCommandExecuting(IDotvvmRequestContext context, ActionInfo actionInfo)
+        protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
             Authorize(context);
-            base.OnCommandExecuting(context, actionInfo);
+            return Task.CompletedTask;
         }
 
         /// <summary>

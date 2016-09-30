@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Security.Claims;
+using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
@@ -19,22 +20,16 @@ namespace DotVVM.Framework.Runtime.Filters
         private static readonly ConcurrentDictionary<Type, bool> isAnonymousAllowedCache = new ConcurrentDictionary<Type, bool>();
 
         /// <inheritdoc />
-        protected override void OnViewModelCreated(IDotvvmRequestContext context)
-        {
-            Authorize(context, null);
-            base.OnViewModelCreated(context);
-        }
+        protected override Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
+            => Authorize(context, null);
 
         /// <inheritdoc />
-        protected override void OnCommandExecuting(IDotvvmRequestContext context, ActionInfo actionInfo)
-        {
-            Authorize(context, actionInfo);
-            base.OnCommandExecuting(context, actionInfo);
-        }
+        protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
+            => Authorize(context, actionInfo);
 
-        private void Authorize(IDotvvmRequestContext context, ActionInfo actionInfo)
+        private async Task Authorize(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
-            var policy = GetAuthorizationPolicy(context, actionInfo);
+            var policy = await GetAuthorizationPolicy(context, actionInfo);
 
             if (policy == null)
             {
@@ -49,7 +44,7 @@ namespace DotVVM.Framework.Runtime.Filters
 
                 foreach (var scheme in policy.AuthenticationSchemes)
                 {
-                    var result = coreContext.Authentication.AuthenticateAsync(scheme).Result;
+                    var result = await coreContext.Authentication.AuthenticateAsync(scheme);
 
                     if (result != null)
                     {
@@ -72,16 +67,14 @@ namespace DotVVM.Framework.Runtime.Filters
 
             var authService = coreContext.RequestServices.GetRequiredService<IAuthorizationService>();
 
-            if (!authService.AuthorizeAsync(coreContext.User, context, policy).Result)
+            if (!await authService.AuthorizeAsync(coreContext.User, context, policy))
             {
-                HandleUnauthorizedRequest(coreContext, policy);
+                await HandleUnauthorizedRequest(coreContext, policy);
             }
         }
 
-        private AuthorizationPolicy GetAuthorizationPolicy(IDotvvmRequestContext context, ActionInfo actionInfo)
+        private Task<AuthorizationPolicy> GetAuthorizationPolicy(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
-            // TODO: async action filters
-
             var policyProvider = GetPolicyProvider(context);
             var authorizeData = Enumerable.Empty<IAuthorizeData>();
 
@@ -94,7 +87,7 @@ namespace DotVVM.Framework.Runtime.Filters
                 authorizeData = GetAuthorizeData(context.ViewModel.GetType());
             }
 
-            return AuthorizationPolicy.CombineAsync(policyProvider, authorizeData).Result;
+            return AuthorizationPolicy.CombineAsync(policyProvider, authorizeData);
         }
 
         private IAuthorizationPolicyProvider GetPolicyProvider(IDotvvmRequestContext context)
@@ -109,18 +102,18 @@ namespace DotVVM.Framework.Runtime.Filters
         private bool IsAnonymousAllowed(object viewModel)
             => viewModel != null && isAnonymousAllowedCache.GetOrAdd(viewModel.GetType(), t => t.GetTypeInfo().GetCustomAttributes().OfType<IAllowAnonymous>().Any());
 
-        private void HandleUnauthorizedRequest(HttpContext context, AuthorizationPolicy policy)
+        private async Task HandleUnauthorizedRequest(HttpContext context, AuthorizationPolicy policy)
         {
             if (policy.AuthenticationSchemes != null && policy.AuthenticationSchemes.Count > 0)
             {
                 foreach (var scheme in policy.AuthenticationSchemes)
                 {
-                    context.Authentication.ChallengeAsync(scheme).Wait();
+                    await context.Authentication.ChallengeAsync(scheme);
                 }
             }
             else
             {
-                context.Authentication.ChallengeAsync().Wait();
+                await context.Authentication.ChallengeAsync();
             }
 
             throw new DotvvmInterruptRequestExecutionException("User unauthorized");

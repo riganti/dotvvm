@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Hosting
                 // run OnViewModelCreated on action filters
                 foreach (var filter in globalFilters.Concat(viewModelFilters))
                 {
-                    filter.OnViewModelCreated(context);
+                    await filter.OnViewModelCreatedAsync(context);
                 }
 
                 // init the view model lifecycle
@@ -207,7 +207,7 @@ namespace DotVVM.Framework.Hosting
                 // run OnResponseRendering on action filters
                 foreach (var filter in globalFilters.Concat(viewModelFilters))
                 {
-                    filter.OnResponseRendering(context);
+                    await filter.OnResponseRenderingAsync(context);
                 }
 
                 // render the output
@@ -251,7 +251,8 @@ namespace DotVVM.Framework.Hosting
                 // run OnPageException on action filters
                 foreach (var filter in globalFilters.Concat(viewModelFilters))
                 {
-                    filter.OnPageException(context, ex);
+                    await filter.OnPageExceptionAsync(context, ex);
+
                     if (context.IsPageExceptionHandled)
                     {
                         context.InterruptRequest();
@@ -297,9 +298,7 @@ namespace DotVVM.Framework.Hosting
                 .Concat(methodInfo.GetCustomAttributes<ActionFilterAttribute>())
                 .ToArray();
 
-            var task = ExecuteCommand(actionInfo, context, filters);
-            await task;
-            var result = TaskUtils.GetResult(task);
+            var result = await ExecuteCommand(actionInfo, context, filters);
 
             using (var writer = new StreamWriter(context.HttpContext.Response.Body))
             {
@@ -307,17 +306,21 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        protected Task ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
+        protected async Task<object> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
         {
             // run OnCommandExecuting on action filters
             foreach (var filter in methodFilters)
             {
-                filter.OnCommandExecuting(context, action);
+                await filter.OnCommandExecutingAsync(context, action);
             }
+
             object result = null;
+            Task resultTask = null;
+
             try
             {
                 result = action.Action();
+                resultTask = result as Task;
             }
             catch (Exception ex)
             {
@@ -335,7 +338,7 @@ namespace DotVVM.Framework.Hosting
             // run OnCommandExecuted on action filters
             foreach (var filter in methodFilters.Reverse())
             {
-                filter.OnCommandExecuted(context, action, context.CommandException);
+                await filter.OnCommandExecutedAsync(context, action, context.CommandException);
             }
 
             if (context.CommandException != null && !context.IsCommandExceptionHandled)
@@ -343,7 +346,13 @@ namespace DotVVM.Framework.Hosting
                 throw new Exception("Unhandled exception occured in the command!", context.CommandException);
             }
 
-            return result as Task ?? (result == null ? Task.CompletedTask : Task.FromResult(result));
+            if (resultTask != null)
+            {
+                await resultTask;
+                return TaskUtils.GetResult(resultTask);
+            }
+
+            return result;
         }
 
         public static bool DetermineIsPostBack(IHttpContext context)
