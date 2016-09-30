@@ -9,7 +9,7 @@
     <ProjectTypeGuids>{94EE71E2-EE2A-480B-8704-AF46D2E58D94};{349c5851-65df-11da-9384-00065b846f21};{fae04ec0-301f-11d3-bf4b-00c04f79efbc}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DotVVM.Samples.BasicSamples.Owin</RootNamespace>
+    <RootNamespace>DotVVM.Samples.BasicSamples</RootNamespace>
     <AssemblyName>DotVVM.Samples.BasicSamples.Owin</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <UseIISExpress>true</UseIISExpress>
@@ -199,12 +199,12 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Startup.cs" />
     <Compile Include="SwitchMiddlewareCase.cs" />
-    <Compile Include="ViewModels\ViewModels\ComplexSamples\Auth\LoginViewModel.cs" />
-    <Compile Include="ViewModels\ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
-    <Compile Include="ViewModels\ViewModels\ComplexSamples\SPARedirect\HomeViewModel.cs" />
-    <Compile Include="ViewModels\ViewModels\ComplexSamples\SPARedirect\LoginViewModel.cs" />
-    <Compile Include="ViewModels\ViewModels\ControlSamples\AuthnticatedView\AuthenticatedViewTestViewModel.cs" />
-    <Compile Include="ViewModels\ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\Auth\LoginViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\Auth\SecuredPageViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\SPARedirect\HomeViewModel.cs" />
+    <Compile Include="ViewModels\ComplexSamples\SPARedirect\LoginViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\AuthnticatedView\AuthenticatedViewTestViewModel.cs" />
+    <Compile Include="ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />

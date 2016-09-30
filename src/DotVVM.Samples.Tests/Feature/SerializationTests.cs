@@ -40,6 +40,7 @@ namespace DotVVM.Samples.Tests.Feature
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Serialization_ObservableCollectionShouldContainObservables);
+                browser.Wait();
                 
                 // verify that the values are selected
                 browser.ElementAt("select", 0).Select(0);
