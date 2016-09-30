@@ -223,7 +223,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // writer.WritePropertyName("$type");
             // serializer.Serialize(writer, value.GetType().FullName)
             block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$type"), writer));
-            block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.FullName)));
+            block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.GetTypeId())));
 
             // go through all properties that should be serialized
             foreach (var property in Properties)
