@@ -18,10 +18,11 @@ namespace DotVVM.Samples.BasicSamples
         {
             services.AddLocalization(o => o.ResourcesPath = "Resources");
 
+            services.AddAuthentication();
+
             services
-                .AddAuthentication()
                 .AddDotVVM()
-                .AddFileSystemUploadedFileStorage("Temp");
+                .ConfigureUploadedFileStorage("Temp");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

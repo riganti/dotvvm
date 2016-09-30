@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Hosting
 
             if (concreteContext == null)
             {
-                throw new NotSupportedException("This app must run on AspNetCore hosting.");
+                throw new NotSupportedException("This method can be used only in OWIN hosting!");
             }
 
             return concreteContext.OriginalContext;

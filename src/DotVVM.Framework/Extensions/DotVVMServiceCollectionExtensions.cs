@@ -12,14 +12,14 @@ using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
 {
-    public static class ServiceCollectionExtensions
+    public static class DotvvmServiceCollectionExtensions
     {
         /// <summary>
         /// Adds essential DotVVM services to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="configuration">The DotVVM configuration to use. A default one will be used if the value is <c>null</c>.</param>
-        public static IServiceCollection AddDotVVMCore(this IServiceCollection services, DotvvmConfiguration configuration = null)
+        public static IServiceCollection RegisterDotVVMServices(IServiceCollection services, DotvvmConfiguration configuration = null)
         {
             services.TryAddSingleton<IDotvvmViewBuilder, DefaultDotvvmViewBuilder>();
             services.TryAddSingleton<IViewModelSerializer, DefaultViewModelSerializer>();
@@ -40,8 +40,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
             services.TryAddSingleton<IBindingIdGenerator, OriginalStringBindingIdGenerator>();
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
-
-            services.AddSingleton(s => configuration ?? DotvvmConfiguration.CreateDefault(s));
+            
+            services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
 
             return services;
         }
