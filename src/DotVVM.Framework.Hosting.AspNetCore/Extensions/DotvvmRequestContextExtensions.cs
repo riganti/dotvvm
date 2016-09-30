@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Hosting
 
             if (concreteContext == null)
             {
-                throw new NotSupportedException("This app must run on ASP.NET Core hosting.");
+                throw new PlatformNotSupportedException("This method can be used only in ASP.NET Core hosting!");
             }
 
             return concreteContext.OriginalContext;

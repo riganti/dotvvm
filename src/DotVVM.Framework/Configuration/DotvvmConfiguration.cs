@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Configuration
             var services = new ServiceCollection();
             var config = CreateDefault(new ServiceLocator(services));
             
-            services.AddDotVVMCore(config);
+            DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services, config);
             registerServices?.Invoke(services);
             
             return config;
