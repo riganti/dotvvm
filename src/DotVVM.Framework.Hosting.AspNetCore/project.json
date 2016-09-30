@@ -1,7 +1,9 @@
 {
-  "version": "1.0.6-pre",
+  "version": "1.0.8-pre",
   "dependencies": {
-    "DotVVM.Framework": { "target": "project" },
+    "DotVVM.Framework": {
+      "target": "project" 
+    },
     "Microsoft.AspNetCore.Authentication.Cookies": "1.0.0",
     "Microsoft.AspNetCore.DataProtection": "1.0.0",
     "Microsoft.AspNetCore.Http.Extensions": "1.0.0",

@@ -13,7 +13,9 @@
   "authors": [ "RIGANTI s.r.o." ],
   "title": "DotVVM",
   "dependencies": {
-    "DotVVM.Core": "1.0.6-*",
+    "DotVVM.Core": {
+      "target": "project"  
+    },
     "Microsoft.CodeAnalysis.CSharp": "1.3.2",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
