@@ -78,11 +78,18 @@ namespace DotVVM.Framework.Testing
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.Redirect, url);
         }
 
-        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
+
+        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectToUrl(url);
+
+            if (!string.IsNullOrEmpty(urlSuffix))
+            {
+                url += urlSuffix;
+            }
+
+            RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
         }
 
         public void RedirectToUrlPermanent(string url, bool replaceInHistory = false, bool allowSpaRedirect = false)

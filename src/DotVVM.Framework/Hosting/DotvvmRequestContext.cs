@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the underlying object for this HTTP request.
         /// </summary>
-        public IHttpContext HttpContext { get;  set; }
+        public IHttpContext HttpContext { get; set; }
 
         /// <summary>
         /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.
@@ -39,27 +39,27 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the global configuration of DotVVM.
         /// </summary>
-        public DotvvmConfiguration Configuration { get;  set; }
+        public DotvvmConfiguration Configuration { get; set; }
 
         /// <summary>
         /// Gets the route that was used for this request.
         /// </summary>
-        public RouteBase Route { get;  set; }
+        public RouteBase Route { get; set; }
 
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
         /// </summary>
-        public bool IsPostBack { get;  set; }
+        public bool IsPostBack { get; set; }
 
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
         /// </summary>
-        public IDictionary<string, object> Parameters { get;  set; }
+        public IDictionary<string, object> Parameters { get; set; }
 
         /// <summary>
         /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
         /// </summary>
-        public ResourceManager ResourceManager { get;  set; }
+        public ResourceManager ResourceManager { get; set; }
 
         /// <summary>
         /// Gets the view model object for the current HTTP request.
@@ -93,16 +93,16 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public bool IsCommandExceptionHandled { get; set; }
 
-		internal void RedirectToUrl(object p)
-		{
-			throw new NotImplementedException();
-		}
+        internal void RedirectToUrl(object p)
+        {
+            throw new NotImplementedException();
+        }
 
-		/// <summary>
-		/// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
-		/// This property is typically set from the action filter's OnPageExceptionHandled method.
-		/// </summary>
-		public bool IsPageExceptionHandled { get; set; }
+        /// <summary>
+        /// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
+        /// This property is typically set from the action filter's OnPageExceptionHandled method.
+        /// </summary>
+        public bool IsPageExceptionHandled { get; set; }
 
 
         /// <summary>
@@ -205,10 +205,16 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
+        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
+
+            if (!string.IsNullOrEmpty(urlSuffix))
+            {
+                url += urlSuffix;
+            }
+
             RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
         }
 
@@ -234,7 +240,6 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the redirect response.
         /// </summary>
-        /// <param name="forceRefresh"></param>
         public static void SetRedirectResponse(IHttpContext httpContext, string url, int statusCode, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
             if (!DotvvmPresenter.DeterminePartialRendering(httpContext))

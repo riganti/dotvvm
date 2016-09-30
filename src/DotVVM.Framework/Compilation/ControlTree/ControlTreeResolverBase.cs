@@ -390,8 +390,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var property = FindProperty(control.Metadata, name);
             if (property != null)
             {
-                if (control.HasProperty(property)) attribute.AttributeNameNode.AddError($"control '{ ((DothtmlElementNode)control.DothtmlNode).FullTagName }' already has property '{ attribute.AttributeName }'.");
-
                 if (property.IsBindingProperty || property.DataContextManipulationAttribute != null) // when DataContextManipulationAttribute is set, lets hope that author knows what is he doing.
                 {
                     dataContext = GetDataContextChange(dataContext, control, property);
@@ -411,6 +409,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     {
                         string error;
                         if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, true, attribute), out error)) attribute.AddError(error);
+                    }
+                    else if (property.MarkupOptions.AllowAttributeWithoutValue)
+                    {
+                        string error;
+                        if (!treeBuilder.AddProperty(control, treeBuilder.BuildPropertyValue(property, (property as DotVVM.Framework.Binding.DotvvmProperty)?.DefaultValue, attribute), out error)) attribute.AddError(error);
                     }
                     else attribute.AddError($"The attribute '{property.Name}' on the control '{control.Metadata.Type.FullName}' must have a value!");
                 }

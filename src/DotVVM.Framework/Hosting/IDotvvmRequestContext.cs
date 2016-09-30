@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Hosting
         string CsrfToken { get; set; }
 
         JObject ReceivedViewModelJson { get; set; }
-      
+
 
         /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Hosting
 
         JObject ViewModelJson { get; set; }
 
-        Dictionary<string, string> PostBackUpdatedControls { get;}
+        Dictionary<string, string> PostBackUpdatedControls { get; }
 
         /// <summary>
         /// Gets the top-level control representing the whole view for the current request.
@@ -85,11 +85,11 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         IQueryCollection Query { get; }
 
-		/// <summary>
-		/// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
-		/// This property is typically set from the exception filter.
-		/// </summary>
-		bool IsCommandExceptionHandled { get; set; }
+        /// <summary>
+        /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
+        /// This property is typically set from the exception filter.
+        /// </summary>
+        bool IsCommandExceptionHandled { get; set; }
 
         /// <summary>
         /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
@@ -155,7 +155,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true);
+        void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null);
 
         /// <summary>
         /// Returns the permanent redirect response and interrupts the execution of current request.

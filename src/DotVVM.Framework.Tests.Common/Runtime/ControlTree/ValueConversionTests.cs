@@ -27,10 +27,12 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
 
         [TestMethod]
-        [ExpectedException(typeof(Exception), AllowDerivedTypes = true)]
         public void ValueConversion_ErrorEnumFlags()
         {
-            ReflectionUtils.ConvertValue("Local | NonPublic", typeof(DateTimeKind));
+            Assert.ThrowsException<Exception>(() =>
+            {
+                ReflectionUtils.ConvertValue("Local | NonPublic", typeof(DateTimeKind));
+            });
         }
     }
 }

@@ -13,18 +13,22 @@ namespace DotVVM.Framework.Tests.Routing
         DotvvmConfiguration configuration = DotvvmConfiguration.CreateDefault();
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void DotvvmRoute_IsMatch_RouteMustNotStartWithSlash()
         {
-            var route = new DotvvmRoute("/Test", null, null, null, configuration);
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                var route = new DotvvmRoute("/Test", null, null, null, configuration);
+            });
         }
 
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void DotvvmRoute_IsMatch_RouteMustNotEndWithSlash()
         {
-            var route = new DotvvmRoute("Test/", null, null, null, configuration);
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
+                var route = new DotvvmRoute("Test/", null, null, null, configuration);
+            });
         }
 
         [TestMethod]
@@ -266,22 +270,29 @@ namespace DotVVM.Framework.Tests.Routing
 
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameter()
         {
-            var route = new DotvvmRoute("{Id", null, null, null, configuration);
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
 
-            var result = route.BuildUrl(new { });
+                var route = new DotvvmRoute("{Id", null, null, null, configuration);
+
+                var result = route.BuildUrl(new { });
+            });
         }
 
 
         [TestMethod]
-        [ExpectedException(typeof(ArgumentException))]
+ 
         public void DotvvmRoute_BuildUrl_Invalid_UnclosedParameterConstraint()
         {
-            var route = new DotvvmRoute("{Id:int", null, null, null, configuration);
+            Assert.ThrowsException<ArgumentException>(() =>
+            {
 
-            var result = route.BuildUrl(new { });
+                var route = new DotvvmRoute("{Id:int", null, null, null, configuration);
+
+                var result = route.BuildUrl(new { });
+            });
         }
 
 

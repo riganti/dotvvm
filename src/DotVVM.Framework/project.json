@@ -1,7 +1,19 @@
-{
-  "version": "1.0.4-pre",
+﻿{
+  "description": "ASP.NET MVVM Framework",
+  "version": "1.0.8-pre",
+  "packOptions": {
+    "id": "DotVVM",
+    "owners": [ "RIGANTI s.r.o." ],
+    "summary": "",
+    "tags": [ "dotvvm", "asp.net", "mvvm", "owin", "dotnetcore" ],
+    "iconUrl": "https://dotvvm.com/Content/images/icons/icon-blue-64x64.png",
+    "licenseUrl": "https://github.com/riganti/dotvvm/blob/master/LICENSE",
+    "requireLicenseAcceptance": false
+  },
+  "authors": [ "RIGANTI s.r.o." ],
+  "title": "DotVVM",
   "dependencies": {
-    "DotVVM.Core": "1.0.4-*",
+    "DotVVM.Core": "1.0.6-*",
     "Microsoft.CodeAnalysis.CSharp": "1.3.2",
     "Microsoft.Extensions.DependencyInjection": "1.0.0",
     "Microsoft.Extensions.DependencyModel": "1.0.0",
