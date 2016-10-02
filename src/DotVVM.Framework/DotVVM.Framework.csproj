@@ -433,6 +433,7 @@
     <Compile Include="ResourceManagement\ResourceConfigurationCollectionNameAttribute.cs" />
     <Compile Include="ResourceManagement\ResourceRenderPosition.cs" />
     <Compile Include="ResourceManagement\ResourceRepositoryJsonConverter.cs" />
+    <Compile Include="ResourceManagement\ResourceUrlGenerator.cs" />
     <Compile Include="ResourceManagement\ScriptResource.cs" />
     <Compile Include="ResourceManagement\SingleResourceProcessorBase.cs" />
     <Compile Include="ResourceManagement\StylesheetResource.cs" />

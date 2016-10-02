@@ -23,7 +23,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddAttribute("href", GetUrl());
+            writer.AddAttribute("href", GetUrl(context));
             writer.AddAttribute("rel", "stylesheet");
             writer.AddAttribute("type", "text/css");
             writer.RenderSelfClosingTag("link");

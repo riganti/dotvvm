@@ -60,14 +60,14 @@ namespace DotVVM.Framework.ResourceManagement
                 {
                     writer.RenderBeginTag("script");
 
-                    var url = context.TranslateVirtualPath(GetUrl());
+                    var url = context.TranslateVirtualPath(GetUrl(context));
                     writer.WriteUnencodedText(string.Format(CdnFallbackScript, GlobalObjectName, url));
                     writer.RenderEndTag();
                 }
             }
             else if (Url != null)
             {
-                writer.AddAttribute("src", GetUrl());
+                writer.AddAttribute("src", GetUrl(context));
                 writer.AddAttribute("type", "text/javascript");
                 writer.RenderBeginTag("script");
                 writer.RenderEndTag();
