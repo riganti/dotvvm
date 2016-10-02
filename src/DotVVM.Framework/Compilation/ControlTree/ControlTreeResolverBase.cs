@@ -14,6 +14,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
+using System.Collections.ObjectModel;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -109,7 +110,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         protected virtual IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> ProcessDirectives(DothtmlRootNode root)
         {
-            var directives = new Dictionary<string, IReadOnlyList<IAbstractDirective>>(StringComparer.CurrentCultureIgnoreCase);
+            var directives = new Dictionary<string, IReadOnlyList<IAbstractDirective>>(StringComparer.OrdinalIgnoreCase);
 
             foreach (var directiveGroup in root.Directives.GroupBy(d => d.Name, StringComparer.OrdinalIgnoreCase))
             {
@@ -128,7 +129,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
             }
 
-            return directives.ToImmutableDictionary();
+            return new ReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>>(directives);
         }
 
         protected virtual ImmutableList<NamespaceImport> ResolveNamespaceImports(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root)
