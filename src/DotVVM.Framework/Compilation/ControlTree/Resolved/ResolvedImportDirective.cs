@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         public BindingParserNode AliasSyntax { get; }
         public BindingParserNode NameSyntax { get; }
 
-        public TextRange NameRange { get; }
+        public ITextRange NameRange { get; }
 
         public bool HasError => DothtmlNode.HasNodeErrors;
         public Type Type { get; }

@@ -4,7 +4,7 @@ namespace DotVVM.Framework.Compilation.Parser
 	{
 		public string ErrorMessage { get; private set; }
 
-		public abstract TextRange Range { get; }
+		public abstract ITextRange Range { get; }
 
 		public bool IsCritical { get; }
 
@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation.Parser
 		public TokenizerBase<TToken, TTokenType> Tokenizer { get; private set; }
 
 		private TextRange range = null;
-		public override TextRange Range => range ?? (range = GetRange());
+		public override ITextRange Range => range ?? (range = GetRange());
 
 		public TokenError(string errorMessage, TokenizerBase<TToken, TTokenType> tokenizer, bool isCritical = false) : base(errorMessage, isCritical)
 		{

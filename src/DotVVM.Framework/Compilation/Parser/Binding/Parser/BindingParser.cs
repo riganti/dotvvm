@@ -685,7 +685,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             }
             else if (startIndex == Tokens.Count && Tokens.Count > 0)
             {
-                node.StartPosition = Tokens[startIndex - 1].StartPosition + Tokens[startIndex - 1].Length;
+                node.StartPosition = Tokens[startIndex - 1].EndPosition;
             }
             node.Length = node.Tokens.Sum(t => (int?)t.Length) ?? 0;
 

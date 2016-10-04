@@ -6,14 +6,13 @@ using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
 namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 {
     [DebuggerDisplay("{DebuggerDisplay,nq}")]
-    public abstract class BindingParserNode
+    public abstract class BindingParserNode : ITextRange
     {
         protected string DebuggerDisplay => $"(S: {StartPosition}, L: {Length}, Err: {NodeErrors.Count}): {ToDisplayString()}";
 
         public int StartPosition { get; internal set; }
-
         public int Length { get; internal set; }
-
+        public int EndPosition => StartPosition + Length;
 
         public List<BindingToken> Tokens { get; internal set; }
 
@@ -42,7 +41,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
 
         public BindingParserNode FindNodeByPosition(int position)
         {
-            return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.StartPosition + n.Length);
+            return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.EndPosition);
         }
 
         public abstract IEnumerable<BindingParserNode> EnumerateChildNodes();
