@@ -10,13 +10,7 @@ namespace DotVVM.Framework.Routing
 {
     public class DotvvmRoute : RouteBase
     {
-        public static readonly Dictionary<string, IRouteParameterType> ParameterTypes = new Dictionary<string, IRouteParameterType>
-        {
-            { "int", new GenericRouteParameterType("-?[0-9]*?", s => int.Parse(s)) },
-            { "posint", new GenericRouteParameterType("[0-9]*?", s => int.Parse(s)) },
-            { "float", new GenericRouteParameterType("-?[0-9.e]*?", s => float.Parse(s)) },
-            { "guid", new GenericRouteParameterType("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", s => Guid.Parse(s)) }
-        };
+        public IDictionary<string, IRouteParameterType> ParameterTypes { get; private set; }
 
         private Func<IDotvvmPresenter> presenterFactory;
 
@@ -33,10 +27,11 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, object defaultValues, Func<IDotvvmPresenter> presenterFactory)
+        public DotvvmRoute(string url, string virtualPath, object defaultValues, Func<IDotvvmPresenter> presenterFactory, IDictionary<string, IRouteParameterType> parameterTypes  = null)
             : base(url, virtualPath, defaultValues)
         {
             this.presenterFactory = presenterFactory;
+            this.ParameterTypes = parameterTypes ?? new Dictionary<string, IRouteParameterType>();
 
             ParseRouteUrl();
         }
@@ -44,10 +39,11 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory)
+        public DotvvmRoute(string url, string virtualPath, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory, IDictionary<string, IRouteParameterType> parameterTypes = null)
             : base(url, virtualPath, defaultValues)
         {
             this.presenterFactory = presenterFactory;
+            this.ParameterTypes = parameterTypes ?? new Dictionary<string, IRouteParameterType>();
 
             ParseRouteUrl();
         }
@@ -55,10 +51,11 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory)
+        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory, IDictionary<string, IRouteParameterType> parameterTypes = null)
             : base(url, virtualPath, name, defaultValues)
         {
             this.presenterFactory = presenterFactory;
+            this.ParameterTypes = parameterTypes ?? new Dictionary<string, IRouteParameterType>();
 
             ParseRouteUrl();
         }

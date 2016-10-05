@@ -474,6 +474,7 @@
       <DesignTime>True</DesignTime>
       <DependentUpon>DothtmlTokenizerErrors.resx</DependentUpon>
     </Compile>
+    <Compile Include="Routing\DefaultRouteParameterTypes.cs" />
     <Compile Include="Routing\DotvvmRouteException.cs" />
     <Compile Include="Routing\DotvvmRouteStrategyException.cs" />
     <Compile Include="Routing\DefaultRouteStrategy.cs" />
