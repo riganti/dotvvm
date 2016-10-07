@@ -176,7 +176,7 @@ namespace DotVVM.Framework.Utils
             {
                 var str = value as string;
                 if (type == typeof(string[]))
-                    return str.Split(',');
+                    return str.Split(',').Select(s => ConvertValue(s, typeinfo.GetElementType())).ToArray();
             }
 
             // convert
