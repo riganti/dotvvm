@@ -42,8 +42,12 @@
     <files>
         <file src="..\..\DotVVM.Framework\bin\Release\net461\DotVVM.Framework.dll" target="lib\net461\DotVVM.Framework.dll" />
         <file src="..\..\DotVVM.Framework\bin\Release\net461\DotVVM.Framework.xml" target="lib\net461\DotVVM.Framework.xml" />
-        <file src="..\..\DotVVM.Compiler\bin\Release\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />
         <file src="..\..\DotVVM.Framework\bin\Release\netstandard1.6\DotVVM.Framework.dll" target="lib\netstandard1.6\DotVVM.Framework.dll" />
         <file src="..\..\DotVVM.Framework\bin\Release\netstandard1.6\DotVVM.Framework.xml" target="lib\netstandard1.6\DotVVM.Framework.xml" />
+        <file src="..\..\DotVVM.Compiler\bin\Release\DotVVM.Compiler.exe" target="tools\DotVVM.Compiler.exe" />
+        <file src="..\..\DotVVM.Compiler.Light\bin\Release\netcoreapp1.0\DotVVM.Compiler.Light.dll" target="tools\DotVVM.Compiler.Light.dll" />
+        <file src="..\..\DotVVM.Compiler.Light\bin\Release\netcoreapp1.0\DotVVM.Compiler.Light.deps.json" target="tools\DotVVM.Compiler.Light.deps.json" />
+        <file src="..\..\DotVVM.Compiler.Light\bin\Release\netcoreapp1.0\DotVVM.Compiler.Light.runtimeconfig.dev.json" target="tools\DotVVM.Compiler.Light.runtimeconfig.dev.json" />
+        <file src="..\..\DotVVM.Compiler.Light\bin\Release\netcoreapp1.0\DotVVM.Compiler.Light.runtimeconfig.json" target="tools\DotVVM.Compiler.Light.runtimeconfig.json" />
     </files>
 </package>
