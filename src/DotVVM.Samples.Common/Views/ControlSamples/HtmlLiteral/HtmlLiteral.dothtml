@@ -1,0 +1,46 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.HtmlLiteral.HtmlLiteralViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+	<table>
+		<tr>
+			<td>
+				<h1>Client Rendering</h1>
+
+				<fieldset>
+					<legend>Literal Text=binding, FormatString=null, RenderWrapperTag=true</legend>
+					<dot:HtmlLiteral Html="{value: Html}" />
+				</fieldset>
+				
+				<fieldset>
+					<legend>Literal Text=binding, FormatString=null, RenderWrapperTag=false</legend>
+					<!--<dot:HtmlLiteral Html="{value: Html}" RenderWrapperTag="false" />-->
+					Not supported
+				</fieldset>
+			</td>
+			<td RenderSettings.Mode="Server">
+
+				<h1>Server Rendering</h1>
+
+				<fieldset>
+					<legend>Literal Text=binding, FormatString=null, RenderWrapperTag=true</legend>
+					<dot:HtmlLiteral Html="{value: Html}" />
+				</fieldset>
+				
+				<fieldset>
+					<legend>Literal Text=binding, FormatString=null, RenderWrapperTag=false</legend>
+					<dot:HtmlLiteral Html="{value: Html}" RenderWrapperTag="false" />
+				</fieldset>
+
+			</td>
+		</tr>
+	</table>
+</body>
+</html>

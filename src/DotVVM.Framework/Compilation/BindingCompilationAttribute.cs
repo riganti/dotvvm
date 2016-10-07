@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Compilation
         {
             return requirementCache.GetOrAdd(bindingType, _ =>
             {
-                return bindingType.GetCustomAttribute<BindingCompilationRequirementsAttribute>(true) ?? new BindingCompilationRequirementsAttribute
+                return bindingType.GetTypeInfo().GetCustomAttribute<BindingCompilationRequirementsAttribute>(true) ?? new BindingCompilationRequirementsAttribute
                 {
                     Delegate = BindingCompilationRequirementType.IfPossible,
                     OriginalString = BindingCompilationRequirementType.IfPossible,

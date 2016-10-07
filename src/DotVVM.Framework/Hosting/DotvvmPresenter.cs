@@ -5,72 +5,70 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
-using DotVVM.Framework.Controls.Infrastructure;
-using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Security;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using DotVVM.Framework.Binding;
-using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Hosting
 {
     public class DotvvmPresenter : IDotvvmPresenter
     {
-        public IDotvvmViewBuilder DotvvmViewBuilder { get; private set; }
-
-        public IViewModelLoader ViewModelLoader { get; private set; }
-
-        public IViewModelSerializer ViewModelSerializer { get; private set; }
-
-        public IOutputRenderer OutputRenderer { get; private set; }
-
-        public ICsrfProtector CsrfProtector { get; private set; }
-
-        public string ApplicationPath { get; private set; }
-
         /// <summary>
-        /// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
+        /// Initializes a new instance of the <see cref="DotvvmPresenter" /> class.
         /// </summary>
-        public DotvvmPresenter(DotvvmConfiguration configuration)
+        public DotvvmPresenter(DotvvmConfiguration configuration, IDotvvmViewBuilder viewBuilder, IViewModelLoader viewModelLoader, IViewModelSerializer viewModelSerializer,
+            IOutputRenderer outputRender, ICsrfProtector csrfProtector)
         {
-            DotvvmViewBuilder = configuration.ServiceLocator.GetService<IDotvvmViewBuilder>();
-            ViewModelLoader = configuration.ServiceLocator.GetService<IViewModelLoader>();
-            ViewModelSerializer = configuration.ServiceLocator.GetService<IViewModelSerializer>();
-            OutputRenderer = configuration.ServiceLocator.GetService<IOutputRenderer>();
-            CsrfProtector = configuration.ServiceLocator.GetService<ICsrfProtector>();
+            DotvvmViewBuilder = viewBuilder;
+            ViewModelLoader = viewModelLoader;
+            ViewModelSerializer = viewModelSerializer;
+            OutputRenderer = outputRender;
+            CsrfProtector = csrfProtector;
             ApplicationPath = configuration.ApplicationPhysicalPath;
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
-        /// </summary>
-        public DotvvmPresenter(
-            IDotvvmViewBuilder dotvvmViewBuilder,
-            IViewModelLoader viewModelLoader,
-            IViewModelSerializer viewModelSerializer,
-            IOutputRenderer outputRenderer,
-            ICsrfProtector csrfProtector
-        )
-        {
-            DotvvmViewBuilder = dotvvmViewBuilder;
-            ViewModelLoader = viewModelLoader;
-            ViewModelSerializer = viewModelSerializer;
-            OutputRenderer = outputRenderer;
-            CsrfProtector = csrfProtector;
-        }
+        public IDotvvmViewBuilder DotvvmViewBuilder { get; }
+
+        public IViewModelLoader ViewModelLoader { get; }
+
+        public IViewModelSerializer ViewModelSerializer { get; }
+
+        public IOutputRenderer OutputRenderer { get; }
+
+        public ICsrfProtector CsrfProtector { get; }
+
+        public string ApplicationPath { get; }
+
+        ///// <summary>
+        ///// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
+        ///// </summary>
+        //public DotvvmPresenter(
+        //    IDotvvmViewBuilder dotvvmViewBuilder,
+        //    IViewModelLoader viewModelLoader,
+        //    IViewModelSerializer viewModelSerializer,
+        //    IOutputRenderer outputRenderer,
+        //    ICsrfProtector csrfProtector
+        //)
+        //{
+        //    DotvvmViewBuilder = dotvvmViewBuilder;
+        //    ViewModelLoader = viewModelLoader;
+        //    ViewModelSerializer = viewModelSerializer;
+        //    OutputRenderer = outputRenderer;
+        //    CsrfProtector = csrfProtector;
+        //}
 
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public async Task ProcessRequest(DotvvmRequestContext context)
+        public async Task ProcessRequest(IDotvvmRequestContext context)
         {
             try
             {
@@ -78,7 +76,7 @@ namespace DotVVM.Framework.Hosting
             }
             catch (UnauthorizedAccessException)
             {
-                context.OwinContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.Unauthorized;
             }
             catch (DotvvmControlException ex)
             {
@@ -87,37 +85,39 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        public async Task ProcessRequestCore(DotvvmRequestContext context)
+        /// <summary>
+        /// </summary>
+        /// <param name="context"></param>
+        /// <returns></returns>
+        public async Task ProcessRequestCore(IDotvvmRequestContext context)
         {
-            if (context.OwinContext.Request.Method != "GET" && context.OwinContext.Request.Method != "POST")
+            if (context.HttpContext.Request.Method != "GET" && context.HttpContext.Request.Method != "POST")
             {
                 // unknown HTTP method
-                context.OwinContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
+                context.HttpContext.Response.StatusCode = (int)HttpStatusCode.MethodNotAllowed;
                 throw new DotvvmHttpException("Only GET and POST methods are supported!");
             }
-            if (context.OwinContext.Request.Headers["X-PostbackType"] == "StaticCommand")
+            if (context.HttpContext.Request.Headers["X-PostbackType"] == "StaticCommand")
             {
                 await ProcessStaticCommandRequest(context);
                 return;
             }
-            var isPostBack = context.IsPostBack = DetermineIsPostBack(context.OwinContext);
-            context.ChangeCurrentCulture(context.Configuration.DefaultCulture);
+            var isPostBack = context.IsPostBack = DetermineIsPostBack(context.HttpContext);
 
             // build the page view
             var page = DotvvmViewBuilder.BuildView(context);
             page.SetValue(Internal.RequestContextProperty, context);
             context.View = page;
-            
+
             // locate and create the view model
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
 
             // get action filters
             var globalFilters = context.Configuration.Runtime.GlobalFilters.ToList();
-            var viewModelFilters = context.ViewModel.GetType().GetCustomAttributes<ActionFilterAttribute>(true).ToList();
+            var viewModelFilters = context.ViewModel.GetType().GetTypeInfo().GetCustomAttributes<ActionFilterAttribute>(true).ToList();
 
             try
             {
-
                 // run the preinit phase in the page
                 DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.PreInit);
                 page.DataContext = context.ViewModel;
@@ -125,14 +125,14 @@ namespace DotVVM.Framework.Hosting
                 // run OnViewModelCreated on action filters
                 foreach (var filter in globalFilters.Concat(viewModelFilters))
                 {
-                    filter.OnViewModelCreated(context);
+                    await filter.OnViewModelCreatedAsync(context);
                 }
 
                 // init the view model lifecycle
                 if (context.ViewModel is IDotvvmViewModel)
                 {
-                    ((IDotvvmViewModel) context.ViewModel).Context = context;
-                    await ((IDotvvmViewModel) context.ViewModel).Init();
+                    ((IDotvvmViewModel)context.ViewModel).Context = context;
+                    await ((IDotvvmViewModel)context.ViewModel).Init();
                 }
 
                 // run the init phase in the page
@@ -143,7 +143,7 @@ namespace DotVVM.Framework.Hosting
                     // perform standard get
                     if (context.ViewModel is IDotvvmViewModel)
                     {
-                        await ((IDotvvmViewModel) context.ViewModel).Load();
+                        await ((IDotvvmViewModel)context.ViewModel).Load();
                     }
 
                     // run the load phase in the page
@@ -153,7 +153,7 @@ namespace DotVVM.Framework.Hosting
                 {
                     // perform the postback
                     string postData;
-                    using (var sr = new StreamReader(context.OwinContext.Request.Body))
+                    using (var sr = new StreamReader(context.HttpContext.Request.Body))
                     {
                         postData = await sr.ReadToEndAsync();
                     }
@@ -164,7 +164,7 @@ namespace DotVVM.Framework.Hosting
 
                     if (context.ViewModel is IDotvvmViewModel)
                     {
-                        await ((IDotvvmViewModel) context.ViewModel).Load();
+                        await ((IDotvvmViewModel)context.ViewModel).Load();
                     }
 
                     // validate CSRF token 
@@ -189,7 +189,7 @@ namespace DotVVM.Framework.Hosting
 
                 if (context.ViewModel is IDotvvmViewModel)
                 {
-                    await ((IDotvvmViewModel) context.ViewModel).PreRender();
+                    await ((IDotvvmViewModel)context.ViewModel).PreRender();
                 }
 
                 // run the prerender phase in the page
@@ -207,7 +207,7 @@ namespace DotVVM.Framework.Hosting
                 // run OnResponseRendering on action filters
                 foreach (var filter in globalFilters.Concat(viewModelFilters))
                 {
-                    filter.OnResponseRendering(context);
+                    await filter.OnResponseRenderingAsync(context);
                 }
 
                 // render the output
@@ -251,7 +251,8 @@ namespace DotVVM.Framework.Hosting
                 // run OnPageException on action filters
                 foreach (var filter in globalFilters.Concat(viewModelFilters))
                 {
-                    filter.OnPageException(context, ex);
+                    await filter.OnPageExceptionAsync(context, ex);
+
                     if (context.IsPageExceptionHandled)
                     {
                         context.InterruptRequest();
@@ -261,10 +262,10 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        public async Task ProcessStaticCommandRequest(DotvvmRequestContext context)
+        public async Task ProcessStaticCommandRequest(IDotvvmRequestContext context)
         {
             JObject postData;
-            using (var jsonReader = new JsonTextReader(new StreamReader(context.OwinContext.Request.Body)))
+            using (var jsonReader = new JsonTextReader(new StreamReader(context.HttpContext.Request.Body)))
             {
                 postData = JObject.Load(jsonReader);
             }
@@ -279,46 +280,47 @@ namespace DotVVM.Framework.Hosting
             var methodName = command.Substring(lastDot + 1);
             var methodInfo = Type.GetType(typeName).GetMethod(methodName);
 
-            if (!Attribute.IsDefined(methodInfo, typeof(AllowStaticCommandAttribute)))
+            if (!methodInfo.IsDefined(typeof(AllowStaticCommandAttribute)))
             {
                 throw new DotvvmHttpException($"This method cannot be called from the static command. If you need to call this method, add the '{nameof(AllowStaticCommandAttribute)}' to the method.");
             }
             var target = methodInfo.IsStatic ? null : arguments[0].ToObject(methodInfo.DeclaringType);
             var methodArguments =
                 arguments.Skip(methodInfo.IsStatic ? 0 : 1)
-                .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
-                .ToArray();
-            var actionInfo = new ActionInfo()
-            {
+                    .Zip(methodInfo.GetParameters(), (arg, parameter) => arg.ToObject(parameter.ParameterType))
+                    .ToArray();
+            var actionInfo = new ActionInfo {
                 IsControlCommand = false,
                 Action = () => methodInfo.Invoke(target, methodArguments)
             };
             var filters = context.Configuration.Runtime.GlobalFilters
-                .Concat(methodInfo.DeclaringType.GetCustomAttributes<ActionFilterAttribute>())
+                .Concat(methodInfo.DeclaringType.GetTypeInfo().GetCustomAttributes<ActionFilterAttribute>())
                 .Concat(methodInfo.GetCustomAttributes<ActionFilterAttribute>())
                 .ToArray();
 
-            var task = ExecuteCommand(actionInfo, context, filters);
-            await task;
-            object result = TaskUtils.GetResult(task);
+            var result = await ExecuteCommand(actionInfo, context, filters);
 
-            using (var writer = new StreamWriter(context.OwinContext.Response.Body))
+            using (var writer = new StreamWriter(context.HttpContext.Response.Body))
             {
                 writer.WriteLine(JsonConvert.SerializeObject(result));
             }
         }
 
-        protected Task ExecuteCommand(ActionInfo action, DotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
+        protected async Task<object> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
         {
             // run OnCommandExecuting on action filters
             foreach (var filter in methodFilters)
             {
-                filter.OnCommandExecuting(context, action);
+                await filter.OnCommandExecutingAsync(context, action);
             }
+
             object result = null;
+            Task resultTask = null;
+
             try
             {
                 result = action.Action();
+                resultTask = result as Task;
             }
             catch (Exception ex)
             {
@@ -336,7 +338,7 @@ namespace DotVVM.Framework.Hosting
             // run OnCommandExecuted on action filters
             foreach (var filter in methodFilters.Reverse())
             {
-                filter.OnCommandExecuted(context, action, context.CommandException);
+                await filter.OnCommandExecutedAsync(context, action, context.CommandException);
             }
 
             if (context.CommandException != null && !context.IsCommandExceptionHandled)
@@ -344,25 +346,31 @@ namespace DotVVM.Framework.Hosting
                 throw new Exception("Unhandled exception occured in the command!", context.CommandException);
             }
 
-            return result as Task ?? (result == null ? TaskUtils.GetCompletedTask() : Task.FromResult(result));
+            if (resultTask != null)
+            {
+                await resultTask;
+                return TaskUtils.GetResult(resultTask);
+            }
+
+            return result;
         }
 
-        public static bool DetermineIsPostBack(IOwinContext context)
+        public static bool DetermineIsPostBack(IHttpContext context)
         {
             return context.Request.Method == "POST" && context.Request.Headers.ContainsKey(HostingConstants.SpaPostBackHeaderName);
         }
 
-        public static bool DetermineSpaRequest(IOwinContext context)
+        public static bool DetermineSpaRequest(IHttpContext context)
         {
             return !string.IsNullOrEmpty(context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName]);
         }
 
-        public static bool DeterminePartialRendering(IOwinContext context)
+        public static bool DeterminePartialRendering(IHttpContext context)
         {
             return DetermineIsPostBack(context) || DetermineSpaRequest(context);
         }
 
-        public static string DetermineSpaContentPlaceHolderUniqueId(IOwinContext context)
+        public static string DetermineSpaContentPlaceHolderUniqueId(IHttpContext context)
         {
             return context.Request.Headers[HostingConstants.SpaContentPlaceHolderHeaderName];
         }

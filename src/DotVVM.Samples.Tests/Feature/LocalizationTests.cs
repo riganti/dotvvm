@@ -141,9 +141,9 @@ namespace DotVVM.Samples.Tests.Feature
             {
                 browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_Localization_Localization_Control_Page);
 
-                Assert.AreEqual("Localized label for checkbox inside control",
+                Assert.AreEqual("Localized label for checkbox inside control", 
                     browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/label/span")).Text);
-                Assert.AreEqual("Localized literal inside control",
+                Assert.AreEqual("Localized literal inside control", 
                     browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-bare']/span")).Text);
 
             });
@@ -158,7 +158,7 @@ namespace DotVVM.Samples.Tests.Feature
 
                 Assert.AreEqual("Localized label for checkbox inside control",
                     browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-import']/label/span")).Text);
-                Assert.AreEqual("Localized literal inside control",
+                Assert.AreEqual("Localized literal inside control", 
                     browser.Browser.FindElement(By.XPath("//div[@data-ui='localization-control-import']/span")).Text);
 
             });

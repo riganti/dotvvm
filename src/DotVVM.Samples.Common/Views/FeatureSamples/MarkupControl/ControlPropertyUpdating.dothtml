@@ -1,0 +1,15 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.MarkupControl.ControlPropertyUpdatingViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>User Controls Sample</h1>
+		<dot:TextBox Text="{value: Property}" />
+		<sample:ControlPropertyUpdating ControlProperty="{value: Property}" />
+
+	</div>
+</body>
+</html>

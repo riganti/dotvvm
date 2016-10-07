@@ -66,7 +66,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the text on the upload button. The default value is "Upload".
         /// </summary>
-        [Localizable(true)]
         public string UploadButtonText
         {
             get { return (string)GetValue(UploadButtonTextProperty); }
@@ -78,7 +77,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the text on the indicator showing number of files. The defaule value is "{0} files". The number of files will be substituted for the "{0}" placeholder.
         /// </summary>
-        [Localizable(true)]
         public string NumberOfFilesIndicatorText
         {
             get { return (string)GetValue(NumberOfFilesIndicatorTextProperty); }
@@ -90,7 +88,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the text that appears when there is an error during the upload.
         /// </summary>
-        [Localizable(true)]
         public string UploadErrorMessageText
         {
             get { return (string)GetValue(UploadErrorMessageTextProperty); }
@@ -102,7 +99,6 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the text that appears when all files are uploaded successfully.
         /// </summary>
-        [Localizable(true)]
         public string SuccessMessageText
         {
             get { return (string)GetValue(SuccessMessageTextProperty); }

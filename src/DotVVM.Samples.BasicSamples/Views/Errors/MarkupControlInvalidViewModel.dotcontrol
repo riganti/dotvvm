@@ -1,5 +1,0 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.TestNamespace3.TestModel, DotVVM.Samples.BasicSamples
-
-{{value: TestString}}
-
-

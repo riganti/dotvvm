@@ -69,12 +69,12 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
-            var isAuthenticated = context.OwinContext.Request?.User?.Identity?.IsAuthenticated;
+            var isAuthenticated = context.HttpContext.User?.Identity?.IsAuthenticated;
             if (isAuthenticated == true || !HideNonAuthenticatedUsers)
             {
                 var isMember = Roles?
                     .Where(r => !string.IsNullOrWhiteSpace(r))
-                    .Any(r => context.OwinContext.Request?.User?.IsInRole(r.Trim()) == true);
+                    .Any(r => context.HttpContext.User?.IsInRole(r.Trim()) == true);
 
                 if (isMember == true)
                 {

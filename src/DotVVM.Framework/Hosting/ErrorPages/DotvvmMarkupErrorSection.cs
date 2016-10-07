@@ -33,16 +33,16 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
             var source = ExtractSource(exc);
 
-            w.Write("<div class='exception'><span class='exceptionType'>");
+            w.WriteUnencoded("<div class='exception'><span class='exceptionType'>");
             w.WriteText(exc.GetType().FullName);
-            w.Write("</span><span class='exceptionMessage'>");
+            w.WriteUnencoded("</span><span class='exceptionMessage'>");
             w.WriteText(exc.Message);
-            w.Write("</span>");
+            w.WriteUnencoded("</span>");
             if (source != null)
             {
                 w.WriteSourceCode(source, false);
             }
-            w.Write("</div><hr />");
+            w.WriteUnencoded("</div><hr />");
         }
 
         public virtual SourceModel ExtractSource(Exception exc)

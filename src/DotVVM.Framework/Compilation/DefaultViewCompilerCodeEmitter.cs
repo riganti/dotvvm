@@ -9,6 +9,7 @@ using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Compilation
         public const string GetControlBuilderFunctionName = nameof(IControlBuilderFactory.GetControlBuilder);
         public const string DataContextTypePropertyName = nameof(IControlBuilder.DataContextType);
 
-
+        private Dictionary<GroupedDotvvmProperty, string> cachedGroupedDotvvmProperties = new Dictionary<GroupedDotvvmProperty, string>();
         private Stack<EmitterMethodInfo> methods = new Stack<EmitterMethodInfo>();
         private List<EmitterMethodInfo> outputMethods = new List<EmitterMethodInfo>();
         public SyntaxTree SyntaxTree { get; private set; }
@@ -50,8 +51,7 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-
-        private List<ClassDeclarationSyntax> otherClassDeclarations = new List<ClassDeclarationSyntax>();
+        private List<MemberDeclarationSyntax> otherDeclarations = new List<MemberDeclarationSyntax>();
 
         public string EmitCreateVariable(ExpressionSyntax expression)
         {
@@ -270,7 +270,7 @@ namespace DotVVM.Framework.Compilation
                 return EmitStrangeIntegerValue(Convert.ToInt64(value), type);
             }
 
-            if (type.IsEnum)
+            if (type.GetTypeInfo().IsEnum)
             {
                 UseType(type);
                 return
@@ -330,6 +330,84 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
+        public ExpressionSyntax CreateDotvvmPropertyIdentifier(DotvvmProperty property)
+        {
+            if (property is GroupedDotvvmProperty)
+            {
+                var gprop = (GroupedDotvvmProperty)property;
+                string fieldName;
+                if (!cachedGroupedDotvvmProperties.TryGetValue(gprop, out fieldName))
+                {
+                    fieldName = $"_staticCachedGroupProperty_{cachedGroupedDotvvmProperties.Count}";
+                    cachedGroupedDotvvmProperties.Add(gprop, fieldName);
+                    otherDeclarations.Add(SyntaxFactory.FieldDeclaration(
+                        SyntaxFactory.VariableDeclaration(ParseTypeName(typeof(DotvvmProperty)),
+                            SyntaxFactory.SingletonSeparatedList(
+                                SyntaxFactory.VariableDeclarator(fieldName)
+                                .WithInitializer(SyntaxFactory.EqualsValueClause(
+                                    SyntaxFactory.InvocationExpression(
+                                        SyntaxFactory.ParseName(gprop.PropertyGroup.DeclaringType.FullName + "." + gprop.PropertyGroup.DescriptorField.Name
+                                            + "." + nameof(PropertyGroupDescriptor.GetDotvvmProperty)),
+                                        SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
+                                            SyntaxFactory.Argument(this.EmitStringLiteral(gprop.GroupMemberName))
+                                        ))
+                                    )
+                                ))
+                            )
+                        )
+                    ));
+                }
+                return SyntaxFactory.ParseName(fieldName);
+            }
+            else
+            {
+                return SyntaxFactory.ParseName($"global::{property.DescriptorFullName}");
+            }
+        }
+
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
+            EmitSetDotvvmProperty(controlName, property, EmitValue(value));
+
+        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
+        {
+            UseType(property.DeclaringType);
+            UseType(property.PropertyType);
+
+            if (property.IsVirtual)
+            {
+                var gProperty = property as GroupedDotvvmProperty;
+                if (gProperty != null && gProperty.PropertyGroup.PropertyGroupMode == PropertyGroupMode.ValueCollection)
+                {
+                    EmitAddToDictionary(controlName, property.CastTo<GroupedDotvvmProperty>().PropertyGroup.PropertyName, gProperty.GroupMemberName, value);
+                }
+                else
+                {
+                    EmitSetProperty(controlName, property.PropertyInfo.Name, value);
+                }
+            }
+            else
+            {
+                CurrentStatements.Add(
+                  SyntaxFactory.ExpressionStatement(
+                      SyntaxFactory.InvocationExpression(
+                          SyntaxFactory.MemberAccessExpression(
+                              SyntaxKind.SimpleMemberAccessExpression,
+                              CreateDotvvmPropertyIdentifier(property),
+                              SyntaxFactory.IdentifierName("SetValue")
+                          ),
+                          SyntaxFactory.ArgumentList(
+                              SyntaxFactory.SeparatedList(
+                                  new[] {
+                                        SyntaxFactory.Argument(SyntaxFactory.IdentifierName(controlName)),
+                                        SyntaxFactory.Argument(value)
+                                  }
+                              )
+                          )
+                      )
+                  )
+              );
+            }
+        }
 
         /// <summary>
         /// Emits the code that adds the specified value as a child item in the collection.
@@ -372,54 +450,10 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
-        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, object value) =>
-            EmitSetDotvvmProperty(controlName, property, EmitValue(value));
-        public void EmitSetDotvvmProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
-        {
-            UseType(property.DeclaringType);
-            UseType(property.PropertyType);
-
-            if (property.IsVirtual)
-            {
-                EmitSetProperty(controlName, property.PropertyInfo.Name, EmitValue(value));
-            }
-            else
-            {
-                CurrentStatements.Add(
-                    SyntaxFactory.ExpressionStatement(
-                        SyntaxFactory.InvocationExpression(
-                            SyntaxFactory.MemberAccessExpression(
-                                SyntaxKind.SimpleMemberAccessExpression,
-                                SyntaxFactory.ParseName(property.DescriptorFullName),
-                                SyntaxFactory.IdentifierName("SetValue")
-                            ),
-                            SyntaxFactory.ArgumentList(
-                                SyntaxFactory.SeparatedList(
-                                    new[] {
-                                    SyntaxFactory.Argument(SyntaxFactory.IdentifierName(controlName)),
-                                    SyntaxFactory.Argument(value)
-                                    }
-                                )
-                            )
-                        )
-                    )
-                );
-            }
-        }
-
-
         /// <summary>
         /// Emits the add HTML attribute.
         /// </summary>
-        public void EmitAddHtmlAttribute(string controlName, string name, string value)
-        {
-            EmitAddHtmlAttribute(controlName, name, EmitValue(value));
-        }
-
-        /// <summary>
-        /// Emits the add HTML attribute.
-        /// </summary>
-        public void EmitAddHtmlAttribute(string controlName, string name, ExpressionSyntax valueSyntax)
+        public void EmitAddToDictionary(string controlName, string propertyName, string key, ExpressionSyntax valueSyntax)
         {
             CurrentStatements.Add(
                 SyntaxFactory.ExpressionStatement(
@@ -435,7 +469,7 @@ namespace DotVVM.Framework.Compilation
                                 SyntaxFactory.SeparatedList(
                                     new[]
                                     {
-                                        SyntaxFactory.Argument(EmitStringLiteral(name))
+                                        SyntaxFactory.Argument(EmitStringLiteral(key))
                                     }
                                 )
                             )
@@ -655,16 +689,16 @@ namespace DotVVM.Framework.Compilation
             {
                 return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
             }
-            else if (!type.IsGenericType)
+            else if (!type.GetTypeInfo().IsGenericType)
             {
-                return SyntaxFactory.ParseTypeName(type.FullName);
+                return SyntaxFactory.ParseTypeName($"global::{type.FullName.Replace('+', '.')}");
             }
             else
             {
                 var fullName = type.GetGenericTypeDefinition().FullName;
                 if (fullName.Contains("`"))
                 {
-                    fullName = fullName.Substring(0, fullName.IndexOf("`"));
+                    fullName = fullName.Substring(0, fullName.IndexOf("`", StringComparison.Ordinal));
                 }
 
                 var parts = fullName.Split('.');
@@ -704,7 +738,7 @@ namespace DotVVM.Framework.Compilation
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(
                     SyntaxFactory.List<MemberDeclarationSyntax>(
-                        otherClassDeclarations.Concat(new[]
+                        new[]
                         {
                             SyntaxFactory.ClassDeclaration(className)
                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
@@ -718,7 +752,7 @@ namespace DotVVM.Framework.Compilation
                                 ))
                                 .AddAttributeLists(SyntaxFactory.AttributeList(SyntaxFactory.SeparatedList(new [] {
                                         SyntaxFactory.Attribute(
-                                            SyntaxFactory.ParseName(typeof(LoadControlBuilderAttribute).FullName),
+                                            SyntaxFactory.ParseName($"global::{typeof(LoadControlBuilderAttribute).FullName}"),
                                             SyntaxFactory.AttributeArgumentList(SyntaxFactory.SeparatedList(new [] {
                                                 SyntaxFactory.AttributeArgument(EmitStringLiteral(fileName))
                                             }))
@@ -744,10 +778,10 @@ namespace DotVVM.Framework.Compilation
                                                 .WithExpressionBody(
                                                     SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(ResultControlType))))
                                                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
-                                        })
+                                        }).Concat(otherDeclarations)
                                     )
                                 )
-                        })
+                        }
                     )
                 )
             );
@@ -793,7 +827,7 @@ namespace DotVVM.Framework.Compilation
         /// </summary>
         public void EmitControlClass(Type baseType, string className)
         {
-            otherClassDeclarations.Add(
+            otherDeclarations.Add(
                 SyntaxFactory.ClassDeclaration(className)
                     .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                     .WithBaseList(SyntaxFactory.BaseList(SyntaxFactory.SeparatedList<BaseTypeSyntax>(new[]

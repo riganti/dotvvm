@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedTreeRoot : ResolvedContentNode, IAbstractTreeRoot
     {
-        public Dictionary<string, List<IAbstractDirective>> Directives { get; set; }
+        public Dictionary<string, List<IAbstractDirective>> Directives { get; set; } = new Dictionary<string, List<IAbstractDirective>>(StringComparer.OrdinalIgnoreCase);
 
         public ResolvedTreeRoot(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
             : base(metadata, node, dataContext)

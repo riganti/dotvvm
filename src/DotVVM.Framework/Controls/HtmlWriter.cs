@@ -46,6 +46,13 @@ namespace DotVVM.Framework.Controls
             this.requestContext = requestContext;
         }
 
+        public static string GetSeparatorForAttribute(string attributeName)
+        {
+            string separator;
+            if (separators.TryGetValue(attributeName, out separator)) return separator;
+            return ";";
+        }
+
         public static string JoinAttributeValues(string attributeName, string valueA, string valueB, string separator = null)
         {
             if (string.IsNullOrWhiteSpace(valueA))
@@ -275,7 +282,7 @@ namespace DotVVM.Framework.Controls
         {
             if (text == null && text.Length == 0) return;
             EnsureTagFullyOpen();
-            WebUtility.HtmlEncode(text, writer);
+            writer.Write(WebUtility.HtmlEncode(text));
         }
 
         /// <summary>

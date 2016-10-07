@@ -1,5 +1,4 @@
 using System.Collections.Generic;
-using Microsoft.Owin;
 
 namespace DotVVM.Framework.Storage
 {

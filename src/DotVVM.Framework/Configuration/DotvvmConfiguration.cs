@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.Linq;
 using System.Threading;
 using DotVVM.Framework.Compilation;
@@ -21,6 +20,11 @@ using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.ViewModel.Validation;
+using System.Globalization;
+using System.Reflection;
+using DotVVM.Framework.Hosting.Middlewares;
+using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -78,6 +82,9 @@ namespace DotVVM.Framework.Configuration
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]
         public bool Debug { get; set; }
 
+        [JsonIgnore]
+        public Dictionary<string, IRouteParameterConstraint> RouteConstraints { get; } = new Dictionary<string, IRouteParameterConstraint>();
+
         /// <summary>
         /// Whether DotVVM compiler should generate runtime debug info for bindings. It can be useful, but may also cause unexpected problems.
         /// </summary>
@@ -100,7 +107,7 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         internal DotvvmConfiguration()
         {
-            DefaultCulture = Thread.CurrentThread.CurrentCulture.Name;
+            DefaultCulture = CultureInfo.CurrentCulture.Name;
             Markup = new DotvvmMarkupConfiguration();
             RouteTable = new DotvvmRouteTable(this);
             Resources = new DotvvmResourceRepository();
@@ -110,23 +117,84 @@ namespace DotVVM.Framework.Configuration
         }
 
         /// <summary>
-        /// Creates the default configuration.
+        /// Creates the default configuration and optionally registers additional application services.
         /// </summary>
-        public static DotvvmConfiguration CreateDefault()
+        /// <param name="registerServices">An action to register additional services.</param>
+        public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
         {
-            var configuration = new DotvvmConfiguration();
+            var services = new ServiceCollection();
+            var config = CreateDefault(new ServiceLocator(services));
+            
+            DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services, config);
+            registerServices?.Invoke(services);
+            
+            return config;
+        }
 
-            InitDefaultServices(configuration);
+        /// <summary>
+        /// Creates the default configuration using the given service provider.
+        /// </summary>
+        /// <param name="serviceProvider">The service provider to resolve services from.</param>
+        public static DotvvmConfiguration CreateDefault(IServiceProvider serviceProvider) 
+            => CreateDefault(new ServiceLocator(serviceProvider));
 
-            configuration.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
-            configuration.Markup.Controls.AddRange(new[]
+        private static DotvvmConfiguration CreateDefault(ServiceLocator serviceLocator)
+        {
+            var config = new DotvvmConfiguration {
+                ServiceLocator = serviceLocator
+            };
+
+            config.Runtime.GlobalFilters.Add(new ModelValidationFilterAttribute());
+
+            config.Markup.Controls.AddRange(new[]
             {
                 new DotvvmControlConfiguration() { TagPrefix = "dot", Namespace = "DotVVM.Framework.Controls", Assembly = "DotVVM.Framework" }
             });
 
-            RegisterResources(configuration);
+            RegisterConstraints(config);
+            RegisterResources(config);
 
-            return configuration;
+            return config;
+        }
+
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
+        static void RegisterConstraints(DotvvmConfiguration configuration)
+        {
+            configuration.RouteConstraints.Add("alpha", GenericRouteParameterType.Create("[a-zA-Z]*?"));
+            configuration.RouteConstraints.Add("bool", GenericRouteParameterType.Create<bool>("true|false", bool.TryParse));
+            configuration.RouteConstraints.Add("decimal", GenericRouteParameterType.Create<decimal>("-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("double", GenericRouteParameterType.Create<double>("-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("float", GenericRouteParameterType.Create<float>("-?[0-9.e]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("guid", GenericRouteParameterType.Create<Guid>("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", Guid.TryParse));
+            configuration.RouteConstraints.Add("int", GenericRouteParameterType.Create<int>("-?[0-9]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("posint", GenericRouteParameterType.Create<int>("[0-9]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("length", new GenericRouteParameterType(p => "[^/]{" + p + "}"));
+            configuration.RouteConstraints.Add("long", GenericRouteParameterType.Create<long>("-?[0-9]*?", Invariant.TryParse));
+            configuration.RouteConstraints.Add("max", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
+            {
+                double value;
+                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                if (double.Parse(parameter, CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(value);
+            }));
+            configuration.RouteConstraints.Add("min", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
+            {
+                double value;
+                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                if (double.Parse(parameter, CultureInfo.InvariantCulture) > value) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(value);
+            }));
+            configuration.RouteConstraints.Add("range", new GenericRouteParameterType(p => "-?[0-9.e]*?", (valueString, parameter) =>
+            {
+                double value;
+                if (!Invariant.TryParse(valueString, out value)) return ParameterParseResult.Failed;
+                var split = parameter.Split(',');
+                if (double.Parse(split[0], CultureInfo.InvariantCulture) > value || double.Parse(split[1], CultureInfo.InvariantCulture) < value) return ParameterParseResult.Failed;
+                return ParameterParseResult.Create(value);
+            }));
+            configuration.RouteConstraints.Add("maxLength", new GenericRouteParameterType(p => "[^/]{0," + p + "}"));
+            configuration.RouteConstraints.Add("minLength", new GenericRouteParameterType(p => "[^/]{" + p + ",}"));
+            configuration.RouteConstraints.Add("regex", new GenericRouteParameterType(p => p));
         }
 
         private static void RegisterResources(DotvvmConfiguration configuration)
@@ -136,14 +204,14 @@ namespace DotVVM.Framework.Configuration
                 {
                     CdnUrl = "https://code.jquery.com/jquery-2.1.1.min.js",
                     Url = "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name,
                     GlobalObjectName = "$"
                 });
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.knockout-latest.js",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name,
                     GlobalObjectName = "ko"
                 });
 
@@ -151,7 +219,7 @@ namespace DotVVM.Framework.Configuration
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.js",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name,
                     GlobalObjectName = "dotvvm",
                     Dependencies = new[] { ResourceConstants.KnockoutJSResourceName }
                 });
@@ -166,7 +234,7 @@ namespace DotVVM.Framework.Configuration
                 new ScriptResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name,
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name,
                     Dependencies = new[] { ResourceConstants.DotvvmResourceName, ResourceConstants.JQueryResourceName }
                 });
 
@@ -174,46 +242,18 @@ namespace DotVVM.Framework.Configuration
                 new StylesheetResource()
                 {
                     Url = "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css",
-                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).Assembly.GetName().Name
+                    EmbeddedResourceAssembly = typeof (DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name
                 });
 
             RegisterGlobalizeResources(configuration);
         }
-
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        private static void InitDefaultServices(DotvvmConfiguration configuration)
-        {
-            configuration.ServiceLocator = new ServiceLocator();
-            configuration.ServiceLocator.RegisterSingleton<IViewModelProtector>(() => new DefaultViewModelProtector(configuration));
-            configuration.ServiceLocator.RegisterSingleton<ICsrfProtector>(() => new DefaultCsrfProtector(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IDotvvmViewBuilder>(() => new DefaultDotvvmViewBuilder(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IViewModelLoader>(() => new DefaultViewModelLoader());
-            configuration.ServiceLocator.RegisterSingleton<IViewModelValidationMetadataProvider>(() => new AttributeViewModelValidationMetadataProvider());
-            configuration.ServiceLocator.RegisterSingleton<IValidationRuleTranslator>(() => new ViewModelValidationRuleTranslator());
-            configuration.ServiceLocator.RegisterSingleton<IViewModelValidator>(() => new ViewModelValidator(configuration.ServiceLocator.GetService<IViewModelSerializationMapper>()));
-            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializationMapper>(() => new ViewModelSerializationMapper(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IViewModelSerializer>(() => new DefaultViewModelSerializer(configuration) { SendDiff = true });
-            configuration.ServiceLocator.RegisterSingleton<IOutputRenderer>(() => new DefaultOutputRenderer());
-            configuration.ServiceLocator.RegisterSingleton<IDotvvmPresenter>(() => new DotvvmPresenter(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IMarkupFileLoader>(() => new DefaultMarkupFileLoader());
-            configuration.ServiceLocator.RegisterSingleton<IControlBuilderFactory>(() => new DefaultControlBuilderFactory(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IControlResolver>(() => new DefaultControlResolver(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IControlTreeResolver>(() => new DefaultControlTreeResolver(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IAbstractTreeBuilder>(() => new ResolvedTreeBuilder());
-            configuration.ServiceLocator.RegisterTransient<IViewCompiler>(() => new DefaultViewCompiler(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IBindingCompiler>(() => new BindingCompiler(configuration));
-            configuration.ServiceLocator.RegisterSingleton<IBindingExpressionBuilder>(() => new BindingExpressionBuilder());
-            configuration.ServiceLocator.RegisterSingleton<IBindingIdGenerator>(() => new OriginalStringBindingIdGenerator());
-            configuration.ServiceLocator.RegisterSingleton<IControlUsageValidator>(() => new DefaultControlUsageValidator());
-        }
-
 
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)
         {
             configuration.Resources.Register(ResourceConstants.GlobalizeResourceName, new ScriptResource()
             {
                 Url = "DotVVM.Framework.Resources.Scripts.Globalize.globalize.js",
-                EmbeddedResourceAssembly = typeof(DotvvmConfiguration).Assembly.GetName().Name
+                EmbeddedResourceAssembly = typeof(DotvvmConfiguration).GetTypeInfo().Assembly.GetName().Name
             });
 
             configuration.Resources.RegisterNamedParent("globalize", new JQueryGlobalizeResourceRepository());

@@ -1,0 +1,8 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.IdGeneration.IdGenerationViewModel, DotVVM.Samples.Common
+
+<div ID="control1" data-id="control1_marker">
+	<section>
+		<div ID="control2" data-id="control2_marker">
+		</div>
+	</section>
+</div>

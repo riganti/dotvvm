@@ -24,8 +24,8 @@ namespace DotVVM.Framework.Compilation.Parser
             } while (tokenIndex >= 0 && Tokenizer.Tokens[tokenIndex].Type.Equals(FirstTokenType));
 
             var begin = tokenIndex >= 0 ? Tokenizer.Tokens[tokenIndex].StartPosition : 0;
-            var end = LastToken.StartPosition + LastToken.Length;
-            return new TextRange(begin, end - begin);
+            var end = LastToken.EndPosition;
+            return TextRange.FromBounds(begin, end);
         }
     }
 }

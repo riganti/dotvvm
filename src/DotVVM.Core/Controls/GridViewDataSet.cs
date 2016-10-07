@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -133,7 +134,7 @@ namespace DotVVM.Framework.Controls
         public IQueryable<T> ApplySortExpression(IQueryable<T> queryable)
         {
             var type = typeof(T);
-            var property = type.GetProperty(SortExpression);
+            var property = type.GetTypeInfo().GetProperty(SortExpression);
             if (property == null) throw new Exception($"Could not sort by property '{SortExpression}', since it does not exists.");
             var parameter = Expression.Parameter(type, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);

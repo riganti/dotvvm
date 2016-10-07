@@ -4,6 +4,7 @@ using System.Linq;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation;
+using System.Reflection;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -106,8 +107,8 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         public void AddCodeControl(string tagPrefix, Type exampleControl)
         {
-            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.Assembly.FullName });
-            AddAssembly(exampleControl.Assembly.FullName);
+            Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.GetTypeInfo().Assembly.FullName });
+            AddAssembly(exampleControl.GetTypeInfo().Assembly.FullName);
         }
     }
 }

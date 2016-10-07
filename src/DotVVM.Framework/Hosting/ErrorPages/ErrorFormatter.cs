@@ -1,5 +1,4 @@
-﻿using Microsoft.Owin;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -20,12 +19,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             m.Message = exception.Message;
             m.OriginalException = exception;
             m.TypeName = exception.GetType().FullName;
-            var s = new StackTrace(exception, true);
+            var frames = new StackTrace(exception, true).GetFrames() ?? new StackFrame[0];
             var stack = new List<StackFrameModel>();
             bool skipping = existingTrace != null;
-            for (int i = s.FrameCount - 1; i >= 0; i--)
+            for (int i = frames.Length - 1; i >= 0; i--)
             {
-                var f = s.GetFrame(i);
+                var f = frames[i];
                 if (skipping && existingTrace.Length > i && f.GetMethod() == existingTrace[i].Method) continue;
                 skipping = false;
 
@@ -81,7 +80,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             const string GithubUrl = @"https://github.com/riganti/dotvvm/blob/master/src/";
             const string Octocat = @"https://assets-cdn.github.com/favicon.ico";
-            if (frame.Method?.DeclaringType?.Assembly == typeof(ErrorFormatter).Assembly)
+            if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly == typeof(ErrorFormatter).GetTypeInfo().Assembly)
             {
                 // dotvvm github
                 if (frame.At?.FileName != null)
@@ -102,12 +101,12 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return null;
         }
 
-        static HashSet<string> ReferenceSourceAssemblies = new HashSet<string> { "mscorlib", "PresentationFramework", "System.Web", "System", "System.Windows.Forms", "PresentationCore", "System.ServiceModel", "System.Data", "System.Data.Entity", "System.Core", "System.Xml", "System.Activities", "WindowsBase", "System.Activities.Presentation", "System.Drawing", "Microsoft.VisualBasic", "System.IdentityModel", "System.Web.Extensions", "System.Runtime.Serialization", "System.Workflow.ComponentModel", "System.Data.SqlXml", "System.Data.Linq", "UIAutomationClientsideProviders", "PresentationBuildTasks", "System.Configuration", "System.Management", "System.Data.Services", "System.Workflow.Activities", "System.Management.Automation", "Microsoft.CSharp", "System.Web.Mobile", "System.Web.Services", "System.Security", "System.Data.Services.Client", "System.ServiceModel.Web", "System.ServiceModel.Activities", "System.Workflow.Runtime", "System.ComponentModel.DataAnnotations", "System.Activities.Core.Presentation", "System.Net.Http", "System.Design", "Microsoft.Build.Tasks.v4.0", "UIAutomationClient", "System.Runtime.Remoting", "Microsoft.JSc" };
+        static HashSet<string> ReferenceSourceAssemblies = new HashSet<string> { "mscorlib", "PresentationFramework", "System.Web", "System", "System.Windows.Forms", "PresentationCore", "System.ServiceModel", "System.Data", "System.Data.Entity", "System.Core", "System.Xml", "System.Activities", "WindowsBase", "System.Activities.Presentation", "System.Drawing", "Microsoft.VisualBasic", "System.IdentityModel", "System.Web.Extensions", "System.Runtime.Serialization", "System.Workflow.ComponentModel", "System.Data.SqlXml", "System.Data.Linq", "UIAutomationClientsideProviders", "PresentationBuildTasks", "System.Configuration", "System.Management", "System.Data.Services", "System.Workflow.Activities", "System.Management.Automation", "Microsoft.CSharp", "System.Web.Mobile", "System.Web.Services", "System.Security", "System.Data.Services.Client", "System.ServiceModel.Web", "System.ServiceModel.Activities", "System.Workflow.Runtime", "System.ComponentModel.DataAnnotations", "System.Activities.Core.Presentation", "System.Net.Http", "System.Design", "Microsoft.Build.Tasks.v4.0", "UIAutomationClient", "System.Runtime.Remoting", "Microsoft.JSc", "System.Private.CoreLib" };
         protected static IFrameMoreInfo CreateReferenceSourceLink(StackFrameModel frame)
         {
             const string DotNetIcon = "http://referencesource.microsoft.com/favicon.ico";
             const string SourceUrl = "http://referencesource.microsoft.com/";
-            if (frame.Method?.DeclaringType?.Assembly != null && ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.Assembly.GetName().Name))
+            if (frame.Method?.DeclaringType?.GetTypeInfo()?.Assembly != null && ReferenceSourceAssemblies.Contains(frame.Method.DeclaringType.GetTypeInfo().Assembly.GetName().Name))
             {
                 if (frame.At?.FileName != null)
                 {
@@ -116,7 +115,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
                 else
                 {
                    
-                    if (frame.Method.DeclaringType.IsGenericType)
+                    if (frame.Method.DeclaringType.GetTypeInfo().IsGenericType)
                     {
                         var url = SourceUrl + "#q=" + WebUtility.HtmlEncode(GetGenericFullName(frame.Method.DeclaringType).Replace('+', '.'));
                         return FrameMoreInfo.CreateThumbLink(url, DotNetIcon);
@@ -135,7 +134,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
         protected static string GetGenericFullName(Type type)
         {
-            if (!type.IsGenericType) return type.FullName;
+            if (!type.GetTypeInfo().IsGenericType) return type.FullName;
 
             var name = type.FullName;
             name = name.Remove(name.IndexOf("`", StringComparison.Ordinal));
@@ -201,13 +200,15 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             return result;
         }
 
-        public List<Func<Exception, IOwinContext, IErrorSectionFormatter>> Formatters = new List<Func<Exception, IOwinContext, IErrorSectionFormatter>>();
+        public List<Func<Exception, IHttpContext, IErrorSectionFormatter>> Formatters = new List<Func<Exception, IHttpContext, IErrorSectionFormatter>>();
 
-        public string ErrorHtml(Exception exception, IOwinContext owin)
+        public string ErrorHtml(Exception exception, IHttpContext context)
         {
             var template = new ErrorPageTemplate();
-            template.Formatters = Formatters.Select(f => f(exception, owin)).Where(t => t != null).ToArray();
-            template.ErrorCode = owin.Response.StatusCode;
+            template.Formatters = Formatters.Select(f => f(exception, context))
+                .Concat(context.GetEnvironmentTabs().Select(o => DictionarySection.Create(o.Item1, "env_" + o.Item1.GetHashCode(), o.Item2)))
+                .Where(t => t != null).ToArray();
+            template.ErrorCode = context.Response.StatusCode;
             template.ErrorDescription = "Unhandled exception occured";
             template.Summary = exception.GetType().FullName + ": " + LimitLength(exception.Message, 600);
 
@@ -221,7 +222,6 @@ namespace DotVVM.Framework.Hosting.ErrorPages
             f.Formatters.Add((e, o) => new ExceptionSectionFormatter { Exception = f.LoadException(e) });
             f.Formatters.Add((e, o) => DictionarySection.Create("Cookies", "cookies", o.Request.Cookies));
             f.Formatters.Add((e, o) => DictionarySection.Create("Request Headers", "reqHeaders", o.Request.Headers));
-            f.Formatters.Add((e, o) => DictionarySection.Create("Environment", "env", o.Environment));
             f.AddInfoLoader<ReflectionTypeLoadException>(e => new ExceptionAdditionalInfo
             {
                 Title = "Loader Exceptions",

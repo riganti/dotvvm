@@ -47,7 +47,7 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
-            var isAuthenticated = context.OwinContext.Request?.User?.Identity?.IsAuthenticated;
+            var isAuthenticated = context.HttpContext.User?.Identity?.IsAuthenticated;
             if (isAuthenticated == true)
             {
                 AuthenticatedTemplate?.BuildContent(context, this);

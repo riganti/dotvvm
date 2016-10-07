@@ -4,6 +4,7 @@ using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -75,7 +76,13 @@ namespace DotVVM.Framework.Compilation.Styles
 
         public bool HasHtmlAttribute(string attributeName)
         {
-            return Control.HtmlAttributes.ContainsKey(attributeName);
+            return HasPropertyGroupMember("", attributeName);
+        }
+
+        public bool HasPropertyGroupMember(string prefix, string memberName)
+        {
+            var prop = Control.Metadata.PropertyGroups.FirstOrDefault(p => p.Prefix == prefix).PropertyGroup;
+            return prop != null && HasProperty((DotvvmProperty)prop.GetDotvvmProperty(memberName));
         }
 
         public T Property<T>(DotvvmProperty property)

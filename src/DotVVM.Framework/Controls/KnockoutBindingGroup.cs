@@ -12,12 +12,13 @@ namespace DotVVM.Framework.Controls
         
         public bool IsEmpty => entries.Count == 0;
 
-        public void Add(string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction)
+        public void Add(string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction = null)
         {
             var binding = control.GetValueBinding(property);
             if (binding == null)
             {
-                nullBindingAction();
+                if (nullBindingAction != null) nullBindingAction();
+                else Add(name, JsonConvert.SerializeObject(control.GetValue(property)));
             }
             else
             {
@@ -54,7 +55,7 @@ namespace DotVVM.Framework.Controls
 
             public override string ToString()
             {
-                return "\"" + Name + "\": " + Expression;
+                return "'" + Name + "': " + Expression;
             }
         }
     }

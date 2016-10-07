@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         bool TryGetProperty(IPropertyDescriptor property, out IAbstractPropertySetter value);
 
-        IEnumerable<IAbstractHtmlAttributeSetter> HtmlAttributes { get; }
+        //IEnumerable<IAbstractHtmlAttributeSetter> HtmlAttributes { get; }
 
         object[] ConstructorParameters { get; set; }
         

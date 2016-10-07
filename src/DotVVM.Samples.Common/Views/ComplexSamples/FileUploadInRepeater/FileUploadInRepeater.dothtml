@@ -1,0 +1,29 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.FileUploadInRepeater.FileUploadInRepeaterViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+	<h1>Upload files to collections</h1>
+
+	<dot:Repeater DataSource="{value: Collections}">
+		<ItemTemplate>
+
+			<fieldset>
+				<legend>Collection {{value: Id}}</legend>
+
+				<FileUploadInRepeater:FileUploadWrapper Files="{value: Files}" FilesCount="{value: FilesCount}" />
+
+				<p>Number of uploaded files: <span class="files-count">{{value: FilesCount}}</span></p>
+			</fieldset>
+
+		</ItemTemplate>
+	</dot:Repeater>
+
+</body>
+</html> 

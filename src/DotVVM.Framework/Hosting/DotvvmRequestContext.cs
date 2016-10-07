@@ -5,9 +5,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
-using System.Runtime.Remoting.Contexts;
 using System.Threading;
-using Microsoft.Owin;
 using Newtonsoft.Json.Linq;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -17,81 +15,88 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
 using System.Diagnostics;
 using DotVVM.Framework.Controls.Infrastructure;
+using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+
 
 namespace DotVVM.Framework.Hosting
 {
     public class DotvvmRequestContext : IDotvvmRequestContext
     {
-        internal string CsrfToken { get; set; }
+        public string CsrfToken { get; set; }
 
         /// <summary>
-        /// Gets the underlying <see cref="IOwinContext"/> object for this HTTP request.
+        /// Gets the underlying object for this HTTP request.
         /// </summary>
-        public IOwinContext OwinContext { get; internal set; }
+        public IHttpContext HttpContext { get; set; }
 
         /// <summary>
         /// Gets the <see cref="IDotvvmPresenter"/> that is responsible for handling this HTTP request.
         /// </summary>
-        public IDotvvmPresenter Presenter { get; internal set; }
+        public IDotvvmPresenter Presenter { get; set; }
 
         /// <summary>
         /// Gets the global configuration of DotVVM.
         /// </summary>
-        public DotvvmConfiguration Configuration { get; internal set; }
+        public DotvvmConfiguration Configuration { get; set; }
 
         /// <summary>
         /// Gets the route that was used for this request.
         /// </summary>
-        public RouteBase Route { get; internal set; }
+        public RouteBase Route { get; set; }
 
         /// <summary>
         /// Determines whether this HTTP request is a postback or a classic GET request.
         /// </summary>
-        public bool IsPostBack { get; internal set; }
+        public bool IsPostBack { get; set; }
 
         /// <summary>
         /// Gets the values of parameters specified in the <see cref="P:Route" /> property.
         /// </summary>
-        public IDictionary<string, object> Parameters { get; internal set; }
+        public IDictionary<string, object> Parameters { get; set; }
 
         /// <summary>
         /// Gets the resource manager that is responsible for rendering script and stylesheet resources.
         /// </summary>
-        public ResourceManager ResourceManager { get; internal set; }
+        public ResourceManager ResourceManager { get; set; }
 
         /// <summary>
         /// Gets the view model object for the current HTTP request.
         /// </summary>
-        public object ViewModel { get; internal set; }
+        public object ViewModel { get; set; }
 
         /// <summary>
         /// Gets the top-level control representing the whole view for the current request.
         /// </summary>
-        public DotvvmView View { get; internal set; }
+        public DotvvmView View { get; set; }
 
         /// <summary>
         /// Gets the <see cref="ModelState"/> object that manages validation errors for the viewmodel.
         /// </summary>
         public ModelState ModelState { get; private set; }
 
-        internal Dictionary<string, string> PostBackUpdatedControls { get; private set; }
+        public Dictionary<string, string> PostBackUpdatedControls { get; private set; }
 
-        internal JObject ViewModelJson { get; set; }
+        public JObject ViewModelJson { get; set; }
 
-        internal JObject ReceivedViewModelJson { get; set; }
+        public JObject ReceivedViewModelJson { get; set; }
 
         /// <summary>
         /// Gets the query string parameters specified in the URL of the current HTTP request.
         /// </summary>
-        public IDictionary<string, object> Query { get; internal set; }
+        public IQueryCollection Query => HttpContext.Request.Query;
 
         /// <summary>
         /// Gets or sets the value indiciating whether the exception that occured in the command execution was handled. 
         /// This property is typically set from the exception filter's OnCommandException method.
         /// </summary>
         public bool IsCommandExceptionHandled { get; set; }
+
+        internal void RedirectToUrl(object p)
+        {
+            throw new NotImplementedException();
+        }
 
         /// <summary>
         /// Gets or sets the value indiciating whether the exception that occured during the page execution was handled and that the OnPageExceptionHandled will not be called on the next action filters. 
@@ -103,7 +108,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets or sets the exception that occured when the command was executed.
         /// </summary>
-        public Exception CommandException { get; internal set; }
+        public Exception CommandException { get; set; }
 
         /// <summary>
         /// Gets or sets new url fragment (tha part after #) to be set on client
@@ -116,7 +121,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public bool IsSpaRequest
         {
-            get { return DotvvmPresenter.DetermineSpaRequest(OwinContext); }
+            get { return DotvvmPresenter.DetermineSpaRequest(HttpContext); }
         }
 
         /// <summary>
@@ -124,7 +129,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public bool IsInPartialRenderingMode
         {
-            get { return DotvvmPresenter.DeterminePartialRendering(OwinContext); }
+            get { return DotvvmPresenter.DeterminePartialRendering(HttpContext); }
         }
 
         public IViewModelSerializer ViewModelSerializer { get; set; }
@@ -136,7 +141,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string GetSpaContentPlaceHolderUniqueId()
         {
-            return DotvvmPresenter.DetermineSpaContentPlaceHolderUniqueId(OwinContext);
+            return DotvvmPresenter.DetermineSpaContentPlaceHolderUniqueId(HttpContext);
         }
 
         /// <summary>
@@ -152,24 +157,32 @@ namespace DotVVM.Framework.Hosting
         /// Changes the current culture of this HTTP request.
         /// </summary>
         public void ChangeCurrentCulture(string cultureName)
-        {
-            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
-        }
-
-        /// <summary>
-        /// Changes the current UI culture of this HTTP request.
-        /// </summary>
-        public CultureInfo GetCurrentUICulture()
-        {
-            return Thread.CurrentThread.CurrentUICulture;
-        }
+            => ChangeCurrentCulture(cultureName, cultureName);
 
         /// <summary>
         /// Changes the current culture of this HTTP request.
         /// </summary>
+        public void ChangeCurrentCulture(string cultureName, string uiCultureName)
+        {
+            // TODO: document ASP.NET Core behavior
+            CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+            CultureInfo.CurrentUICulture = new CultureInfo(uiCultureName);
+        }
+
+        /// <summary>
+        /// Gets the current UI culture of this HTTP request.
+        /// </summary>
+        public CultureInfo GetCurrentUICulture()
+        {
+            return CultureInfo.CurrentUICulture;
+        }
+
+        /// <summary>
+        /// Gets the current culture of this HTTP request.
+        /// </summary>
         public CultureInfo GetCurrentCulture()
         {
-            return Thread.CurrentThread.CurrentCulture;
+            return CultureInfo.CurrentCulture;
         }
         /// <summary>
         /// Interrupts the execution of the current request.
@@ -185,17 +198,23 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void RedirectToUrl(string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect, replaceInHistory, allowSpaRedirect);
+            SetRedirectResponse(HttpContext, TranslateVirtualPath(url), (int)HttpStatusCode.Redirect, replaceInHistory, allowSpaRedirect);
             InterruptRequest();
         }
 
         /// <summary>
         /// Returns the redirect response and interrupts the execution of current request.
         /// </summary>
-        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
+        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
+
+            if (!string.IsNullOrEmpty(urlSuffix))
+            {
+                url += urlSuffix;
+            }
+
             RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
         }
 
@@ -204,7 +223,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void RedirectToUrlPermanent(string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
-            SetRedirectResponse(OwinContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently, replaceInHistory, allowSpaRedirect);
+            SetRedirectResponse(HttpContext, TranslateVirtualPath(url), (int)HttpStatusCode.MovedPermanently, replaceInHistory, allowSpaRedirect);
             InterruptRequest();
         }
 
@@ -221,13 +240,12 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Renders the redirect response.
         /// </summary>
-        /// <param name="forceRefresh"></param>
-        public static void SetRedirectResponse(IOwinContext owinContext, string url, int statusCode, bool replaceInHistory = false, bool allowSpaRedirect = false)
+        public static void SetRedirectResponse(IHttpContext httpContext, string url, int statusCode, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
-            if (!DotvvmPresenter.DeterminePartialRendering(owinContext))
+            if (!DotvvmPresenter.DeterminePartialRendering(httpContext))
             {
-                owinContext.Response.Headers["Location"] = url;
-                owinContext.Response.StatusCode = statusCode;
+                httpContext.Response.Headers["Location"] = url;
+                httpContext.Response.StatusCode = statusCode;
             }
             else
             {
@@ -237,18 +255,18 @@ namespace DotVVM.Framework.Hosting
                 //    url = "#!" + url;
                 //}
 
-                owinContext.Response.StatusCode = 200;
-                owinContext.Response.ContentType = "application/json";
-                owinContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, replaceInHistory, allowSpaRedirect));
+                httpContext.Response.StatusCode = 200;
+                httpContext.Response.ContentType = "application/json";
+                httpContext.Response.Write(DefaultViewModelSerializer.GenerateRedirectActionResponse(url, replaceInHistory, allowSpaRedirect));
             }
         }
 
         /// <summary>
         /// Gets the current DotVVM context.
         /// </summary>
-        public static DotvvmRequestContext GetCurrent(IOwinContext owinContext)
+        public static DotvvmRequestContext GetCurrent(IHttpContext httpContext)
         {
-            return owinContext.Get<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
+            return httpContext.GetItem<DotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
         }
 
         /// <summary>
@@ -259,8 +277,8 @@ namespace DotVVM.Framework.Hosting
         {
             if (!ModelState.IsValid)
             {
-                OwinContext.Response.ContentType = "application/json";
-                OwinContext.Response.Write(ViewModelSerializer.SerializeModelState(this));
+                HttpContext.Response.ContentType = "application/json";
+                HttpContext.Response.Write(ViewModelSerializer.SerializeModelState(this));
                 throw new DotvvmInterruptRequestExecutionException("The ViewModel contains validation errors!");
             }
         }
@@ -268,7 +286,7 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Gets the serialized view model.
         /// </summary>
-        internal string GetSerializedViewModel()
+        public string GetSerializedViewModel()
         {
             return ViewModelSerializer.SerializeViewModel(this);
         }
@@ -279,18 +297,18 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public string TranslateVirtualPath(string virtualUrl)
         {
-            return TranslateVirtualPath(virtualUrl, OwinContext);
+            return TranslateVirtualPath(virtualUrl, HttpContext);
         }
 
         /// <summary>
         /// Translates the virtual path (~/something) to the domain relative path (/virtualDirectory/something). 
         /// For example, when the app is configured to run in a virtual directory '/virtDir', the URL '~/myPage.dothtml' will be translated to '/virtDir/myPage.dothtml'.
         /// </summary>
-        public static string TranslateVirtualPath(string virtualUrl, IOwinContext owinContext)
+        public static string TranslateVirtualPath(string virtualUrl, IHttpContext httpContext)
         {
             if (virtualUrl.StartsWith("~/", StringComparison.Ordinal))
             {
-                var url = DotvvmMiddleware.GetVirtualDirectory(owinContext) + "/" + virtualUrl.Substring(2);
+                var url = DotvvmMiddlewareBase.GetVirtualDirectory(httpContext) + "/" + virtualUrl.Substring(2);
                 if (!url.StartsWith("/", StringComparison.Ordinal))
                 {
                     url = "/" + url;
@@ -306,14 +324,14 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Redirects the client to the specified file.
         /// </summary>
-        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null)
+        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
         {
             var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
             var metadata = new ReturnedFileMetadata()
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value)
+                AdditionalHeaders = additionalHeaders?.GroupBy(k => k.Key, k => k.Value)?.ToDictionary(k => k.Key, k => k.ToArray())
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(bytes, metadata).Result;
@@ -323,14 +341,14 @@ namespace DotVVM.Framework.Hosting
         /// <summary>
         /// Redirects the client to the specified file.
         /// </summary>
-        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders = null)
+        public void ReturnFile(Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
         {
             var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
             var metadata = new ReturnedFileMetadata()
             {
                 FileName = fileName,
                 MimeType = mimeType,
-                AdditionalHeaders = additionalHeaders?.ToDictionary(k => k.Key, k => k.Value)
+                AdditionalHeaders = additionalHeaders?.GroupBy(k => k.Key, k => k.Value)?.ToDictionary(k => k.Key, k => k.ToArray())
             };
 
             var generatedFileId = returnedFileStorage.StoreFile(stream, metadata).Result;

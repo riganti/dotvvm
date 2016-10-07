@@ -1,0 +1,38 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.NestedValidationViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+	<style>
+	.invalid {
+		color: red;
+	}
+	</style>
+	<dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+	<div class="container">
+		<h1>Nested validation</h1>
+		
+		<p>Title: <dot:TextBox Text="{value: Child.Text}" /></p>
+		<p><dot:Button Text="Create" Click="{command: Test()}" /></p>
+		
+		<p>
+			<dot:Validator Value="{value: Child.Text}" ShowErrorMessageText="true" />
+            <dot:Validator Value="{value: Child.Text}" HideWhenValid="false" InvalidCssClass="invalid">AddCssClass</dot:Validator>
+            <dot:Validator Value="{value: Child.Text}">HideWhenValid</dot:Validator>
+		</p>
+		<p>&nbsp;</p>
+		<div class="summary1">
+			<p>Summary 1</p>
+			<dot:ValidationSummary />
+		</div>
+		<div class="summary2">
+			<p>Summary 2</p>
+			<dot:ValidationSummary Validation.Target="{value: Child}" />
+		</div>
+	</div>
+	
+</body>
+</html>

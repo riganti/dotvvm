@@ -14,6 +14,7 @@ using DotVVM.Framework.Runtime;
 using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CSharp.RuntimeBinder;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -102,11 +103,18 @@ namespace DotVVM.Framework.Compilation
         {
             return CSharpCompilation.Create(assemblyName).AddReferences(new[]
                 {
-                    typeof(object).Assembly,
-                    typeof(RuntimeBinderException).Assembly,
-                    typeof(System.Runtime.CompilerServices.DynamicAttribute).Assembly,
-                    Assembly.GetExecutingAssembly()
-                }.Concat(configuration.Markup.Assemblies.Select(Assembly.Load)).Distinct()
+                    typeof(RuntimeBinderException).GetTypeInfo().Assembly,
+                    typeof(System.Runtime.CompilerServices.DynamicAttribute).GetTypeInfo().Assembly,
+                    typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
+                    Assembly.Load(new AssemblyName("mscorlib")),
+#if DotNetCore
+                    Assembly.Load(new AssemblyName("System.Runtime")),
+                    Assembly.Load(new AssemblyName("System.Collections.Concurrent")),
+                    Assembly.Load(new AssemblyName("System.Collections"))
+#else
+                    typeof(System.Collections.Generic.List<>).Assembly
+#endif
+            }.Concat(configuration.Markup.Assemblies.Select(e => Assembly.Load(new AssemblyName(e)))).Distinct()
                 .Select(a => assemblyCache.GetAssemblyMetadata(a)))
                 .WithOptions(new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
         }
@@ -126,7 +134,7 @@ namespace DotVVM.Framework.Compilation
                 var result = compilation.Emit(ms);
                 if (result.Success)
                 {
-                    var assembly = Assembly.Load(ms.ToArray());
+                    var assembly = AssemblyLoader.LoadRaw(ms.ToArray());
                     assemblyCache.AddAssembly(assembly, compilation.ToMetadataReference());
                     return assembly;
                 }
@@ -147,5 +155,5 @@ namespace DotVVM.Framework.Compilation
             var assembly = BuildAssembly(compilation);
             return GetControlBuilder(assembly, namespaceName, className);
         }
-	}
+    }
 }

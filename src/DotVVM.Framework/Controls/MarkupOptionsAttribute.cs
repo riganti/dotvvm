@@ -1,3 +1,4 @@
+using DotVVM.Framework.Compilation;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -26,10 +27,25 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public string Name { get; set; }
 
+		/// <summary>
+		/// Determines if multiple property assignments can be merged into one value
+		/// </summary>
+		public bool AllowValueMerging { get; set; }
+
+		/// <summary>
+		/// Type with non parametric contstructor which implements IAttributeValueMerger interface
+		/// </summary>
+		public Type AttributeValueMerger { get; set; } = typeof(DefaultAttributeValueMerger);
+
+		/// <summary>
+		/// Gets or sets the mapping mode.
+		/// </summary>
+		public MappingMode MappingMode { get; set; } = MappingMode.Attribute;
+
         /// <summary>
-        /// Gets or sets the mapping mode.
+        /// Determines whether attributes without value are alowed.
         /// </summary>
-        public MappingMode MappingMode { get; set; } = MappingMode.Attribute;
+        public bool AllowAttributeWithoutValue { get; set; }
 
         public bool Required { get; set; }
     }

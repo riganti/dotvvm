@@ -9,17 +9,30 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.Extensions.DependencyModel;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace DotVVM.Framework.Utils
 {
     public static class ReflectionUtils
     {
+        public static IEnumerable<Assembly> GetAllAssemblies()
+        {
+#if DotNetCore
+            return DependencyContext.Default.GetDefaultAssemblyNames().Select(Assembly.Load);
+#else
+            return AppDomain.CurrentDomain.GetAssemblies();
+#endif
+        }
+
         public static bool IsAssemblyNamespace(string fullName)
             => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
 
         public static ISet<string> GetAllNamespaces()
-            => new HashSet<string>(AppDomain.CurrentDomain.GetAssemblies()
-                .SelectMany(a => a.GetTypes()
+            => new HashSet<string>(GetAllAssemblies()
+                .SelectMany(a => a.GetLoadableTypes()
                 .Select(t => t.Namespace))
                 .Distinct()
                 .ToList());
@@ -61,7 +74,7 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static string GetCodeBasePath(this Assembly assembly)
         {
-            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
+            string codeBase = assembly.CodeBase;
             UriBuilder uri = new UriBuilder(codeBase);
             return Uri.UnescapeDataString(uri.Path);
         }
@@ -102,12 +115,13 @@ namespace DotVVM.Framework.Utils
         /// </summary>
         public static object ConvertValue(object value, Type type)
         {
+            var typeinfo = type.GetTypeInfo();
             // handle null values
-            if ((value == null) && (type.IsValueType))
+            if ((value == null) && (typeinfo.IsValueType))
                 return Activator.CreateInstance(type);
 
             // handle nullable types
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (typeinfo.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 if ((value is string) && ((string)value == string.Empty))
                 {
@@ -117,8 +131,7 @@ namespace DotVVM.Framework.Utils
                 else
                 {
                     // value is not null
-                    var nullableConverter = new NullableConverter(type);
-                    type = nullableConverter.UnderlyingType;
+                    type = Nullable.GetUnderlyingType(type); typeinfo = type.GetTypeInfo();
                 }
             }
 
@@ -128,7 +141,7 @@ namespace DotVVM.Framework.Utils
             if (type == typeof(object)) return value;
 
             // handle enums
-            if (type.IsEnum && value is string)
+            if (typeinfo.IsEnum && value is string)
             {
                 var split = ((string)value).Split(',', '|');
                 var isFlags = type.GetTypeInfo().IsDefined(typeof(FlagsAttribute));
@@ -163,7 +176,7 @@ namespace DotVVM.Framework.Utils
             {
                 var str = value as string;
                 if (type == typeof(string[]))
-                    return str.Split(',');
+                    return str.Split(',').Select(s => ConvertValue(s, typeinfo.GetElementType())).ToArray();
             }
 
             // convert
@@ -181,7 +194,7 @@ namespace DotVVM.Framework.Utils
             var split = name.Split(',');
             name = split[0];
 
-            var assemblies = AppDomain.CurrentDomain.GetAssemblies();
+            var assemblies = ReflectionUtils.GetAllAssemblies();
             if (split.Length > 1)
             {
                 var assembly = split[1];
@@ -229,12 +242,12 @@ namespace DotVVM.Framework.Utils
 
         public static bool IsDelegate(this Type type)
         {
-            return typeof(Delegate).IsAssignableFrom(type.BaseType);
+            return typeof(Delegate).IsAssignableFrom(type);
         }
 
         public static bool IsReferenceType(this Type type)
         {
-            return type.IsArray || type.IsClass || type.IsInterface || type.IsDelegate();
+            return type.IsArray || type.GetTypeInfo().IsClass || type.GetTypeInfo().IsInterface || type.IsDelegate();
         }
 
         public static bool IsDerivedFrom(this Type T, Type superClass)
@@ -263,6 +276,24 @@ namespace DotVVM.Framework.Utils
         public static bool IsNullable(this Type type)
         {
             return Nullable.GetUnderlyingType(type) != null;
+        }
+
+        public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true)
+            where T : Attribute => 
+            (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
+
+        public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true)
+            where T : Attribute =>
+            attributeProvider.GetCustomAttributes(typeof(T), inherit).Cast<T>();
+
+        public static string GetTypeHash(this Type type)
+        {
+            using (var sha1 = SHA1.Create())
+            {
+                var hashBytes = sha1.ComputeHash(Encoding.UTF8.GetBytes(type.AssemblyQualifiedName));
+
+                return Convert.ToBase64String(hashBytes);
+            }
         }
     }
 }

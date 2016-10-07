@@ -1,0 +1,30 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ConditionalCssClasses.ConditionalCssClassViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Conditional css classes</title>
+    <style>
+        .italic {
+            font-style: italic;
+        }
+        .blue {
+            color: blue;
+        }
+        .bordered {
+            border: solid 2px black;
+        }
+    </style>
+</head>
+<body>
+    <dot:Button Click="{command: SwitchItalic()}" Text="Switch Italic" />
+    <dot:Button Click="{command: SwitchBlue()}" Text="Switch Blue" />
+    <dot:Button Click="{command: SwitchBordered()}" Text="Switch Bordered" />
+
+    <div Class-italic="{value: Italic}" Class-blue="{value: Blue}" Class-bordered="{value: Bordered}">
+        DotVVM is awesome!
+    </div>
+</body>
+</html>

@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
         /// </summary>
         public DotvvmView()
         {
-            Directives = new Dictionary<string, string>(StringComparer.InvariantCultureIgnoreCase);
+            Directives = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
         }
 
         protected internal override void OnPreRender(IDotvvmRequestContext context)

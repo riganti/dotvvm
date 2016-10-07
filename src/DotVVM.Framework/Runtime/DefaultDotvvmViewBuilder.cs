@@ -1,6 +1,8 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
@@ -10,35 +12,27 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Runtime
 {
-    /// <summary>
-    /// Builds the DotVVM view and resolves the master pages.
-    /// </summary>
     public class DefaultDotvvmViewBuilder : IDotvvmViewBuilder
     {
 
-        private IMarkupFileLoader markupFileLoader;
+        protected IMarkupFileLoader markupFileLoader;
 
-        private IControlBuilderFactory controlBuilderFactory;
+        protected IControlBuilderFactory controlBuilderFactory;
 
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultDotvvmViewBuilder"/> class.
-        /// </summary>
-        public DefaultDotvvmViewBuilder(DotvvmConfiguration configuration)
+        public DefaultDotvvmViewBuilder(IMarkupFileLoader markupFileLoader, IControlBuilderFactory builderFactory)
         {
-            markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
-            controlBuilderFactory = configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            this.markupFileLoader = markupFileLoader;
+            this.controlBuilderFactory = builderFactory;
         }
 
         /// <summary>
         /// Builds the <see cref="DotvvmView"/> for the specified HTTP request, resolves the master page hierarchy and performs the composition.
         /// </summary>
-        public DotvvmView BuildView(DotvvmRequestContext context)
+        public DotvvmView BuildView(IDotvvmRequestContext context)
         {
             // get the page markup
             var markup = markupFileLoader.GetMarkupFileVirtualPath(context);
-            
+
 
             // build the page
             var pageBuilder = controlBuilderFactory.GetControlBuilder(markup);
@@ -70,7 +64,7 @@ namespace DotVVM.Framework.Runtime
         /// If the request is SPA request, we need to verify that the page contains the same SpaContentPlaceHolder.
         /// Also we need to check that the placeholder is the same.
         /// </summary>
-        private void VerifySpaRequest(DotvvmRequestContext context, DotvvmView page)
+        protected void VerifySpaRequest(IDotvvmRequestContext context, DotvvmView page)
         {
             if (context.IsSpaRequest)
             {
@@ -82,7 +76,7 @@ namespace DotVVM.Framework.Runtime
                 if (spaContentPlaceHolders.Count == 0 || spaContentPlaceHolders[0].GetSpaContentPlaceHolderUniqueId() != context.GetSpaContentPlaceHolderUniqueId())
                 {
                     // the client has loaded different page which does not contain current SpaContentPlaceHolder - he needs to be redirected
-                    context.RedirectToUrl(context.OwinContext.Request.Uri.AbsoluteUri.Replace("/" + HostingConstants.SpaUrlIdentifier, ""));
+                    context.RedirectToUrl(context.HttpContext.Request.Url.AbsoluteUri.Replace("/" + HostingConstants.SpaUrlIdentifier, ""));
                 }
             }
         }
@@ -179,7 +173,7 @@ namespace DotVVM.Framework.Runtime
 
             // make sure that the Content controls are not nested in other elements
             var contents = childPage.GetAllDescendants().OfType<Content>()
-                .Where(c => !(bool) c.GetValue(Internal.IsMasterPageCompositionFinishedProperty))
+                .Where(c => !(bool)c.GetValue(Internal.IsMasterPageCompositionFinishedProperty))
                 .ToList();
             if (contents.Any(c => c.Parent != childPage))
             {
@@ -188,7 +182,6 @@ namespace DotVVM.Framework.Runtime
 
             return contents;
         }
-
 
     }
 }

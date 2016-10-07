@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Routing
                 presenterFactory = GetDefaultPresenter;
             }
 
-            Add(routeName, new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory));
+            Add(routeName, new DotvvmRoute(url, virtualPath, defaultValues, presenterFactory, configuration));
         }
 
         /// <summary>

@@ -7,6 +7,7 @@ using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using Microsoft.DotNet.InternalAbstractions;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -132,17 +133,16 @@ namespace DotVVM.Framework.Compilation
                 LoadCompiledViewsAssembly(assembly);
 
                 var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath()), "CompiledViewsBindings.dll");
-                if (File.Exists(bindings)) AppDomain.CurrentDomain.Load(bindings);
+                if (File.Exists(bindings)) AssemblyLoader.LoadFile(bindings);
             }
         }
 
         public Assembly TryFindAssembly(string fileName)
         {
-            if (File.Exists(fileName)) return Assembly.LoadFile(fileName);
+            if (File.Exists(fileName)) return AssemblyLoader.LoadFile(fileName);
             if (Path.IsPathRooted(fileName)) return null;
             var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
-            string a;
-            foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
+            foreach (var assembly in ReflectionUtils.GetAllAssemblies())
             {
                 // get already loaded assembly
                 if (assembly.GetName().Name == cleanName)
@@ -151,12 +151,12 @@ namespace DotVVM.Framework.Compilation
                     if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
                 }
             }
-            foreach (var assembly in new []{ typeof(DefaultControlBuilderFactory).Assembly.GetCodeBasePath(), configuration.ApplicationPhysicalPath })
+            foreach (var assemblyDirectory in new[] { Path.GetDirectoryName(typeof(DefaultControlBuilderFactory).GetTypeInfo().Assembly.GetCodeBasePath()), configuration.ApplicationPhysicalPath })
             {
-                if (!string.IsNullOrEmpty(assembly))
+                if (!string.IsNullOrEmpty(assemblyDirectory))
                 {
-                    a = Path.Combine(Path.GetDirectoryName(assembly), fileName);
-                    if (File.Exists(a)) return Assembly.LoadFile(a);
+                    var possibleFileName = Path.Combine(assemblyDirectory, fileName);
+                    if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
                 }
             }
             return null;
@@ -167,7 +167,7 @@ namespace DotVVM.Framework.Compilation
             var builders = assembly.GetTypes().Select(t => new
             {
                 type = t,
-                attribute = t.GetCustomAttribute<LoadControlBuilderAttribute>()
+                attribute = t.GetTypeInfo().GetCustomAttribute<LoadControlBuilderAttribute>()
             }).Where(t => t.attribute != null);
             foreach (var builder in builders)
             {

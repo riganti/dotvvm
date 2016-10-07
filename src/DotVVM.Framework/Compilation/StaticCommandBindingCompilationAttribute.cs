@@ -6,6 +6,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.ViewModel;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -34,10 +35,10 @@ namespace DotVVM.Framework.Compilation
 			return true;
 		}
 
-		protected virtual string CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, string callbackFunction = null)
-		{
-			if (!Attribute.IsDefined(methodExpression.Method, typeof(AllowStaticCommandAttribute)))
-				throw new Exception($"Method '{methodExpression.Method.DeclaringType.Name}.{methodExpression.Method.Name}' used in static command has to be marked with [AllowStaticCommand] attribute.");
+        protected virtual string CompileMethodCall(MethodCallExpression methodExpression, DataContextStack dataContext, string callbackFunction = null)
+        {
+            if (!methodExpression.Method.IsDefined(typeof(AllowStaticCommandAttribute)))
+                throw new Exception($"Method '{methodExpression.Method.DeclaringType.Name}.{methodExpression.Method.Name}' used in static command has to be marked with [AllowStaticCommand] attribute.");
 
 			if (callbackFunction == null) callbackFunction = "null";
 			if (methodExpression == null)

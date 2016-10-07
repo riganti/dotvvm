@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Styles
 {
@@ -39,7 +40,7 @@ namespace DotVVM.Framework.Compilation.Styles
                 yield return s;
             do
             {
-                type = type.BaseType;
+                type = type.GetTypeInfo().BaseType;
 
                 foreach (var s in Styles[type])
                     if (!s.ExactTypeMatch)

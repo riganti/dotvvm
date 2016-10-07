@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 {
     public interface IErrorWriter
     {
-        void Write(string str);
+        void WriteUnencoded(string str);
         void WriteText(string str);
         void ObjectBrowser(object obj);
         void WriteKVTable(IEnumerable keys, IEnumerable values);

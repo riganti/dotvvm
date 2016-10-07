@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static void AddMethodTranslator(MethodInfo method, IJsMethodTranslator translator)
         {
             MethodTranslators.Add(method, translator);
-            if (method.DeclaringType.IsInterface)
+            if (method.DeclaringType.GetTypeInfo().IsInterface)
                 Interfaces.Add(method.DeclaringType);
         }
 
@@ -97,7 +97,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         static bool ToStringCheck(Expression expr)
         {
             while (expr.NodeType == ExpressionType.Convert) expr = ((UnaryExpression)expr).Operand;
-            return expr.Type.IsPrimitive;
+            return expr.Type.GetTypeInfo().IsPrimitive;
         }
 
         public DataContextStack DataContexts { get; set; }
@@ -273,13 +273,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 if (Interfaces.Contains(iface))
                 {
-                    var map = method.DeclaringType.GetInterfaceMap(iface);
+                    var map = method.DeclaringType.GetTypeInfo().GetRuntimeInterfaceMap(iface);
                     var imIndex = Array.IndexOf(map.TargetMethods, method);
                     if (imIndex >= 0 && MethodTranslators.TryGetValue(map.InterfaceMethods[imIndex], out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
                         return translator.TranslateCall(context, args, method);
                 }
             }
-            if (method.DeclaringType.IsGenericType && !method.DeclaringType.IsGenericTypeDefinition)
+            if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
             {
                 var genericType = method.DeclaringType.GetGenericTypeDefinition();
                 var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);

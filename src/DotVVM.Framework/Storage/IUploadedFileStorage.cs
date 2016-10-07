@@ -1,18 +1,13 @@
 using System;
-using System.Collections.Generic;
-using System.Data;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Storage
 {
     public interface IUploadedFileStorage
     {
-
         /// <summary>
-        /// Stores uploaded file and returns its unique id.
+        /// Stores uploaded file and returns its unique ID.
         /// </summary>
         Task<Guid> StoreFile(Stream stream);
 
@@ -22,7 +17,7 @@ namespace DotVVM.Framework.Storage
         void DeleteFile(Guid fileId);
 
         /// <summary>
-        /// Gets the file with the specified id.
+        /// Gets the file with the specified ID.
         /// </summary>
         Stream GetFile(Guid fileId);
 
@@ -30,6 +25,22 @@ namespace DotVVM.Framework.Storage
         /// Deletes files older than the specified date.
         /// </summary>
         void DeleteOldFiles(DateTime maxCreatedDate);
+    }
 
+    public static class UploadedFileStorageExtensions
+    {
+        /// <summary>
+        /// Saves an uploaded file with the specified ID to the given location.
+        /// </summary>
+        public static void SaveAs(this IUploadedFileStorage storage, Guid fileId, string path)
+        {
+            using (var stream = storage.GetFile(fileId))
+            {
+                using (var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write))
+                {
+                    stream.CopyTo(fs);
+                }
+            }
+        }
     }
 }

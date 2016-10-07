@@ -4,11 +4,12 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
-    public abstract class DothtmlNode
+    public abstract class DothtmlNode : ITextRange
     {
         public int StartPosition => Tokens.FirstOrDefault()?.StartPosition ?? 0;
 
         public int Length => Tokens.Select(t => t.Length).Sum();
+        public int EndPosition => StartPosition + Length; 
 
         public AggregateList<DothtmlToken> Tokens { get; private set; } = new AggregateList<DothtmlToken>();
 
@@ -43,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public DothtmlNode FindNodeByPosition(int position)
         {
-            return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.StartPosition + n.Length);
+            return EnumerateNodes().LastOrDefault(n => n.StartPosition <= position && position < n.EndPosition);
         }
 
         public virtual IEnumerable<DothtmlNode> EnumerateNodes()

@@ -8,21 +8,31 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
-using Microsoft.Owin;
+using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Testing
 {
     public class TestDotvvmRequestContext : IDotvvmRequestContext
     {
-        public IOwinContext OwinContext { get; set; }
+        public IHttpContext HttpContext { get; set; }
+        public string CsrfToken { get; set; }
+
+        public JObject ReceivedViewModelJson { get; set; }
+        public string GetSpaContentPlaceHolderUniqueId()
+        {
+            throw new NotImplementedException();
+        }
+
         public object ViewModel { get; set; }
+        public JObject ViewModelJson { get; set; }
         public DotvvmConfiguration Configuration { get; set; }
+        public IDotvvmPresenter Presenter { get; set; }
         public RouteBase Route { get; set; }
         public bool IsPostBack { get; set; }
         public IDictionary<string, object> Parameters { get; set; }
         public ResourceManager ResourceManager { get; set; }
         public ModelState ModelState { get; set; }
-        public IDictionary<string, object> Query { get; set; }
+        public IQueryCollection Query { get; set; }
         public bool IsCommandExceptionHandled { get; set; }
         public bool IsPageExceptionHandled { get; set; }
         public Exception CommandException { get; set; }
@@ -31,21 +41,26 @@ namespace DotVVM.Framework.Testing
         public string ApplicationHostPath { get; set; }
         public string ResultIdFragment { get; set; }
 
+        public Dictionary<string, string> PostBackUpdatedControls { get; }
         public DotvvmView View { get; set; }
 
         public void ChangeCurrentCulture(string cultureName)
+            => ChangeCurrentCulture(cultureName, cultureName);
+
+        public void ChangeCurrentCulture(string cultureName, string uiCultureName)
         {
-            Thread.CurrentThread.CurrentCulture = Thread.CurrentThread.CurrentUICulture = CultureInfo.GetCultureInfo(cultureName);
+            CultureInfo.CurrentCulture = new CultureInfo(cultureName);
+            CultureInfo.CurrentUICulture = new CultureInfo(uiCultureName);
         }
 
         public CultureInfo GetCurrentUICulture()
         {
-            return Thread.CurrentThread.CurrentUICulture;
+            return CultureInfo.CurrentUICulture;
         }
 
         public CultureInfo GetCurrentCulture()
         {
-            return Thread.CurrentThread.CurrentCulture;
+            return CultureInfo.CurrentCulture;
         }
 
         public void InterruptRequest()
@@ -53,16 +68,28 @@ namespace DotVVM.Framework.Testing
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.Interrupt);
         }
 
+        public string GetSerializedViewModel()
+        {
+            throw new NotImplementedException();
+        }
+
         public void RedirectToUrl(string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
         {
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.Redirect, url);
         }
 
-        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true)
+
+        public void RedirectToRoute(string routeName, object newRouteValues = null, bool replaceInHistory = false, bool allowSpaRedirect = true, string urlSuffix = null)
         {
             var route = Configuration.RouteTable[routeName];
             var url = route.BuildUrl(Parameters, newRouteValues);
-            RedirectToUrl(url);
+
+            if (!string.IsNullOrEmpty(urlSuffix))
+            {
+                url += urlSuffix;
+            }
+
+            RedirectToUrl(url, replaceInHistory, allowSpaRedirect);
         }
 
         public void RedirectToUrlPermanent(string url, bool replaceInHistory = false, bool allowSpaRedirect = false)
@@ -94,12 +121,12 @@ namespace DotVVM.Framework.Testing
             return virtualUrl;
         }
 
-        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public void ReturnFile(byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders)
         {
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
         }
 
-        public void ReturnFile(Stream stream, string fileName, string mimeType, IHeaderDictionary additionalHeaders)
+        public void ReturnFile(Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders)
         {
             throw new DotvvmInterruptRequestExecutionException(InterruptReason.ReturnFile, fileName);
         }

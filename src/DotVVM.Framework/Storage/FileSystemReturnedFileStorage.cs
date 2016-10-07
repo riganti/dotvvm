@@ -8,7 +8,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Utils;
-using Microsoft.Owin;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Storage

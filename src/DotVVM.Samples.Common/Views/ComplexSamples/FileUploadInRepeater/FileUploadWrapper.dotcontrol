@@ -1,0 +1,4 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.FileUploadInRepeater.FileUploadInRepeaterCollection, DotVVM.Samples.Common
+@baseType DotVVM.Samples.BasicSamples.Views.ComplexSamples.FileUploadInRepeater.FileUploadWrapper, DotVVM.Samples.Common
+
+<dot:FileUpload UploadedFiles="{controlProperty: Files}" UploadCompleted="{controlCommand: OnUploaded()}" />

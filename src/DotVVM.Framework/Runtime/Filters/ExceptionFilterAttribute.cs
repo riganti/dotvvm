@@ -1,6 +1,5 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Runtime.Filters
@@ -10,24 +9,14 @@ namespace DotVVM.Framework.Runtime.Filters
     /// </summary>
     public abstract class ExceptionFilterAttribute : ActionFilterAttribute
     {
-
-        /// <summary>
-        /// Called after the command is invoked.
-        /// </summary>
-        protected internal override void OnCommandExecuted(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
-        {
-            if (exception != null)
-            {
-                OnCommandException(context, actionInfo, exception);
-            }
-        }
+        /// <inheritdoc />
+        protected internal override Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
+            => exception != null ? OnCommandExceptionAsync(context, actionInfo, exception) : Task.CompletedTask;
 
         /// <summary>
         /// Called when the exception occurs during the command invocation.
         /// </summary>
-        protected virtual void OnCommandException(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
-        {
-        }
-
+        protected virtual Task OnCommandExceptionAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
+            => Task.CompletedTask;
     }
 }

@@ -1,43 +1,67 @@
 using System;
-using System.Collections.Concurrent;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Configuration
 {
     public class ServiceLocator
     {
+        private IServiceCollection serviceCollection;
+        private IServiceProvider serviceProvider;
 
-        private ConcurrentDictionary<Type, Func<object>> factories = new ConcurrentDictionary<Type, Func<object>>();
-        private ConcurrentDictionary<Type, object> singletonInstances = new ConcurrentDictionary<Type, object>(); 
+        public ServiceLocator(IServiceProvider serviceProvider)
+        {
+            if (serviceProvider == null)
+            {
+                throw new ArgumentNullException(nameof(serviceProvider));
+            }
 
+            this.serviceProvider = serviceProvider;
+        }
 
+        public ServiceLocator(IServiceCollection serviceCollection)
+        {
+            if (serviceCollection == null)
+            {
+                throw new ArgumentNullException(nameof(serviceCollection));
+            }
+
+            this.serviceCollection = serviceCollection;
+        }
+
+        public IServiceProvider GetServiceProvider()
+        {
+            if (serviceProvider == null)
+            {
+                serviceProvider = serviceCollection.BuildServiceProvider();
+                serviceCollection = null;
+            }
+            return serviceProvider;
+        }
+
+        public T GetService<T>() 
+            => (T)GetServiceProvider().GetService(typeof(T));
+
+        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead")]
         public void RegisterTransient<T>(Func<T> factory)
         {
-            factories[typeof (T)] = () => factory();
+            RegisterService(factory, ServiceLifetime.Transient);
         }
 
+        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead")]
         public void RegisterSingleton<T>(Func<T> factory)
         {
-            factories[typeof (T)] = CreateSingletonFactory(factory);
-            object temp;
-            singletonInstances.TryRemove(typeof(T), out temp); //removes old service instance and allows to create new one
+            RegisterService(factory, ServiceLifetime.Singleton);
         }
 
-
-
-        public T GetService<T>()
+        [Obsolete]
+        private void RegisterService<T>(Func<T> factory, ServiceLifetime lifetime)
         {
-            var service = (T)factories[typeof (T)]();
-            if (service == null) throw new ArgumentException($"Constructor for service {typeof(T)} returned null.");
-            return service;
+            if (serviceCollection == null)
+            {
+                throw new InvalidOperationException("Could not register service to ServiceLocator that has already built IServiceProvider.");
+            }
+
+            serviceCollection.Add(new ServiceDescriptor(typeof(T), p => factory(), lifetime));
         }
-
-
-
-
-        private Func<object> CreateSingletonFactory<T>(Func<T> factory)
-        {
-            return () => singletonInstances.GetOrAdd(typeof (T), t => factory());
-        }
-        
     }
 }

@@ -1,0 +1,22 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.PostBack.PostBackUpdateViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>PostBack.Update test</h1>
+		
+		<div class="well">
+			<p>Enter a number: <dot:TextBox Text="{value: Value}" /></p>
+			<p><dot:Button Text="Refresh control" Click="{command: Apply()}" /></p>
+		</div>
+		<p>&nbsp;</p>
+		
+		<p>... <PropertyUpdate:ServerRenderedLabel Text="{value: Result}" PostBack.Update="true" /> ...</p>
+	</div>
+
+</body>
+</html>

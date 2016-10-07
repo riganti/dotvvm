@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.SiteViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <h1>SPA Test</h1>
+
+    <dot:RouteLink RouteName="ComplexSamples_SPA_default" Text="Default Page" />
+    <dot:RouteLink RouteName="ComplexSamples_SPA_test" Text="Test Page" />
+
+    <dot:SpaContentPlaceHolder ID="Container" />
+
+</body>
+</html>
+
+

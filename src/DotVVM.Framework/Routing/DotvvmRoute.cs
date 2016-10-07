@@ -5,24 +5,17 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using System.Text.RegularExpressions;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Routing
 {
     public class DotvvmRoute : RouteBase
     {
-        public static readonly Dictionary<string, IRouteParameterType> ParameterTypes = new Dictionary<string, IRouteParameterType>
-        {
-            { "int", new GenericRouteParameterType("-?[0-9]*?", s => int.Parse(s)) },
-            { "posint", new GenericRouteParameterType("[0-9]*?", s => int.Parse(s)) },
-            { "float", new GenericRouteParameterType("-?[0-9.e]*?", s => float.Parse(s)) },
-            { "guid", new GenericRouteParameterType("[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}", s => Guid.Parse(s)) }
-        };
-
         private Func<IDotvvmPresenter> presenterFactory;
 
         private Regex routeRegex;
         private List<Func<Dictionary<string, object>, string>> urlBuilders;
-        private List<KeyValuePair<string, IRouteParameterType>> parameters;
+        private List<KeyValuePair<string, Func<string, ParameterParseResult>>> parameters;
 
         /// <summary>
         /// Gets the names of the route parameters in the order in which they appear in the URL.
@@ -33,48 +26,48 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, object defaultValues, Func<IDotvvmPresenter> presenterFactory)
+        public DotvvmRoute(string url, string virtualPath, object defaultValues, Func<IDotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, defaultValues)
         {
             this.presenterFactory = presenterFactory;
 
-            ParseRouteUrl();
+            ParseRouteUrl(configuration);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory)
+        public DotvvmRoute(string url, string virtualPath, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, defaultValues)
         {
             this.presenterFactory = presenterFactory;
 
-            ParseRouteUrl();
+            ParseRouteUrl(configuration);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmRoute"/> class.
         /// </summary>
-        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory)
+        public DotvvmRoute(string url, string virtualPath, string name, IDictionary<string, object> defaultValues, Func<DotvvmPresenter> presenterFactory, DotvvmConfiguration configuration)
             : base(url, virtualPath, name, defaultValues)
         {
             this.presenterFactory = presenterFactory;
 
-            ParseRouteUrl();
+            ParseRouteUrl(configuration);
         }
 
 
         /// <summary>
         /// Parses the route URL and extracts the components.
         /// </summary>
-        private void ParseRouteUrl()
+        private void ParseRouteUrl(DotvvmConfiguration configuration)
         {
             if (Url.StartsWith("/", StringComparison.Ordinal))
                 throw new ArgumentException("The route URL must not start with '/'!");
             if (Url.EndsWith("/", StringComparison.Ordinal))
                 throw new ArgumentException("The route URL must not end with '/'!");
 
-            parameters = new List<KeyValuePair<string, IRouteParameterType>>();
+            parameters = new List<KeyValuePair<string, Func<string, ParameterParseResult>>>();
 
             urlBuilders = new List<Func<Dictionary<string, object>, string>>();
             urlBuilders.Add(_ => "~/");
@@ -97,7 +90,7 @@ namespace DotVVM.Framework.Routing
                     // route parameter
                     var str = Url.Substring(startIndex, i - startIndex);
                     i++;
-                    regex.Append(ParseParameter(str, ref i));
+                    regex.Append(ParseParameter(str, ref i, configuration.RouteConstraints));
                     startIndex = i + 1;
                 }
             }
@@ -114,7 +107,7 @@ namespace DotVVM.Framework.Routing
             routeRegex = new Regex(regex.ToString(), RegexOptions.Compiled | RegexOptions.IgnoreCase);
         }
 
-        private string ParseParameter(string prefix, ref int index)
+        private string ParseParameter(string prefix, ref int index, Dictionary<string, IRouteParameterConstraint> routeConstraints)
         {
             // find the end of the route parameter name
             var startIndex = index;
@@ -137,23 +130,42 @@ namespace DotVVM.Framework.Routing
             }
 
             // determine route parameter constraint
-            IRouteParameterType type = null;
+            IRouteParameterConstraint type = null;
+            string parameter = null;
             if (Url[index] == ':')
             {
                 startIndex = index + 1;
-                index = Url.IndexOf('}', index);
+                index = Url.IndexOfAny("}(:".ToArray(), index + 1);
                 if (index < 0)
                 {
                     throw new ArgumentException($"The route URL '{Url}' is not valid! It contains an unclosed parameter.");
                 }
 
                 var typeName = Url.Substring(startIndex, index - startIndex);
-                if (!ParameterTypes.ContainsKey(typeName))
+                if (!routeConstraints.ContainsKey(typeName))
                 {
                     throw new ArgumentException($"The route parameter constraint '{typeName}' is not valid!");
                 }
-                type = ParameterTypes[typeName];
+                type = routeConstraints[typeName];
+                if (Url[index] == '(') // parameters
+                {
+                    index++;
+                    startIndex = index;
+                    int plevel = 0;
+                    while (!(plevel == 0 && Url[index] == ')'))
+                    {
+                        if (Url[index] == '(') plevel++;
+                        else if (Url[index] == ')') plevel--;
+                        index++;
+                        if (Url.Length == index) throw new AggregateException($"The route constraint parameter of '{name}:{type}' is not closed: {Url}");
+                    }
+                    parameter = Url.Substring(startIndex, index - startIndex);
+                    index++;
+                }
+                if (Url[index] == ':') throw new NotImplementedException("Support for multiple route constraints is not implemented."); // TODO
+
             }
+            if (Url[index] != '}') throw new AggregateException($"Route parameter { name } should be closed with curly bracket");
 
             // generate the URL builder
             if (isOptional)
@@ -177,10 +189,11 @@ namespace DotVVM.Framework.Routing
             }
 
             // add a parameter
-            parameters.Add(new KeyValuePair<string, IRouteParameterType>(name, type));
+            if (type != null)parameters.Add(new KeyValuePair<string, Func<string, ParameterParseResult>>(name, s => type.ParseString(s, parameter)));
+            else parameters.Add(new KeyValuePair<string, Func<string, ParameterParseResult>>(name, null));
 
             // generate the regex
-            var pattern = type?.GetPartRegex() ?? "[^/]*?";     // parameters cannot contain /
+            var pattern = type?.GetPartRegex(parameter) ?? "[^/]*?";     // parameters cannot contain /
             var result = $"{ Regex.Escape(prefix) }(?<param{Regex.Escape(name)}>{pattern})";
             if (isOptional)
             {
@@ -203,7 +216,7 @@ namespace DotVVM.Framework.Routing
                 return false;
             }
 
-            values = new Dictionary<string, object>(DefaultValues, StringComparer.InvariantCultureIgnoreCase);
+            values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
 
             foreach (var parameter in parameters)
             {
@@ -211,7 +224,11 @@ namespace DotVVM.Framework.Routing
                 if (g.Success)
                 {
                     if (parameter.Value != null)
-                        values[parameter.Key] = parameter.Value.ParseString(g.Value);
+                    {
+                        var r = parameter.Value(g.Value);
+                        if (!r.IsOK) return false;
+                        values[parameter.Key] = r.Value;
+                    }
                     else
                         values[parameter.Key] = g.Value;
                 }
@@ -237,7 +254,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public override Task ProcessRequest(DotvvmRequestContext context)
+        public override Task ProcessRequest(IDotvvmRequestContext context)
         {
             context.Presenter = presenterFactory();
             return context.Presenter.ProcessRequest(context);

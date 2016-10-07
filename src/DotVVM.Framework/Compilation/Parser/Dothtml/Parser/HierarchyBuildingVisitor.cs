@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public bool Condition(DothtmlNode node)
         {
-            int tagEnd = node.StartPosition + node.Length;
+            int tagEnd = node.EndPosition;
 
             if(node is DothtmlElementNode)
             {

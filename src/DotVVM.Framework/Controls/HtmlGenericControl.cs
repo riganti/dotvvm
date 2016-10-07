@@ -5,6 +5,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation;
 
 namespace DotVVM.Framework.Controls
 {
@@ -22,8 +24,18 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the attributes.
         /// </summary>
-        [MarkupOptions(MappingMode = MappingMode.Exclude)]
+        [MarkupOptions(MappingMode = MappingMode.Attribute, AllowBinding = true, AllowHardCodedValue = true, AllowValueMerging = true, AttributeValueMerger = typeof(HtmlAttributeValueMerger), AllowAttributeWithoutValue = true)]
+        [PropertyGroup(new[] { "", "html:" })]
         public Dictionary<string, object> Attributes { get; private set; }
+
+        public static PropertyGroupDescriptor CssClassesGroupDescriptor =
+            PropertyGroupDescriptor.Create<HtmlGenericControl, string>("Class-", "CssClasses");
+
+        public VirtualPropertyGroupDictionary<string> CssClasses => new VirtualPropertyGroupDictionary<string>(this, CssClassesGroupDescriptor);
+
+        //[MarkupOptions(MappingMode = MappingMode.Attribute, AllowHardCodedValue = true, AllowBinding = true, AllowValueMerging = true)]
+        //public static PropertyGroupDescriptor AttributeGroupDescriptor = 
+        //    PropertyGroupDescriptor.Create<HtmlGenericControl, string>("", "Attribute");
 
         /// <summary>
         /// Gets or sets whether the control is visible.
@@ -113,6 +125,14 @@ namespace DotVVM.Framework.Controls
                 {
                     writer.AddKnockoutDataBind("attr", attrBindingGroup);
                 }
+
+                KnockoutBindingGroup cssClassBindingGroup = null;
+                foreach (var cssClass in CssClasses.Properties)
+                {
+                    if (cssClassBindingGroup == null) cssClassBindingGroup = new KnockoutBindingGroup();
+                    cssClassBindingGroup.Add(cssClass.GroupMemberName, this, cssClass, null);
+                }
+                if (cssClassBindingGroup != null) writer.AddKnockoutDataBind("css", cssClassBindingGroup);
 
                 // handle Visible property
                 AddVisibleAttributeOrBinding(writer);

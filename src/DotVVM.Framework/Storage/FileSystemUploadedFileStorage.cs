@@ -1,6 +1,5 @@
 using System;
 using System.IO;
-using System.Security.Principal;
 using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Utils;

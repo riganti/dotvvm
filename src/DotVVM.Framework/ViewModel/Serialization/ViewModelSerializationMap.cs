@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using System.Reflection;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -222,7 +223,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // writer.WritePropertyName("$type");
             // serializer.Serialize(writer, value.GetType().FullName)
             block.Add(ExpressionUtils.Replace((JsonWriter w) => w.WritePropertyName("$type"), writer));
-            block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.FullName)));
+            block.Add(ExpressionUtils.Replace((JsonSerializer s, JsonWriter w, string t) => s.Serialize(w, t), serializer, writer, Expression.Constant(Type.GetTypeHash())));
 
             // go through all properties that should be serialized
             foreach (var property in Properties)
@@ -380,8 +381,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             return !(
                 // primitives can't contain encrypted fields
-                type.IsPrimitive ||
-                type.IsEnum ||
+                type.GetTypeInfo().IsPrimitive ||
+                type.GetTypeInfo().IsEnum ||
                 type == typeof(string)
            );
         }

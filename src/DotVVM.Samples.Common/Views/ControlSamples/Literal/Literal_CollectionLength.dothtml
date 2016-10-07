@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.Literal.Literal_CollectionLengthViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:Button Click="{command:  AddItemToCollection()}" ID="first">Add value</dot:Button>
+
+    <dot:Literal Text="{value: MyCollection.Count}"></dot:Literal>
+    <br />
+    <br />
+    <br />
+    This button is visible only if Collection has two or more items in it.
+    <br />
+    <dot:Button Visible="{value: MyCollection.Count > 2}" ID="second">Poop</dot:Button>
+</body>
+</html>
+
+

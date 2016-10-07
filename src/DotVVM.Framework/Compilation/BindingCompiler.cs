@@ -25,11 +25,11 @@ namespace DotVVM.Framework.Compilation
         private static int globalBindingIndex = 0;
         private static int bindingClassCtr;
 
-        private static Lazy<ModuleBuilder> moduleBuilder = new Lazy<ModuleBuilder>(() =>
-        {
-            var assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("DynamicBindingAssembly"), AssemblyBuilderAccess.Run);
-            return assembly.DefineDynamicModule("Module", true);
-        });
+        //private static Lazy<ModuleBuilder> moduleBuilder = new Lazy<ModuleBuilder>(() =>
+        //{
+        //    var assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("DynamicBindingAssembly"), AssemblyBuilderAccess.Run);
+        //    return assembly.DefineDynamicModule("Module", true);
+        //});
         private DotvvmConfiguration configuration;
 
         public BindingCompiler(DotvvmConfiguration configuration)
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Compilation
 
         public static BindingCompilationAttribute GetCompilationAttribute(Type bindingType)
         {
-            return bindingType.GetCustomAttributes<BindingCompilationAttribute>().FirstOrDefault();
+            return bindingType.GetTypeInfo().GetCustomAttributes<BindingCompilationAttribute>().FirstOrDefault();
         }
 
         private static KeyValuePair<string, Expression> GetParameter(int index, string name, Expression vmArray, Type[] parents)
@@ -113,23 +113,24 @@ namespace DotVVM.Framework.Compilation
             }
             else
             {
-                try
-                {
-                    var visitor = new DebugInfoExpressionVisitor { DebugInfo = debugInfo };
-                    expression = visitor.Visit(expression) as Expression<T>;
+				throw new NotImplementedException();
+                //try
+                //{
+                //    var visitor = new DebugInfoExpressionVisitor { DebugInfo = debugInfo };
+                //    expression = visitor.Visit(expression) as Expression<T>;
 
-                    var pdb = DebugInfoGenerator.CreatePdbGenerator();
-                    //return expression.Compile(pdb);
-                    var type = moduleBuilder.Value.DefineType("bindingWrapperType" + Interlocked.Increment(ref bindingClassCtr));
-                    var method = type.DefineMethod("Method", MethodAttributes.Public | MethodAttributes.Static);
-                    expression.CompileToMethod(method, pdb);
-                    var bakedType = type.CreateType();
-                    return (T)(object)bakedType.GetMethods().First().CreateDelegate(typeof(T));
-                }
-                catch
-                {
-                    return expression.Compile();
-                }
+                //    var pdb = DebugInfoGenerator.CreatePdbGenerator();
+                //    //return expression.Compile(pdb);
+                //    var type = moduleBuilder.Value.DefineType("bindingWrapperType" + Interlocked.Increment(ref bindingClassCtr));
+                //    var method = type.DefineMethod("Method", MethodAttributes.Public | MethodAttributes.Static);
+                //    expression.CompileToMethod(method, pdb);
+                //    var bakedType = type.CreateType();
+                //    return (T)(object)bakedType.GetMethods().First().CreateDelegate(typeof(T));
+                //}
+                //catch
+                //{
+                //    return expression.Compile();
+                //}
             }
         }
 
@@ -149,7 +150,7 @@ namespace DotVVM.Framework.Compilation
             return SyntaxFactory.ElementAccessExpression(
                 SyntaxFactory.MemberAccessExpression(
                     SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.ParseTypeName(typeof(BindingCompiler).FullName),
+                    SyntaxFactory.ParseTypeName($"global::{typeof(BindingCompiler).FullName}"),
                     SyntaxFactory.IdentifierName(nameof(GlobalBindingList))
                 ),
                 SyntaxFactory.BracketedArgumentList(

@@ -1,7 +1,10 @@
 ﻿using DotVVM.Framework;
+using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin.Hosting;
 using System;
 using System.Collections.Generic;
@@ -14,7 +17,7 @@ namespace DotVVM.Compiler
 {
     class OwinInitializer
     {
-        public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string rootPath)
+		public static DotvvmConfiguration InitDotVVM(Assembly webSiteAssembly, string webSitePath, AssemblyBindingCompiler bindingCompiler, ViewStaticCompilerCompiler viewStaticCompilerCompiler)
         {
             var dotvvmStartups = webSiteAssembly.GetLoadableTypes()
                 .Where(t => typeof(IDotvvmStartup).IsAssignableFrom(t) && t.GetConstructor(Type.EmptyTypes) != null).ToArray();
@@ -23,10 +26,15 @@ namespace DotVVM.Compiler
             if (dotvvmStartups.Length > 1) throw new Exception($"Found more than one implementation of IDotvvmStartup ({string.Join(", ", dotvvmStartups.Select(s => s.Name)) }).");
 
             var startup = (IDotvvmStartup)Activator.CreateInstance(dotvvmStartups[0]);
-            var config = OwinExtensions.CreateConfiguration(rootPath);
-            startup.Configure(config, rootPath);
+			var config = DotvvmConfiguration.CreateDefault(services =>
+			{
+				services.AddSingleton<IBindingCompiler>(bindingCompiler);
+				services.AddSingleton<IControlResolver, OfflineCompilationControlResolver>();
+				services.AddSingleton<ViewStaticCompilerCompiler>(viewStaticCompilerCompiler);
+			});
+            startup.Configure(config, webSitePath);
             config.CompiledViewsAssemblies = null;
             return config;
         }
-    }
+	}
 }

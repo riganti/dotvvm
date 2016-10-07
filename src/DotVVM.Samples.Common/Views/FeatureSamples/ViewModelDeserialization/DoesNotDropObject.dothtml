@@ -1,0 +1,18 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ViewModelDeserialization.DoesNotDropObjectViewModel, DotVVM.Samples.Common
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <dot:RequiredResource Name="globalize:cs-CZ" />
+</head>
+<body>
+    <div class="container">
+		<div DataContext="{value: Object}">
+			<span id="text">{{value:Property}}</span>
+		</div>
+		<dot:Button onclick="document.getElementById('text').style.display='none';return false;">Hide text</dot:Button>
+		<dot:Button onclick="document.getElementById('text').style.display='inline';return false;">Show text</dot:Button>
+		<dot:Button Click="{command: Postback()}" Text="Postback"></dot:Button>
+    </div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -13,7 +13,6 @@ using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
-using System.Security;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -27,7 +26,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IViewModelSerializationMapper viewModelMapper;
         private readonly DotvvmConfiguration configuration;
 
-        public bool SendDiff { get; set; }
+        public bool SendDiff { get; set; } = true;
 
         public Formatting JsonFormatting { get; set; }
 
@@ -35,25 +34,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
         /// </summary>
-        public DefaultViewModelSerializer(DotvvmConfiguration configuration)
+        public DefaultViewModelSerializer(DotvvmConfiguration configuration, IViewModelProtector protector, IViewModelSerializationMapper serializationMapper)
         {
-            this.viewModelProtector = configuration.ServiceLocator.GetService<IViewModelProtector>();
+            this.viewModelProtector = protector;
             this.JsonFormatting = configuration.Debug ? Formatting.Indented : Formatting.None;
-            this.viewModelMapper = configuration.ServiceLocator.GetService<IViewModelSerializationMapper>();
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="DefaultViewModelSerializer"/> class.
-        /// </summary>
-        public DefaultViewModelSerializer(IViewModelProtector viewModelProtector)
-        {
-            this.viewModelProtector = viewModelProtector;
+            this.viewModelMapper = serializationMapper;
         }
 
         /// <summary>
         /// Serializes the view model.
         /// </summary>
-        public string SerializeViewModel(DotvvmRequestContext context)
+        public string SerializeViewModel(IDotvvmRequestContext context)
         {
             if (SendDiff && context.ReceivedViewModelJson != null && context.ViewModelJson["viewModel"] != null)
             {
@@ -66,7 +57,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Builds the view model for the client.
         /// </summary>
-        public void BuildViewModel(DotvvmRequestContext context)
+        public void BuildViewModel(IDotvvmRequestContext context)
         {
             // serialize the ViewModel
             var serializer = CreateJsonSerializer();
@@ -98,8 +89,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            result["url"] = context.OwinContext.Request.Uri.PathAndQuery;
-            result["virtualDirectory"] = DotvvmMiddleware.GetVirtualDirectory(context.OwinContext);
+            result["url"] = context.HttpContext.Request.Url.PathAndQuery;
+            result["virtualDirectory"] = context.HttpContext.Request.PathBase.Value?.Trim('/') ?? "";
             if (context.ResultIdFragment != null)
             {
                 result["resultIdFragment"] = context.ResultIdFragment;
@@ -163,7 +154,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     rule[property.Name] = JToken.FromObject(property.ClientValidationRules);
                 }
-                if (rule.Count > 0) validationRules[map.Type.ToString()] = rule;
+                if (rule.Count > 0) validationRules[map.Type.GetTypeHash()] = rule;
             }
             return validationRules;
         }
@@ -199,7 +190,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// Populates the view model from the data received from the request.
         /// </summary>
         /// <returns></returns>
-        public void PopulateViewModel(DotvvmRequestContext context, string serializedPostData)
+        public void PopulateViewModel(IDotvvmRequestContext context, string serializedPostData)
         {
 
             // get properties
@@ -237,7 +228,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Resolves the command for the specified post data.
         /// </summary>
-        public void ResolveCommand(DotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo)
+        public void ResolveCommand(IDotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo)
         {
             // get properties
             var data = JObject.Parse(serializedPostData);
@@ -272,7 +263,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Adds the post back updated controls.
         /// </summary>
-        public void AddPostBackUpdatedControls(DotvvmRequestContext context)
+        public void AddPostBackUpdatedControls(IDotvvmRequestContext context)
         {
             var result = new JObject();
             foreach (var control in context.PostBackUpdatedControls)

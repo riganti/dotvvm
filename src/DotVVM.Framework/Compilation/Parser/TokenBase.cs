@@ -1,11 +1,13 @@
 namespace DotVVM.Framework.Compilation.Parser
 {
-    public abstract class TokenBase
+    public abstract class TokenBase : ITextRange
     {
 
         public int StartPosition { get; set; }
 
         public int Length { get; set; }
+
+        public int EndPosition => StartPosition + Length;
 
         public string Text { get; set; }
 

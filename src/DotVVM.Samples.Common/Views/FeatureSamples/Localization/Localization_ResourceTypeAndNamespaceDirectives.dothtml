@@ -1,0 +1,23 @@
+@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.LocalizationViewModel, DotVVM.Samples.Common
+@resourceType DotVVM.Samples.BasicSamples.Localization_Resources, DotVVM.Samples.Common
+@resourceNamespace DotVVM.Samples.BasicSamples
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+	<div class="container">
+		<h1>Localization test</h1>
+		
+		<p>{{resource: LocalizedString1}}</p>
+		<p>&nbsp;</p>
+
+		<h3>Switch Language</h3>
+		<ul>
+			<li><a href="Localization_ResourceTypeAndNamespaceDirectives">English</a></li>
+			<li><a href="Localization_ResourceTypeAndNamespaceDirectives?lang=cs-CZ">Czech</a></li>
+		</ul>
+	</div>
+</body>
+</html>

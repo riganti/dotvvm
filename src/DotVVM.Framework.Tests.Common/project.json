@@ -1,0 +1,37 @@
+﻿{
+  "version": "1.0.0-*",
+
+  "testRunner": "mstest",
+
+  "dependencies": {
+    "dotnet-test-mstest": "1.1.1-preview",
+    "MSTest.TestFramework": "1.0.1-preview",
+    "Microsoft.CodeAnalysis.CSharp": "1.3.2",
+    "Microsoft.Extensions.DependencyInjection": "1.0.0",
+    "DotVVM.Framework": {
+      "target": "project"
+    }
+  },
+
+  "buildOptions": {
+    "keyFile": "dotvvmwizard.snk"
+  },
+
+  "frameworks": {
+    "netcoreapp1.0": {
+      "imports": [
+        "dnxcore50",
+        "portable-net45+win8"
+      ],
+      "dependencies": {
+        "Microsoft.NETCore.App": {
+          "version": "1.0.0",
+          "type": "platform"
+        },
+        "System.Resources.ResourceManager": "4.0.1"
+      }
+    },
+    "net461": {
+    }
+  }
+}

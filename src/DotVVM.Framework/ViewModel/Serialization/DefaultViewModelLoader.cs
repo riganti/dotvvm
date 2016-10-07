@@ -1,11 +1,26 @@
 using System;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using System.Collections.Concurrent;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class DefaultViewModelLoader : IViewModelLoader
     {
+		protected ObjectFactory CreateObjectFactory(Type viewModelType)
+		{
+			return ActivatorUtilities.CreateFactory(viewModelType, Type.EmptyTypes);
+		}
+
+		protected ConcurrentDictionary<Type, ObjectFactory> facotryCache = new ConcurrentDictionary<Type, ObjectFactory>();
+		protected readonly IServiceProvider serviceProvider;
+
+		public DefaultViewModelLoader(IServiceProvider serviceProvider)
+		{
+			this.serviceProvider = serviceProvider;
+		}
+
         /// <summary>
         /// Initializes the view model for the specified view.
         /// </summary>
@@ -20,7 +35,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual object CreateViewModelInstance(Type viewModelType)
         {
-            return Activator.CreateInstance(viewModelType);
+			return facotryCache.GetOrAdd(viewModelType, CreateObjectFactory).Invoke(serviceProvider, new object[0]);
         }
 
         /// <summary>

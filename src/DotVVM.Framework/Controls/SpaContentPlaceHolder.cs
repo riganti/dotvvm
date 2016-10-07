@@ -5,6 +5,7 @@ using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
@@ -84,7 +85,7 @@ namespace DotVVM.Framework.Controls
                 return null;
             }
 
-            var result = DotvvmMiddleware.GetVirtualDirectory(context.OwinContext);
+            var result = DotvvmMiddlewareBase.GetVirtualDirectory(context.HttpContext);
             if (!string.IsNullOrEmpty(routePath))
             {
                 result += "/" + routePath;

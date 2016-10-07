@@ -265,7 +265,12 @@ class DotVVM {
                 return;
             }
             try {
-                var resultObject = JSON.parse(result.responseText);
+                var resultObject;
+                if (result.getResponseHeader("Location") != null) {
+                    resultObject = { action: "redirect", url: result.getResponseHeader("Location") };
+                } else {
+                    resultObject = JSON.parse(result.responseText);
+                }
                 if (!resultObject.viewModel && resultObject.viewModelDiff) {
                     // TODO: patch (~deserialize) it to ko.observable viewModel
                     this.isViewModelUpdating = true;
@@ -614,6 +619,7 @@ class DotVVM {
         xhr.open(method, url, true);
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("X-DotVVM-PostBack", "true");
+        xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         preprocessRequest(xhr);
         xhr.onreadystatechange = () => {
             if (xhr.readyState != 4) return;

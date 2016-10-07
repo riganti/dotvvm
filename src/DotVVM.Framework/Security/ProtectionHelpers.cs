@@ -9,12 +9,12 @@ namespace DotVVM.Framework.Security
     {
         public static string GetRequestIdentity(IDotvvmRequestContext context)
         {
-            return context.OwinContext.Request.Uri.ToString();
+            return context.HttpContext.Request.Url.ToString();
         }
 
         public static string GetUserIdentity(IDotvvmRequestContext context)
         {
-            var user = context.OwinContext.Request.User;
+            var user = context.HttpContext.User;
             
             if (user != null && user.Identity.IsAuthenticated)
             {

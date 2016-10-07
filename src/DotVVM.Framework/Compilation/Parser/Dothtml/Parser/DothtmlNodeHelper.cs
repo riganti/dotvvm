@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
         public static int GetContentStartPosition(this DothtmlElementNode node)
         {
-            return node.Content.FirstOrDefault()?.StartPosition ?? (node.StartPosition + node.Length);
+            return node.Content.FirstOrDefault()?.StartPosition ?? node.EndPosition;
         }
 
         public static int GetContentEndPosition(this DothtmlElementNode node)
@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
             if(lastNode == null)
             {
-                return (node.StartPosition + node.Length);
+                return node.EndPosition;
             }
 
             if (lastNode is DothtmlElementNode)
@@ -30,16 +30,16 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 
                 if (lastElement.IsSelfClosingTag)
                 {
-                    return lastElement.StartPosition + lastElement.Length;
+                    return lastElement.EndPosition;
                 }
                 else if (lastElement.CorrespondingEndTag != null)
                 {
                     var closingTag = lastElement.CorrespondingEndTag;
-                    return closingTag.StartPosition + closingTag.Length;
+                    return closingTag.EndPosition;
                 }
                 else if (lastElement.Content.Count == 0)
                 {
-                    return lastElement.StartPosition + lastElement.Length;
+                    return lastElement.EndPosition;
                 }
                 else
                 {
@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             }
             else
             {
-                return lastNode.StartPosition + lastNode.Length;
+                return lastNode.EndPosition;
             }
         }
     }

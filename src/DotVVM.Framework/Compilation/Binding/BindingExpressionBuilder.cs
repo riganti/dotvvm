@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Compilation.Binding
 				if (!parser.OnEnd())
 				{
 					throw new BindingCompilationException(
-						$"Unexpected token '{expression.Substring(0, parser.Peek().StartPosition)} ---->{parser.Peek().Text}<---- {expression.Substring(parser.Peek().StartPosition + parser.Peek().Length)}'",
+						$"Unexpected token '{expression.Substring(0, parser.Peek().StartPosition)} ---->{parser.Peek().Text}<---- {expression.Substring(parser.Peek().EndPosition)}'",
 						null, new TokenBase[] { parser.Peek() });
 				}
 				foreach (var n in node.EnumerateNodes())

@@ -8,10 +8,19 @@ namespace DotVVM.Framework.Compilation
     public class CompiledAssemblyCache
     {
 
+        private readonly ConcurrentDictionary<Assembly, MetadataReference> cachedAssemblyMetadata = new ConcurrentDictionary<Assembly, MetadataReference>();
+        private readonly ConcurrentDictionary<string, Assembly> cachedAssemblies = new ConcurrentDictionary<string, Assembly>();
 
-        private ConcurrentDictionary<Assembly, MetadataReference> cachedAssemblyMetadata = new ConcurrentDictionary<Assembly, MetadataReference>();
-        private ConcurrentDictionary<string, Assembly> cachedAssemblies = new ConcurrentDictionary<string, Assembly>();
-
+#if DotNetCore
+        /// <summary>
+        /// Tries to resolve compiled assembly.
+        /// </summary>
+        private Assembly DefaultOnResolving(System.Runtime.Loader.AssemblyLoadContext assemblyLoadContext, AssemblyName assemblyName)
+        {
+            Assembly assembly;
+            return cachedAssemblies.TryGetValue(assemblyName.FullName, out assembly) ? assembly : null;
+        }
+#else
         /// <summary>
         /// Tries to resolve compiled assembly.
         /// </summary>
@@ -20,7 +29,7 @@ namespace DotVVM.Framework.Compilation
             Assembly assembly;
             return cachedAssemblies.TryGetValue(args.Name, out assembly) ? assembly : null;
         }
-
+#endif
 
 
         /// <summary>
@@ -51,7 +60,12 @@ namespace DotVVM.Framework.Compilation
         {
             Instance = new CompiledAssemblyCache();
 
+#if DotNetCore
+            System.Runtime.Loader.AssemblyLoadContext.Default.Resolving += Instance.DefaultOnResolving;
+#else
             AppDomain.CurrentDomain.AssemblyResolve += Instance.TryResolveAssembly;
+#endif
         }
+
     }
 }

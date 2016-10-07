@@ -4,7 +4,6 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
@@ -15,7 +14,7 @@ namespace DotVVM.Framework.Runtime
 {
     public class DefaultOutputRenderer : IOutputRenderer
     {
-        protected string RenderPage(DotvvmRequestContext context, DotvvmView view)
+        protected string RenderPage(IDotvvmRequestContext context, DotvvmView view)
         {
             // embed resource links
             EmbedResourceLinks(view);
@@ -30,16 +29,16 @@ namespace DotVVM.Framework.Runtime
             }
         }
 
-        public async Task WriteHtmlResponse(DotvvmRequestContext context, DotvvmView view)
+        public async Task WriteHtmlResponse(IDotvvmRequestContext context, DotvvmView view)
         {
             // return the response
-            context.OwinContext.Response.ContentType = "text/html; charset=utf-8";
-            SetCacheHeaders(context.OwinContext);
+            context.HttpContext.Response.ContentType = "text/html; charset=utf-8";
+            SetCacheHeaders(context.HttpContext);
             var html = RenderPage(context, view);
-            await context.OwinContext.Response.WriteAsync(html);
+            await context.HttpContext.Response.WriteAsync(html);
         }
 
-        public void RenderPostbackUpdatedControls(DotvvmRequestContext context, DotvvmView page)
+        public void RenderPostbackUpdatedControls(IDotvvmRequestContext context, DotvvmView page)
         {
             var stack = new Stack<DotvvmControl>();
             stack.Push(page);
@@ -76,16 +75,16 @@ namespace DotVVM.Framework.Runtime
         }
 
 
-        public async Task WriteViewModelResponse(DotvvmRequestContext context, DotvvmView view)
+        public async Task WriteViewModelResponse(IDotvvmRequestContext context, DotvvmView view)
         {
             // return the response
-            context.OwinContext.Response.ContentType = "application/json; charset=utf-8";
-            SetCacheHeaders(context.OwinContext);
+            context.HttpContext.Response.ContentType = "application/json; charset=utf-8";
+            SetCacheHeaders(context.HttpContext);
             var serializedViewModel = context.GetSerializedViewModel();
-            await context.OwinContext.Response.WriteAsync(serializedViewModel);
+            await context.HttpContext.Response.WriteAsync(serializedViewModel);
         }
 
-        public async Task RenderPlainJsonResponse(IOwinContext context, object data)
+        public async Task RenderPlainJsonResponse(IHttpContext context, object data)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "application/json; charset=utf-8";
@@ -93,7 +92,7 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(JsonConvert.SerializeObject(data));
         }
 
-        public async Task RenderHtmlResponse(IOwinContext context, string html)
+        public async Task RenderHtmlResponse(IHttpContext context, string html)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/html; charset=utf-8";
@@ -101,7 +100,7 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(html);
         }
 
-        public async Task RenderPlainTextResponse(IOwinContext context, string text)
+        public async Task RenderPlainTextResponse(IHttpContext context, string text)
         {
             context.Response.StatusCode = (int)HttpStatusCode.OK;
             context.Response.ContentType = "text/plain; charset=utf-8";
@@ -109,11 +108,11 @@ namespace DotVVM.Framework.Runtime
             await context.Response.WriteAsync(text);
         }
 
-        private static void SetCacheHeaders(IOwinContext context)
+        private static void SetCacheHeaders(IHttpContext context)
         {
             context.Response.Headers["Cache-Control"] = "no-cache";
             context.Response.Headers["Pragma"] = "no-cache";
-            context.Response.Expires = DateTimeOffset.UtcNow.AddYears(-1);
+            context.Response.Headers["Expires"] = "-1";
         }
 
 

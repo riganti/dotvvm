@@ -1,0 +1,36 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Validation.ValidationScopes2ViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+
+    <style>
+        .has-error {
+            background-color: #ffaaaa;
+        }
+    </style>
+</head>
+<body>
+
+    <div DataContext="{value: Child}" Validation.Target="{value: _this}">
+
+        <dot:TextBox Text="{value: ValueCheckedOnClient}" Validator.Value="{value: ValueCheckedOnClient}" 
+                     Validator.InvalidCssClass="has-error" />
+
+        <dot:TextBox Text="{value: ValueCheckedOnServer}" Validator.Value="{value: ValueCheckedOnServer}"
+                     Validator.InvalidCssClass="has-error" />
+        
+        <dot:Button Text="Test 1" Click="{command: _root.Test()}" />
+    </div>
+
+    <dot:Button Text="Test 2" Click="{command: Test()}" />
+
+    <span class="result">{{value: Result}}</span>
+
+</body>
+</html>
+
+

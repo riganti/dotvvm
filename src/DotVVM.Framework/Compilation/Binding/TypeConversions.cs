@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Compilation.Binding
         // A value type has a boxing conversion to an interface type I if it has a boxing conversion to an interface type I0 and I0 has an identity conversion to I.
         public static Expression BoxingConversion(Expression src, Type destType)
         {
-            if (src.Type.IsValueType && src.Type != typeof(void) && destType == typeof(object))
+            if (src.Type.GetTypeInfo().IsValueType && src.Type != typeof(void) && destType == typeof(object))
             {
                 return Expression.Convert(src, destType);
             }
@@ -152,7 +152,7 @@ namespace DotVVM.Framework.Compilation.Binding
 		public static bool IsStringConversionAllowed(Type fromType)
 		{
 			// allow primitive types, IConvertibles, types that override ToString
-			return fromType.IsPrimitive || typeof(IConvertible).IsAssignableFrom(fromType) || fromType.GetMethod("ToString", BindingFlags.Public | BindingFlags.Instance, null, Type.EmptyTypes, null)?.DeclaringType != typeof(object);
+			return fromType.GetTypeInfo().IsPrimitive || typeof(IConvertible).IsAssignableFrom(fromType) || fromType.GetTypeInfo().GetMethod("ToString", Type.EmptyTypes)?.DeclaringType != typeof(object);
 		}
 
         public static Expression ToStringConversion(Expression src)
@@ -241,7 +241,7 @@ namespace DotVVM.Framework.Compilation.Binding
             {
                 var value = (string)srcValue;
                 // to enum
-                if (destType.IsEnum)
+                if (destType.GetTypeInfo().IsEnum)
                 {
                     // Enum.TryParse is generic and wants TEnum
                     try

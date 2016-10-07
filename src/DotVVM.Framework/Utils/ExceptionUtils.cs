@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Utils
         {
             if (ex is TException) action((TException)ex);
 
-            if(ex is AggregateException)
+            if (ex is AggregateException)
             {
                 foreach (var inex in (ex as AggregateException).InnerExceptions)
                 {

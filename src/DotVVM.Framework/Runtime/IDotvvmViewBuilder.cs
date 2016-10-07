@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Runtime
     public interface IDotvvmViewBuilder
     {
 
-        DotvvmView BuildView(DotvvmRequestContext context);
+        DotvvmView BuildView(IDotvvmRequestContext context);
     
     }
 }

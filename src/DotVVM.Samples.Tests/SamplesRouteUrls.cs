@@ -9,6 +9,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_CascadeSelectors_CascadeSelectors => "ComplexSamples/CascadeSelectors/CascadeSelectors";
 			public static string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender => "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
 			public static string ComplexSamples_ChangedEvent_ChangedEvent => "ComplexSamples/ChangedEvent/ChangedEvent";
+			public static string ComplexSamples_NamespaceCollision_NamespaceCollision => "ComplexSamples/DotVVM/NamespaceCollision";
 			public static string ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView => "ComplexSamples/DataTemplate/EmptyDataTemplateRepeaterGridView";
 			public static string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater => "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
 			public static string ComplexSamples_GridViewDataSet_GridViewDataSet => "ComplexSamples/GridViewDataSet/GridViewDataSet";
@@ -111,6 +112,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_HtmlTag_NonPairHtmlTag => "FeatureSamples/HtmlTag/NonPairHtmlTag";
 			public static string FeatureSamples_IdGeneration_IdGeneration => "FeatureSamples/IdGeneration/IdGeneration";
 			public static string FeatureSamples_JavascriptEvents_JavascriptEvents => "FeatureSamples/JavascriptEvents/JavascriptEvents";
+			public static string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses => "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
 			public static string FeatureSamples_Localization_Localization => "FeatureSamples/Localization/Localization";
 			public static string FeatureSamples_Localization_Localization_DefaultDirective => "FeatureSamples/Localization/Localization_DefaultDirective";
 			public static string FeatureSamples_Localization_Localization_NestedPage_Full_Full => "FeatureSamples/Localization/Localization_NestedPage_Full_Full";

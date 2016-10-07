@@ -32,6 +32,8 @@ namespace DotVVM.Samples.Tests.Control
             RunInAllBrowsers(browser =>
             {
                 browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewStaticCommand);
+                browser.Wait();
+
                 //check rows
                 browser.FindElements("table tbody tr").ThrowIfDifferentCountThan(5);
                 //check first row Id

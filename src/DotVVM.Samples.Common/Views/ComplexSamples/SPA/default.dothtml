@@ -1,0 +1,9 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.SPA.DefaultViewModel, DotVVM.Samples.Common
+@masterPage Views/ComplexSamples/SPA/site.dotmaster
+
+<dot:Content ContentPlaceHolderID="Container">
+
+    <h2>Default</h2>
+
+</dot:Content>
+

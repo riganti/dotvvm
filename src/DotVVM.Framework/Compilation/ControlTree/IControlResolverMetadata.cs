@@ -22,6 +22,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
         ITypeDescriptor DataContextConstraint { get; }
 
         IEnumerable<IPropertyDescriptor> AllProperties { get; }
+		
+		/// <summary>
+		/// Gets property groups available on this control (list is ordered - longer prefix goes first)
+		/// </summary>
+		IReadOnlyList<PropertyGroupMatcher> PropertyGroups { get; }
 
         DataContextChangeAttribute[] DataContextChangeAttributes { get; }
 		DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }

@@ -1,0 +1,26 @@
+{
+  "version": "1.0.0-*",
+  "testRunner": "xunit",
+  "dependencies": {
+    "dotnet-test-xunit": "2.2.0-*",
+    "DotVVM.Framework": {
+      "target": "project"
+    },
+    "DotVVM.Framework.Hosting.AspNetCore": {
+      "target": "project"
+    },
+    "Microsoft.NETCore.App": {
+      "type": "platform",
+      "version": "1.0.0"
+    },
+    "Moq": "4.6.38-*",
+    "xunit": "2.2.0-*"
+  },
+  "frameworks": {
+    "netcoreapp1.0": {}
+  },
+  "configurations": {
+    "AspNetCore": {},
+    "Owin": {}
+  }
+}
