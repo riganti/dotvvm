@@ -9,11 +9,11 @@ namespace DotVVM.Framework.Hosting
     {
         public static void DumpConfiguration(DotvvmConfiguration config, string directory)
         {
-            if (Process.GetCurrentProcess().ProcessName == "iisexpress")
+            if (config.Debug || Process.GetCurrentProcess().ProcessName == "iisexpress")
             {
                 try
                 {
-                    File.WriteAllText(Path.Combine(directory, "dotvvm_serialized_config.json.tmp"), JsonConvert.SerializeObject(config));
+                    File.WriteAllText(Path.Combine(directory, "dotvvm_serialized_config.json.tmp"), JsonConvert.SerializeObject(config, Formatting.Indented));
                 }
                 catch
                 {
