@@ -10,13 +10,17 @@ using System.Threading.Tasks;
 using System.IO;
 using System.Text;
 using Newtonsoft.Json;
+using DotVVM.Framework.Controls;
+using System.Runtime.CompilerServices;
 
 namespace Comp
 {
     public static class Program
     {
+        public static List<string> AssemblySearchPaths = new List<string>();
         public static void Main(string[] args)
         {
+            AssemblyLoadContext.Default.Resolving += Assembly_Resolving;
             if (args.Length == 0)
             {
                 while (true)
@@ -36,6 +40,31 @@ namespace Comp
                 Environment.Exit(1);
             }
 
+        }
+
+        private static Assembly Assembly_Resolving(AssemblyLoadContext sender, AssemblyName args)
+        {
+            var r = LoadFromAlternativeFolder(sender, args.Name);
+            if (r != null) return r;
+            if (args.Name.StartsWith("DotVVM.Framework,", StringComparison.OrdinalIgnoreCase)) return GetDotvvmAssembly();
+
+            return null;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static Assembly GetDotvvmAssembly() => typeof(KnockoutHelper).GetTypeInfo().Assembly;
+
+        static Assembly LoadFromAlternativeFolder(AssemblyLoadContext sender, string name)
+        {
+            IEnumerable<string> paths = Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',') ?? new string[0];
+            paths = paths.Concat(AssemblySearchPaths);
+            foreach (var path in paths)
+            {
+                string assemblyPath = Path.Combine(path, new AssemblyName(name).Name + ".dll");
+                if (!File.Exists(assemblyPath)) continue;
+                return sender.LoadFromAssemblyPath(assemblyPath);
+            }
+            return null;
         }
 
         private static bool OutputConfig(string optionsJson)
@@ -65,6 +94,7 @@ namespace Comp
                     Console.WriteLine("Error: This compiler is for serializing the configuration only! If you dont want thatm, you need full featured compiler.");
                     return false;
                 }
+                AssemblySearchPaths.Add(Path.GetDirectoryName(options.WebSiteAssembly));
                 var config = GetDotvvmConfig(options.WebSiteAssembly, options.WebSitePath);
                 var result = new CompilationResult() { Configuration = config };
                 Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
