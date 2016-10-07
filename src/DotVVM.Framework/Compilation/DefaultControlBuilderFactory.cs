@@ -36,12 +36,12 @@ namespace DotVVM.Framework.Compilation
             ViewCompilerFactory = () => configuration.ServiceLocator.GetService<IViewCompiler>();
             markupFileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
 
-			if (configuration.CompiledViewsAssemblies != null)
-				foreach (var assembly in configuration.CompiledViewsAssemblies)
-				{
-					LoadCompiledViewsAssembly(assembly);
-				}
-		}
+            if (configuration.CompiledViewsAssemblies != null)
+                foreach (var assembly in configuration.CompiledViewsAssemblies)
+                {
+                    LoadCompiledViewsAssembly(assembly);
+                }
+        }
 
 
         /// <summary>
@@ -125,58 +125,57 @@ namespace DotVVM.Framework.Compilation
             return "DotvvmGeneratedViews" + fileName + "_" + lastWriteDateTimeUtc.Ticks;
         }
 
-		public void LoadCompiledViewsAssembly(string filePath)
-		{
-			var assembly = TryFindAssembly(filePath);
-			if (assembly != null)
-			{
-				LoadCompiledViewsAssembly(assembly);
+        public void LoadCompiledViewsAssembly(string filePath)
+        {
+            var assembly = TryFindAssembly(filePath);
+            if (assembly != null)
+            {
+                LoadCompiledViewsAssembly(assembly);
 
-				var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath()), "CompiledViewsBindings.dll");
-				if (File.Exists(bindings)) AssemblyLoader.LoadFile(bindings);
-			}
-		}
+                var bindings = Path.Combine(Path.GetDirectoryName(assembly.GetCodeBasePath()), "CompiledViewsBindings.dll");
+                if (File.Exists(bindings)) AssemblyLoader.LoadFile(bindings);
+            }
+        }
 
-		public Assembly TryFindAssembly(string fileName)
-		{
-			if (File.Exists(fileName)) return AssemblyLoader.LoadFile(fileName);
-			if (Path.IsPathRooted(fileName)) return null;
-			var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
-			string a;
-			foreach (var assembly in ReflectionUtils.GetAllAssemblies())
-			{
-				// get already loaded assembly
-				if (assembly.GetName().Name == cleanName)
-				{
-					var codeBase = assembly.GetCodeBasePath();
-					if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
-				}
-			}
-			foreach (var assembly in new[] { typeof(DefaultControlBuilderFactory).GetTypeInfo().Assembly.GetCodeBasePath(), configuration.ApplicationPhysicalPath })
-			{
-				if (!string.IsNullOrEmpty(assembly))
-				{
-					a = Path.Combine(Path.GetDirectoryName(assembly), fileName);
-					if (File.Exists(a)) return AssemblyLoader.LoadFile(a);
-				}
-			}
-			return null;
-		}
+        public Assembly TryFindAssembly(string fileName)
+        {
+            if (File.Exists(fileName)) return AssemblyLoader.LoadFile(fileName);
+            if (Path.IsPathRooted(fileName)) return null;
+            var cleanName = Path.GetFileNameWithoutExtension(Path.GetFileName(fileName));
+            foreach (var assembly in ReflectionUtils.GetAllAssemblies())
+            {
+                // get already loaded assembly
+                if (assembly.GetName().Name == cleanName)
+                {
+                    var codeBase = assembly.GetCodeBasePath();
+                    if (codeBase.EndsWith(fileName, StringComparison.OrdinalIgnoreCase)) return assembly;
+                }
+            }
+            foreach (var assemblyDirectory in new[] { Path.GetDirectoryName(typeof(DefaultControlBuilderFactory).GetTypeInfo().Assembly.GetCodeBasePath()), configuration.ApplicationPhysicalPath })
+            {
+                if (!string.IsNullOrEmpty(assemblyDirectory))
+                {
+                    var possibleFileName = Path.Combine(assemblyDirectory, fileName);
+                    if (File.Exists(possibleFileName)) return AssemblyLoader.LoadFile(possibleFileName);
+                }
+            }
+            return null;
+        }
 
-		public void LoadCompiledViewsAssembly(Assembly assembly)
-		{
-			var builders = assembly.GetTypes().Select(t => new
-			{
-				type = t,
-				attribute = t.GetTypeInfo().GetCustomAttribute<LoadControlBuilderAttribute>()
-			}).Where(t => t.attribute != null);
-			foreach (var builder in builders)
-			{
-				RegisterControlBuilder(builder.attribute.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type));
-			}
-		}
+        public void LoadCompiledViewsAssembly(Assembly assembly)
+        {
+            var builders = assembly.GetTypes().Select(t => new
+            {
+                type = t,
+                attribute = t.GetTypeInfo().GetCustomAttribute<LoadControlBuilderAttribute>()
+            }).Where(t => t.attribute != null);
+            foreach (var builder in builders)
+            {
+                RegisterControlBuilder(builder.attribute.FilePath, (IControlBuilder)Activator.CreateInstance(builder.type));
+            }
+        }
 
-		public void RegisterControlBuilder(string file, IControlBuilder builder)
+        public void RegisterControlBuilder(string file, IControlBuilder builder)
         {
             controlBuilders.TryAdd(markupFileLoader.GetMarkup(configuration, file), builder);
         }
