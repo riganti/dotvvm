@@ -22,3 +22,7 @@ dotnet build ../../DotVVM.Samples.BasicSamples.AspNetCore
 
 dotnet restore ../../DotVVM.Samples.Common
 dotnet build ../../DotVVM.Samples.Common
+
+
+dotnet restore ../../DotVVM.CommandLine 
+dotnet build ../../DotVVM.CommandLine 

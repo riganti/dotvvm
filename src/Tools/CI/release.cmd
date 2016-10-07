@@ -22,3 +22,7 @@ dotnet build ../../DotVVM.Samples.BasicSamples.AspNetCore -c Release
 
 dotnet restore ../../DotVVM.Samples.Common
 dotnet build ../../DotVVM.Samples.Common -c Release
+
+
+dotnet restore ../../DotVVM.CommandLine -c Release
+dotnet build ../../DotVVM.CommandLine -c Release
