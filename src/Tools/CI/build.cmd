@@ -24,5 +24,5 @@ dotnet restore ../../DotVVM.Samples.Common
 dotnet build ../../DotVVM.Samples.Common
 
 
-dotnet restore ../../DotVVM.CommandLine 
-dotnet build ../../DotVVM.CommandLine 
+dotnet restore ../../DotVVM.CommandLine.Light 
+dotnet build ../../DotVVM.CommandLine.Light
