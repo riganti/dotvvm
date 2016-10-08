@@ -24,5 +24,5 @@ dotnet restore ../../DotVVM.Samples.Common
 dotnet build ../../DotVVM.Samples.Common -c Release
 
 
-dotnet restore ../../DotVVM.CommandLine -c Release
-dotnet build ../../DotVVM.CommandLine -c Release
+dotnet restore ../../DotVVM.Compiler.Light -c Release
+dotnet build ../../DotVVM.Compiler.Light -c Release
