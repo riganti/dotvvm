@@ -12,6 +12,8 @@ using System.Text;
 using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using System.Runtime.CompilerServices;
+using System.Diagnostics;
+using System.Threading;
 
 namespace Comp
 {
@@ -20,6 +22,9 @@ namespace Comp
         public static List<string> AssemblySearchPaths = new List<string>();
         public static void Main(string[] args)
         {
+            //while (!Debugger.IsAttached) Thread.Sleep(1000);
+            //Debugger.Break();
+
             AssemblyLoadContext.Default.Resolving += Assembly_Resolving;
             if (args.Length == 0)
             {
@@ -81,12 +86,12 @@ namespace Comp
                 if (string.IsNullOrEmpty(options.WebSiteAssembly) || !File.Exists(options.WebSiteAssembly))
                 {
                     Console.WriteLine("Error occured!");
-                    Console.WriteLine($"Website directory not found: {options.WebSitePath}");
+                    Console.WriteLine($"Website assembly not found: {options.WebSiteAssembly}");
                     return false;
                 }
                 if (options.FullCompile)
                 {
-                    Console.WriteLine("Error: this compiler does not support full compile. It is unsupported by .Net Core 1.");
+                    Console.WriteLine("Error: this compiler does not support full compile. It is unsupported by .Net Core, because they don't support certain Reflection.Emit features.");
                     return false;
                 }
                 if (!options.SerializeConfig)
