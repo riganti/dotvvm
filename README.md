@@ -1,15 +1,16 @@
 DotVVM = HTML + C#
 ==================
 
-## .NET-based Dev Stack for Modern Web Apps
+## .NET-based Framework for Modern Web Apps
 
 [![Join the chat at https://gitter.im/riganti/dotvvm](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-**DotVVM** is an ASP.NET framework that can build **line-of-business applications** and **SPAs** without writing tons of Javascript code. You only have to write a viewmodel in C# and a view in HTML and DotVVM will generate the rest for you.
+**DotVVM** is an ASP.NET framework that lets you build **line-of-business applications** and **SPAs** without writing tons of JavaScript code. You only have to write a viewmodel in C# and a view in HTML. DotVVM will do the rest for you.
 
-**DotVVM** brings full **MVVM** experience and it uses **KnockoutJS** on the client side. It handles the client-server communication, validation, localization, date & time formatting on the client side, SPAs and much more.
+**DotVVM** brings full **MVVM** experience and it uses **KnockoutJS** on the client side. It handles the client-server communication, validation, localization, date & time formatting on the client side, SPAs and much more. 
 
-It is open source, it supports both OWIN and ASP.NET Core, and has a free extension for Visual Studio 2015 with IntelliSense and other interesting features.  
+It is open source, it supports both OWIN and ASP.NET Core and it runs on .NET Framework, .NET Core and Mono.
+It also offers a free extension for Visual Studio 2015 with IntelliSense and other useful features which make the development really easy and productive.  
 
 <br />
 
