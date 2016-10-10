@@ -1,7 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Interactions;
-using Riganti.Utils.Testing.SeleniumCore;
+using Riganti.Utils.Testing.Selenium.Core;
 using System;
 using System.Globalization;
 using System.Linq;

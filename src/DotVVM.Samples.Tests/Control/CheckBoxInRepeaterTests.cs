@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
-using Riganti.Utils.Testing.SeleniumCore;
+using Riganti.Utils.Testing.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Control
 {

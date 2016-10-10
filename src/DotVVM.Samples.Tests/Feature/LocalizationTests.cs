@@ -3,7 +3,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
-using Riganti.Utils.Testing.SeleniumCore;
+using Riganti.Utils.Testing.Selenium.Core;
 using System;
 using System.Collections.Generic;
 using System.Linq;

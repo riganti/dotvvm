@@ -9,7 +9,7 @@ using System.Windows.Forms.VisualStyles;
 using Dotvvm.Samples.Tests;
 using DotVVM.Framework.Controls;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Riganti.Utils.Testing.SeleniumCore;
+using Riganti.Utils.Testing.Selenium.Core;
 
 namespace DotVVM.Samples.Tests.Control
 {
