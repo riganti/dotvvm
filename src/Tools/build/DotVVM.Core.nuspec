@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>DotVVM.Core</id>
-        <version>1.0.8-pre</version>
+        <version>1.1.0-alpha</version>
         <authors>RIGANTI</authors>
     	<owners>RIGANTI s.r.o.</owners>
         <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
