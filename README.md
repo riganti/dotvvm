@@ -3,7 +3,11 @@ DotVVM = HTML + C#
 
 ## .NET-based Framework for Modern Web Apps
 
+
+[![license](https://img.shields.io/github/license/riganti/dotvvm.svg?maxAge=2592000?style=plastic)]()
 [![Join the chat at https://gitter.im/riganti/dotvvm](https://badges.gitter.im/riganti/dotvvm.svg)](https://gitter.im/riganti/dotvvm?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
+![TFS Build: ](https://rigantitfs.visualstudio.com/_apis/public/build/definitions/8dfab054-d6f0-471d-88c2-4f230395cdd1/4/badge)
 
 **DotVVM** is an ASP.NET framework that lets you build **line-of-business applications** and **SPAs** without writing tons of JavaScript code. You only have to write a viewmodel in C# and a view in HTML. DotVVM will do the rest for you.
 
