@@ -502,6 +502,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual("val", attr.CastTo<ResolvedPropertyValue>().Value);
         }
 
+        [TestMethod]
+        public void ResolvedTree_RoleView_MultipleRoles()
+        {
+            var root = ParseSource(@"
+<dot:RoleView Roles='a, b, c, d, e, f'");
+            var roles = root.Content.First(n => n.Metadata.Type == typeof(RoleView)).Properties[RoleView.RolesProperty].CastTo<ResolvedPropertyValue>().Value;
+            Assert.IsInstanceOfType(roles, typeof(string[]));
+            Assert.IsTrue(roles.CastTo<string[]>().SequenceEqual(new[] { "a", "b", "c", "d", "e", "f" }));
+        }
+
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();

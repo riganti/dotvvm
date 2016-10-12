@@ -175,8 +175,11 @@ namespace DotVVM.Framework.Utils
             if (value is string && type.IsArray)
             {
                 var str = value as string;
-                if (type == typeof(string[]))
-                    return str.Split(',').Select(s => ConvertValue(s, typeinfo.GetElementType())).ToArray();
+                var objectArray = str.Split(',').Select(s => ConvertValue(s.Trim(), typeinfo.GetElementType()))
+                    .ToArray();
+                var array = Array.CreateInstance(type.GetElementType(), objectArray.Length);
+                objectArray.CopyTo(array, 0);
+                return array;
             }
 
             // convert
