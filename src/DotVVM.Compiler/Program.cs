@@ -106,7 +106,7 @@ namespace DotVVM.Compiler
 
         public static void WriteInfo(string line)
         {
-            Console.WriteLine("#" + sw.Elapsed + ": " + line);
+            Console.WriteLine("#" + sw?.Elapsed + ": " + line);
         }
 
         static string ReadFromStdin()
