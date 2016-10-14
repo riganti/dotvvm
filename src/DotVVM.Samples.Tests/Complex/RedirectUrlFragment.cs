@@ -108,7 +108,7 @@ namespace DotVVM.Samples.Tests.Complex
 
 public static class ElementWrapperIsInViewExtensions
 {
-    public static void ScrollTo(this ElementWrapper element)
+    public static ElementWrapper ScrollTo(this ElementWrapper element)
     {
         var javascript = @"
             function findPosition(element) {
@@ -125,6 +125,7 @@ public static class ElementWrapperIsInViewExtensions
         ";
         var executor = element.BrowserWrapper.GetJavaScriptExecutor();
         executor.ExecuteScript(javascript,element.WebElement);
+        return element;
     }
 
     public static void CheckIfIsElementInView(this ElementWrapper element)
