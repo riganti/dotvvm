@@ -272,13 +272,13 @@ namespace DotVVM.Samples.Tests.Control
                 table.FindElements("tbody tr td input").ThrowIfDifferentCountThan(2);
 
                 // click on Cancel button
-                firstRow.ElementAt("td", 3).ElementAt("button", 1).Click();
+                firstRow.ElementAt("td", 3).ElementAt("button", 1).ScrollTo().Click();
                 browser.Wait(500);
 
                 // click the Edit button on another row
                 table = browser.ElementAt("table", tableID);
                 var desiredRow = table.ElementAt("tbody tr", 3);
-                desiredRow.ElementAt("td", 3).Single("button").Click();
+                desiredRow.ElementAt("td", 3).Single("button").ScrollTo().Click();
                 browser.Wait(500);
 
                 // check if edit row changed
