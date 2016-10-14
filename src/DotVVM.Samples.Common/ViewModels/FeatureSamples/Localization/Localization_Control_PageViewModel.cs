@@ -7,7 +7,7 @@ using DotVVM.Framework.Controls;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization
 {
-    public class Localizatin_Control : DotvvmMarkupControl
+    public class Localization_Control : DotvvmMarkupControl
     {
     }
 
