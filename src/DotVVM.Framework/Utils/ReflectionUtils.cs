@@ -27,6 +27,9 @@ namespace DotVVM.Framework.Utils
 #endif
         }
 
+        public static bool IsFullName(string typeName)
+            => typeName.Contains(".");
+
         public static bool IsAssemblyNamespace(string fullName)
             => GetAllNamespaces().Contains(fullName, StringComparer.Ordinal);
 

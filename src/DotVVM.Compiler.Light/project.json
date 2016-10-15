@@ -5,7 +5,9 @@
   },
 
   "dependencies": {
-    "DotVVM.Framework": "1.0.8-pre",
+    "DotVVM.Framework": {
+      "target": "project"
+    },
     "Microsoft.NETCore.App": {
       "type": "platform",
       "version": "1.0.1"

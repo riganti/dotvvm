@@ -18,15 +18,25 @@ $jsonPath3 = Resolve-Path ".\..\..\DotVVM.Core\project.json"
 
 
 ## assembly info cs files
-$assemblyInfoPath = Resolve-Path ".\..\..\DotVVM.Framework.Hosting.Owin\Properties\AssemblyInfo.cs"
-
+$assemblyInfoPath1 = Resolve-Path ".\..\..\DotVVM.Framework.Hosting.Owin\Properties\AssemblyInfo.cs"
+$assemblyInfoPath2 = Resolve-Path ".\..\..\DotVVM.Framework\Properties\AssemblyInfo.cs"
+$assemblyInfoPath3 = Resolve-Path ".\..\..\DotVVM.Core\Properties\AssemblyInfo.cs"
 
 # change the AssemblyInfo project file
-$assemblyInfo = [System.IO.File]::ReadAllText($assemblyInfoPath, [System.Text.Encoding]::UTF8)
-$assemblyInfo = [System.Text.RegularExpressions.Regex]::Replace($assemblyInfo, "\[assembly: AssemblyVersion\(""([^""]*)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
-$assemblyInfo = [System.Text.RegularExpressions.Regex]::Replace($assemblyInfo, "\[assembly: AssemblyFileVersion\(""([^""]*)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
-[System.IO.File]::WriteAllText($assemblyInfoPath, $assemblyInfo, [System.Text.Encoding]::UTF8)
+$assemblyInfo1 = [System.IO.File]::ReadAllText($assemblyInfoPath1, [System.Text.Encoding]::UTF8)
+$assemblyInfo1 = [System.Text.RegularExpressions.Regex]::Replace($assemblyInfo1, "\[assembly: AssemblyVersion\(""([^""]*)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
+$assemblyInfo1 = [System.Text.RegularExpressions.Regex]::Replace($assemblyInfo1, "\[assembly: AssemblyFileVersion\(""([^""]*)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
+[System.IO.File]::WriteAllText($assemblyInfoPath1, $assemblyInfo1, [System.Text.Encoding]::UTF8)
 
+$assemblyInfo2 = [System.IO.File]::ReadAllText($assemblyInfoPath2, [System.Text.Encoding]::UTF8)
+$assemblyInfo2 = [System.Text.RegularExpressions.Regex]::Replace($assemblyInfo2, "\[assembly: AssemblyVersion\(""([^""]*)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
+$assemblyInfo2 = [System.Text.RegularExpressions.Regex]::Replace($assemblyInfo2, "\[assembly: AssemblyFileVersion\(""([^""]*)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
+[System.IO.File]::WriteAllText($assemblyInfoPath2, $assemblyInfo2, [System.Text.Encoding]::UTF8)
+
+$assemblyInfo3 = [System.IO.File]::ReadAllText($assemblyInfoPath3, [System.Text.Encoding]::UTF8)
+$assemblyInfo3 = [System.Text.RegularExpressions.Regex]::Replace($assemblyInfo3, "\[assembly: AssemblyVersion\(""([^""]*)""\)\]", "[assembly: AssemblyVersion(""" + $versionWithoutPre + """)]")
+$assemblyInfo3 = [System.Text.RegularExpressions.Regex]::Replace($assemblyInfo3, "\[assembly: AssemblyFileVersion\(""([^""]*)""\)]", "[assembly: AssemblyFileVersion(""" + $versionWithoutPre + """)]")
+[System.IO.File]::WriteAllText($assemblyInfoPath3, $assemblyInfo3, [System.Text.Encoding]::UTF8)
 
 # change the nuspec
 $nuspec = [System.IO.File]::ReadAllText($nuspecPath, [System.Text.Encoding]::UTF8)
