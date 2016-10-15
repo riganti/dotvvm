@@ -213,7 +213,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return ExpressionHelper.Call(target, args);
         }
 
-        protected override Expression VisitIdentifierName(IdentifierNameBindingParserNode node)
+        protected override Expression VisitSimpleName(SimpleNameBindingParserNode node)
         {
             return GetMemberOrTypeExpression(node, null);
         }

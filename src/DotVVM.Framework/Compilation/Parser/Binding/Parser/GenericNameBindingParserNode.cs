@@ -1,4 +1,5 @@
-﻿using System;
+﻿using DotVVM.Framework.Compilation.Parser.Binding.Tokenizer;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -12,7 +13,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
     {
         public List<BindingParserNode> TypeArguments { get; private set; } = new List<BindingParserNode>();
 
-        public GenericNameBindingParserNode(string name, List<BindingParserNode> typeArguments) : base(name)
+        public GenericNameBindingParserNode(BindingToken name, List<BindingParserNode> typeArguments) : base(name)
         {
             TypeArguments = typeArguments;
         }
@@ -28,6 +29,6 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             => TypeArguments;
 
         public override string ToDisplayString()
-           => $"{base.ToDisplayString()}<{string.Join(", ", TypeArguments.Select(e => e.ToDisplayString()))}>";
+           => $"{Name}<{string.Join(", ", TypeArguments.Select(e => e.ToDisplayString()))}>";
     }
 }
