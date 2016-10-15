@@ -21,7 +21,7 @@
     </dependencies>
   </metadata>
     <files>
-        <file src="..\..\Dotvvm.Framework.Hosting.Owin\bin\Release\Dotvvm.Framework.Hosting.Owin.dll" target="lib\net461\Dotvvm.Framework.Hosting.Owin.dll" />
-        <file src="..\..\Dotvvm.Framework.Hosting.Owin\bin\Release\Dotvvm.Framework.Hosting.Owin.xml" target="lib\net461\Dotvvm.Framework.Hosting.Owin.xml" />
+        <file src="..\..\DotVVM.Framework.Hosting.Owin\bin\Release\DotVVM.Framework.Hosting.Owin.dll" target="lib\net461\DotVVM.Framework.Hosting.Owin.dll" />
+        <file src="..\..\DotVVM.Framework.Hosting.Owin\bin\Release\DotVVM.Framework.Hosting.Owin.xml" target="lib\net461\DotVVM.Framework.Hosting.Owin.xml" />
     </files>
 </package>

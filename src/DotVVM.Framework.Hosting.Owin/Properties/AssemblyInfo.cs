@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("Dotvvm.Framework.Owin")]
+[assembly: AssemblyTitle("DotVVM.Framework.Owin")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Riganti s.r.o.")]
-[assembly: AssemblyProduct("Dotvvm.Framework.Owin")]
+[assembly: AssemblyProduct("DotVVM.Framework.Owin")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

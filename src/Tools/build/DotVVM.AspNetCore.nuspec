@@ -33,9 +33,9 @@
     </dependencies>
   </metadata>
     <files>
-        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\net461\DotVVM.Framework.Hosting.AspNetCore.dll" target="lib\net461\Dotvvm.Framework.Hosting.AspNetCore.dll" />
-        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\net461\DotVVM.Framework.Hosting.AspNetCore.xml" target="lib\net461\Dotvvm.Framework.Hosting.AspNetCore.xml" />
-        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\netstandard1.6\DotVVM.Framework.Hosting.AspNetCore.dll" target="lib\netstandard1.6\Dotvvm.Framework.Hosting.AspNetCore.dll" />
-        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\netstandard1.6\DotVVM.Framework.Hosting.AspNetCore.xml" target="lib\netstandard1.6\Dotvvm.Framework.Hosting.AspNetCore.xml" />
+        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\net461\DotVVM.Framework.Hosting.AspNetCore.dll" target="lib\net461\DotVVM.Framework.Hosting.AspNetCore.dll" />
+        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\net461\DotVVM.Framework.Hosting.AspNetCore.xml" target="lib\net461\DotVVM.Framework.Hosting.AspNetCore.xml" />
+        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\netstandard1.6\DotVVM.Framework.Hosting.AspNetCore.dll" target="lib\netstandard1.6\DotVVM.Framework.Hosting.AspNetCore.dll" />
+        <file src="..\..\DotVVM.Framework.Hosting.AspNetCore\bin\Release\netstandard1.6\DotVVM.Framework.Hosting.AspNetCore.xml" target="lib\netstandard1.6\DotVVM.Framework.Hosting.AspNetCore.xml" />
     </files>
 </package>

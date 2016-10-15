@@ -32,9 +32,9 @@
     </metadata>
    
     <files>
-        <file src="..\..\DotVVM.Core\bin\Debug\net461\DotVVM.Core.dll" target="lib\net461\DotVVM.Core.dll" />
-        <file src="..\..\DotVVM.Core\bin\Debug\net461\DotVVM.Core.xml" target="lib\net461\DotVVM.Core.xml" />
-        <file src="..\..\DotVVM.Core\bin\Debug\netstandard1.6\DotVVM.Core.dll" target="lib\netstandard1.6\DotVVM.Core.dll" />
-        <file src="..\..\DotVVM.Core\bin\Debug\netstandard1.6\DotVVM.Core.xml" target="lib\netstandard1.6\DotVVM.Core.xml" />
+        <file src="..\..\DotVVM.Core\bin\Release\net461\DotVVM.Core.dll" target="lib\net461\DotVVM.Core.dll" />
+        <file src="..\..\DotVVM.Core\bin\Release\net461\DotVVM.Core.xml" target="lib\net461\DotVVM.Core.xml" />
+        <file src="..\..\DotVVM.Core\bin\Release\netstandard1.6\DotVVM.Core.dll" target="lib\netstandard1.6\DotVVM.Core.dll" />
+        <file src="..\..\DotVVM.Core\bin\Release\netstandard1.6\DotVVM.Core.xml" target="lib\netstandard1.6\DotVVM.Core.xml" />
     </files>
 </package>
