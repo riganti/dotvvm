@@ -32,7 +32,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("0");
                 browser.First("*[data-id='first-textbox']").CheckIfInnerTextEquals("Valuetest");
 
-                new Actions(browser.Browser).SendKeys(Keys.Enter).Perform();
+                new Actions(browser.Browser).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
                 browser.First("*[data-id='first-textbox']").CheckIfInnerTextEquals("Valuetest");
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
@@ -47,7 +47,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("1");
                 browser.First("*[data-id='second-textbox']").CheckIfInnerTextEquals("Value");
 
-                new Actions(browser.Browser).SendKeys(Keys.Enter).Perform();
+                new Actions(browser.Browser).SendKeys(Keys.Enter).SendKeys(Keys.Tab).Perform();
                 browser.First("*[data-id='second-textbox']").CheckIfInnerTextEquals("Valuetest");
                 browser.Wait();
                 browser.First("*[data-id='total-changes']").CheckIfInnerTextEquals("2");

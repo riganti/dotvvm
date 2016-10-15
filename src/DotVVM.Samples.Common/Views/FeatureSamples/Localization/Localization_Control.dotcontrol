@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.Localizatin_ControlViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Localization.Localization_ControlViewModel, DotVVM.Samples.Common
 @import Texts = DotVVM.Samples.BasicSamples.Views.FeatureSamples.Localization.Localization2
 
 <div data-ui="localization-control-bare">
