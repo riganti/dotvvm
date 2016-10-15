@@ -94,7 +94,11 @@ namespace DotVVM.Framework.Compilation
                 constructorArguments = new object[] { };
             }
 
-            return EmitCreateObject(SyntaxFactory.ParseTypeName(typeName), constructorArguments.Select(EmitValue));
+            var typeSyntax = ReflectionUtils.IsFullName(typeName)
+                ? SyntaxFactory.ParseTypeName("global::" + typeName)
+                : SyntaxFactory.ParseTypeName(typeName);
+
+            return EmitCreateObject(typeSyntax, constructorArguments.Select(EmitValue));
         }
 
 
@@ -735,6 +739,10 @@ namespace DotVVM.Framework.Compilation
         {
             UseType(BuilderDataContextType);
 
+            var controlType = ReflectionUtils.IsFullName(ResultControlType)
+                ? "global::" + ResultControlType 
+                : ResultControlType;
+
             var root = SyntaxFactory.CompilationUnit().WithMembers(
                 SyntaxFactory.NamespaceDeclaration(SyntaxFactory.ParseName(namespaceName)).WithMembers(
                     SyntaxFactory.List<MemberDeclarationSyntax>(
@@ -776,7 +784,7 @@ namespace DotVVM.Framework.Compilation
                                             SyntaxFactory.PropertyDeclaration(ParseTypeName(typeof(Type)), nameof(IControlBuilder.ControlType))
                                                 .WithModifiers(SyntaxFactory.TokenList(SyntaxFactory.Token(SyntaxKind.PublicKeyword)))
                                                 .WithExpressionBody(
-                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(ResultControlType))))
+                                                    SyntaxFactory.ArrowExpressionClause(SyntaxFactory.TypeOfExpression(SyntaxFactory.ParseTypeName(controlType))))
                                                 .WithSemicolonToken(SyntaxFactory.Token(SyntaxKind.SemicolonToken)),
                                         }).Concat(otherDeclarations)
                                     )
