@@ -1,0 +1,28 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.TestingClass, DotVVM.Samples.Common
+@import VM = DotVVM.Samples.BasicSamples.ViewModels
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+
+<body>
+    <span data-ui="generic-instance-function">
+        {{resource: GenericInstanceFunction<VM.TestParameter, VM.TestParameter>()}}
+    </span>
+    <br />
+    <span data-ui="generic-class-full">
+        {{resource: DotVVM.Samples.BasicSamples.ViewModels.GenericTestingClass<DotVVM.Samples.BasicSamples.ViewModels.TestParameter, DotVVM.Samples.BasicSamples.ViewModels.TestParameter>.Arg1}}
+    </span>
+    <br />
+    <span data-ui="generic-class-aliased">
+        {{resource: VM.GenericTestingClass<VM.TestParameter, VM.TestParameter>.Arg1}}
+    </span>
+    <br />
+    <span data-ui="generic-static-function-aliased">
+        {{resource: VM.TestingClass.GenericStaticFunction<VM.TestParameter, VM.TestParameter>()}}
+    </span>
+</body>
+</html>
