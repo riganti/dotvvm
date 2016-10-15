@@ -27,7 +27,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     Read();
                     var second = ReadNamespaceOrTypeName();
 
-                    if (first is IdentifierNameBindingParserNode && !(first is GenericNameBindingParserNode))
+                    if (first is SimpleNameBindingParserNode)
                     {
                         return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                     }
@@ -455,11 +455,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
                     return ReadGenericArguments(startIndex, identifier);
                 }
 
-                return CreateNode(new IdentifierNameBindingParserNode(identifier.Text), startIndex);
+                return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
             }
 
             // create virtual empty identifier expression
-            return CreateNode(new IdentifierNameBindingParserNode("") { NodeErrors = { "Identifier name was expected!" } }, startIndex);
+            return CreateNode(new SimpleNameBindingParserNode(null) { NodeErrors = { "Identifier name was expected!" } }, startIndex);
         }
 
         private IdentifierNameBindingParserNode ReadGenericArguments(int startIndex, BindingToken identifier)
@@ -496,10 +496,10 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 Read();
                 ClearRestorePoint();
-                return CreateNode(new GenericNameBindingParserNode(identifier.Text, arguments), startIndex);
+                return CreateNode(new GenericNameBindingParserNode(identifier, arguments), startIndex);
             }
             Restore();
-            return CreateNode(new IdentifierNameBindingParserNode(identifier.Text), startIndex);
+            return CreateNode(new SimpleNameBindingParserNode(identifier), startIndex);
         }
 
         private static object ParseNumberLiteral(string text, out string error)

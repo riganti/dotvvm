@@ -27,9 +27,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 return VisitGenericName((GenericNameBindingParserNode)node);
             }
-            else if (node is IdentifierNameBindingParserNode)
+            else if (node is SimpleNameBindingParserNode)
             {
-                return VisitIdentifierName((IdentifierNameBindingParserNode)node);
+                return VisitSimpleName((SimpleNameBindingParserNode)node);
             }
             else if (node is LiteralExpressionBindingParserNode)
             {
@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return DefaultVisit(node);
         }
 
-        protected virtual T VisitIdentifierName(IdentifierNameBindingParserNode node)
+        protected virtual T VisitSimpleName(SimpleNameBindingParserNode node)
         {
             return DefaultVisit(node);
         }
