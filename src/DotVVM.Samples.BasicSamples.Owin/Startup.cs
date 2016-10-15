@@ -53,7 +53,7 @@ namespace DotVVM.Samples.BasicSamples
             
             app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), builder: b =>
             {
-                b.ConfigureUploadedFileStorage("Temp");
+                b.AddFileSystemUploadedFileStorage("Temp");
             });
             
             app.UseStaticFiles();
