@@ -272,13 +272,13 @@ namespace DotVVM.Samples.Tests.Control
                 table.FindElements("tbody tr td input").ThrowIfDifferentCountThan(2);
 
                 // click on Cancel button
-                firstRow.ElementAt("td", 3).ElementAt("button", 1).Click();
+                firstRow.ElementAt("td", 3).ElementAt("button", 1).ScrollTo().Click();
                 browser.Wait(500);
 
                 // click the Edit button on another row
                 table = browser.ElementAt("table", tableID);
                 var desiredRow = table.ElementAt("tbody tr", 3);
-                desiredRow.ElementAt("td", 3).Single("button").Click();
+                desiredRow.ElementAt("td", 3).Single("button").ScrollTo().Click();
                 browser.Wait(500);
 
                 // check if edit row changed
@@ -427,12 +427,14 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("table", 1).FindElements("tr").ThrowIfDifferentCountThan(6);
 
                 // check that clicking selects the row which gets the 'selected' class
-                browser.ElementAt("tr", 3).Click().Wait(500);
+                // we dont want to check if element is clickable, it is not a button just fire click event
+                browser.ElementAt("tr", 3).WebElement.Click();
                 for (int i = 0; i < 6; i++)
                 {
                     browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 3));
                 }
-                browser.ElementAt("tr", 2).Click().Wait(500);
+                // we dont want to check if element is clickable, it is not a button just fire click event
+                browser.ElementAt("tr", 2).WebElement.Click();
                 for (int i = 0; i < 6; i++)
                 {
                     browser.ElementAt("table", 0).ElementAt("tr", i).CheckClassAttribute(v => v.Contains("selected") == (i == 2));

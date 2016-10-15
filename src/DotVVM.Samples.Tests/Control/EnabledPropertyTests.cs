@@ -32,9 +32,9 @@ namespace DotVVM.Samples.Tests.Control
                 browser.ElementAt("select", 0).CheckIfIsNotEnabled();
                 browser.ElementAt("input", 0).CheckIfIsNotEnabled();
 
-                browser.ElementAt("label", 0).Click();
-                browser.ElementAt("label", 1).Click();
-                browser.ElementAt("label", 2).Click();
+                browser.ElementAt("label input[type=radio]", 0).Click();
+                browser.ElementAt("label input[type=radio]", 1).Click();
+                browser.ElementAt("label input[type=checkbox]", 0).Click();
 
                 browser.ElementAt("label", 0).CheckIfIsNotSelected();
                 browser.ElementAt("label", 1).CheckIfIsNotSelected();
