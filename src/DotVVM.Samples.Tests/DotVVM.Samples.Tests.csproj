@@ -195,23 +195,25 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="App.TestChrome.config">
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="App.ANC_Chrome.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="App.TestFirefox.config">
+    <None Include="App.ANC_Firefox.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="App.TestIE.config">
+    <None Include="App.ANC_InternetExplorer.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="App.Release.config">
+    <None Include="App.Owin_Chrome.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="App.Owin.config">
+    <None Include="App.Owin_Firefox.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="App.AspNetCore.config">
+    <None Include="App.Owin_InternetExplorer.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
     <None Include="packages.config" />
