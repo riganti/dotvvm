@@ -1,4 +1,4 @@
-﻿{
+{
   "description": "ASP.NET MVVM Framework",
   "version": "1.1.0-alpha-r2",
   "packOptions": {
@@ -54,7 +54,5 @@
     "nowarn": [ "CS1591" ]
   },
   "configurations": {
-    "AspNetCore": {},
-    "Owin": {}
   }
 }

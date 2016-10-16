@@ -43,8 +43,5 @@
       "web.config"
     ]
   },
-  "configurations": {
-    "AspNetCore": {},
-    "Owin": {}
-  }
+  "configurations": {  }
 }

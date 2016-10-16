@@ -20,7 +20,5 @@
     "netcoreapp1.0": {}
   },
   "configurations": {
-    "AspNetCore": {},
-    "Owin": {}
   }
 }
