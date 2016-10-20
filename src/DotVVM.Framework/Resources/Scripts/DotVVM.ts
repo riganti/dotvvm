@@ -1,13 +1,22 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
+/// <reference path="dotvvm.domutils.ts" />
+/// <reference path="dotvvm.evaluator.ts" />
+/// <reference path="dotvvm.events.ts" />
+/// <reference path="dotvvm.fileupload.ts" />
+/// <reference path="dotvvm.globalize.ts" />
+/// <reference path="dotvvm.postbackhandlers.ts" />
+/// <reference path="dotvvm.promise.ts" />
+/// <reference path="dotvvm.serialization.ts" />
+/// <reference path="dotvvm.validation.ts" />
 
 interface Document {
     getElementByDotvvmId(id: string): HTMLElement;
 }
 
 document.getElementByDotvvmId = function (id) {
-    return <HTMLElement>document.querySelector(`[data-dotvvm-id='${id}'`);
+    return <HTMLElement>document.querySelector(`[data-dotvvm-id='${id}']`);
 }
 
 interface IRenderedResourceList {
