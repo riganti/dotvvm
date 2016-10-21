@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
 
 	public void ObjectBrowser(object obj)
 	{
-		var jobject = JObject.FromObject(obj, new JsonSerializer() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore });
+		var jobject = JObject.FromObject(obj);
 		ObjectBrowser(jobject);
 	}
 

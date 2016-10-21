@@ -18,9 +18,6 @@
                 namespace: "DotVVM.Framework.ResourceManagement.ClientGlobalize"
             }]
         },
-    });
-
-    grunt.initConfig({
         typescript: {
             base: {
                 src: [

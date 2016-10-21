@@ -43,6 +43,7 @@ namespace Dotvvm.Samples.Tests
         public static string ControlSamples_DataPager_DataPager => "ControlSamples/DataPager/DataPager";
         public static string ControlSamples_EnabledProperty_EnabledProperty => "ControlSamples/EnabledProperty/EnabledProperty";
         public static string ControlSamples_FileUpload_FileUpload => "ControlSamples/FileUpload/FileUpload";
+        public static string ControlSamples_FileUpload_AllowedOrNot => "ControlSamples/FileUpload/AllowedOrNot";
         public static string ControlSamples_GridView_GridViewInlineEditing => "ControlSamples/GridView/GridViewInlineEditing";
         public static string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid => "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyGuid";
         public static string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString => "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyString";

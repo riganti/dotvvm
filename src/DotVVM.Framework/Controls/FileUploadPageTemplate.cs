@@ -1,6 +1,7 @@
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
+using System.Net;
 
 namespace DotVVM.Framework.Controls
 {
@@ -10,6 +11,7 @@ namespace DotVVM.Framework.Controls
 public string StartupScript { get; set; }
 public string FormPostUrl { get; set; }
 public bool AllowMultipleFiles { get; set; }
+public string AllowedFileTypes { get; set; }
 
         private System.Text.StringBuilder __sb;
 
@@ -39,6 +41,10 @@ __sb.Append( FormPostUrl );
 __sb.Append(@""" id=""uploadForm"">
     <input type=""file"" name=""upload"" id=""upload"" ");
  if (AllowMultipleFiles) { __sb.Append(@" multiple=""multiple"" ");
+ } __sb.Append(@" ");
+ if (!string.IsNullOrWhiteSpace(AllowedFileTypes)) { __sb.Append(@" accept=""");
+__sb.Append( WebUtility.HtmlEncode(AllowedFileTypes) );
+__sb.Append(@""" ");
  } __sb.Append(@" onchange=""dotvvmSubmit();""/>
 </form>
 

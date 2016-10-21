@@ -3,6 +3,7 @@
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
 <#@ import namespace="System.Collections.Generic" #>
+<#@ import namespace="System.Net" #>
 
 <!DOCTYPE html>
 <html>
@@ -13,7 +14,7 @@
 <body>
 
 <form method="POST" enctype="multipart/form-data" action="<#= FormPostUrl #>" id="uploadForm">
-    <input type="file" name="upload" id="upload" <# if (AllowMultipleFiles) { #> multiple="multiple" <# } #> onchange="dotvvmSubmit();"/>
+    <input type="file" name="upload" id="upload" <# if (AllowMultipleFiles) { #> multiple="multiple" <# } #> <# if (!string.IsNullOrWhiteSpace(AllowedFileTypes)) { #> accept="<#= WebUtility.HtmlEncode(AllowedFileTypes) #>" <# } #> onchange="dotvvmSubmit();"/>
 </form>
 
 <script type="text/javascript">
@@ -64,4 +65,5 @@ function reportProgress(isBusy, percent, resultOrError) {
 public string StartupScript { get; set; }
 public string FormPostUrl { get; set; }
 public bool AllowMultipleFiles { get; set; }
+public string AllowedFileTypes { get; set; }
 #>

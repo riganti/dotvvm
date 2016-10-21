@@ -1,18 +1,16 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
-using DotVVM.Framework.Compilation.Parser;
-using Microsoft.AspNet.WebUtilities;
-using Newtonsoft.Json;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Storage;
-using System.IO;
+using Microsoft.AspNet.WebUtilities;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
@@ -22,7 +20,6 @@ namespace DotVVM.Framework.Hosting.Middlewares
         private static readonly Regex wildcardMimeTypeRegex = new Regex(@"/\*$");
 
         private DotvvmConfiguration _configuration;
-
 
         public async Task<bool> Handle(IDotvvmRequestContext request)
         {
@@ -36,10 +33,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 await ProcessMultipartRequest(request.HttpContext);
                 return true;
             }
-            else
-            {
-                return false;
-            }
+
+            return false;
         }
 
         private async Task ProcessMultipartRequest(IHttpContext context)
@@ -91,20 +86,30 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 // modern browser - return JSON
                 if (string.IsNullOrEmpty(errorMessage))
                 {
-                    await outputRenderer.RenderPlainJsonResponse(context, uploadedFiles);
+                    if (context.Request.Query["iframe"] == "true")
+                    {
+                        // IE will otherwise try to download the response as JSON file
+                        await outputRenderer.RenderPlainTextResponse(context, JsonConvert.SerializeObject(uploadedFiles));
+                    }
+                    else
+                    {
+                        await outputRenderer.RenderPlainJsonResponse(context, uploadedFiles);
+                    }
                 }
                 else
                 {
                     await outputRenderer.RenderPlainTextResponse(context, errorMessage);
-                    context.Response.StatusCode = (int) HttpStatusCode.InternalServerError;
+                    context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                 }
             }
             else
             {
                 // old browser - return HTML
-                var template = new FileUploadPageTemplate();
-                template.FormPostUrl = DotvvmRequestContext.TranslateVirtualPath("~/" + HostingConstants.FileUploadHandlerMatchUrl, context);
-                template.AllowMultipleFiles = context.Request.Query["multiple"] == "true";
+                var template = new FileUploadPageTemplate {
+                    FormPostUrl = context.Request.Url.ToString(),
+                    AllowMultipleFiles = context.Request.Query["multiple"] == "true",
+                    AllowedFileTypes = context.Request.Query["fileTypes"]
+                };
 
                 if (isPost)
                 {
@@ -119,6 +124,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                             JsonConvert.SerializeObject(errorMessage));
                     }
                 }
+
                 await outputRenderer.RenderHtmlResponse(context, template.TransformText());
             }
         }
@@ -151,25 +157,26 @@ namespace DotVVM.Framework.Hosting.Middlewares
             var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;
-
-            return new UploadedFile()
-            {
+            
+            return new UploadedFile {
                 FileId = fileId,
                 FileName = fileName,
-                Accepted = IsAccepted(context, fileName, mimeType)
+                FileTypeAllowed = IsFileTypeAllowed(context, fileName, mimeType),
+                MaxSizeExceeded = IsMaxSizeExceeded(context, section.Body)
             };
         }
 
-        private bool IsAccepted(IHttpContext context, string fileName, string mimeType)
+        private bool IsFileTypeAllowed(IHttpContext context, string fileName, string mimeType)
         {
-            var accept = context.Request.Query["accept"];
+            var fileTypes = context.Request.Query["fileTypes"] 
+                ?? context.Request.Query["accept"]; // for older BP versions
 
-            if (string.IsNullOrEmpty(accept))
+            if (string.IsNullOrEmpty(fileTypes))
             {
                 return true;
             }
 
-            return accept.Split(',').Any(type =>
+            return fileTypes.Split(',').Any(type =>
             {
                 type = type.Trim();
 
@@ -191,6 +198,18 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
                 return false;
             });
+        }
+
+        private bool IsMaxSizeExceeded(IHttpContext context, Stream body)
+        {
+            int maxSize;
+            if (int.TryParse(context.Request.Query["maxSize"], out maxSize))
+            {
+                var maxSizeInBytes = maxSize * 1024 * 1024;
+                return body.Length > maxSizeInBytes;
+            }
+
+            return false;
         }
     }
 }

@@ -367,9 +367,9 @@ var DotVVM = (function () {
                 return;
             }
             try {
-                var resultObject;
-                if (result.getResponseHeader("Location") != null) {
-                    resultObject = { action: "redirect", url: result.getResponseHeader("Location") };
+                var resultObject, locationHeader = result.getResponseHeader("Location");
+                if (locationHeader != null && locationHeader.length > 0) {
+                    resultObject = { action: "redirect", url: locationHeader };
                 }
                 else {
                     resultObject = JSON.parse(result.responseText);
@@ -1077,6 +1077,9 @@ var DotvvmFileUploadData = (function () {
     function DotvvmFileUploadData() {
         this.FileId = ko.observable();
         this.FileName = ko.observable();
+        this.FileTypeAllowed = ko.observable();
+        this.MaxSizeExceeded = ko.observable();
+        this.Allowed = ko.observable();
     }
     return DotvvmFileUploadData;
 })();

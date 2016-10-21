@@ -163,6 +163,9 @@ declare class DotvvmFileUploadCollection {
 declare class DotvvmFileUploadData {
     FileId: KnockoutObservable<string>;
     FileName: KnockoutObservable<string>;
+    FileTypeAllowed: KnockoutObservable<boolean>;
+    MaxSizeExceeded: KnockoutObservable<boolean>;
+    Allowed: KnockoutObservable<boolean>;
 }
 declare class DotvvmGlobalize {
     format(format: string, ...values: string[]): string;
@@ -203,10 +206,10 @@ declare class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
     private argument;
     private error;
     done(callback: (arg: TArg) => void, forceAsync?: boolean): void;
-    fail(callback: (error) => void, forceAsync?: boolean): this;
-    resolve(arg: TArg): this;
-    reject(error: any): this;
-    chainFrom(promise: IDotvvmPromise<TArg>): this;
+    fail(callback: (error) => void, forceAsync?: boolean): DotvvmPromise<TArg>;
+    resolve(arg: TArg): DotvvmPromise<TArg>;
+    reject(error: any): DotvvmPromise<TArg>;
+    chainFrom(promise: IDotvvmPromise<TArg>): DotvvmPromise<TArg>;
 }
 interface ISerializationOptions {
     serializeAll?: boolean;

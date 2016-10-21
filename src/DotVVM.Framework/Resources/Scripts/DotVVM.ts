@@ -265,9 +265,11 @@ class DotVVM {
                 return;
             }
             try {
-                var resultObject;
-                if (result.getResponseHeader("Location") != null) {
-                    resultObject = { action: "redirect", url: result.getResponseHeader("Location") };
+                var resultObject,
+                    locationHeader = result.getResponseHeader("Location");
+
+                if (locationHeader != null && locationHeader.length > 0) {
+                    resultObject = { action: "redirect", url: locationHeader };
                 } else {
                     resultObject = JSON.parse(result.responseText);
                 }

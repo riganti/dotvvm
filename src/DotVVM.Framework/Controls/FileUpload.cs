@@ -1,41 +1,23 @@
-using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Linq;
+using System.Net;
 using System.Text;
-using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
-using DotVVM.Framework.Compilation.ControlTree;
-using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using DotVVM.Framework.Compilation.Parser;
-using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
-using DotVVM.Framework.Compilation.Validation;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.ResourceManagement;
-using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
-    /// Allows the user to upload one or multiple files asynchronously.
+    /// Renders a FileUpload control allowing users to upload one or multiple files asynchronously.
     /// </summary>
     [ControlMarkupOptions(AllowContent = false)]
     public class FileUpload : HtmlGenericControl
     {
-
-        /// <summary>
-        /// Gets or sets whether the user can select multiple files at once.
-        /// </summary>
-        [MarkupOptions(AllowBinding = false)]
-        public bool AllowMultipleFiles
+        public FileUpload()
+            : base("div")
         {
-            get { return (bool)GetValue(AllowMultipleFilesProperty); }
-            set { SetValue(AllowMultipleFilesProperty, value); }
         }
-        public static readonly DotvvmProperty AllowMultipleFilesProperty
-            = DotvvmProperty.Register<bool, FileUpload>(p => p.AllowMultipleFiles, true);
 
         /// <summary>
         /// Gets or sets a collection of uploaded files.
@@ -43,12 +25,101 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(AllowHardCodedValue = false, Required = true)]
         public UploadedFilesCollection UploadedFiles
         {
-            get { return (UploadedFilesCollection) GetValue(UploadedFilesProperty); }
+            get { return (UploadedFilesCollection)GetValue(UploadedFilesProperty); }
             set { SetValue(UploadedFilesProperty, value); }
         }
-        public static readonly DotvvmProperty UploadedFilesProperty
-            = DotvvmProperty.Register<UploadedFilesCollection, FileUpload>(p => p.UploadedFiles, null);
 
+        public static readonly DotvvmProperty UploadedFilesProperty
+            = DotvvmProperty.Register<UploadedFilesCollection, FileUpload>(p => p.UploadedFiles);
+
+        /// <summary>
+        /// Gets or sets whether the user can select multiple files at once. It is enabled by default.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public bool AllowMultipleFiles
+        {
+            get { return (bool)GetValue(AllowMultipleFilesProperty); }
+            set { SetValue(AllowMultipleFilesProperty, value); }
+        }
+
+        public static readonly DotvvmProperty AllowMultipleFilesProperty
+            = DotvvmProperty.Register<bool, FileUpload>(p => p.AllowMultipleFiles, true);
+
+        /// <summary>
+        /// Gets or sets the types of files that the server accepts. It must be a comma-separated list of unique content type
+        /// specifiers (eg. ".jpg,image/png,audio/*"). All file types are allowed by default.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public string AllowedFileTypes
+        {
+            get { return GetValue(AllowedFileTypesProperty) as string; }
+            set { SetValue(AllowedFileTypesProperty, value); }
+        }
+
+        public static readonly DotvvmProperty AllowedFileTypesProperty
+            = DotvvmProperty.Register<string, FileUpload>(p => p.AllowedFileTypes);
+
+        /// <summary>
+        /// Gets or sets the maximum size of files in megabytes (MB). The size is not limited by default.
+        /// </summary>
+        [MarkupOptions(AllowBinding = false)]
+        public int? MaxFileSize
+        {
+            get { return GetValue(MaxFileSizeProperty) as int?; }
+            set { SetValue(MaxFileSizeProperty, value); }
+        }
+
+        public static readonly DotvvmProperty MaxFileSizeProperty
+            = DotvvmProperty.Register<int?, FileUpload>(c => c.MaxFileSize);
+
+        /// <summary>
+        /// Gets or sets the text on the upload button. The default value is "Upload".
+        /// </summary>
+        public string UploadButtonText
+        {
+            get { return (string)GetValue(UploadButtonTextProperty); }
+            set { SetValue(UploadButtonTextProperty, value); }
+        }
+
+        public static readonly DotvvmProperty UploadButtonTextProperty
+            = DotvvmProperty.Register<string, FileUpload>(c => c.UploadButtonText, Resources.Controls.FileUpload_UploadButtonText, true);
+
+        /// <summary>
+        /// Gets or sets the text on the indicator showing number of files. The default value is "{0} files". The number of files
+        /// will be substituted for the "{0}" placeholder.
+        /// </summary>
+        public string NumberOfFilesIndicatorText
+        {
+            get { return (string)GetValue(NumberOfFilesIndicatorTextProperty); }
+            set { SetValue(NumberOfFilesIndicatorTextProperty, value); }
+        }
+
+        public static readonly DotvvmProperty NumberOfFilesIndicatorTextProperty
+            = DotvvmProperty.Register<string, FileUpload>(c => c.NumberOfFilesIndicatorText, Resources.Controls.FileUpload_NumberOfFilesText, true);
+
+        /// <summary>
+        /// Gets or sets the text that appears when there is an error during the upload.
+        /// </summary>
+        public string UploadErrorMessageText
+        {
+            get { return (string)GetValue(UploadErrorMessageTextProperty); }
+            set { SetValue(UploadErrorMessageTextProperty, value); }
+        }
+
+        public static readonly DotvvmProperty UploadErrorMessageTextProperty
+            = DotvvmProperty.Register<string, FileUpload>(c => c.UploadErrorMessageText, Resources.Controls.FileUpload_UploadErrorMessageText, true);
+
+        /// <summary>
+        /// Gets or sets the text that appears when all files are uploaded successfully.
+        /// </summary>
+        public string SuccessMessageText
+        {
+            get { return (string)GetValue(SuccessMessageTextProperty); }
+            set { SetValue(SuccessMessageTextProperty, value); }
+        }
+
+        public static readonly DotvvmProperty SuccessMessageTextProperty
+            = DotvvmProperty.Register<string, FileUpload>(c => c.SuccessMessageText, Resources.Controls.FileUpload_SuccessMessageText, true);
 
         /// <summary>
         /// Gets or sets a command that is triggered when the upload is complete.
@@ -59,67 +130,11 @@ namespace DotVVM.Framework.Controls
             get { return (Command)GetValue(UploadCompletedProperty); }
             set { SetValue(UploadCompletedProperty, value); }
         }
+
         public static readonly DotvvmProperty UploadCompletedProperty
-            = DotvvmProperty.Register<Command, FileUpload>(p => p.UploadCompleted, null);
+            = DotvvmProperty.Register<Command, FileUpload>(p => p.UploadCompleted);
 
-
-        /// <summary>
-        /// Gets or sets the text on the upload button. The default value is "Upload".
-        /// </summary>
-        public string UploadButtonText
-        {
-            get { return (string)GetValue(UploadButtonTextProperty); }
-            set { SetValue(UploadButtonTextProperty, value); }
-        }
-        public static readonly DotvvmProperty UploadButtonTextProperty
-            = DotvvmProperty.Register<string, FileUpload>(c => c.UploadButtonText, Resources.Controls.FileUpload_UploadButtonText, isValueInherited: true);
-
-        /// <summary>
-        /// Gets or sets the text on the indicator showing number of files. The defaule value is "{0} files". The number of files will be substituted for the "{0}" placeholder.
-        /// </summary>
-        public string NumberOfFilesIndicatorText
-        {
-            get { return (string)GetValue(NumberOfFilesIndicatorTextProperty); }
-            set { SetValue(NumberOfFilesIndicatorTextProperty, value); }
-        }
-        public static readonly DotvvmProperty NumberOfFilesIndicatorTextProperty
-            = DotvvmProperty.Register<string, FileUpload>(c => c.NumberOfFilesIndicatorText, Resources.Controls.FileUpload_NumberOfFilesText, isValueInherited: true);
-
-        /// <summary>
-        /// Gets or sets the text that appears when there is an error during the upload.
-        /// </summary>
-        public string UploadErrorMessageText
-        {
-            get { return (string)GetValue(UploadErrorMessageTextProperty); }
-            set { SetValue(UploadErrorMessageTextProperty, value); }
-        }
-        public static readonly DotvvmProperty UploadErrorMessageTextProperty
-            = DotvvmProperty.Register<string, FileUpload>(c => c.UploadErrorMessageText, Resources.Controls.FileUpload_UploadErrorMessageText, isValueInherited: true);
-
-        /// <summary>
-        /// Gets or sets the text that appears when all files are uploaded successfully.
-        /// </summary>
-        public string SuccessMessageText
-        {
-            get { return (string)GetValue(SuccessMessageTextProperty); }
-            set { SetValue(SuccessMessageTextProperty, value); }
-        }
-        public static readonly DotvvmProperty SuccessMessageTextProperty
-            = DotvvmProperty.Register<string, FileUpload>(c => c.SuccessMessageText, Resources.Controls.FileUpload_SuccessMessageText, isValueInherited: true);
-
-
-
-
-        public FileUpload() : base("div")
-        {
-        }
-
-        protected internal override void OnInit(Hosting.IDotvvmRequestContext context)
-        {
-            base.OnInit(context);
-        }
-
-        internal override void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
+        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
         {
             context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
 
@@ -137,10 +152,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddKnockoutDataBind("with", this, UploadedFilesProperty, () =>
-            {
-                throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload control must be bound!"); 
-            });
+            writer.AddKnockoutDataBind("with", this, UploadedFilesProperty, () => { throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload control must be bound!"); });
             writer.AddAttribute("class", "dotvvm-upload", true);
 
             var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
@@ -178,7 +190,6 @@ namespace DotVVM.Framework.Controls
 
         private static void RenderProgressWrapper(IHtmlWriter writer)
         {
-
             // render progress wrapper
             writer.AddKnockoutDataBind("visible", "IsBusy");
             writer.AddAttribute("class", "dotvvm-upload-progress-wrapper");
@@ -192,7 +203,6 @@ namespace DotVVM.Framework.Controls
 
         private void RenderUploadedFilesTitle(IHtmlWriter writer)
         {
-
             // render upload files
             writer.AddAttribute("class", "dotvvm-upload-files");
             writer.AddKnockoutDataBind("html", $"dotvvm.globalize.format({JsonConvert.SerializeObject(NumberOfFilesIndicatorText)}, Files().length)");
@@ -218,9 +228,35 @@ namespace DotVVM.Framework.Controls
         {
             // render iframe
             writer.AddAttribute("class", "dotvvm-upload-iframe");
-            writer.AddAttribute("src", "~/" + HostingConstants.FileUploadHandlerMatchUrl + (AllowMultipleFiles ? "?multiple=true" : ""));
+            writer.AddAttribute("src", GetFileUploadHandlerUrl());
             writer.RenderBeginTag("iframe");
             writer.RenderEndTag();
+        }
+
+        private string GetFileUploadHandlerUrl()
+        {
+            var builder = new StringBuilder("~/");
+            builder.Append(HostingConstants.FileUploadHandlerMatchUrl);
+            var delimiter = "?";
+
+            if (AllowMultipleFiles)
+            {
+                builder.AppendFormat("{0}multiple=true", delimiter);
+                delimiter = "&";
+            }
+
+            if (!string.IsNullOrWhiteSpace(AllowedFileTypes))
+            {
+                builder.AppendFormat("{0}fileTypes={1}", delimiter, WebUtility.UrlEncode(AllowedFileTypes));
+                delimiter = "&";
+            }
+
+            if (MaxFileSize != null)
+            {
+                builder.AppendFormat("{0}maxSize={1}", delimiter, MaxFileSize);
+            }
+
+            return builder.ToString();
         }
     }
 }
