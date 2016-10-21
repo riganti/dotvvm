@@ -76,96 +76,11 @@ declare class DotvvmRedirectEventArgs extends DotvvmEventArgs {
     isHandled: boolean;
     constructor(viewModel: any, viewModelName: string, url: string, replace: boolean);
 }
-interface Document {
-    getElementByDotvvmId(id: string): HTMLElement;
-}
-interface IRenderedResourceList {
-    [name: string]: string;
-}
-interface IDotvvmPostbackScriptFunction {
-    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: IDotvvmPostBackHandlerConfiguration[]): void;
-}
-interface IDotvvmExtensions {
-}
-interface IDotvvmViewModelInfo {
-    viewModel?: any;
-    renderedResources?: string[];
-    url?: string;
-    virtualDirectory?: string;
-}
-interface IDotvvmViewModels {
-    [name: string]: IDotvvmViewModelInfo;
-}
-declare class DotVVM {
-    private postBackCounter;
-    private fakeRedirectAnchor;
-    private resourceSigns;
-    private isViewModelUpdating;
-    private viewModelObservables;
-    isSpaReady: KnockoutObservable<boolean>;
-    viewModels: IDotvvmViewModels;
-    culture: string;
-    serialization: DotvvmSerialization;
-    postBackHandlers: DotvvmPostBackHandlers;
-    events: DotvvmEvents;
-    globalize: DotvvmGlobalize;
-    evaluator: DotvvmEvaluator;
-    domUtils: DotvvmDomUtils;
-    fileUpload: DotvvmFileUpload;
-    validation: DotvvmValidation;
-    extensions: IDotvvmExtensions;
-    isPostbackRunning: KnockoutObservable<boolean>;
-    init(viewModelName: string, culture: string): void;
-    private handleHashChange(viewModelName, spaPlaceHolder, isInitialPageLoad);
-    private postbackScript(bindingId);
-    private persistViewModel(viewModelName);
-    private backUpPostBackConter();
-    private isPostBackStillActive(currentPostBackCounter);
-    staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
-    private processPassedId(id, context);
-    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs>;
-    private error(viewModel, xhr, promise?);
-    private loadResourceList(resources, callback);
-    private loadResourceElements(elements, offset, callback);
-    private getSpaPlaceHolder();
-    private navigateCore(viewModelName, url);
-    private handleRedirect(resultObject, viewModelName, replace?);
-    private performRedirect(url, replace);
-    private fixSpaUrlPrefix(url);
-    private removeVirtualDirectoryFromUrl(url, viewModelName);
-    private addLeadingSlash(url);
-    private concatUrl(url1, url2);
-    patch(source: any, patch: any): any;
-    private updateDynamicPathFragments(context, path);
-    private postJSON(url, method, postData, success, error, preprocessRequest?);
-    private getJSON(url, method, spaPlaceHolderUniqueId, success, error);
-    getXHR(): XMLHttpRequest;
-    private cleanUpdatedControls(resultObject, updatedControls?);
-    private restoreUpdatedControls(resultObject, updatedControls, applyBindingsOnEachControl);
-    unwrapArrayExtension(array: any): any;
-    buildRouteUrl(routePath: string, params: any): string;
-    private isPostBackProhibited(element);
-    private addKnockoutBindingHandlers();
-}
-declare class DotvvmFileUpload {
-    showUploadDialog(sender: HTMLElement): void;
-    private getIframe(sender);
-    private openUploadDialog(iframe);
-    createUploadId(sender: HTMLElement, iframe: HTMLElement): void;
-    reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string): void;
-}
-declare class DotvvmFileUploadCollection {
-    Files: KnockoutObservableArray<KnockoutObservable<DotvvmFileUpload>>;
-    Progress: KnockoutObservable<number>;
-    Error: KnockoutObservable<string>;
-    IsBusy: KnockoutObservable<boolean>;
-}
-declare class DotvvmFileUploadData {
-    FileId: KnockoutObservable<string>;
-    FileName: KnockoutObservable<string>;
-    FileTypeAllowed: KnockoutObservable<boolean>;
-    MaxSizeExceeded: KnockoutObservable<boolean>;
-    Allowed: KnockoutObservable<boolean>;
+declare class DotvvmEvaluator {
+    evaluateOnViewModel(context: any, expression: any): any;
+    evaluateOnContext(context: any, expression: string): any;
+    getDataSourceItems(viewModel: any): any;
+    tryEval(func: () => any): any;
 }
 declare class DotvvmGlobalize {
     format(format: string, ...values: string[]): string;
@@ -319,9 +234,94 @@ declare class DotvvmValidation {
     private addValidationError(viewModel, error);
 }
 declare var dotvvm: DotVVM;
-declare class DotvvmEvaluator {
-    evaluateOnViewModel(context: any, expression: any): any;
-    evaluateOnContext(context: any, expression: string): any;
-    getDataSourceItems(viewModel: any): any;
-    tryEval(func: () => any): any;
+interface Document {
+    getElementByDotvvmId(id: string): HTMLElement;
+}
+interface IRenderedResourceList {
+    [name: string]: string;
+}
+interface IDotvvmPostbackScriptFunction {
+    (pageArea: string, sender: HTMLElement, pathFragments: string[], controlId: string, useWindowSetTimeout: boolean, validationTarget: string, context: any, handlers: IDotvvmPostBackHandlerConfiguration[]): void;
+}
+interface IDotvvmExtensions {
+}
+interface IDotvvmViewModelInfo {
+    viewModel?: any;
+    renderedResources?: string[];
+    url?: string;
+    virtualDirectory?: string;
+}
+interface IDotvvmViewModels {
+    [name: string]: IDotvvmViewModelInfo;
+}
+declare class DotVVM {
+    private postBackCounter;
+    private fakeRedirectAnchor;
+    private resourceSigns;
+    private isViewModelUpdating;
+    private viewModelObservables;
+    isSpaReady: KnockoutObservable<boolean>;
+    viewModels: IDotvvmViewModels;
+    culture: string;
+    serialization: DotvvmSerialization;
+    postBackHandlers: DotvvmPostBackHandlers;
+    events: DotvvmEvents;
+    globalize: DotvvmGlobalize;
+    evaluator: DotvvmEvaluator;
+    domUtils: DotvvmDomUtils;
+    fileUpload: DotvvmFileUpload;
+    validation: DotvvmValidation;
+    extensions: IDotvvmExtensions;
+    isPostbackRunning: KnockoutObservable<boolean>;
+    init(viewModelName: string, culture: string): void;
+    private handleHashChange(viewModelName, spaPlaceHolder, isInitialPageLoad);
+    private postbackScript(bindingId);
+    private persistViewModel(viewModelName);
+    private backUpPostBackConter();
+    private isPostBackStillActive(currentPostBackCounter);
+    staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
+    private processPassedId(id, context);
+    postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs>;
+    private error(viewModel, xhr, promise?);
+    private loadResourceList(resources, callback);
+    private loadResourceElements(elements, offset, callback);
+    private getSpaPlaceHolder();
+    private navigateCore(viewModelName, url);
+    private handleRedirect(resultObject, viewModelName, replace?);
+    private performRedirect(url, replace);
+    private fixSpaUrlPrefix(url);
+    private removeVirtualDirectoryFromUrl(url, viewModelName);
+    private addLeadingSlash(url);
+    private concatUrl(url1, url2);
+    patch(source: any, patch: any): any;
+    private updateDynamicPathFragments(context, path);
+    private postJSON(url, method, postData, success, error, preprocessRequest?);
+    private getJSON(url, method, spaPlaceHolderUniqueId, success, error);
+    getXHR(): XMLHttpRequest;
+    private cleanUpdatedControls(resultObject, updatedControls?);
+    private restoreUpdatedControls(resultObject, updatedControls, applyBindingsOnEachControl);
+    unwrapArrayExtension(array: any): any;
+    buildRouteUrl(routePath: string, params: any): string;
+    private isPostBackProhibited(element);
+    private addKnockoutBindingHandlers();
+}
+declare class DotvvmFileUpload {
+    showUploadDialog(sender: HTMLElement): void;
+    private getIframe(sender);
+    private openUploadDialog(iframe);
+    createUploadId(sender: HTMLElement, iframe: HTMLElement): void;
+    reportProgress(targetControlId: any, isBusy: boolean, progress: number, result: DotvvmFileUploadData[] | string): void;
+}
+declare class DotvvmFileUploadCollection {
+    Files: KnockoutObservableArray<KnockoutObservable<DotvvmFileUpload>>;
+    Progress: KnockoutObservable<number>;
+    Error: KnockoutObservable<string>;
+    IsBusy: KnockoutObservable<boolean>;
+}
+declare class DotvvmFileUploadData {
+    FileId: KnockoutObservable<string>;
+    FileName: KnockoutObservable<string>;
+    FileTypeAllowed: KnockoutObservable<boolean>;
+    MaxSizeExceeded: KnockoutObservable<boolean>;
+    Allowed: KnockoutObservable<boolean>;
 }
