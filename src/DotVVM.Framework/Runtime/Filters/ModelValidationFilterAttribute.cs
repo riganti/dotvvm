@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Runtime.Filters
                 context.FailOnInvalidModelState();
             }
 
-            return Task.CompletedTask;
+            return Task.FromResult(0);
         }
     }
 }

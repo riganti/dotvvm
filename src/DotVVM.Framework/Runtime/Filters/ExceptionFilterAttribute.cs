@@ -11,12 +11,12 @@ namespace DotVVM.Framework.Runtime.Filters
     {
         /// <inheritdoc />
         protected internal override Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
-            => exception != null ? OnCommandExceptionAsync(context, actionInfo, exception) : Task.CompletedTask;
+            => exception != null ? OnCommandExceptionAsync(context, actionInfo, exception) : Task.FromResult(0);
 
         /// <summary>
         /// Called when the exception occurs during the command invocation.
         /// </summary>
         protected virtual Task OnCommandExceptionAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception ex)
-            => Task.CompletedTask;
+            => Task.FromResult(0);
     }
 }

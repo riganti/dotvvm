@@ -66,8 +66,7 @@ namespace DotVVM.Framework.Compilation
                     // return dummy completed task
                     if (expectedType == typeof(Task))
                     {
-                        return Expression.Block(expr, Expression.Call(
-                            typeof(Task).GetProperty(nameof(Task.CompletedTask), BindingFlags.Public | BindingFlags.Static).GetMethod));
+                        return Expression.Block(expr, Expression.Call(typeof(Task), "FromResult", new[] { typeof(int) }, Expression.Constant(0)));
                     }
                     else if (typeof(Task<>).IsAssignableFrom(expectedType))
                     {

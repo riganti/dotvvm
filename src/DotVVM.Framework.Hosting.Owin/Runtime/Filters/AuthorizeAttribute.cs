@@ -41,14 +41,14 @@ namespace DotVVM.Framework.Runtime.Filters
         protected override Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
         {
             Authorize(context);
-            return Task.CompletedTask;
+            return Task.FromResult(0);
         }
 
         /// <inheritdoc />
         protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
             Authorize(context);
-            return Task.CompletedTask;
+            return Task.FromResult(0);
         }
 
         /// <summary>

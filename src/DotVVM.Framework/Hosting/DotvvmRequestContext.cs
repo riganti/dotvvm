@@ -164,9 +164,13 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void ChangeCurrentCulture(string cultureName, string uiCultureName)
         {
-            // TODO: document ASP.NET Core behavior
+#if DotNetCore
             CultureInfo.CurrentCulture = new CultureInfo(cultureName);
             CultureInfo.CurrentUICulture = new CultureInfo(uiCultureName);
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureName);
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(uiCultureName);
+#endif
         }
 
         /// <summary>

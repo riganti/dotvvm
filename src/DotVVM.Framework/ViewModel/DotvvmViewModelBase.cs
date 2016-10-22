@@ -53,13 +53,13 @@ namespace DotVVM.Framework.ViewModel
         }
 
         public virtual Task Init()
-            => Task.CompletedTask;
+            => Task.FromResult(0);
 
         public virtual Task Load()
-            => Task.CompletedTask;
+            => Task.FromResult(0);
 
         public virtual Task PreRender()
-            => Task.CompletedTask;
+            => Task.FromResult(0);
 
         protected virtual IEnumerable<IDotvvmViewModel> GetChildViewModels()
         {

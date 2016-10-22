@@ -49,8 +49,13 @@ namespace DotVVM.Framework.Testing
 
         public void ChangeCurrentCulture(string cultureName, string uiCultureName)
         {
+#if DotNetCore
             CultureInfo.CurrentCulture = new CultureInfo(cultureName);
             CultureInfo.CurrentUICulture = new CultureInfo(uiCultureName);
+#else
+            Thread.CurrentThread.CurrentCulture = new CultureInfo(cultureName);
+            Thread.CurrentThread.CurrentUICulture = new CultureInfo(uiCultureName);
+#endif
         }
 
         public CultureInfo GetCurrentUICulture()

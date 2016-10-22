@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Hosting
         public static Task ApplyRedirect(HttpContext context, string redirectUri)
         {
             DotvvmRequestContext.SetRedirectResponse(DotvvmMiddleware.ConvertHttpContext(context), redirectUri, (int)HttpStatusCode.Redirect, allowSpaRedirect: false);
-            return Task.CompletedTask;
+            return Task.FromResult(0);
         }
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Hosting
         public static Task SetStatusCode(HttpContext context, int statusCode)
         {
             context.Response.StatusCode = statusCode;
-            return Task.CompletedTask;
+            return Task.FromResult(0);
         }
     }
 }

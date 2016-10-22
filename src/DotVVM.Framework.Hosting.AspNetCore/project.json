@@ -13,7 +13,7 @@
   },
   "frameworks": {
     "netstandard1.6": {},
-    "net461": {}
+    "net451": {}
   },
   "buildOptions": {
     "xmlDoc": true,

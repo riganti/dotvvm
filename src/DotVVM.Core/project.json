@@ -13,7 +13,7 @@
         "define": [ "DotNetCore" ]
       }
     },
-    "net461": {
+    "net451": {
       "frameworkAssemblies": {
         "System.ComponentModel.DataAnnotations": "4.0.0"
       }

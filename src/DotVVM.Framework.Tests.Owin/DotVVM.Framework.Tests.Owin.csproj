@@ -73,10 +73,10 @@
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="DotVVM.Framework">
-      <HintPath>..\DotVVM.Framework\bin\debug\net461\DotVVM.Framework.dll</HintPath>
+      <HintPath>..\DotVVM.Framework\bin\debug\net451\DotVVM.Framework.dll</HintPath>
     </Reference>
     <Reference Include="DotVVM.Core">
-      <HintPath>..\DotVVM.Core\bin\debug\net461\DotVVM.Core.dll</HintPath>
+      <HintPath>..\DotVVM.Core\bin\debug\net451\DotVVM.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
