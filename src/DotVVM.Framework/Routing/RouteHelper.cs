@@ -60,6 +60,7 @@ namespace DotVVM.Framework.Routing
         /// Registers all routes discovered by specified <see cref="IRoutingStrategy"/> in the RouteTable.
         /// </summary>
         /// <param name="strategy">A strategy that provides list of routes.</param>
+        /// <param name="table">A table of DotVVM routes by specified name.</param>
         public static void AutoDiscoverRoutes(this DotvvmRouteTable table, IRoutingStrategy strategy)
         {
             foreach (var route in strategy.GetRoutes())

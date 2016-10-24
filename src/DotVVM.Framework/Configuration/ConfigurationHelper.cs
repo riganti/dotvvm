@@ -8,11 +8,12 @@ namespace DotVVM.Framework.Configuration
 {
 	public static class ConfigurationHelper
 	{
-		/// <summary>
-		/// Registers all controls discovered by specified <see cref="IControlRegistrationStrategy"/> in the <see cref="DotvvmMarkupConfiguration"/>.
-		/// </summary>
-		/// <param name="strategy">A strategy that provides list of control configurations.</param>
-		public static void AutoDiscoverControls(this DotvvmMarkupConfiguration configuration, IControlRegistrationStrategy strategy)
+        /// <summary>
+        /// Registers all controls discovered by specified <see cref="IControlRegistrationStrategy"/> in the <see cref="DotvvmMarkupConfiguration"/>.
+        /// </summary>
+        /// <param name="strategy">A strategy that provides list of control configurations.</param>
+        /// <param name="configuration">The DotVVM Framework configuration to use.</param>
+        public static void AutoDiscoverControls(this DotvvmMarkupConfiguration configuration, IControlRegistrationStrategy strategy)
 		{
 			configuration.Controls.AddRange(strategy.GetControls());
 		}
