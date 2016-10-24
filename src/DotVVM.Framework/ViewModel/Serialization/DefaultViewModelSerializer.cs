@@ -24,7 +24,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         private readonly IViewModelProtector viewModelProtector;
         private readonly IViewModelSerializationMapper viewModelMapper;
-        private readonly DotvvmConfiguration configuration;
 
         public bool SendDiff { get; set; } = true;
 
