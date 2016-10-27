@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
     <metadata>
         <id>DotVVM.Core</id>
-        <version>1.1.0-alpha-r2</version>
+        <version>1.1.0-alpha-r4</version>
         <authors>RIGANTI</authors>
     	<owners>RIGANTI s.r.o.</owners>
         <licenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</licenseUrl>
@@ -16,24 +16,24 @@
     	<iconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</iconUrl>
         <language />
         <tags>dotvvm,asp.net,mvvm,owin,dotnetcore</tags>
-         <dependencies>
-     		 <group targetFramework=".NETFramework4.6.1">
-    			    <dependency id="NETStandard.Library" version="[1.6.0, )" />
-   		 </group>
-      		<group targetFramework=".NETStandard1.6">
-		        <dependency id="System.ComponentModel.Annotations" version="[4.1.0, )" />
-        		<dependency id="System.Linq.Queryable" version="[4.0.1, )" />
-        		<dependency id="NETStandard.Library" version="[1.6.0, )" />
-      		</group>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5.1">
+                <dependency id="NETStandard.Library" version="[1.6.0, )" />
+            </group>
+            <group targetFramework=".NETStandard1.6">
+                <dependency id="System.ComponentModel.Annotations" version="[4.1.0, )" />
+                <dependency id="System.Linq.Queryable" version="[4.0.1, )" />
+                <dependency id="NETStandard.Library" version="[1.6.0, )" />
+            </group>
     </dependencies>
- <frameworkAssemblies>
-      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework=".NETFramework4.6.1" />
+    <frameworkAssemblies>
+      <frameworkAssembly assemblyName="System.ComponentModel.DataAnnotations" targetFramework=".NETFramework4.5.1" />
     </frameworkAssemblies>
     </metadata>
    
     <files>
-        <file src="..\..\DotVVM.Core\bin\Release\net461\DotVVM.Core.dll" target="lib\net461\DotVVM.Core.dll" />
-        <file src="..\..\DotVVM.Core\bin\Release\net461\DotVVM.Core.xml" target="lib\net461\DotVVM.Core.xml" />
+        <file src="..\..\DotVVM.Core\bin\Release\net451\DotVVM.Core.dll" target="lib\net451\DotVVM.Core.dll" />
+        <file src="..\..\DotVVM.Core\bin\Release\net451\DotVVM.Core.xml" target="lib\net451\DotVVM.Core.xml" />
         <file src="..\..\DotVVM.Core\bin\Release\netstandard1.6\DotVVM.Core.dll" target="lib\netstandard1.6\DotVVM.Core.dll" />
         <file src="..\..\DotVVM.Core\bin\Release\netstandard1.6\DotVVM.Core.xml" target="lib\netstandard1.6\DotVVM.Core.xml" />
     </files>

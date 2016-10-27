@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>DotVVM.Owin</id>
-    <version>1.1.0-alpha-r2</version>
+    <version>1.1.0-alpha-r4</version>
     <authors>Riganti s.r.o.</authors>
     <owners>Riganti s.r.o.</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -10,8 +10,8 @@
     <description>DotVVM.Owin is hosting layer for DotVVM Projects.</description>
         <tags>dotvvm dotvvm asp.net mvvm owin</tags>
     <dependencies>
-     <group targetFramework=".NETFramework4.6.1">
-        <dependency id="DotVVM" version="1.1.0-alpha-r2" />
+     <group targetFramework=".NETFramework4.5.1">
+        <dependency id="DotVVM" version="1.1.0-alpha-r4" />
         <dependency id="Microsoft.Extensions.DependencyInjection" version="1.0.0"   />
         <dependency id="Microsoft.Owin" version="3.0.1"   />
         <dependency id="Microsoft.Owin.Security" version="3.0.1"/>
@@ -21,7 +21,7 @@
     </dependencies>
   </metadata>
     <files>
-        <file src="..\..\DotVVM.Framework.Hosting.Owin\bin\Release\DotVVM.Framework.Hosting.Owin.dll" target="lib\net461\DotVVM.Framework.Hosting.Owin.dll" />
-        <file src="..\..\DotVVM.Framework.Hosting.Owin\bin\Release\DotVVM.Framework.Hosting.Owin.xml" target="lib\net461\DotVVM.Framework.Hosting.Owin.xml" />
+        <file src="..\..\DotVVM.Framework.Hosting.Owin\bin\Release\DotVVM.Framework.Hosting.Owin.dll" target="lib\net451\DotVVM.Framework.Hosting.Owin.dll" />
+        <file src="..\..\DotVVM.Framework.Hosting.Owin\bin\Release\DotVVM.Framework.Hosting.Owin.xml" target="lib\net451\DotVVM.Framework.Hosting.Owin.xml" />
     </files>
 </package>

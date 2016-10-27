@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             if (members.Length == 1)
             {
-                if(!(members[0] is Type) && onlyMemberTypes) { throw new Exception("Only type names are supported."); } 
+                if(!(members[0] is TypeInfo) && onlyMemberTypes) { throw new Exception("Only type names are supported."); } 
 
                 var instance = isStatic ? null : target;
                 if (members[0] is PropertyInfo)

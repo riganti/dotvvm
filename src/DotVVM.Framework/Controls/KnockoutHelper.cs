@@ -207,6 +207,9 @@ namespace DotVVM.Framework.Controls
         /// Writes text iff the property contains hard-coded value OR
         /// writes knockout text binding iff the property contains binding
         /// </summary>
+        /// <param name="writer">HTML output writer</param>
+        /// <param name="obj">Dotvvm control which contains the <see cref="DotvvmProperty"/> with value to be written</param>
+        /// <param name="property">Value of this property will be written</param>
         /// <param name="wrapperTag">Name of wrapper tag, null => knockout binding comment</param>
         public static void WriteTextOrBinding(this IHtmlWriter writer, DotvvmBindableObject obj, DotvvmProperty property, string wrapperTag = null)
         {

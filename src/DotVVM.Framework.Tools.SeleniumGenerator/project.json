@@ -1,7 +1,7 @@
 {
   "version": "1.0.0-*",
   "dependencies": {
-    "DotVVM.Framework": "1.0.4-*",
+    "DotVVM.Framework": { "target": "project" },
     "NETStandard.Library": "1.6.0"
   },
   "frameworks": {
