@@ -10,23 +10,20 @@ namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmReturnedFileMiddleware : IMiddleware
     {
-        private readonly DotvvmConfiguration configuration;
-
         public async Task<bool> Handle(IDotvvmRequestContext request)
         {
             var url = DotvvmMiddlewareBase.GetCleanRequestUrl(request.HttpContext);
 
             if (url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal))
             {
-                await RenderReturnedFile(request.HttpContext);
+                await RenderReturnedFile(request.HttpContext, request.Configuration.ServiceLocator.GetService<IReturnedFileStorage>());
                 return true;
             }
             else return false;
         }
 
-        private async Task RenderReturnedFile(IHttpContext context)
+        private async Task RenderReturnedFile(IHttpContext context, IReturnedFileStorage returnedFileStorage)
         {
-            var returnedFileStorage = configuration.ServiceLocator.GetService<IReturnedFileStorage>();
             ReturnedFileMetadata metadata;
 
             var id = Guid.Parse(context.Request.Query["id"]);

@@ -22,7 +22,7 @@ namespace DotVVM.Samples.BasicSamples
 
             services
                 .AddDotVVM()
-                .ConfigureUploadedFileStorage("Temp");
+                .ConfigureTempStorages("Temp");
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)
