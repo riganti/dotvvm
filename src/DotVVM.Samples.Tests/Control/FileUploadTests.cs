@@ -3,6 +3,7 @@ using System.Linq;
 using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
+using Riganti.Utils.Testing.Selenium.DotVVM;
 
 namespace DotVVM.Samples.Tests.Control
 {
@@ -27,7 +28,7 @@ namespace DotVVM.Samples.Tests.Control
                 File.WriteAllText(tempFile, string.Join(",", Enumerable.Range(1, 100000)));
 
                 // write the full path to the dialog
-                browser.FileUploadDialogSelect(browser.First(".dotvvm-upload-button a"), tempFile);
+                browser.First(".dotvvm-upload-button a").UploadFile(tempFile);
 
                 // wait for the file to be uploaded
 
@@ -68,7 +69,7 @@ namespace DotVVM.Samples.Tests.Control
                 var maxSizeExceeded = browser.Single("span.maxSizeExceeded");
                 
                 var textFile = CreateTempFile("txt", 1);
-                browser.FileUploadDialogSelect(browser.First(".dotvvm-upload-button a"), textFile);
+                browser.First(".dotvvm-upload-button a").UploadFile(textFile);
 
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
@@ -93,7 +94,7 @@ namespace DotVVM.Samples.Tests.Control
                 var maxSizeExceeded = browser.Single("span.maxSizeExceeded");
 
                 var mdFile = CreateTempFile("md", 1);
-                browser.FileUploadDialogSelect(browser.First(".dotvvm-upload-button a"), mdFile);
+                browser.First(".dotvvm-upload-button a").UploadFile(mdFile);
 
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
@@ -118,7 +119,7 @@ namespace DotVVM.Samples.Tests.Control
                 var maxSizeExceeded = browser.Single("span.maxSizeExceeded");
 
                 var largeFile = CreateTempFile("txt", 2);
-                browser.FileUploadDialogSelect(browser.First(".dotvvm-upload-button a"), largeFile);
+                browser.First(".dotvvm-upload-button a").UploadFile(largeFile);
 
                 browser.WaitFor(() => browser.First(".dotvvm-upload-files").GetText() == "1 files", 60000,
                     "File was not uploaded in 1 min interval.");
