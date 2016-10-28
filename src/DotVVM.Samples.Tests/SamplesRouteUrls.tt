@@ -1,6 +1,6 @@
 ﻿<#@ template debug="true" hostspecific="true" language="C#" #>
 <#@ assembly name="System.Core" #>
-<#@ assembly name="$(SolutionDir)DotVVM.Framework\bin\Debug\net461\DotVVM.Framework.dll" #>
+<#@ assembly name="$(SolutionDir)DotVVM.Framework\bin\Debug\net451\DotVVM.Framework.dll" #>
 <#@ assembly name="$(SolutionDir)packages\Microsoft.Extensions.DependencyInjection.Abstractions.1.0.0\lib\netstandard1.0\Microsoft.Extensions.DependencyInjection.Abstractions.dll" #>
 <#@ import namespace="System.Linq" #>
 <#@ import namespace="System.Text" #>
