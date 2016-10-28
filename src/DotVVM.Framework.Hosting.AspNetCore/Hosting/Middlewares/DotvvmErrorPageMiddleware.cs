@@ -5,6 +5,7 @@ using System.Net;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting.ErrorPages;
 using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
@@ -54,6 +55,19 @@ namespace DotVVM.Framework.Hosting.Middlewares
             }
             catch (Exception exc)
             {
+                context.Response.ContentType = "text/plain";
+                try
+                {
+                    using (var writer = new StreamWriter(context.Response.Body))
+                    {
+                        writer.WriteLine("Error in Dotvvm Application:");
+                        writer.WriteLine(error.ToString());
+                        writer.WriteLine();
+                        writer.WriteLine("Error occured while displaying the error page. This it s internal error and should not happend, please report it:");
+                        writer.WriteLine(exc.ToString());
+                    }
+                }
+                catch { }
                 throw new Exception("Error occured inside dotvvm error handler, this is internal error and should not happen; \n Original error:" + error.ToString(), exc);
             }
         }
