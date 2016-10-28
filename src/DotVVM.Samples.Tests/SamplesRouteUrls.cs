@@ -10,10 +10,10 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender => "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
 			public static string ComplexSamples_ChangedEvent_ChangedEvent => "ComplexSamples/ChangedEvent/ChangedEvent";
 			public static string ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView => "ComplexSamples/DataTemplate/EmptyDataTemplateRepeaterGridView";
-			public static string ComplexSamples_DotVVM_NamespaceCollision => "ComplexSamples/DotVVM/NamespaceCollision";
 			public static string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater => "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
 			public static string ComplexSamples_GridViewDataSet_GridViewDataSet => "ComplexSamples/GridViewDataSet/GridViewDataSet";
 			public static string ComplexSamples_InvoiceCalculator_InvoiceCalculator => "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
+			public static string ComplexSamples_NamespaceCollision_NamespaceCollision => "ComplexSamples/NamespaceCollision/NamespaceCollision";
 			public static string ComplexSamples_RedirectAndUrl_ScrollingPage => "ComplexSamples/RedirectAndUrl/ScrollingPage";
 			public static string ComplexSamples_ServerRendering_AddingIntoEmptyRepeater => "ComplexSamples/ServerRendering/AddingIntoEmptyRepeater";
 			public static string ComplexSamples_ServerRendering_ControlUsageSample => "ComplexSamples/ServerRendering/ControlUsageSample";

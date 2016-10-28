@@ -192,3 +192,4 @@ FakesAssemblies/
 
 *project.lock.json
 /src/Tools/DotVVM.Framework.Hosting.Owin.nuspec
+/src/DotVVM.Samples.Common/Temp/returnedFiles
