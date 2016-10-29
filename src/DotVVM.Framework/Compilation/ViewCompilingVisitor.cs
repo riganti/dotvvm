@@ -77,8 +77,8 @@ namespace DotVVM.Framework.Compilation
 
         private void SetProperty(string controlName, DotvvmProperty property, ExpressionSyntax value)
         {
-			emitter.EmitSetDotvvmProperty(controlName, property, value);
-		}
+            emitter.EmitSetDotvvmProperty(controlName, property, value);
+        }
 
         private void SetPropertyValue(string controlName, DotvvmProperty property, object value)
             => SetProperty(controlName, property, emitter.EmitValue(value));

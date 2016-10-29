@@ -90,7 +90,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Riganti.Utils.Testing.Selenium.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Riganti.Utils.Testing.SeleniumCore.1.0.0-alpha-rev3\lib\net45\Riganti.Utils.Testing.Selenium.Core.dll</HintPath>
+      <HintPath>..\packages\Riganti.Utils.Testing.Selenium.Core.1.0.0-beta\lib\net45\Riganti.Utils.Testing.Selenium.Core.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Riganti.Utils.Testing.Selenium.DotVVM, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <HintPath>..\packages\Riganti.Utils.Testing.Selenium.DotVVM.0.1.0-pre\lib\net45\Riganti.Utils.Testing.Selenium.DotVVM.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -178,6 +182,7 @@
     <Compile Include="Feature\LocalizationTests.cs" />
     <Compile Include="Feature\RenderSettingsModeServerPropertyTest.cs" />
     <Compile Include="Feature\ResourcesTests.cs" />
+    <Compile Include="Feature\ReturnedFileTests.cs" />
     <Compile Include="Feature\SerializationTests.cs" />
     <Compile Include="Feature\FormattingTests.cs" />
     <Compile Include="Feature\MasterPageTests.cs" />

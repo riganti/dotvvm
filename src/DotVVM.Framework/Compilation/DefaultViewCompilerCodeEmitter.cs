@@ -467,7 +467,7 @@ namespace DotVVM.Framework.Compilation
                             SyntaxFactory.MemberAccessExpression(
                                 SyntaxKind.SimpleMemberAccessExpression,
                                 SyntaxFactory.IdentifierName(controlName),
-                                SyntaxFactory.IdentifierName("Attributes")
+                                SyntaxFactory.IdentifierName(propertyName)
                             ),
                             SyntaxFactory.BracketedArgumentList(
                                 SyntaxFactory.SeparatedList(
