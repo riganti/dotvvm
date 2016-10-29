@@ -16,7 +16,7 @@ namespace DotVVM.Samples.Tests.Feature
     {
 
         [TestMethod]
-        public void Feature_ReturnedSimpleFile()
+        public void Feature_ReturnedFileSimple()
         {
             RunInAllBrowsers(browser => {
                 ReturnedFileDownload(browser, "Hello DotVVM returned file sample!");
@@ -24,7 +24,7 @@ namespace DotVVM.Samples.Tests.Feature
         }
 
         [TestMethod]
-        public void Feature_ReturnedEmptyFile()
+        public void Feature_ReturnedFileEmpty()
         {
             RunInAllBrowsers(browser =>
             {
@@ -37,7 +37,7 @@ namespace DotVVM.Samples.Tests.Feature
             browser.NavigateToUrl(SamplesRouteUrls.FeatureSamples_ReturnedFile_ReturnedFileSample);
             var jsexec = browser.GetJavaScriptExecutor();
             jsexec.ExecuteScript("var downloadURL = \"\";");
-            jsexec.ExecuteScript("dotvvm.events.redirect.subscribe(function(args){downloadURL = args.url})");
+            jsexec.ExecuteScript("DotVVM.prototype.performRedirect = function(url){downloadURL = url};");
 
             browser.First("textarea").SendKeys(fileContent);
             browser.First("input").SendKeys(Keys.Enter);
