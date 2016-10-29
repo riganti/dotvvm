@@ -382,7 +382,7 @@ namespace DotVVM.Framework.Compilation
                 var gProperty = property as GroupedDotvvmProperty;
                 if (gProperty != null && gProperty.PropertyGroup.PropertyGroupMode == PropertyGroupMode.ValueCollection)
                 {
-                    EmitAddToDictionary(controlName, property.CastTo<GroupedDotvvmProperty>().PropertyGroup.PropertyName, gProperty.GroupMemberName, value);
+                    EmitAddToDictionary(controlName, property.CastTo<GroupedDotvvmProperty>().PropertyGroup.Name, gProperty.GroupMemberName, value);
                 }
                 else
                 {

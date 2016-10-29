@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Binding
 
         public static GroupedDotvvmProperty Create(PropertyGroupDescriptor group, string name)
         {
-            var propname = group.PropertyName + ":" + name;
+            var propname = group.Name + ":" + name;
             var prop = new GroupedDotvvmProperty
             {
                 PropertyGroup = group,

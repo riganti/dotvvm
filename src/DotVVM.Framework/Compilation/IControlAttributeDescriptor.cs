@@ -11,7 +11,9 @@ namespace DotVVM.Framework.Compilation
 {
 	public interface IControlAttributeDescriptor
 	{
-		MarkupOptionsAttribute MarkupOptions { get; }
+        string  Name { get; }
+
+        MarkupOptionsAttribute MarkupOptions { get; }
         DataContextChangeAttribute[] DataContextChangeAttributes { get; }
 		DataContextStackManipulationAttribute DataContextManipulationAttribute { get; }
         ITypeDescriptor DeclaringType { get; }

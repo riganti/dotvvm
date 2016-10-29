@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Binding
     public class PropertyGroupAttribute : Attribute
     {
         public string[] Prefixes { get; }
-        public Type ValueType { get; }
+        public Type ValueType { get; set; }
         public PropertyGroupAttribute(string prefix)
         {
             this.Prefixes = new[] { prefix };

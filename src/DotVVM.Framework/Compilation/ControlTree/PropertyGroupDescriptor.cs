@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public string[] Prefixes { get; }
 
-        public string PropertyName { get; }
+        public string Name { get; }
 
         public MarkupOptionsAttribute MarkupOptions { get; }
 
@@ -42,8 +42,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public PropertyGroupMode PropertyGroupMode { get; }
 
-        public bool CaseSensitive { get; }
-
         private ConcurrentDictionary<string, DotvvmProperty> generatedProperties = new ConcurrentDictionary<string, DotvvmProperty>();
 
         private PropertyGroupDescriptor(PropertyInfo propertyInfo, PrefixArray prefixes, Type valueType, object defaultValue)
@@ -51,7 +49,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.PropertyInfo = propertyInfo;
             this.DeclaringType = propertyInfo.DeclaringType;
             this.CollectionType = propertyInfo.PropertyType;
-            this.PropertyName = propertyInfo.Name;
+            this.Name = propertyInfo.Name;
             this.PropertyType = valueType;
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.ValueCollection;
@@ -72,7 +70,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             this.DescriptorField = descriptorField;
             this.DeclaringType = descriptorField.DeclaringType;
             this.CollectionType = null;
-            this.PropertyName = name;
+            this.Name = name;
             this.PropertyType = valueType;
             this.Prefixes = prefixes.Values;
             this.PropertyGroupMode = PropertyGroupMode.GeneratedDotvvmProperty;
@@ -124,6 +122,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public static PropertyGroupDescriptor Create<TDeclaring, TValue>(PrefixArray prefixes, string name, TValue defaultValue = default(TValue)) =>
             Create(typeof(TDeclaring), prefixes, name, typeof(TValue), defaultValue);
+
         public static PropertyGroupDescriptor Create(Type declaringType, PrefixArray prefixes, string name, Type valueType, object defaultValue)
         {
             return descriptorDictionary.GetOrAdd(declaringType.Name + "." + name, fullName =>
