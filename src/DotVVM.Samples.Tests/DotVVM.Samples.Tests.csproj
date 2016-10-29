@@ -182,6 +182,7 @@
     <Compile Include="Feature\LocalizationTests.cs" />
     <Compile Include="Feature\RenderSettingsModeServerPropertyTest.cs" />
     <Compile Include="Feature\ResourcesTests.cs" />
+    <Compile Include="Feature\ReturnedFileTests.cs" />
     <Compile Include="Feature\SerializationTests.cs" />
     <Compile Include="Feature\FormattingTests.cs" />
     <Compile Include="Feature\MasterPageTests.cs" />
