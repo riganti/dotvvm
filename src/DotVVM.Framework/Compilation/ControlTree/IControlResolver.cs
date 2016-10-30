@@ -30,5 +30,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         BindingParserOptions ResolveBinding(string bindingType);
 
+        /// <summary>
+        /// Finds the property in the control metadata.
+        /// </summary>
+        IPropertyDescriptor FindProperty(IControlResolverMetadata controlMetadata, string name);
     }
 }

@@ -101,5 +101,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             return new ControlResolverMetadata((ControlType) type);
         }
 
+        protected override IPropertyDescriptor FindGlobalProperty(string name)
+        {
+            return DotvvmProperty.ResolveProperty(name, caseSensitive: false);
+        }
     }
 }

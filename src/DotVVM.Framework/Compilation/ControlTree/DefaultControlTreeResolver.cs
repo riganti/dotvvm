@@ -76,11 +76,5 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (type == null) return null;
             return new ResolvedTypeDescriptor(type);
         }
-
-        protected override IPropertyDescriptor FindGlobalProperty(string name)
-        {
-            return DotvvmProperty.ResolveProperty(name, caseSensitive: false);
-        }
-
     }
 }

@@ -138,10 +138,47 @@ namespace DotVVM.Framework.Compilation.ControlTree
 			throw new Exception($"The control <{tagPrefix}:{tagName}> could not be resolved! Make sure that the tagPrefix is registered in DotvvmConfiguration.Markup.Controls collection!");
 		}
 
-		/// <summary>
-		/// Finds the compiled control.
-		/// </summary>
-		protected abstract IControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName);
+        /// <summary>
+        /// Finds the property in the control metadata.
+        /// </summary>
+        public IPropertyDescriptor FindProperty(IControlResolverMetadata controlMetadata, string name)
+        {
+            // try to find the property in metadata
+            IPropertyDescriptor property;
+            if (controlMetadata.TryGetProperty(name, out property))
+            {
+                return property;
+            }
+
+            // try to find an attached property
+            if (name.Contains("."))
+            {
+                return FindGlobalProperty(name);
+            }
+
+            // try property group
+            foreach (var group in controlMetadata.PropertyGroups)
+            {
+                if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase))
+                {
+                    var concreteName = name.Substring(group.Prefix.Length);
+                    return group.PropertyGroup.GetDotvvmProperty(concreteName);
+                }
+            }
+
+            return null;
+        }
+
+
+        /// <summary>
+        /// Finds the DotVVM property in the global property store.
+        /// </summary>
+        protected abstract IPropertyDescriptor FindGlobalProperty(string name);
+
+        /// <summary>
+        /// Finds the compiled control.
+        /// </summary>
+        protected abstract IControlType FindCompiledControl(string tagName, string namespaceName, string assemblyName);
 
 		/// <summary>
 		/// Finds the markup control.

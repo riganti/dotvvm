@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public IAbstractTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
         {
             var directives = ProcessDirectives(root);
-            var wrapperType = ResolveWrapperType(directives, root, fileName);
+            var wrapperType = ResolveWrapperType(directives, fileName);
             var viewModelType = ResolveViewModelType(directives, root, fileName);
             var namespaceImports = ResolveNamespaceImports(directives, root);
 
@@ -133,9 +133,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         }
 
         protected virtual ImmutableList<NamespaceImport> ResolveNamespaceImports(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root)
-            => ResolveNamespaceImportsCore(directives, root).ToImmutableList();
+            => ResolveNamespaceImportsCore(directives).ToImmutableList();
 
-        private IEnumerable<NamespaceImport> ResolveNamespaceImportsCore(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root)
+        private IEnumerable<NamespaceImport> ResolveNamespaceImportsCore(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
             => directives.Values.SelectMany(d => d).OfType<IAbstractImportDirective>()
             .Where(d => !d.HasError)
             .Select(d => new NamespaceImport(d.NameSyntax.ToDisplayString(), d.AliasSyntax.As<IdentifierNameBindingParserNode>()?.Name));
@@ -388,7 +388,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var name = attribute.AttributePrefix == null ? attribute.AttributeName : attribute.AttributePrefix + ":" + attribute.AttributeName;
 
             // find the property
-            var property = FindProperty(control.Metadata, name);
+            var property = controlResolver.FindProperty(control.Metadata, name);
             if (property != null)
             {
                 if (property.IsBindingProperty || property.DataContextManipulationAttribute != null) // when DataContextManipulationAttribute is set, lets hope that author knows what is he doing.
@@ -474,7 +474,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 var element = node as DothtmlElementNode;
                 if (element != null && properties)
                 {
-                    var property = FindProperty(control.Metadata, element.TagName);
+                    var property = controlResolver.FindProperty(control.Metadata, element.TagName);
                     if (property != null && string.IsNullOrEmpty(element.TagPrefix) && property.MarkupOptions.MappingMode.HasFlag(MappingMode.InnerElement))
                     {
                         content.Clear();
@@ -644,7 +644,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the type of the wrapper.
         /// </summary>
-        private ITypeDescriptor ResolveWrapperType(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, DothtmlRootNode root, string fileName)
+        private ITypeDescriptor ResolveWrapperType(IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives, string fileName)
         {
             var wrapperType = GetDefaultWrapperType(fileName);
 
@@ -688,37 +688,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 wrapperType = new ResolvedTypeDescriptor(typeof(DotvvmView));
             }
             return wrapperType;
-        }
-
-        /// <summary>
-        /// Finds the property in the control metadata.
-        /// </summary>
-        protected IPropertyDescriptor FindProperty(IControlResolverMetadata parentMetadata, string name)
-        {
-            // try to find the property in metadata
-            IPropertyDescriptor property;
-            if (parentMetadata.TryGetProperty(name, out property))
-            {
-                return property;
-            }
-
-            // try to find an attached property
-            if (name.Contains("."))
-            {
-                return FindGlobalProperty(name);
-            }
-
-            // try property group
-            foreach (var group in parentMetadata.PropertyGroups)
-            {
-                if (name.StartsWith(group.Prefix, StringComparison.OrdinalIgnoreCase))
-                {
-                    var concreteName = name.Substring(group.Prefix.Length);
-                    return group.PropertyGroup.GetDotvvmProperty(concreteName);
-                }
-            }
-
-            return null;
         }
 
         /// <summary>
@@ -799,11 +768,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// Finds the type descriptor for full type name.
         /// </summary>
         protected abstract ITypeDescriptor FindType(string fullTypeNameWithAssembly);
-
-        /// <summary>
-        /// Finds the DotVVM property in the global property store.
-        /// </summary>
-        protected abstract IPropertyDescriptor FindGlobalProperty(string name);
 
         /// <summary>
         /// Compiles the binding.
