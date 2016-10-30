@@ -8,13 +8,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
     public class ResolvedControl : ResolvedContentNode, IAbstractControl
     {
         public Dictionary<DotvvmProperty, ResolvedPropertySetter> Properties { get; set; } = new Dictionary<DotvvmProperty, ResolvedPropertySetter>();
-        //public Dictionary<PropertyGroupMember, ResolvedPropertySetter> PropertyGroupMembers = new Dictionary<PropertyGroupMember, ResolvedPropertySetter>();
-
+        
         public object[] ConstructorParameters { get; set; }
 
         IEnumerable<IPropertyDescriptor> IAbstractControl.PropertyNames => Properties.Keys;
-
-        //IEnumerable<IAbstractHtmlAttributeSetter> IAbstractControl.HtmlAttributes => HtmlAttributes.Values;
 
         public ResolvedControl(ControlResolverMetadata metadata, DothtmlNode node, DataContextStack dataContext)
             : base(metadata, node, dataContext) { }
@@ -48,30 +45,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             value.Parent = this;
             return true;
         }
-
-        //public void SetPropertyGroupMember(PropertyGroupMember member, ResolvedPropertySetter setter) { }
         
-        //public void SetHtmlAttribute(ResolvedHtmlAttributeSetter value)
-        //{
-        //    ResolvedHtmlAttributeSetter currentSetter;
-        //    if (HtmlAttributes.TryGetValue(value.Name, out currentSetter))
-        //    {
-        //        if (!(currentSetter is ResolvedHtmlAttributeValue) || !(value is ResolvedHtmlAttributeValue))
-        //        {
-        //            throw new NotSupportedException("multiple binding values are not supported in one attribute");
-        //        }
-        //        var currentValueSetter = (ResolvedHtmlAttributeValue)currentSetter;
-        //        var newValueSetter = (ResolvedHtmlAttributeValue)value;
-
-        //        var joinedValue = Controls.HtmlWriter.JoinAttributeValues(currentValueSetter.Name, currentValueSetter.Value, newValueSetter.Value);
-
-        //        value = new ResolvedHtmlAttributeValue(currentValueSetter.Name, joinedValue) { DothtmlNode = currentValueSetter.DothtmlNode };
-        //    }
-
-        //    HtmlAttributes[value.Name] = value;
-        //    value.Parent = this;
-        //}
-
         public override void Accept(IResolvedControlTreeVisitor visitor)
         {
             visitor.VisitControl(this);
@@ -83,11 +57,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             {
                 prop.Accept(visitor);
             }
-            //foreach (var att in HtmlAttributes.Values)
-            //{
-            //    att.Accept(visitor);
-            //}
-
+            
             base.AcceptChildren(visitor);
         }
 
