@@ -27,7 +27,7 @@ namespace Microsoft.Extensions.DependencyInjection
         public static IDotvvmBuilder ConfigureTempStorages(this IDotvvmBuilder builder, string tempPath, TimeSpan autoDeleteInterval)
         {
             return builder
-                .ConfigureUploadedFileStorage(Path.Combine(tempPath, "uploadFiles"), autoDeleteInterval)
+                .ConfigureUploadedFileStorage(Path.Combine(tempPath, "uploadedFiles"), autoDeleteInterval)
                 .ConfigureReturnedFileStorage(Path.Combine(tempPath, "returnedFiles"), autoDeleteInterval);
         }
 
