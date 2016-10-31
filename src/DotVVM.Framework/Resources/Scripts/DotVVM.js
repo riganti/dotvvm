@@ -1633,7 +1633,7 @@ var DotVVM = (function () {
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         preprocessRequest(xhr);
         xhr.onreadystatechange = function () {
-            if (xhr.readyState != 4)
+            if (xhr.readyState !== XMLHttpRequest.DONE)
                 return;
             if (xhr.status < 400) {
                 success(xhr);
@@ -1650,7 +1650,7 @@ var DotVVM = (function () {
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("X-DotVVM-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
         xhr.onreadystatechange = function () {
-            if (xhr.readyState != 4)
+            if (xhr.readyState !== XMLHttpRequest.DONE)
                 return;
             if (xhr.status < 400) {
                 success(xhr);

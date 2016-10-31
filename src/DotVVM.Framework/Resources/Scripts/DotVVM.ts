@@ -633,7 +633,7 @@ class DotVVM {
         xhr.setRequestHeader("X-Requested-With", "XMLHttpRequest");
         preprocessRequest(xhr);
         xhr.onreadystatechange = () => {
-            if (xhr.readyState != 4) return;
+            if (xhr.readyState !== XMLHttpRequest.DONE) return;
             if (xhr.status < 400) {
                 success(xhr);
             } else {
@@ -649,7 +649,7 @@ class DotVVM {
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.setRequestHeader("X-DotVVM-SpaContentPlaceHolder", spaPlaceHolderUniqueId);
         xhr.onreadystatechange = () => {
-            if (xhr.readyState != 4) return;
+            if (xhr.readyState !== XMLHttpRequest.DONE) return;
             if (xhr.status < 400) {
                 success(xhr);
             } else {
