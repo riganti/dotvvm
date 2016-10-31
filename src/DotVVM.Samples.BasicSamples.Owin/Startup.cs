@@ -27,7 +27,7 @@ namespace DotVVM.Samples.BasicSamples
                                 LoginPath = new PathString("/ComplexSamples/Auth/Login"),
                                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                                 Provider = new CookieAuthenticationProvider {
-                                    OnApplyRedirect = c => DotvvmAuthentication.ApplyRedirect(c.OwinContext, c.RedirectUri)
+                                    OnApplyRedirect = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.OwinContext, c.RedirectUri)
                                 }
                             })
                     ),
@@ -37,7 +37,7 @@ namespace DotVVM.Samples.BasicSamples
                                 LoginPath = new PathString("/ComplexSamples/SPARedirect/login"),
                                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
                                 Provider = new CookieAuthenticationProvider {
-                                    OnApplyRedirect = c => DotvvmAuthentication.ApplyRedirect(c.OwinContext, c.RedirectUri)
+                                    OnApplyRedirect = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.OwinContext, c.RedirectUri)
                                 }
                             })
                     ),
