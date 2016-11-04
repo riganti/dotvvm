@@ -18,11 +18,12 @@ namespace DotVVM.Framework.Tests.Parser.Binding
     [TestClass]
     public class BindingParserTests
     {
+        private readonly BindingParserNodeFactory bindingParserNodeFactory = new BindingParserNodeFactory();
 
         [TestMethod]
         public void BindingParser_TrueLiteral_Valid()
         {
-            var result = Parse("true");
+            var result = bindingParserNodeFactory.Parse("true");
 
             Assert.IsInstanceOfType(result, typeof(LiteralExpressionBindingParserNode));
             Assert.AreEqual(true, ((LiteralExpressionBindingParserNode)result).Value);
@@ -31,7 +32,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_FalseLiteral_WhiteSpaceOnEnd_Valid()
         {
-            var result = Parse("false  \t ");
+            var result = bindingParserNodeFactory.Parse("false  \t ");
 
             Assert.IsInstanceOfType(result, typeof(LiteralExpressionBindingParserNode));
             Assert.AreEqual(false, ((LiteralExpressionBindingParserNode)result).Value);
@@ -40,7 +41,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_NullLiteral_WhiteSpaceOnStart_Valid()
         {
-            var result = Parse(" null");
+            var result = bindingParserNodeFactory.Parse(" null");
 
             Assert.IsInstanceOfType(result, typeof(LiteralExpressionBindingParserNode));
             Assert.AreEqual(null, ((LiteralExpressionBindingParserNode)result).Value);
@@ -49,7 +50,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_SimpleProperty_Arithmetics_Valid()
         {
-            var result = Parse("a +b");
+            var result = bindingParserNodeFactory.Parse("a +b");
 
             var binaryOperator = (BinaryOperatorBindingParserNode)result;
             Assert.AreEqual("a", ((IdentifierNameBindingParserNode)binaryOperator.FirstExpression).Name);
@@ -60,7 +61,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_MemberAccess_Arithmetics_Valid()
         {
-            var result = Parse("a.c - b");
+            var result = bindingParserNodeFactory.Parse("a.c - b");
 
             var binaryOperator = (BinaryOperatorBindingParserNode)result;
             var first = (MemberAccessBindingParserNode)binaryOperator.FirstExpression;
@@ -73,7 +74,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_NestedMemberAccess_Number_ArithmeticsOperatorPrecendence_Valid()
         {
-            var result = Parse("a.c.d * b + 3.14");
+            var result = bindingParserNodeFactory.Parse("a.c.d * b + 3.14");
 
             var binaryOperator = (BinaryOperatorBindingParserNode)result;
             Assert.AreEqual(BindingTokenType.AddOperator, binaryOperator.Operator);
@@ -94,7 +95,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_ArithmeticOperatorPrecedence_Parenthesis_Valid()
         {
-            var result = Parse("a + b * c - d / (e + 2)");
+            var result = bindingParserNodeFactory.Parse("a + b * c - d / (e + 2)");
 
             var root = (BinaryOperatorBindingParserNode)result;
             Assert.AreEqual(BindingTokenType.AddOperator, root.Operator);
@@ -124,7 +125,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_ArithmeticOperatorChain_Valid()
         {
-            var result = Parse("a + b + c");
+            var result = bindingParserNodeFactory.Parse("a + b + c");
 
             var root = (BinaryOperatorBindingParserNode)result;
             Assert.AreEqual(BindingTokenType.AddOperator, root.Operator);
@@ -143,7 +144,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_MemberAccess_ArrayIndexer_Chain_Valid()
         {
-            var result = Parse("a[b + -1](c).d[e ?? f]");
+            var result = bindingParserNodeFactory.Parse("a[b + -1](c).d[e ?? f]");
 
             var root = (ArrayAccessBindingParserNode)result;
 
@@ -172,21 +173,21 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_StringLiteral_Valid()
         {
-            var result = Parse("\"help\\\"help\"");
+            var result = bindingParserNodeFactory.Parse("\"help\\\"help\"");
             Assert.AreEqual("help\"help", ((LiteralExpressionBindingParserNode)result).Value);
         }
 
         [TestMethod]
         public void BindingParser_StringLiteral_SingleQuotes_Valid()
         {
-            var result = Parse("'help\\nhelp'");
+            var result = bindingParserNodeFactory.Parse("'help\\nhelp'");
             Assert.AreEqual("help\nhelp", ((LiteralExpressionBindingParserNode)result).Value);
         }
 
         [TestMethod]
         public void BindingParser_ConditionalOperator_Valid()
         {
-            var result = Parse("a ? !b : c");
+            var result = bindingParserNodeFactory.Parse("a ? !b : c");
             var condition = (ConditionalExpressionBindingParserNode)result;
             Assert.AreEqual("a", ((IdentifierNameBindingParserNode)condition.ConditionExpression).Name);
             Assert.AreEqual("b", ((IdentifierNameBindingParserNode)((UnaryOperatorBindingParserNode)condition.TrueExpression).InnerExpression).Name);
@@ -197,14 +198,14 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_Empty_Invalid()
         {
-            var result = Parse("");
+            var result = bindingParserNodeFactory.Parse("");
             Assert.IsTrue(((IdentifierNameBindingParserNode)result).HasNodeErrors);
         }
 
         [TestMethod]
         public void BindingParser_Whitespace_Invalid()
         {
-            var result = Parse(" ");
+            var result = bindingParserNodeFactory.Parse(" ");
             Assert.IsTrue(((IdentifierNameBindingParserNode)result).HasNodeErrors);
             Assert.AreEqual(0, result.StartPosition);
             Assert.AreEqual(1, result.Length);
@@ -213,7 +214,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_Incomplete_Expression()
         {
-            var result = Parse(" (a +");
+            var result = bindingParserNodeFactory.Parse(" (a +");
             Assert.IsTrue(((ParenthesizedExpressionBindingParserNode)result).HasNodeErrors);
             Assert.AreEqual(0, result.StartPosition);
             Assert.AreEqual(5, result.Length);
@@ -230,7 +231,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_IntLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode)Parse("12");
+            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse("12");
             Assert.IsInstanceOfType(result.Value, typeof(int));
             Assert.AreEqual(result.Value, 12);
         }
@@ -238,7 +239,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_DoubleLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode)Parse("12.45");
+            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse("12.45");
             Assert.IsInstanceOfType(result.Value, typeof(double));
             Assert.AreEqual(result.Value, 12.45);
         }
@@ -246,7 +247,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_FloatLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode)Parse("42f");
+            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse("42f");
             Assert.IsInstanceOfType(result.Value, typeof(float));
             Assert.AreEqual(result.Value, 42f);
         }
@@ -254,7 +255,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_LongLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode)Parse(long.MaxValue.ToString());
+            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse(long.MaxValue.ToString());
             Assert.IsInstanceOfType(result.Value, typeof(long));
             Assert.AreEqual(result.Value, long.MaxValue);
         }
@@ -262,7 +263,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_LongForcedLiteral_Valid()
         {
-            var result = (LiteralExpressionBindingParserNode)Parse("42L");
+            var result = (LiteralExpressionBindingParserNode) bindingParserNodeFactory.Parse("42L");
             Assert.IsInstanceOfType(result.Value, typeof(long));
             Assert.AreEqual(result.Value, 42L);
         }
@@ -270,7 +271,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_MethodInvokeOnValue_Valid()
         {
-            var result = (FunctionCallBindingParserNode)Parse("42.ToString()");
+            var result = (FunctionCallBindingParserNode) bindingParserNodeFactory.Parse("42.ToString()");
             var memberAccess = (MemberAccessBindingParserNode)result.TargetExpression;
             Assert.AreEqual(memberAccess.MemberNameExpression.Name, "ToString");
             Assert.AreEqual(((LiteralExpressionBindingParserNode)memberAccess.TargetExpression).Value, 42);
@@ -280,7 +281,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_AssignOperator_Valid()
         {
-            var result = (BinaryOperatorBindingParserNode)Parse("a = b");
+            var result = (BinaryOperatorBindingParserNode) bindingParserNodeFactory.Parse("a = b");
             Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
 
             var first = (IdentifierNameBindingParserNode)result.FirstExpression;
@@ -293,7 +294,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_AssignOperator_Incomplete()
         {
-            var result = (BinaryOperatorBindingParserNode)Parse("a = ");
+            var result = (BinaryOperatorBindingParserNode) bindingParserNodeFactory.Parse("a = ");
             Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
 
             var first = (IdentifierNameBindingParserNode)result.FirstExpression;
@@ -306,7 +307,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_AssignOperator_Incomplete1()
         {
-            var result = (BinaryOperatorBindingParserNode)Parse("=");
+            var result = (BinaryOperatorBindingParserNode) bindingParserNodeFactory.Parse("=");
             Assert.AreEqual(BindingTokenType.AssignOperator, result.Operator);
 
             var first = (IdentifierNameBindingParserNode)result.FirstExpression;
@@ -319,7 +320,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_PlusAssign_Valid()
         {
-            var parser = SetupParser("_root.MyCoolProperty += 3");
+            var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty += 3");
             var node = parser.ReadExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -336,7 +337,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_MultipleUnsuportedBinaryOperators_Valid()
         {
-            var parser = SetupParser("_root.MyCoolProperty += _this.Number1 + Number2^_parent0.Exponent * Multiplikator");
+            var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty += _this.Number1 + Number2^_parent0.Exponent * Multiplikator");
             var node = parser.ReadExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -365,7 +366,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_UnsuportedUnaryOperators_Valid()
         {
-            var parser = SetupParser("MyCoolProperty = ^&Number1 + ^&Number2 * ^&Number3");
+            var parser = bindingParserNodeFactory.SetupParser("MyCoolProperty = ^&Number1 + ^&Number2 * ^&Number3");
             var node = parser.ReadExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -399,7 +400,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_BinaryAndUnaryUnsuportedOperators_Valid()
         {
-            var parser = SetupParser("MyCoolProperty += ^& Number1");
+            var parser = bindingParserNodeFactory.SetupParser("MyCoolProperty += ^& Number1");
             var node = parser.ReadExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -419,7 +420,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_MultiExpression_MemberAccessAndExplicitStrings()
         {
-            var parser = SetupParser("_root.MyCoolProperty 'something' \"something else\"");
+            var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty 'something' \"something else\"");
             var node = parser.ReadMultiExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -437,7 +438,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_MultiExpression_SuperUnfriendlyContent()
         {
-            var parser = SetupParser(@"
+            var parser = bindingParserNodeFactory.SetupParser(@"
                     IsCanceled ? '}"" ValueBinding=""{value: Currency}"" HeaderText=""Currency"" />
            
                 <dot:GridViewTemplateColumn HeaderText="""" >
@@ -476,7 +477,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_MultiExpression_MemberAccessUnsupportedOperatorAndExplicitStrings()
         {
-            var parser = SetupParser("_root.MyCoolProperty += 'something' \"something else\"");
+            var parser = bindingParserNodeFactory.SetupParser("_root.MyCoolProperty += 'something' \"something else\"");
             var node = parser.ReadMultiExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -493,7 +494,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_NodeTokenCorrectness_UnsupportedOperators()
         {
-            var parser = SetupParser("_this.MyCoolProperty +=  _control.ClientId &^ _root += Comments");
+            var parser = bindingParserNodeFactory.SetupParser("_this.MyCoolProperty +=  _control.ClientId &^ _root += Comments");
             var node = parser.ReadExpression();
 
             Assert.IsTrue(parser.OnEnd());
@@ -591,7 +592,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_GenericExpresion_SimpleList()
         {
-            var parser = SetupParser("System.Collections.Generic.List<string>.Enumerator");
+            var parser = bindingParserNodeFactory.SetupParser("System.Collections.Generic.List<string>.Enumerator");
             var node = parser.ReadExpression();
 
             var memberAccess = node as MemberAccessBindingParserNode;
@@ -610,7 +611,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         [TestMethod]
         public void BindingParser_GenericExpresion_Dictionary()
         {
-            var parser = SetupParser("System.Collections.Generic.Dictionary<string, int>.ValueCollection");
+            var parser = bindingParserNodeFactory.SetupParser("System.Collections.Generic.Dictionary<string, int>.ValueCollection");
             var node = parser.ReadExpression();
 
             var memberAccess = node.CastTo<MemberAccessBindingParserNode>();
@@ -632,7 +633,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         public void BindingParser_GenericExpresion_DictionaryTupleInside()
         {
             var originalString = "System.Collections.Generic.Dictionary<Tuple<bool, bool>, Tuple<string, int>>.ValueCollection";
-            var parser = SetupParser(originalString);
+            var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
             var memberAccess = node as MemberAccessBindingParserNode;
@@ -654,14 +655,14 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         public void BindingParser_GenericExpresion_DictionaryTupleInside_Invalid()
         {
             var originalString = "System.Collections.Generic.Dictionary<Tuple<bool, bool>, Tuple<string, int>.ValueCollection";
-            var parser = SetupParser(originalString);
+            var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
             //expecting  ...Dictionary(LessThan)Tuple... because reading generic type failed and it could not read (comma) 
             //so ended at the end of binary expression
             Assert.IsTrue(string.Equals("System.Collections.Generic.Dictionary<Tuple<bool, bool>", node.ToDisplayString()));
 
-            parser = SetupParser(originalString);
+            parser = bindingParserNodeFactory.SetupParser(originalString);
             var multi = parser.ReadMultiExpression() as MultiExpressionBindingParserNode;
 
 
@@ -684,7 +685,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         public void BindingParser_GenericExpresion_JustComparision()
         {
             var originalString = "System.Collections.Generic.Dictionary<Tuple.Count&&Meep>Squeee";
-            var parser = SetupParser(originalString);
+            var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
             //Just comparition no generics or anything
@@ -696,7 +697,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         public void BindingParser_GenericExpresion_MultipleInside()
         {
             var originalString = "System.Collections.Generic.Dictionary<Generic.List<Generic.List<Generic.Set<Generic.List<System.String>>>>>";
-            var parser = SetupParser(originalString);
+            var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
             Assert.IsTrue(node is MemberAccessBindingParserNode);
@@ -707,7 +708,7 @@ namespace DotVVM.Framework.Tests.Parser.Binding
         public void BindingParser_GenericExpresion_MemberAccessInsteadOfType_Invalid()
         {
             var originalString = "System.Collections.Generic.Dictionary<Generic.List<int>.Items[0].Delf()>";
-            var parser = SetupParser(originalString);
+            var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
             Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
@@ -723,21 +724,6 @@ namespace DotVVM.Framework.Tests.Parser.Binding
 
             Assert.IsTrue(secondComparision.SecondExpression
                 .As<IdentifierNameBindingParserNode>().Name == "");
-        }
-
-        private static BindingParserNode Parse(string expression)
-        {
-            BindingParser parser = SetupParser(expression);
-            return parser.ReadExpression();
-        }
-
-        private static BindingParser SetupParser(string expression)
-        {
-            var tokenizer = new BindingTokenizer();
-            tokenizer.Tokenize(expression);
-            var parser = new BindingParser();
-            parser.Tokens = tokenizer.Tokens;
-            return parser;
         }
 
         private static void CheckTokenTypes(IEnumerable<BindingToken> bindingTokens, IEnumerable<BindingTokenType> expectedTokenTypes)
