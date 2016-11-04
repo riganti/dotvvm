@@ -28,8 +28,8 @@ namespace DotVVM.Framework.Controls
         [PropertyGroup(new[] { "", "html:" })]
         public Dictionary<string, object> Attributes { get; private set; }
 
-        public static PropertyGroupDescriptor CssClassesGroupDescriptor =
-            PropertyGroupDescriptor.Create<HtmlGenericControl, string>("Class-", "CssClasses");
+        public static DotvvmPropertyGroup  CssClassesGroupDescriptor =
+            DotvvmPropertyGroup .Register<string, HtmlGenericControl>("Class-", "CssClasses");
 
         public VirtualPropertyGroupDictionary<string> CssClasses => new VirtualPropertyGroupDictionary<string>(this, CssClassesGroupDescriptor);
 

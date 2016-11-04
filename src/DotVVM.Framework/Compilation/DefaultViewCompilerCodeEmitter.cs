@@ -351,7 +351,7 @@ namespace DotVVM.Framework.Compilation
                                 .WithInitializer(SyntaxFactory.EqualsValueClause(
                                     SyntaxFactory.InvocationExpression(
                                         SyntaxFactory.ParseName(gprop.PropertyGroup.DeclaringType.FullName + "." + gprop.PropertyGroup.DescriptorField.Name
-                                            + "." + nameof(PropertyGroupDescriptor.GetDotvvmProperty)),
+                                            + "." + nameof(DotvvmPropertyGroup .GetDotvvmProperty)),
                                         SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
                                             SyntaxFactory.Argument(this.EmitStringLiteral(gprop.GroupMemberName))
                                         ))

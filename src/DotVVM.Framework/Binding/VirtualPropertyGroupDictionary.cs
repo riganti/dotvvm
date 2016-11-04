@@ -12,9 +12,9 @@ namespace DotVVM.Framework.Binding
     public struct VirtualPropertyGroupDictionary<TValue> : IDictionary<string, TValue>, IReadOnlyDictionary<string, TValue>
     {
         private readonly DotvvmBindableObject control;
-        private readonly PropertyGroupDescriptor group;
+        private readonly DotvvmPropertyGroup  group;
 
-        public VirtualPropertyGroupDictionary(DotvvmBindableObject control, PropertyGroupDescriptor group)
+        public VirtualPropertyGroupDictionary(DotvvmBindableObject control, DotvvmPropertyGroup  group)
         {
             this.control = control;
             this.group = group;

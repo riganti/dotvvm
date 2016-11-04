@@ -9,12 +9,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 	public struct PropertyGroupMember: IEquatable<PropertyGroupMember>, IPropertyGroupMember
 	{
 		public readonly string Name;
-		public readonly PropertyGroupDescriptor Group;
+		public readonly DotvvmPropertyGroup  Group;
 
 		string IPropertyGroupMember.Name => Name;
 		IPropertyGroupDescriptor IPropertyGroupMember.PropertyGroup => Group;
 
-		public PropertyGroupMember(PropertyGroupDescriptor group, string name)
+		public PropertyGroupMember(DotvvmPropertyGroup  group, string name)
 		{
 			this.Group = group;
 			this.Name = name;

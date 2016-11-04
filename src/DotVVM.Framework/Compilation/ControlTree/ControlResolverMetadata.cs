@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         protected override void LoadPropertyGroups(List<PropertyGroupMatcher> result)
         {
-            result.AddRange(PropertyGroupDescriptor.GetPropertyGroups(Type)
+            result.AddRange(DotvvmPropertyGroup .GetPropertyGroups(Type)
                 .SelectMany(g => g.Prefixes.Select(p => new PropertyGroupMatcher(p, g))));
             result.Sort((a, b) => b.Prefix.Length.CompareTo(a.Prefix.Length));
         }

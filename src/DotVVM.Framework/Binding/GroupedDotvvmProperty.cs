@@ -10,10 +10,10 @@ namespace DotVVM.Framework.Binding
 {
     public class GroupedDotvvmProperty : DotvvmProperty
     {
-        public PropertyGroupDescriptor PropertyGroup { get; private set; }
+        public DotvvmPropertyGroup  PropertyGroup { get; private set; }
         public string GroupMemberName { get; private set; }
 
-        public static GroupedDotvvmProperty Create(PropertyGroupDescriptor group, string name)
+        public static GroupedDotvvmProperty Create(DotvvmPropertyGroup  group, string name)
         {
             var propname = group.Name + ":" + name;
             var prop = new GroupedDotvvmProperty
