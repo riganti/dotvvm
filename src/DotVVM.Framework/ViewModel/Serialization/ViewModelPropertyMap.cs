@@ -32,9 +32,9 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public bool TransferFirstRequest { get; set; }
         public bool Populate { get; set; }
 
-        public List<ViewModelPropertyValidationRule> ValidationRules { get; set; }
+        public List<IViewModelPropertyValidationRule> ValidationRules { get; set; }
 
-        public IEnumerable<ViewModelPropertyValidationRule> ClientValidationRules
+        public IEnumerable<IViewModelPropertyValidationRule> ClientValidationRules
         {
             get { return ValidationRules.Where(r => !string.IsNullOrEmpty(r.ClientRuleName)); }
         }

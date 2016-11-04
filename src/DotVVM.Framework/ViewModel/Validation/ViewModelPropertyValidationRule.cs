@@ -3,7 +3,7 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
-    public class ViewModelPropertyValidationRule
+    public class ViewModelPropertyValidationRule : IViewModelPropertyValidationRule
     {
 
         [JsonProperty("ruleName")]

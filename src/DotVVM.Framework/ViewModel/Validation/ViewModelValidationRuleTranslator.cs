@@ -10,7 +10,7 @@ namespace DotVVM.Framework.ViewModel.Validation
         /// <summary>
         /// Gets the validation rules.
         /// </summary>
-        public virtual IEnumerable<ViewModelPropertyValidationRule> TranslateValidationRules(PropertyInfo property, IEnumerable<ValidationAttribute> validationAttributes)
+        public virtual IEnumerable<IViewModelPropertyValidationRule> TranslateValidationRules(PropertyInfo property, IEnumerable<ValidationAttribute> validationAttributes)
         {
             foreach (var attribute in validationAttributes)
             {
