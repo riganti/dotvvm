@@ -111,9 +111,16 @@ namespace DotVVM.Framework.Compilation.Binding
         // This conversion produces the null value (§4.1.10) of the given nullable type.
         public static Expression NullLiteralConverion(Expression src, Type destType)
         {
-            if (src.NodeType == ExpressionType.Constant && src.Type == typeof(object) && ((ConstantExpression)src).Value == null && destType.IsNullable())
+            if (src.NodeType == ExpressionType.Constant && src.Type == typeof(object) && ((ConstantExpression)src).Value == null)
             {
-                return Expression.Constant(Activator.CreateInstance(destType), destType);
+                if (destType.IsNullable())
+                {
+                    return Expression.Constant(Activator.CreateInstance(destType), destType);
+                }
+                if (!destType.GetTypeInfo().IsValueType)
+                {
+                    return Expression.Constant(null, destType);
+                }
             }
             return null;
         }
