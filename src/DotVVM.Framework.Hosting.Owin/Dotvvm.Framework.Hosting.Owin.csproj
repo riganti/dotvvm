@@ -87,9 +87,9 @@
     <Compile Include="Configuration\DefaultDataProtectionProvider.cs" />
     <Compile Include="Extensions\AppBuilderExtensions.cs" />
     <Compile Include="Extensions\DotvvmRequestContextExtensions.cs" />
+    <Compile Include="Hosting\DotvvmAuthenticationHelper.cs" />
     <Compile Include="Runtime\Filters\AuthorizeAttribute.cs" />
     <Compile Include="Runtime\Filters\NotAuthorizedAttribute.cs" />
-    <Compile Include="Hosting\DotvvmAuthentication.cs" />
     <Compile Include="Hosting\DotvvmCookieCollection.cs" />
     <Compile Include="Hosting\DotvvmHeaderCollection.cs" />
     <Compile Include="Hosting\DotvvmHttpContext.cs" />

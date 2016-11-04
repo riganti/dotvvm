@@ -36,10 +36,10 @@ namespace DotVVM.Samples.BasicSamples
                 LoginPath = new PathString("/ComplexSamples/Auth/Login"),
                 AuthenticationScheme = "Scheme1",
                 Events = new CookieAuthenticationEvents {
-                    OnRedirectToReturnUrl = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri),
-                    OnRedirectToAccessDenied = c => DotvvmAuthentication.SetStatusCode(c.HttpContext, 403),
-                    OnRedirectToLogin = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri),
-                    OnRedirectToLogout = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri)
+                    OnRedirectToReturnUrl = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
+                    OnRedirectToAccessDenied = c => DotvvmAuthenticationHelper.ApplyStatusCodeResponse(c.HttpContext, 403),
+                    OnRedirectToLogin = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
+                    OnRedirectToLogout = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri)
                 }
             });
 
@@ -47,10 +47,10 @@ namespace DotVVM.Samples.BasicSamples
                 LoginPath = new PathString("/ComplexSamples/SPARedirect/login"),
                 AuthenticationScheme = "Scheme2",
                 Events = new CookieAuthenticationEvents {
-                    OnRedirectToReturnUrl = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri),
-                    OnRedirectToAccessDenied = c => DotvvmAuthentication.SetStatusCode(c.HttpContext, 403),
-                    OnRedirectToLogin = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri),
-                    OnRedirectToLogout = c => DotvvmAuthentication.ApplyRedirect(c.HttpContext, c.RedirectUri)
+                    OnRedirectToReturnUrl = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
+                    OnRedirectToAccessDenied = c => DotvvmAuthenticationHelper.ApplyStatusCodeResponse(c.HttpContext, 403),
+                    OnRedirectToLogin = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri),
+                    OnRedirectToLogout = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.HttpContext, c.RedirectUri)
                 }
             });
 

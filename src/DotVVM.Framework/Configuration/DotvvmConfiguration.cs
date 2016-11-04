@@ -77,6 +77,12 @@ namespace DotVVM.Framework.Configuration
         public string DefaultCulture { get; set; }
 
         /// <summary>
+        /// Gets or sets whether the client side validation rules should be enabled.
+        /// </summary>
+        [JsonProperty("clientSideValidation", DefaultValueHandling = DefaultValueHandling.Ignore)]
+        public bool ClientSideValidation { get; set; } = true;
+
+        /// <summary>
         /// Gets or sets whether the application should run in debug mode.
         /// </summary>
         [JsonProperty("debug", DefaultValueHandling = DefaultValueHandling.Ignore)]

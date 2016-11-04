@@ -192,6 +192,7 @@
     <Compile Include="Feature\DoublePostBackPrevention.cs" />
     <Compile Include="Feature\SimpleValidationTests.cs" />
     <Compile Include="Feature\StaticCommandTests.cs" />
+    <Compile Include="Feature\ClientSideValidationDisabling.cs" />
     <Compile Include="Feature\ValidationScopes.cs" />
     <Compile Include="Feature\ValidationRulesLoadOnPostbackTests.cs" />
     <Compile Include="Feature\ViewModelDeserializationTests.cs" />

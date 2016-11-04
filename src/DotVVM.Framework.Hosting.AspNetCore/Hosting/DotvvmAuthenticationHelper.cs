@@ -4,24 +4,24 @@ using Microsoft.AspNetCore.Http;
 
 namespace DotVVM.Framework.Hosting
 {
-    public class DotvvmAuthentication
+    public class DotvvmAuthenticationHelper
     {
         /// <summary>
         /// Ensures the redirect required by the ASP.NET Core Security middleware is properly handled by DotVVM client library.
         /// </summary>
-        public static Task ApplyRedirect(HttpContext context, string redirectUri)
+        public static Task ApplyRedirectResponse(HttpContext context, string redirectUri)
         {
             DotvvmRequestContext.SetRedirectResponse(DotvvmMiddleware.ConvertHttpContext(context), redirectUri, (int)HttpStatusCode.Redirect, allowSpaRedirect: false);
-            return Task.FromResult(0);
+            throw new DotvvmInterruptRequestExecutionException();
         }
 
         /// <summary>
         /// Changes status code of the response to correspond with authentication state.
         /// </summary>
-        public static Task SetStatusCode(HttpContext context, int statusCode)
+        public static Task ApplyStatusCodeResponse(HttpContext context, int statusCode)
         {
             context.Response.StatusCode = statusCode;
-            return Task.FromResult(0);
+            throw new DotvvmInterruptRequestExecutionException();
         }
     }
 }
