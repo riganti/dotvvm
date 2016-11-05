@@ -75,13 +75,13 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
         [Fact]
         public async Task TestAfterMiddleware()
         {
-            var middlewere = new AfterMiddleware();
-            await middlewere.Handle(_requestContext, async context =>
+            var middleware = new AfterMiddleware();
+            await middleware.Handle(_requestContext, async context =>
             {
                 await context.HttpContext.Response.WriteAsync(FinalFunction);
             });
 
-            Assert.Equal(BeforeFunction + FinalFunction, ReadResponseBody());
+            Assert.Equal(FinalFunction + AfterFunction, ReadResponseBody());
         }
 
         [Fact]

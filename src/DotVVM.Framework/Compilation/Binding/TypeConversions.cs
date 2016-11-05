@@ -148,7 +148,7 @@ namespace DotVVM.Framework.Compilation.Binding
                   NullLiteralConverion(src, destType) ??
                   BoxingConversion(src, destType) ??
                   ReferenceConversion(src, destType);
-            if (allowToString && destType == typeof(string) && (result == null || src.Type == typeof(object)))
+            if (allowToString && destType == typeof(string) && result == null)
             {
                 result = ToStringConversion(src);
             }
