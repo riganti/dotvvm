@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Configuration
         /// Gets filters that are applied for all requests.
         /// </summary>
         [JsonIgnore()]
-        public List<ActionFilterAttribute> GlobalFilters { get; private set; }
+        public List<IActionFilter> GlobalFilters { get; private set; }
 
 
         /// <summary>
@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         public DotvvmRuntimeConfiguration()
         {
-            GlobalFilters = new List<ActionFilterAttribute>();
+            GlobalFilters = new List<IActionFilter>();
         }
     }
 }

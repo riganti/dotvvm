@@ -1,6 +1,8 @@
-﻿using System;
+﻿using DotVVM.Framework.Runtime.Filters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Hosting.Middlewares
@@ -61,13 +63,27 @@ namespace DotVVM.Framework.Hosting.Middlewares
             context.Route = route;
             context.Parameters = parameters;
 
+            var presenter = route.GetPresenter();
+            var filters = ActionFilterHelper.GetActionFilters<IRequestActionFilter>(presenter.GetType().GetTypeInfo());
+            filters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IRequestActionFilter>());
             try
             {
-                await route.ProcessRequest(context);
+                foreach (var f in filters) await f.OnPageLoadingAsync(context);
+                await presenter.ProcessRequest(context);
+                foreach (var f in filters) await f.OnPageLoadedAsync(context);
             }
             catch (DotvvmInterruptRequestExecutionException)
             {
                 // the response has already been generated, do nothing
+            }
+            catch(Exception exception)
+            {
+                foreach (var f in filters)
+                {
+                    await f.OnPageExceptionAsync(context, exception);
+                    if (context.IsCommandExceptionHandled) context.InterruptRequest();
+                }
+                throw;
             }
             return true;
         }

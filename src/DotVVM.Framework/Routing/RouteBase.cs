@@ -146,10 +146,6 @@ namespace DotVVM.Framework.Routing
         /// <remarks>The default values are already included in the <paramref name="values"/> collection.</remarks>
         protected abstract string BuildUrlCore(Dictionary<string, object> values);
 
-
-
-
-
         /// <summary>
         /// Adds or updates the parameter collection with the specified values from the anonymous object.
         /// </summary>
@@ -186,7 +182,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Processes the request.
         /// </summary>
-        public abstract Task ProcessRequest(IDotvvmRequestContext context);
+        public abstract IDotvvmPresenter GetPresenter();
 
     }
 }
