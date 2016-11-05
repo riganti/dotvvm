@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
         public async Task Handle(IDotvvmRequestContext request, Func<IDotvvmRequestContext, Task> next)
         {
             await next(request);
-            request.HttpContext.Response.Write(MiddlewareTest.AfterFunction);
+            await request.HttpContext.Response.WriteAsync(MiddlewareTest.AfterFunction);
         }
     }
 }

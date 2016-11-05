@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ChildViewModelInvokeMethods
 {
@@ -9,19 +10,22 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ChildViewModelIn
         public int LoadCount { get; set; }
         public int PreRenderCount { get; set; }
 
-        public async override Task Init()
+        public override Task Init()
         {
             InitCount++;
+            return TaskUtils.GetCompletedTask();
         }
 
-        public async override Task Load()
+        public override Task Load()
         {
             LoadCount++;
+            return TaskUtils.GetCompletedTask();
         }
 
-        public async override Task PreRender()
+        public override Task PreRender()
         {
             PreRenderCount++;
+            return TaskUtils.GetCompletedTask();
         }
     }
 }

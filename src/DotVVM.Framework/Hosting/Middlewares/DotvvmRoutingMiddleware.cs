@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// <returns>
         /// <code>true</code>, if the URL contains valid Googlebot hashbang escaped fragment; otherwise <code>false</code>.
         /// </returns>
-        /// <seealso cref="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started"/>
+        /// <see href="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started"/>
         private bool TryParseGooglebotHashbangEscapedFragment(string queryString, out string url)
         {
             if (queryString?.StartsWith(GooglebotHashbangEscapedFragment, StringComparison.Ordinal) == true)

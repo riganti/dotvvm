@@ -8,9 +8,12 @@ using Microsoft.AspNetCore.Http.Internal;
 using Moq;
 using Xunit;
 using Xunit.Abstractions;
+using System.Threading;
 
 namespace DotVVM.Framework.Tests.AspCore.Middleware
 {
+    //TODO: CODEREVIEW: Now these tests should at least work as orriginaly intended
+    //There is a question however what these really test and if they are useful
     public class MiddlewareTest
     {
         private readonly ITestOutputHelper _output;
@@ -32,54 +35,70 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
         {
             var mockResponse = new Mock<IHttpResponse>();
             _stream = new MemoryStream();
-            mockResponse.Setup(p => p.Write(It.IsAny<string>())).Callback((string text) =>
-            {
-                var writer = new StreamWriter(_stream) {AutoFlush = true};
-                writer.Write(text);
-            });
 
+            mockResponse
+                .Setup(p => p.WriteAsync(It.IsAny<string>()))
+                .Returns<string>(
+                async (text) =>
+                {
+                    var writer = new StreamWriter(_stream) { AutoFlush = true };
+                    await writer.WriteAsync(text);
+                });
 
             var mockContext = new Mock<IHttpContext>();
             mockContext.Setup(m => m.Response).Returns(mockResponse.Object);
 
-            _requestContext = new DotvvmRequestContext() {HttpContext = mockContext.Object};
+            _requestContext = new DotvvmRequestContext() { HttpContext = mockContext.Object };
         }
 
 
         [Fact]
-        public async void TestFinalFuncion()
+        public async Task TestFinalFuncion()
         {
-            _requestContext.HttpContext.Response.Write(FinalFunction);
+            await _requestContext.HttpContext.Response.WriteAsync(FinalFunction);
             Assert.Equal(FinalFunction, ReadResponseBody());
         }
 
         [Fact]
-        public void TestBeforeMiddleware()
+        public async Task TestBeforeMiddleware()
         {
-            new BeforeMiddleware().Handle(_requestContext, 
-                async context => { context.HttpContext.Response.Write(FinalFunction); })
-                .Wait();
+
+            var middlewere = new BeforeMiddleware();
+            await middlewere.Handle(_requestContext, async context =>
+            {
+                await context.HttpContext.Response.WriteAsync(FinalFunction);
+            });
 
             Assert.Equal(BeforeFunction + FinalFunction, ReadResponseBody());
         }
 
         [Fact]
-        public void TestAfterMiddleware()
+        public async Task TestAfterMiddleware()
         {
-            new AfterMiddleware().Handle(_requestContext, 
-                async context => { context.HttpContext.Response.Write(FinalFunction); })
-                .Wait();
+            var middlewere = new AfterMiddleware();
+            await middlewere.Handle(_requestContext, async context =>
+            {
+                await context.HttpContext.Response.WriteAsync(FinalFunction);
+            });
 
-            Assert.Equal(FinalFunction + AfterFunction, ReadResponseBody());
+            Assert.Equal(BeforeFunction + FinalFunction, ReadResponseBody());
         }
 
         [Fact]
-        public async void TestAllMiddleware()
+        public async Task TestAllMiddleware()
         {
-            new BeforeMiddleware().Handle(_requestContext, 
-                c => new AfterMiddleware().Handle(c, 
-                async context => { context.HttpContext.Response.Write(FinalFunction); }))
-                .Wait();
+            var before = new BeforeMiddleware();
+            var after = new AfterMiddleware();
+
+            await before.Handle(_requestContext,
+                async c =>
+                {
+                    await after.Handle(c,
+                        async context =>
+                        {
+                            await context.HttpContext.Response.WriteAsync(FinalFunction);
+                        });
+                });
 
             Assert.Equal(BeforeFunction + FinalFunction + AfterFunction, ReadResponseBody());
         }

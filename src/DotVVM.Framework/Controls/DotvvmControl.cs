@@ -432,12 +432,12 @@ namespace DotVVM.Framework.Controls
         private IList<ClientIDFragment> GetUniqueIdFragments()
         {
             var fragments = new List<ClientIDFragment> { new ClientIDFragment((string)GetValue(Internal.UniqueIDProperty)) };
-            var dataContextChanges = HasBinding(DataContextProperty) ? 1 : 0;
+            var dataContextChangesCount = HasBinding(DataContextProperty) ? 1 : 0;
             foreach (var ancestor in GetAllAncestors())
             {
                 if (ancestor.HasBinding(DataContextProperty))
                 {
-                    dataContextChanges++;
+                    dataContextChangesCount++;
                 }
 
                 if (IsNamingContainer(ancestor))
@@ -445,10 +445,11 @@ namespace DotVVM.Framework.Controls
                     var clientIdExpression = (string)ancestor.GetValue(Internal.ClientIDFragmentProperty);
                     if (clientIdExpression != null)
                     {
-                        // generate the expression
-                        for (int i = 0; i < dataContextChanges; i++)
+                        //TODO: Implement JavaScript AST, and change the comntent of binding (Javascript) so that it works on datacontext stated by DataContextProperty
+                        if (dataContextChangesCount > 0)
                         {
-                            throw new NotImplementedException(); // todo
+                            //Here proper JS expresion for the binding is to be generated
+                            throw new NotImplementedException();
                         }
                         fragments.Add(new ClientIDFragment(clientIdExpression, isExpression: true));
                     }
@@ -474,14 +475,14 @@ namespace DotVVM.Framework.Controls
             }
 
             var fragments = new List<ClientIDFragment> { ClientIDFragment.FromProperty(rawId) };
-            var dataContextChanges = HasBinding(DataContextProperty) ? 1 : 0;
+            var dataContextChangesCount = HasBinding(DataContextProperty) ? 1 : 0;
             DotvvmControl childContainer = null;
             bool searchingForIdElement = false;
             foreach (var ancestor in GetAllAncestors())
             {
                 if (ancestor.HasBinding(DataContextProperty))
                 {
-                    dataContextChanges++;
+                    dataContextChangesCount++;
                 }
 
                 if (IsNamingContainer(ancestor))
@@ -497,9 +498,11 @@ namespace DotVVM.Framework.Controls
                     {
                         // generate the expression
                         var expression = new StringBuilder();
-                        for (int i = 0; i < dataContextChanges; i++)
+                        //TODO: Implement JavaScript AST, and change the comntent of binding (Javascript) so that it works on datacontext stated by DataContextProperty
+                        if (dataContextChangesCount > 0)
                         {
-                            throw new NotImplementedException(); // TODO: 
+                            //Here proper JS expresion for the binding is to be generated
+                            throw new NotImplementedException();
                         }
                         expression.Append(clientIdExpression);
                         fragments.Add(new ClientIDFragment(expression.ToString(), isExpression: true));

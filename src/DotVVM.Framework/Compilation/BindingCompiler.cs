@@ -23,13 +23,7 @@ namespace DotVVM.Framework.Compilation
     {
         public static ConcurrentDictionary<int, CompiledBindingExpression> GlobalBindingList = new ConcurrentDictionary<int, CompiledBindingExpression>();
         private static int globalBindingIndex = 0;
-        private static int bindingClassCtr;
-
-        //private static Lazy<ModuleBuilder> moduleBuilder = new Lazy<ModuleBuilder>(() =>
-        //{
-        //    var assembly = AppDomain.CurrentDomain.DefineDynamicAssembly(new AssemblyName("DynamicBindingAssembly"), AssemblyBuilderAccess.Run);
-        //    return assembly.DefineDynamicModule("Module", true);
-        //});
+     
         private DotvvmConfiguration configuration;
 
         public BindingCompiler(DotvvmConfiguration configuration)
