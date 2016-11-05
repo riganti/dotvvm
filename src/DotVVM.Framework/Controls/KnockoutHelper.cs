@@ -79,11 +79,8 @@ namespace DotVVM.Framework.Controls
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmControl control, PostbackScriptOptions options)
         {
             object uniqueControlId = null;
-            if (expression is ControlCommandBindingExpression)
-            {
-                var target = (DotvvmControl)control.GetClosestControlBindingTarget();
-                uniqueControlId = target.GetDotvvmUniqueId();
-            }
+            var target = (DotvvmControl)control.GetClosestControlBindingTarget();
+            uniqueControlId = target?.GetDotvvmUniqueId();
 
             var arguments = new List<string>()
             {
