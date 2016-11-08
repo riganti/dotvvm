@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the type of claim the user must have.
         /// </summary>
-        [MarkupOptions( Required = true)]
+        [MarkupOptions(Required = true)]
         public string Claim
         {
             get { return (string)GetValue(ClaimProperty); }

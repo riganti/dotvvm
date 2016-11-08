@@ -43,7 +43,8 @@ namespace DotVVM.Samples.BasicSamples
                     ),
                     new SwitchMiddlewareCase(
                         c => c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/AuthenticatedView")
-                            || c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/RoleView"), next =>
+                            || c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/RoleView")
+                            || c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/ClaimView"), next =>
                             new CookieAuthenticationMiddleware(next, app, new CookieAuthenticationOptions {
                                 AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie
                             })
