@@ -142,6 +142,7 @@
     <Compile Include="Complex\SPATests.cs" />
     <Compile Include="Complex\SPARedirectTests.cs" />
     <Compile Include="Complex\SPAViewModelReaplicationTests.cs" />
+    <Compile Include="Control\EnvironmentViewTests.cs" />
     <Compile Include="Control\ClaimViewTests.cs" />
     <Compile Include="Control\RoleViewTests.cs" />
     <Compile Include="Control\AuthenticatedViewTests.cs" />

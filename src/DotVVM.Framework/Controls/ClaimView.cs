@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Controls
         }
 
         private bool HasClaim(ClaimsPrincipal user)
-            => Values?.Any(v => !string.IsNullOrWhiteSpace(v) && user.HasClaim(Claim, v.Trim()))
+            => Values?.Any(v => user.HasClaim(Claim, v.Trim()))
             ?? user.HasClaim(c => string.Equals(c.Type, Claim, StringComparison.OrdinalIgnoreCase));
     }
 }
