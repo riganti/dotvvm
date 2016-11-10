@@ -72,16 +72,14 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 await presenter.ProcessRequest(context);
                 foreach (var f in filters) await f.OnPageLoadedAsync(context);
             }
-            catch (DotvvmInterruptRequestExecutionException)
-            {
-                // the response has already been generated, do nothing
-            }
-            catch(Exception exception)
+            catch (DotvvmInterruptRequestExecutionException) { } // the response has already been generated, do nothing
+            catch (DotvvmHttpException) { throw; }
+            catch (Exception exception)
             {
                 foreach (var f in filters)
                 {
                     await f.OnPageExceptionAsync(context, exception);
-                    if (context.IsCommandExceptionHandled) context.InterruptRequest();
+                    if (context.IsPageExceptionHandled) context.InterruptRequest();
                 }
                 throw;
             }
