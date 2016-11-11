@@ -48,7 +48,7 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("input[value='Sign In']").Click().Wait();
 
                 browser.FindElements(".result1").ThrowIfDifferentCountThan(1).First().CheckIfInnerTextEquals("I am not a member!");
-                browser.FindElements(".result2").ThrowIfDifferentCountThan(0);
+                browser.FindElements(".result2").ThrowIfDifferentCountThan(1).First().CheckIfInnerTextEquals("I am not a member!");
                 browser.FindElements(".result3").ThrowIfDifferentCountThan(1).First().CheckIfInnerTextEquals("I am a member!");
 
                 // sign in as tester only

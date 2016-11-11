@@ -88,20 +88,33 @@ namespace DotVVM.Framework.Controls
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
             var user = context.HttpContext.User;
-            var isAuthenticated = user?.Identity?.IsAuthenticated ?? false;
+            var isAuthenticated = user?.Identity?.IsAuthenticated;
 
-            if (isAuthenticated && HasClaim(user))
+            if (!HideForAnonymousUsers || isAuthenticated == true)
             {
-                HasClaimTemplate?.BuildContent(context, this);
-            }
-            else if (!HideForAnonymousUsers)
-            {
-                HasNotClaimTemplate?.BuildContent(context, this);
+                if (HasClaim(user))
+                {
+                    HasClaimTemplate?.BuildContent(context, this);
+                }
+                else
+                {
+                    HasNotClaimTemplate?.BuildContent(context, this);
+                }
             }
         }
 
         private bool HasClaim(ClaimsPrincipal user)
-            => Values?.Any(v => user.HasClaim(Claim, v.Trim()))
-            ?? user.HasClaim(c => string.Equals(c.Type, Claim, StringComparison.OrdinalIgnoreCase));
+        {
+            if (user != null)
+            {
+                return Values?.Any(v => user.HasClaim(Claim, v.Trim()))
+                    ?? user.HasClaim(ClaimIsOfRequiredType);
+            }
+
+            return false;
+        }
+
+        private bool ClaimIsOfRequiredType(Claim claim)
+            => string.Equals(claim.Type, Claim, StringComparison.OrdinalIgnoreCase);
     }
 }
