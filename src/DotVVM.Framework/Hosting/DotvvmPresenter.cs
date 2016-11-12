@@ -166,7 +166,7 @@ namespace DotVVM.Framework.Hosting
                         // get filters
                         var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                             .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType().GetTypeInfo()));
-                        if (actionInfo.Binding.ActionFilters != null) methodFilters = methodFilters.Concat(actionInfo.Binding.ActionFilters);
+                        if (actionInfo.Binding.ActionFilters != null) methodFilters = methodFilters.Concat(actionInfo.Binding.ActionFilters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
                     }
