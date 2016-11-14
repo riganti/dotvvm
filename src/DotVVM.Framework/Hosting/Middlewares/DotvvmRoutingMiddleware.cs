@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
             context.Route = route;
             context.Parameters = parameters;
 
-            var presenter = route.GetPresenter();
+            var presenter = context.Presenter = route.GetPresenter();
             var filters = ActionFilterHelper.GetActionFilters<IRequestActionFilter>(presenter.GetType().GetTypeInfo());
             filters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IRequestActionFilter>());
             try
