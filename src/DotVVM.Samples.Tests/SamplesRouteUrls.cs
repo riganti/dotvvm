@@ -35,11 +35,13 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_CheckBox_CheckBox => "ControlSamples/CheckBox/CheckBox";
 			public static string ControlSamples_CheckBox_CheckboxInRepeater => "ControlSamples/CheckBox/CheckboxInRepeater";
 			public static string ControlSamples_CheckBox_CheckBox_CheckedItems_NullCollection => "ControlSamples/CheckBox/CheckBox_CheckedItems_NullCollection";
+			public static string ControlSamples_ClaimView_ClaimViewTest => "ControlSamples/ClaimView/ClaimViewTest";
 			public static string ControlSamples_ComboBox_ComboBox => "ControlSamples/ComboBox/ComboBox";
 			public static string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage => "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage";
 			public static string ControlSamples_ContentPlaceHolder_ContentPlaceHolderPage_ContentTest => "ControlSamples/ContentPlaceHolder/ContentPlaceHolderPage_ContentTest";
 			public static string ControlSamples_DataPager_DataPager => "ControlSamples/DataPager/DataPager";
 			public static string ControlSamples_EnabledProperty_EnabledProperty => "ControlSamples/EnabledProperty/EnabledProperty";
+			public static string ControlSamples_EnvironmentView_EnvironmentViewTest => "ControlSamples/EnvironmentView/EnvironmentViewTest";
 			public static string ControlSamples_FileUpload_AllowedOrNot => "ControlSamples/FileUpload/AllowedOrNot";
 			public static string ControlSamples_FileUpload_FileUpload => "ControlSamples/FileUpload/FileUpload";
 			public static string ControlSamples_GridView_GridViewInlineEditing => "ControlSamples/GridView/GridViewInlineEditing";
@@ -143,6 +145,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Serialization_Serialization => "FeatureSamples/Serialization/Serialization";
 			public static string FeatureSamples_ServerComments_ServerComments => "FeatureSamples/ServerComments/ServerComments";
 			public static string FeatureSamples_StaticCommand_StaticCommand => "FeatureSamples/StaticCommand/StaticCommand";
+			public static string FeatureSamples_Validation_ClientSideValidationDisabling => "FeatureSamples/Validation/ClientSideValidationDisabling";
 			public static string FeatureSamples_Validation_DateTimeValidation => "FeatureSamples/Validation/DateTimeValidation";
 			public static string FeatureSamples_Validation_DateTimeValidation_NullableDateTime => "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
 			public static string FeatureSamples_Validation_DynamicValidation => "FeatureSamples/Validation/DynamicValidation";
@@ -154,7 +157,6 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Validation_ValidationRulesLoadOnPostback => "FeatureSamples/Validation/ValidationRulesLoadOnPostback";
 			public static string FeatureSamples_Validation_ValidationScopes => "FeatureSamples/Validation/ValidationScopes";
 			public static string FeatureSamples_Validation_ValidationScopes2 => "FeatureSamples/Validation/ValidationScopes2";
-			public static string FeatureSamples_Validation_ClientSideValidationDisabling => "FeatureSamples/Validation/ClientSideValidationDisabling";
 			public static string FeatureSamples_ViewModelDeserialization_DoesNotDropObject => "FeatureSamples/ViewModelDeserialization/DoesNotDropObject";
 			public static string FeatureSamples_ViewModelNesting_NestedViewModel => "FeatureSamples/ViewModelNesting/NestedViewModel";
 			public static string FeatureSamples_ViewModelProtection_ViewModelProtection => "FeatureSamples/ViewModelProtection/ViewModelProtection";

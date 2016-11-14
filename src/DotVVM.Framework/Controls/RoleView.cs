@@ -1,4 +1,5 @@
 using System.Linq;
+using System.Security.Claims;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 
@@ -10,6 +11,11 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false, DefaultContentProperty = nameof(IsMemberTemplate))]
     public class RoleView : ConfigurableHtmlControl
     {
+        public RoleView()
+            : base("div")
+        {
+            RenderWrapperTag = false;
+        }
 
         /// <summary>
         /// Gets or sets a comma-separated list of roles. The user must be a member of one or more of these roles.
@@ -20,6 +26,7 @@ namespace DotVVM.Framework.Controls
             get { return (string[])GetValue(RolesProperty); }
             set { SetValue(RolesProperty, value); }
         }
+
         public static readonly DotvvmProperty RolesProperty
             = DotvvmProperty.Register<string[], RoleView>(c => c.Roles, null);
 
@@ -32,6 +39,7 @@ namespace DotVVM.Framework.Controls
             get { return (ITemplate)GetValue(IsMemberTemplateProperty); }
             set { SetValue(IsMemberTemplateProperty, value); }
         }
+
         public static readonly DotvvmProperty IsMemberTemplateProperty
             = DotvvmProperty.Register<ITemplate, RoleView>(c => c.IsMemberTemplate, null);
 
@@ -44,39 +52,32 @@ namespace DotVVM.Framework.Controls
             get { return (ITemplate)GetValue(IsNotMemberTemplateProperty); }
             set { SetValue(IsNotMemberTemplateProperty, value); }
         }
+
         public static readonly DotvvmProperty IsNotMemberTemplateProperty
             = DotvvmProperty.Register<ITemplate, RoleView>(c => c.IsNotMemberTemplate, null);
 
         /// <summary>
-        /// Gets or sets whether the control will be hidden completely to users which are not authenticated.
-        /// If set to false, the IsNotMemberTemplate will be rendered to non-authenticated users.
+        /// Gets or sets whether the control will be hidden completely to anonymous users. If set to <c>false</c>,
+        /// the <see cref="IsNotMemberTemplate" /> will be rendered to anonymous users.
         /// </summary>
         [MarkupOptions(AllowBinding = false)]
-        public bool HideNonAuthenticatedUsers
+        public bool HideForAnonymousUsers
         {
-            get { return (bool)GetValue(HideNonAuthenticatedUsersProperty); }
-            set { SetValue(HideNonAuthenticatedUsersProperty, value); }
-        }
-        public static readonly DotvvmProperty HideNonAuthenticatedUsersProperty
-            = DotvvmProperty.Register<bool, RoleView>(c => c.HideNonAuthenticatedUsers, true);
-
-
-        public RoleView() : base("div")
-        {
-            RenderWrapperTag = false;
+            get { return (bool)GetValue(HideForAnonymousUsersProperty); }
+            set { SetValue(HideForAnonymousUsersProperty, value); }
         }
 
+        public static readonly DotvvmProperty HideForAnonymousUsersProperty
+            = DotvvmProperty.Register<bool, RoleView>(c => c.HideForAnonymousUsers, true);
 
         protected internal override void OnInit(IDotvvmRequestContext context)
         {
-            var isAuthenticated = context.HttpContext.User?.Identity?.IsAuthenticated;
-            if (isAuthenticated == true || !HideNonAuthenticatedUsers)
-            {
-                var isMember = Roles?
-                    .Where(r => !string.IsNullOrWhiteSpace(r))
-                    .Any(r => context.HttpContext.User?.IsInRole(r.Trim()) == true);
+            var user = context.HttpContext.User;
+            var isAuthenticated = user?.Identity?.IsAuthenticated;
 
-                if (isMember == true)
+            if (!HideForAnonymousUsers || isAuthenticated == true)
+            {
+                if (IsMember(user))
                 {
                     IsMemberTemplate?.BuildContent(context, this);
                 }
@@ -85,6 +86,16 @@ namespace DotVVM.Framework.Controls
                     IsNotMemberTemplate?.BuildContent(context, this);
                 }
             }
+        }
+
+        private bool IsMember(ClaimsPrincipal user)
+        {
+            if (user != null && Roles != null)
+            {
+                return Roles.Any(r => user.IsInRole(r.Trim()));
+            }
+
+            return false;
         }
     }
 }

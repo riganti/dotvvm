@@ -10,7 +10,7 @@
 <body>
     <h1>RoleView Test</h1>
 
-    <dot:RoleView Roles="admin, moderator , tester" HideNonAuthenticatedUsers="false">
+    <dot:RoleView Roles="admin, moderator , tester" HideForAnonymousUsers="false">
         <IsMemberTemplate>
             <p class="result1">I am a member!</p>
         </IsMemberTemplate>

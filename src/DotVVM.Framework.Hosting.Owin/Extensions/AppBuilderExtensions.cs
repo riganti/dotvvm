@@ -5,6 +5,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Security;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Owin.Security.DataProtection;
 
 namespace Owin
@@ -34,9 +35,10 @@ namespace Owin
         {
             var config = DotvvmConfiguration.CreateDefault(s =>
             {
-                s.AddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
-                s.AddSingleton<IViewModelProtector, DefaultViewModelProtector>();
-                s.AddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+                s.TryAddSingleton<IDataProtectionProvider>(p => new DefaultDataProtectionProvider(app));
+                s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
+                s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+                s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
                 builder?.Invoke(new DotvvmBuilder(s));
             });
 

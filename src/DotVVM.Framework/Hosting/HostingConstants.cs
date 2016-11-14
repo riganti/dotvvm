@@ -21,5 +21,7 @@
         public const string SpaUrlPrefixAttributeName = "data-dotvvm-spacontentplaceholder-urlprefix";
 
         public const string DotvvmFileUploadAsyncHeaderName = "X-DotVVM-AsyncUpload";
+
+        public const string HostAppModeKey = "host.AppMode";
     }
 }

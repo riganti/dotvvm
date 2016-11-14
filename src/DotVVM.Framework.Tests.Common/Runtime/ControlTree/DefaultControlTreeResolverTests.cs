@@ -28,6 +28,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void TestInit()
         {
             configuration = DotvvmConfiguration.CreateDefault();
+            configuration.Markup.AddCodeControl("cc", typeof(ClassWithInnerElementProperty));
             controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
         }
 
@@ -512,6 +513,23 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.IsTrue(roles.CastTo<string[]>().SequenceEqual(new[] { "a", "b", "c", "d", "e", "f" }));
         }
 
+        
+        [TestMethod]
+        public void ResolvedTree_InnerElementProperty_String()
+        {
+            var root = ParseSource(@"
+<dot:Button>
+    <PostBack.Handlers>
+        <cc:ClassWithInnerElementProperty> AHOJ </cc:ClassWithInnerElementProperty>
+    </PostBack.Handlers>
+</dot:Button>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(Button))
+                .Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls
+                .First(c => c.Metadata.Type == typeof(ClassWithInnerElementProperty));
+            Assert.AreEqual(0, control.Content.Count);
+            Assert.AreEqual(" AHOJ ", control.Properties[ClassWithInnerElementProperty.PropertyProperty].CastTo<ResolvedPropertyValue>().Value);
+        }
+
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
@@ -528,5 +546,24 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     public class DefaultControlResolverTestViewModel
     {
         public List<string> Items { get; set; }
+    }
+    [ControlMarkupOptions(DefaultContentProperty = nameof(ClassWithInnerElementProperty.Property))]
+    public class ClassWithInnerElementProperty : PostBackHandler
+    {
+        [MarkupOptions(MappingMode = MappingMode.InnerElement)]
+        public string Property
+        {
+            get { return (string)GetValue(PropertyProperty); }
+            set { SetValue(PropertyProperty, value); }
+        }
+        public static readonly DotvvmProperty PropertyProperty
+            = DotvvmProperty.Register<string, ClassWithInnerElementProperty>(c => c.Property, null);
+
+        protected internal override string ClientHandlerName => null;
+
+        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        {
+            throw new NotImplementedException();
+        }
     }
 }
