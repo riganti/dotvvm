@@ -58,7 +58,7 @@ namespace DotVVM.Compiler
             InitOptions();
             if (Options.FullCompile)
                 if (!Directory.Exists(Options.OutputPath)) Directory.CreateDirectory(Options.OutputPath);
-            var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFrom(Options.WebSiteAssembly));
+            var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => AssemblyHelper.LoadReadOnly(Options.WebSiteAssembly));
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath);
             bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), configuration);
             if (Options.DothtmlFiles == null) Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
