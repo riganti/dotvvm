@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Runtime.Filters
 {
-    public interface IViewModelActionFilter
+    public interface IViewModelActionFilter : IActionFilter
     {
         /// <summary>
         /// Called after the viewmodel object is created.
