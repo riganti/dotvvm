@@ -1,37 +1,40 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using System.Diagnostics;
 using System.Reflection;
-using System.Runtime.CompilerServices;
+using System.Text;
 using System.Threading;
-using DotVVM.Framework.Controls;
 
 namespace DotVVM.Compiler
 {
     /// <summary>
     /// References versions MUST match with reference versions on Dotvvm.Framework, or else compiler will not be able to load them.
-    /// Prokject that will use Dotvvm will have to use at least the version stated in Dotvvm nuget.
+    /// Project that will use Dotvvm will have to use at least the version stated in Dotvvm nuget.
     /// However if versions here are lower, there is no way to ensure them
     /// </summary>
-    static class Program
+    internal static class Program
     {
         public static List<string> AssemblySearchPaths = new List<string>();
         private static Stopwatch sw;
-        static void Main(string[] args)
+
+        private static void Main(string[] args)
         {
-            if (!Debugger.IsAttached)
-            {
-                while (true)
-                {
-                    Thread.Sleep(2000);
-                }
-            }
+            WaitForDebugger();
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
+            if (!AppDomain.CurrentDomain.ShadowCopyFiles)
+            {
+                var appDomain = AppDomain.CreateDomain("SecondaryDomainShadowCopyAllowed", null, new AppDomainSetup
+                {
+                    ShadowCopyFiles = "true",
+                });
+
+                appDomain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName);
+                return;
+            }
+
             if (args.Length == 0) while (true) DoCompileFromStdin();
             if (args[0] == "--json")
             {
@@ -50,20 +53,38 @@ namespace DotVVM.Compiler
                 }
             }
         }
-        
-        private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+
+        private static void WaitForDebugger()
         {
-            var r = LoadFromAlternativeFolder(args.Name);
-            if (r != null) return r;
-            WriteInfo($"Assembly `{ args.Name }` resolve failed");
-
-            //We cannot do tyoepf(sometyhing).Assembly, because besides the compiler there are no dlls, dointhat will try to load the dll from the disk
-            //which fails, so this event is called again call this event...
-
-            return null;
+            while (!Debugger.IsAttached)
+            {
+                Thread.Sleep(100);
+            }
         }
 
-        static Assembly LoadFromAlternativeFolder(string name)
+        private static int isResolveRunning = 0;
+
+        private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        {
+            if (Interlocked.CompareExchange(ref isResolveRunning, 1, 0) != 0) return null;
+            try
+            {
+                var r = LoadFromAlternativeFolder(args.Name);
+                if (r != null) return r;
+                WriteInfo($"Assembly `{args.Name}` resolve failed");
+
+                //We cannot do tyoepf(sometyhing).Assembly, because besides the compiler there are no dlls, dointhat will try to load the dll from the disk
+                //which fails, so this event is called again call this event...
+
+                return null;
+            }
+            finally
+            {
+                isResolveRunning = 0;
+            }
+        }
+
+        private static Assembly LoadFromAlternativeFolder(string name)
         {
             IEnumerable<string> paths = Environment.GetEnvironmentVariable("assemblySearchPath")?.Split(',') ?? new string[0];
             paths = paths.Concat(AssemblySearchPaths);
@@ -71,25 +92,25 @@ namespace DotVVM.Compiler
             {
                 string assemblyPath = Path.Combine(path, new AssemblyName(name).Name + ".dll");
                 if (!File.Exists(assemblyPath)) continue;
-                return AssemblyHelper.LoadReadOnly(assemblyPath);
+                return Assembly.LoadFile(assemblyPath);
             }
             return null;
         }
 
-        static bool DoCompileFromStdin()
+        private static bool DoCompileFromStdin()
         {
             var optionsJson = ReadFromStdin();
             if (string.IsNullOrWhiteSpace(optionsJson)) { Environment.Exit(0); return false; }
             return DoCompile(optionsJson);
         }
 
-        static bool DoCompileFromFile(string file)
+        private static bool DoCompileFromFile(string file)
         {
             var optionsJson = File.ReadAllText(file);
             return DoCompile(optionsJson);
         }
 
-        static bool DoCompile(string optionsJson)
+        private static bool DoCompile(string optionsJson)
         {
             sw = Stopwatch.StartNew();
             WriteInfo("Starting");
@@ -98,12 +119,12 @@ namespace DotVVM.Compiler
             try
             {
                 options = JsonConvert.DeserializeObject<CompilerOptions>(optionsJson);
-                if (!String.IsNullOrEmpty(options.WebSiteAssembly))
+                if (!string.IsNullOrEmpty(options.WebSiteAssembly))
                 {
                     AssemblySearchPaths.Add(Path.GetDirectoryName(options.WebSiteAssembly));
                 }
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 WriteError(ex);
             }
@@ -112,7 +133,7 @@ namespace DotVVM.Compiler
             {
                 var compiler = new ViewStaticCompilerCompiler();
                 compiler.Options = options;
-                
+
                 var result = compiler.Execute();
                 Console.WriteLine(JsonConvert.SerializeObject(result, Formatting.Indented));
                 Console.WriteLine();
@@ -138,7 +159,7 @@ namespace DotVVM.Compiler
             Console.WriteLine("#" + sw?.Elapsed + ": " + line);
         }
 
-        static string ReadFromStdin()
+        private static string ReadFromStdin()
         {
             var sb = new StringBuilder();
             string line;
