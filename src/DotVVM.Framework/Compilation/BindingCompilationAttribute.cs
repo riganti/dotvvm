@@ -33,12 +33,12 @@ namespace DotVVM.Framework.Compilation
                 };
             });
         }
-        public virtual IEnumerable<ActionFilterAttribute> GetActionFilters(Expression expression)
+        public virtual IEnumerable<IActionFilter> GetActionFilters(Expression expression)
         {
-            var list = new List<ActionFilterAttribute>();
+            var list = new List<IActionFilter>();
             expression.ForEachMember(m =>
             {
-                list.AddRange(CustomAttributeExtensions.GetCustomAttributes<ActionFilterAttribute>((MemberInfo)m));
+                list.AddRange(ReflectionUtils.GetCustomAttributes<IActionFilter>(m));
             });
             return list;
         }

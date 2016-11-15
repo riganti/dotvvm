@@ -30,6 +30,8 @@
             </p>
         </fieldset>
 
+        <dot:RouteLink RouteName="AuthorizedPresenter">Also check out simple IDotvvmPresenter with [Authorize] attribute on it</dot:RouteLink>
+
         <a href="Login">Login page - change your credentials</a>
     </div>
 </body>

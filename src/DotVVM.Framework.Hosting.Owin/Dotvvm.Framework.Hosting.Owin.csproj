@@ -90,7 +90,6 @@
     <Compile Include="Hosting\DotvvmAuthenticationHelper.cs" />
     <Compile Include="Hosting\DotvvmEnvironmentNameProvider.cs" />
     <Compile Include="Runtime\Filters\AuthorizeAttribute.cs" />
-    <Compile Include="Runtime\Filters\NotAuthorizedAttribute.cs" />
     <Compile Include="Hosting\DotvvmCookieCollection.cs" />
     <Compile Include="Hosting\DotvvmHeaderCollection.cs" />
     <Compile Include="Hosting\DotvvmHttpContext.cs" />
