@@ -22,7 +22,6 @@ namespace DotVVM.Compiler
 
         private static void Main(string[] args)
         {
-            WaitForDebugger();
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             if (!AppDomain.CurrentDomain.ShadowCopyFiles)
             {
