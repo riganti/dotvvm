@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Runtime.Filters
 {
-    public interface ICommandActionFilter
+    public interface ICommandActionFilter : IActionFilter
     {
         /// <summary>
         /// Called before the command is executed.
