@@ -19,6 +19,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Hosting
 {
+    [NotAuthorized] // DotvvmPresenter handles authorization itself, allowing authorization on it would make [NotAuthorized] attribute useless on ViewModel, since request would be interrupted earlier that VM is found
     public class DotvvmPresenter : IDotvvmPresenter
     {
         /// <summary>
