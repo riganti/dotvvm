@@ -21,6 +21,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization
 
         public string Results { get; set; }
 
+        public string IgnoredProperty { get; set; } = "";
+
 
         public void Test()
         {

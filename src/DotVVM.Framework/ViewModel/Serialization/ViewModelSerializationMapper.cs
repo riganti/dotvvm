@@ -12,7 +12,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
     /// <summary>
     /// Builds serialization maps that are used during the JSON serialization.
     /// </summary>
-    public class ViewModelSerializationMapper: IViewModelSerializationMapper
+    public class ViewModelSerializationMapper : IViewModelSerializationMapper
     {
 
         private readonly IValidationRuleTranslator validationRuleTranslator;
@@ -60,10 +60,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 var bindAttribute = property.GetCustomAttribute<BindAttribute>();
                 if (bindAttribute != null)
                 {
-                    propertyMap.TransferAfterPostback = bindAttribute.Direction.HasFlag(Direction.ServerToClientPostback);
-                    propertyMap.TransferFirstRequest = bindAttribute.Direction.HasFlag(Direction.ServerToClientFirstRequest);
-                    propertyMap.TransferToServer = bindAttribute.Direction.HasFlag(Direction.ClientToServerNotInPostbackPath) || bindAttribute.Direction.HasFlag(Direction.ClientToServerInPostbackPath);
-                    propertyMap.TransferToServerOnlyInPath = !bindAttribute.Direction.HasFlag(Direction.ClientToServerNotInPostbackPath) && propertyMap.TransferToServer;
+                    propertyMap.Bind(bindAttribute.Direction);
                 }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ProtectAttribute>();
@@ -72,14 +69,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     propertyMap.ViewModelProtection = viewModelProtectionAttribute.Settings;
                 }
 
-                var clientExtenderList = property.GetCustomAttributes<ClientExtenderAttribute>();
-                if (clientExtenderList.Any())
-                {
-                    clientExtenderList
-                        .OrderBy(c => c.Order)
-                        .ToList()
-                        .ForEach(extender => propertyMap.ClientExtenders.Add(new ClientExtenderInfo() { Name = extender.Name, Parameter = extender.Parameter }));
-                }
+                propertyMap.ClientExtenders =
+                    property.GetCustomAttributes<ClientExtenderAttribute>()
+                    .OrderBy(c => c.Order)
+                    .Select(extender => new ClientExtenderInfo() { Name = extender.Name, Parameter = extender.Parameter })
+                    .ToList();
 
                 var validationAttributes = validationMetadataProvider.GetAttributesForProperty(property);
                 propertyMap.ValidationRules = validationRuleTranslator.TranslateValidationRules(property, validationAttributes).ToList();

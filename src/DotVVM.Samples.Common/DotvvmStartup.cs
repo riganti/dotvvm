@@ -3,7 +3,10 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
+using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Redirect;
+using DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.Serialization;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -23,6 +26,16 @@ namespace DotVVM.Samples.BasicSamples
             // import namespaces
             config.Markup.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace1", "TestNamespaceAlias"));
             config.Markup.ImportedNamespaces.Add(new Framework.Compilation.NamespaceImport("DotVVM.Samples.BasicSamples.TestNamespace2"));
+
+
+            // configure serializer
+            config.GetSerializationMapper()
+                .Map(typeof(SerializationViewModel), map =>
+                {
+                    map.Property(nameof(SerializationViewModel.Value)).Bind(Direction.ServerToClient);
+                    map.Property(nameof(SerializationViewModel.Value2)).Bind(Direction.ClientToServer);
+                    map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
+                });
         }
 
         private static void RegisterResources(DotvvmConfiguration config)
