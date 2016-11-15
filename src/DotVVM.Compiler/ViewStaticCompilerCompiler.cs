@@ -1,17 +1,4 @@
-﻿using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Runtime;
-using Microsoft.CodeAnalysis;
-using Microsoft.CodeAnalysis.CSharp;
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
-using DotVVM.Framework.Compilation;
+﻿using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -19,22 +6,33 @@ using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Compilation.Styles;
 using DotVVM.Framework.Compilation.Validation;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Hosting;
+using Microsoft.CodeAnalysis;
+using Microsoft.CodeAnalysis.CSharp;
+using Microsoft.Extensions.DependencyInjection;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
 
 namespace DotVVM.Compiler
 {
-    class ViewStaticCompilerCompiler
+    internal class ViewStaticCompilerCompiler
     {
         private static ConcurrentDictionary<string, Assembly> assemblyDictionary = new ConcurrentDictionary<string, Assembly>();
         private static ConcurrentDictionary<string, DotvvmConfiguration> cachedConfig = new ConcurrentDictionary<string, DotvvmConfiguration>();
 
         public CompilerOptions Options { get; set; }
         private DotvvmConfiguration configuration;
-        AssemblyBindingCompiler bindingCompiler;
-        IControlTreeResolver controlTreeResolver;
-        IViewCompiler compiler;
-        IMarkupFileLoader fileLoader;
-        CSharpCompilation compilation;
-        CompilationResult result = new CompilationResult();
+        private AssemblyBindingCompiler bindingCompiler;
+        private IControlTreeResolver controlTreeResolver;
+        private IViewCompiler compiler;
+        private IMarkupFileLoader fileLoader;
+        private CSharpCompilation compilation;
+        private CompilationResult result = new CompilationResult();
 
         private void InitOptions()
         {
@@ -44,11 +42,11 @@ namespace DotVVM.Compiler
             if (Options.BindingClassName == null) Options.BindingClassName = Options.BindingsAssemblyName + "." + "CompiledBindings";
         }
 
-        DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath)
-            => cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}", key =>
-            {
-                return OwinInitializer.InitDotVVM(assembly, webSitePath, bindingCompiler, this);
-            });
+        private DotvvmConfiguration GetCachedConfiguration(Assembly assembly, string webSitePath, Action<DotvvmConfiguration, IServiceCollection> registerServices)
+        {
+            return cachedConfig.GetOrAdd($"{assembly.GetName().Name}|{webSitePath}",
+                key => OwinInitializer.InitDotVVM(assembly, webSitePath, this, registerServices));
+        }
 
         private void Init()
         {
@@ -58,9 +56,16 @@ namespace DotVVM.Compiler
             InitOptions();
             if (Options.FullCompile)
                 if (!Directory.Exists(Options.OutputPath)) Directory.CreateDirectory(Options.OutputPath);
+
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
-            configuration = GetCachedConfiguration(wsa, Options.WebSitePath);
-            bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), configuration);
+
+            configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
+                 (config, services) =>
+                 {
+                     bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), config);
+                     services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                 });
+
             if (Options.DothtmlFiles == null) Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
             controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
             fileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
@@ -127,7 +132,7 @@ namespace DotVVM.Compiler
             return result;
         }
 
-        void BuildFileResult(string fileName, ViewCompilationResult view)
+        private void BuildFileResult(string fileName, ViewCompilationResult view)
         {
             var r = new FileCompilationResult();
             var visitor = new ResolvedControlInfoVisitor();
@@ -138,6 +143,7 @@ namespace DotVVM.Compiler
         }
 
         private Dictionary<string, ViewCompilationResult> compiledCache = new Dictionary<string, ViewCompilationResult>();
+
         public ViewCompilationResult CompileFile(string fileName)
         {
             if (compiledCache.ContainsKey(fileName)) return compiledCache[fileName];
@@ -158,7 +164,6 @@ namespace DotVVM.Compiler
 
             var errorCheckingVisitor = new ErrorCheckingVisitor();
             resolvedView.Accept(errorCheckingVisitor);
-
 
             foreach (var n in node.EnumerateNodes())
             {
@@ -215,7 +220,7 @@ namespace DotVVM.Compiler
         }
     }
 
-    class ViewCompilationResult
+    internal class ViewCompilationResult
     {
         public string BuilderClassName { get; set; }
         public Type ControlType { get; set; }

@@ -29,7 +29,6 @@ namespace DotVVM.Compiler
                 {
                     ShadowCopyFiles = "true",
                 });
-
                 appDomain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName);
                 return;
             }
@@ -53,13 +52,6 @@ namespace DotVVM.Compiler
             }
         }
 
-        private static void WaitForDebugger()
-        {
-            while (!Debugger.IsAttached)
-            {
-                Thread.Sleep(100);
-            }
-        }
 
         private static int isResolveRunning = 0;
 
