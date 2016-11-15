@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Runtime.Filters
         {
             var policyProvider = GetPolicyProvider(context);
 
-            return AuthorizationPolicy.CombineAsync(policyProvider, new IAuthorizeData[] { this });
+            return AuthorizationPolicy.CombineAsync(policyProvider, new IAuthorizeData[] { WrapInAuthorizeAttribute(this) });
         }
 
         private IAuthorizationPolicyProvider GetPolicyProvider(IDotvvmRequestContext context)

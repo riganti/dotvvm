@@ -37,7 +37,6 @@ namespace Microsoft.AspNetCore.Builder
 
             config.Debug = env.IsDevelopment();
             config.ApplicationPhysicalPath = applicationRootPath ?? env.ContentRootPath;
-            config.Runtime.GlobalFilters.Add(new AuthorizeAttribute());
 
             if (useErrorPages ?? env.IsDevelopment())
             {

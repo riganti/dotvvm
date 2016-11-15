@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 
 namespace DotVVM.Samples.BasicSamples
 {
@@ -67,7 +68,8 @@ namespace DotVVM.Samples.BasicSamples
                 }
             });
 
-            app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
+            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
+            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
             app.UseStaticFiles();
         }
 
