@@ -18,7 +18,7 @@ namespace DotVVM.Compiler
     internal static class Program
     {
         public static List<string> AssemblySearchPaths = new List<string>();
-        private static Stopwatch sw;
+        private static Stopwatch stopwatcher;
 
         private static void Main(string[] args)
         {
@@ -29,15 +29,24 @@ namespace DotVVM.Compiler
                 {
                     ShadowCopyFiles = "true",
                 });
-                appDomain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName);
+                appDomain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName, args);
                 return;
             }
 
-            if (args.Length == 0) while (true) DoCompileFromStdin();
+            if (args.Length == 0)
+            {
+                while (true)
+                {
+                    var optionsJson = ReadJsonFromStdin();
+                    DoCompile(GetCompilerOptions(optionsJson));
+                }
+            }
+
             if (args[0] == "--json")
             {
                 var opt = string.Join(" ", args.Skip(1));
-                if (!DoCompile(opt))
+
+                if (!DoCompile(GetCompilerOptions(opt)))
                 {
                     Environment.Exit(1);
                 }
@@ -52,10 +61,9 @@ namespace DotVVM.Compiler
             }
         }
 
-
         private static int isResolveRunning = 0;
 
-        private static System.Reflection.Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
+        private static Assembly CurrentDomain_AssemblyResolve(object sender, ResolveEventArgs args)
         {
             if (Interlocked.CompareExchange(ref isResolveRunning, 1, 0) != 0) return null;
             try
@@ -88,38 +96,29 @@ namespace DotVVM.Compiler
             return null;
         }
 
-        private static bool DoCompileFromStdin()
+        private static string ReadJsonFromStdin()
         {
             var optionsJson = ReadFromStdin();
-            if (string.IsNullOrWhiteSpace(optionsJson)) { Environment.Exit(0); return false; }
-            return DoCompile(optionsJson);
+            if (string.IsNullOrWhiteSpace(optionsJson))
+            {
+                Environment.Exit(0);
+            }
+            return optionsJson;
         }
 
         private static bool DoCompileFromFile(string file)
         {
             var optionsJson = File.ReadAllText(file);
-            return DoCompile(optionsJson);
+            var compilerOptions = GetCompilerOptions(optionsJson);
+            return DoCompile(compilerOptions);
         }
 
-        private static bool DoCompile(string optionsJson)
+        private static bool DoCompile(CompilerOptions options)
         {
-            sw = Stopwatch.StartNew();
+            InitStopwacher();
             WriteInfo("Starting");
-            //Dont touch anything until the paths are filled we have to touch Json though
-            var options = new CompilerOptions();
-            try
-            {
-                options = JsonConvert.DeserializeObject<CompilerOptions>(optionsJson);
-                if (!string.IsNullOrEmpty(options.WebSiteAssembly))
-                {
-                    AssemblySearchPaths.Add(Path.GetDirectoryName(options.WebSiteAssembly));
-                }
-            }
-            catch (Exception ex)
-            {
-                WriteError(ex);
-            }
 
+            //Dont touch anything until the paths are filled we have to touch Json though
             try
             {
                 var compiler = new ViewStaticCompilerCompiler();
@@ -137,6 +136,30 @@ namespace DotVVM.Compiler
             }
         }
 
+        private static void InitStopwacher()
+        {
+            stopwatcher = Stopwatch.StartNew();
+        }
+
+        private static CompilerOptions GetCompilerOptions(string optionsJson)
+        {
+            var options = new CompilerOptions();
+            try
+            {
+                options = JsonConvert.DeserializeObject<CompilerOptions>(optionsJson);
+                if (!string.IsNullOrEmpty(options.WebSiteAssembly))
+                {
+                    AssemblySearchPaths.Add(Path.GetDirectoryName(options.WebSiteAssembly));
+                }
+            }
+            catch (Exception ex)
+            {
+                WriteError(ex);
+            }
+
+            return options;
+        }
+
         private static void WriteError(Exception ex)
         {
             WriteInfo("Error occured!");
@@ -147,7 +170,7 @@ namespace DotVVM.Compiler
 
         public static void WriteInfo(string line)
         {
-            Console.WriteLine("#" + sw?.Elapsed + ": " + line);
+            Console.WriteLine("#" + stopwatcher?.Elapsed + ": " + line);
         }
 
         private static string ReadFromStdin()

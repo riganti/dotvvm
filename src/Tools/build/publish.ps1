@@ -7,7 +7,7 @@ remove-item dotvvm.*.nupkg -Force
 # publish DotVVM.Core
 $file = dir dotvvm.*.nupkg
 $file = $file.FullName
-& ..\nuget.exe push $file -ApiKey $key
+& ..\nuget.exe push $file -ApiKey $key -s https://api.nuget.org/v3/index.json
 
 
 
@@ -18,7 +18,7 @@ remove-item dotvvm.*.nupkg -Force
 # publish DotVVM
 $file = dir dotvvm.*.nupkg
 $file = $file.FullName
-& ..\nuget.exe push $file -ApiKey $key
+& ..\nuget.exe push $file -ApiKey $key -s https://api.nuget.org/v3/index.json
 
 
 
@@ -30,7 +30,7 @@ remove-item dotvvm.*.nupkg -Force
 # publish DotVVM.AspNetCore
 $file = dir dotvvm.*.nupkg
 $file = $file.FullName
-& ..\nuget.exe push $file -ApiKey $key 
+& ..\nuget.exe push $file -ApiKey $key -s https://api.nuget.org/v3/index.json
 
 
 
@@ -41,4 +41,4 @@ remove-item dotvvm.*.nupkg -Force
 # publish DotVVM.Owin
 $file = dir dotvvm.*.nupkg
 $file = $file.FullName
-& ..\nuget.exe push $file -ApiKey $key 
+& ..\nuget.exe push $file -ApiKey $key -s https://api.nuget.org/v3/index.json 
