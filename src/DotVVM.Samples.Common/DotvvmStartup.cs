@@ -1,6 +1,5 @@
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Controls;
 using DotVVM.Framework.ResourceManagement;
 using DotVVM.Framework.Routing;
 using DotVVM.Framework.ViewModel;

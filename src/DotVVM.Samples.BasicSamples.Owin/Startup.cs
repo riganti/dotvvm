@@ -1,10 +1,9 @@
-using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Web.Hosting;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Storage;
 using DotVVM.Samples.BasicSamples;
+using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 using Microsoft.AspNet.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
@@ -51,12 +50,10 @@ namespace DotVVM.Samples.BasicSamples
                     )
                 }
             );
-            
-            app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), builder: b =>
-            {
-                b.ConfigureTempStorages("Temp");
-            });
-            
+
+            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), builder: b => { b.ConfigureTempStorages("Temp"); });
+            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
+
             app.UseStaticFiles();
         }
 
