@@ -34,8 +34,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             }.AsQueryable();
         }
 
-
-
         public GridViewDataSet<CustomerData> CustomersDataSet { get; set; }
 
         public string SelectedSortColumn { get; set; }
@@ -47,6 +45,8 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         public bool EditMode { get; set; } = true;
 
         public int EditRowId { get; set; } = 1;
+
+        public bool IsBirthDateVisible { get; set; } = true;
 
         public GridViewInlineEditingViewModel()
         {

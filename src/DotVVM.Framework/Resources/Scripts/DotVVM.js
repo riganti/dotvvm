@@ -1860,6 +1860,39 @@ var DotVVM = (function () {
                 });
             }
         };
+        ko.bindingHandlers['dotvvm-table-columnvisible'] = {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
+                var lastDisplay = "";
+                var currentVisible = true;
+                function changeVisibility(table, columnIndex, visible) {
+                    if (currentVisible == visible)
+                        return;
+                    currentVisible = visible;
+                    for (var i = 0; i < table.rows.length; i++) {
+                        var row = table.rows.item(i);
+                        var style = row.cells[columnIndex].style;
+                        if (visible) {
+                            style.display = lastDisplay;
+                        }
+                        else {
+                            lastDisplay = style.display;
+                            style.display = "none";
+                        }
+                    }
+                }
+                if (!(element instanceof HTMLTableCellElement))
+                    return;
+                // find parent table
+                var table = element;
+                while (!(table instanceof HTMLTableElement))
+                    table = table.parentElement;
+                var colIndex = [].slice.call(table.rows.item(0).cells).indexOf(element);
+                element['dotvvmChangeVisibility'] = changeVisibility.bind(null, table, colIndex);
+            },
+            update: function (element, valueAccessor) {
+                element.dotvvmChangeVisibility(ko.unwrap(valueAccessor()));
+            }
+        };
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init: function (element, valueAccessor, allBindingsAccessor, viewModel, bindingContext) {
                 var obs = valueAccessor();

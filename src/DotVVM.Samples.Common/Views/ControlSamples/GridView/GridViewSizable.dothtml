@@ -38,7 +38,7 @@
         </dot:GridView>
 
 		<div>
-			<label id="sizableGridTxt">Drag the columns to start</label>				
+			<label id="sizableGridTxt">Drag the columns to start</label>
 		</div>
     </div>
 </body>

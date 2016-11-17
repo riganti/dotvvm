@@ -274,6 +274,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
+                if (column.IsPropertySet(GridViewColumn.VisibleProperty)) cell.SetValue(TableUtils.ColumnVisibleProperty, GridViewColumn.VisibleProperty.GetValue(column));
                 if (column.IsPropertySet(GridViewColumn.HeaderCssClassProperty)) // transfer all bindings (even StaticValue), because column has wrong DataContext for them
                 {
                     cell.Attributes["class"] = column.GetValueRaw(GridViewColumn.HeaderCssClassProperty);

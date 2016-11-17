@@ -12,12 +12,13 @@
 <body>
     <div class="container">
         <h1>GridView with IGridViewDataSet and server rendering.</h1>
+        <dot:CheckBox Checked="{value: IsBirthDateVisible}" Text="Birth date visible" />
         <dot:GridView DataSource="{value: CustomersDataSet}" class="table table-bordered"
                       RenderSettings.Mode="Server" PostBack.Update="true" InlineEditing="true">
             <Columns>
                 <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: CustomerId}" CssClass="{value: CustomerId % 2 == 0 ? 'alternate' : ''}" AllowSorting="True" IsEditable="false"/>
                 <dot:GridViewTextColumn HeaderText="Name" ValueBinding="{value: Name}" AllowSorting="True" />
-                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" />
+                <dot:GridViewTextColumn HeaderText="Birth Date" ValueBinding="{value: BirthDate}" FormatString="g" AllowSorting="True" Visible="{value: _root.IsBirthDateVisible}" />
 				<dot:GridViewTemplateColumn AllowSorting="false">
 					<ContentTemplate>
 						<dot:Button ButtonTagName="button" Text="Edit" Click="{command: _parent.EditItem(_this)}"></dot:Button>
