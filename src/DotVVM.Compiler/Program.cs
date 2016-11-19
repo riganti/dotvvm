@@ -22,6 +22,7 @@ namespace DotVVM.Compiler
 
         private static void Main(string[] args)
         {
+            
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
             if (!AppDomain.CurrentDomain.ShadowCopyFiles)
             {
@@ -32,6 +33,8 @@ namespace DotVVM.Compiler
                 appDomain.ExecuteAssemblyByName(typeof(Program).Assembly.FullName, args);
                 return;
             }
+
+            //WaitForDbg();
 
             if (args.Length == 0)
             {
@@ -59,6 +62,11 @@ namespace DotVVM.Compiler
                     Environment.Exit(1);
                 }
             }
+        }
+
+        private static void WaitForDbg()
+        {
+            while (!Debugger.IsAttached) Thread.Sleep(10);
         }
 
         private static int isResolveRunning = 0;
