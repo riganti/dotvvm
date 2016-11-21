@@ -20,10 +20,10 @@ namespace DotVVM.Framework.Controls.Infrastructure
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render resource links
-            var resources = context.ResourceManager.GetResourcesInOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Head);
+            var resources = context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource.RenderPosition == ResourceRenderPosition.Head);
             foreach (var resource in resources)
             {
-                resource.Render(writer, context);
+                resource.Resource.Render(writer, context, resource.Name);
             }
         }
     }

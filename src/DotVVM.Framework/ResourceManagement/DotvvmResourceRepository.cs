@@ -18,18 +18,18 @@ namespace DotVVM.Framework.ResourceManagement
         /// Dictionary of resources
         /// </summary>
         [JsonIgnore]
-        public ConcurrentDictionary<string, ResourceBase> Resources { get; private set; }
+        public ConcurrentDictionary<string, IResource> Resources { get; } = new ConcurrentDictionary<string, IResource>();
 
         [JsonIgnore]
-        public ConcurrentDictionary<string, IDotvvmResourceRepository> Parents { get; set; }
+        public ConcurrentDictionary<string, IDotvvmResourceRepository> Parents { get; } = new ConcurrentDictionary<string, IDotvvmResourceRepository>();
 
         [JsonIgnore]
-        public IList<IResourceProcessor> DefaultResourceProcessors { get; set; } = new List<IResourceProcessor>();
+        public IList<IResourceProcessor> DefaultResourceProcessors { get; } = new List<IResourceProcessor>();
 
         /// <summary>
         /// Finds the resource with the specified name.
         /// </summary>
-        public ResourceBase FindResource(string name)
+        public IResource FindResource(string name)
         {
             if (Resources.ContainsKey(name)) return Resources[name];
             IDotvvmResourceRepository parent;
@@ -50,7 +50,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// registers a new resource in collection
         /// </summary>
-        public void Register(string name, ResourceBase resource, bool replaceIfExists = true)
+        public void Register(string name, IResource resource, bool replaceIfExists = true)
         {
             if (replaceIfExists)
                 Resources.AddOrUpdate(name, resource, (key, res) => resource);
@@ -71,16 +71,10 @@ namespace DotVVM.Framework.ResourceManagement
             return new DotvvmResourceRepository(this);
         }
 
-        public DotvvmResourceRepository(DotvvmResourceRepository parent) : this()
+        public DotvvmResourceRepository() { }
+        public DotvvmResourceRepository(DotvvmResourceRepository parent)
         {
-            this.Resources = new ConcurrentDictionary<string, ResourceBase>();
             this.Parents.TryAdd("", parent);
-        }
-
-        public DotvvmResourceRepository()
-        {
-            this.Resources = new ConcurrentDictionary<string, ResourceBase>();
-            this.Parents = new ConcurrentDictionary<string, IDotvvmResourceRepository>();
         }
 
         public NamedResource FindNamedResource(string name)

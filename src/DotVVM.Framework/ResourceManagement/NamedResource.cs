@@ -8,10 +8,10 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class NamedResource: IEquatable<NamedResource>
     {
-        public string Name { get; private set; }
-        public ResourceBase Resource { get; private set; }
+        public string Name { get; }
+        public IResource Resource { get; }
 
-        public NamedResource(string name, ResourceBase resource)
+        public NamedResource(string name, IResource resource)
         {
             Name = name;
             Resource = resource;

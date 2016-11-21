@@ -135,7 +135,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                     using (var str = new StringWriter())
                     {
                         var w = new HtmlWriter(str, context);
-                        resource.Resource.Render(w, context);
+                        resource.Resource.Render(w, context, resource.Name);
                         resourceObj[resource.Name] = JValue.CreateString(str.ToString());
                     }
                 }

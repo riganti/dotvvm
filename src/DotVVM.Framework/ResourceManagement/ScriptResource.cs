@@ -12,66 +12,20 @@ namespace DotVVM.Framework.ResourceManagement
     /// Reference to a javascript file.
     /// </summary>
     [ResourceConfigurationCollectionName("scripts")]    
-    public class ScriptResource : ResourceBase
+    public class ScriptResource : LinkResourceBase
     {
         private const string CdnFallbackScript = "if (typeof {0} === 'undefined') {{ document.write(\"<script src='{1}' type='text/javascript'><\\/script>\"); }}";
-        
 
-        /// <summary>
-        /// Gets or sets the URL of the script in CDN.
-        /// </summary>
-        [JsonProperty("cdnUrl")]
-        public string CdnUrl { get; set; }
+        public ScriptResource(IResourceLocation location)
+            : base(ResourceRenderPosition.Body, "text/javascript", location)
+        { }
 
-        /// <summary>
-        /// Gets or sets the javascript expression that check if script was loaded (typically name of the object created by library in the global scope)
-        /// It is used to check whether script from CDN was loaded or whether to load it from local URL.
-        /// </summary>
-        [JsonProperty("globalObjectName")]
-        public string GlobalObjectName { get; set; }
-
-
-
-        public ResourceRenderPosition RenderPosition { get; set; }
-
-        public override ResourceRenderPosition GetRenderPosition()
+        public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            return RenderPosition;
-        }
-
-        public ScriptResource()
-        {
-            RenderPosition = ResourceRenderPosition.Body;
-        }
-
-        /// <summary>
-        /// Renders the resource in the specified <see cref="IHtmlWriter" />.
-        /// </summary>
-        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            if (CdnUrl != null)
-            {
-                writer.AddAttribute("src", CdnUrl);
-                writer.AddAttribute("type", "text/javascript");
-                writer.RenderBeginTag("script");
-                writer.RenderEndTag();
-
-                if (Url != null && GlobalObjectName != null)
-                {
-                    writer.RenderBeginTag("script");
-
-                    var url = context.TranslateVirtualPath(GetUrl());
-                    writer.WriteUnencodedText(string.Format(CdnFallbackScript, GlobalObjectName, url));
-                    writer.RenderEndTag();
-                }
-            }
-            else if (Url != null)
-            {
-                writer.AddAttribute("src", GetUrl());
-                writer.AddAttribute("type", "text/javascript");
-                writer.RenderBeginTag("script");
-                writer.RenderEndTag();
-            }
+            writer.AddAttribute("src", location.GetUrl(context, resourceName));
+            writer.AddAttribute("type", MimeType);
+            writer.RenderBeginTag("script");
+            writer.RenderEndTag();
         }
     }
 }

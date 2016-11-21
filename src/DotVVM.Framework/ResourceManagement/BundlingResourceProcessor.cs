@@ -8,12 +8,12 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public class BundlingResourceProcessor : SingleResourceProcessorBase
     {
-        public Dictionary<string, NamedResource> BundleInverseIndex { get; private set; } = new Dictionary<string, NamedResource>();
+        public Dictionary<string, NamedResource> BundleInverseIndex { get; } = new Dictionary<string, NamedResource>();
 
         public override IEnumerable<NamedResource> ProcessOne(NamedResource resource)
             => new[] { BundleInverseIndex[resource.Name] };
 
-        public override bool Predicate(string name, ResourceBase resource)
+        public override bool Predicate(string name, IResource resource)
             => BundleInverseIndex.ContainsKey(name);
 
         public void RegisterBundle(NamedResource bundleResource, params string[] resolves)

@@ -1,13 +1,13 @@
+﻿using DotVVM.Framework.Hosting;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace DotVVM.Framework.ResourceManagement
 {
-    public interface IDotvvmResourceRepository
+    public interface IResourceLocation
     {
-        IResource FindResource(string name);
+        string GetUrl(IDotvvmRequestContext context, string name);
     }
 }

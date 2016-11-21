@@ -1,0 +1,81 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Threading.Tasks;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
+using System.Text;
+using System.IO;
+using Newtonsoft.Json;
+
+namespace DotVVM.Framework.ResourceManagement
+{
+    public abstract class LinkResourceBase : ResourceBase, ILinkResource
+    {
+        public IResourceLocation Location { get; set; }
+        public ResourceLocationFallback LocationFallback { get; set; }
+        public string MimeType { get; set; } = "text/plain";
+
+        public LinkResourceBase(ResourceRenderPosition renderPosition,
+            string mimeType,
+            IResourceLocation location)
+            :base(renderPosition)
+        {
+            this.Location = location;
+            this.MimeType = mimeType;
+        }
+
+        public IEnumerable<IResourceLocation> GetLocations()
+        {
+            yield return Location;
+            if (LocationFallback != null) foreach (var l in LocationFallback.AlternativeLocations) yield return l;
+        }
+
+        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
+        {
+            RenderLink(Location, writer, context, resourceName);
+            if (LocationFallback != null)
+            {
+                foreach (var fallback in LocationFallback.AlternativeLocations)
+                {
+                    var link = RenderLinkToString(fallback, context, resourceName);
+                    if (!string.IsNullOrEmpty(link))
+                    {
+                        writer.AddAttribute("type", "text/javascript");
+                        writer.RenderBeginTag("script");
+                        writer.WriteUnencodedText($"{LocationFallback.JavascriptCondition} || document.write('{JsonConvert.ToString(link, '\'')}");
+                        writer.RenderEndTag();
+                    }
+                }
+            }
+        }
+
+        private string RenderLinkToString(IResourceLocation location, IDotvvmRequestContext context, string resourceName)
+        {
+            var text = new StringWriter();
+            var writer = new HtmlWriter(text, context);
+            RenderLink(location, writer, context, resourceName);
+            return text.ToString().Replace("<", "\u003c");
+        }
+
+        public abstract void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName);
+    }
+
+    public class ResourceLocationFallback
+    {
+        /// <summary>
+        /// Javascript expression which return true (truthy value) when the script IS NOT correctly loaded
+        /// </summary>
+        public string JavascriptCondition { get; }
+        public List<IResourceLocation> AlternativeLocations { get; }
+
+        public ResourceLocationFallback(string javascriptCondition, params IResourceLocation[] alternativeLocations)
+        {
+            if (javascriptCondition == null) throw new ArgumentNullException(nameof(javascriptCondition));
+            if (alternativeLocations == null) throw new ArgumentNullException(nameof(alternativeLocations));
+            this.JavascriptCondition = javascriptCondition;
+            this.AlternativeLocations = alternativeLocations.ToList();
+        }
+    }
+}

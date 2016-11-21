@@ -99,6 +99,5 @@ namespace DotVVM.Framework.ResourceManagement
             }
             writer.WriteEndObject();
         }
-
     }
 }

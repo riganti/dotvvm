@@ -9,65 +9,26 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {
-    public abstract class ResourceBase
+    public abstract class ResourceBase : IResource
     {
         /// <summary>
         /// Gets or sets the collection of dependent resources.
         /// </summary>
-        [JsonProperty("dependencies")]
-        public string[] Dependencies { get; set; }
+        public string[] Dependencies { get; set; } = new string[0];
 
         /// <summary>
-        /// Gets or sets the local URL of the resource.
+        /// Gets or sets where the resource has to be 
         /// </summary>
-        [JsonProperty("url")]
-        public string Url { get; set; }
+        public ResourceRenderPosition RenderPosition { get; set; }
 
-        /// <summary>
-        /// Gets or sets the name of the assembly. If this is set, the value of the <see cref="P:Url"/> property is the name of the embedded resource in the specified assembly.
-        /// </summary>
-        [JsonProperty("embeddedResourceAssembly")]
-        public string EmbeddedResourceAssembly { get; set; }
-
-        /// <summary>
-        /// Gets a value indicating whether the script is an embedded resource.
-        /// </summary>
-        public bool IsEmbeddedResource
+        public ResourceBase(ResourceRenderPosition renderPosition)
         {
-            get { return !string.IsNullOrEmpty(EmbeddedResourceAssembly); }
+            this.RenderPosition = renderPosition;
         }
-
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="ResourceBase"/> class.
-        /// </summary>
-        public ResourceBase()
-        {
-            Dependencies = new string[] { };
-        }
-
-        /// <summary>
-        /// Get where the resource want to be rendered
-        /// </summary>
-        public abstract ResourceRenderPosition GetRenderPosition();
 
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter"/>.
         /// </summary>
-        public abstract void Render(IHtmlWriter writer, IDotvvmRequestContext context);
-
-
-
-        /// <summary>
-        /// Gets the URL.
-        /// </summary>
-        protected string GetUrl()
-        {
-            if (IsEmbeddedResource)
-            {
-                return string.Format(HostingConstants.ResourceHandlerUrl, WebUtility.UrlEncode(Url), WebUtility.UrlEncode(EmbeddedResourceAssembly));
-            }
-            return Url;
-        }
+        public abstract void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName);
     }
 }

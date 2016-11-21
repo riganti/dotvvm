@@ -4,19 +4,16 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
+using System.Globalization;
 
 namespace DotVVM.Framework.ResourceManagement.ClientGlobalize
 {
-    public class JQueryGlobalizeResourceRepository : IDotvvmResourceRepository
+    public class JQueryGlobalizeResourceRepository : CachingResourceRepository
     {
-        public ResourceBase FindResource(string name)
-        {
-            return new ScriptResource()
+        protected override IResource FindResource(string name) =>
+            new ScriptResource(new JQueryGlobalizeResourceLocation(new CultureInfo(name)))
             {
-                Url = string.Format("~/{0}?{1}={2}", HostingConstants.GlobalizeCultureUrlPath, HostingConstants.GlobalizeCultureUrlIdParameter, name),
                 Dependencies = new[] { ResourceConstants.GlobalizeResourceName },
-                // TODO: cdn?
             };
-        }
     }
 }
