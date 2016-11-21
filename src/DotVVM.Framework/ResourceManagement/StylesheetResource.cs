@@ -21,6 +21,7 @@ namespace DotVVM.Framework.ResourceManagement
             writer.AddAttribute("href", location.GetUrl(context, resourceName));
             writer.AddAttribute("rel", "stylesheet");
             writer.AddAttribute("type", MimeType);
+            base.AddIntegrityAttribute(writer, context);
             writer.RenderSelfClosingTag("link");
         }
     }

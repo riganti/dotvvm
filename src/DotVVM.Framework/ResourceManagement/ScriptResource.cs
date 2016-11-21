@@ -24,6 +24,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             writer.AddAttribute("src", location.GetUrl(context, resourceName));
             writer.AddAttribute("type", MimeType);
+            base.AddIntegrityAttribute(writer, context);
             writer.RenderBeginTag("script");
             writer.RenderEndTag();
         }

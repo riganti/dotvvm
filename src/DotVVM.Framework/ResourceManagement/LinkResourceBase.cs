@@ -44,7 +44,7 @@ namespace DotVVM.Framework.ResourceManagement
                     {
                         writer.AddAttribute("type", "text/javascript");
                         writer.RenderBeginTag("script");
-                        writer.WriteUnencodedText($"{LocationFallback.JavascriptCondition} || document.write('{JsonConvert.ToString(link, '\'')}");
+                        writer.WriteUnencodedText($"{LocationFallback.JavascriptCondition} || document.write({JsonConvert.ToString(link, '\'').Replace("<", "\\u003c")})");
                         writer.RenderEndTag();
                     }
                 }
@@ -56,10 +56,24 @@ namespace DotVVM.Framework.ResourceManagement
             var text = new StringWriter();
             var writer = new HtmlWriter(text, context);
             RenderLink(location, writer, context, resourceName);
-            return text.ToString().Replace("<", "\u003c");
+            return text.ToString();
         }
 
         public abstract void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName);
+
+        protected string ComputeIntegrityHash(IDotvvmRequestContext context)
+        {
+            var hasher = context.Configuration.ServiceLocator.GetService<IResourceHashService>();
+            var localLocation = GetLocations().OfType<ILocalResourceLocation>().First();
+            if (localLocation != null) return hasher.GetIntegrityHash(localLocation, context);
+            else return null;
+        }
+
+        protected void AddIntegrityAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
+        {
+            var hash = ComputeIntegrityHash(context);
+            if (hash != null) writer.AddAttribute("integrity", hash);
+        }
     }
 
     public class ResourceLocationFallback
