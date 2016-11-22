@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 .Add(type => CreateStatic(ReflectionUtils.FindType("System." + type)))
             );
 
-        public static readonly TypeRegistry DirectivesDefault = new TypeRegistry(
+        public static TypeRegistry DirectivesDefault(string assemblyName = null) => new TypeRegistry(
            ImmutableDictionary<string, Expression>.Empty
                .Add("object", CreateStatic(typeof(Object)))
                .Add("bool", CreateStatic(typeof(Boolean)))
@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Compilation.Binding
                .Add("Single", CreateStatic(typeof(Single)))
                .Add("String", CreateStatic(typeof(String))),
            ImmutableList<Func<string, Expression>>.Empty
-               .Add(type => CreateStatic(ReflectionUtils.FindType(type)))
+               .Add(type => CreateStatic(ReflectionUtils.FindType(type + (assemblyName != null ? $", {assemblyName}" : ""))))
            );
     }
 }

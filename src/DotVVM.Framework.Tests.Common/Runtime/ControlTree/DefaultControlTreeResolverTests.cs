@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var directiveNode = ((DothtmlRootNode)root.DothtmlNode).Directives.First();
             Assert.IsTrue(directiveNode.HasNodeErrors);
-            Assert.IsTrue(directiveNode.NodeErrors.First().Contains("not found"));
+            Assert.IsTrue(directiveNode.NodeErrors.First().Contains("Could not resolve type"));
         }
 
         [TestMethod]
@@ -543,6 +543,21 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
                 .Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls
                 .First(c => c.Metadata.Type == typeof(ClassWithoutInnerElementProperty));
             Assert.AreEqual(0, control.Content.Count);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ViewModel_GenericType()
+        {
+            var root = ParseSource(@"@viewModel System.Collections.Generic.List<System.Collections.Generic.Dictionary<System.String, System.Int32>>");
+            Assert.AreEqual(typeof(List<Dictionary<string, int>>), root.DataContextTypeStack.DataContextType);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ViewModel_InvalidAssemblyQualified()
+        {
+            var root = ParseSource(@"@viewModel System.String, whatever");
+            Assert.IsTrue(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
+            Assert.AreEqual(null, root.DataContextTypeStack.DataContextType);
         }
 
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")

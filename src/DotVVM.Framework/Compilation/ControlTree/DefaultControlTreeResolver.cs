@@ -69,12 +69,5 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             return ReflectionUtils.ConvertValue(value, ((ResolvedTypeDescriptor)propertyType).Type);
         }
-
-        protected override ITypeDescriptor FindType(string fullTypeNameWithAssembly)
-        {
-            var type = ReflectionUtils.FindType(fullTypeNameWithAssembly);
-            if (type == null) return null;
-            return new ResolvedTypeDescriptor(type);
-        }
     }
 }
