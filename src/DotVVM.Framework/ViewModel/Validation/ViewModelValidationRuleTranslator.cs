@@ -2,11 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.ResourceManagement.ClientGlobalize;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
     public class ViewModelValidationRuleTranslator : IValidationRuleTranslator
     {
+        private readonly DotvvmConfiguration dotvvmConfiguration;
+
+        public ViewModelValidationRuleTranslator(DotvvmConfiguration dotvvmConfiguration)
+        {
+            this.dotvvmConfiguration = dotvvmConfiguration;
+        }
+
         /// <summary>
         /// Gets the validation rules.
         /// </summary>
@@ -14,58 +23,8 @@ namespace DotVVM.Framework.ViewModel.Validation
         {
             foreach (var attribute in validationAttributes)
             {
-                // TODO: extensibility
-                if (attribute is RequiredAttribute)
-                {
-                    yield return new ViewModelPropertyValidationRule()
-                    {
-                        ClientRuleName = "required",
-                        SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name)
-                    };
-                }
-                else if (attribute is RegularExpressionAttribute)
-                {
-                    var typedAttribute = (RegularExpressionAttribute)attribute;
-                    yield return new ViewModelPropertyValidationRule()
-                    {
-                        ClientRuleName = "regularExpression",
-                        SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name),
-                        Parameters = new object[] { typedAttribute.Pattern }
-                    };
-                }
-                else if (attribute is RangeAttribute)
-                {
-                    var typed = (RangeAttribute)attribute;
-                    yield return new ViewModelPropertyValidationRule
-                    {
-                        ClientRuleName = "range",
-                        SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name),
-                        Parameters = new object[] { typed.Minimum, typed.Maximum }
-                    };
-                }
-                else if (attribute is DotvvmEnforceClientFormatAttribute)
-                {
-                    var typed = (DotvvmEnforceClientFormatAttribute)attribute;
-                    yield return new ViewModelPropertyValidationRule
-                    {
-                        ClientRuleName = "enforceClientFormat",
-                        SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name),
-                        Parameters = new object[] { typed.AllowNull, typed.AllowEmptyString, typed.AllowEmptyStringOrWhitespaces }
-                    };
-                }
-                else
-                {
-                    yield return new ViewModelPropertyValidationRule()
-                    {
-                        ClientRuleName = string.Empty,
-                        SourceValidationAttribute = attribute,
-                        ErrorMessage = attribute.FormatErrorMessage(property.Name)
-                    };
-                }
+                var clientValidationFactory = dotvvmConfiguration.ValidationConfiguration.GetClientValidationRule(attribute.GetType());
+                yield return clientValidationFactory.CreateViewModelPropertyValidationRule(attribute, property.Name);
             }
         }
     }

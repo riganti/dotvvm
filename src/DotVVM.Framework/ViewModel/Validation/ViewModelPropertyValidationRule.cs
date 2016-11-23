@@ -27,5 +27,6 @@ namespace DotVVM.Framework.ViewModel.Validation
         }
 
         public ViewModelPropertyValidationRule() { }
+        
     }
 }

@@ -103,6 +103,9 @@ namespace DotVVM.Framework.Configuration
         public ServiceLocator ServiceLocator { get; private set; }
 
         [JsonIgnore]
+        public ValidationConfiguration ValidationConfiguration { get; } = new ValidationConfiguration();
+
+        [JsonIgnore]
         public StyleRepository Styles { get; set; }
 
         [JsonProperty("compiledViewsAssemblies")]
@@ -159,6 +162,8 @@ namespace DotVVM.Framework.Configuration
 
             RegisterConstraints(config);
             RegisterResources(config);
+
+            config.ValidationConfiguration.RegisterDefault();
 
             return config;
         }

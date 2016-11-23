@@ -7,7 +7,7 @@ using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.ViewModel.Validation
 {
-    public class ViewModelValidator: IViewModelValidator
+    public class ViewModelValidator : IViewModelValidator
     {
         private readonly IViewModelSerializationMapper viewModelSerializationMapper;
 
@@ -35,6 +35,7 @@ namespace DotVVM.Framework.ViewModel.Validation
             {
                 yield break;
             }
+
             var viewModelType = viewModel.GetType();
             if (ViewModelJsonConverter.IsPrimitiveType(viewModelType) || ViewModelJsonConverter.IsNullableType(viewModelType))
             {
@@ -98,9 +99,10 @@ namespace DotVVM.Framework.ViewModel.Validation
                 }
             }
 
-            if (viewModel is IValidatableObject)
+            var validatableObjectViewModel = viewModel as IValidatableObject;
+            if (validatableObjectViewModel != null)
             {
-                foreach (var error in ((IValidatableObject)viewModel).Validate(new ValidationContext(viewModel)))
+                foreach (var error in validatableObjectViewModel.Validate(new ValidationContext(viewModel)))
                 {
                     var paths = new List<string>();
                     if (error.MemberNames != null)
