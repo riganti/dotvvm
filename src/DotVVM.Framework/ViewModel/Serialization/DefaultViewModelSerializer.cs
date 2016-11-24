@@ -13,6 +13,7 @@ using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
+using DotVVM.Framework.ResourceManagement;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -134,9 +135,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 {
                     using (var str = new StringWriter())
                     {
-                        var w = new HtmlWriter(str, context);
-                        resource.Resource.Render(w, context, resource.Name);
-                        resourceObj[resource.Name] = JValue.CreateString(str.ToString());
+                        resourceObj[resource.Name] = JValue.CreateString(resource.GetRenderedTextCached(context));
                     }
                 }
             }

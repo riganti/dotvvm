@@ -22,9 +22,8 @@ namespace DotVVM.Framework.ResourceManagement
 
         public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            writer.AddAttribute("src", location.GetUrl(context, resourceName));
+            AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
             writer.AddAttribute("type", MimeType);
-            base.AddIntegrityAttribute(writer, context);
             writer.RenderBeginTag("script");
             writer.RenderEndTag();
         }

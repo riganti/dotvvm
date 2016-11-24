@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             var resources = context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource.RenderPosition == ResourceRenderPosition.Head);
             foreach (var resource in resources)
             {
-                resource.Resource.Render(writer, context, resource.Name);
+                resource.RenderResourceCached(writer, context);
             }
         }
     }

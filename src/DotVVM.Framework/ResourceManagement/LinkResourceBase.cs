@@ -74,6 +74,15 @@ namespace DotVVM.Framework.ResourceManagement
             var hash = ComputeIntegrityHash(context);
             if (hash != null) writer.AddAttribute("integrity", hash);
         }
+
+        protected void AddSrcAndIntegrity(IHtmlWriter writer, IDotvvmRequestContext context, string url, string srcAttributeName)
+        {
+            writer.AddAttribute(srcAttributeName, url);
+            if (url.Contains("://"))
+            {
+                AddIntegrityAttribute(writer, context);
+            }
+        }
     }
 
     public class ResourceLocationFallback
