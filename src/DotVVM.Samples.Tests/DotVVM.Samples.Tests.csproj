@@ -170,6 +170,7 @@
     <Compile Include="Control\CheckBoxTests.cs" />
     <Compile Include="Control\RadioButtonTests.cs" />
     <Compile Include="Control\FileUploadTests.cs" />
+    <Compile Include="Extensions.cs" />
     <Compile Include="Feature\ActionFilterErrorHandlingTest.cs" />
     <Compile Include="Feature\BindingContextsTests.cs" />
     <Compile Include="Feature\BindingPageInfoTests.cs" />
