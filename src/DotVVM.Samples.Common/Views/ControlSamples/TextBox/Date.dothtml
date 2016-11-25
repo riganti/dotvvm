@@ -1,0 +1,15 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.TextBox.TextBoxDateViewModel, DotVVM.Samples.Common
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title>Hello from DotVVM!</title>
+</head>
+<body>
+    <%-- When I add Format="yyyy-MM-dd" it works, but we should handle this format conversion internaly in our binding --%>
+    <%-- Specification https://www.w3.org/TR/html-markup/datatypes.html#form.data.date-def --%>
+    <dot:TextBox data-ui="first-date" Type="Date" Text="{value: Date}"/>
+    <dot:Button data-ui="send" Text="Send" Click="{command: Send()}" />
+    <dot:TextBox data-ui="second-date" Type="Date" Text="{value: DateBack}"/>
+</body>
+</html>
