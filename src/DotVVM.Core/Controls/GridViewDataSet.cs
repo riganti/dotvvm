@@ -9,7 +9,6 @@ namespace DotVVM.Framework.Controls
 {
     public class GridViewDataSet<T> : IGridViewDataSet
     {
-
         public string SortExpression { get; set; }
 
         public bool SortDescending { get; set; }
@@ -30,7 +29,7 @@ namespace DotVVM.Framework.Controls
         {
             get { return Enumerable.Range(0, PagesCount).Where(n => Math.Abs(n - PageIndex) <= 5).ToList(); }
         }
-        
+
         public int PagesCount
         {
             get
@@ -59,7 +58,6 @@ namespace DotVVM.Framework.Controls
         {
             Items = new List<T>();
         }
-
 
         public void GoToFirstPage()
         {
@@ -112,7 +110,6 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-
         public void LoadFromQueryable(IQueryable<T> queryable)
         {
             TotalItemsCount = queryable.Count();
@@ -130,24 +127,32 @@ namespace DotVVM.Framework.Controls
             Items = queryable.ToList();
         }
 
-
         public IQueryable<T> ApplySortExpression(IQueryable<T> queryable)
         {
             var type = typeof(T);
             var property = type.GetTypeInfo().GetProperty(SortExpression);
-            if (property == null) throw new Exception($"Could not sort by property '{SortExpression}', since it does not exists.");
+
+            if (property == null)
+            {
+                throw new Exception($"Could not sort by property '{SortExpression}', since it does not exists.");
+            }
+
             var parameter = Expression.Parameter(type, "p");
             var propertyAccess = Expression.MakeMemberAccess(parameter, property);
             var orderBy = Expression.Lambda(propertyAccess, parameter);
 
-            var result = Expression.Call(
-                typeof(Queryable), 
-                SortDescending ? "OrderByDescending" : "OrderBy", 
-                new[] { type, property.PropertyType }, 
-                queryable.Expression, 
+            var result = Expression.Call(typeof(Queryable),
+                GetSortingMethodName(),
+                new[] { type, property.PropertyType },
+                queryable.Expression,
                 Expression.Quote(orderBy));
 
             return queryable.Provider.CreateQuery<T>(result);
+        }
+
+        private string GetSortingMethodName()
+        {
+            return SortDescending ? "OrderByDescending" : "OrderBy";
         }
     }
 }
