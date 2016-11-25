@@ -6,6 +6,7 @@ using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using Microsoft.Owin;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Runtime.Filters
 {
@@ -40,15 +41,22 @@ namespace DotVVM.Framework.Runtime.Filters
         /// <inheritdoc />
         protected override Task OnViewModelCreatedAsync(IDotvvmRequestContext context)
         {
-            Authorize(context);
-            return Task.FromResult(0);
+            Authorize(context, context.ViewModel);
+            return TaskUtils.GetCompletedTask();
         }
 
         /// <inheritdoc />
         protected override Task OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo)
         {
-            Authorize(context);
-            return Task.FromResult(0);
+            Authorize(context, null);
+            return TaskUtils.GetCompletedTask();
+        }
+
+        /// <inheritdoc />
+        protected override Task OnPageLoadingAsync(IDotvvmRequestContext context)
+        {
+            Authorize(context, context.Presenter);
+            return TaskUtils.GetCompletedTask();
         }
 
         /// <summary>
@@ -56,9 +64,10 @@ namespace DotVVM.Framework.Runtime.Filters
         /// b) the user is not authenticated; c) the user is not in any of the authorized <see cref="Roles" />.
         /// </summary>
         /// <param name="context">The request context.</param>
-        protected virtual void Authorize(IDotvvmRequestContext context)
+        /// <param name="appliedOn">The object which can contain [NotAuthorizedAttribute] that could suppress it.</param>
+        protected virtual void Authorize(IDotvvmRequestContext context, object appliedOn)
         {
-            if (!CanBeAuthorized(context.ViewModel))
+            if (!CanBeAuthorized(appliedOn))
             {
                 return;
             }

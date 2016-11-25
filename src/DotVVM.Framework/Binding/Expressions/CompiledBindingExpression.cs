@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public BindingDelegate Delegate { get; set; }
         public BindingUpdateDelegate UpdateDelegate { get; set; }
         public string Id { get; set; }
-        public ActionFilterAttribute[] ActionFilters { get; set; }
+        public IActionFilter[] ActionFilters { get; set; }
         public Dictionary<string, object> Extensions { get; set; }
 
         public delegate object BindingDelegate(object[] dataContextHierarchy, DotvvmBindableObject rootControl);

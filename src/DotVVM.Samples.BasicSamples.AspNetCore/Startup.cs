@@ -2,6 +2,7 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Hosting;
+using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -67,7 +68,9 @@ namespace DotVVM.Samples.BasicSamples
                 }
             });
 
-            app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
+            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(env));
+            config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
+
             app.UseStaticFiles();
         }
 

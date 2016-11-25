@@ -34,8 +34,8 @@ namespace DotVVM.Samples.Tests
                 browser.First("p.summary")
                     .CheckIfInnerText(
                         s =>
-                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException") &&
-                            s.Contains("required in the @viewModel directive was not found!")
+                            s.Contains("DotVVM.Framework.Compilation.DotvvmCompilationException", StringComparison.OrdinalIgnoreCase) &&
+                            s.Contains("Could not resolve type 'invalid'", StringComparison.OrdinalIgnoreCase)
                             );
             });
         }

@@ -19,6 +19,7 @@ using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.Hosting
 {
+    [NotAuthorized] // DotvvmPresenter handles authorization itself, allowing authorization on it would make [NotAuthorized] attribute useless on ViewModel, since request would be interrupted earlier that VM is found
     public class DotvvmPresenter : IDotvvmPresenter
     {
         /// <summary>
@@ -46,24 +47,6 @@ namespace DotVVM.Framework.Hosting
         public ICsrfProtector CsrfProtector { get; }
 
         public string ApplicationPath { get; }
-
-        ///// <summary>
-        ///// Initializes a new instance of the <see cref="DotvvmPresenter"/> class.
-        ///// </summary>
-        //public DotvvmPresenter(
-        //    IDotvvmViewBuilder dotvvmViewBuilder,
-        //    IViewModelLoader viewModelLoader,
-        //    IViewModelSerializer viewModelSerializer,
-        //    IOutputRenderer outputRenderer,
-        //    ICsrfProtector csrfProtector
-        //)
-        //{
-        //    DotvvmViewBuilder = dotvvmViewBuilder;
-        //    ViewModelLoader = viewModelLoader;
-        //    ViewModelSerializer = viewModelSerializer;
-        //    OutputRenderer = outputRenderer;
-        //    CsrfProtector = csrfProtector;
-        //}
 
         /// <summary>
         /// Processes the request.
@@ -113,8 +96,10 @@ namespace DotVVM.Framework.Hosting
             context.ViewModel = ViewModelLoader.InitializeViewModel(context, page);
 
             // get action filters
-            var globalFilters = context.Configuration.Runtime.GlobalFilters.ToList();
-            var viewModelFilters = context.ViewModel.GetType().GetTypeInfo().GetCustomAttributes<ActionFilterAttribute>(true).ToList();
+            var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType().GetTypeInfo());
+            viewModelFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IViewModelActionFilter>());
+            var requestFilters = ActionFilterHelper.GetActionFilters<IRequestActionFilter>(context.ViewModel.GetType().GetTypeInfo());
+            foreach (var f in requestFilters) await f.OnPageLoadingAsync(context);
 
             try
             {
@@ -123,7 +108,7 @@ namespace DotVVM.Framework.Hosting
                 page.DataContext = context.ViewModel;
 
                 // run OnViewModelCreated on action filters
-                foreach (var filter in globalFilters.Concat(viewModelFilters))
+                foreach (var filter in viewModelFilters)
                 {
                     await filter.OnViewModelCreatedAsync(context);
                 }
@@ -180,8 +165,9 @@ namespace DotVVM.Framework.Hosting
                     if (actionInfo != null)
                     {
                         // get filters
-                        var methodFilters = actionInfo.Binding.ActionFilters == null ? globalFilters.Concat(viewModelFilters).ToArray() :
-                            globalFilters.Concat(viewModelFilters).Concat(actionInfo.Binding.ActionFilters).ToArray();
+                        var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
+                            .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType().GetTypeInfo()));
+                        if (actionInfo.Binding.ActionFilters != null) methodFilters = methodFilters.Concat(actionInfo.Binding.ActionFilters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
                     }
@@ -205,7 +191,7 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // run OnResponseRendering on action filters
-                foreach (var filter in globalFilters.Concat(viewModelFilters))
+                foreach (var filter in viewModelFilters)
                 {
                     await filter.OnResponseRenderingAsync(context);
                 }
@@ -229,27 +215,15 @@ namespace DotVVM.Framework.Hosting
                 {
                     ViewModelLoader.DisposeViewModel(context.ViewModel);
                 }
+
+                foreach (var f in requestFilters) await f.OnPageLoadedAsync(context);
             }
-            catch (DotvvmInterruptRequestExecutionException)
-            {
-                throw;
-            }
-            catch (DotvvmHttpException)
-            {
-                throw;
-            }
-            catch (DotvvmControlException) when (!context.Configuration.Debug)
-            {
-                throw;
-            }
-            catch (DotvvmCompilationException) when (!context.Configuration.Debug)
-            {
-                throw;
-            }
+            catch (DotvvmInterruptRequestExecutionException) { throw; }
+            catch (DotvvmHttpException) { throw; }
             catch (Exception ex)
             {
                 // run OnPageException on action filters
-                foreach (var filter in globalFilters.Concat(viewModelFilters))
+                foreach (var filter in requestFilters)
                 {
                     await filter.OnPageExceptionAsync(context, ex);
 
@@ -293,9 +267,8 @@ namespace DotVVM.Framework.Hosting
                 IsControlCommand = false,
                 Action = () => methodInfo.Invoke(target, methodArguments)
             };
-            var filters = context.Configuration.Runtime.GlobalFilters
-                .Concat(methodInfo.DeclaringType.GetTypeInfo().GetCustomAttributes<ActionFilterAttribute>())
-                .Concat(methodInfo.GetCustomAttributes<ActionFilterAttribute>())
+            var filters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
+                .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(methodInfo))
                 .ToArray();
 
             var result = await ExecuteCommand(actionInfo, context, filters);
@@ -306,7 +279,7 @@ namespace DotVVM.Framework.Hosting
             }
         }
 
-        protected async Task<object> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ActionFilterAttribute> methodFilters)
+        protected async Task<object> ExecuteCommand(ActionInfo action, IDotvvmRequestContext context, IEnumerable<ICommandActionFilter> methodFilters)
         {
             // run OnCommandExecuting on action filters
             foreach (var filter in methodFilters)

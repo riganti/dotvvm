@@ -44,6 +44,24 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             return first;
         }
 
+        public BindingParserNode ReadDirectiveTypeName()
+        {
+            var startIndex = CurrentIndex;
+            var typeName = ReadNamespaceOrTypeName();
+            if (Peek()?.Type == BindingTokenType.Comma)
+            {
+                Read();
+                var assemblyName = ReadNamespaceOrTypeName();
+                if (!(assemblyName is SimpleNameBindingParserNode)) typeName.NodeErrors.Add($"Generic identifier name is not allowed in assembly name.");
+                return new AssemblyQualifiedNameBindingParserNode(typeName, assemblyName);
+            }
+            else if (Peek() != null)
+            {
+                typeName.NodeErrors.Add($"Unexpected operator: {Peek().Type}, expecting `,` or end.");
+            }
+            return typeName;
+        }
+
         public BindingParserNode ReadNamespaceOrTypeName()
         {
             return ReadIdentifierExpression(true);

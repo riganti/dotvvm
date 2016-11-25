@@ -2,7 +2,7 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
   <metadata>
     <id>DotVVM.Owin</id>
-    <version>1.1.0-alpha-r4</version>
+    <version>1.1.0-beta</version>
     <authors>Riganti s.r.o.</authors>
     <owners>Riganti s.r.o.</owners>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
@@ -11,7 +11,7 @@
         <tags>dotvvm dotvvm asp.net mvvm owin</tags>
     <dependencies>
      <group targetFramework=".NETFramework4.5.1">
-        <dependency id="DotVVM" version="1.1.0-alpha-r4" />
+        <dependency id="DotVVM" version="1.1.0-beta" />
         <dependency id="Microsoft.Extensions.DependencyInjection" version="1.0.0"   />
         <dependency id="Microsoft.Owin" version="3.0.1"   />
         <dependency id="Microsoft.Owin.Security" version="3.0.1"/>

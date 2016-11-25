@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public CompiledBindingExpression.BindingDelegate Delegate { get; set; }
         public CompiledBindingExpression.BindingUpdateDelegate UpdateDelegate { get; set; }
         public string BindingId { get; set; }
-        public ActionFilterAttribute[] ActionFilters { get; set; }
+        public IActionFilter[] ActionFilters { get; set; }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BindingExpression"/> class.

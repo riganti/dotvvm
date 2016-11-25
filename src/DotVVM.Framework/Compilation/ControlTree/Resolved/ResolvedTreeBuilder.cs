@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
         }
 
         public IAbstractImportDirective BuildImportDirective(
-            DothtmlDirectiveNode node, 
+            DothtmlDirectiveNode node,
             BindingParserNode aliasSyntax,
             BindingParserNode nameSyntax)
         {
@@ -73,22 +73,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 syntaxNode.NodeErrors.ForEach(node.AddError);
             }
 
-            var visitor = new ExpressionBuildingVisitor(TypeRegistry.DirectivesDefault)
-            {
-                ResolveOnlyTypeName = true,
-                Scope = null
-            };
-
-            Expression expression;
-            try
-            {
-                expression = visitor.Visit(nameSyntax);
-            }
-            catch(Exception ex)
-            {
-                node.AddError($"{nameSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
-                return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
-            }
+            var expression = ParseDirectiveExpression(node, nameSyntax);
 
             if (expression is UnknownStaticClassIdentifierExpression)
             {
@@ -96,7 +81,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                     .CastTo<UnknownStaticClassIdentifierExpression>().Name
                     .Apply(ReflectionUtils.IsAssemblyNamespace);
 
-                if(!namespaceValid)
+                if (!namespaceValid)
                 {
                     node.AddError($"{nameSyntax.ToDisplayString()} is unknown type or namespace.");
                 }
@@ -104,13 +89,67 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
 
             }
-            else if(expression is StaticClassIdentifierExpression)
+            else if (expression is StaticClassIdentifierExpression)
             {
                 return new ResolvedImportDirective(aliasSyntax, nameSyntax, expression.Type) { DothtmlNode = node };
             }
 
             node.AddError($"{nameSyntax.ToDisplayString()} is not a type or namespace.");
-            return new ResolvedImportDirective(aliasSyntax, nameSyntax, null);
+            return new ResolvedImportDirective(aliasSyntax, nameSyntax, null) { DothtmlNode = node };
+        }
+
+        public IAbstractViewModelDirective BuildViewModelDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        {
+            var type = ResolveTypeNameDirective(directive, nameSyntax);
+            return new ResolvedViewModelDirective(nameSyntax, type) { DothtmlNode = directive };
+        }
+
+        public IAbstractBaseTypeDirective BuildBaseTypeDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        {
+            var type = ResolveTypeNameDirective(directive, nameSyntax);
+            return new ResolvedBaseTypeDirective(nameSyntax, type) { DothtmlNode = directive };
+        }
+
+        static ResolvedTypeDescriptor ResolveTypeNameDirective(DothtmlDirectiveNode directive, BindingParserNode nameSyntax)
+        {
+            var expression = ParseDirectiveExpression(directive, nameSyntax) as StaticClassIdentifierExpression;
+            if (expression == null)
+            {
+                directive.AddError($"Could not resolve type '{nameSyntax.ToDisplayString()}'.");
+                return null;
+            }
+            else return new ResolvedTypeDescriptor(expression.Type);
+        }
+
+        static Expression ParseDirectiveExpression(DothtmlDirectiveNode directive, BindingParserNode expressionSyntax)
+        {
+            TypeRegistry registry;
+            if (expressionSyntax is AssemblyQualifiedNameBindingParserNode)
+            {
+                var assemblyQualifiedName = expressionSyntax as AssemblyQualifiedNameBindingParserNode;
+                expressionSyntax = assemblyQualifiedName.TypeName;
+                registry = TypeRegistry.DirectivesDefault(assemblyQualifiedName.AssemblyName.ToDisplayString());
+            }
+            else
+            {
+                registry = TypeRegistry.DirectivesDefault();
+            }
+
+            var visitor = new ExpressionBuildingVisitor(registry)
+            {
+                ResolveOnlyTypeName = true,
+                Scope = null
+            };
+
+            try
+            {
+                return visitor.Visit(expressionSyntax);
+            }
+            catch (Exception ex)
+            {
+                directive.AddError($"{expressionSyntax.ToDisplayString()} is not a valid type or namespace: {ex.Message}");
+                return null;
+            }
         }
 
         public IAbstractDirective BuildDirective(DothtmlDirectiveNode node)

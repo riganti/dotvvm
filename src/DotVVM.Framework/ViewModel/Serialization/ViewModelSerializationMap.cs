@@ -33,6 +33,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             Properties = properties.ToList();
         }
 
+        public void ResetFunctions()
+        {
+            readerFactory = null;
+            writerFactory = null;
+        }
 
         private Action<JObject, JsonSerializer, object, EncryptedValuesReader> readerFactory;
         /// <summary>

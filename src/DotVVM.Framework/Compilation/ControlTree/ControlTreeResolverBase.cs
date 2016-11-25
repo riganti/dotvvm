@@ -97,15 +97,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 root.AddError($"The @viewModel directive is missing in the page '{fileName}'!");
                 return null;
             }
-            var viewmodelDirective = directives[ParserConstants.ViewModelDirectiveName].First();
-
-            var viewModelType = FindType(viewmodelDirective.Value);
-            if (viewModelType == null)
-            {
-                viewmodelDirective.DothtmlNode.AddError($"The type '{viewmodelDirective.Value}' required in the @viewModel directive was not found!");
-            }
-
-            return viewModelType;
+            var viewmodelDirective = (IAbstractViewModelDirective)directives[ParserConstants.ViewModelDirectiveName].First();
+            return viewmodelDirective.ResolvedType;
         }
 
         protected virtual IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> ProcessDirectives(DothtmlRootNode root)
@@ -342,8 +335,42 @@ namespace DotVVM.Framework.Compilation.ControlTree
             {
                 return ProcessImportDirective(directiveNode);
             }
+            else if (string.Equals(ParserConstants.ViewModelDirectiveName, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return ProcessViewModelDirective(directiveNode);
+            }
+            else if (string.Equals(ParserConstants.BaseTypeDirective, directiveNode.Name, StringComparison.OrdinalIgnoreCase))
+            {
+                return ProcessBaseTypeDirective(directiveNode);
+            }
 
             return treeBuilder.BuildDirective(directiveNode);
+        }
+
+        protected virtual IAbstractDirective ProcessViewModelDirective(DothtmlDirectiveNode directiveNode)
+        {
+            return this.treeBuilder.BuildViewModelDirective(directiveNode, ParseDirectiveTypeName(directiveNode));
+        }
+
+        protected virtual IAbstractDirective ProcessBaseTypeDirective(DothtmlDirectiveNode directiveNode)
+        {
+            return this.treeBuilder.BuildBaseTypeDirective(directiveNode, ParseDirectiveTypeName(directiveNode));
+        }
+
+        protected virtual BindingParserNode ParseDirectiveTypeName(DothtmlDirectiveNode directiveNode)
+        {
+            var tokenizer = new BindingTokenizer();
+            tokenizer.Tokenize(directiveNode.ValueNode.Text);
+            var parser = new BindingParser()
+            {
+                Tokens = tokenizer.Tokens
+            };
+            var valueSyntaxRoot = parser.ReadDirectiveTypeName();
+            if (!parser.OnEnd())
+            {
+                directiveNode.AddError($"Unexpected token: {parser.Peek()?.Text}.");
+            }
+            return valueSyntaxRoot;
         }
 
         protected virtual IAbstractDirective ProcessImportDirective(DothtmlDirectiveNode directiveNode)
@@ -650,11 +677,11 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             var baseControlDirective = !directives.ContainsKey(ParserConstants.BaseTypeDirective)
                 ? null
-                : directives[ParserConstants.BaseTypeDirective].SingleOrDefault();
+                : (IAbstractBaseTypeDirective)directives[ParserConstants.BaseTypeDirective].SingleOrDefault();
 
             if (baseControlDirective != null)
             {
-                var baseType = FindType(baseControlDirective.Value);
+                var baseType = baseControlDirective.ResolvedType;
                 if (baseType == null)
                 {
                     baseControlDirective.DothtmlNode.AddError($"The type '{baseControlDirective.Value}' specified in baseType directive was not found!");
@@ -763,11 +790,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// Converts the value to the property type.
         /// </summary>
         protected abstract object ConvertValue(string value, ITypeDescriptor propertyType);
-
-        /// <summary>
-        /// Finds the type descriptor for full type name.
-        /// </summary>
-        protected abstract ITypeDescriptor FindType(string fullTypeNameWithAssembly);
 
         /// <summary>
         /// Compiles the binding.

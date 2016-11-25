@@ -1,5 +1,5 @@
 ﻿{
-  "version": "1.1.0-alpha-r4",
+  "version": "1.1.0-beta",
   "dependencies": {
     "DotVVM.Framework": {
       "target": "project" 

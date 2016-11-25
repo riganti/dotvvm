@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var directiveNode = ((DothtmlRootNode)root.DothtmlNode).Directives.First();
             Assert.IsTrue(directiveNode.HasNodeErrors);
-            Assert.IsTrue(directiveNode.NodeErrors.First().Contains("not found"));
+            Assert.IsTrue(directiveNode.NodeErrors.First().Contains("Could not resolve type"));
         }
 
         [TestMethod]
@@ -530,6 +530,36 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(" AHOJ ", control.Properties[ClassWithInnerElementProperty.PropertyProperty].CastTo<ResolvedPropertyValue>().Value);
         }
 
+        [TestMethod]
+        public void ResolvedTree_Invalid_Content()
+        {
+            var root = ParseSource(@"
+<dot:Button>
+    <PostBack.Handlers>
+        <cc:ClassWithoutInnerElementProperty> AHOJ </cc:ClassWithoutInnerElementProperty>
+    </PostBack.Handlers>
+</dot:Button>");
+            var control = root.Content.First(n => n.Metadata.Type == typeof(Button))
+                .Properties[PostBack.HandlersProperty].CastTo<ResolvedPropertyControlCollection>().Controls
+                .First(c => c.Metadata.Type == typeof(ClassWithoutInnerElementProperty));
+            Assert.AreEqual(0, control.Content.Count);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ViewModel_GenericType()
+        {
+            var root = ParseSource(@"@viewModel System.Collections.Generic.List<System.Collections.Generic.Dictionary<System.String, System.Int32>>");
+            Assert.AreEqual(typeof(List<Dictionary<string, int>>), root.DataContextTypeStack.DataContextType);
+        }
+
+        [TestMethod]
+        public void ResolvedTree_ViewModel_InvalidAssemblyQualified()
+        {
+            var root = ParseSource(@"@viewModel System.String, whatever");
+            Assert.IsTrue(root.Directives.Any(d => d.Value.Any(dd => dd.DothtmlNode.HasNodeErrors)));
+            Assert.AreEqual(null, root.DataContextTypeStack.DataContextType);
+        }
+
         private ResolvedTreeRoot ParseSource(string markup, string fileName = "default.dothtml")
         {
             var tokenizer = new DothtmlTokenizer();
@@ -547,7 +577,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
     {
         public List<string> Items { get; set; }
     }
-    [ControlMarkupOptions(DefaultContentProperty = nameof(ClassWithInnerElementProperty.Property))]
+    [ControlMarkupOptions(DefaultContentProperty = nameof(Property))]
     public class ClassWithInnerElementProperty : PostBackHandler
     {
         [MarkupOptions(MappingMode = MappingMode.InnerElement)]
@@ -558,6 +588,25 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         }
         public static readonly DotvvmProperty PropertyProperty
             = DotvvmProperty.Register<string, ClassWithInnerElementProperty>(c => c.Property, null);
+
+        protected internal override string ClientHandlerName => null;
+
+        protected internal override Dictionary<string, string> GetHandlerOptionClientExpressions()
+        {
+            throw new NotImplementedException();
+        }
+    }
+    
+    public class ClassWithoutInnerElementProperty : PostBackHandler
+    {
+        [MarkupOptions(MappingMode = MappingMode.Attribute)]
+        public string Property
+        {
+            get { return (string)GetValue(PropertyProperty); }
+            set { SetValue(PropertyProperty, value); }
+        }
+        public static readonly DotvvmProperty PropertyProperty
+            = DotvvmProperty.Register<string, ClassWithoutInnerElementProperty>(c => c.Property, null);
 
         protected internal override string ClientHandlerName => null;
 
