@@ -174,7 +174,7 @@
       <HintPath>..\DotVVM.Core\bin\debug\net451\DotVVM.Core.dll</HintPath>
     </Reference>
     <Reference Include="DotVVM.Samples.Common">
-      <HintPath>..\DotVVM.Samples.Common\bin\debug\net461\DotVVM.Samples.Common.dll</HintPath>
+      <HintPath>..\DotVVM.Samples.Common\bin\debug\net451\DotVVM.Samples.Common.dll</HintPath>
     </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml.XmlDocument, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
@@ -246,7 +246,7 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>0</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:5407/</IISUrl>
+          <IISUrl>http://localhost:2082/</IISUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

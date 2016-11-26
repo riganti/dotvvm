@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.ViewModel;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ActionFilterErrorHandling
 {
@@ -28,7 +29,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.ActionFilterErro
         {
             ((ActionFilterErrorHandlingViewModel)context.ViewModel).Result = "error was handled";
             context.IsCommandExceptionHandled = true;
-            return Task.CompletedTask;
+            return TaskUtils.GetCompletedTask();
         }
     }
 }

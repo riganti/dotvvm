@@ -2,9 +2,9 @@
 using Dotvvm.Samples.Tests;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Riganti.Utils.Testing.Selenium.Core;
-using Riganti.Utils.Testing.Selenium.DotVVM;
 using System.IO;
 using System.Linq;
+using Riganti.Utils.Testing.Selenium.DotVVM;
 
 namespace DotVVM.Samples.Tests.Complex
 {
