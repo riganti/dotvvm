@@ -30,12 +30,12 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected override void RenderInputTag(IHtmlWriter writer)
         {
-            if (HasBinding(CheckedProperty) && !HasBinding(CheckedItemsProperty))
+            if (HasValueBinding(CheckedProperty) && !HasValueBinding(CheckedItemsProperty))
             {
                 // boolean mode
                 RenderCheckedProperty(writer);
             }
-            else if (!HasBinding(CheckedProperty) && HasBinding(CheckedItemsProperty))
+            else if (!HasValueBinding(CheckedProperty) && HasValueBinding(CheckedItemsProperty))
             {
                 // collection mode
                 RenderCheckedItemsProperty(writer);
