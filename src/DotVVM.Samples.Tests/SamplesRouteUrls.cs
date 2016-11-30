@@ -75,6 +75,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/Default";
 			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA";
 			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageB";
+			public static string ControlSamples_TextBox_Date => "ControlSamples/TextBox/Date";
 			public static string ControlSamples_TextBox_IntBoundTextBox => "ControlSamples/TextBox/IntBoundTextBox";
 			public static string ControlSamples_TextBox_TextBox => "ControlSamples/TextBox/TextBox";
 			public static string ControlSamples_TextBox_TextBox_Format => "ControlSamples/TextBox/TextBox_Format";
