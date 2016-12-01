@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
 {
@@ -159,7 +160,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
             // check element hierarchy
             if (ElementHierarchy.Count > 1)
             {
-                root.AddError($"Unexpected end of file! The tag '<{ElementHierarchy.Peek()}>' was not closed!");
+                ElementHierarchy.Peek().AddError($"Unexpected end of file! The tag '<{ElementHierarchy.Peek().CastTo<DothtmlElementNode>().TagName}>' was not closed!");
             }
 
             ResolveParents(root);

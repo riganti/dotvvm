@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderEndTag(writer, context);
             }
-            else if (HasBinding(HtmlProperty))
+            else if (HasValueBinding(HtmlProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();
             }

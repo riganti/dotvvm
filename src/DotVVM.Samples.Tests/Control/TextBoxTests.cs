@@ -26,6 +26,23 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("#TextArea2").CheckTagName("textarea");
             });
         }
+
+        [TestMethod]
+        public void Control_TextBoxDate_CopyDate()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_TextBox_Date);
+
+                var initOk = browser.First("input[data-ui='first-date']").GetAttribute("value").Equals("20-11-2016");
+                browser.First("[data-ui=send]").Click();
+                var resultOk = browser.First("input[data-ui='second-date']").GetAttribute("value").Equals("20-11-2016");
+
+                Assert.IsTrue(initOk);
+                Assert.IsTrue(resultOk);
+            });
+        }
+
         [TestMethod]
         public void Control_TextBox_StringFormat()
         {
@@ -90,5 +107,7 @@ namespace DotVVM.Samples.Tests.Control
                 checkForLanguage("cs-CZ");
             });
         }
+
+
     }
 }
