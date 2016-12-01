@@ -33,13 +33,23 @@ namespace DotVVM.Framework.ResourceManagement
 
         protected byte[] GetHash(ILocalResourceLocation resourceLocation, IDotvvmRequestContext context)
         {
-            return hashCache.GetValue(resourceLocation, l =>
+            if (context.Configuration.Debug)
             {
                 using (var stream = resourceLocation.LoadResource(context))
                 {
                     return ComputeHash(stream);
                 }
-            });
+            }
+            else
+            {
+                return hashCache.GetValue(resourceLocation, l =>
+                {
+                    using (var stream = resourceLocation.LoadResource(context))
+                    {
+                        return ComputeHash(stream);
+                    }
+                });
+            }
         }
 
         public string GetIntegrityHash(ILocalResourceLocation resource, IDotvvmRequestContext context) => 

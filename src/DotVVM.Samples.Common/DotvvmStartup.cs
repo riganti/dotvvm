@@ -52,6 +52,11 @@ namespace DotVVM.Samples.BasicSamples
             {
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new LocalFileResourceLocation("~/Scripts/testResource2.js"))
             });
+
+            // dev files
+            config.Resources.SetEmbededResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
+            config.Resources.SetEmbededResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
+            config.Resources.SetEmbededResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
         }
 
         private static void AddRoutes(DotvvmConfiguration config)

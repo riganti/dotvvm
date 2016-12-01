@@ -3,6 +3,7 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.Routing;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -15,12 +16,14 @@ namespace DotVVM.Framework.ResourceManagement
         private readonly IResourceHashService hasher;
         private readonly RouteBase resourceRoute;
         private readonly DotvvmResourceRepository resources;
+        private readonly ConcurrentDictionary<string, string> alternateDirectories;
 
         public LocalResourceUrlManager(DotvvmConfiguration configuration, IResourceHashService hasher)
         {
-            this.resourceRoute = new DotvvmRoute("dotvvmResource/{hash}/{name}", null, null, null, configuration);
+            this.resourceRoute = new DotvvmRoute("dotvvmResource/{hash}/{name:regex(.*)}", null, null, null, configuration);
             this.hasher = hasher;
             this.resources = configuration.Resources;
+            this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
         }
 
         public string GetResourceUrl(ILocalResourceLocation resource, IDotvvmRequestContext context, string name) =>
@@ -38,10 +41,33 @@ namespace DotVVM.Framework.ResourceManagement
             var name = (string)parameters["name"];
             var hash = (string)parameters["hash"];
             var resource = resources.FindResource(name) as IResource;
-            if (resource == null) return null;
-            var location = FindLocation(resource, out mimeType);
-            if (hasher.GetVersionHash(location, context) != hash) return null; // check if the resource matches so that nobody can gues the url by chance
-            return location;
+            if (resource != null)
+            {
+                var location = FindLocation(resource, out mimeType);
+                if (hasher.GetVersionHash(location, context) == hash) // check if the resource matches so that nobody can gues the url by chance
+                {
+                    if (alternateDirectories != null)
+                        alternateDirectories.GetOrAdd(hash, _ => (location as IDebugFileLocalLocation)?.GetFilePath(context));
+                    return location;
+                }
+            }
+
+            return TryLoadAlternativeFile(name, hash, context);
+        }
+
+        private ILocalResourceLocation TryLoadAlternativeFile(string name, string hash, IDotvvmRequestContext context)
+        {
+            string filePath;
+            if (alternateDirectories != null && alternateDirectories.TryGetValue(hash, out filePath) && filePath != null)
+            {
+                var directory = Path.GetDirectoryName(Path.Combine(context.Configuration.ApplicationPhysicalPath, filePath));
+                if (directory != null)
+                {
+                    var sourceFile = Path.Combine(directory, name);
+                    if (File.Exists(sourceFile)) return new LocalFileResourceLocation(sourceFile);
+                }
+            }
+            return null;
         }
 
         protected ILocalResourceLocation FindLocation(IResource resource, out string mimeType)

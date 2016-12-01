@@ -6,16 +6,20 @@ using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ResourceManagement;
+using System.Collections.Concurrent;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 {
     public class DotvvmLocalResourceMiddleware : IMiddleware
     {
         private readonly ILocalResourceUrlManager urlManager;
+        private readonly ConcurrentDictionary<string, string> alternateDirectories;
 
-        public DotvvmLocalResourceMiddleware(ILocalResourceUrlManager urlManager)
+        public DotvvmLocalResourceMiddleware(ILocalResourceUrlManager urlManager, DotvvmConfiguration configuration)
         {
             this.urlManager = urlManager;
+            this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
         }
 
         public async Task<bool> Handle(IDotvvmRequestContext request)
