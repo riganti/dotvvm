@@ -10,6 +10,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.AspCore.Middleware
 {
+    [TestClass]
     public class MiddlewareTest
     {
         public const string FinalFunction = "final";
