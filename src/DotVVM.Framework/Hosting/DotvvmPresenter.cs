@@ -63,7 +63,10 @@ namespace DotVVM.Framework.Hosting
             }
             catch (DotvvmControlException ex)
             {
-                ex.FileName = Path.Combine(ApplicationPath, ex.FileName);
+                if (ex.FileName != null)
+                {
+                    ex.FileName = Path.Combine(ApplicationPath, ex.FileName);
+                }
                 throw;
             }
         }
