@@ -167,15 +167,6 @@
     <Reference Include="System.Web" />
     <Reference Include="System.Web.Extensions" />
     <Reference Include="System.Xml" />
-    <Reference Include="DotVVM.Framework">
-      <HintPath>..\DotVVM.Framework\bin\debug\net451\DotVVM.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="DotVVM.Core">
-      <HintPath>..\DotVVM.Core\bin\debug\net451\DotVVM.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DotVVM.Samples.Common">
-      <HintPath>..\DotVVM.Samples.Common\bin\debug\net451\DotVVM.Samples.Common.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Xml.XmlDocument, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Xml.XmlDocument.4.0.1\lib\net46\System.Xml.XmlDocument.dll</HintPath>
@@ -188,6 +179,28 @@
     <Reference Include="System.Xml.XPath.XDocument, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Xml.XPath.XDocument.4.0.1\lib\net46\System.Xml.XPath.XDocument.dll</HintPath>
       <Private>True</Private>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <Reference Include="DotVVM.Framework">
+      <HintPath>..\DotVVM.Framework\bin\debug\net451\DotVVM.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="DotVVM.Core">
+      <HintPath>..\DotVVM.Core\bin\debug\net451\DotVVM.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DotVVM.Samples.Common">
+      <HintPath>..\DotVVM.Samples.Common\bin\debug\net451\DotVVM.Samples.Common.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
+    <Reference Include="DotVVM.Framework">
+      <HintPath>..\DotVVM.Framework\bin\Release\net451\DotVVM.Framework.dll</HintPath>
+    </Reference>
+    <Reference Include="DotVVM.Core">
+      <HintPath>..\DotVVM.Core\bin\Release\net451\DotVVM.Core.dll</HintPath>
+    </Reference>
+    <Reference Include="DotVVM.Samples.Common">
+      <HintPath>..\DotVVM.Samples.Common\bin\Release\net451\DotVVM.Samples.Common.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -227,7 +240,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj">
-      <Project>{d05cf4ad-da99-4a91-a127-1aa8d860fbad}</Project>
+      <Project>{f578ac17-9bbf-40fb-b0ee-9059cd08865b}</Project>
       <Name>DotVVM.Framework.Hosting.Owin</Name>
     </ProjectReference>
   </ItemGroup>
