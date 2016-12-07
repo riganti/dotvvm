@@ -30,7 +30,7 @@ dotnet restore
 cd ../DotVVM.Framework.Tests.Owin
 dotnet restore
 
-cd ../DotVVM.Framework.Tests.SeleniumGenerator
+cd ../DotVVM.Framework.Tools.SeleniumGenerator
 dotnet restore
 
 cd ../DotVVM.Framework.Testing.SeleniumHelpers
