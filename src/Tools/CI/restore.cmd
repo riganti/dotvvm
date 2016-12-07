@@ -33,6 +33,9 @@ dotnet restore
 cd ../DotVVM.Framework.Tests.SeleniumGenerator
 dotnet restore
 
+cd ../DotVVM.Framework.Testing.SeleniumHelpers
+dotnet restore
+
 cd ../DotVVM.Samples.BasicSamples.AspNetCore
 dotnet restore
 
