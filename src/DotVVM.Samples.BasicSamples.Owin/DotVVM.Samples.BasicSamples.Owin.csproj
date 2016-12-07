@@ -181,28 +181,6 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug' ">
-    <Reference Include="DotVVM.Framework">
-      <HintPath>..\DotVVM.Framework\bin\debug\net451\DotVVM.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="DotVVM.Core">
-      <HintPath>..\DotVVM.Core\bin\debug\net451\DotVVM.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DotVVM.Samples.Common">
-      <HintPath>..\DotVVM.Samples.Common\bin\debug\net451\DotVVM.Samples.Common.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition=" '$(Configuration)' == 'Release' ">
-    <Reference Include="DotVVM.Framework">
-      <HintPath>..\DotVVM.Framework\bin\Release\net451\DotVVM.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="DotVVM.Core">
-      <HintPath>..\DotVVM.Core\bin\Release\net451\DotVVM.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DotVVM.Samples.Common">
-      <HintPath>..\DotVVM.Samples.Common\bin\Release\net451\DotVVM.Samples.Common.dll</HintPath>
-    </Reference>
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="SwitchMiddleware.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -239,9 +217,21 @@
     <Analyzer Include="..\packages\Microsoft.CodeAnalysis.Analyzers.1.1.0\analyzers\dotnet\cs\Microsoft.CodeAnalysis.CSharp.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj">
+      <Project>{45fa2f43-d92b-4a9b-9b93-9ab519ad0127}</Project>
+      <Name>DotVVM.Core</Name>
+    </ProjectReference>
     <ProjectReference Include="..\DotVVM.Framework.Hosting.Owin\DotVVM.Framework.Hosting.Owin.csproj">
       <Project>{f578ac17-9bbf-40fb-b0ee-9059cd08865b}</Project>
       <Name>DotVVM.Framework.Hosting.Owin</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
+      <Project>{8bb2217d-0f2d-49d1-97bc-3654ed321f3b}</Project>
+      <Name>DotVVM.Framework</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DotVVM.Samples.Common\DotVVM.Samples.Common.csproj">
+      <Project>{60cccc83-ba9f-4df0-a759-5e46c3d4dab0}</Project>
+      <Name>DotVVM.Samples.Common</Name>
     </ProjectReference>
   </ItemGroup>
   <PropertyGroup>

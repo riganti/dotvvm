@@ -138,10 +138,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Net.Http" />
-    <Reference Include="DotVVM.Core">
-      <HintPath>..\DotVVM.Core\bin\Debug\net451\DotVVM.Core.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
     <Reference Include="System.Xml" />
     <Reference Include="System.Xml.XmlDocument, Version=4.0.1.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Xml.XmlDocument.4.0.1\lib\net46\System.Xml.XmlDocument.dll</HintPath>
@@ -155,13 +151,16 @@
       <HintPath>..\packages\System.Xml.XPath.XDocument.4.0.1\lib\net46\System.Xml.XPath.XDocument.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="DotVVM.Core">
-      <HintPath>..\DotVVM.Core\bin\debug\net461\DotVVM.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="DotVVM.Framework">
-      <HintPath>..\DotVVM.Framework\bin\Debug\net451\DotVVM.Framework.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj">
+      <Project>{45fa2f43-d92b-4a9b-9b93-9ab519ad0127}</Project>
+      <Name>DotVVM.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
+      <Project>{8bb2217d-0f2d-49d1-97bc-3654ed321f3b}</Project>
+      <Name>DotVVM.Framework</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AssemblyBindingCompiler.cs" />
