@@ -961,7 +961,11 @@ var DotVVM = (function () {
                     var result, isEmpty, newValue;
                     if (elmMetadata.dataType === "datetime") {
                         // parse date
-                        result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
+                        var currentValue = obs();
+                        if (currentValue != null) {
+                            currentValue = dotvvm.globalize.parseDotvvmDate(currentValue);
+                        }
+                        result = dotvvm.globalize.parseDate(element.value, elmMetadata.format, currentValue);
                         isEmpty = result === null;
                         newValue = isEmpty ? null : dotvvm.serialization.serializeDate(result, false);
                     }
@@ -1115,8 +1119,8 @@ var DotvvmGlobalize = (function () {
     DotvvmGlobalize.prototype.parseNumber = function (value) {
         return dotvvm_Globalize.parseFloat(value, 10, dotvvm.culture);
     };
-    DotvvmGlobalize.prototype.parseDate = function (value, format) {
-        return dotvvm_Globalize.parseDate(value, format, dotvvm.culture);
+    DotvvmGlobalize.prototype.parseDate = function (value, format, previousValue) {
+        return dotvvm_Globalize.parseDate(value, format, dotvvm.culture, previousValue);
     };
     return DotvvmGlobalize;
 }());
