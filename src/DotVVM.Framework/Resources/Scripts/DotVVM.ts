@@ -897,7 +897,11 @@ class DotVVM {
                     var result, isEmpty, newValue;
                     if (elmMetadata.dataType === "datetime") {
                         // parse date
-                        result = dotvvm.globalize.parseDate(element.value, elmMetadata.format);
+                        var currentValue = obs();
+                        if (currentValue != null) {
+                            currentValue=dotvvm.globalize.parseDotvvmDate(currentValue);
+                        }
+                        result = dotvvm.globalize.parseDate(element.value, elmMetadata.format, currentValue);
                         isEmpty = result === null;
                         newValue = isEmpty ? null : dotvvm.serialization.serializeDate(result, false);
                     } else {
