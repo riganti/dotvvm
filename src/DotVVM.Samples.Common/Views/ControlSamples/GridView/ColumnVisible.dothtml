@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.ColumnVisibleViewModel
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView.ColumnVisibleViewModel, DotVVM.Samples.Common
 
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
