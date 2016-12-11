@@ -859,6 +859,38 @@ class DotVVM {
                 });
             }
         };
+        ko.bindingHandlers['dotvvm-table-columnvisible'] = {
+            init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
+                let lastDisplay = "";
+                let currentVisible = true;
+                function changeVisibility(table: HTMLTableElement, columnIndex: number, visible: boolean) {
+                    if (currentVisible == visible) return;
+                    currentVisible = visible;
+                    for (let i = 0; i < table.rows.length; i++) {
+                        let row = <HTMLTableRowElement>table.rows.item(i);
+                        let style = (<HTMLElement>row.cells[columnIndex]).style;
+                        if (visible) {
+                            style.display = lastDisplay;
+                        }
+                        else {
+                            lastDisplay = style.display;
+                            style.display = "none";
+                        }
+                    }
+                }
+                if (!(element instanceof HTMLTableCellElement)) return;
+                // find parent table
+                let table: any = element;
+                while (!(table instanceof HTMLTableElement)) table = table.parentElement;
+                let colIndex = [].slice.call(table.rows.item(0).cells).indexOf(element);
+
+
+                element['dotvvmChangeVisibility'] = changeVisibility.bind(null, table, colIndex);
+            },
+            update(element, valueAccessor) {
+                element.dotvvmChangeVisibility(ko.unwrap(valueAccessor()));
+            }
+        }
         ko.bindingHandlers['dotvvm-textbox-text'] = {
             init(element: any, valueAccessor: () => any, allBindingsAccessor: KnockoutAllBindingsAccessor, viewModel: any, bindingContext: KnockoutBindingContext) {
                 var obs = valueAccessor();
