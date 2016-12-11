@@ -44,6 +44,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_EnvironmentView_EnvironmentViewTest => "ControlSamples/EnvironmentView/EnvironmentViewTest";
 			public static string ControlSamples_FileUpload_AllowedOrNot => "ControlSamples/FileUpload/AllowedOrNot";
 			public static string ControlSamples_FileUpload_FileUpload => "ControlSamples/FileUpload/FileUpload";
+			public static string ControlSamples_GridView_ColumnVisible => "ControlSamples/GridView/ColumnVisible";
 			public static string ControlSamples_GridView_GridViewInlineEditing => "ControlSamples/GridView/GridViewInlineEditing";
 			public static string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid => "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyGuid";
 			public static string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyString => "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyString";
@@ -75,7 +76,6 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_Default => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/Default";
 			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageA => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageA";
 			public static string ControlSamples_SpaContentPlaceHolder_PrefixRouteName_PageB => "ControlSamples/SpaContentPlaceHolder_PrefixRouteName/PageB";
-			public static string ControlSamples_TextBox_Date => "ControlSamples/TextBox/Date";
 			public static string ControlSamples_TextBox_IntBoundTextBox => "ControlSamples/TextBox/IntBoundTextBox";
 			public static string ControlSamples_TextBox_TextBox => "ControlSamples/TextBox/TextBox";
 			public static string ControlSamples_TextBox_TextBox_Format => "ControlSamples/TextBox/TextBox_Format";

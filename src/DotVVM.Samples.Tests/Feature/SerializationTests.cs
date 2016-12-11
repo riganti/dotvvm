@@ -7,7 +7,6 @@ using System.Globalization;
 using System.Linq;
 using System.Threading;
 using Dotvvm.Samples.Tests;
-using DotVVM.Framework.Routing;
 
 namespace DotVVM.Samples.Tests.Feature
 {

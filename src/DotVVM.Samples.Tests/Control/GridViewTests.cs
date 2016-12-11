@@ -456,5 +456,47 @@ namespace DotVVM.Samples.Tests.Control
             });
         }
 
+        [TestMethod]
+        public void Control_GridViewColumnVisible()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_ColumnVisible);
+                browser.Wait();
+
+                // check that columns are visible
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2).CheckIfIsDisplayed();
+                }
+                for (int i = 0; i < 2; i++)
+                {
+                    browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1).CheckIfIsDisplayed();
+                }
+
+                // check that columns are hidden
+                browser.First("input[type=checkbox]").Click();
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2).CheckIfIsNotDisplayed();
+                }
+                for (int i = 0; i < 2; i++)
+                {
+                    browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1).CheckIfIsNotDisplayed();
+                }
+
+                // check that columns are visible again
+                browser.First("input[type=checkbox]").Click();
+                for (int i = 0; i < 6; i++)
+                {
+                    browser.ElementAt("table", 0).ElementAt("tr", i).ElementAt("td,th", 2).CheckIfIsDisplayed();
+                }
+                for (int i = 0; i < 2; i++)
+                {
+                    browser.ElementAt("table", 1).ElementAt("tr", i).ElementAt("td,th", 1).CheckIfIsDisplayed();
+                }
+            });
+        }
+
     }
 }
