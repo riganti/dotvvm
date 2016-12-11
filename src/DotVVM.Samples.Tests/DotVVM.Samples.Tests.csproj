@@ -10,6 +10,28 @@
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="App.config" />
+    <None Include="App.ANC_Chrome.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.ANC_Firefox.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.ANC_InternetExplorer.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.Owin_Chrome.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.Owin_Firefox.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.Owin_InternetExplorer.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="App.Release.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
     <None Include="SamplesRouteUrls.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SamplesRouteUrls.cs</LastGenOutput>
@@ -41,6 +63,9 @@
     <PackageReference Include="Selenium.WebDriver">
       <Version>2.53.1</Version>
     </PackageReference>
+    <PackageReference Include="SlowCheetah">
+      <Version>2.5.15</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
@@ -67,4 +92,16 @@
     </Reference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v15.0\Web\Microsoft.Web.Publishing.Tasks.dll" />
+  <Target Name="AfterCompile" Condition="exists('App.$(Configuration).config')">
+    <Message Importance="high" Text="Transforming config" />
+    <TransformXml Source="App.config" Destination="$(IntermediateOutputPath)$(TargetFileName).config" Transform="App.$(Configuration).config" />
+    <Message Importance="high" Text="Config transformed to $(IntermediateOutputPath)$(TargetFileName).config" />
+    <ItemGroup>
+      <AppConfigWithTargetPath Remove="App.config" />
+      <AppConfigWithTargetPath Include="$(IntermediateOutputPath)$(TargetFileName).config">
+        <TargetPath>$(TargetFileName).config</TargetPath>
+      </AppConfigWithTargetPath>
+    </ItemGroup>
+  </Target>
 </Project>
