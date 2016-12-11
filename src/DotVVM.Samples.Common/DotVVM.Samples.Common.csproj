@@ -13,6 +13,85 @@
     <EmbeddedResource Include="compiler\resources\**\*" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Views\ControlSamples\AuthenticatedView\AuthenticatedViewTest.dothtml" />
+    <None Include="Views\ControlSamples\Button\Button.dothtml" />
+    <None Include="Views\ControlSamples\Button\ButtonTagName.dothtml" />
+    <None Include="Views\ControlSamples\Button\InputTypeButton_HtmlContentInside.dothtml" />
+    <None Include="Views\ControlSamples\Button\InputTypeButton_TextContentInside.dothtml" />
+    <None Include="Views\ControlSamples\CheckBox\CheckBox.dothtml" />
+    <None Include="Views\ControlSamples\CheckBox\CheckboxInRepeater.dothtml" />
+    <None Include="Views\ControlSamples\CheckBox\CheckBox_CheckedItems_NullCollection.dothtml" />
+    <None Include="Views\ControlSamples\ClaimView\ClaimViewTest.dothtml" />
+    <None Include="Views\ControlSamples\ComboBox\ComboBox.dothtml" />
+    <None Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderMasterPage.dotmaster" />
+    <None Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage.dothtml" />
+    <None Include="Views\ControlSamples\ContentPlaceHolder\ContentPlaceHolderPage_ContentTest.dothtml" />
+    <None Include="Views\ControlSamples\DataPager\DataPager.dothtml" />
+    <None Include="Views\ControlSamples\EnabledProperty\EnabledProperty.dothtml" />
+    <None Include="Views\ControlSamples\EnvironmentView\EnvironmentViewTest.dothtml" />
+    <None Include="Views\ControlSamples\FileUpload\AllowedOrNot.dothtml" />
+    <None Include="Views\ControlSamples\FileUpload\FileUpload.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewInlineEditing.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyGuid.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewInlineEditingPrimaryKeyString.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewInlineEditingValidation.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewPagingSorting.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewRowDecorators.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewServerRender.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewSizable.dothtml" />
+    <None Include="Views\ControlSamples\GridView\GridViewStaticCommand.dothtml" />
+    <None Include="Views\ControlSamples\GridView\LargeGrid.dothtml" />
+    <None Include="Views\ControlSamples\HtmlLiteral\HtmlLiteral.dothtml" />
+    <None Include="Views\ControlSamples\LinkButton\LinkButton.dothtml" />
+    <None Include="Views\ControlSamples\Literal\Literal.dothtml" />
+    <None Include="Views\ControlSamples\Literal\Literal_ArrayLength.dothtml" />
+    <None Include="Views\ControlSamples\Literal\Literal_CollectionLength.dothtml" />
+    <None Include="Views\ControlSamples\Literal\Literal_FormatString.dothtml" />
+    <None Include="Views\ControlSamples\RadioButton\RadioButton.dothtml" />
+    <None Include="Views\ControlSamples\RepeaterWrapperTag\RepeaterWrapperTag.dothtml" />
+    <None Include="Views\ControlSamples\Repeater\NestedRepeater.dothtml" />
+    <None Include="Views\ControlSamples\Repeater\RouteLink.dothtml" />
+    <None Include="Views\ControlSamples\Repeater\RouteLinkUrlSuffix.dothtml" />
+    <None Include="Views\ControlSamples\RoleView\RoleViewTest.dothtml" />
+    <None Include="Views\ControlSamples\RouteLink\RouteLinkEnabled.dothtml" />
+    <None Include="Views\ControlSamples\RouteLink\RouteLinkEnabledFalse.dothtml" />
+    <None Include="Views\ControlSamples\RouteLink\TestRoute.dothtml" />
+    <None Include="Views\ControlSamples\SpaContentPlaceHolder\Default.dothtml" />
+    <None Include="Views\ControlSamples\SpaContentPlaceHolder\PageA.dothtml" />
+    <None Include="Views\ControlSamples\SpaContentPlaceHolder\PageB.dothtml" />
+    <None Include="Views\ControlSamples\SpaContentPlaceHolder\SpaMaster.dotmaster" />
+    <None Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\Default.dothtml" />
+    <None Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageA.dothtml" />
+    <None Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\PageB.dothtml" />
+    <None Include="Views\ControlSamples\SpaContentPlaceHolder_PrefixRouteName\SpaMaster.dotmaster" />
+    <None Include="Views\ControlSamples\TextBox\IntBoundTextBox.dothtml" />
+    <None Include="Views\ControlSamples\TextBox\TextBox.dothtml" />
+    <None Include="Views\ControlSamples\TextBox\TextBox_Format.dothtml" />
+    <None Include="Views\ControlSamples\TextBox\TextBox_FormatDoubleProperty.dothtml" />
+    <None Include="Views\ControlSamples\UpdateProgress\UpdateProgress.dothtml" />
+    <None Include="Views\ControlSamples\ValidationSummary\RecursiveValidationSummary.dothtml" />
+    <None Include="Views\Default.dothtml" />
+    <None Include="Views\Errors\BindingInvalidCommand.dothtml" />
+    <None Include="Views\Errors\BindingInvalidProperty.dothtml" />
+    <None Include="Views\Errors\ControlUsageValidation.dothtml" />
+    <None Include="Views\Errors\EmptyBinding.dothtml" />
+    <None Include="Views\Errors\EncryptedPropertyInValueBinding.dothtml" />
+    <None Include="Views\Errors\FieldInValueBinding.dothtml" />
+    <None Include="Views\Errors\InvalidViewModel.dothtml" />
+    <None Include="Views\Errors\MalformedBinding.dothtml" />
+    <None Include="Views\Errors\MarkupControlInvalidViewModel.dotcontrol" />
+    <None Include="Views\Errors\MarkupControlInvalidViewModel.dothtml" />
+    <None Include="Views\Errors\Master.dotmaster" />
+    <None Include="Views\Errors\MasterPageRequiresDifferentViewModel.dothtml" />
+    <None Include="Views\Errors\MissingRequiredProperty.dothtml" />
+    <None Include="Views\Errors\MissingRequiredProperty2.dothtml" />
+    <None Include="Views\Errors\MissingViewModel.dothtml" />
+    <None Include="Views\Errors\NonExistingControl.dothtml" />
+    <None Include="Views\Errors\NonExistingProperty.dothtml" />
+    <None Include="Views\Errors\NotAllowedHardCodedPropertyValue.dothtml" />
+    <None Include="Views\Errors\WrongPropertyValue.dothtml" />
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="Microsoft.NET.Sdk">
       <Version>1.0.0-alpha-20161104-2</Version>
       <PrivateAssets>All</PrivateAssets>
@@ -30,6 +109,7 @@
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
+  <ItemGroup />
   <PropertyGroup Label="Configuration">
     <OutputPath>bin\Debug</OutputPath>
   </PropertyGroup>
