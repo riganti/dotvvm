@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace DotVVM.Framework.Controls
 {
-    public interface IDotvvmControl
+    public interface IDotvvmControl: IRenderable
     {
         DotvvmControlCollection Children { get; }
         ClientIDMode ClientIDMode { get; set; }
@@ -29,8 +29,6 @@ namespace DotVVM.Framework.Controls
         bool HasOnlyWhiteSpaceContent();
 
         bool IsPropertySet(DotvvmProperty property, bool inherit = true);
-
-        void Render(IHtmlWriter writer, IDotvvmRequestContext context);
 
         void SetValue(DotvvmProperty property, object value);
     }
