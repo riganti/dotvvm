@@ -8,9 +8,13 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public static class RegistrationUtils
     {
-        public static void SetEmbededResourceDebugFile(this DotvvmResourceRepository repo, string resourceName, string filePath)
+        /// <summary>
+        /// Registers debug file path for the specified embeded resource.
+        /// In debug mode resource is loaded from this path, it is refreshed on every request, and debug maps are looked up in the same directory.
+        /// </summary>
+        public static void SetEmbeddedResourceDebugFile(this DotvvmResourceRepository repo, string resourceName, string filePath)
         {
-            var location = repo.FindResource(resourceName).As<ILinkResource>()?.GetLocations()?.OfType<EmbededResourceLocation>()?.FirstOrDefault();
+            var location = repo.FindResource(resourceName).As<ILinkResource>()?.GetLocations()?.OfType<EmbeddedResourceLocation>()?.FirstOrDefault();
             if (location != null) location.DebugFilePath = filePath;
         }
     }

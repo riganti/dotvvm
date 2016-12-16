@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Framework.ResourceManagement
 {
     /// <summary>
-    /// Gets url where the resource can be found and finds the resource based on this url
+    /// Gets url where the resource can be found and finds the resource location based on this url
     /// </summary>
     public interface ILocalResourceUrlManager
     {

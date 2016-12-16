@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 namespace DotVVM.Framework.ResourceManagement
 {
     /// <summary>
-    /// repository of named resources
+    /// Repository of named resources
     /// </summary>
     public class DotvvmResourceRepository : IDotvvmResourceRepository
     {

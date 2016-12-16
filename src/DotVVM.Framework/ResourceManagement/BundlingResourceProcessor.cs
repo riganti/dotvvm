@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.ResourceManagement
 {
+    /// <summary>
+    /// Replaces specified resources by the registered bundles
+    /// </summary>
     public class BundlingResourceProcessor : SingleResourceProcessorBase
     {
         public Dictionary<string, NamedResource> BundleInverseIndex { get; } = new Dictionary<string, NamedResource>();

@@ -6,6 +6,9 @@ using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {
+    /// <summary>
+    /// Represents a resource located at remote server identified by a url.
+    /// </summary>
     public class RemoteResourceLocation: IResourceLocation
     {
         public string Url { get; }

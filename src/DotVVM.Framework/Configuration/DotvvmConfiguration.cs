@@ -210,15 +210,15 @@ namespace DotVVM.Framework.Configuration
                 {
                     LocationFallback = new ResourceLocationFallback(
                         "window.jQuery",
-                        new EmbededResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js"))
+                        new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js"))
                 });
             configuration.Resources.Register(ResourceConstants.KnockoutJSResourceName,
-                new ScriptResource(new EmbededResourceLocation(
+                new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly, 
                     "DotVVM.Framework.Resources.Scripts.knockout-latest.js")));
 
             configuration.Resources.Register(ResourceConstants.DotvvmResourceName + ".internal",
-                new ScriptResource(new EmbededResourceLocation(
+                new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.js"))
                 {
@@ -232,7 +232,7 @@ namespace DotVVM.Framework.Configuration
                 });
 
             configuration.Resources.Register(ResourceConstants.DotvvmDebugResourceName,
-                new ScriptResource(new EmbededResourceLocation(
+                new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.Debug.js"))
                 {
@@ -240,7 +240,7 @@ namespace DotVVM.Framework.Configuration
                 });
 
             configuration.Resources.Register(ResourceConstants.DotvvmFileUploadCssResourceName,
-                new StylesheetResource(new EmbededResourceLocation(
+                new StylesheetResource(new EmbeddedResourceLocation(
                     typeof (DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.DotVVM.FileUpload.css")));
 
@@ -250,7 +250,7 @@ namespace DotVVM.Framework.Configuration
         private static void RegisterGlobalizeResources(DotvvmConfiguration configuration)
         {
             configuration.Resources.Register(ResourceConstants.GlobalizeResourceName,
-                new ScriptResource(new EmbededResourceLocation(
+                new ScriptResource(new EmbeddedResourceLocation(
                     typeof(DotvvmConfiguration).GetTypeInfo().Assembly,
                     "DotVVM.Framework.Resources.Scripts.Globalize.globalize.js")));
 

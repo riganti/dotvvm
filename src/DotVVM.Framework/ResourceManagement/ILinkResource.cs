@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.ResourceManagement
 {
+    /// <summary>
+    /// Represents a resource that is loaded from a location (possibly multiple as failover).
+    /// </summary>
     public interface ILinkResource: IResource
     {
         IEnumerable<IResourceLocation> GetLocations();

@@ -11,6 +11,9 @@ using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {
+    /// <summary>
+    /// Base for resources linked from a location. Automatically renders failover script and contains helper methods for rendering urls and integrity hashes.
+    /// </summary>
     public abstract class LinkResourceBase : ResourceBase, ILinkResource
     {
         public IResourceLocation Location { get; set; }

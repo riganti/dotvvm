@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.ResourceManagement
 {
+    /// <summary>
+    /// Resource with its name.
+    /// </summary>
     public class NamedResource: IEquatable<NamedResource>
     {
         public string Name { get; }
