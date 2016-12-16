@@ -76,6 +76,11 @@ namespace DotVVM.Framework.Controls
             DotvvmProperty.Register<object, DotvvmBindableObject>(c => c.DataContext, isValueInherited: true);
 
 
+        public T GetValue<T>(DotvvmProperty property, bool inherit = true)
+        {
+            return (T)GetValue(property, inherit);
+        }
+
         /// <summary>
         /// Gets the value of a specified property.
         /// </summary>

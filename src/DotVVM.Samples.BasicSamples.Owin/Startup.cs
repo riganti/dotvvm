@@ -4,11 +4,11 @@ using System.Web.Hosting;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
-using Microsoft.AspNet.Identity;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.Cookies;
 using Owin;
+using DotVVM.Framework.Configuration;
 
 [assembly: OwinStartup(typeof(Startup))]
 
@@ -24,7 +24,7 @@ namespace DotVVM.Samples.BasicSamples
                         c => c.Request.Uri.PathAndQuery.StartsWith("/ComplexSamples/Auth"), next =>
                             new CookieAuthenticationMiddleware(next, app, new CookieAuthenticationOptions {
                                 LoginPath = new PathString("/ComplexSamples/Auth/Login"),
-                                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                                AuthenticationType = "ApplicationCookie",
                                 Provider = new CookieAuthenticationProvider {
                                     OnApplyRedirect = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.OwinContext, c.RedirectUri)
                                 }
@@ -34,7 +34,7 @@ namespace DotVVM.Samples.BasicSamples
                         c => c.Request.Uri.PathAndQuery.StartsWith("/ComplexSamples/SPARedirect"), next =>
                             new CookieAuthenticationMiddleware(next, app, new CookieAuthenticationOptions {
                                 LoginPath = new PathString("/ComplexSamples/SPARedirect/login"),
-                                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie,
+                                AuthenticationType = "ApplicationCookie",
                                 Provider = new CookieAuthenticationProvider {
                                     OnApplyRedirect = c => DotvvmAuthenticationHelper.ApplyRedirectResponse(c.OwinContext, c.RedirectUri)
                                 }
@@ -45,7 +45,7 @@ namespace DotVVM.Samples.BasicSamples
                             || c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/RoleView")
                             || c.Request.Uri.PathAndQuery.StartsWith("/ControlSamples/ClaimView"), next =>
                             new CookieAuthenticationMiddleware(next, app, new CookieAuthenticationOptions {
-                                AuthenticationType = DefaultAuthenticationTypes.ApplicationCookie
+                                AuthenticationType = "ApplicationCookie"
                             })
                     )
                 }

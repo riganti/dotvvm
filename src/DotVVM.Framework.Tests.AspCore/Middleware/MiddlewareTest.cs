@@ -4,33 +4,23 @@ using System.IO;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
-using Microsoft.AspNetCore.Http.Internal;
 using Moq;
-using Xunit;
-using Xunit.Abstractions;
 using System.Threading;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.AspCore.Middleware
 {
-    //TODO: CODEREVIEW: Now these tests should at least work as orriginaly intended
-    //There is a question however what these really test and if they are useful
+    [TestClass]
     public class MiddlewareTest
     {
-        private readonly ITestOutputHelper _output;
-
         public const string FinalFunction = "final";
         public const string AfterFunction = "after";
         public const string BeforeFunction = "before";
 
         private IDotvvmRequestContext _requestContext;
         private Stream _stream;
-
-        public MiddlewareTest(ITestOutputHelper output)
-        {
-            _output = output;
-            Initialize();
-        }
-
+        
+        [TestInitialize]
         public void Initialize()
         {
             var mockResponse = new Mock<IHttpResponse>();
@@ -52,14 +42,14 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
         }
 
 
-        [Fact]
+        [TestMethod]
         public async Task TestFinalFuncion()
         {
             await _requestContext.HttpContext.Response.WriteAsync(FinalFunction);
-            Assert.Equal(FinalFunction, ReadResponseBody());
+            Assert.AreEqual(FinalFunction, ReadResponseBody());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestBeforeMiddleware()
         {
 
@@ -69,10 +59,10 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
                 await context.HttpContext.Response.WriteAsync(FinalFunction);
             });
 
-            Assert.Equal(BeforeFunction + FinalFunction, ReadResponseBody());
+            Assert.AreEqual(BeforeFunction + FinalFunction, ReadResponseBody());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestAfterMiddleware()
         {
             var middleware = new AfterMiddleware();
@@ -81,10 +71,10 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
                 await context.HttpContext.Response.WriteAsync(FinalFunction);
             });
 
-            Assert.Equal(FinalFunction + AfterFunction, ReadResponseBody());
+            Assert.AreEqual(FinalFunction + AfterFunction, ReadResponseBody());
         }
 
-        [Fact]
+        [TestMethod]
         public async Task TestAllMiddleware()
         {
             var before = new BeforeMiddleware();
@@ -100,7 +90,7 @@ namespace DotVVM.Framework.Tests.AspCore.Middleware
                         });
                 });
 
-            Assert.Equal(BeforeFunction + FinalFunction + AfterFunction, ReadResponseBody());
+            Assert.AreEqual(BeforeFunction + FinalFunction + AfterFunction, ReadResponseBody());
         }
 
 

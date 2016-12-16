@@ -113,7 +113,16 @@ namespace DotVVM.Framework.Controls
         }
         public static readonly DotvvmProperty WidthProperty
             = DotvvmProperty.Register<string, GridViewColumn>(c => c.Width, null);
-
+        
+        [PopDataContextManipulationAttribute]
+        [MarkupOptions(AllowHardCodedValue = false)]
+        public bool Visible
+        {
+            get { return (bool)GetValue(VisibleProperty); }
+            set { SetValue(VisibleProperty, value); }
+        }
+        public static readonly DotvvmProperty VisibleProperty
+            = DotvvmProperty.Register<bool, GridViewColumn>(c => c.Visible, true);
 
 
         public abstract void CreateControls(IDotvvmRequestContext context, DotvvmControl container);

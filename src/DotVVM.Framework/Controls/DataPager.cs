@@ -253,18 +253,16 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddVisibleAttributeOrBinding(IHtmlWriter writer)
         {
-            if (IsPropertySet(VisibleProperty) && HideWhenOnlyOnePage)
+            if (!IsPropertySet(VisibleProperty))
             {
-                throw new DotvvmControlException(this, $"The Visible property cannot be set when the value of the {nameof(HideWhenOnlyOnePage)} property is true!");
-            }
-
-            if (HideWhenOnlyOnePage)
-            {
-                writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression()}).PagesCount() > 1");
-            }
-            else
-            {
-                writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
+                if (HideWhenOnlyOnePage)
+                {
+                    writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression()}).PagesCount() > 1");
+                }
+                else
+                {
+                    writer.AddKnockoutDataBind("visible", this, VisibleProperty, renderEvenInServerRenderingMode: true);
+                }
             }
         }
 

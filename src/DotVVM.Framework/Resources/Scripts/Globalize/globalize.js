@@ -1140,7 +1140,7 @@ getEraYear = function( date, cal, era, sortable ) {
 		return results;
 	};
 
-	parseExact = function( value, format, culture ) {
+	parseExact = function( value, format, culture, previousValue ) {
 		// try to parse the date string by matching against the format string
 		// while using the specified culture for date field names.
 		value = trim( value );
@@ -1267,8 +1267,12 @@ getEraYear = function( date, cal, era, sortable ) {
 		}
 		var result = new Date(), defaultYear, convert = cal.convert;
 		defaultYear = convert ? convert.fromGregorian( result )[ 0 ] : result.getFullYear();
-		if ( year === null ) {
-			year = defaultYear;
+		if (year === null) {
+		    if (previousValue!=undefined) {
+		        year = previousValue.getFullYear();
+		    } else {
+		        year = defaultYear;
+		    }
 		}
 		else if ( cal.eras ) {
 			// year must be shifted to normal gregorian year
@@ -1278,11 +1282,19 @@ getEraYear = function( date, cal, era, sortable ) {
 		}
 		// set default day and month to 1 and January, so if unspecified, these are the defaults
 		// instead of the current day/month.
-		if ( month === null ) {
-			month = 0;
+		if (month === null) {
+		    if (previousValue != undefined) {
+		        month = previousValue.getMonth();
+		    } else {
+		        month = 0;
+		    }
 		}
-		if ( date === null ) {
-			date = 1;
+		if (date === null) {
+		    if (previousValue != undefined) {
+		        date = previousValue.getDate();
+		    } else {
+		        date = 1;
+		    }
 		}
 		// now have year, month, and date, but in the culture's calendar.
 		// convert to gregorian if necessary
@@ -1521,7 +1533,7 @@ Globalize.localize = function( key, cultureSelector ) {
 		this.cultures[ "default" ].messages[ key ];
 };
 
-Globalize.parseDate = function( value, formats, culture ) {
+Globalize.parseDate = function (value, formats, culture, previousValue) {
 	culture = this.findClosestCulture( culture );
 
 	var date, prop, patterns;
@@ -1533,7 +1545,7 @@ Globalize.parseDate = function( value, formats, culture ) {
 			for ( var i = 0, l = formats.length; i < l; i++ ) {
 				var format = formats[ i ];
 				if ( format ) {
-					date = parseExact( value, format, culture );
+				    date = parseExact(value, format, culture, previousValue);
 					if ( date ) {
 						break;
 					}
@@ -1543,7 +1555,7 @@ Globalize.parseDate = function( value, formats, culture ) {
 	} else {
 		patterns = culture.calendar.patterns;
 		for ( prop in patterns ) {
-			date = parseExact( value, patterns[prop], culture );
+		    date = parseExact(value, patterns[prop], culture, previousValue);
 			if ( date ) {
 				break;
 			}

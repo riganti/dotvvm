@@ -9,6 +9,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public static class ViewModelMapperHelper
     {
+        // TODO: tests
+        // TODO: docs
         public static IViewModelSerializationMapper GetSerializationMapper(this Configuration.DotvvmConfiguration configuration) => configuration.ServiceLocator.GetService<IViewModelSerializationMapper>();
 
         public static IViewModelSerializationMapper Map(this IViewModelSerializationMapper mapper, Type type, Action<ViewModelSerializationMap> action)

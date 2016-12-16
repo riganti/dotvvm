@@ -40,7 +40,7 @@
         return dotvvm_Globalize.parseFloat(value,10, dotvvm.culture);
     }
 
-    public parseDate(value: string, format: string) {
-        return dotvvm_Globalize.parseDate(value, format, dotvvm.culture);
+    public parseDate(value: string, format: string, previousValue?: Date) {
+        return dotvvm_Globalize.parseDate(value, format, dotvvm.culture, previousValue);
     }
 }

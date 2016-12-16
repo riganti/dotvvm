@@ -1,222 +1,16 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{163BABEF-6DCC-4C93-A2B6-C90A17855F0E}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>DotVVM.Samples.Tests</RootNamespace>
-    <AssemblyName>DotVVM.Samples.Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
-    <TestProjectType>UnitTest</TestProjectType>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\release\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ANC_Chrome|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\ANC_Chrome\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <Optimize>false</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ANC_Firefox|AnyCPU'">
-    <DebugType>full</DebugType>
-    <ErrorReport>prompt</ErrorReport>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\ANC_Firefox\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'ANC_InternetExplorer|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\ANC_InternetExplorer\</OutputPath>
-    <Optimize>false</Optimize>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Owin_Chrome|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Owin_Chrome\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <Optimize>false</Optimize>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Owin_Firefox|AnyCPU'">
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Owin_Firefox\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Owin_InternetExplorer|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Owin_InternetExplorer\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <Optimize>false</Optimize>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>..\Code.ruleset</CodeAnalysisRuleSet>
+    <OutputType>library</OutputType>
+    <TargetFramework>net461</TargetFramework>
+    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Riganti.Utils.Testing.Selenium.Core, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Riganti.Utils.Testing.Selenium.Core.1.0.0-beta\lib\net45\Riganti.Utils.Testing.Selenium.Core.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Riganti.Utils.Testing.Selenium.DotVVM, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Riganti.Utils.Testing.Selenium.DotVVM.0.1.0-pre\lib\net45\Riganti.Utils.Testing.Selenium.DotVVM.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Configuration" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Web.Extensions" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="DotVVM.Framework">
-      <HintPath>..\DotVVM.Framework\bin\Debug\net451\DotVVM.Framework.dll</HintPath>
-    </Reference>
-    <Reference Include="DotVVM.Core">
-      <HintPath>..\DotVVM.Core\bin\Debug\net451\DotVVM.Core.dll</HintPath>
-    </Reference>
-    <Reference Include="WebDriver, Version=2.53.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.WebDriver.2.53.1\lib\net40\WebDriver.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="WebDriver.Support, Version=2.53.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <HintPath>..\packages\Selenium.Support.2.53.1\lib\net40\WebDriver.Support.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-  </ItemGroup>
-  <Choose>
-    <When Condition="('$(VisualStudioVersion)' == '10.0' or '$(VisualStudioVersion)' == '') and '$(TargetFrameworkVersion)' == 'v3.5'">
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework, Version=10.1.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
-      </ItemGroup>
-    </When>
-    <Otherwise>
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework" />
-      </ItemGroup>
-    </Otherwise>
-  </Choose>
-  <ItemGroup>
-    <Compile Include="Complex\NamespaceCollisionTests.cs" />
-    <Compile Include="Complex\RedirectUrlFragment.cs" />
-    <Compile Include="Complex\PostbackUpdate.cs" />
-    <Compile Include="Complex\AuthTests.cs" />
-    <Compile Include="Complex\CascadeSelectorsTests.cs" />
-    <Compile Include="Complex\DataTemplateTests.cs" />
-    <Compile Include="Complex\FileUploadInRepeaterTests.cs" />
-    <Compile Include="Complex\GridViewDataSetTests.cs" />
-    <Compile Include="Complex\ChangedEventTests.cs" />
-    <Compile Include="Complex\SPATests.cs" />
-    <Compile Include="Complex\SPARedirectTests.cs" />
-    <Compile Include="Complex\SPAViewModelReaplicationTests.cs" />
-    <Compile Include="Control\EnvironmentViewTests.cs" />
-    <Compile Include="Control\ClaimViewTests.cs" />
-    <Compile Include="Control\RoleViewTests.cs" />
-    <Compile Include="Control\AuthenticatedViewTests.cs" />
-    <Compile Include="Control\CheckBoxInRepeaterTests.cs" />
-    <Compile Include="Control\ContentPlaceHolderTests.cs" />
-    <Compile Include="Control\HtmlLiteralTests.cs" />
-    <Compile Include="Control\RouteLinkEnabledFalse.cs" />
-    <Compile Include="Control\RouteLinkEnabledTests.cs" />
-    <Compile Include="Control\ServerCommentsTests.cs" />
-    <Compile Include="Control\SpaContentPlaceHolderTests.cs" />
-    <Compile Include="Control\UpdateProgressTests.cs" />
-    <Compile Include="Control\LiteralTests.cs" />
-    <Compile Include="Control\DataPagerTests.cs" />
-    <Compile Include="Control\GridViewTests.cs" />
-    <Compile Include="Control\RepeaterTests.cs" />
-    <Compile Include="Control\NestedRepeaterTests.cs" />
-    <Compile Include="Control\RecursiveValidationSummaryTests.cs" />
-    <Compile Include="Control\ButtonTagNameTests.cs" />
-    <Compile Include="Control\RepeaterWrapperTagTests.cs" />
-    <Compile Include="Control\ComboBoxTests.cs" />
-    <Compile Include="Control\EnabledPropertyTests.cs" />
-    <Compile Include="Control\LinkButtonTests.cs" />
-    <Compile Include="Control\TextBoxTests.cs" />
-    <Compile Include="Control\IntBoundTextBoxTests.cs" />
-    <Compile Include="Control\CheckBoxTests.cs" />
-    <Compile Include="Control\RadioButtonTests.cs" />
-    <Compile Include="Control\FileUploadTests.cs" />
-    <Compile Include="Extensions.cs" />
-    <Compile Include="Feature\ActionFilterErrorHandlingTest.cs" />
-    <Compile Include="Feature\BindingContextsTests.cs" />
-    <Compile Include="Feature\BindingPageInfoTests.cs" />
-    <Compile Include="Feature\ChildViewModelInvokeMethodsTests.cs" />
-    <Compile Include="Feature\ConditionalCssClass.cs" />
-    <Compile Include="Feature\DateTimeSerializationTests.cs" />
-    <Compile Include="Feature\DirectivesTests.cs" />
-    <Compile Include="Feature\GenericTypesTests.cs" />
-    <Compile Include="Feature\HtmlTagTests.cs" />
-    <Compile Include="Feature\IdGenerationTests.cs" />
-    <Compile Include="Feature\DynamicValidationTests.cs" />
-    <Compile Include="Feature\LocalizationTests.cs" />
-    <Compile Include="Feature\RenderSettingsModeServerPropertyTest.cs" />
-    <Compile Include="Feature\ResourcesTests.cs" />
-    <Compile Include="Feature\ReturnedFileTests.cs" />
-    <Compile Include="Feature\SerializationTests.cs" />
-    <Compile Include="Feature\FormattingTests.cs" />
-    <Compile Include="Feature\MasterPageTests.cs" />
-    <Compile Include="Feature\RegexValidationTests.cs" />
-    <Compile Include="Feature\NestedValidationTests.cs" />
-    <Compile Include="Feature\JavascriptEventsTests.cs" />
-    <Compile Include="Feature\DoublePostBackPrevention.cs" />
-    <Compile Include="Feature\SimpleValidationTests.cs" />
-    <Compile Include="Feature\StaticCommandTests.cs" />
-    <Compile Include="Feature\ClientSideValidationDisabling.cs" />
-    <Compile Include="Feature\ValidationScopes.cs" />
-    <Compile Include="Feature\ValidationRulesLoadOnPostbackTests.cs" />
-    <Compile Include="Feature\ViewModelDeserializationTests.cs" />
-    <Compile Include="Feature\ViewModelProtectionTests.cs" />
-    <Compile Include="Complex\InvoiceCalculatorTests.cs" />
-    <Compile Include="Complex\TaskListTests.cs" />
-    <Compile Include="Control\ButtonTests.cs" />
-    <Compile Include="Feature\PostBackTests.cs" />
-    <Compile Include="Feature\RedirectTests.cs" />
-    <Compile Include="ErrorsTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SamplesRouteUrls.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
-    </Compile>
+    <Compile Include="**\*.cs" />
+    <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config">
-      <SubType>Designer</SubType>
-    </None>
+    <Content Include="App.config" />
     <None Include="App.ANC_Chrome.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
@@ -235,56 +29,67 @@
     <None Include="App.Owin_InternetExplorer.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="SamplesRouteUrls.tt">
+    <None Include="App.Release.config">
+      <DependentUpon>App.config</DependentUpon>
+    </None>
+    <None Include="SamplesRouteUrls.tt">
       <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SamplesRouteUrls.cs</LastGenOutput>
-    </Content>
+    </None>
   </ItemGroup>
   <ItemGroup>
-    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+    <PackageReference Include="Microsoft.NET.Sdk">
+      <Version>1.0.0-alpha-20161104-2</Version>
+      <PrivateAssets>All</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk">
+      <Version>15.0.0-preview-20161123-03</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin.Security">
+      <Version>3.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Moq">
+      <Version>4.6.38-alpha</Version>
+    </PackageReference>
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core">
+      <Version>1.0.0-beta</Version>
+    </PackageReference>
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM">
+      <Version>0.1.0-pre</Version>
+    </PackageReference>
+    <PackageReference Include="Selenium.Support">
+      <Version>2.53.1</Version>
+    </PackageReference>
+    <PackageReference Include="Selenium.WebDriver">
+      <Version>2.53.1</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
+    <Reference Include="System" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.ComponentModel.DataAnnotations" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
-      <Project>{2865b545-e469-417a-b14f-e2ccdd4b6267}</Project>
-      <Name>DotVVM.Framework</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DotVVM.Samples.Common\DotVVM.Samples.Common.xproj">
-      <Project>{60CCCC83-BA9F-4DF0-A759-5E46C3D4DAB0}</Project>
-      <Name>DotVVM.Samples.Common</Name>
-    </ProjectReference>
+    <Service Include="{508349b6-6b84-4df5-91f0-309beebad82d}" />
   </ItemGroup>
-  <Choose>
-    <When Condition="'$(VisualStudioVersion)' == '10.0' And '$(IsCodedUITest)' == 'True'">
-      <ItemGroup>
-        <Reference Include="Microsoft.VisualStudio.QualityTools.CodedUITestFramework, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Common, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITest.Extension, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-        <Reference Include="Microsoft.VisualStudio.TestTools.UITesting, Version=10.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
-          <Private>False</Private>
-        </Reference>
-      </ItemGroup>
-    </When>
-  </Choose>
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
+  <ItemGroup>
+    <Compile Update="SamplesRouteUrls.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="Microsoft.VisualStudio.QualityTools.UnitTestFramework">
+      <HintPath>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
+    </Reference>
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- XTD Transformation -->
-  <UsingTask TaskName="TransformXml" AssemblyFile="$(VSToolsPath)\Web\Microsoft.Web.Publishing.Tasks.dll" />
+  <UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v15.0\Web\Microsoft.Web.Publishing.Tasks.dll" />
   <Target Name="AfterCompile" Condition="exists('App.$(Configuration).config')">
-    <Message Importance="high" Text="Transforming config">
-    </Message>
-    <!-- Generates the transformed App.config in the intermediate directory -->
+    <Message Importance="high" Text="Transforming config" />
     <TransformXml Source="App.config" Destination="$(IntermediateOutputPath)$(TargetFileName).config" Transform="App.$(Configuration).config" />
     <Message Importance="high" Text="Config transformed to $(IntermediateOutputPath)$(TargetFileName).config" />
-    <!-- Forces the build process to use the transformed configuration file -->
     <ItemGroup>
       <AppConfigWithTargetPath Remove="App.config" />
       <AppConfigWithTargetPath Include="$(IntermediateOutputPath)$(TargetFileName).config">
@@ -292,16 +97,4 @@
       </AppConfigWithTargetPath>
     </ItemGroup>
   </Target>
-  <PropertyGroup>
-    <PreBuildEvent>echo "Deleting all files from $(ProjectDir)bin\*" 
-del "$(ProjectDir)bin\*" /q /f /s</PreBuildEvent>
-  </PropertyGroup>
-  <!-- XTD Transformation -->
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

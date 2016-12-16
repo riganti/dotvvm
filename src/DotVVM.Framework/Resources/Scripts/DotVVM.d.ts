@@ -87,7 +87,7 @@ declare class DotvvmGlobalize {
     formatString(format: string, value: any): string;
     parseDotvvmDate(value: string): Date;
     parseNumber(value: string): number;
-    parseDate(value: string, format: string): Date;
+    parseDate(value: string, format: string, previousValue?: Date): Date;
 }
 declare class DotvvmPostBackHandler {
     execute(callback: () => void, sender: HTMLElement): void;

@@ -1,4 +1,4 @@
-﻿/// <binding BeforeBuild='typescript' />
+/// <binding />
 module.exports = function (grunt) {
     grunt.initConfig({
         runtime_t4_template_task: {
