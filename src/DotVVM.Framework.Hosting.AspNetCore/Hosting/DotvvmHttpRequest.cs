@@ -12,19 +12,11 @@ namespace DotVVM.Framework.Hosting
 
         public IHttpContext HttpContext { get; }
 
-
-        public DotvvmHttpRequest(HttpRequest originalRequest, IHttpContext httpContext,
-            IPathString path, IPathString pathBase, IQueryCollection query, IHeaderCollection headers,
-            ICookieCollection cookies)
+        public DotvvmHttpRequest(HttpRequest originalRequest, IHttpContext httpContext)
         {
             OriginalRequest = originalRequest;
             HttpContext = httpContext;
-            PathBase = pathBase;
-            Path = path;
-            Query = query;
-            Headers = headers;
-            Cookies = cookies;
-			Url = new Uri(OriginalRequest.GetDisplayUrl());
+            Headers = new DotvvmHeaderCollection(originalRequest.Headers);
         }
 
         public string Method
@@ -51,8 +43,16 @@ namespace DotVVM.Framework.Hosting
             set { OriginalRequest.IsHttps = value; }
         }
 
-        public IPathString Path { get; set; }
-        public IPathString PathBase { get; set; }
+        public IPathString Path
+        {
+            get => new DotvvmHttpPathString(OriginalRequest.Path);
+            set => OriginalRequest.Path = value.HasValue() ? new PathString(value.Value) : PathString.Empty;
+        }
+        public IPathString PathBase
+        {
+            get => new DotvvmHttpPathString(OriginalRequest.PathBase);
+            set => OriginalRequest.PathBase = value.HasValue() ? new PathString(value.Value) : PathString.Empty;
+        }
 
         public Stream Body
         {
@@ -66,10 +66,10 @@ namespace DotVVM.Framework.Hosting
             set { OriginalRequest.QueryString = new QueryString(value); }
         }
 
-        public IQueryCollection Query { get; }
-        public ICookieCollection Cookies { get; set; }
+        public IQueryCollection Query => new DotvvmQueryCollection(OriginalRequest.Query);
+        public ICookieCollection Cookies => new DotvvmCookieCollection(OriginalRequest.Cookies);
         public IHeaderCollection Headers { get; }
 
-		public Uri Url { get; }
+        public Uri Url => new Uri(OriginalRequest.GetDisplayUrl());
     }
 }
