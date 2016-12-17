@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Hosting
             }
             // create the context
             var dotvvmContext = CreateDotvvmContext(context);
-            context.Items.Add(HostingConstants.DotvvmRequestContextOwinKey, dotvvmContext);
+            context.Items[HostingConstants.DotvvmRequestContextOwinKey] = dotvvmContext;
 
             var requestCultureFeature = context.Features.Get<IRequestCultureFeature>();
 
@@ -73,12 +73,7 @@ namespace DotVVM.Framework.Hosting
                     ),
                     Request = new DotvvmHttpRequest(
                         context.Request,
-                        httpContext,
-                        new DotvvmHttpPathString(context.Request.Path),
-                        new DotvvmHttpPathString(context.Request.PathBase),
-                        new DotvvmQueryCollection(context.Request.Query),
-                        new DotvvmHeaderCollection(context.Request.Headers),
-                        new DotvvmCookieCollection(context.Request.Cookies)
+                        httpContext
                     )
                 };
 

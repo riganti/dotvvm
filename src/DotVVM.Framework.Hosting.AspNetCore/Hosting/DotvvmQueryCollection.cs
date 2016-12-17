@@ -28,8 +28,7 @@ namespace DotVVM.Framework.Hosting
 
         public bool TryGetValue(string key, out string value)
         {
-            StringValues values;
-            var result =  OriginalQuery.TryGetValue(key, out values);
+            var result = OriginalQuery.TryGetValue(key, out var values);
             value = values.ToString();
             return result;
         }
