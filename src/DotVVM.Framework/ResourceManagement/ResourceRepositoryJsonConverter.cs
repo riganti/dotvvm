@@ -8,6 +8,8 @@ using System.Threading.Tasks;
 using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Controls;
+using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -51,15 +53,18 @@ namespace DotVVM.Framework.ResourceManagement
             return objectType == typeof(DotvvmResourceRepository);
         }
 
+        public IResource TryParseOldResourceFormat(JObject jobj, Type resourceType)
+        {
+            return null;
+        }
+
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
             var jobj = JObject.Load(reader);
-            var repo = existingValue as DotvvmResourceRepository;
-            if (repo == null) repo = new DotvvmResourceRepository();
+            var repo = existingValue as DotvvmResourceRepository ?? new DotvvmResourceRepository();
             foreach (var prop in jobj)
             {
-                Type type;
-                if (ResourceTypeNames.TryGetValue(prop.Key, out type))
+                if (ResourceTypeNames.TryGetValue(prop.Key, out var type))
                 {
                     DeserializeResources((JObject)prop.Value, type, serializer, repo);
                 }
@@ -77,17 +82,23 @@ namespace DotVVM.Framework.ResourceManagement
         {
             foreach (var resObj in jobj)
             {
-                var resource = serializer.Deserialize(resObj.Value.CreateReader(), resourceType) as ResourceBase;
-                repo.Register(resObj.Key, resource);
+                try
+                {
+                    var resource = serializer.Deserialize(resObj.Value.CreateReader(), resourceType) as IResource;
+                    repo.Register(resObj.Key, resource);
+                }
+                catch (Exception ex)
+                {
+                    repo.Register(resObj.Key, new DeserializationErrorResource(ex, resObj.Value));
+                }
             }
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
             writer.WriteStartObject();
-            var resources = value as DotvvmResourceRepository;
-            if (resources == null) throw new NotSupportedException();
-            foreach(var group in resources.Resources.GroupBy(k => k.Value.GetType())) {
+            var resources = value as DotvvmResourceRepository ?? throw new NotSupportedException();
+            foreach (var group in resources.Resources.GroupBy(k => k.Value.GetType())) {
                 var name = ResourceTypeNames.First(k => k.Value == group.Key).Key;
                 writer.WritePropertyName(name);
                 writer.WriteStartObject();
@@ -100,5 +111,20 @@ namespace DotVVM.Framework.ResourceManagement
             writer.WriteEndObject();
         }
 
+        public class DeserializationErrorResource: ResourceBase
+        {
+            public Exception Error { get; }
+            public JToken Json { get; set; }
+            public DeserializationErrorResource(Exception error, JToken json): base(ResourceRenderPosition.Head)
+            {
+                this.Error = error;
+                this.Json = json;
+            }
+
+            public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
+            {
+                throw new NotSupportedException($"Resource could not be deserialized from '{Json.ToString()}': \n{Error}");
+            }
+        }
     }
 }

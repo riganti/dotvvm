@@ -22,10 +22,10 @@ namespace DotVVM.Framework.Controls.Infrastructure
         protected override void RenderControl(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             // render resource links
-            var resources = context.ResourceManager.GetResourcesInOrder().Where(r => r.GetRenderPosition() == ResourceRenderPosition.Body);
+            var resources = context.ResourceManager.GetNamedResourcesInOrder().Where(r => r.Resource.RenderPosition == ResourceRenderPosition.Body);
             foreach (var resource in resources)
             {
-                resource.Render(writer, context);
+                resource.RenderResourceCached(writer, context);
             }
 
             // render the serialized viewmodel

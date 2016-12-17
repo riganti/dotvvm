@@ -11,28 +11,19 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class InlineScriptResource : ResourceBase
     {
-        
+        public InlineScriptResource(ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)
+        {
+        }
+
         /// <summary>
         /// Gets or sets the javascript code that will be embedded in the page.
         /// </summary>
         public string Code { get; set; }
 
-        public ResourceRenderPosition RenderPosition { get; set; }
-
-        public override ResourceRenderPosition GetRenderPosition()
-        {
-            return RenderPosition;
-        }
-
-        public InlineScriptResource()
-        {
-            RenderPosition = ResourceRenderPosition.Body;
-        }
-
         /// <summary>
         /// Renders the resource in the specified <see cref="IHtmlWriter" />.
         /// </summary>
-        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
+        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
             if (string.IsNullOrWhiteSpace(Code)) return;
             writer.AddAttribute("type", "text/javascript");

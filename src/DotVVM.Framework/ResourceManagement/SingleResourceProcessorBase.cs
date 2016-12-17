@@ -23,7 +23,7 @@ namespace DotVVM.Framework.ResourceManagement
             return set;
         }
 
-        public virtual bool Predicate(string name, ResourceBase resource) => true;
+        public virtual bool Predicate(string name, IResource resource) => true;
 
         public abstract IEnumerable<NamedResource> ProcessOne(NamedResource resource);
     }

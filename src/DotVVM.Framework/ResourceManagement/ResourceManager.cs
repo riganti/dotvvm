@@ -15,7 +15,7 @@ namespace DotVVM.Framework.ResourceManagement
     {
         private readonly DotvvmConfiguration configuration;
         private List<string> requiredResourcesOrdered = new List<string>();
-        private Dictionary<string, ResourceBase> requiredResources = new Dictionary<string, ResourceBase>();
+        private Dictionary<string, IResource> requiredResources = new Dictionary<string, IResource>();
         private List<IResourceProcessor> processors = new List<IResourceProcessor>();
         private int nonameCtr = 0;
 
@@ -24,7 +24,7 @@ namespace DotVVM.Framework.ResourceManagement
             get { return requiredResourcesOrdered.AsReadOnly(); }
         }
 
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="ResourceManager"/> class.
         /// </summary>
@@ -47,17 +47,17 @@ namespace DotVVM.Framework.ResourceManagement
             AddRequiredResourceCore(name, resource);
         }
 
-        private void AddRequiredResourceCore(ResourceBase resource) => AddRequiredResourceCore("__noname_" + nonameCtr++, resource);
+        private void AddRequiredResourceCore(IResource resource) => AddRequiredResourceCore("__noname_" + nonameCtr++, resource);
 
         /// <summary>
         /// Adds the resource and checks name conflicts.
         /// </summary>
-        private void AddRequiredResourceCore(string name, ResourceBase resource)
+        private void AddRequiredResourceCore(string name, IResource resource)
         {
-            ResourceBase originalResource;
+            IResource originalResource;
             if (requiredResources.TryGetValue(name, out originalResource))
             {
-                if (originalResource.Url != resource.Url)
+                if (originalResource != resource)
                 {
                     ThrowNonUniqueName(name);
                 }
@@ -78,7 +78,17 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredScriptFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new ScriptResource() { Url = url, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(name, new ScriptResource(CreateRelativeResourceLocation(url))
+            {
+                Dependencies = dependentResourceNames,
+            });
+        }
+
+        private static IResourceLocation CreateRelativeResourceLocation(string url)
+        {
+            return url.StartsWith("~/", StringComparison.Ordinal) ?
+                   new LocalFileResourceLocation(url.Substring(2)) :
+                   (IResourceLocation)new RemoteResourceLocation(url);
         }
 
         /// <summary>
@@ -86,7 +96,10 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void AddRequiredStylesheetFile(string name, string url, params string[] dependentResourceNames)
         {
-            AddRequiredResourceCore(name, new StylesheetResource() { Url = url, Dependencies = dependentResourceNames });
+            AddRequiredResourceCore(name, new StylesheetResource(CreateRelativeResourceLocation(url))
+            {
+                Dependencies = dependentResourceNames,
+            });
         }
 
         /// <summary>
@@ -122,7 +135,7 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Gets the resources in correct order.
         /// </summary>
-        public IEnumerable<ResourceBase> GetResourcesInOrder()
+        public IEnumerable<IResource> GetResourcesInOrder()
         {
             if (processors.Count == 0 && configuration.Resources.DefaultResourceProcessors.Count == 0)
                 return requiredResourcesOrdered.Select(k => requiredResources[k]);
@@ -150,9 +163,9 @@ namespace DotVVM.Framework.ResourceManagement
         /// <summary>
         /// Finds the resource in required resources or in the resources registered in the configuration file.
         /// </summary>
-        public ResourceBase FindResource(string name)
+        public IResource FindResource(string name)
         {
-            ResourceBase resource;
+            IResource resource;
             if (requiredResources.TryGetValue(name, out resource))
             {
                 return resource;

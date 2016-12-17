@@ -38,22 +38,25 @@ namespace DotVVM.Samples.BasicSamples
 
         private static void RegisterResources(DotvvmConfiguration config)
         {
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource() { Url = "~/Content/testResource.css" });
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource() { Url = "~/Scripts/testResource.js" });
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource() { Url = "~/Scripts/testResource2.js" });
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource(new LocalFileResourceLocation("Content/testResource.css")));
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new LocalFileResourceLocation("Scripts/testResource.js")));
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new LocalFileResourceLocation("Scripts/testResource2.js")));
 
-            config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource()
+            config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource(
+                new RemoteResourceLocation("http://unavailable.local/testResource.js"))
             {
-                Url = "~/Scripts/testResource.js",
-                CdnUrl = "http://unavailable.local/testResource.js",
-                GlobalObjectName = "dotvvmTestResource"
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new LocalFileResourceLocation("~/Scripts/testResource.js"))
             });
-            config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource()
+            config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource(
+                new LocalFileResourceLocation("~/Scripts/testResource.js"))
             {
-                Url = "~/Scripts/testResource2.js",
-                CdnUrl = "~/Scripts/testResource.js",
-                GlobalObjectName = "dotvvmTestResource"
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new LocalFileResourceLocation("~/Scripts/testResource2.js"))
             });
+
+            // dev files
+            config.Resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
+            config.Resources.SetEmbeddedResourceDebugFile("dotvvm.debug", "../DotVVM.Framework/Resources/Scripts/DotVVM.Debug.js");
+            config.Resources.SetEmbeddedResourceDebugFile("dotvvm.fileupload-css", "../DotVVM.Framework/Resources/Scripts/DotVVM.FileUploads.css");
         }
 
         private static void AddRoutes(DotvvmConfiguration config)
@@ -83,4 +86,3 @@ namespace DotVVM.Samples.BasicSamples
         }
     }
 }
- 

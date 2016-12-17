@@ -6,12 +6,15 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.ResourceManagement
 {
+    /// <summary>
+    /// Resource with its name.
+    /// </summary>
     public class NamedResource: IEquatable<NamedResource>
     {
-        public string Name { get; private set; }
-        public ResourceBase Resource { get; private set; }
+        public string Name { get; }
+        public IResource Resource { get; }
 
-        public NamedResource(string name, ResourceBase resource)
+        public NamedResource(string name, IResource resource)
         {
             Name = name;
             Resource = resource;

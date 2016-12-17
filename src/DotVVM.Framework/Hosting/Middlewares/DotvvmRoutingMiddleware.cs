@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Runtime.Filters;
+﻿using DotVVM.Framework.Routing;
+using DotVVM.Framework.Runtime.Filters;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         /// <code>true</code>, if the URL contains valid Googlebot hashbang escaped fragment; otherwise <code>false</code>.
         /// </returns>
         /// <see href="https://developers.google.com/webmasters/ajax-crawling/docs/getting-started"/>
-        private bool TryParseGooglebotHashbangEscapedFragment(string queryString, out string url)
+        private static bool TryParseGooglebotHashbangEscapedFragment(string queryString, out string url)
         {
             if (queryString?.StartsWith(GooglebotHashbangEscapedFragment, StringComparison.Ordinal) == true)
             {
@@ -35,10 +36,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
             return false;
         }
 
-
-        public async Task<bool> Handle(IDotvvmRequestContext context)
+        public static RouteBase FindMatchingRoute(IEnumerable<RouteBase> routes, IDotvvmRequestContext context, out IDictionary<string, object> parameters)
         {
-            // attempt to translate Googlebot hashbang espaced fragment URL to a plain URL string.
             string url;
             if (!TryParseGooglebotHashbangEscapedFragment(context.HttpContext.Request.QueryString, out url))
             {
@@ -54,8 +53,19 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
 
             // find the route
-            IDictionary<string, object> parameters = null;
-            var route = context.Configuration.RouteTable.FirstOrDefault(r => r.IsMatch(url, out parameters));
+            foreach (var r in routes)
+            {
+                if (r.IsMatch(url, out parameters)) return r;
+            }
+            parameters = null;
+            return null;
+        }
+
+
+        public async Task<bool> Handle(IDotvvmRequestContext context)
+        {
+            IDictionary<string, object> parameters;
+            var route = FindMatchingRoute(context.Configuration.RouteTable, context, out parameters);
 
             //check if route exists
             if (route == null) return false;

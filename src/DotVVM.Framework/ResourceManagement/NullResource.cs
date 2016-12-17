@@ -1,3 +1,4 @@
+using System;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
 
@@ -9,13 +10,10 @@ namespace DotVVM.Framework.ResourceManagement
     [ResourceConfigurationCollectionName("null")]
     public class NullResource : ResourceBase
     {
-        public override ResourceRenderPosition GetRenderPosition()
-        {
-            return ResourceRenderPosition.Body;
-        }
+        public NullResource() : base(ResourceRenderPosition.Body)
+        { }
 
-        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-        }
+        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
+        { }
     }
 }

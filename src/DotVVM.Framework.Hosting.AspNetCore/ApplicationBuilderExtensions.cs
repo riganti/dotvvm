@@ -44,9 +44,8 @@ namespace Microsoft.AspNetCore.Builder
             }
 
             app.UseMiddleware<DotvvmMiddleware>(config, new List<IMiddleware> {
-                new DotvvmEmbeddedResourceMiddleware(),
+                ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(app.ApplicationServices),
                 new DotvvmFileUploadMiddleware(),
-                new JQueryGlobalizeCultureMiddleware(),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             });

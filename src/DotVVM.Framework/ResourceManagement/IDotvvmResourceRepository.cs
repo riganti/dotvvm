@@ -8,6 +8,6 @@ namespace DotVVM.Framework.ResourceManagement
 {
     public interface IDotvvmResourceRepository
     {
-        ResourceBase FindResource(string name);
+        IResource FindResource(string name);
     }
 }

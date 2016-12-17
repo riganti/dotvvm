@@ -10,22 +10,17 @@ namespace DotVVM.Framework.ResourceManagement
     /// Reference to a CSS file.
     /// </summary>
     [ResourceConfigurationCollectionName("stylesheets")]
-    public class StylesheetResource : ResourceBase
+    public class StylesheetResource : LinkResourceBase
     {
+        public StylesheetResource(IResourceLocation location)
+            : base(ResourceRenderPosition.Head, "text/css", location)
+        { }
 
-        public override ResourceRenderPosition GetRenderPosition()
+        public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
-            return ResourceRenderPosition.Head;
-        }
-
-        /// <summary>
-        /// Renders the resource in the specified <see cref="IHtmlWriter" />.
-        /// </summary>
-        public override void Render(IHtmlWriter writer, IDotvvmRequestContext context)
-        {
-            writer.AddAttribute("href", GetUrl());
+            AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "href");
             writer.AddAttribute("rel", "stylesheet");
-            writer.AddAttribute("type", "text/css");
+            writer.AddAttribute("type", MimeType);
             writer.RenderSelfClosingTag("link");
         }
     }
