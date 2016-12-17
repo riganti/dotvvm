@@ -51,9 +51,8 @@ namespace Owin
             }
 
             app.Use<DotvvmMiddleware>(config, new List<IMiddleware> {
-                new DotvvmEmbeddedResourceMiddleware(),
+                ActivatorUtilities.CreateInstance<DotvvmLocalResourceMiddleware>(config.ServiceLocator.GetServiceProvider()),
                 new DotvvmFileUploadMiddleware(),
-                new JQueryGlobalizeCultureMiddleware(),
                 new DotvvmReturnedFileMiddleware(),
                 new DotvvmRoutingMiddleware()
             });

@@ -20,7 +20,9 @@ namespace DotVVM.Framework.ResourceManagement
 
         public LocalResourceUrlManager(DotvvmConfiguration configuration, IResourceHashService hasher)
         {
-            this.resourceRoute = new DotvvmRoute("dotvvmResource/{hash}/{name:regex(.*)}", null, null, null, configuration);
+            // On OWIN request which have a dot in file name does not work, so we have to put here another name
+            var owinHackSuffix = Type.GetType("Owin.AppBuilderExtensions, DotVVM.Framework.Hosting.Owin") != null ? "/{sanitizedName}" : "";
+            this.resourceRoute = new DotvvmRoute("dotvvmResource/{hash}/{name:regex(.*)}" + owinHackSuffix, null, null, null, configuration);
             this.hasher = hasher;
             this.resources = configuration.Resources;
             this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
@@ -30,7 +32,8 @@ namespace DotVVM.Framework.ResourceManagement
             resourceRoute.BuildUrl(new Dictionary<string, object>
             {
                 ["hash"] = hasher.GetVersionHash(resource, context),
-                ["name"] = name
+                ["name"] = name,
+                ["sanitizedName"] = new string(name.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray())
             });
 
         public ILocalResourceLocation FindResource(string url, IDotvvmRequestContext context, out string mimeType)
