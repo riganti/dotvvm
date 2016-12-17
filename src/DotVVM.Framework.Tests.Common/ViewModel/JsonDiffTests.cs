@@ -16,6 +16,8 @@ namespace DotVVM.Framework.Tests.ViewModel
     public class JsonDiffTests
     {
 
+        private JsonSerializer serializer = new JsonSerializer { TypeNameHandling = TypeNameHandling.Auto };
+
         [TestMethod]
         public void JsonDiff_SimpleTest()
         {
@@ -58,20 +60,20 @@ namespace DotVVM.Framework.Tests.ViewModel
         private JObject CreateDiff(Action<DotvvmConfiguration> fn)
         {
             var config = DotvvmConfiguration.CreateDefault();
-            var json0 = JObject.FromObject(config);
+            var json0 = JObject.FromObject(config, serializer);
             fn(config);
-            var json1 = JObject.FromObject(config);
+            var json1 = JObject.FromObject(config, serializer);
             return JsonUtils.Diff(json0, json1);
         }
 
         private DotvvmConfiguration ApplyPatches(DotvvmConfiguration init, params JObject[] patches)
         {
-            var json = JObject.FromObject(init);
+            var json = JObject.FromObject(init, serializer);
             foreach (var p in patches)
             {
                 JsonUtils.Patch(json, p);
             }
-            return json.ToObject<DotvvmConfiguration>();
+            return json.ToObject<DotvvmConfiguration>(serializer);
         }
 
         private DotvvmConfiguration ApplyPatches(params JObject[] patches) => ApplyPatches(DotvvmConfiguration.CreateDefault(), patches);
