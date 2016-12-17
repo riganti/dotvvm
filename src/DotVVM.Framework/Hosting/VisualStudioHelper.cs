@@ -13,7 +13,11 @@ namespace DotVVM.Framework.Hosting
             {
                 try
                 {
-                    File.WriteAllText(Path.Combine(directory, "dotvvm_serialized_config.json.tmp"), JsonConvert.SerializeObject(config, Formatting.Indented));
+                    File.WriteAllText(Path.Combine(directory, "dotvvm_serialized_config.json.tmp"), 
+                        JsonConvert.SerializeObject(config, Formatting.Indented, new JsonSerializerSettings
+                        {
+                            TypeNameHandling = TypeNameHandling.Auto
+                        }));
                 }
                 catch
                 {

@@ -13,8 +13,11 @@ namespace DotVVM.Framework.ResourceManagement
 
         public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
         {
-            var name = reader.ReadAsString();
-            return Assembly.Load(new AssemblyName(name));
+            if (reader.Value is string name)
+            {
+                return Assembly.Load(new AssemblyName(name));
+            }
+            else throw new NotSupportedException();
         }
 
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
