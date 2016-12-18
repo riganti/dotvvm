@@ -1,5 +1,5 @@
-<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" />
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <OutputType>library</OutputType>
     <TargetFramework>net461</TargetFramework>
@@ -38,31 +38,13 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NET.Sdk">
-      <Version>1.0.0-alpha-20161104-2</Version>
-      <PrivateAssets>All</PrivateAssets>
-    </PackageReference>
-    <PackageReference Include="Microsoft.NET.Test.Sdk">
-      <Version>15.0.0-preview-20161123-03</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Owin.Security">
-      <Version>3.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Moq">
-      <Version>4.6.38-alpha</Version>
-    </PackageReference>
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core">
-      <Version>1.0.0-beta</Version>
-    </PackageReference>
-    <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM">
-      <Version>0.1.0-pre</Version>
-    </PackageReference>
-    <PackageReference Include="Selenium.Support">
-      <Version>2.53.1</Version>
-    </PackageReference>
-    <PackageReference Include="Selenium.WebDriver">
-      <Version>2.53.1</Version>
-    </PackageReference>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.0.0-preview-20161123-03" />
+    <PackageReference Include="Microsoft.Owin.Security" Version="3.0.1" />
+    <PackageReference Include="Moq" Version="4.6.38-alpha" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.Core" Version="1.0.0-beta" />
+    <PackageReference Include="Riganti.Utils.Testing.Selenium.DotVVM" Version="0.1.0-pre" />
+    <PackageReference Include="Selenium.Support" Version="2.53.1" />
+    <PackageReference Include="Selenium.WebDriver" Version="2.53.1" />
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFramework)' == 'net461' ">
     <Reference Include="System" />
@@ -84,7 +66,6 @@
       <HintPath>C:\Program Files (x86)\Microsoft Visual Studio\2017\Enterprise\Common7\IDE\ReferenceAssemblies\v4.0\Microsoft.VisualStudio.QualityTools.UnitTestFramework.dll</HintPath>
     </Reference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <UsingTask TaskName="TransformXml" AssemblyFile="$(MSBuildExtensionsPath)\Microsoft\VisualStudio\v15.0\Web\Microsoft.Web.Publishing.Tasks.dll" />
   <Target Name="AfterCompile" Condition="exists('App.$(Configuration).config')">
     <Message Importance="high" Text="Transforming config" />
