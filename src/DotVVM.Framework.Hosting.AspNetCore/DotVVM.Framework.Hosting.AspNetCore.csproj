@@ -17,9 +17,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
-    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj">
-      <FromP2P>true</FromP2P>
-    </ProjectReference>
+    <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6.0" />
