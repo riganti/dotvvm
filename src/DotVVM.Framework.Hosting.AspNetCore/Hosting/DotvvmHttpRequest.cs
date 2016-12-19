@@ -45,13 +45,13 @@ namespace DotVVM.Framework.Hosting
 
         public IPathString Path
         {
-            get => new DotvvmHttpPathString(OriginalRequest.Path);
-            set => OriginalRequest.Path = value.HasValue() ? new PathString(value.Value) : PathString.Empty;
+            get { return new DotvvmHttpPathString(OriginalRequest.Path); }
+            set { OriginalRequest.Path = value.HasValue() ? new PathString(value.Value) : PathString.Empty; }
         }
         public IPathString PathBase
         {
-            get => new DotvvmHttpPathString(OriginalRequest.PathBase);
-            set => OriginalRequest.PathBase = value.HasValue() ? new PathString(value.Value) : PathString.Empty;
+            get { return new DotvvmHttpPathString(OriginalRequest.PathBase); }
+            set { OriginalRequest.PathBase = value.HasValue() ? new PathString(value.Value) : PathString.Empty; }
         }
 
         public Stream Body
