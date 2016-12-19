@@ -234,7 +234,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         <title>Server Error in Application</title>
         <meta charset=""UTF-8"" />
         <style type=""text/css"">
-body { font-family: 'Segoe UI',Tahoma,sans-serif; font-size: 11pt; color: #333;}
+body { font-family: 'Segoe UI',Tahoma,sans-serif; font-size: 10pt; color: #333;}
 h1 { font-weight: normal; font-size: 24pt; font-style: italic; color: #A82F23 }
 h2 { font-style: normal; font-size: 16pt; font-weight: bold; margin-bottom: 35px; }
 h3 { color: #004fbd; font-weight: normal; font-size: 14pt; }
@@ -244,13 +244,13 @@ th { vertical-align: bottom; padding: 10px 5px 5px 5px; font-weight: 400; color:
 td { padding: 3px 10px; }
 th, td { border-right: 1px #ddd solid; border-bottom: 1px #ddd solid; border-left: 1px transparent solid; border-top: 1px transparent solid; box-sizing: border-box; }
 th:last-child, td:last-child { border-right: 1px transparent solid; }
-pre { font-size: 12pt; margin: 0px; font-family: 'Consolas',monospace; }
+pre { font-size: 10pt; margin: 0px; font-family: 'Consolas',monospace; }
 .source .source-errorLine { color:  #A82F23; }
 .errorUnderline { 
         background-color: #FFF7F7;
         border: 1px solid #FF8888;
         color:#FF0909;
-        padding: 4px 0;
+        padding: 1px;
 }
 input.collapse { display: none }
 input[type=checkbox].collapse ~ .collapse-on  { display: none; }
