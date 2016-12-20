@@ -7,6 +7,7 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.ViewModel;
 using System.Reflection;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -18,7 +19,7 @@ namespace DotVVM.Framework.Compilation
 
 			var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call);
 			var rootCallback = visitor.Visit(expression);
-			var js = SouldCompileCallback(rootCallback) ? "resultPromise.resolve(" + JavascriptTranslator.CompileToJavascript(rootCallback, binding.DataContextTypeStack) + ")" : null;
+			var js = SouldCompileCallback(rootCallback) ? "resultPromise.resolve(" + JavascriptTranslator.CompileToJavascript(rootCallback, binding.DataContextTypeStack).FormatScript() + ")" : null;
 			foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
 			{
 				if (js == null) js = $"resultPromise.resolve({param.Name})";
@@ -51,9 +52,9 @@ namespace DotVVM.Framework.Compilation
 
 		public static string GetArgsScript(MethodCallExpression expression, DataContextStack dataContext)
 		{
-			var target = expression.Object == null ? null : JavascriptTranslator.CompileToJavascript(expression.Object, dataContext);
+			var target = expression.Object == null ? null : JavascriptTranslator.CompileToJavascript(expression.Object, dataContext).FormatScript();
 			var arguments = (target == null ? new string[0] : new[] { target })
-				.Concat(expression.Arguments.Select(a => JavascriptTranslator.CompileToJavascript(a, dataContext)));
+				.Concat(expression.Arguments.Select(a => JavascriptTranslator.CompileToJavascript(a, dataContext).FormatScript()));
 			return "[" + String.Join(", ", arguments) + "]";
 		}
 

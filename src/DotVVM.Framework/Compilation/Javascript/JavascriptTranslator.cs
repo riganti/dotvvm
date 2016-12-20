@@ -7,6 +7,7 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 
@@ -14,12 +15,12 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static string CompileToJavascript(Expression binding, DataContextStack dataContext)
+        public static JsNode CompileToJavascript(Expression binding, DataContextStack dataContext)
         {
             var translator = new JavascriptTranslator();
             translator.DataContexts = dataContext;
-            var script = translator.Translate(binding).Trim();
-            if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()", StringComparison.Ordinal)) script = script.Remove(script.Length - 2);
+            var script = translator.Translate(binding);
+            //if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()", StringComparison.Ordinal)) script = script.Remove(script.Length - 2);
             return script;
         }
 
@@ -82,13 +83,15 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static void AddDefaultMethodTranslators()
         {
-            var lengthMethod = new StringJsMethodCompiler("{0}.length");
+            var lengthMethod = new GenericMethodCompiler(a => a[0].Member("length"));
             AddPropertyGetterTranslator(typeof(Array), nameof(Array.Length), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(ICollection<>), nameof(ICollection.Count), lengthMethod);
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
-            AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({0})", (m, c, a) => ToStringCheck(c)), 0);
-            AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})", (m, c, a) => ToStringCheck(a[0])), 1, true);
+            AddMethodTranslator(typeof(object), "ToString", new GenericMethodCompiler(
+                a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c)), 0);
+            AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
+                a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             BindingPageInfo.RegisterJavascriptTranslations();
@@ -102,11 +105,11 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public DataContextStack DataContexts { get; set; }
 
-        public string ParenthesizedTranslate(Expression parent, Expression expression)
+        public JsExpression ParenthesizedTranslate(Expression parent, Expression expression)
         {
             if (NeedsParens(parent, expression))
             {
-                return "(" + Translate(expression) + ")";
+                return new JsParenthesizedExpression(Translate(expression));
             }
             else
             {
@@ -114,7 +117,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public string Translate(Expression expression)
+        public JsExpression Translate(Expression expression)
         {
             switch (expression.NodeType)
             {
@@ -145,7 +148,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             throw new NotSupportedException($"expression type { expression.NodeType } can not be transaled to Javascript");
         }
 
-        public string TranslateAssing(BinaryExpression expression)
+        public JsExpression TranslateAssing(BinaryExpression expression)
         {
             var property = expression.Left as MemberExpression;
             if (property != null)
@@ -158,15 +161,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             throw new NotSupportedException($"can not assign expression of type {expression.Left.NodeType}");
         }
 
-        private string SetProperty(string target, PropertyInfo property, string value)
+        private JsExpression SetProperty(JsExpression target, PropertyInfo property, JsExpression value)
         {
             if (ViewModelJsonConverter.IsPrimitiveType(property.PropertyType))
             {
-                return target + "." + property.Name + "(" + value + ")";
+                return target.Member(property.Name).Invoke(value);
             }
             else
             {
-                return $"dotvvm.serialization.deserialize({ value }, { target }.{ property.Name })";
+                return new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, target.Member(property.Name));
             }
         }
 
@@ -198,12 +201,15 @@ namespace DotVVM.Framework.Compilation.Javascript
             return true;
         }
 
-        public string TranslateConditional(ConditionalExpression expression)
+        public JsExpression TranslateConditional(ConditionalExpression expression)
         {
-            return $"{ ParenthesizedTranslate(expression, expression.Test) } ? { ParenthesizedTranslate(expression, expression.IfTrue) } : { ParenthesizedTranslate(expression, expression.IfFalse) }";
+            return new JsConditionalExpression(
+                ParenthesizedTranslate(expression, expression.Test),
+                ParenthesizedTranslate(expression, expression.IfTrue),
+                ParenthesizedTranslate(expression, expression.IfFalse));
         }
 
-        public string TranslateIndex(IndexExpression expression, bool setter = false)
+        public JsExpression TranslateIndex(IndexExpression expression, bool setter = false)
         {
             var target = Translate(expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
@@ -211,38 +217,41 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             var result = TryTranslateMethodCall(target, args, method, expression.Object, expression.Arguments.ToArray());
             if (result != null) return result;
-            return target + "[" + args.Single() + "]()";
+            return new JsIndexerExpression(target, args.Single());
         }
 
-        public string TranslateParameter(ParameterExpression expression)
+        public JsExpression TranslateParameter(ParameterExpression expression)
         {
-            if (expression.Name == "_this") return "$data";
-            if (expression.Name == "_parent") return "$parent";
-            if (expression.Name == "_root") return "$root";
+            if (expression.Name == "_this") return new JsIdentifierExpression("$data");
+            if (expression.Name == "_parent") return new JsIdentifierExpression("$parent");
+            if (expression.Name == "_root") return new JsIdentifierExpression("$root");
             if (expression.Name.StartsWith("_parent", StringComparison.Ordinal))
 			{
 				var pIndex = int.Parse(expression.Name.Substring("_parent".Length));
-				if (pIndex == 0) return "$data";
-				else if (pIndex == 1) return "$parent";
-				else return $"$parents[{ pIndex - 1 }]";
+				if (pIndex == 0) return new JsIdentifierExpression("$data");
+				else if (pIndex == 1) return new JsIdentifierExpression("$parent");
+				else return new JsIndexerExpression(new JsIdentifierExpression("$parents"), new JsLiteral(pIndex - 1));
 			}
 
 			if (expression.Name == "_control")
             {
                 var c = DataContexts.Parents().Count();
-                string context = string.Concat(Enumerable.Repeat("$parentContext.", c));
-                return context + "$control";
+                JsExpression context = null;
+                for (int i = 0; i < c; i++) {
+                    context = context.Member("$parentContext");
+                }
+                return context.Member("$control");
             }
-            if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return expression.Name;
+            if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return new JsIdentifierExpression(expression.Name);
             else throw new NotSupportedException();
         }
 
-        public string TranslateConstant(ConstantExpression expression)
+        public JsLiteral TranslateConstant(ConstantExpression expression)
         {
-            return JavascriptCompilationHelper.CompileConstant(expression.Value);
+            return new JsLiteral(expression.Value);
         }
 
-        public string TranslateMethodCall(MethodCallExpression expression)
+        public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {
             var thisExpression = expression.Object == null ? null : ParenthesizedTranslate(expression, expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
@@ -252,7 +261,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return result;
         }
 
-        protected string TryTranslateMethodCall(string context, string[] args, MethodInfo method, Expression contextExpression, Expression[] argsExpressions)
+        protected JsExpression TryTranslateMethodCall(JsExpression context, JsExpression[] args, MethodInfo method, Expression contextExpression, Expression[] argsExpressions)
         {
             if (method == null) return null;
             IJsMethodTranslator translator;
@@ -304,7 +313,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
-        public string TranslateBinary(BinaryExpression expression)
+        public JsExpression TranslateBinary(BinaryExpression expression)
         {
             var left = ParenthesizedTranslate(expression, expression.Left);
             var right = ParenthesizedTranslate(expression, expression.Right);
@@ -314,53 +323,40 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var mTranslate = TryTranslateMethodCall(null, new[] { left, right }, expression.Method, null, new[] { expression.Left, expression.Right });
                 if (mTranslate != null) return mTranslate;
             }
-            string op = null;
+            BinaryOperatorType op;
             switch (expression.NodeType)
             {
-                case ExpressionType.Equal: op = "=="; break;
-                case ExpressionType.NotEqual: op = "!="; break;
-                case ExpressionType.AndAlso: op = "&&"; break;
-                case ExpressionType.OrElse: op = "||"; break;
-                case ExpressionType.GreaterThan: op = ">"; break;
-                case ExpressionType.LessThan: op = "<"; break;
-                case ExpressionType.GreaterThanOrEqual: op = ">="; break;
-                case ExpressionType.LessThanOrEqual: op = "<="; break;
+                case ExpressionType.Equal: op = BinaryOperatorType.Equal; break;
+                case ExpressionType.NotEqual: op = BinaryOperatorType.NotEqual; break;
+                case ExpressionType.AndAlso: op = BinaryOperatorType.ConditionalAnd; break;
+                case ExpressionType.OrElse: op = BinaryOperatorType.ConditionalOr; break;
+                case ExpressionType.GreaterThan: op = BinaryOperatorType.Greater; break;
+                case ExpressionType.LessThan: op = BinaryOperatorType.Less; break;
+                case ExpressionType.GreaterThanOrEqual: op = BinaryOperatorType.GreaterOrEqual; break;
+                case ExpressionType.LessThanOrEqual: op = BinaryOperatorType.Less; break;
                 case ExpressionType.AddChecked:
-                case ExpressionType.Add: op = "+"; break;
-                case ExpressionType.AddAssignChecked:
-                case ExpressionType.AddAssign: op = "+="; break;
+                case ExpressionType.Add: op = BinaryOperatorType.Plus; break;
                 case ExpressionType.SubtractChecked:
-                case ExpressionType.Subtract: op = "-"; break;
+                case ExpressionType.Subtract: op = BinaryOperatorType.Minus; break;
                 case ExpressionType.SubtractAssignChecked:
-                case ExpressionType.SubtractAssign: op = "-="; break;
-                case ExpressionType.Divide: op = "/"; break;
-                case ExpressionType.DivideAssign: op = "/="; break;
-                case ExpressionType.Modulo: op = "%"; break;
-                case ExpressionType.ModuloAssign: op = "%="; break;
+                case ExpressionType.Divide: op = BinaryOperatorType.Divide; break;
+                case ExpressionType.Modulo: op = BinaryOperatorType.Modulo; break;
                 case ExpressionType.MultiplyChecked:
-                case ExpressionType.Multiply: op = "*"; break;
-                case ExpressionType.MultiplyAssignChecked:
-                case ExpressionType.MultiplyAssign: op = "*="; break;
-                case ExpressionType.LeftShift: op = "<<"; break;
-                case ExpressionType.LeftShiftAssign: op = "<<="; break;
-                case ExpressionType.RightShift: op = ">>"; break;
-                case ExpressionType.RightShiftAssign: op = ">>="; break;
-                case ExpressionType.And: op = "&"; break;
-                case ExpressionType.AndAssign: op = "&="; break;
-                case ExpressionType.Or: op = "|"; break;
-                case ExpressionType.OrAssign: op = "|="; break;
-                case ExpressionType.ExclusiveOr: op = "^"; break;
-                case ExpressionType.ExclusiveOrAssign: op = "^="; break;
-                case ExpressionType.Coalesce: op = "||"; break;
-                case ExpressionType.ArrayIndex: op = "{0}[{1}]"; break;
+                case ExpressionType.Multiply: op = BinaryOperatorType.Times; break;
+                case ExpressionType.LeftShift: op = BinaryOperatorType.LeftShift; break;
+                case ExpressionType.RightShift: op = BinaryOperatorType.UnsignedRightShift; break;
+                case ExpressionType.And: op = BinaryOperatorType.BitwiseAnd; break;
+                case ExpressionType.Or: op = BinaryOperatorType.BitwiseOr; break;
+                case ExpressionType.ExclusiveOr: op = BinaryOperatorType.BitwiseXOr; break;
+                case ExpressionType.Coalesce: op = BinaryOperatorType.ConditionalOr; break;
+                case ExpressionType.ArrayIndex: return new JsIndexerExpression(left, right);
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
-            if (!op.Contains('{')) op = "{0}" + op + "{1}";
-            return string.Format(op, left, right);
+            return new JsBinaryExpression(left, op, right);
         }
 
-        public string TranslateUnary(UnaryExpression expression)
+        public JsExpression TranslateUnary(UnaryExpression expression)
         {
             var operand = ParenthesizedTranslate(expression, expression.Operand);
             var method = expression.Method;
@@ -369,22 +365,22 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var mTranslate = TryTranslateMethodCall(null, new[] { operand }, expression.Method, null, new[] { expression.Operand });
                 if (mTranslate != null) return mTranslate;
             }
-            string op = null;
+            UnaryOperatorType op;
             switch (expression.NodeType)
             {
                 case ExpressionType.NegateChecked:
                 case ExpressionType.Negate:
-                    op = "-{0}";
+                    op = UnaryOperatorType.Minus;
                     break;
 
                 case ExpressionType.UnaryPlus:
-                    op = "+{0}";
+                    op = UnaryOperatorType.Plus;
                     break;
 
                 case ExpressionType.Not:
                     if (expression.Operand.Type == typeof(bool))
-                        op = "!{0}";
-                    else op = "~{0}";
+                        op = UnaryOperatorType.LogicalNot;
+                    else op = UnaryOperatorType.BitwiseNot;
                     break;
                 //case ExpressionType.PreIncrementAssign:
                 //    break;
@@ -402,34 +398,34 @@ namespace DotVVM.Framework.Compilation.Javascript
                 default:
                     throw new NotSupportedException($"Unary operator of type { expression.NodeType } is not supported");
             }
-            return string.Format(op, $"({ operand })");
+            return new JsUnaryExpression(op, operand);
         }
 
-        public string TranslateMemberAccess(MemberExpression expression)
+        public JsExpression TranslateMemberAccess(MemberExpression expression)
         {
             var getter = (expression.Member as PropertyInfo)?.GetMethod;
             if (expression.Expression == null)
             {
                 // static
-                return TryTranslateMethodCall(null, new string[0], getter, null, new Expression[0]) ??
-                    JavascriptCompilationHelper.CompileConstant((
+                return TryTranslateMethodCall(null, new JsExpression[0], getter, null, new Expression[0]) ??
+                    new JsLiteral((
                         ((expression.Member as FieldInfo)?.GetValue(null) ?? (expression.Member as PropertyInfo)?.GetValue(null))));
             }
             else
             {
-                return TryTranslateMethodCall(ParenthesizedTranslate(expression, expression.Expression), new string[0], getter, expression.Expression, new Expression[0]) ??
+                return TryTranslateMethodCall(ParenthesizedTranslate(expression, expression.Expression), new JsExpression[0], getter, expression.Expression, new Expression[0]) ??
                     TranslateViewModelProperty(ParenthesizedTranslate(expression, expression.Expression), expression.Member);
             }
         }
 
-        public string TranslateViewModelProperty(string context, MemberInfo propInfo)
+        public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo)
         {
             if (propInfo is FieldInfo) throw new NotSupportedException($"Field '{propInfo.Name}' cannot be translated to knockout binding. Use property with public getter and setter.");
             var protection = propInfo.GetCustomAttribute<ProtectAttribute>();
             if (protection != null && protection.Settings == ProtectMode.EncryptData)
                 throw new NotSupportedException($"Encrypted property '{propInfo.Name}' cannot be used in binding.");
             // Bind(None) can make sense to translate, since it can be used as client-only property
-            return context + "." + propInfo.Name + "()";
+            return new JsInvocationExpression(new JsMemberAccessExpression(context, propInfo.Name));
         }
     }
 }

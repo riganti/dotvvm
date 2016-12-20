@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
@@ -72,7 +73,7 @@ namespace DotVVM.Framework.Compilation
 
         public virtual string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression)
         {
-            var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack);
+            var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack).FormatScript();
 
             if (javascript == "$data")
             {

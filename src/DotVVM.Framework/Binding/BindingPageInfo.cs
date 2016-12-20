@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Binding
 {
@@ -16,9 +17,12 @@ namespace DotVVM.Framework.Binding
 
         internal static void RegisterJavascriptTranslations()
         {
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnServer), new StringJsMethodCompiler("false"));
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnClient), new StringJsMethodCompiler("true"));
-            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(IsPostbackRunning), new StringJsMethodCompiler("dotvvm.isPostbackRunning()"));
+            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnServer),
+                new GenericMethodCompiler(_ => new JsLiteral(false)));
+            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(EvaluatingOnClient),
+                new GenericMethodCompiler(_ => new JsLiteral(true)));
+            JavascriptTranslator.AddPropertyGetterTranslator(typeof(BindingPageInfo), nameof(IsPostbackRunning),
+                new GenericMethodCompiler(_ => new JsIdentifierExpression("dotvvm").Member("isPostbackRunning").Invoke()));
         }
     }
 }
