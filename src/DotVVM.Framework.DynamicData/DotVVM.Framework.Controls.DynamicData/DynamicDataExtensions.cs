@@ -85,14 +85,6 @@ namespace DotVVM.Framework.Controls.DynamicData
             config.Markup.AddCodeControl("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).Assembly.GetName().Name);
             return config.ServiceLocator.GetService<DynamicDataConfiguration>();
         }
-
-        /// <summary>
-        /// Registers the viewmodel metadata provider which uses resource files to get default error messages and property display names.
-        /// </summary>
-        public static void RegisterResourceMetadataProvider(this DotvvmConfiguration config, Type errorMessagesResourceFile, Type propertyDisplayNamesResourceFile)
-        {
-            
-        }
-
+        
     }
 }
