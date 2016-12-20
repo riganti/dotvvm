@@ -35,6 +35,10 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             {
                 textBox.Type = TextBoxType.Password;
             }
+            else if (property.DataType == DataType.MultilineText)
+            {
+                textBox.Type = TextBoxType.MultiLine;
+            }
         }
         
         
