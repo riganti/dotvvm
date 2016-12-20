@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("DotVVM.Framework.Hosting.AspNetCore")]
+[assembly: AssemblyTitle("DotVVM.Framework.Hosting.Owin")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("DotVVM.Framework.Hosting.AspNetCore")]
+[assembly: AssemblyProduct("DotVVM.Framework.Hosting.Owin")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -22,4 +22,4 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyFileVersion("1.1.0")]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("c5af6a0d-5416-44d4-b14d-8ffdd1b0e99b")]
+[assembly: Guid("6DACF57C-91E9-4B2B-AF54-F09989BD8ED6")]
