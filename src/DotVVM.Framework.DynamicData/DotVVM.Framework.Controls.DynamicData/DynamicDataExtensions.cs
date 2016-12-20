@@ -8,32 +8,82 @@ using DotVVM.Framework.Controls.DynamicData.Builders;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.ViewModel.Validation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
     public static class DynamicDataExtensions
     {
 
-        /// <summary>
-        /// Registers the Dynamic Data controls and return the Dynamic Data configuration.
-        /// </summary>
-        public static DynamicDataConfiguration AddDynamicDataConfiguration(this DotvvmConfiguration config, DynamicDataConfiguration dynamicDataConfiguration = null)
+
+        public static IDotvvmBuilder AddDynamicDataServices(this IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration = null)
         {
             if (dynamicDataConfiguration == null)
             {
                 dynamicDataConfiguration = new DynamicDataConfiguration();
             }
 
-            config.Markup.AddCodeControl("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).Assembly.GetName().Name);
+            // add the configuration of Dynamic Data to the service collection
+            builder.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
 
+            if (dynamicDataConfiguration.UseLocalizationResourceFiles)
+            {
+                // register single language providers
+                RegisterDefaultProviders(builder, dynamicDataConfiguration);
+            }
+            else
+            {
+                // register localized providers
+                RegisterResourceFileProviders(builder, dynamicDataConfiguration);
+            }
+
+            return builder;
+        }
+
+        private static void RegisterResourceFileProviders(IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration)
+        {
+            if (dynamicDataConfiguration.PropertyDisplayNamesResourceFile == null)
+            {
+                throw new ArgumentException($"The {nameof(DynamicDataConfiguration)} must specify the {nameof(DynamicDataConfiguration.PropertyDisplayNamesResourceFile)} resource class!");
+            }
+            if (dynamicDataConfiguration.ErrorMessagesResourceFile == null)
+            {
+                throw new ArgumentException($"The {nameof(DynamicDataConfiguration)} must specify the {nameof(DynamicDataConfiguration.ErrorMessagesResourceFile)} resource class!");
+            }
+
+            builder.Services.AddSingleton<IPropertyDisplayMetadataProvider>(serviceProvider =>
+            {
+                var basePropertyDisplayMetadataProvider = serviceProvider.GetService<IPropertyDisplayMetadataProvider>();
+                return new ResourcePropertyDisplayMetadataProvider(dynamicDataConfiguration.PropertyDisplayNamesResourceFile, basePropertyDisplayMetadataProvider);
+            });
+            builder.Services.AddSingleton<IViewModelValidationMetadataProvider>(serviceProvider =>
+            {
+                var baseValidationMetadataProvider = serviceProvider.GetService<IViewModelValidationMetadataProvider>();
+                var newPropertyDisplayMetadataProvider = serviceProvider.GetService<IPropertyDisplayMetadataProvider>();
+                return new ResourceViewModelValidationMetadataProvider(dynamicDataConfiguration.ErrorMessagesResourceFile, newPropertyDisplayMetadataProvider, baseValidationMetadataProvider);
+            });
+            builder.Services.AddSingleton<IEntityPropertyListProvider>(serviceProvider =>
+            {
+                var newPropertyDisplayMetadataProvider = serviceProvider.GetService<IPropertyDisplayMetadataProvider>();
+                return new DefaultEntityPropertyListProvider(newPropertyDisplayMetadataProvider);
+            });
+        }
+
+        private static void RegisterDefaultProviders(IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration)
+        {
             var propertyDisplayMetadataProvider = new DataAnnotationsPropertyDisplayMetadataProvider();
+            builder.Services.AddSingleton<IPropertyDisplayMetadataProvider>(serviceProvider => propertyDisplayMetadataProvider);
+            builder.Services.AddSingleton<IEntityPropertyListProvider>(serviceProvider => new DefaultEntityPropertyListProvider(propertyDisplayMetadataProvider));
+        }
 
-            config.ServiceLocator.RegisterSingleton<IPropertyDisplayMetadataProvider>(() => propertyDisplayMetadataProvider);
-            config.ServiceLocator.RegisterSingleton<IEntityPropertyListProvider>(() => new DefaultEntityPropertyListProvider(propertyDisplayMetadataProvider));
-            config.ServiceLocator.RegisterSingleton<DynamicDataConfiguration>(() => dynamicDataConfiguration);
-            config.ServiceLocator.RegisterSingleton<IFormBuilder>(() => dynamicDataConfiguration.FormBuilder);
 
-            return dynamicDataConfiguration;
+        /// <summary>
+        /// Registers the Dynamic Data controls and return the Dynamic Data configuration.
+        /// </summary>
+        public static DynamicDataConfiguration AddDynamicDataConfiguration(this DotvvmConfiguration config)
+        {
+            config.Markup.AddCodeControl("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).Assembly.GetName().Name);
+            return config.ServiceLocator.GetService<DynamicDataConfiguration>();
         }
 
         /// <summary>
@@ -41,16 +91,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         public static void RegisterResourceMetadataProvider(this DotvvmConfiguration config, Type errorMessagesResourceFile, Type propertyDisplayNamesResourceFile)
         {
-            var baseValidationMetadataProvider = config.ServiceLocator.GetService<IViewModelValidationMetadataProvider>();
-
-            var basePropertyDisplayMetadataProvider = config.ServiceLocator.GetService<IPropertyDisplayMetadataProvider>();
-            var newPropertyDisplayMetadataProvider = new ResourcePropertyDisplayMetadataProvider(propertyDisplayNamesResourceFile, basePropertyDisplayMetadataProvider);
-
-            config.ServiceLocator.RegisterSingleton<IPropertyDisplayMetadataProvider>(() => newPropertyDisplayMetadataProvider);
-            config.ServiceLocator.RegisterSingleton<IViewModelValidationMetadataProvider>(() => new ResourceViewModelValidationMetadataProvider(
-                errorMessagesResourceFile, newPropertyDisplayMetadataProvider, baseValidationMetadataProvider)
-            );
-            config.ServiceLocator.RegisterSingleton<IEntityPropertyListProvider>(() => new DefaultEntityPropertyListProvider(newPropertyDisplayMetadataProvider));
+            
         }
 
     }

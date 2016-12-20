@@ -1,6 +1,7 @@
 ﻿using System;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls.DynamicData.Builders;
+using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls.DynamicData
@@ -45,6 +46,18 @@ namespace DotVVM.Framework.Controls.DynamicData
             = DotvvmProperty.Register<string, DynamicEntity>(c => c.GroupName, null);
 
 
+        /// <summary>
+        /// Gets or sets the name of the form builder to be used. If not set, the default form builder is used.
+        /// </summary>
+        public string FormBuilderName
+        {
+            get { return (string)GetValue(FormBuilderNameProperty); }
+            set { SetValue(FormBuilderNameProperty, value); }
+        }
+        public static readonly DotvvmProperty FormBuilderNameProperty
+            = DotvvmProperty.Register<string, DynamicEntity>(c => c.FormBuilderName, "");
+
+
 
 
         internal static readonly DotvvmProperty DynamicDataContextProperty
@@ -74,7 +87,7 @@ namespace DotVVM.Framework.Controls.DynamicData
 
         protected virtual void BuildForm(DynamicDataContext dynamicDataContext)
         {
-            var builder = dynamicDataContext.RequestContext.Configuration.ServiceLocator.GetService<IFormBuilder>();
+            var builder = dynamicDataContext.DynamicDataConfiguration.GetFormBuilder(FormBuilderName);
             builder.BuildForm(this, dynamicDataContext);
         }
 

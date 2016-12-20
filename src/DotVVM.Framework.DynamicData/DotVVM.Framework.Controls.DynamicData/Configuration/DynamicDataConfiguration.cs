@@ -16,7 +16,18 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
 
         public List<IGridColumnProvider> GridColumnProviders { get; private set; } = new List<IGridColumnProvider>();
 
-        public IFormBuilder FormBuilder { get; set; } = new TableDynamicFormBuilder();
+        public Dictionary<string, IFormBuilder> FormBuilders { get; private set; } = new Dictionary<string, IFormBuilder>()
+        {
+            { "", new TableDynamicFormBuilder() },
+            { "bootstrap", new BootstrapFormGroupBuilder() }
+        };
+        
+
+        public bool UseLocalizationResourceFiles { get; set; }
+
+        public Type PropertyDisplayNamesResourceFile { get; set; }
+
+        public Type ErrorMessagesResourceFile { get; set; }
 
 
         public DynamicDataConfiguration()
@@ -28,5 +39,16 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
             GridColumnProviders.Add(new TextGridColumnProvider());
         }
 
+        
+
+        public IFormBuilder GetFormBuilder(string formBuilderName = "")
+        {
+            IFormBuilder builder;
+            if (!FormBuilders.TryGetValue(formBuilderName, out builder))
+            {
+                throw new ArgumentException($"The {nameof(IFormBuilder)} with name '{formBuilderName}' was not found! Make sure it is registered in the {nameof(DynamicDataExtensions.AddDynamicDataServices)} method.");
+            }
+            return builder;
+        }
     }
 }
