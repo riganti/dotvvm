@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new BindingExpressionBuilder();
 			var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
-            return JavascriptTranslator.CompileToJavascript(expressionTree, context);
+            return JavascriptTranslator.CompileToJavascript(expressionTree, context).FormatScript();
         }
 
         [TestMethod]
