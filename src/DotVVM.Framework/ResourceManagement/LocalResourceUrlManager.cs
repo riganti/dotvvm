@@ -20,9 +20,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         public LocalResourceUrlManager(DotvvmConfiguration configuration, IResourceHashService hasher)
         {
-            // On OWIN request which have a dot in file name does not work, so we have to put here another name
-            var owinHackSuffix = Type.GetType("Owin.AppBuilderExtensions, DotVVM.Framework.Hosting.Owin") != null ? "/{sanitizedName}" : "";
-            this.resourceRoute = new DotvvmRoute("dotvvmResource/{hash}/{name:regex(.*)}" + owinHackSuffix, null, null, null, configuration);
+            this.resourceRoute = new DotvvmRoute("dotvvmResource/{hash}/{name:regex(.*)}", null, null, null, configuration);
             this.hasher = hasher;
             this.resources = configuration.Resources;
             this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
@@ -32,16 +30,25 @@ namespace DotVVM.Framework.ResourceManagement
             resourceRoute.BuildUrl(new Dictionary<string, object>
             {
                 ["hash"] = hasher.GetVersionHash(resource, context),
-                ["name"] = name,
-                ["sanitizedName"] = new string(name.Select(c => char.IsLetterOrDigit(c) ? c : '_').ToArray())
+                ["name"] = EncodeResourceName(name)
             });
+
+        protected virtual string EncodeResourceName(string name)
+        {
+            return name.Replace(":", "---").Replace(".", "--");
+        }
+
+        protected virtual string DecodeResourceName(string name)
+        {
+            return name.Replace("---", ":").Replace("--", ".");
+        }
 
         public ILocalResourceLocation FindResource(string url, IDotvvmRequestContext context, out string mimeType)
         {
             mimeType = null;
             IDictionary<string, object> parameters;
             if (DotvvmRoutingMiddleware.FindMatchingRoute(new[] { resourceRoute }, context, out parameters) == null) return null;
-            var name = (string)parameters["name"];
+            var name = DecodeResourceName((string)parameters["name"]);
             var hash = (string)parameters["hash"];
             var resource = resources.FindResource(name) as IResource;
             if (resource != null)

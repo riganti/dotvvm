@@ -18,12 +18,10 @@ namespace DotVVM.Framework.ResourceManagement
     {
         public IResourceLocation Location { get; set; }
         public ResourceLocationFallback LocationFallback { get; set; }
-        public string MimeType { get; set; } = "text/plain";
+        public string MimeType { get; private set; }
+        public bool VerifyResourceIntegrity { get; set; }
 
-        public LinkResourceBase(ResourceRenderPosition renderPosition,
-            string mimeType,
-            IResourceLocation location)
-            :base(renderPosition)
+        public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType, IResourceLocation location) : base(renderPosition)
         {
             this.Location = location;
             this.MimeType = mimeType;
@@ -81,7 +79,8 @@ namespace DotVVM.Framework.ResourceManagement
         protected void AddSrcAndIntegrity(IHtmlWriter writer, IDotvvmRequestContext context, string url, string srcAttributeName)
         {
             writer.AddAttribute(srcAttributeName, url);
-            if (url.Contains("://"))
+
+            if (url.Contains("://") && VerifyResourceIntegrity)
             {
                 AddIntegrityAttribute(writer, context);
             }
