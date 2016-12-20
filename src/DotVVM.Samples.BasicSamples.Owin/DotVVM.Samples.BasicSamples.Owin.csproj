@@ -95,11 +95,6 @@
     <Compile Include="ViewModels\ControlSamples\RoleView\RoleViewTestViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Scripts\ClientExtenders.js" />
-    <Content Include="Scripts\colResizable-1.5.min.js" />
-    <Content Include="Scripts\GridViewSizable.js" />
-    <Content Include="Scripts\testResource.js" />
-    <Content Include="Scripts\testResource2.js" />
     <Content Include="Web.config" />
     <Content Include="test.zip" />
     <Content Include="packages.config" />
@@ -151,12 +146,6 @@
           </CustomServerUrl>
           <SaveServerSettingsInUserFile>False</SaveServerSettingsInUserFile>
         </WebProjectProperties>
-      </FlavorProperties>
-      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="Debug|Any CPU">
-        <DotvvmPropertyPageProjectFlavorCfg />
-      </FlavorProperties>
-      <FlavorProperties GUID="{94EE71E2-EE2A-480B-8704-AF46D2E58D94}" Configuration="Release|Any CPU">
-        <DotvvmPropertyPageProjectFlavorCfg />
       </FlavorProperties>
     </VisualStudio>
   </ProjectExtensions>

@@ -1,4 +1,4 @@
-<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>ASP.NET MVVM Framework</Description>
     <AssemblyTitle>DotVVM</AssemblyTitle>
@@ -29,7 +29,7 @@
     <EmbeddedResource Remove="node_modules\**" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\Scripts\DotVVM.FileUpload.css" />
+    <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Scripts\DotVVM.d.ts" />

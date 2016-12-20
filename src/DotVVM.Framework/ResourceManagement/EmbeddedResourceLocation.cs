@@ -2,6 +2,7 @@
 using DotVVM.Framework.Hosting;
 using System.Reflection;
 using Newtonsoft.Json;
+using System;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -19,6 +20,8 @@ namespace DotVVM.Framework.ResourceManagement
         public string DebugFilePath { get; set; }
         public EmbeddedResourceLocation(Assembly assembly, string name, string debugFileName = null)
         {
+            if (assembly.GetManifestResourceInfo(name) == null) throw new ArgumentException($"Could not find resource '{name}' in assembly {assembly.GetName().Name}", nameof(name));
+
             this.Name = name;
             this.Assembly = assembly;
             this.DebugFilePath = debugFileName;
