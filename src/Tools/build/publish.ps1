@@ -38,14 +38,14 @@ function PushPackages() {
 }
 
 function GitCheckout() {
-	& git checkout $branchName
-	& git -c http.sslVerify=false pull $repoUrl
+	& git checkout $branchName 2>&1
+	& git -c http.sslVerify=false pull $repoUrl 2>&1
 }
 
 function GitPush() {
 	& git commit -am "NuGet package version $version"
 	& git rebase HEAD $branchName
-	& git -c http.sslVerify=false push $repoUrl $branchName
+	& git -c http.sslVerify=false push $repoUrl $branchName 2>&1
 }
 
 
