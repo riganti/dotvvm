@@ -2,7 +2,6 @@
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyModel;
 using System.Linq;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ResourceManagement;
