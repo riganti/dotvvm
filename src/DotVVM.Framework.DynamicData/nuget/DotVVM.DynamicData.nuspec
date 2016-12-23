@@ -1,0 +1,24 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package xmlns="http://schemas.microsoft.com/packaging/2012/06/nuspec.xsd">
+    <metadata>
+        <id>DotVVM.DynamicData</id>
+        <version>0.1.1-pre</version>
+        <authors>RIGANTI</authors>
+        <licenseUrl>https://github.com/riganti/dotvvm-dynamic-data/blob/master/LICENSE</licenseUrl>
+        <projectUrl>http://github.org/riganti/dotvvm-dynamic-data</projectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <description>Dynamic Data implementation for DotVVM.</description>
+        <summary />
+        <language />
+        <tags>dotvvm redwood asp.net mvvm owin bootstrap dynamic data annotations metadata ui generation</tags>
+        <dependencies>
+            <group targetFramework=".NETFramework4.5.1">
+                <dependency id="DotVVM" version="1.0.2" />
+            </group>
+        </dependencies>
+    </metadata>
+    <files>
+        <file src="..\DotVVM.Framework.Controls.DynamicData\bin\Release\DotVVM.Framework.Controls.DynamicData.dll" target="lib\net451\DotVVM.Framework.Controls.DynamicData.dll" />
+        <file src="..\DotVVM.Framework.Controls.DynamicData\bin\Release\DotVVM.Framework.Controls.DynamicData.xml" target="lib\net451\DotVVM.Framework.Controls.DynamicData.xml" />
+    </files>
+</package>
