@@ -72,7 +72,7 @@ function PushPackages() {
 
 function GitCheckout() {
 	invoke-git checkout $branchName
-	invoke-git -c http.sslVerify=false pull $repoUrl
+	invoke-git -c http.sslVerify=false pull $repoUrl $branchName
 }
 
 function GitPush() {
