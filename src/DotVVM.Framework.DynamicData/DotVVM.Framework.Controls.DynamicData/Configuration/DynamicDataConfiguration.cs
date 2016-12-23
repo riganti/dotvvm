@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
             IFormBuilder builder;
             if (!FormBuilders.TryGetValue(formBuilderName, out builder))
             {
-                throw new ArgumentException($"The {nameof(IFormBuilder)} with name '{formBuilderName}' was not found! Make sure it is registered in the {nameof(DynamicDataExtensions.AddDynamicDataServices)} method.");
+                throw new ArgumentException($"The {nameof(IFormBuilder)} with name '{formBuilderName}' was not found! Make sure it is registered in the {nameof(DynamicDataExtensions.ConfigureDynamicData)} method.");
             }
             return builder;
         }

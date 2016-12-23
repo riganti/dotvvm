@@ -16,7 +16,7 @@ namespace DotVVM.Framework.Controls.DynamicData
     {
 
 
-        public static IDotvvmBuilder AddDynamicDataServices(this IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration = null)
+        public static IDotvvmBuilder ConfigureDynamicData(this IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration = null)
         {
             if (dynamicDataConfiguration == null)
             {
