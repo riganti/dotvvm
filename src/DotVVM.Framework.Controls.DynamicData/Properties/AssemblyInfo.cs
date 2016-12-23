@@ -31,12 +31,6 @@ using System.Runtime.InteropServices;
 //
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
-<<<<<<< HEAD:src/DotVVM.Framework.Controls.DynamicData/Properties/AssemblyInfo.cs
 // [assembly: AssemblyVersion("1.1.0")]
 [assembly: AssemblyVersion("1.1.0")]
 [assembly: AssemblyFileVersion("1.1.0")]
-=======
-// [assembly: AssemblyVersion("1.1.0")]
-[assembly: AssemblyVersion("1.1.0")]
-[assembly: AssemblyFileVersion("1.1.0")]
->>>>>>> 0196a9b718c8f2f4791215cff459e9de2104cc43:src/DotVVM.Framework.DynamicData/DotVVM.Framework.Controls.DynamicData/Properties/AssemblyInfo.cs
