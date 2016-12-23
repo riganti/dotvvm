@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers
 
         public static Type UnwrapNullableType(Type type)
         {
-            if (type.IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
+            if (type.GetTypeInfo().IsGenericType && type.GetGenericTypeDefinition() == typeof(Nullable<>))
             {
                 type = type.GetGenericArguments()[0];
             }

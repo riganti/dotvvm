@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
@@ -82,7 +83,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         /// </summary>
         public static DynamicDataConfiguration AddDynamicDataConfiguration(this DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControl("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).Assembly.GetName().Name);
+            config.Markup.AddCodeControl("dd", typeof(DynamicDataExtensions).Namespace, typeof(DynamicDataExtensions).GetTypeInfo().Assembly.GetName().Name);
             return config.ServiceLocator.GetService<DynamicDataConfiguration>();
         }
         

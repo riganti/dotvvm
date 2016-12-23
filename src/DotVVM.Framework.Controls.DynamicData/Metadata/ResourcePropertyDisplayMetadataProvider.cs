@@ -38,7 +38,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         /// </summary>
         public PropertyDisplayMetadata GetPropertyMetadata(PropertyInfo property)
         {
-            return cache.GetOrAdd(new PropertyCulturePair(property, Thread.CurrentThread.CurrentUICulture), GetPropertyMetadataCore);
+            return cache.GetOrAdd(new PropertyCulturePair(property, CultureInfo.CurrentUICulture), GetPropertyMetadataCore);
         }
 
 

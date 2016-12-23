@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 
 namespace DotVVM.Framework.Controls.DynamicData.Metadata
@@ -26,12 +27,12 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         /// </summary>
         public IList<PropertyDisplayMetadata> GetProperties(Type entityType, string viewName = null)
         {
-            return cache.GetOrAdd(new TypeViewCulturePair(entityType, viewName, Thread.CurrentThread.CurrentUICulture), GetPropertiesCore);
+            return cache.GetOrAdd(new TypeViewCulturePair(entityType, viewName, CultureInfo.CurrentUICulture), GetPropertiesCore);
         }
 
         private List<PropertyDisplayMetadata> GetPropertiesCore(TypeViewCulturePair pair)
         {
-            var metadata = pair.EntityType.GetProperties()
+            var metadata = pair.EntityType.GetTypeInfo().GetProperties()
                 .Select(propertyDisplayMetadataProvider.GetPropertyMetadata)
                 .OrderBy(p => p.Order)
                 .Where(p => p.AutoGenerateField)

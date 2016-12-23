@@ -42,7 +42,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         /// </summary>
         public IEnumerable<ValidationAttribute> GetAttributesForProperty(PropertyInfo property)
         {
-            return cache.GetOrAdd(new PropertyInfoCulturePair(Thread.CurrentThread.CurrentUICulture, property), GetAttributesForPropertyCore);
+            return cache.GetOrAdd(new PropertyInfoCulturePair(CultureInfo.CurrentUICulture, property), GetAttributesForPropertyCore);
         }
 
         /// <summary>

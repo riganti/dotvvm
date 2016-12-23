@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
@@ -131,12 +132,12 @@ namespace DotVVM.Framework.Controls.DynamicData
             var dataSourceBinding = (ValueBindingExpression)grid.GetValueBinding(ItemsControl.DataSourceProperty);
             var dataSourceType = dataSourceBinding.ExpressionTree.Type;
 
-            if (dataSourceType.IsGenericType && dataSourceType.GetGenericTypeDefinition() == typeof(GridViewDataSet<>))
+            if (dataSourceType.GetTypeInfo().IsGenericType && dataSourceType.GetGenericTypeDefinition() == typeof(GridViewDataSet<>))
             {
-                return dataSourceType.GetGenericArguments()[0];
+                return dataSourceType.GetTypeInfo().GetGenericArguments()[0];
             }
 
-            var enumerableType = dataSourceType.GetInterfaces().FirstOrDefault(i => i.IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
+            var enumerableType = dataSourceType.GetTypeInfo().GetInterfaces().FirstOrDefault(i => i.GetTypeInfo().IsGenericType && i.GetGenericTypeDefinition() == typeof(IEnumerable<>));
             if (enumerableType != null)
             {
                 return enumerableType.GetGenericArguments()[0];
