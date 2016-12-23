@@ -25,8 +25,8 @@ $LASTEXITCODE
             [parameter(ValueFromRemainingArguments=$true)]
             [string[]]$InnerArgs
         )
-        git.exe $InnerArgs
-    } -ErrorAction SilentlyContinue -ErrorVariable fail @Arguments 2>&1
+        git.exe $InnerArgs 2>&1
+    } -ErrorAction SilentlyContinue -ErrorVariable fail @Arguments
 
     if ($fail) {
         $fail.Exception
