@@ -1,5 +1,38 @@
 param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl)
 
+
+### Helper Functions
+
+function Invoke-Git {
+<#
+.Synopsis
+Wrapper function that deals with Powershell's peculiar error output when Git uses the error stream.
+
+.Example
+Invoke-Git ThrowError
+$LASTEXITCODE
+
+#>
+    [CmdletBinding()]
+    param(
+        [parameter(ValueFromRemainingArguments=$true)]
+        [string[]]$Arguments
+    )
+
+    & {
+        [CmdletBinding()]
+        param(
+            [parameter(ValueFromRemainingArguments=$true)]
+            [string[]]$InnerArgs
+        )
+        git.exe $InnerArgs
+    } -ErrorAction SilentlyContinue -ErrorVariable fail @Arguments
+
+    if ($fail) {
+        $fail.Exception
+    }
+}
+
 function CleanOldGeneratedPackages() {
 	foreach ($package in $packages) {
 		del .\$($package.Directory)\bin\debug\*.nupkg -ErrorAction SilentlyContinue
@@ -38,20 +71,27 @@ function PushPackages() {
 }
 
 function GitCheckout() {
-	& git checkout $branchName 2>&1
-	& git -c http.sslVerify=false pull $repoUrl 2>&1
+	invoke-git checkout $branchName
+	invoke-git -c http.sslVerify=false pull $repoUrl
 }
 
 function GitPush() {
-	& git commit -am "NuGet package version $version"
-	& git rebase HEAD $branchName
-	& git -c http.sslVerify=false push $repoUrl $branchName 2>&1
+	invoke-git commit -am "NuGet package version $version"
+	invoke-git rebase HEAD $branchName
+	invoke-git -c http.sslVerify=false push $repoUrl $branchName
 }
 
+
+
+### Configuration
 
 $packages = @(
 	[pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DotVVM.Framework.Controls.DynamicData" }
 )
+
+
+
+### Publish Workflow
 
 $versionWithoutPre = $version
 if ($versionWithoutPre.Contains("-")) {
