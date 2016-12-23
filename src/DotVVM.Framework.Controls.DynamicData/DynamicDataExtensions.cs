@@ -5,7 +5,6 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
-using DotVVM.Framework.Controls.DynamicData.Builders;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.ViewModel.Validation;
@@ -27,7 +26,7 @@ namespace DotVVM.Framework.Controls.DynamicData
             // add the configuration of Dynamic Data to the service collection
             builder.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
 
-            if (dynamicDataConfiguration.UseLocalizationResourceFiles)
+            if (!dynamicDataConfiguration.UseLocalizationResourceFiles)
             {
                 // register single language providers
                 RegisterDefaultProviders(builder, dynamicDataConfiguration);
@@ -39,6 +38,13 @@ namespace DotVVM.Framework.Controls.DynamicData
             }
 
             return builder;
+        }
+
+        private static void RegisterDefaultProviders(IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration)
+        {
+            var propertyDisplayMetadataProvider = new DataAnnotationsPropertyDisplayMetadataProvider();
+            builder.Services.AddSingleton<IPropertyDisplayMetadataProvider>(serviceProvider => propertyDisplayMetadataProvider);
+            builder.Services.AddSingleton<IEntityPropertyListProvider>(serviceProvider => new DefaultEntityPropertyListProvider(propertyDisplayMetadataProvider));
         }
 
         private static void RegisterResourceFileProviders(IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration)
@@ -68,13 +74,6 @@ namespace DotVVM.Framework.Controls.DynamicData
                 var newPropertyDisplayMetadataProvider = serviceProvider.GetService<IPropertyDisplayMetadataProvider>();
                 return new DefaultEntityPropertyListProvider(newPropertyDisplayMetadataProvider);
             });
-        }
-
-        private static void RegisterDefaultProviders(IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration)
-        {
-            var propertyDisplayMetadataProvider = new DataAnnotationsPropertyDisplayMetadataProvider();
-            builder.Services.AddSingleton<IPropertyDisplayMetadataProvider>(serviceProvider => propertyDisplayMetadataProvider);
-            builder.Services.AddSingleton<IEntityPropertyListProvider>(serviceProvider => new DefaultEntityPropertyListProvider(propertyDisplayMetadataProvider));
         }
 
 
