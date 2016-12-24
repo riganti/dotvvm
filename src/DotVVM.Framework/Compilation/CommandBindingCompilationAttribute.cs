@@ -8,12 +8,13 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using System.Reflection;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Compilation
 {
     public class CommandBindingCompilationAttribute : BindingCompilationAttribute
     {
-        public override string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression)
+        public override string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression, DotvvmConfiguration config)
         {
             return $"dotvvm.postbackScript({ JsonConvert.SerializeObject(expression.Id) })";
         }

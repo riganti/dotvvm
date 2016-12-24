@@ -5,39 +5,39 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-	public class JsBinaryExpression : JsExpression
-	{
-		public readonly static JsTreeRole<JsExpression> LeftRole = new JsTreeRole<JsExpression>("Left");
-		public readonly static JsTreeRole<JsExpression> RightRole = new JsTreeRole<JsExpression>("Right");
+    public class JsBinaryExpression : JsExpression
+    {
+        public readonly static JsTreeRole<JsExpression> LeftRole = new JsTreeRole<JsExpression>("Left");
+        public readonly static JsTreeRole<JsExpression> RightRole = new JsTreeRole<JsExpression>("Right");
 
-		private BinaryOperatorType @operator;
+        private BinaryOperatorType @operator;
 
-		public BinaryOperatorType Operator
-		{
-			get { return @operator; }
-			set { ThrowIfFrozen(); @operator = value; }
-		}
+        public BinaryOperatorType Operator
+        {
+            get { return @operator; }
+            set { ThrowIfFrozen(); @operator = value; }
+        }
 
         public string OperatorString => GetOperatorString(Operator);
 
-		public JsExpression Left
-		{
-			get { return GetChildByRole(LeftRole); }
-			set { SetChildByRole(LeftRole, value); }
-		}
+        public JsExpression Left
+        {
+            get { return GetChildByRole(LeftRole); }
+            set { SetChildByRole(LeftRole, value); }
+        }
 
-		public JsExpression Right
-		{
-			get { return GetChildByRole(RightRole); }
-			set { SetChildByRole(RightRole, value); }
-		}
+        public JsExpression Right
+        {
+            get { return GetChildByRole(RightRole); }
+            set { SetChildByRole(RightRole, value); }
+        }
 
-		public JsBinaryExpression(JsExpression left, BinaryOperatorType @operator, JsExpression right)
-		{
-			this.@operator = @operator;
-			this.Left = left;
-			this.Right = right;
-		}
+        public JsBinaryExpression(JsExpression left, BinaryOperatorType @operator, JsExpression right)
+        {
+            this.@operator = @operator;
+            this.Left = left;
+            this.Right = right;
+        }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitBinaryExpression(this);
 
@@ -91,59 +91,63 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     return "&&";
                 case BinaryOperatorType.ConditionalOr:
                     return "||";
+                case BinaryOperatorType.Assignment:
+                    return "=";
                 default:
                     throw new NotSupportedException($"Operator {op} not supported.");
             }
         }
     }
 
-	public enum BinaryOperatorType
-	{
-		[EnumMember(Value = "+")]
-		Plus,
-		[EnumMember(Value = "-")]
-		Minus,
-		[EnumMember(Value = "*")]
-		Times,
-		[EnumMember(Value = "/")]
-		Divide,
-		[EnumMember(Value = "%")]
-		Modulo,
-		[EnumMember(Value = "==")]
-		Equal,
-		[EnumMember(Value = "!=")]
-		NotEqual,
-		[EnumMember(Value = ">")]
-		Greater,
-		[EnumMember(Value = ">=")]
-		GreaterOrEqual,
-		[EnumMember(Value = "<")]
-		Less,
-		[EnumMember(Value = "<=")]
-		LessOrEqual,
-		[EnumMember(Value = "===")]
-		StrictlyEqual,
-		[EnumMember(Value = "!==")]
-		StricltyNotEqual,
-		[EnumMember(Value = "&")]
-		BitwiseAnd,
-		[EnumMember(Value = "|")]
-		BitwiseOr,
-		[EnumMember(Value = "^")]
-		BitwiseXOr,
-		[EnumMember(Value = "<<")]
-		LeftShift,
-		[EnumMember(Value = ">>")]
-		RightShift,
-		[EnumMember(Value = ">>>")]
-		UnsignedRightShift,
-		[EnumMember(Value = "instanceof")]
-		InstanceOf,
-		[EnumMember(Value = "in")]
-		In,
-		[EnumMember(Value = "&&")]
-		ConditionalAnd,
-		[EnumMember(Value = "||")]
-		ConditionalOr
-	}
+    public enum BinaryOperatorType
+    {
+        [EnumMember(Value = "+")]
+        Plus,
+        [EnumMember(Value = "-")]
+        Minus,
+        [EnumMember(Value = "*")]
+        Times,
+        [EnumMember(Value = "/")]
+        Divide,
+        [EnumMember(Value = "%")]
+        Modulo,
+        [EnumMember(Value = "==")]
+        Equal,
+        [EnumMember(Value = "!=")]
+        NotEqual,
+        [EnumMember(Value = ">")]
+        Greater,
+        [EnumMember(Value = ">=")]
+        GreaterOrEqual,
+        [EnumMember(Value = "<")]
+        Less,
+        [EnumMember(Value = "<=")]
+        LessOrEqual,
+        [EnumMember(Value = "===")]
+        StrictlyEqual,
+        [EnumMember(Value = "!==")]
+        StricltyNotEqual,
+        [EnumMember(Value = "&")]
+        BitwiseAnd,
+        [EnumMember(Value = "|")]
+        BitwiseOr,
+        [EnumMember(Value = "^")]
+        BitwiseXOr,
+        [EnumMember(Value = "<<")]
+        LeftShift,
+        [EnumMember(Value = ">>")]
+        RightShift,
+        [EnumMember(Value = ">>>")]
+        UnsignedRightShift,
+        [EnumMember(Value = "instanceof")]
+        InstanceOf,
+        [EnumMember(Value = "in")]
+        In,
+        [EnumMember(Value = "&&")]
+        ConditionalAnd,
+        [EnumMember(Value = "||")]
+        ConditionalOr,
+        [EnumMember(Value = "=")]
+        Assignment,
+    }
 }

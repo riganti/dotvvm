@@ -145,5 +145,12 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             Emit(jsLiteral.LiteralValue);
         }
+
+        public void VisitAssignmentExpression(JsAssignmentExpression assignmentExpression)
+        {
+            assignmentExpression.Left.AcceptVisitor(this);
+            EmitOperator(assignmentExpression.OperatorString);
+            assignmentExpression.Right.AcceptVisitor(this);
+        }
     }
 }

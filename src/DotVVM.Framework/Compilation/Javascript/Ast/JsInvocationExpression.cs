@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsInvocationExpression: JsExpression
+    public class JsInvocationExpression : JsExpression
     {
         public JsExpression Target
         {
@@ -30,8 +30,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
         }
 
-        public JsInvocationExpression(JsExpression target, params JsExpression[] arguments) : this (target, (IEnumerable<JsExpression>)arguments)
-		{
+        public JsInvocationExpression(JsExpression target, params JsExpression[] arguments) : this(target, (IEnumerable<JsExpression>)arguments)
+        {
         }
 
         public override void AcceptVisitor(IJsNodeVisitor visitor) => visitor.VisitInvocationExpression(this);

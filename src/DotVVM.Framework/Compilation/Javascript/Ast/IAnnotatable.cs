@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 		/// <param name='annotation'>
 		/// The annotation to add.
 		/// </param>
-		void AddAnnotation(object annotation);
+		T AddAnnotation<T>(T annotation);
 
 		/// <summary>
 		/// Removes all annotations of the specified type.
@@ -108,14 +108,14 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 			}
 		}
 
-		public virtual void AddAnnotation(object annotation)
+		public virtual T AddAnnotation<T>(T annotation)
 		{
 			if (annotation == null)
 				throw new ArgumentNullException("annotation");
 			retry: // Retry until successful
 			object oldAnnotation = Interlocked.CompareExchange(ref this.annotations, annotation, null);
 			if (oldAnnotation == null) {
-				return; // we successfully added a single annotation
+				return annotation; // we successfully added a single annotation
 			}
 			AnnotationList list = oldAnnotation as AnnotationList;
 			if (list == null) {
@@ -133,6 +133,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 					list.Add(annotation);
 				}
 			}
+            return annotation;
 		}
 
 		public virtual void RemoveAnnotations<T>() where T : class
@@ -222,4 +223,14 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
 		}
 	}
+
+    public static class AnnotatableUtils
+    {
+        public static T WithAnnotation<T>(this T node, object annotation)
+            where T: IAnnotatable
+        {
+            node.AddAnnotation(annotation);
+            return node;
+        }
+    }
 }

@@ -15,12 +15,12 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static JsNode CompileToJavascript(Expression binding, DataContextStack dataContext)
+        public static JsNode CompileToJavascript(Expression binding, DataContextStack dataContext, IViewModelSerializationMapper mapper)
         {
-            var translator = new JavascriptTranslator();
-            translator.DataContexts = dataContext;
+            var translator = new JavascriptTranslator() { DataContexts = dataContext };
             var script = translator.Translate(binding);
             //if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()", StringComparison.Ordinal)) script = script.Remove(script.Length - 2);
+            script.AcceptVisitor(new JsViewModelPropertyAdjuster(mapper));
             return script;
         }
 
@@ -105,18 +105,6 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public DataContextStack DataContexts { get; set; }
 
-        public JsExpression ParenthesizedTranslate(Expression parent, Expression expression)
-        {
-            if (NeedsParens(parent, expression))
-            {
-                return new JsParenthesizedExpression(Translate(expression));
-            }
-            else
-            {
-                return Translate(expression);
-            }
-        }
-
         public JsExpression Translate(Expression expression)
         {
             switch (expression.NodeType)
@@ -163,50 +151,15 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         private JsExpression SetProperty(JsExpression target, PropertyInfo property, JsExpression value)
         {
-            if (ViewModelJsonConverter.IsPrimitiveType(property.PropertyType))
-            {
-                return target.Member(property.Name).Invoke(value);
-            }
-            else
-            {
-                return new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(value, target.Member(property.Name));
-            }
-        }
-
-        /// <summary>
-        /// Determines if the expression will have to be parenthised when called from parent expression
-        /// </summary>
-        public bool NeedsParens(Expression parent, Expression expression)
-        {
-            var exType = expression.NodeType;
-            switch (exType)
-            {
-                case ExpressionType.ArrayLength:
-                case ExpressionType.ArrayIndex:
-                case ExpressionType.Call:
-                case ExpressionType.Constant:
-                case ExpressionType.Invoke:
-                case ExpressionType.ListInit:
-                case ExpressionType.MemberAccess:
-                case ExpressionType.MemberInit:
-                case ExpressionType.New:
-                case ExpressionType.NewArrayInit:
-                case ExpressionType.NewArrayBounds:
-                case ExpressionType.Parameter:
-                case ExpressionType.Default:
-                case ExpressionType.Index:
-                    return false;
-            }
-            // TODO: more clever brackets
-            return true;
+            return new JsAssignmentExpression(this.TranslateViewModelProperty(target, property), value);
         }
 
         public JsExpression TranslateConditional(ConditionalExpression expression)
         {
             return new JsConditionalExpression(
-                ParenthesizedTranslate(expression, expression.Test),
-                ParenthesizedTranslate(expression, expression.IfTrue),
-                ParenthesizedTranslate(expression, expression.IfFalse));
+                Translate(expression.Test),
+                Translate(expression.IfTrue),
+                Translate(expression.IfFalse));
         }
 
         public JsExpression TranslateIndex(IndexExpression expression, bool setter = false)
@@ -217,30 +170,30 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             var result = TryTranslateMethodCall(target, args, method, expression.Object, expression.Arguments.ToArray());
             if (result != null) return result;
-            return new JsIndexerExpression(target, args.Single());
+            return new JsIndexerExpression(target, args.Single()).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = expression.Indexer });
         }
 
         public JsExpression TranslateParameter(ParameterExpression expression)
         {
-            if (expression.Name == "_this") return new JsIdentifierExpression("$data");
-            if (expression.Name == "_parent") return new JsIdentifierExpression("$parent");
-            if (expression.Name == "_root") return new JsIdentifierExpression("$root");
+            if (expression.Name == "_this") return new JsIdentifierExpression("$data").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+            if (expression.Name == "_parent") return new JsIdentifierExpression("$parent").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+            if (expression.Name == "_root") return new JsIdentifierExpression("$root").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
             if (expression.Name.StartsWith("_parent", StringComparison.Ordinal))
-			{
-				var pIndex = int.Parse(expression.Name.Substring("_parent".Length));
-				if (pIndex == 0) return new JsIdentifierExpression("$data");
-				else if (pIndex == 1) return new JsIdentifierExpression("$parent");
-				else return new JsIndexerExpression(new JsIdentifierExpression("$parents"), new JsLiteral(pIndex - 1));
-			}
+            {
+                var pIndex = int.Parse(expression.Name.Substring("_parent".Length));
+                if (pIndex == 0) return new JsIdentifierExpression("$data").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+                else if (pIndex == 1) return new JsIdentifierExpression("$parent").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+                else return new JsIndexerExpression(new JsIdentifierExpression("$parents"), new JsLiteral(pIndex - 1)).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+            }
 
-			if (expression.Name == "_control")
+            if (expression.Name == "_control")
             {
                 var c = DataContexts.Parents().Count();
                 JsExpression context = null;
                 for (int i = 0; i < c; i++) {
                     context = context.Member("$parentContext");
                 }
-                return context.Member("$control");
+                return context.Member("$control").WithAnnotation(new ViewModelInfoAnnotation(expression.Type, true));
             }
             if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return new JsIdentifierExpression(expression.Name);
             else throw new NotSupportedException();
@@ -253,7 +206,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateMethodCall(MethodCallExpression expression)
         {
-            var thisExpression = expression.Object == null ? null : ParenthesizedTranslate(expression, expression.Object);
+            var thisExpression = expression.Object == null ? null : Translate(expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
             var result = TryTranslateMethodCall(thisExpression, args, expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
@@ -264,8 +217,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         protected JsExpression TryTranslateMethodCall(JsExpression context, JsExpression[] args, MethodInfo method, Expression contextExpression, Expression[] argsExpressions)
         {
             if (method == null) return null;
-            IJsMethodTranslator translator;
-            if (MethodTranslators.TryGetValue(method, out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
+            if (MethodTranslators.TryGetValue(method, out var translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
             {
                 return translator.TranslateCall(context, args, method);
             }
@@ -315,8 +267,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public JsExpression TranslateBinary(BinaryExpression expression)
         {
-            var left = ParenthesizedTranslate(expression, expression.Left);
-            var right = ParenthesizedTranslate(expression, expression.Right);
+            var left = Translate(expression.Left);
+            var right = Translate(expression.Right);
             var method = expression.Method;
             if (method != null)
             {
@@ -358,7 +310,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateUnary(UnaryExpression expression)
         {
-            var operand = ParenthesizedTranslate(expression, expression.Operand);
+            var operand = Translate(expression.Operand);
             var method = expression.Method;
             if (method != null)
             {
@@ -413,19 +365,39 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             else
             {
-                return TryTranslateMethodCall(ParenthesizedTranslate(expression, expression.Expression), new JsExpression[0], getter, expression.Expression, new Expression[0]) ??
-                    TranslateViewModelProperty(ParenthesizedTranslate(expression, expression.Expression), expression.Member);
+                return TryTranslateMethodCall(Translate(expression.Expression), new JsExpression[0], getter, expression.Expression, new Expression[0]) ??
+                    TranslateViewModelProperty(Translate(expression.Expression), expression.Member);
             }
         }
 
         public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo)
         {
-            if (propInfo is FieldInfo) throw new NotSupportedException($"Field '{propInfo.Name}' cannot be translated to knockout binding. Use property with public getter and setter.");
-            var protection = propInfo.GetCustomAttribute<ProtectAttribute>();
-            if (protection != null && protection.Settings == ProtectMode.EncryptData)
-                throw new NotSupportedException($"Encrypted property '{propInfo.Name}' cannot be used in binding.");
-            // Bind(None) can make sense to translate, since it can be used as client-only property
-            return new JsInvocationExpression(new JsMemberAccessExpression(context, propInfo.Name));
+            //if (propInfo is FieldInfo) throw new NotSupportedException($"Field '{propInfo.Name}' cannot be translated to knockout binding. Use property with public getter and setter.");
+            //var protection = propInfo.GetCustomAttribute<ProtectAttribute>();
+            //if (protection != null && protection.Settings == ProtectMode.EncryptData)
+            //    throw new NotSupportedException($"Encrypted property '{propInfo.Name}' cannot be used in binding.");
+            //// Bind(None) can make sense to translate, since it can be used as client-only property
+            return new JsMemberAccessExpression(context, propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo });
         }
+    }
+
+    public class ViewModelInfoAnnotation
+    {
+        public Type Type { get; set; }
+        public bool IsControl { get; set; }
+
+        public ViewModelSerializationMap SerializationMap { get; set; }
+
+        public ViewModelInfoAnnotation(Type type, bool isControl = false)
+        {
+            this.Type = type;
+            this.IsControl = isControl;
+        }
+    }
+
+    public class VMPropertyInfoAnnotation
+    {
+        public MemberInfo MemberInfo { get; set; }
+        public ViewModelPropertyMap SerializationMap { get; set; }
     }
 }

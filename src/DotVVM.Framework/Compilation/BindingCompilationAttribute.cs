@@ -10,9 +10,11 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -71,9 +73,9 @@ namespace DotVVM.Framework.Compilation
             return binding.GetExpression();
         }
 
-        public virtual string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression)
+        public virtual string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression, DotvvmConfiguration config)
         {
-            var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack).FormatScript();
+            var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack, config.ServiceLocator.GetService<IViewModelSerializationMapper>()).FormatScript();
 
             if (javascript == "$data")
             {

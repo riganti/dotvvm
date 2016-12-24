@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Compilation
             compiled.Id = id;
             compiled.ActionFilters = TryExecute(binding.BindingNode, "", requirements.ActionFilters, () => compilerAttribute.GetActionFilters(binding.GetExpression()).ToArray());
 
-            compiled.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJavascript(binding, compiled));
+            compiled.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJavascript(binding, compiled, configuration));
 
             var index = Interlocked.Increment(ref globalBindingIndex);
             if (!GlobalBindingList.TryAdd(index, compiled))

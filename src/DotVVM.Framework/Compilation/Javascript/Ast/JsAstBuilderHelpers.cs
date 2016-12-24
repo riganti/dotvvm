@@ -24,9 +24,18 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public static string FormatScript(this JsNode node, bool niceMode = false, string indent = "\t")
         {
+            node.FixParenthesis();
             var visitor = new JsFormattingVisitor(niceMode, indent);
             node.AcceptVisitor(visitor);
             return visitor.ToString();
+        }
+
+
+        public static JsNode FixParenthesis(this JsNode node)
+        {
+            var visitor = new JsParensFixingVisitor();
+            node.AcceptVisitor(visitor);
+            return node;
         }
     }
 }
