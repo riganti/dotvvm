@@ -18,11 +18,19 @@
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\ControlCommandBindingView.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Scripts\ClientExtenders.js" />
     <Content Include="Scripts\colResizable-1.5.min.js" />
     <Content Include="Scripts\GridViewSizable.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\ControlCommandBindingView.dothtml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="NETStandard.Library" Version="1.6.0" />
