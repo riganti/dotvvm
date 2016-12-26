@@ -12,7 +12,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
         /// <param name="options">A method that can set additional DotVVM options, like temporary file stores, or replace default DotVVM components with custom ones.</param>
-        public static IServiceCollection AddDotVVM(this IServiceCollection services, Action<IDotvvmBuilder> options = null)
+        public static IServiceCollection AddDotVVM(this IServiceCollection services, Action<IDotvvmOptions> options = null)
         {
             services
                 .AddAuthorization()
@@ -26,7 +26,7 @@ namespace Microsoft.Extensions.DependencyInjection
 
             if (options != null)
             {
-                var builder = new DotvvmBuilder(services);
+                var builder = new DotvvmOptions(services);
                 options(builder);
             }
 
