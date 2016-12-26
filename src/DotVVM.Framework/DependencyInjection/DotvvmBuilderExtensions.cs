@@ -14,8 +14,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
         /// <param name="tempPath">The absolute or relative path to directory where to store temporary files.</param>
-        public static IDotvvmBuilder ConfigureTempStorages(this IDotvvmBuilder builder, string tempPath)
-            => builder.ConfigureTempStorages(tempPath, TimeSpan.FromMinutes(30));
+        public static IDotvvmBuilder AddDefaultTempStorages(this IDotvvmBuilder builder, string tempPath)
+            => builder.AddDefaultTempStorages(tempPath, TimeSpan.FromMinutes(30));
 
         /// <summary>
         /// Adds file system temporary file storages to the application. See <see cref="IUploadedFileStorage" />
@@ -24,11 +24,11 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
         /// <param name="tempPath">The absolute or relative path to directory where to store temporary files.</param>
         /// <param name="autoDeleteInterval">The interval to delete the temporary files after.</param>
-        public static IDotvvmBuilder ConfigureTempStorages(this IDotvvmBuilder builder, string tempPath, TimeSpan autoDeleteInterval)
+        public static IDotvvmBuilder AddDefaultTempStorages(this IDotvvmBuilder builder, string tempPath, TimeSpan autoDeleteInterval)
         {
             return builder
-                .ConfigureUploadedFileStorage(Path.Combine(tempPath, "uploadedFiles"), autoDeleteInterval)
-                .ConfigureReturnedFileStorage(Path.Combine(tempPath, "returnedFiles"), autoDeleteInterval);
+                .AddUploadedFileStorage(Path.Combine(tempPath, "uploadedFiles"), autoDeleteInterval)
+                .AddReturnedFileStorage(Path.Combine(tempPath, "returnedFiles"), autoDeleteInterval);
         }
 
         /// <summary>
@@ -36,8 +36,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
         /// <param name="tempPath">The absolute or relative path to directory where to store temporary files.</param>
-        public static IDotvvmBuilder ConfigureUploadedFileStorage(this IDotvvmBuilder builder, string tempPath)
-            => builder.ConfigureUploadedFileStorage(tempPath, TimeSpan.FromMinutes(30));
+        public static IDotvvmBuilder AddUploadedFileStorage(this IDotvvmBuilder builder, string tempPath)
+            => builder.AddUploadedFileStorage(tempPath, TimeSpan.FromMinutes(30));
 
         /// <summary>
         /// Adds file system uploaded file storage to the application. See <see cref="IUploadedFileStorage" /> for more details.
@@ -45,7 +45,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
         /// <param name="tempPath">The absolute or relative path to directory where to store temporary files.</param>
         /// <param name="autoDeleteInterval">The interval to delete the temporary files after.</param>
-        public static IDotvvmBuilder ConfigureUploadedFileStorage(this IDotvvmBuilder builder, string tempPath, TimeSpan autoDeleteInterval)
+        public static IDotvvmBuilder AddUploadedFileStorage(this IDotvvmBuilder builder, string tempPath, TimeSpan autoDeleteInterval)
         {
             builder.Services.TryAddSingleton<IUploadedFileStorage>(s =>
             {
@@ -60,8 +60,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// </summary>
         /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
         /// <param name="tempPath">The absolute or relative path to directory where to store temporary files.</param>
-        public static IDotvvmBuilder ConfigureReturnedFileStorage(this IDotvvmBuilder builder, string tempPath)
-            => builder.ConfigureReturnedFileStorage(tempPath, TimeSpan.FromMinutes(30));
+        public static IDotvvmBuilder AddReturnedFileStorage(this IDotvvmBuilder builder, string tempPath)
+            => builder.AddReturnedFileStorage(tempPath, TimeSpan.FromMinutes(30));
 
         /// <summary>
         /// Adds file system returned file storage to the application. See <see cref="IReturnedFileStorage" /> for more details.
@@ -69,7 +69,7 @@ namespace Microsoft.Extensions.DependencyInjection
         /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
         /// <param name="tempPath">The absolute or relative path to directory where to store temporary files.</param>
         /// <param name="autoDeleteInterval">The interval to delete the temporary files after.</param>
-        public static IDotvvmBuilder ConfigureReturnedFileStorage(this IDotvvmBuilder builder, string tempPath, TimeSpan autoDeleteInterval)
+        public static IDotvvmBuilder AddReturnedFileStorage(this IDotvvmBuilder builder, string tempPath, TimeSpan autoDeleteInterval)
         {
             builder.Services.TryAddSingleton<IReturnedFileStorage>(s =>
             {
@@ -78,25 +78,6 @@ namespace Microsoft.Extensions.DependencyInjection
             });
             return builder;
         }
-
-        /// <summary>
-        /// Runs a custom configuration task on the <see cref="IDotvvmBuilder" /> object.
-        /// </summary>
-        /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
-        /// <param name="configureAction">A method which configures the builder.</param>
-        public static IDotvvmBuilder Configure(this IDotvvmBuilder builder, Action<IDotvvmBuilder> configureAction)
-        {
-            configureAction(builder);
-            return builder;
-        }
-
-        /// <summary>
-        /// Indicates that the DotVVM configuration ends and allows to continue with the configuration of the <see cref="IServiceCollection"/>.
-        /// </summary>
-        /// <param name="builder">The <see cref="IDotvvmBuilder" /> instance.</param>
-        public static IServiceCollection Done(this IDotvvmBuilder builder)
-        {
-            return builder.Services;
-        }
+        
     }
 }
