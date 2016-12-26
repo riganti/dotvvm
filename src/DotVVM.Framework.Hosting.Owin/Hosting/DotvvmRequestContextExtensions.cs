@@ -28,5 +28,13 @@ namespace DotVVM.Framework.Hosting
         /// <param name="context">The request context.</param>
         public static IAuthenticationManager GetAuthentication(this IDotvvmRequestContext context)
             => context.GetOwinContext().Authentication;
+
+        /// <summary>
+        /// Gets the <see cref="IDotvvmRequestContext"/> bound to the specified <see cref="IOwinContext"/>.
+        /// </summary>
+        public static IDotvvmRequestContext GetDotvvmContext(this IOwinContext owinContext)
+        {
+            return owinContext.Get<IDotvvmRequestContext>(HostingConstants.DotvvmRequestContextOwinKey);
+        }
     }
 }
