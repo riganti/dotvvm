@@ -20,6 +20,11 @@ namespace DotVVM.Framework.ResourceManagement
             : base(ResourceRenderPosition.Body, "text/javascript", location)
         { }
 
+        /// <summary>Location property is required!</summary>
+        public ScriptResource()
+            : base(ResourceRenderPosition.Body, "text/javascript")
+        { }
+
         public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
             AddSrcAndIntegrity(writer, context, location.GetUrl(context, resourceName), "src");
