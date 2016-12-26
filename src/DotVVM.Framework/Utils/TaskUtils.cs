@@ -5,12 +5,17 @@ namespace DotVVM.Framework.Utils
 {
     public static class TaskUtils
     {
-        public static Task GetCompletedTask() =>
-#if DotNetCore
-            Task.CompletedTask;
+        public static Task GetCompletedTask()
+        {
+#if !DotNetCore
+            return _completedTask ?? (_completedTask);
 #else
-            _completedTask ?? (_completedTask = Task.WhenAll());
-        private static Task _completedTask;
+            return Task.CompletedTask;
+#endif
+        }
+
+#if !DotNetCore
+        private static Task _completedTask = Task.WhenAll();
 #endif
 
         public static object GetResult(Task task)
