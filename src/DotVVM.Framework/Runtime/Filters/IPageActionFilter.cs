@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DotVVM.Framework.Runtime.Filters
 {
-    public interface IRequestActionFilter: IActionFilter
+    public interface IPageActionFilter: IActionFilter
     {
         /// <summary>
         /// Called before page is processed.

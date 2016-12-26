@@ -9,7 +9,7 @@ namespace DotVVM.Framework.Runtime.Filters
     /// Allows to add custom logic before and after a command is executed on a ViewModel.
     /// </summary>
     [AttributeUsage(AttributeTargets.Method | AttributeTargets.Class, AllowMultiple = true)]
-    public abstract class ActionFilterAttribute : Attribute, IRequestActionFilter, ICommandActionFilter, IViewModelActionFilter
+    public abstract class ActionFilterAttribute : Attribute, IPageActionFilter, ICommandActionFilter, IViewModelActionFilter
     {
         /// <summary>
         /// Called after the viewmodel object is created.
@@ -30,9 +30,15 @@ namespace DotVVM.Framework.Runtime.Filters
             => TaskUtils.GetCompletedTask();
 
         /// <summary>
-        /// Called before the response is rendered.
+        /// Called before the viewmodel is serialized.
         /// </summary>
-        protected internal virtual Task OnResponseRenderingAsync(IDotvvmRequestContext context)
+        protected internal virtual Task OnViewModelSerializingAsync(IDotvvmRequestContext context)
+            => TaskUtils.GetCompletedTask();
+
+        /// <summary>
+        /// Called after the viewmodel is deserialized on postback.
+        /// </summary>
+        protected internal virtual Task OnViewModelDeserializedAsync(IDotvvmRequestContext context)
             => TaskUtils.GetCompletedTask();
 
         /// <summary>
@@ -53,12 +59,13 @@ namespace DotVVM.Framework.Runtime.Filters
         protected internal virtual Task OnPageLoadedAsync(IDotvvmRequestContext context)
             => TaskUtils.GetCompletedTask();
 
-        Task IRequestActionFilter.OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception) => OnPageExceptionAsync(context, exception);
+        Task IPageActionFilter.OnPageExceptionAsync(IDotvvmRequestContext context, Exception exception) => OnPageExceptionAsync(context, exception);
         Task ICommandActionFilter.OnCommandExecutingAsync(IDotvvmRequestContext context, ActionInfo actionInfo) => OnCommandExecutingAsync(context, actionInfo);
         Task ICommandActionFilter.OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception) => OnCommandExecutedAsync(context, actionInfo, exception);
         Task IViewModelActionFilter.OnViewModelCreatedAsync(IDotvvmRequestContext context) => OnViewModelCreatedAsync(context);
-        Task IViewModelActionFilter.OnResponseRenderingAsync(IDotvvmRequestContext context) => OnResponseRenderingAsync(context);
-        Task IRequestActionFilter.OnPageLoadingAsync(IDotvvmRequestContext context) => OnPageLoadingAsync(context);
-        Task IRequestActionFilter.OnPageLoadedAsync(IDotvvmRequestContext context) => OnPageLoadedAsync(context);
+        Task IViewModelActionFilter.OnViewModelDeserializedAsync(IDotvvmRequestContext context) => OnViewModelDeserializedAsync(context);
+        Task IViewModelActionFilter.OnViewModelSerializingAsync(IDotvvmRequestContext context) => OnViewModelSerializingAsync(context);
+        Task IPageActionFilter.OnPageLoadingAsync(IDotvvmRequestContext context) => OnPageLoadingAsync(context);
+        Task IPageActionFilter.OnPageLoadedAsync(IDotvvmRequestContext context) => OnPageLoadedAsync(context);
     }
 }
