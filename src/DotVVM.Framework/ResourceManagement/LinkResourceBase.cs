@@ -16,6 +16,7 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public abstract class LinkResourceBase : ResourceBase, ILinkResource
     {
+        /// <summary>Location property is required!</summary>
         public IResourceLocation Location { get; set; }
         public ResourceLocationFallback LocationFallback { get; set; }
         public string MimeType { get; private set; }
@@ -26,11 +27,21 @@ namespace DotVVM.Framework.ResourceManagement
             this.Location = location;
             this.MimeType = mimeType;
         }
+        public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType) : base(renderPosition)
+        {
+            this.MimeType = mimeType;
+        }
 
         public IEnumerable<IResourceLocation> GetLocations()
         {
             yield return Location;
-            if (LocationFallback != null) foreach (var l in LocationFallback.AlternativeLocations) yield return l;
+            if (LocationFallback != null)
+            {
+                foreach (var l in LocationFallback.AlternativeLocations)
+                {
+                    yield return l;
+                }
+            }
         }
 
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)

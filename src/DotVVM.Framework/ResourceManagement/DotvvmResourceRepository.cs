@@ -3,10 +3,12 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using DotVVM.Framework.Routing;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -60,8 +62,13 @@ namespace DotVVM.Framework.ResourceManagement
         /// </summary>
         public void Register(string name, IResource resource, bool replaceIfExists = true)
         {
-            ValidateResourceName(name);
+            if (resource == null)
+            {
+                throw new ArgumentNullException(nameof(resource));
+            }
 
+            ValidateResourceName(name);
+            ValidateResourceLocation(resource, name);
             if (replaceIfExists)
             {
                 Resources.AddOrUpdate(name, resource, (key, res) => resource);
@@ -69,6 +76,18 @@ namespace DotVVM.Framework.ResourceManagement
             else if (!Resources.TryAdd(name, resource))
             {
                 throw new InvalidOperationException($"A resource with the name '{name}' is already registered!");
+            }
+        }
+
+        private void ValidateResourceLocation(IResource resource, string name)
+        {
+            var linkResource = resource as LinkResourceBase;
+            if (linkResource != null)
+            {
+                if (linkResource.Location == null)
+                {
+                    throw new DotvvmLinkResourceException($"The Location property of the resource '{name}' is not set.");
+                }
             }
         }
 

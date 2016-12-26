@@ -15,6 +15,10 @@ namespace DotVVM.Framework.ResourceManagement
         public StylesheetResource(IResourceLocation location)
             : base(ResourceRenderPosition.Head, "text/css", location)
         { }
+        /// <remarks>Location property is required!</remarks>
+        public StylesheetResource()
+         : base(ResourceRenderPosition.Head, "text/css")
+        { }
 
         public override void RenderLink(IResourceLocation location, IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
         {
