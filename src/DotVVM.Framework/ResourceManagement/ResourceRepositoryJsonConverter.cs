@@ -85,6 +85,14 @@ namespace DotVVM.Framework.ResourceManagement
                 try
                 {
                     var resource = serializer.Deserialize(resObj.Value.CreateReader(), resourceType) as IResource;
+                    if (resource is LinkResourceBase linkResource)
+                    {
+                        if (linkResource.Location == null)
+                        {
+                            linkResource.Location = new UnknownResourceLocation();
+                        }
+                    }
+
                     repo.Register(resObj.Key, resource);
                 }
                 catch (Exception ex)
@@ -125,6 +133,14 @@ namespace DotVVM.Framework.ResourceManagement
             {
                 throw new NotSupportedException($"Resource could not be deserialized from '{Json.ToString()}': \n{Error}");
             }
+        }
+    }
+
+    internal class UnknownResourceLocation : IResourceLocation
+    {
+        public string GetUrl(IDotvvmRequestContext context, string name)
+        {
+            throw new InvalidOperationException($"The Location of the resource {name} is unknown! This should happen only when deserializing DotVVM 1.0.x configuration.");
         }
     }
 }
