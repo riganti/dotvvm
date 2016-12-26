@@ -10,22 +10,12 @@ namespace DotVVM.Framework.Configuration
 
         public ServiceLocator(IServiceProvider serviceProvider)
         {
-            if (serviceProvider == null)
-            {
-                throw new ArgumentNullException(nameof(serviceProvider));
-            }
-
-            this.serviceProvider = serviceProvider;
+            this.serviceProvider = serviceProvider ?? throw new ArgumentNullException(nameof(serviceProvider));
         }
 
         public ServiceLocator(IServiceCollection serviceCollection)
         {
-            if (serviceCollection == null)
-            {
-                throw new ArgumentNullException(nameof(serviceCollection));
-            }
-
-            this.serviceCollection = serviceCollection;
+            this.serviceCollection = serviceCollection ?? throw new ArgumentNullException(nameof(serviceCollection));
         }
 
         public IServiceProvider GetServiceProvider()
@@ -41,19 +31,19 @@ namespace DotVVM.Framework.Configuration
         public T GetService<T>() 
             => (T)GetServiceProvider().GetService(typeof(T));
 
-        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead")]
+        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
         public void RegisterTransient<T>(Func<T> factory)
         {
             RegisterService(factory, ServiceLifetime.Transient);
         }
 
-        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead")]
+        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
         public void RegisterSingleton<T>(Func<T> factory)
         {
             RegisterService(factory, ServiceLifetime.Singleton);
         }
 
-        [Obsolete]
+        [Obsolete("You should not register service on ServiceLocator, use IServiceCollection instead", true)]
         private void RegisterService<T>(Func<T> factory, ServiceLifetime lifetime)
         {
             if (serviceCollection == null)
