@@ -3,5 +3,5 @@
 
 <div DataContext="{value:  _control.Data}">
     <dot:Button Text="CommandBinding test" Click="{command:  Click() }" />
-    <span>{{value:  Value}}</span>
+    <span data-uitest="result2">{{value:  Value}}</span>
 </div>

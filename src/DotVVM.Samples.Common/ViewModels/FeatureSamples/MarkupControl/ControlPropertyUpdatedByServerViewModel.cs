@@ -14,7 +14,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.MarkupControl
 
         public void AddViewModel()
         {
-            ChildViewModel = new ControlUpdatingPropertyChildViewModel() { Property = "AHOJ" };
+            ChildViewModel = new ControlUpdatingPropertyChildViewModel() { Property = "TEST" };
         }
     }
 
