@@ -1,4 +1,4 @@
-﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.ControlCommandBindingViewViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.CommandBindingInDataContextWithControlPropertyViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 
@@ -14,7 +14,7 @@
     </div>
     <div ID="ControlValueBindingWithCommand">
         View 2 : ControlValueBindingWithCommand
-        <sample:ControlValueBindingWithCommand Data="{value:  Data}" />
+        <sample:ControlValueBindingWithCommand Data="{value:  Data2}" />
     </div>
 </body>
 </html>

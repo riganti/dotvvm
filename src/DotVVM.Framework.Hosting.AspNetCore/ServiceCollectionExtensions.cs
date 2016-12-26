@@ -11,7 +11,8 @@ namespace Microsoft.Extensions.DependencyInjection
         /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
         /// </summary>
         /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        public static IDotvvmBuilder AddDotVVM(this IServiceCollection services)
+        /// <param name="options">A method that can set additional DotVVM options, like temporary file stores, or replace default DotVVM components with custom ones.</param>
+        public static IServiceCollection AddDotVVM(this IServiceCollection services, Action<IDotvvmBuilder> options = null)
         {
             services
                 .AddAuthorization()
@@ -23,18 +24,12 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
 
-            return new DotvvmBuilder(services);
-        }
+            if (options != null)
+            {
+                var builder = new DotvvmBuilder(services);
+                options(builder);
+            }
 
-        /// <summary>
-        /// Adds DotVVM services with authorization and data protection to the specified <see cref="IServiceCollection" />.
-        /// </summary>
-        /// <param name="services">The <see cref="IServiceCollection" /> to add services to.</param>
-        /// <param name="dotvvmBuilderAction">Method which executes additional configuration actions of DotVVM services.</param>
-        public static IServiceCollection AddDotVVM(this IServiceCollection services, Action<IDotvvmBuilder> dotvvmBuilderAction)
-        {
-            var builder = services.AddDotVVM();
-            dotvvmBuilderAction(builder);
             return services;
         }
     }
