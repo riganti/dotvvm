@@ -311,4 +311,11 @@ describe("DotVVM.Serialization - serialize", () => {
         expect(obj.a).toBe("bbb");
         expect(obj["a$options"].doNotPost).toBeTruthy();
     });
+    it("Serialize - ko.observable with undefined", () => {
+        var obj = dotvvm.serialization.serialize({
+            a: ko.observable(undefined)
+          }, { serializeAll: true });
+
+        expect(obj.a).toBe(undefined);
+    });
 });
