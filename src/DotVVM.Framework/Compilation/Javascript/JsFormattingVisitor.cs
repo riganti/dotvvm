@@ -19,6 +19,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         StringBuilder result = new StringBuilder();
+        List<(int index, CodeParameterInfo parameter)> parameters;
         protected void Emit(string str)
         {
             Debug.Assert(!str.Contains("\n"));
@@ -65,7 +66,31 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public override string ToString()
         {
+            var s = result.ToString();
+            if (parameters != null) foreach (var p in parameters) {
+                s = s.Insert(p.Item1, "~ [parameter: " + p.Item2.Parameter + "] ~");
+            }
+            return s;
+        }
+
+        public string GetParameterlessResult()
+        {
+            if (parameters != null) throw new InvalidOperationException($"The script contains parameters: `{ToString()}`.");
             return result.ToString();
+        }
+
+        public ParametrizedCode GetResult()
+        {
+            if (parameters == null || parameters.Count == 0) return new ParametrizedCode(new[] { result.ToString() }, null);
+            var parts = new string[parameters.Count + 1];
+            parts[0] = result.ToString(0, parameters[0].index);
+            for (int i = 1; i < parameters.Count; i++) {
+                var from = parameters[i - 1].index;
+                parts[i] = result.ToString(from, parameters[i].index - from);
+            }
+            int lastFrom = parameters[parameters.Count - 1].index;
+            parts[parts.Length - 1] = result.ToString(lastFrom, result.Length - lastFrom);
+            return new ParametrizedCode(parts, parameters.Select(p => p.parameter).ToArray());
         }
 
         protected void VisitChildren(JsNode node)
@@ -151,6 +176,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             assignmentExpression.Left.AcceptVisitor(this);
             EmitOperator(assignmentExpression.OperatorString);
             assignmentExpression.Right.AcceptVisitor(this);
+        }
+
+        public void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter)
+        {
+            if (parameters == null) parameters = new List<(int, CodeParameterInfo)>();
+            parameters.Add((result.Length, CodeParameterInfo.FromExpression(symbolicParameter)));
         }
     }
 }

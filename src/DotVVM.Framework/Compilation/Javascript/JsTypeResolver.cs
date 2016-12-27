@@ -154,6 +154,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             SetType(assignmentExpression, assignmentExpression.Right.ResultType());
         }
+
+        public void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter) { }
     }
 
     public static class JsTypeHelpers

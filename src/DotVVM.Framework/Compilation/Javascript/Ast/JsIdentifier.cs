@@ -11,10 +11,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         {
             get { return this.name; }
             set {
-                if (value == null)
-                    throw new ArgumentNullException("value");
                 ThrowIfFrozen();
-                this.name = value;
+                this.name = value ?? throw new ArgumentNullException("value");
             }
         }
 

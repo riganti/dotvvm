@@ -10,6 +10,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         void VisitIdentifier(JsIdentifier identifier);
         void VisitMemberAccessExpression(JsMemberAccessExpression memberAccessExpression);
         void VisitIdentifierExpression(JsIdentifierExpression identifierExpression);
+        void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter);
         void VisitInvocationExpression(JsInvocationExpression invocationExpression);
         void VisitParenthesizedExpression(JsParenthesizedExpression parenthesizedExpression);
         void VisitUnaryExpression(JsUnaryExpression unaryExpression);
@@ -40,6 +41,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public virtual void VisitMemberAccessExpression(JsMemberAccessExpression memberAccessExpression) => DefaultVisit(memberAccessExpression);
 
         public virtual void VisitParenthesizedExpression(JsParenthesizedExpression parenthesizedExpression) => DefaultVisit(parenthesizedExpression);
+
+        public void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter) => DefaultVisit(symbolicParameter);
 
         public virtual void VisitUnaryExpression(JsUnaryExpression unaryExpression) => DefaultVisit(unaryExpression);
 

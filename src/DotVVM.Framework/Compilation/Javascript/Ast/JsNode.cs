@@ -81,6 +81,51 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             }
         }
 
+
+        /// <summary>
+        /// Gets all descendants of this node (excluding this node itself) in pre-order.
+        /// </summary>
+        public IEnumerable<JsNode> Descendants => GetDescendantsImpl(false);
+
+        /// <summary>
+        /// Gets all descendants of this node (including this node itself) in pre-order.
+        /// </summary>
+        public IEnumerable<JsNode> DescendantsAndSelf => GetDescendantsImpl(true);
+
+        public IEnumerable<JsNode> DescendantNodes(Func<JsNode, bool> descendIntoChildren = null)
+        {
+            return GetDescendantsImpl(false, descendIntoChildren);
+        }
+
+        public IEnumerable<JsNode> DescendantNodesAndSelf(Func<JsNode, bool> descendIntoChildren = null)
+        {
+            return GetDescendantsImpl(true, descendIntoChildren);
+        }
+
+        IEnumerable<JsNode> GetDescendantsImpl(bool includeSelf, Func<JsNode, bool> descendIntoChildren = null)
+        {
+            if (includeSelf) {
+                yield return this;
+                if (descendIntoChildren != null && !descendIntoChildren(this))
+                    yield break;
+            }
+
+            Stack<JsNode> nextStack = new Stack<JsNode>();
+            nextStack.Push(null);
+            var pos = firstChild;
+            while (pos != null) {
+                // Remember next before yielding pos.
+                // This allows removing/replacing nodes while iterating through the list.
+                if (pos.nextSibling != null)
+                    nextStack.Push(pos.nextSibling);
+                yield return pos;
+                if (pos.firstChild != null && (descendIntoChildren == null || descendIntoChildren(pos)))
+                    pos = pos.firstChild;
+                else
+                    pos = nextStack.Pop();
+            }
+        }
+
         /// <summary>
 		/// Gets the first child with the specified role.
 		/// Returns the role's null object if the child is not found.
