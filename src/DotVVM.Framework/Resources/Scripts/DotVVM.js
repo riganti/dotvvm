@@ -460,7 +460,7 @@ var DotvvmSerialization = (function () {
         if (opt.pathOnly && opt.path && opt.path.length === 0)
             opt.pathOnly = false;
         if (typeof (viewModel) === "undefined" || viewModel == null) {
-            return viewModel;
+            return null;
         }
         if (typeof (viewModel) === "string" || typeof (viewModel) === "number" || typeof (viewModel) === "boolean") {
             return viewModel;
