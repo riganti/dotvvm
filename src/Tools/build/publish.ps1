@@ -1,4 +1,4 @@
-param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource)
+param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "")
 
 
 ### Helper Functions
@@ -58,7 +58,14 @@ function SetVersion() {
 function BuildPackages() {
 	foreach ($package in $packages) {
 		cd .\$($package.Directory)
-		& dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/
+		
+		if ($nugetRestoreAltSource -eq "") {
+			& dotnet restore
+		}
+		else {
+			& dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/
+		}
+		
 		& dotnet pack
 		cd ..
 	}
