@@ -111,7 +111,9 @@ namespace DotVVM.Framework.Tests.Runtime
 			Assert.AreEqual(123, viewModel.Property.GetPrivateField());
 		}
 
-		private string SerializeViewModel(object viewModel)
+       
+
+        private string SerializeViewModel(object viewModel)
 		{
 			context.ViewModel = viewModel;
 			serializer.SendDiff = false;
@@ -320,11 +322,28 @@ namespace DotVVM.Framework.Tests.Runtime
 			Assert.AreEqual(oldViewModel.Children[2].Property1, newViewModel.Children[2].Property1);
 		}
 
+        [TestMethod]
+        public void Serializer_Valid_BindBothOnGetOnlyProperty()
+        {
+            var json = SerializeViewModel(new GetOnlyPropertyViewModel { Property = 42 });
 
-		/// <summary>
-		/// Wraps the serialized view model to an object that comes from the client.
-		/// </summary>
-		private static string WrapSerializedViewModel(string result)
+            var viewModel = new GetOnlyPropertyViewModel();
+            PopulateViewModel(viewModel, json);
+            Assert.AreEqual(43, viewModel.PropertyPlusOne);
+        }
+
+        public class GetOnlyPropertyViewModel
+        {
+            public int Property { get; set; }
+            [Bind(Direction.Both)]
+            public int PropertyPlusOne => Property + 1;
+        }
+
+
+        /// <summary>
+        /// Wraps the serialized view model to an object that comes from the client.
+        /// </summary>
+        private static string WrapSerializedViewModel(string result)
 		{
 			return string.Format("{{'currentPath':[],'command':'','controlUniqueId':'','viewModel':{0},'validationTargetPath':'','updatedControls':{{}}}}".Replace("'", "\""), result);
 		}
