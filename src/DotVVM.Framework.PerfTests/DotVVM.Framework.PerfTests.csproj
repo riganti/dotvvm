@@ -9,7 +9,9 @@
     <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Content Include="notes.txt" />
+  </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
