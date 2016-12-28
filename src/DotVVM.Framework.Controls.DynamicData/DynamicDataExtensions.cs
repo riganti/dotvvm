@@ -14,8 +14,10 @@ namespace DotVVM.Framework.Controls.DynamicData
     public static class DynamicDataExtensions
     {
 
-
-        public static IDotvvmBuilder ConfigureDynamicData(this IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration = null)
+        /// <summary>
+        /// Registers all services required by DotVVM Dynamic Data.
+        /// </summary>
+        public static IDotvvmOptions AddDynamicData(this IDotvvmOptions options, DynamicDataConfiguration dynamicDataConfiguration = null)
         {
             if (dynamicDataConfiguration == null)
             {
@@ -23,29 +25,29 @@ namespace DotVVM.Framework.Controls.DynamicData
             }
 
             // add the configuration of Dynamic Data to the service collection
-            builder.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
+            options.Services.AddSingleton(serviceProvider => dynamicDataConfiguration);
 
-            RegisterDefaultProviders(builder, dynamicDataConfiguration);
+            RegisterDefaultProviders(options, dynamicDataConfiguration);
             if (dynamicDataConfiguration.UseLocalizationResourceFiles)
             {
-                RegisterResourceFileProviders(builder, dynamicDataConfiguration);
+                RegisterResourceFileProviders(options, dynamicDataConfiguration);
             }
 
-            return builder;
+            return options;
         }
 
-        private static void RegisterDefaultProviders(IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration)
+        private static void RegisterDefaultProviders(IDotvvmOptions options, DynamicDataConfiguration dynamicDataConfiguration)
         {
-            builder.Services.AddSingleton<IPropertyDisplayMetadataProvider>(
+            options.Services.AddSingleton<IPropertyDisplayMetadataProvider>(
                 serviceProvider => new DataAnnotationsPropertyDisplayMetadataProvider()
             );
 
-            builder.Services.AddSingleton<IEntityPropertyListProvider>(
+            options.Services.AddSingleton<IEntityPropertyListProvider>(
                 serviceProvider => new DefaultEntityPropertyListProvider(serviceProvider.GetService<IPropertyDisplayMetadataProvider>())
             );
         }
 
-        private static void RegisterResourceFileProviders(IDotvvmBuilder builder, DynamicDataConfiguration dynamicDataConfiguration)
+        private static void RegisterResourceFileProviders(IDotvvmOptions builder, DynamicDataConfiguration dynamicDataConfiguration)
         {
             if (dynamicDataConfiguration.PropertyDisplayNamesResourceFile == null)
             {
