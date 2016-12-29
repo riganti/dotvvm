@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Tests.Runtime
             var config1 = DotvvmConfiguration.CreateDefault();
             config1.Resources.Register("rs1", new ScriptResource(new LocalFileResourceLocation("file.js")));
             config1.Resources.Register("rs2", new StylesheetResource(new RemoteResourceLocation("http://c.c/")));
-            config1.Resources.Register("rs3", new StylesheetResource(new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "Resource1.js", "../file.js")));
+            config1.Resources.Register("rs3", new StylesheetResource(new EmbeddedResourceLocation(typeof(DotvvmConfiguration).GetTypeInfo().Assembly, "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js", "../file.js")));
             config1.Resources.Register("rs4", new InlineScriptResource(ResourceRenderPosition.Head) { Code = "CODE" });
             config1.Resources.Register("rs5", new NullResource());
             config1.Resources.Register("rs6", new ScriptResource(
@@ -83,7 +83,7 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsTrue(config2.Resources.FindResource("rs3") is StylesheetResource rs3 &&
                 rs3.Location is EmbeddedResourceLocation rs3loc &&
                 rs3loc.Assembly.GetName().Name == "DotVVM.Framework" &&
-                rs3loc.Name == "Resource1.js" &&
+                rs3loc.Name == "DotVVM.Framework.Resources.Scripts.jquery-2.1.1.min.js"&&
                 rs3loc.DebugFilePath == "../file.js");
             Assert.IsTrue(config2.Resources.FindResource("rs4") is InlineScriptResource rs4 &&
                 rs4.RenderPosition == ResourceRenderPosition.Head &&

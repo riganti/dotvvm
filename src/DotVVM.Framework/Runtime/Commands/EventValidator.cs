@@ -98,7 +98,7 @@ namespace DotVVM.Framework.Runtime.Commands
         private FindBindingResult FindControlCommandBinding(string[] path, string commandId, DotvvmControl viewRootControl, DotvvmBindableObject targetControl, string validationTargetPath)
         {
             // walk the control tree and find the path
-            ControlCommandBindingExpression resultBinding = null;
+            CommandBindingExpression resultBinding = null;
             DotvvmProperty resultProperty = null;
             DotvvmBindableObject resultControl = null;
 
@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Runtime.Commands
                 if (ViewModelPathComparer.AreEqual(path, walker.CurrentPathArray))
                 {
                     // find bindings of current control
-                    var binding = control.GetAllBindings().Where(p => p.Value is ControlCommandBindingExpression)
+                    var binding = control.GetAllBindings().Where(p => p.Value is CommandBindingExpression)
                         .FirstOrDefault(b => b.Value.BindingId == commandId);
                     if (binding.Key != null)
                     {
@@ -121,7 +121,7 @@ namespace DotVVM.Framework.Runtime.Commands
                             if (currentValidationTargetPath == validationTargetPath)
                             {
                                 // the validation path is equal, we have found the binding
-                                resultBinding = (ControlCommandBindingExpression)binding.Value;
+                                resultBinding = (CommandBindingExpression)binding.Value;
                                 resultProperty = binding.Key;
                                 resultControl = control;
                             }

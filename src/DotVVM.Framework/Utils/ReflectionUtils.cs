@@ -9,10 +9,12 @@ using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
-using Microsoft.Extensions.PlatformAbstractions;
-using Microsoft.Extensions.DependencyModel;
 using System.Security.Cryptography;
 using System.Text;
+
+#if DotNetCore
+using Microsoft.Extensions.DependencyModel;
+#endif
 
 namespace DotVVM.Framework.Utils
 {

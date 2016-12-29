@@ -1,0 +1,22 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.MarkupControl.CommandBindingInDataContextWithControlPropertyViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <div ID="ControlCommandBinding">
+        View 1 : ControlCommandBinding 
+        <sample:ControlCommandBinding Data="{value:  Data}" />
+    </div>
+    <div ID="ControlValueBindingWithCommand">
+        View 2 : ControlValueBindingWithCommand
+        <sample:ControlValueBindingWithCommand Data="{value:  Data2}" />
+    </div>
+</body>
+</html>
+
+

@@ -12,9 +12,16 @@ namespace DotVVM.Framework.Runtime.Filters
         /// Called after the viewmodel object is created.
         /// </summary>
         Task OnViewModelCreatedAsync(IDotvvmRequestContext context);
+
         /// <summary>
-        /// Called before the response is rendered.
+        /// Called after the viewmodel is deserialized on postback.
         /// </summary>
-        Task OnResponseRenderingAsync(IDotvvmRequestContext context);
+        Task OnViewModelDeserializedAsync(IDotvvmRequestContext context);
+
+        /// <summary>
+        /// Called before the viewmodel is serialized.
+        /// </summary>
+        Task OnViewModelSerializingAsync(IDotvvmRequestContext context);
+
     }
 }

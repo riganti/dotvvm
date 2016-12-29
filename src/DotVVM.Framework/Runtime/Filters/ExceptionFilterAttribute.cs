@@ -9,9 +9,17 @@ namespace DotVVM.Framework.Runtime.Filters
     /// </summary>
     public abstract class ExceptionFilterAttribute : ActionFilterAttribute
     {
-        /// <inheritdoc />
         protected internal override Task OnCommandExecutedAsync(IDotvvmRequestContext context, ActionInfo actionInfo, Exception exception)
-            => exception != null ? OnCommandExceptionAsync(context, actionInfo, exception) : Task.FromResult(0);
+        {
+            if (exception != null)
+            {
+                return OnCommandExceptionAsync(context, actionInfo, exception);
+            }
+            else
+            {
+                return Task.FromResult(0);
+            }
+        }
 
         /// <summary>
         /// Called when the exception occurs during the command invocation.

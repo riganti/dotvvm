@@ -23,8 +23,6 @@ namespace DotVVM.Samples.Tests.Feature
                 browser.First("h2"); // nested masterpage
                 browser.First("h3"); // nested page
             });
-
-
         }
 
     }

@@ -74,8 +74,8 @@ namespace DotVVM.Framework.Hosting.Middlewares
             context.Parameters = parameters;
 
             var presenter = context.Presenter = route.GetPresenter();
-            var filters = ActionFilterHelper.GetActionFilters<IRequestActionFilter>(presenter.GetType().GetTypeInfo());
-            filters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IRequestActionFilter>());
+            var filters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(presenter.GetType().GetTypeInfo());
+            filters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IPageActionFilter>());
             try
             {
                 foreach (var f in filters) await f.OnPageLoadingAsync(context);

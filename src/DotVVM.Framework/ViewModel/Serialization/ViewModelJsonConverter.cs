@@ -70,7 +70,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // deserialize
             var serializationMap = GetSerializationMapForType(objectType);
             var instance = serializationMap.ConstructorFactory();
-            serializationMap.ReaderFactory(JObject.Load(reader), serializer, instance, evReader);
+            serializationMap.ReaderFactory(reader, serializer, instance, evReader);
             return instance;
         }
 
@@ -87,10 +87,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Populates the specified JObject.
         /// </summary>
-        public virtual void Populate(JObject jobj, JsonSerializer serializer, object value)
+        public virtual void Populate(JsonReader reader, JsonSerializer serializer, object value)
         {
+            if (reader.TokenType == JsonToken.None) reader.Read();
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.ReaderFactory(jobj, serializer, value, evReader);
+            serializationMap.ReaderFactory(reader, serializer, value, evReader);
         }
 
 

@@ -12,6 +12,53 @@ namespace DotVVM.Framework.Utils
 {
     public static class ExpressionUtils
     {
+        public static Expression For(Expression length, Func<Expression, Expression> bodyFactory)
+        {
+            var i = Expression.Variable(typeof(int), "i");
+            return Expression.Block(new[] { i },
+                Expression.Assign(i, Expression.Constant(0)),
+                While(Expression.LessThan(i, length),
+                    Expression.Block(
+                        bodyFactory(i),
+                        Expression.PostIncrementAssign(i)
+                    )
+                )
+            );
+        }
+
+        public static Expression Foreach(Expression enumerable, Func<Expression, Expression> bodyFactory)
+        {
+            // use for(int i = 0; i < a.Length; i++) ... for Arrays
+            if (enumerable.Type.IsArray) {
+                return For(Expression.ArrayLength(enumerable), i => bodyFactory(Expression.ArrayIndex(enumerable, i)));
+            } else {
+                var getEnumMethod = Expression.Call(enumerable, "GetEnumerator", Type.EmptyTypes);
+                var enumerator = Expression.Variable(getEnumMethod.Type, "enumerator");
+                var body = new List<Expression>();
+                body.Add(Expression.Assign(enumerator, getEnumMethod));
+                body.Add(Expression.TryFinally(While(
+                    condition: Expression.Call(enumerator, nameof(IEnumerator<int>.MoveNext), Type.EmptyTypes),
+                    body: bodyFactory(Expression.Property(enumerator, nameof(IEnumerator<int>.Current)))
+                ),
+                    Expression.Call(enumerator, "Dispose", Type.EmptyTypes)
+                ));
+                return Expression.Block(new[] { enumerator }, body);
+            }
+        }
+        public static Expression While(Expression conditionBody)
+        {
+            var brkLabel = Expression.Label();
+            return Expression.Loop(
+                Expression.IfThen(Expression.Not(conditionBody), Expression.Goto(brkLabel)), brkLabel);
+        }
+
+        public static Expression While(Expression condition, Expression body)
+        {
+            var brkLabel = Expression.Label();
+            return Expression.Loop(
+                Expression.IfThenElse(condition, body, Expression.Goto(brkLabel)), brkLabel);
+        }
+
         public static Expression ConvertToObject(Expression expr)
         {
             if (expr.Type == typeof(object)) return expr;
@@ -129,6 +176,30 @@ namespace DotVVM.Framework.Utils
                 else if (!string.IsNullOrEmpty(node.Name) && NamedParams.ContainsKey(node.Name)) return NamedParams[node.Name];
                 else return base.VisitParameter(node);
             }
+
+            protected override Expression VisitMethodCall(MethodCallExpression node)
+            {
+                if (node.Method.DeclaringType == typeof(Stub)) {
+                    switch (node.Method.Name) {
+                        case nameof(Stub.Assign):
+                            return Visit(Expression.Assign(node.Arguments[0], node.Arguments[1]));
+                        case nameof(Stub.Throw):
+                            return Visit(Expression.Throw(node.Arguments[0], node.Type));
+                        default:
+                            throw new NotImplementedException();
+                    }
+                }
+                return base.VisitMethodCall(node);
+            }
+        }
+
+        internal static Expression Switch(Expression condition, Expression defaultCase, SwitchCase[] cases)
+        {
+            if (cases.Length == 0) {
+                return Expression.Block(condition, defaultCase);
+            } else {
+                return Expression.Switch(condition, defaultCase, cases);
+            }
         }
 
         private class MemberInfoWalkingVisitor: ExpressionVisitor
@@ -188,6 +259,13 @@ namespace DotVVM.Framework.Utils
                 Invoke(node.Constructor);
                 return base.VisitNew(node);
             }
+        }
+
+        public static class Stub
+        {
+            public static T Assign<T>(T left, T right) => throw new NotImplementedException();
+            public static void Throw(Exception e) => throw new NotImplementedException();
+            public static T Throw<T>(Exception e) => throw new NotImplementedException();
         }
 
         /// <summary>

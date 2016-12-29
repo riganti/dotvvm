@@ -8,16 +8,15 @@
     <title></title>
 </head>
 <body>
-    <%-- TODO UI Test: Click on Action1 puts "Action1" into Title, Action2 writes "Action2" --%>
-    {{value: Title}}
-    <dot:Repeater DataSource="{value: TestCollecion}">
+    <span data-uitest="result">{{value: Title}}</span>
+
+    <dot:Repeater DataSource="{value: TestCollection}">
         <ItemTemplate>
-            <sample:MyButton DoAction="{command: _root.Action1()}">
-            </sample:MyButton>
-            <sample:MyButton DoAction="{command: _root.Action2()}">
-            </sample:MyButton>
+            <sample:MyButton DoAction="{command: _root.Action1(_this)}" />
+            <sample:MyButton DoAction="{command: _root.Action2(_this)}" />
         </ItemTemplate>
     </dot:Repeater>
+
 </body>
 </html>
 

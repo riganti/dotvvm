@@ -51,7 +51,7 @@ namespace DotVVM.Samples.BasicSamples
                 }
             );
 
-            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), builder: b => { b.ConfigureTempStorages("Temp"); });
+            var config = app.UseDotVVM<DotvvmStartup>(GetApplicationPath(), options: b => { b.AddDefaultTempStorages("Temp"); });
             config.RouteTable.Add("AuthorizedPresenter", "ComplexSamples/Auth/AuthorizedPresenter", null, null, () => new AuthorizedPresenter());
 
             app.UseStaticFiles();

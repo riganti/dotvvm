@@ -101,8 +101,11 @@ namespace DotVVM.Framework.Hosting
             // get action filters
             var viewModelFilters = ActionFilterHelper.GetActionFilters<IViewModelActionFilter>(context.ViewModel.GetType().GetTypeInfo());
             viewModelFilters.AddRange(context.Configuration.Runtime.GlobalFilters.OfType<IViewModelActionFilter>());
-            var requestFilters = ActionFilterHelper.GetActionFilters<IRequestActionFilter>(context.ViewModel.GetType().GetTypeInfo());
-            foreach (var f in requestFilters) await f.OnPageLoadingAsync(context);
+            var requestFilters = ActionFilterHelper.GetActionFilters<IPageActionFilter>(context.ViewModel.GetType().GetTypeInfo());
+            foreach (var f in requestFilters)
+            {
+                await f.OnPageLoadingAsync(context);
+            }
 
             try
             {
@@ -147,6 +150,12 @@ namespace DotVVM.Framework.Hosting
                     }
                     ViewModelSerializer.PopulateViewModel(context, postData);
 
+                    // run OnViewModelDeserialized on action filters
+                    foreach (var filter in viewModelFilters)
+                    {
+                        await filter.OnViewModelDeserializedAsync(context);
+                    }
+
                     // validate CSRF token 
                     CsrfProtector.VerifyToken(context, context.CsrfToken);
 
@@ -154,16 +163,13 @@ namespace DotVVM.Framework.Hosting
                     {
                         await ((IDotvvmViewModel)context.ViewModel).Load();
                     }
-
-                    // validate CSRF token 
-                    CsrfProtector.VerifyToken(context, context.CsrfToken);
-
+                    
                     // run the load phase in the page
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
 
                     // invoke the postback command
                     ActionInfo actionInfo;
-                    ViewModelSerializer.ResolveCommand(context, page, postData, out actionInfo);
+                    ViewModelSerializer.ResolveCommand(context, page, out actionInfo);
 
                     if (actionInfo != null)
                     {
@@ -193,10 +199,10 @@ namespace DotVVM.Framework.Hosting
                     context.CsrfToken = CsrfProtector.GenerateToken(context);
                 }
 
-                // run OnResponseRendering on action filters
+                // run OnViewModelSerializing on action filters
                 foreach (var filter in viewModelFilters)
                 {
-                    await filter.OnResponseRenderingAsync(context);
+                    await filter.OnViewModelSerializingAsync(context);
                 }
 
                 // render the output

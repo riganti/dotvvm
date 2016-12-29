@@ -112,7 +112,7 @@ namespace DotVVM.Framework.Hosting.ErrorPages
         {
             w.WriteUnencoded(@"
 .exception .exceptionType:after { content: ': '; }
-.exception .exceptionType { font-size: 1.2em; font-weight: bold; }
+.exception .exceptionType { font-size: 1.1em; font-weight: bold; }
 .exception .exceptionMessage { font-style: italic; }
 .exceptionStackTrace {  }
 .exceptionStackTrace .frame { padding: 2px; margin: 0 0 0 30px; border-bottom: 1px #ddd solid; }

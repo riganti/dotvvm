@@ -22,16 +22,16 @@ namespace Owin
         /// in production.
         /// </param>
         /// <param name="debug">A value indicating whether the application should run in debug mode.</param>
-        /// <param name="builder">An action to configure DotVVM services and extensions.</param>
-        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Action<IDotvvmBuilder> builder = null)
+        /// <param name="options">An action to configure DotVVM services and extensions.</param>
+        public static DotvvmConfiguration UseDotVVM<TStartup>(this IAppBuilder app, string applicationRootPath, bool useErrorPages = true, bool debug = true, Action<IDotvvmOptions> options = null)
             where TStartup : IDotvvmStartup, new()
         {
-            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, builder);
+            var config = app.UseDotVVM(applicationRootPath, useErrorPages, debug, options);
             new TStartup().Configure(config, applicationRootPath);
             return config;
         }
 
-        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, Action<IDotvvmBuilder> builder)
+        private static DotvvmConfiguration UseDotVVM(this IAppBuilder app, string applicationRootPath, bool useErrorPages, bool debug, Action<IDotvvmOptions> options)
         {
             var config = DotvvmConfiguration.CreateDefault(s =>
             {
@@ -39,7 +39,7 @@ namespace Owin
                 s.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
                 s.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
                 s.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
-                builder?.Invoke(new DotvvmBuilder(s));
+                options?.Invoke(new DotvvmOptions(s));
             });
 
             config.Debug = debug;

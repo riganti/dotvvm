@@ -121,6 +121,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Localization_Localization => "FeatureSamples/Localization/Localization";
 			public static string FeatureSamples_Localization_Localization_Control_Page => "FeatureSamples/Localization/Localization_Control_Page";
 			public static string FeatureSamples_Localization_Localization_NestedPage_Type => "FeatureSamples/Localization/Localization_NestedPage_Type";
+			public static string FeatureSamples_MarkupControl_CommandBindingInDataContextWithControlProperty => "FeatureSamples/MarkupControl/CommandBindingInDataContextWithControlProperty";
 			public static string FeatureSamples_MarkupControl_CommandBindingInRepeater => "FeatureSamples/MarkupControl/CommandBindingInRepeater";
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdatedByServer => "FeatureSamples/MarkupControl/ControlPropertyUpdatedByServer";
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdating => "FeatureSamples/MarkupControl/ControlPropertyUpdating";

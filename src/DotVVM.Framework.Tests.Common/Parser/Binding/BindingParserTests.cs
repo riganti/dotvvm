@@ -98,20 +98,20 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var result = bindingParserNodeFactory.Parse("a + b * c - d / (e + 2)");
 
             var root = (BinaryOperatorBindingParserNode)result;
-            Assert.AreEqual(BindingTokenType.AddOperator, root.Operator);
+            Assert.AreEqual(BindingTokenType.SubtractOperator, root.Operator);
 
-            var a = (IdentifierNameBindingParserNode)root.FirstExpression;
+            var add = (BinaryOperatorBindingParserNode)root.FirstExpression;
+            Assert.AreEqual(BindingTokenType.AddOperator, add.Operator);
+
+            var a = (IdentifierNameBindingParserNode)add.FirstExpression;
             Assert.AreEqual("a", a.Name);
 
-            var subtract = (BinaryOperatorBindingParserNode)root.SecondExpression;
-            Assert.AreEqual(BindingTokenType.SubtractOperator, subtract.Operator);
-
-            var multiply = (BinaryOperatorBindingParserNode)subtract.FirstExpression;
+            var multiply = (BinaryOperatorBindingParserNode)add.SecondExpression;
             Assert.AreEqual(BindingTokenType.MultiplyOperator, multiply.Operator);
             Assert.AreEqual("b", ((IdentifierNameBindingParserNode)multiply.FirstExpression).Name);
             Assert.AreEqual("c", ((IdentifierNameBindingParserNode)multiply.SecondExpression).Name);
 
-            var divide = (BinaryOperatorBindingParserNode)subtract.SecondExpression;
+            var divide = (BinaryOperatorBindingParserNode)root.SecondExpression;
             Assert.AreEqual(BindingTokenType.DivideOperator, divide.Operator);
             Assert.AreEqual("d", ((IdentifierNameBindingParserNode)divide.FirstExpression).Name);
 
@@ -130,14 +130,14 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var root = (BinaryOperatorBindingParserNode)result;
             Assert.AreEqual(BindingTokenType.AddOperator, root.Operator);
 
-            var a = (IdentifierNameBindingParserNode)root.FirstExpression;
-            Assert.AreEqual("a", a.Name);
+            var c = (IdentifierNameBindingParserNode)root.SecondExpression;
+            Assert.AreEqual("c", c.Name);
 
-            var add = (BinaryOperatorBindingParserNode)root.SecondExpression;
+            var add = (BinaryOperatorBindingParserNode)root.FirstExpression;
             Assert.AreEqual(BindingTokenType.AddOperator, add.Operator);
 
-            Assert.AreEqual("b", ((IdentifierNameBindingParserNode)add.FirstExpression).Name);
-            Assert.AreEqual("c", ((IdentifierNameBindingParserNode)add.SecondExpression).Name);
+            Assert.AreEqual("a", ((IdentifierNameBindingParserNode)add.FirstExpression).Name);
+            Assert.AreEqual("b", ((IdentifierNameBindingParserNode)add.SecondExpression).Name);
         }
 
 
@@ -711,18 +711,18 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             var parser = bindingParserNodeFactory.SetupParser(originalString);
             var node = parser.ReadExpression();
 
-            Assert.IsTrue(string.Equals(originalString, node.ToDisplayString()));
+            Assert.AreEqual(originalString, node.ToDisplayString());
 
             //OK display string's the same but is the tree OK?
-            var secondComparision = node.CastTo<BinaryOperatorBindingParserNode>()
-                .SecondExpression.CastTo<BinaryOperatorBindingParserNode>();
+            var firstComparison = node.CastTo<BinaryOperatorBindingParserNode>()
+                .FirstExpression.CastTo<BinaryOperatorBindingParserNode>();
 
-            Assert.IsTrue(
-                secondComparision.FirstExpression.As<FunctionCallBindingParserNode>()
+            Assert.AreEqual("Delf",
+                firstComparison.SecondExpression.CastTo<FunctionCallBindingParserNode>()
                 .TargetExpression.CastTo<MemberAccessBindingParserNode>()
-                .MemberNameExpression.CastTo<IdentifierNameBindingParserNode>().Name == "Delf");
+                .MemberNameExpression.CastTo<IdentifierNameBindingParserNode>().Name);
 
-            Assert.IsTrue(secondComparision.SecondExpression
+            Assert.IsTrue(node.CastTo<BinaryOperatorBindingParserNode>().SecondExpression
                 .As<IdentifierNameBindingParserNode>().Name == "");
         }
 

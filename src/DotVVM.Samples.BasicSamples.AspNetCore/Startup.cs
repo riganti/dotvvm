@@ -21,9 +21,10 @@ namespace DotVVM.Samples.BasicSamples
 
             services.AddAuthentication();
 
-            services
-                .AddDotVVM()
-                .ConfigureTempStorages("Temp");
+            services.AddDotVVM(options =>
+            {
+                options.AddDefaultTempStorages("Temp");
+            });
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

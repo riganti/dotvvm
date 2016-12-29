@@ -16,23 +16,32 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public abstract class LinkResourceBase : ResourceBase, ILinkResource
     {
+        /// <summary>Location property is required!</summary>
         public IResourceLocation Location { get; set; }
         public ResourceLocationFallback LocationFallback { get; set; }
-        public string MimeType { get; set; } = "text/plain";
+        public string MimeType { get; private set; }
+        public bool VerifyResourceIntegrity { get; set; }
 
-        public LinkResourceBase(ResourceRenderPosition renderPosition,
-            string mimeType,
-            IResourceLocation location)
-            :base(renderPosition)
+        public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType, IResourceLocation location) : base(renderPosition)
         {
             this.Location = location;
+            this.MimeType = mimeType;
+        }
+        public LinkResourceBase(ResourceRenderPosition renderPosition, string mimeType) : base(renderPosition)
+        {
             this.MimeType = mimeType;
         }
 
         public IEnumerable<IResourceLocation> GetLocations()
         {
             yield return Location;
-            if (LocationFallback != null) foreach (var l in LocationFallback.AlternativeLocations) yield return l;
+            if (LocationFallback != null)
+            {
+                foreach (var l in LocationFallback.AlternativeLocations)
+                {
+                    yield return l;
+                }
+            }
         }
 
         public override void Render(IHtmlWriter writer, IDotvvmRequestContext context, string resourceName)
@@ -81,7 +90,8 @@ namespace DotVVM.Framework.ResourceManagement
         protected void AddSrcAndIntegrity(IHtmlWriter writer, IDotvvmRequestContext context, string url, string srcAttributeName)
         {
             writer.AddAttribute(srcAttributeName, url);
-            if (url.Contains("://"))
+
+            if (url.Contains("://") && VerifyResourceIntegrity)
             {
                 AddIntegrityAttribute(writer, context);
             }

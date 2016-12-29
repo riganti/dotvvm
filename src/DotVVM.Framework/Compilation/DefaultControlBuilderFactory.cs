@@ -7,7 +7,6 @@ using System.Reflection;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Utils;
-using Microsoft.DotNet.InternalAbstractions;
 
 namespace DotVVM.Framework.Compilation
 {
