@@ -112,9 +112,9 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
             {
                 var operatorToken = Read();
                 var second = ReadUnsupportedOperatorExpression();
-                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.UnsupportedOperator), startIndex, $"Unsupported operator: {operatorToken.Text}");
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.UnsupportedOperator), startIndex, $"Unsupported operator: {operatorToken.Text}");
             }
-            else return first;
+            return first;
         }
 
         private BindingParserNode ReadAssignmentExpression()
@@ -154,27 +154,24 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadOrElseExpression();
-            if (Peek() != null && Peek().Type == BindingTokenType.NullCoalescingOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.NullCoalescingOperator)
             {
                 Read();
-                var second = ReadNullCoalescingExpression();
-                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.NullCoalescingOperator), startIndex);
+                var second = ReadOrElseExpression();
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.NullCoalescingOperator), startIndex);
             }
-            else
-            {
-                return first;
-            }
+            return first;
         }
 
         private BindingParserNode ReadOrElseExpression()
         {
             var startIndex = CurrentIndex;
             var first = ReadAndAlsoExpression();
-            if (Peek() != null && Peek().Type == BindingTokenType.OrElseOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.OrElseOperator)
             {
                 Read();
-                var second = ReadOrElseExpression();
-                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrElseOperator), startIndex);
+                var second = ReadAndAlsoExpression();
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrElseOperator), startIndex);
             }
             return first;
         }
@@ -183,11 +180,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadOrExpression();
-            if (Peek() != null && Peek().Type == BindingTokenType.AndAlsoOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.AndAlsoOperator)
             {
                 Read();
-                var second = ReadAndAlsoExpression();
-                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndAlsoOperator), startIndex);
+                var second = ReadOrElseExpression();
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndAlsoOperator), startIndex);
             }
             return first;
         }
@@ -196,11 +193,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadAndExpression();
-            if (Peek() != null && Peek().Type == BindingTokenType.OrOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.OrOperator)
             {
                 Read();
-                var second = ReadOrExpression();
-                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrOperator), startIndex);
+                var second = ReadAndExpression();
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.OrOperator), startIndex);
             }
             return first;
         }
@@ -209,11 +206,11 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadEqualityExpression();
-            if (Peek() != null && Peek().Type == BindingTokenType.AndOperator)
+            while (Peek() != null && Peek().Type == BindingTokenType.AndOperator)
             {
                 Read();
-                var second = ReadAndExpression();
-                return CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndOperator), startIndex);
+                var second = ReadEqualityExpression();
+                first = CreateNode(new BinaryOperatorBindingParserNode(first, second, BindingTokenType.AndOperator), startIndex);
             }
             return first;
         }
@@ -222,15 +219,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadComparisonExpression();
-            if (Peek() != null)
+            while (Peek() != null)
             {
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.EqualsEqualsOperator || @operator == BindingTokenType.NotEqualsOperator)
                 {
                     Read();
-                    var second = ReadEqualityExpression();
-                    return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
+                    var second = ReadComparisonExpression();
+                    first = CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                 }
+                else break;
             }
             return first;
         }
@@ -239,16 +237,17 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadAdditiveExpression();
-            if (Peek() != null)
+            while (Peek() != null)
             {
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.LessThanEqualsOperator || @operator == BindingTokenType.LessThanOperator
                     || @operator == BindingTokenType.GreaterThanEqualsOperator || @operator == BindingTokenType.GreaterThanOperator)
                 {
                     Read();
-                    var second = ReadComparisonExpression();
-                    return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
+                    var second = ReadAdditiveExpression();
+                    first = CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                 }
+                else break;
             }
             return first;
         }
@@ -257,16 +256,17 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadMultiplicativeExpression();
-            if (Peek() != null)
+            while (Peek() != null)
             {
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.AddOperator || @operator == BindingTokenType.SubtractOperator)
                 {
 
                     Read();
-                    var second = ReadAdditiveExpression();
-                    return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
+                    var second = ReadMultiplicativeExpression();
+                    first = CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                 }
+                else break;
             }
             return first;
         }
@@ -275,15 +275,16 @@ namespace DotVVM.Framework.Compilation.Parser.Binding.Parser
         {
             var startIndex = CurrentIndex;
             var first = ReadUnaryExpression();
-            if (Peek() != null)
+            while (Peek() != null)
             {
                 var @operator = Peek().Type;
                 if (@operator == BindingTokenType.MultiplyOperator || @operator == BindingTokenType.DivideOperator || @operator == BindingTokenType.ModulusOperator)
                 {
                     Read();
-                    var second = ReadMultiplicativeExpression();
-                    return CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
+                    var second = ReadUnaryExpression();
+                    first = CreateNode(new BinaryOperatorBindingParserNode(first, second, @operator), startIndex);
                 }
+                else break;
             }
             return first;
         }
