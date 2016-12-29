@@ -39,12 +39,17 @@ namespace DotVVM.Framework.Compilation.Javascript
                         if (propertyMap.Populate)
                             parentAssignment.ReplaceWith(_ => new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(parentAssignment.Right, parentAssignment.Left));
                         else parentAssignment.ReplaceWith(_ => new JsInvocationExpression(parentAssignment.Left, parentAssignment.Right));
-                    }
-                    else if (node.Parent is JsExpression parent) {
-                        node.ReplaceWith(_ => ((JsExpression)node).Invoke());
+                    } else if (node.Parent is JsExpression parent) {
+                        node.ReplaceWith(_ => ((JsExpression)node).Invoke().WithAnnotation(ObservableUnwrapAnnotation.Instance));
                     }
                 }
             }
         }
+    }
+
+    public sealed class ObservableUnwrapAnnotation
+    {
+        private ObservableUnwrapAnnotation() { }
+        public static ObservableUnwrapAnnotation Instance = new ObservableUnwrapAnnotation();
     }
 }

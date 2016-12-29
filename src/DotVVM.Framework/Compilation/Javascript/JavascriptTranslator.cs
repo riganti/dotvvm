@@ -15,13 +15,44 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class JavascriptTranslator
     {
-        public static JsNode CompileToJavascript(Expression binding, DataContextStack dataContext, IViewModelSerializationMapper mapper)
+        public static object KnockoutContextParameter = new object();
+        public static object KnockoutViewModelParameter = new object();
+
+        public static JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext, IViewModelSerializationMapper mapper)
         {
             var translator = new JavascriptTranslator() { DataContexts = dataContext };
             var script = translator.Translate(binding);
             //if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()", StringComparison.Ordinal)) script = script.Remove(script.Length - 2);
             script.AcceptVisitor(new JsViewModelPropertyAdjuster(mapper));
             return script;
+        }
+
+        public static JsExpression RemoveTopObservables(JsExpression expression)
+        {
+            foreach (var leaf in expression.GetLeafResultNodes()) {
+                JsExpression replacement = null;
+                if (leaf is JsInvocationExpression invocation && invocation.Annotation<ObservableUnwrapAnnotation>() != null) {
+                    replacement = invocation.Target;
+                } else if (leaf is JsMemberAccessExpression member && member.MemberName == "$data" && member.Target is JsSymbolicParameter par && par.Symbol == JavascriptTranslator.KnockoutContextParameter ||
+                      leaf is JsSymbolicParameter param && param.Symbol == JavascriptTranslator.KnockoutViewModelParameter) {
+                    replacement = new JsSymbolicParameter(KnockoutContextParameter).Member("$rawData")
+                        .WithAnnotation(leaf.Annotation<ViewModelInfoAnnotation>());
+                }
+
+                if (replacement != null) {
+                    if (leaf.Parent == null) expression = replacement;
+                    else leaf.ReplaceWith(replacement);
+                }
+            }
+            return expression;
+        }
+
+        public static string FormatKnockoutScript(JsExpression expression, bool allowDataGlobal = true)
+        {
+            return expression.FormatParametrizedScript()
+                .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$context"), true) :
+                               o == KnockoutViewModelParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$data"), allowDataGlobal) :
+                               throw new Exception());
         }
 
         public static readonly Dictionary<MethodInfo, IJsMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJsMethodTranslator>();
@@ -175,27 +206,34 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public JsExpression TranslateParameter(ParameterExpression expression)
         {
-            if (expression.Name == "_this") return new JsIdentifierExpression("$data").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-            if (expression.Name == "_parent") return new JsIdentifierExpression("$parent").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-            if (expression.Name == "_root") return new JsIdentifierExpression("$root").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-            if (expression.Name.StartsWith("_parent", StringComparison.Ordinal))
+            JsExpression contextParameter(string name, int parentContexts, Type type, bool isControl = false)
             {
-                var pIndex = int.Parse(expression.Name.Substring("_parent".Length));
-                if (pIndex == 0) return new JsIdentifierExpression("$data").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-                else if (pIndex == 1) return new JsIdentifierExpression("$parent").WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-                else return new JsIndexerExpression(new JsIdentifierExpression("$parents"), new JsLiteral(pIndex - 1)).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+                JsExpression context = new JsSymbolicParameter(KnockoutContextParameter);
+                for (int i = 0; i < parentContexts; i++)
+                    context = context.Member("$parentContext");
+                return context.Member(name).WithAnnotation(new ViewModelInfoAnnotation(type, isControl));
             }
 
-            if (expression.Name == "_control")
+            if (expression.Name == "_this")
+                return new JsSymbolicParameter(KnockoutViewModelParameter).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+            else if (expression.Name == "_parent")
+                return contextParameter("$parent", 0, expression.Type);
+            else if (expression.Name == "_root")
+                return contextParameter("$root", 0, expression.Type);
+            else if (expression.Name.StartsWith("_parent", StringComparison.Ordinal))
             {
-                var c = DataContexts.Parents().Count();
-                JsExpression context = null;
-                for (int i = 0; i < c; i++) {
-                    context = context.Member("$parentContext");
-                }
-                return context.Member("$control").WithAnnotation(new ViewModelInfoAnnotation(expression.Type, true));
+                var pIndex = int.Parse(expression.Name.Substring("_parent".Length));
+                if (pIndex == 0) return contextParameter("$data", 0, expression.Type);
+                else if (pIndex == 1) return contextParameter("$parent", 0, expression.Type);
+                else return new JsSymbolicParameter(KnockoutContextParameter)
+                        .Member("$parents").Indexer(new JsLiteral(pIndex - 1))
+                        .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
             }
-            if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return new JsIdentifierExpression(expression.Name);
+            else if (expression.Name == "_control")
+            {
+                return contextParameter("$control", DataContexts.Parents().Count(), expression.Type, isControl: true);
+            }
+            else if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return new JsIdentifierExpression(expression.Name);
             else throw new NotSupportedException();
         }
 

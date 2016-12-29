@@ -9,6 +9,7 @@ using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using System.Reflection;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -16,7 +17,7 @@ namespace DotVVM.Framework.Compilation
     {
         public override string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression, DotvvmConfiguration config)
         {
-            return $"dotvvm.postbackScript({ JsonConvert.SerializeObject(expression.Id) })";
+            return new JsIdentifierExpression("dotvvm").Member("postbackScript").Invoke(new JsLiteral(expression.Id)).FormatScript();
         }
 
         protected override Expression ConvertExpressionToType(Expression expr, Type expectedType)

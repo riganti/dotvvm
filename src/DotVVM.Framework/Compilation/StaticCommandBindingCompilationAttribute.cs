@@ -22,7 +22,7 @@ namespace DotVVM.Framework.Compilation
 
             var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call);
             var rootCallback = visitor.Visit(expression);
-            var js = SouldCompileCallback(rootCallback) ? "resultPromise.resolve(" + JavascriptTranslator.CompileToJavascript(rootCallback, binding.DataContextTypeStack, vmMapper).FormatScript() + ")" : null;
+            var js = SouldCompileCallback(rootCallback) ? "resultPromise.resolve(" + JavascriptTranslator.FormatKnockoutScript(JavascriptTranslator.CompileToJavascript(rootCallback, binding.DataContextTypeStack, vmMapper), allowDataGlobal: false) + ")" : null;
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
             {
                 if (js == null) js = $"resultPromise.resolve({param.Name})";
@@ -55,9 +55,9 @@ namespace DotVVM.Framework.Compilation
 
         public static string GetArgsScript(MethodCallExpression expression, DataContextStack dataContext, IViewModelSerializationMapper vmMapper)
         {
-            var target = expression.Object == null ? null : JavascriptTranslator.CompileToJavascript(expression.Object, dataContext, vmMapper).FormatScript();
+            var target = expression.Object == null ? null : JavascriptTranslator.FormatKnockoutScript(JavascriptTranslator.CompileToJavascript(expression.Object, dataContext, vmMapper), allowDataGlobal: false);
             var arguments = (target == null ? new string[0] : new[] { target })
-                .Concat(expression.Arguments.Select(a => JavascriptTranslator.CompileToJavascript(a, dataContext, vmMapper).FormatScript()));
+                .Concat(expression.Arguments.Select(a => JavascriptTranslator.FormatKnockoutScript(JavascriptTranslator.CompileToJavascript(a, dataContext, vmMapper), allowDataGlobal: true)));
             return "[" + String.Join(", ", arguments) + "]";
         }
 

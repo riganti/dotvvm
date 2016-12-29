@@ -75,26 +75,8 @@ namespace DotVVM.Framework.Compilation
 
         public virtual string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression, DotvvmConfiguration config)
         {
-            var javascript = JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack, config.ServiceLocator.GetService<IViewModelSerializationMapper>()).FormatScript();
-
-            if (javascript == "$data")
-            {
-                javascript = "$rawData";
-            }
-            else if (javascript.StartsWith("$data.", StringComparison.Ordinal))
-            {
-                javascript = javascript.Substring("$data.".Length);
-            }
-
-            // do not produce try/eval on single properties
-            if (javascript.Contains(".") || javascript.Contains("("))
-            {
-                return "dotvvm.evaluator.tryEval(function(){return " + javascript + "})";
-            }
-            else
-            {
-                return javascript;
-            }
+            return JavascriptTranslator.FormatKnockoutScript(JavascriptTranslator.RemoveTopObservables(
+                   JavascriptTranslator.CompileToJavascript(binding.GetExpression(), binding.DataContextTypeStack, config.ServiceLocator.GetService<IViewModelSerializationMapper>())));
         }
     }
 }

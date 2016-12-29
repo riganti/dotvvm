@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
-            return JavascriptTranslator.CompileToJavascript(expressionTree, context, new ViewModelSerializationMapper(DotvvmConfiguration.CreateDefault())).FormatScript();
+            return JavascriptTranslator.FormatKnockoutScript(JavascriptTranslator.CompileToJavascript(expressionTree, context, new ViewModelSerializationMapper(DotvvmConfiguration.CreateDefault())));
         }
 
         [TestMethod]
@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_ToString()
         {
             var js = CompileBinding("MyProperty", new[] { typeof(TestViewModel2) }, typeof(string));
-            Assert.AreEqual("String($data.MyProperty())", js);
+            Assert.AreEqual("String(MyProperty())", js);
         }
 
         [TestMethod]
