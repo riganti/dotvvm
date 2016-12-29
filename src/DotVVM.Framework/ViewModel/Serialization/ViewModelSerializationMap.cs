@@ -146,7 +146,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 ExpressionUtils.Replace((JsonReader rdr, string val) => rdr.TokenType == JsonToken.PropertyName &&
                                                                         ExpressionUtils.Stub.Assign(val, rdr.Value as string) != null &&
                                                                         rdr.Read(), reader, currentProperty),
-                ExpressionUtils.Switch(currentProperty,
+                Expression.Switch(currentProperty,
                     Expression.Block(typeof(void),
                         Expression.IfThen(
                             ExpressionUtils.Replace((JsonReader rdr) => rdr.TokenType == JsonToken.StartArray || rdr.TokenType == JsonToken.StartConstructor || rdr.TokenType == JsonToken.StartObject, reader),

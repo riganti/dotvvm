@@ -193,15 +193,6 @@ namespace DotVVM.Framework.Utils
             }
         }
 
-        internal static Expression Switch(Expression condition, Expression defaultCase, SwitchCase[] cases)
-        {
-            if (cases.Length == 0) {
-                return Expression.Block(condition, defaultCase);
-            } else {
-                return Expression.Switch(condition, defaultCase, cases);
-            }
-        }
-
         private class MemberInfoWalkingVisitor: ExpressionVisitor
         {
             public Action<MemberInfo> MemberInfoAction { get; set; }

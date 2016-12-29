@@ -169,7 +169,7 @@ namespace DotVVM.Framework.Hosting
 
                     // invoke the postback command
                     ActionInfo actionInfo;
-                    ViewModelSerializer.ResolveCommand(context, page, out actionInfo);
+                    ViewModelSerializer.ResolveCommand(context, page, postData, out actionInfo);
 
                     if (actionInfo != null)
                     {

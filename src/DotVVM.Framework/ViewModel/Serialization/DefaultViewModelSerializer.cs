@@ -230,10 +230,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Resolves the command for the specified post data.
         /// </summary>
-        public void ResolveCommand(IDotvvmRequestContext context, DotvvmView view, out ActionInfo actionInfo)
-		{
+        public void ResolveCommand(IDotvvmRequestContext context, DotvvmView view, string serializedPostData, out ActionInfo actionInfo)
+        {
             // get properties
-            var data = context.ReceivedViewModelJson ?? throw new NotSupportedException("Could not find ReceivedViewModelJson in request context.");
+            var data = JObject.Parse(serializedPostData);
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();
