@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Security;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -9,38 +10,42 @@ namespace DotVVM.Framework.ViewModel.Serialization
 {
     public class EncryptedValuesReader
     {
-        JsonReader json;
         JsonSerializer serializer;
-        Stack<int> propertyIndices = new Stack<int>();
+        Stack<(int prop, JObject obj)> stack = new Stack<(int prop, JObject obj)>();
         int virtualNests = 0;
-        int propertyIndex = 0;
+        int lastPropertyIndex = -1;
 
-        public EncryptedValuesReader(JsonReader json)
+        public EncryptedValuesReader(JObject json)
         {
-            this.json = json;
+            stack.Push((0, json));
             this.serializer = new JsonSerializer();
         }
 
-        private bool HasProperty(int index)
+        private JObject json => stack.Peek().obj;
+
+        private JProperty Property(int index)
         {
             var name = index.ToString();
-            return virtualNests == 0 && json.TokenType == JsonToken.PropertyName && (string)json.Value == name;
+            return virtualNests == 0 ? json?.Property(name) : null;
         }
 
-        public void Nest()
+        public void Nest() => Nest(lastPropertyIndex + 1);
+
+        public void Nest(int property)
         {
-            if (HasProperty(propertyIndex))
+            var prop = Property(property);
+            if (prop != null)
             {
-                json.Read();
-                Debug.Assert(json.TokenType == JsonToken.StartObject);
-                json.Read();
+                Debug.Assert(prop.Value.Type == JTokenType.Object);
             }
             else
             {
                 virtualNests++;
             }
-            propertyIndices.Push(propertyIndex + 1);
-            propertyIndex = 0;
+            stack.Push((property, (JObject)prop?.Value));
+            // remove read nodes and then make sure that JObject is empty
+            prop?.Remove();
+            lastPropertyIndex = -1;
         }
 
         public void AssertEnd()
@@ -48,35 +53,23 @@ namespace DotVVM.Framework.ViewModel.Serialization
             if (virtualNests > 0)
             {
                 virtualNests--;
-                propertyIndex = propertyIndices.Pop();
             }
-            else if(json.TokenType == JsonToken.EndObject)
+            else
             {
-                json.Read();
-                propertyIndex = propertyIndices.Pop();
+                if (json.Properties().Count() > 0)
+                    throw SecurityError();
             }
-            else throw SecurityError();
+            lastPropertyIndex = stack.Pop().prop;
         }
 
-        public JToken ReadValue()
+        public JToken ReadValue(int property)
         {
-            if (json.TokenType == JsonToken.EndArray || virtualNests > 0 || !HasProperty(propertyIndex)) throw SecurityError();
-            propertyIndex++;
-            json.Read();
-            var result = JToken.ReadFrom(json);
-            json.Read();
-            return result;
+            var prop = Property(property);
+            if (prop == null) throw SecurityError();
+            prop.Remove();
+            return prop.Value;
         }
 
         Exception SecurityError() => new SecurityException("Failed to deserialize viewModel encrypted values");
-
-        public static EncryptedValuesReader FromObject(JObject encryptedValues)
-        {
-            var reader = encryptedValues.CreateReader();
-            reader.Read();
-            Debug.Assert(reader.TokenType == JsonToken.StartObject);
-            reader.Read();
-            return new EncryptedValuesReader(reader);
-        }
     }
 }

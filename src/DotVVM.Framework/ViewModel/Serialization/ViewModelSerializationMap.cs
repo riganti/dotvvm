@@ -91,26 +91,27 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var propertiesSwitch = new List<SwitchCase>();
 
             // go through all properties that should be read
+            var encryptedPropertyIndex = 0;
             foreach (var property in Properties.Where(p => p.TransferToServer && p.PropertyInfo.SetMethod != null)) {
                 if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData) {
                     // encryptedValues[(int)jobj["{p.Name}"]]
-
                     block.Add(Expression.Call(
                         value,
                         property.PropertyInfo.SetMethod,
                         Expression.Convert(
                             ExpressionUtils.Replace(
-                                (JsonSerializer s, EncryptedValuesReader ev, object existing) => Deserialize(s, ev.ReadValue().CreateReader(), property, existing),
+                                (JsonSerializer s, EncryptedValuesReader ev, object existing) => Deserialize(s, ev.ReadValue(encryptedPropertyIndex).CreateReader(), property, existing),
                                 serializer, encryptedValuesReader,
                                     Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object))),
                             property.Type)
-                        ));
+                        ).OptimizeConstants());
+                    encryptedPropertyIndex++;
                 } else {
                     var propertyblock = new List<Expression>();
                     var checkEV = property.TransferAfterPostback && property.TransferFirstRequest && ShouldCheckEncrypedValues(property.Type);
                     if (checkEV) {
                         // lastEncrypedValuesCount = encrypedValues.Count
-                        propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
+                        propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes, Expression.Constant(encryptedPropertyIndex)));
                     }
 
                     // if ({jsonProp} != null) value.{p.Name} = deserialize();
@@ -133,6 +134,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
                     if (checkEV) {
                         propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
+                        encryptedPropertyIndex++;
                     }
 
                     propertiesSwitch.Add(Expression.SwitchCase(

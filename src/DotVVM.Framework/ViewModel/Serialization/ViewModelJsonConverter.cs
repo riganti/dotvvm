@@ -27,14 +27,20 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             IsPostback = isPostback;
             EncryptedValues = encryptedValues ?? new JObject();
-            evReader = EncryptedValuesReader.FromObject(EncryptedValues);
-            evWriter = new EncryptedValuesWriter(EncryptedValues.CreateWriter());
+            evReader = new Lazy<EncryptedValuesReader>(() => {
+                evWriter = new Lazy<EncryptedValuesWriter>(() => { throw new Exception("Can't use EncryptedValuesWriter at the same time as EncryptedValuesReader."); });
+                return new EncryptedValuesReader(EncryptedValues);
+            });
+            evWriter = new Lazy<EncryptedValuesWriter>(() => {
+                evReader = new Lazy<EncryptedValuesReader>(() => { throw new Exception("Can't use EncryptedValuesReader at the same time as EncryptedValuesWriter."); });
+                return new EncryptedValuesWriter(EncryptedValues.CreateWriter());
+            });
             this.viewModelSerializationMapper = viewModelSerializationMapper;
         }
 
         public JObject EncryptedValues { get; }
-        private EncryptedValuesReader evReader;
-        private EncryptedValuesWriter evWriter;
+        private Lazy<EncryptedValuesReader> evReader;
+        private Lazy<EncryptedValuesWriter> evWriter;
 
 
         public HashSet<ViewModelSerializationMap> UsedSerializationMaps { get; set; }
@@ -70,7 +76,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // deserialize
             var serializationMap = GetSerializationMapForType(objectType);
             var instance = serializationMap.ConstructorFactory();
-            serializationMap.ReaderFactory(reader, serializer, instance, evReader);
+            serializationMap.ReaderFactory(reader, serializer, instance, evReader.Value);
             return instance;
         }
 
@@ -81,7 +87,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             var serializationMap = GetSerializationMapForType(value.GetType());
             UsedSerializationMaps.Add(serializationMap);
-            serializationMap.WriterFactory(writer, value, serializer, evWriter, IsPostback);
+            serializationMap.WriterFactory(writer, value, serializer, evWriter.Value, IsPostback);
         }
 
         /// <summary>
@@ -91,7 +97,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         {
             if (reader.TokenType == JsonToken.None) reader.Read();
             var serializationMap = GetSerializationMapForType(value.GetType());
-            serializationMap.ReaderFactory(reader, serializer, value, evReader);
+            serializationMap.ReaderFactory(reader, serializer, value, evReader.Value);
         }
 
 
