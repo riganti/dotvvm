@@ -67,6 +67,7 @@ namespace DotVVM.Framework.Controls
         public HtmlGenericControl()
         {
             Attributes = new Dictionary<string, object>();
+			if (GetType() == typeof(HtmlGenericControl)) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
         /// <summary>
