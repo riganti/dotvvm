@@ -24,7 +24,10 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
         /// </summary>
-        public DotvvmMarkupControl() : this("div") { }
+        public DotvvmMarkupControl() : this("div")
+        {
+            this.LifecycleRequirements &= ControlLifecycleRequirements.PreInit;
+        }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupControl"/> class.
@@ -44,7 +47,7 @@ namespace DotVVM.Framework.Controls
                 rendersWrapperTag = true;
                 TagName = wrapperTagName;
             }
-            if(Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
+            if (Directives.ContainsKey(ParserConstants.NoWrapperTagNameDirective))
             {
                 rendersWrapperTag = false;
             }
@@ -77,8 +80,7 @@ namespace DotVVM.Framework.Controls
             if (binding == null)
             {
 
-                return new PropertySerializeInfo
-                {
+                return new PropertySerializeInfo {
                     Property = property,
                     Js = JsonConvert.SerializeObject(GetValue(property), Formatting.None),
                     IsSerializable = true
@@ -86,8 +88,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (binding is IValueBinding)
             {
-                return new PropertySerializeInfo
-                {
+                return new PropertySerializeInfo {
                     Property = property,
                     Js = (binding as IValueBinding).GetKnockoutBindingExpression(),
                     IsSerializable = true

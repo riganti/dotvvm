@@ -75,7 +75,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public Literal() : base("span")
         {
-			if (GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None; 
+            if (GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
         }
 
         /// <summary>
@@ -84,12 +84,12 @@ namespace DotVVM.Framework.Controls
         public Literal(string text) : base("span")
         {
             Text = text;
-			if (GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
-		}
+            if (GetType() == typeof(Literal)) LifecycleRequirements = ControlLifecycleRequirements.None;
+        }
 
 
-		protected override bool RendersHtmlTag => RenderSpanElement;
-         
+        protected override bool RendersHtmlTag => RenderSpanElement;
+
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             base.AddAttributesToRender(writer, context);

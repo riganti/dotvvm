@@ -14,36 +14,36 @@ using System.Text.RegularExpressions;
 
 namespace DotVVM.Framework.Controls
 {
-	[Flags]
-	public enum ControlLifecycleRequirements: short
-	{
-		None = 0,
-		RealtimePreInit				= 1 << 0,	
-		RealtimeInit				= 1 << 1,	
-		RealtimeLoad				= 1 << 2,
-		RealtimePreRender			= 1 << 3,
-		RealtimePreRenderComplete	= 1 << 4,
-		InvokeMissingPreInit = 1 << 5,
-		InvokeMissingInit = 1 << 6,
-		InvokeMissingLoad = 1 << 7,
-		InvokeMissingPreRender = 1 << 8,
-		InvokeMissingPreRenderComplete = 1 << 9,
+    [Flags]
+    public enum ControlLifecycleRequirements : short
+    {
+        None = 0,
+        RealtimePreInit = 1 << 0,
+        RealtimeInit = 1 << 1,
+        RealtimeLoad = 1 << 2,
+        RealtimePreRender = 1 << 3,
+        RealtimePreRenderComplete = 1 << 4,
+        InvokeMissingPreInit = 1 << 5,
+        InvokeMissingInit = 1 << 6,
+        InvokeMissingLoad = 1 << 7,
+        InvokeMissingPreRender = 1 << 8,
+        InvokeMissingPreRenderComplete = 1 << 9,
 
-		OnlyRealtime = RealtimePreInit | RealtimeInit | RealtimeLoad | RealtimePreRender | RealtimePreRenderComplete,
-		OnlyMissing = InvokeMissingPreInit | InvokeMissingInit | InvokeMissingLoad | InvokeMissingPreRender | InvokeMissingPreRenderComplete,
-		All = OnlyRealtime | OnlyMissing,
+        OnlyRealtime = RealtimePreInit | RealtimeInit | RealtimeLoad | RealtimePreRender | RealtimePreRenderComplete,
+        OnlyMissing = InvokeMissingPreInit | InvokeMissingInit | InvokeMissingLoad | InvokeMissingPreRender | InvokeMissingPreRenderComplete,
+        All = OnlyRealtime | OnlyMissing,
 
-		PreInit = RealtimePreInit | InvokeMissingPreInit,
-		Init = RealtimeInit | InvokeMissingInit,
-		Load = RealtimeLoad | InvokeMissingLoad,
-		PreRender = RealtimePreRender | InvokeMissingPreRender,
-		PreRenderComplete = RealtimePreRenderComplete | InvokeMissingPreRenderComplete,
-	}
+        PreInit = RealtimePreInit | InvokeMissingPreInit,
+        Init = RealtimeInit | InvokeMissingInit,
+        Load = RealtimeLoad | InvokeMissingLoad,
+        PreRender = RealtimePreRender | InvokeMissingPreRender,
+        PreRenderComplete = RealtimePreRenderComplete | InvokeMissingPreRenderComplete,
+    }
 
-	/// <summary>
-	/// Represents a base class for all DotVVM controls.
-	/// </summary>
-	public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
+    /// <summary>
+    /// Represents a base class for all DotVVM controls.
+    /// </summary>
+    public abstract class DotvvmControl : DotvvmBindableObject, IDotvvmControl
     {
 
         /// <summary>
@@ -52,7 +52,8 @@ namespace DotVVM.Framework.Controls
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
         public DotvvmControlCollection Children { get; private set; }
 
-		public ControlLifecycleRequirements LifecycleRequirements = ControlLifecycleRequirements.All;
+        // automaticaly assign requirements
+        internal ControlLifecycleRequirements LifecycleRequirements = ControlLifecycleRequirements.Init | ControlLifecycleRequirements.Load | ControlLifecycleRequirements.PreRender;
 
         /// <summary>
         /// Gets or sets the unique control ID.

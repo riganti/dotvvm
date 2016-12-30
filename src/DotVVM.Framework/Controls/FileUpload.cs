@@ -134,19 +134,13 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty UploadCompletedProperty
             = DotvvmProperty.Register<Command, FileUpload>(p => p.UploadCompleted);
 
-        internal override void OnPreRenderComplete(IDotvvmRequestContext context)
-        {
-            context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
-
-            base.OnPreRenderComplete(context);
-        }
-
         protected internal override void OnPreRender(IDotvvmRequestContext context)
         {
             if (!IsPropertySet(UploadedFilesProperty))
             {
                 throw new DotvvmControlException(this, "The UploadedFiles property of the FileUpload cannot be null!");
             }
+            context.ResourceManager.AddRequiredResource(ResourceConstants.DotvvmFileUploadCssResourceName);
             base.OnPreRender(context);
         }
 

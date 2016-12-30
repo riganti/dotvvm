@@ -13,6 +13,8 @@ namespace DotVVM.Framework.Tests.Runtime
 
         public ControlLifeCycleMock(List<ControlLifeCycleEvent> eventLog = null, string name = null)
         {
+            LifecycleRequirements = ControlLifecycleRequirements.All;
+
             this.eventLog = eventLog;
             Name = name;
         }

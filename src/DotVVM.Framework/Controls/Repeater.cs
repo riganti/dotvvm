@@ -75,7 +75,8 @@ namespace DotVVM.Framework.Controls
         public Repeater()
         {
             SetValue(Internal.IsNamingContainerProperty, true);
-			if (GetType() == typeof(Repeater)) LifecycleRequirements = ControlLifecycleRequirements.All & ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
+            if (GetType() == typeof(Repeater))
+                LifecycleRequirements &= ~(ControlLifecycleRequirements.InvokeMissingInit | ControlLifecycleRequirements.InvokeMissingLoad);
         }
 
         /// <summary>
