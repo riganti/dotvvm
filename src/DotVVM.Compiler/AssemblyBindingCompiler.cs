@@ -65,7 +65,7 @@ namespace DotVVM.Compiler
                 Expression = result.Expression,
                 Id = id,
                 OriginalString = result.OriginalString
-            }));
+            }, configuration));
             return result;
         }
 

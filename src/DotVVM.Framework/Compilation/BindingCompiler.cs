@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Compilation
         public static ConcurrentDictionary<int, CompiledBindingExpression> GlobalBindingList = new ConcurrentDictionary<int, CompiledBindingExpression>();
         private static int globalBindingIndex = 0;
      
-        private DotvvmConfiguration configuration;
+        protected DotvvmConfiguration configuration;
 
         public BindingCompiler(DotvvmConfiguration configuration)
         {
