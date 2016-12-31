@@ -1,4 +1,4 @@
-@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingPageInfo.BindingPageInfoViewModel, DotVVM.Samples.Common
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingPageInfo.BindingPageInfoViewModel, DotVVM.Samples.Common
 
 <!DOCTYPE html>
 

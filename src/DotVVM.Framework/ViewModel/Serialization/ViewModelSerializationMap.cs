@@ -94,7 +94,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
             // go through all properties that should be read
-            foreach (var property in Properties.Where(p => p.TransferToServer))
+            foreach (var property in Properties.Where(p => p.TransferToServer && p.PropertyInfo.SetMethod != null))
             {
                 if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
                 {
@@ -244,7 +244,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             {
                 var endPropertyLabel = Expression.Label("end_property_" + property.Name);
                 var options = new Dictionary<string, object>();
-                if (property.TransferToClient)
+                if (property.TransferToClient && property.PropertyInfo.GetMethod != null)
                 {
                     if (property.TransferFirstRequest != property.TransferAfterPostback)
                     {
