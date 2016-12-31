@@ -177,6 +177,11 @@ namespace DotVVM.Framework.Compilation.Binding
         [SuppressMessage("Microsoft.Maintainability", "CA1502:AvoidExcessiveComplexity")]
         public static Expression ImplicitConstantConversion(Expression src, Type destType)
         {
+            if (src.NodeType == ExpressionType.Conditional && src is ConditionalExpression conditional &&
+                ImplicitConversion(conditional.IfTrue, destType) is Expression ifTrue &&
+                ImplicitConversion(conditional.IfFalse, destType) is Expression ifFalse)
+                return Expression.Condition(conditional.Test, ifTrue, ifFalse);
+
             if (src.NodeType != ExpressionType.Constant)
                 return null;
 
