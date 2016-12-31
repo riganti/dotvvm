@@ -181,10 +181,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else if (existingValue != null && property.Populate)
             {
                 if (jtoken.Type == JTokenType.Null)
+                {
                     return null;
+                }
                 else if (jtoken.Type == JTokenType.Object)
                 {
-                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject)jtoken, serializer, existingValue);
+                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject) jtoken, serializer, existingValue);
                     return existingValue;
                 }
                 else
@@ -195,7 +197,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
             else
             {
-                return serializer.Deserialize(jtoken.CreateReader(), property.Type);
+                if (property.Type.GetTypeInfo().IsValueType && jtoken.Type == JTokenType.Null)
+                {
+                    return Activator.CreateInstance(property.Type);
+                }
+                else
+                {
+                    return serializer.Deserialize(jtoken.CreateReader(), property.Type);
+                }
             }
         }
 
