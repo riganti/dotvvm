@@ -38,6 +38,14 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 .Where(p => p.AutoGenerateField)
                 .ToList();
 
+            foreach (var property in metadata)
+            {
+                if (string.IsNullOrEmpty(property.DisplayName))
+                {
+                    property.DisplayName = property.PropertyInfo.Name;
+                }
+            }
+            
             // TODO: filter by view
 
             return metadata;
