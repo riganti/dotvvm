@@ -117,10 +117,10 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         string ResultIdFragment { get; set; }
 
-		/// <summary>
-		/// Changes the current culture of this HTTP request.
-		/// </summary>
-		void ChangeCurrentCulture(string cultureName);
+        /// <summary>
+        /// Changes the current culture of this HTTP request.
+        /// </summary>
+        void ChangeCurrentCulture(string cultureName);
 
         /// <summary>
         /// Changes the current culture of this HTTP request.

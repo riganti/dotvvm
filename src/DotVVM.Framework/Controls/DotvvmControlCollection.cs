@@ -193,6 +193,7 @@ namespace DotVVM.Framework.Controls
 
                     // if the parent has greater last lifecycle event, update local
                     if (!lifecycleEventUpdatingDisabled && currentParent.Children.lastLifeCycleEvent > updatedLastEvent) updatedLastEvent = currentParent.Children.lastLifeCycleEvent;
+                    // but don't update it, when the ancestor is invoking this event
                     if (!lifecycleEventUpdatingDisabled && currentParent.Children.isInvokingEvent) lifecycleEventUpdatingDisabled = true;
                     currentParent = currentParent.Parent;
                 }
@@ -225,7 +226,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         private void InvokeMissedPageLifeCycleEvents(LifeCycleEventType targetEventType, bool isMissingInvoke)
         {
+            // just a quick check to save GetValue call
             if (lastLifeCycleEvent >= targetEventType || parent.LifecycleRequirements == ControlLifecycleRequirements.None) return;
+
             var context = (IDotvvmRequestContext)parent.GetValue(Internal.RequestContextProperty);
             DotvvmControl lastProcessedControl = parent;
             try
@@ -247,9 +250,11 @@ namespace DotVVM.Framework.Controls
             isInvokingEvent = true;
             for (var eventType = lastLifeCycleEvent + 1; eventType <= targetEventType; eventType++)
             {
-				var reqflag = (1 << ((int)eventType - 1));
-				if (isMissingInvoke) reqflag = reqflag << 5;
-				if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0) continue;
+                // get ControlLifecycleRequirements flag for the event
+                var reqflag = (1 << ((int)eventType - 1));
+                if (isMissingInvoke) reqflag = reqflag << 5;
+                // abort when control does not require that
+                if ((parent.LifecycleRequirements & (ControlLifecycleRequirements)reqflag) == 0) continue;
                 lastProcessedControl = parent;
                 switch (eventType)
                 {
