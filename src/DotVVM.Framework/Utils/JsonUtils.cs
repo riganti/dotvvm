@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Utils
                 }
                 else if (sourceItem.Type == JTokenType.Date)
                 {
-                    if (item.Value.Type != JTokenType.String || item.Value.Type != JTokenType.Date)
+                    if (item.Value.Type != JTokenType.String && item.Value.Type != JTokenType.Date)
                         diff[item.Key] = item.Value;
                     else
                     {
