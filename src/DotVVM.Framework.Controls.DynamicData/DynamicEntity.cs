@@ -58,6 +58,19 @@ namespace DotVVM.Framework.Controls.DynamicData
             = DotvvmProperty.Register<string, DynamicEntity>(c => c.FormBuilderName, "");
 
 
+        /// <summary>
+        /// Gets or sets whether the controls in the form are enabled or disabled.
+        /// </summary>
+        public bool Enabled
+        {
+            get { return (bool)GetValue(EnabledProperty); }
+            set { SetValue(EnabledProperty, value); }
+        }
+        public static readonly DotvvmProperty EnabledProperty
+            = DotvvmProperty.Register<bool, DynamicEntity>(c => c.Enabled, true, isValueInherited: true);
+
+
+
 
 
         internal static readonly DotvvmProperty DynamicDataContextProperty

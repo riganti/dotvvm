@@ -39,6 +39,11 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             {
                 textBox.Type = TextBoxType.MultiLine;
             }
+
+            if (textBox.IsPropertySet(DynamicEntity.EnabledProperty))
+            {
+                ControlHelpers.CopyProperty(textBox, DynamicEntity.EnabledProperty, textBox, TextBox.EnabledProperty);
+            }
         }
         
         
