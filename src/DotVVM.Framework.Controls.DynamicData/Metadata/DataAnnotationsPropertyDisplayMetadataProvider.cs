@@ -1,4 +1,5 @@
-﻿using System.Collections.Concurrent;
+﻿using DotVVM.Framework.Controls.DynamicData.Annotations;
+using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
 using System.Reflection;
@@ -27,6 +28,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
             var displayAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayAttribute>();
             var displayFormatAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayFormatAttribute>();
             var dataTypeAttribute = pair.PropertyInfo.GetCustomAttribute<DataTypeAttribute>();
+            var viewFilterAttribute = pair.PropertyInfo.GetCustomAttribute<ViewFilterAttribute>();
+            var styleAttribute = pair.PropertyInfo.GetCustomAttribute<StyleAttribute>();
 
             return new PropertyDisplayMetadata()
             {
@@ -37,12 +40,14 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 FormatString = displayFormatAttribute?.DataFormatString,
                 NullDisplayText = displayFormatAttribute?.NullDisplayText,
                 AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true,
-                DataType = dataTypeAttribute?.DataType
+                DataType = dataTypeAttribute?.DataType,
+                ViewNames = viewFilterAttribute?.ViewNames,
+                Styles = styleAttribute
             };
         }
 
 
-        private class PropertyCulturePair
+        private struct PropertyCulturePair
         {
             public CultureInfo Culture;
             public PropertyInfo PropertyInfo;

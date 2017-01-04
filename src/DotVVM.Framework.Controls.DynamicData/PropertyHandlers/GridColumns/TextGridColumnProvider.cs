@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
             return TextBoxHelper.CanHandleProperty(propertyInfo, context);
         }
 
-        public override GridViewColumn CreateColumn(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)
+        protected override GridViewColumn CreateColumnCore(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)
         {
             var column = new GridViewTextColumn();
             column.ValueType = TextBoxHelper.GetValueType(property.PropertyInfo);

@@ -56,7 +56,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         }
 
 
-        private class PropertyCulturePair
+        private struct PropertyCulturePair
         {
             public CultureInfo Culture;
             public PropertyInfo PropertyInfo;

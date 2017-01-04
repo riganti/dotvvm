@@ -49,7 +49,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual HtmlGenericControl InitializeFormGroup(DotvvmControl hostControl, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelElement, out HtmlGenericControl controlElement)
         {
             var formGroup = new HtmlGenericControl("div");
-            formGroup.Attributes["class"] = FormGroupCssClass;
+            formGroup.Attributes["class"] = ControlHelpers.ConcatCssClasses(FormGroupCssClass, property.Styles?.FormRowCssClass);
             hostControl.Children.Add(formGroup);
 
             labelElement = new HtmlGenericControl("label");
@@ -57,6 +57,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
             formGroup.Children.Add(labelElement);
 
             controlElement = new HtmlGenericControl("div");
+            controlElement.Attributes["class"] = ControlHelpers.ConcatCssClasses(property.Styles?.FormControlContainerCssClass);
             formGroup.Children.Add(controlElement);
 
             return formGroup;
@@ -88,7 +89,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         {
             if (dynamicDataContext.ValidationMetadataProvider.GetAttributesForProperty(property.PropertyInfo).OfType<RequiredAttribute>().Any())
             {
-                labelElement.Attributes["class"] += " dynamicdata-required";
+                labelElement.Attributes["class"] = ControlHelpers.ConcatCssClasses(labelElement.Attributes["class"] as string, "dynamicdata-required");
             }
 
             if (editorProvider.CanValidate)

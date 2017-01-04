@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using DotVVM.Framework.Binding;
 
@@ -21,5 +22,9 @@ namespace DotVVM.Framework.Controls.DynamicData
             }
         }
 
+        public static string ConcatCssClasses(params string[] fragments)
+        {
+            return string.Join(" ", fragments.Select(f => f?.Trim() ?? "").Where(f => !string.IsNullOrEmpty(f)));
+        }
     }
 }

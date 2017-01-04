@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.GridColumns
             return UnwrapNullableType(propertyInfo.PropertyType) == typeof(bool);
         }
 
-        public override GridViewColumn CreateColumn(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)
+        protected override GridViewColumn CreateColumnCore(GridView gridView, PropertyDisplayMetadata property, DynamicDataContext context)
         {
             var column = new GridViewCheckBoxColumn();
             column.SetBinding(GridViewCheckBoxColumn.ValueBindingProperty, context.CreateValueBinding(property.PropertyInfo.Name));

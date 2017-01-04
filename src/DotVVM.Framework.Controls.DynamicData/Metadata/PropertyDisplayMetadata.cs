@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 using System.Reflection;
+using DotVVM.Framework.Controls.DynamicData.Annotations;
 
 namespace DotVVM.Framework.Controls.DynamicData.Metadata
 {
@@ -21,5 +22,9 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         public bool AutoGenerateField { get; set; }
 
         public DataType? DataType { get; set; }
+
+        public string[] ViewNames { get; set; }
+
+        public StyleAttribute Styles { get; set; }
     }
 }

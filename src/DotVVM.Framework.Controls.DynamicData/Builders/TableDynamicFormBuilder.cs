@@ -83,14 +83,15 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         protected virtual HtmlGenericControl InitializeTableRow(HtmlGenericControl table, PropertyDisplayMetadata property, DynamicDataContext dynamicDataContext, out HtmlGenericControl labelCell, out HtmlGenericControl editorCell)
         {
             var row = new HtmlGenericControl("tr");
+            row.Attributes["class"] = property.Styles?.FormRowCssClass;
             table.Children.Add(row);
 
             labelCell = new HtmlGenericControl("td");
-            labelCell.Attributes["class"] = "dynamicdata-label " + LabelCellCssClass;
+            labelCell.Attributes["class"] = ControlHelpers.ConcatCssClasses("dynamicdata-label", LabelCellCssClass);
             row.Children.Add(labelCell);
 
             editorCell = new HtmlGenericControl("td");
-            editorCell.Attributes["class"] = "dynamicdata-editor " + EditorCellCssClass;
+            editorCell.Attributes["class"] = ControlHelpers.ConcatCssClasses("dynamicdata-editor", EditorCellCssClass, property.Styles?.FormControlContainerCssClass);
             row.Children.Add(editorCell);
             
             return row;

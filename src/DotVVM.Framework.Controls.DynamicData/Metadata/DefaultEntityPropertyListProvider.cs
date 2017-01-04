@@ -36,6 +36,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 .Select(propertyDisplayMetadataProvider.GetPropertyMetadata)
                 .OrderBy(p => p.Order)
                 .Where(p => p.AutoGenerateField)
+                .Where(p => p.ViewNames == null || p.ViewNames.Contains(pair.ViewName))
                 .ToList();
 
             foreach (var property in metadata)
@@ -46,8 +47,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 }
             }
             
-            // TODO: filter by view
-
             return metadata;
         }
 
