@@ -18,18 +18,11 @@ It also offers a free extension for Visual Studio 2015 with IntelliSense and oth
 
 <br />
 
-How to Start
-------------
-
-1. Install the **[DotVVM for Visual Studio 2015](https://www.dotvvm.com/landing/dotvvm-for-visual-studio-extension)** extension.
-
-2. Read the **[documentation](http://www.dotvvm.com/docs)**. 
-
-<br />
-
-Simple Sample
+How It Works?
 -------------
-DotHTML markup: 
+
+The **Views** in DotVVM use HTML syntax with __controls__ and __data-bindings__.
+
 ```html
 <div class="form-control">
   <dot:TextBox Text="{value: Name}" />
@@ -42,7 +35,8 @@ DotHTML markup:
 </div>
 ```
 
-ViewModel in C#:
+The **ViewModels** are plain C# objects. You can call public methods from the **View**.
+
 ```C#
 public class ContactFormViewModel
 {
@@ -54,6 +48,11 @@ public class ContactFormViewModel
   }
 }
 ```
+
+You just need to know C#, HTML and CSS. For most scenarios you don't have to write any JavaScript code.
+
+<br />
+
 
 Features of DotVVM (Open Source & Free for Everyone)
 ----------------------------------------------------
@@ -74,13 +73,24 @@ Features of DotVVM (Open Source & Free for Everyone)
 * [OWIN](https://www.dotvvm.com/docs/tutorials/how-to-start-dotnet-451/latest) and [ASP.NET Core](https://www.dotvvm.com/docs/tutorials/how-to-start-dnx/1-1) support
 * [DotVVM Dynamic Data](https://github.com/riganti/dotvvm-dynamic-data)
 
+<br />
 
-Need More? We have Commercial Controls
---------------------------------------
+Need More? We have Commercial Controls!
+---------------------------------------
 
 * [Bootstrap for DotVVM](https://www.dotvvm.com/landing/bootstrap-for-dotvvm) - more than 40 controls that make using Bootstrap easier and your code much cleaner
 * [DotVVM Business Pack](https://www.dotvvm.com/landing/business-pack) (COMING SOON) - Enterprise ready controls for Line of business web apps
 
+<br />
+
+How to Start
+------------
+
+1. Install the **[DotVVM for Visual Studio](https://www.dotvvm.com/landing/dotvvm-for-visual-studio-extension)** extension.
+
+2. Read the **[documentation](http://www.dotvvm.com/docs)**. 
+
+<br />
 
 More Info
 ---------
