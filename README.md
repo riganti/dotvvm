@@ -55,8 +55,38 @@ public class ContactFormViewModel
 }
 ```
 
+Features of DotVVM (Open Source & Free for Everyone)
+----------------------------------------------------
+
+* Many built-in controls
+    + [GridView](https://www.dotvvm.com/docs/controls/builtin/GridView/latest), [Repeater](https://www.dotvvm.com/docs/controls/builtin/Repeater/latest)
+    + [FileUpload](https://www.dotvvm.com/docs/controls/builtin/FileUpload/latest)
+    + [TextBox](https://www.dotvvm.com/docs/controls/builtin/TextBox/latest), [ComboBox](https://www.dotvvm.com/docs/controls/builtin/ComboBox/latest), [CheckBox](https://www.dotvvm.com/docs/controls/builtin/CheckBox/latest), [RadioButton](https://www.dotvvm.com/docs/controls/builtin/RadioButton/latest)
+    + [Button](https://www.dotvvm.com/docs/controls/builtin/Button/latest), [LinkButton](https://www.dotvvm.com/docs/controls/builtin/LinkButton/latest), [RouteLink](https://www.dotvvm.com/docs/controls/builtin/RouteLink/latest)
+    + [Validator](https://www.dotvvm.com/docs/controls/builtin/Validator/latest), [ValidationSummary](https://www.dotvvm.com/docs/controls/builtin/ValidationSummary/latest)
+    + ...
+* [Advanced validation rules](https://www.dotvvm.com/docs/tutorials/basics-validation/latest) integrated with .NET data annotation attributes
+* Support for [.NET cultures](https://www.dotvvm.com/docs/tutorials/basics-globalization/latest), number & date formats and RESX localization
+* [SPA (Single Page App)](https://www.dotvvm.com/docs/tutorials/basics-single-page-applications-spa/latest) support
+* [User controls](https://www.dotvvm.com/docs/tutorials/control-development-introduction/latest)
+* MVVM with [testable ViewModels](https://www.dotvvm.com/docs/tutorials/advanced-testing-viewmodels/latest) and [IoC/DI support](https://www.dotvvm.com/docs/tutorials/advanced-ioc-di-container/latest)
+* [Visual Studio integration with IntelliSense](https://www.dotvvm.com/landing/dotvvm-for-visual-studio-extension)
+* [OWIN](https://www.dotvvm.com/docs/tutorials/how-to-start-dotnet-451/latest) and [ASP.NET Core](https://www.dotvvm.com/docs/tutorials/how-to-start-dnx/1-1) support
+* [DotVVM Dynamic Data](https://github.com/riganti/dotvvm-dynamic-data)
+
+
+Need More? We have Commercial Controls
+--------------------------------------
+
+* [Bootstrap for DotVVM](https://www.dotvvm.com/landing/bootstrap-for-dotvvm) - more than 40 controls that make using Bootstrap easier and your code much cleaner
+* [DotVVM Business Pack](https://www.dotvvm.com/landing/business-pack) (COMING SOON) - Enterprise ready controls for Line of business web apps
+
 
 More Info
 ---------
 
-You'll find more information on our website [DotVVM.com](https://www.dotvvm.com).
+* [DotVVM.com](https://www.dotvvm.com)
+* [DotVVM Blog](https://www.dotvvm.com/blog)
+* [Documentation](https://www.dotvvm.com/docs)
+* [Twitter @dotvvm](https://twitter.com/dotvvm)
+* [Gitter Chat](https://gitter.im/riganti/dotvvm)
