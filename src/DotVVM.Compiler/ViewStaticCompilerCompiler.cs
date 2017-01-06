@@ -50,27 +50,38 @@ namespace DotVVM.Compiler
 
         private void Init()
         {
-            // touch assembly
-            SyntaxFactory.Token(SyntaxKind.NullKeyword);
-
-            InitOptions();
             if (Options.FullCompile)
-                if (!Directory.Exists(Options.OutputPath)) Directory.CreateDirectory(Options.OutputPath);
+            {
+                // touch assembly
+                SyntaxFactory.Token(SyntaxKind.NullKeyword);
+                InitOptions();
+
+                if (!Directory.Exists(Options.OutputPath))
+                {
+                    Directory.CreateDirectory(Options.OutputPath);
+                }
+            }
 
             var wsa = assemblyDictionary.GetOrAdd(Options.WebSiteAssembly, _ => Assembly.LoadFile(Options.WebSiteAssembly));
-
             configuration = GetCachedConfiguration(wsa, Options.WebSitePath,
                  (config, services) =>
                  {
-                     bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), config);
-                     services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                     if (Options.FullCompile)
+                     {
+                         bindingCompiler = new AssemblyBindingCompiler(Options.BindingsAssemblyName, Options.BindingClassName, Path.Combine(Options.OutputPath, Options.BindingsAssemblyName + ".dll"), config);
+                         services.AddSingleton<IBindingCompiler>(bindingCompiler);
+                     }
                  });
 
-            if (Options.DothtmlFiles == null) Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
-            controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
-            fileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
+            if (Options.DothtmlFiles == null)
+            {
+                Options.DothtmlFiles = configuration.RouteTable.Select(r => r.VirtualPath).ToArray();
+            }
+            
             if (Options.FullCompile)
             {
+                controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
+                fileLoader = configuration.ServiceLocator.GetService<IMarkupFileLoader>();
                 compiler = configuration.ServiceLocator.GetService<IViewCompiler>();
                 compilation = compiler.CreateCompilation(Options.AssemblyName);
             }
@@ -79,8 +90,6 @@ namespace DotVVM.Compiler
             {
                 result.Configuration = configuration;
             }
-
-            // touch assemblies
         }
 
         private void Save()
@@ -89,29 +98,27 @@ namespace DotVVM.Compiler
             {
                 var bindingsAssemblyPath = bindingCompiler.OutputFileName;
                 bindingCompiler.SaveAssembly();
-                Program.WriteInfo("bindings saved to " + bindingsAssemblyPath);
+
+                Program2.WriteInfo($"Bindings saved to {bindingsAssemblyPath}.");
+
                 compilation = compilation.AddReferences(MetadataReference.CreateFromFile(Path.GetFullPath(bindingsAssemblyPath)));
                 var compiledViewsFileName = Path.Combine(Options.OutputPath, Options.AssemblyName + ".dll");
-                //Directory.CreateDirectory("outputCS");
-                //int i = 0;
-                //foreach (var tree in compilation.SyntaxTrees)
-                //{
-                //    File.WriteAllText($"outputCS/file{i++}.cs", tree.GetRoot().NormalizeWhitespace().ToString());
-                //}
+
                 var result = compilation.Emit(compiledViewsFileName);
                 if (!result.Success)
                 {
-                    throw new Exception("compilation failed");
+                    throw new Exception("The compilation failed!");
                 }
-                Program.WriteInfo("views saved to " + compiledViewsFileName);
+                Program2.WriteInfo($"Compiled views saved to {compiledViewsFileName}.");
             }
         }
 
         public CompilationResult Execute()
         {
-            Program.WriteInfo("loading");
+            Program2.WriteInfo("Initializing...");
             Init();
-            Program.WriteInfo("compiling views");
+
+            Program2.WriteInfo("Compiling views...");
             foreach (var file in Options.DothtmlFiles)
             {
                 try
@@ -126,9 +133,11 @@ namespace DotVVM.Compiler
                     });
                 }
             }
-            Program.WriteInfo("saving assemblies");
+
+            Program2.WriteInfo("Emitting assemblies...");
             Save();
-            Program.WriteInfo("building results");
+
+            Program2.WriteInfo("Building compilation results...");
             return result;
         }
 
@@ -206,7 +215,7 @@ namespace DotVVM.Compiler
                         .Select(a => CompiledAssemblyCache.Instance.GetAssemblyMetadata(a)));
             }
 
-            Program.WriteInfo($"view { fileName } compiled");
+            Program2.WriteInfo($"The view { fileName } compiled successfully.");
 
             var res = new ViewCompilationResult
             {
