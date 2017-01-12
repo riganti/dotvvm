@@ -547,7 +547,7 @@ var DotvvmSerialization = (function () {
         if (nullable) {
             type = type.substr(0, type.length - 1);
         }
-        if (nullable && value == null) {
+        if (nullable && (value == null || value == "")) {
             return true;
         }
         var intmatch = /(u?)int(\d*)/.exec(type);
@@ -566,7 +566,8 @@ var DotvvmSerialization = (function () {
             return int >= minValue && int <= maxValue && int === parseFloat(value);
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
-            return +value == value;
+            // should check if the value is numeric or number in a string
+            return +value === value || (!isNaN(+value) && typeof value == "string");
         }
         return true;
     };
