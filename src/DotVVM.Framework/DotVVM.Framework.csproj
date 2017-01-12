@@ -1,4 +1,4 @@
-﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
+<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <Description>ASP.NET MVVM Framework</Description>
     <AssemblyTitle>DotVVM</AssemblyTitle>
@@ -27,6 +27,20 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\DotVVM.Compiler.exe">
+      <Pack>true</Pack>
+      <InProject>false</InProject>
+      <PackagePath>tools\DotVVM.Compiler.exe</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="..\DotVVM.Compiler.Light\bin\$(Configuration)\netcoreapp1.0\DotVVM.Compiler.Light.dll">
+      <Pack>true</Pack>
+      <InProject>false</InProject>
+      <PackagePath>tools\DotVVM.Compiler.Light.dll</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />
