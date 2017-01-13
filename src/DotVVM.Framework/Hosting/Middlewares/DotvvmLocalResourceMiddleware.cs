@@ -14,21 +14,25 @@ namespace DotVVM.Framework.Hosting.Middlewares
     {
         private readonly ILocalResourceUrlManager urlManager;
         private readonly ConcurrentDictionary<string, string> alternateDirectories;
+        private readonly bool allowCache;
 
         public DotvvmLocalResourceMiddleware(ILocalResourceUrlManager urlManager, DotvvmConfiguration configuration)
         {
             this.urlManager = urlManager;
             this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
+            this.allowCache = configuration.Debug;
         }
 
         public async Task<bool> Handle(IDotvvmRequestContext request)
         {
-            string mimeType;
-            var resource = urlManager.FindResource(request.HttpContext.Request.Url.ToString(), request, out mimeType);
+            var resource = urlManager.FindResource(request.HttpContext.Request.Url.ToString(), request, out string mimeType);
             if (resource != null)
             {
                 request.HttpContext.Response.ContentType = mimeType;
-                request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "public, max-age=31536000, immutable" });
+                if (allowCache)
+                    request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "public, max-age=31536000, immutable" });
+                else
+                    request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "no-store, must-revalidate" });
                 using (var body = resource.LoadResource(request))
                 {
                     await body.CopyToAsync(request.HttpContext.Response.Body);
