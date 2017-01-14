@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
         {
             this.urlManager = urlManager;
             this.alternateDirectories = configuration.Debug ? new ConcurrentDictionary<string, string>() : null;
-            this.allowCache = configuration.Debug;
+            this.allowCache = !configuration.Debug;
         }
 
         public async Task<bool> Handle(IDotvvmRequestContext request)
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
                 if (allowCache)
                     request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "public, max-age=31536000, immutable" });
                 else
-                    request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "no-store, must-revalidate" });
+                    request.HttpContext.Response.Headers.Add("Cache-Control", new[] { "no-cache, no-store, must-revalidate" });
                 using (var body = resource.LoadResource(request))
                 {
                     await body.CopyToAsync(request.HttpContext.Response.Body);
