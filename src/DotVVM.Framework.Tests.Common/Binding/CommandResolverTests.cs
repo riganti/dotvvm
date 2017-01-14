@@ -22,8 +22,7 @@ namespace DotVVM.Framework.Tests.Binding
             var commandId = "someCommand";
             var command = new CommandBindingExpression(vm => ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass), commandId);
 
-            var testObject = new
-            {
+            var testObject = new {
                 A = new[]
                 {
                     new TestA() { StringToPass = "test" }
@@ -45,7 +44,7 @@ namespace DotVVM.Framework.Tests.Binding
             var context = new DotvvmRequestContext() { ViewModel = testObject };
             context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button);
 
-            resolver.GetFunction(viewRoot, context, path.Select(v => v.Javascript).ToArray(), commandId).Action();
+            resolver.GetFunction(viewRoot, context, path.Select(v => v.Javascript).ToArray(), commandId, new object[0]).Action();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);

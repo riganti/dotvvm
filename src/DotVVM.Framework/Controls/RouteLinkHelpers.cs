@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Controls
             foreach (var param in parameters.Where(p => p.Value is IStaticValueBinding).ToList())
             {
                 EnsureValidBindingType(param.Value as BindingExpression);
-                parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(control, null);   // TODO: see below
+                parameters[param.Key] = ((ValueBindingExpression)param.Value).Evaluate(control);   // TODO: see below
             }
 
             // generate the URL
@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Controls
                 EnsureValidBindingType(param.Value as IBinding);
 
                 expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression()
-                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control, null));
+                    ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control));
             }
             else
             {

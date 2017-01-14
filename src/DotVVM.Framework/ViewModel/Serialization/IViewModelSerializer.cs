@@ -14,7 +14,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
         void PopulateViewModel(IDotvvmRequestContext context, string serializedPostData);
 
-        void ResolveCommand(IDotvvmRequestContext context, DotvvmView view, out ActionInfo actionInfo);
+        ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view);
 
         void AddPostBackUpdatedControls(IDotvvmRequestContext context);
     }

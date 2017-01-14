@@ -79,9 +79,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             return result.ToString();
         }
 
-        public ParametrizedCode GetResult()
+        public ParametrizedCode GetResult(OperatorPrecedence operatorPrecedence)
         {
-            if (parameters == null || parameters.Count == 0) return new ParametrizedCode(new[] { result.ToString() }, null);
+            if (parameters == null || parameters.Count == 0) return new ParametrizedCode(new[] { result.ToString() }, null, operatorPrecedence);
             var parts = new string[parameters.Count + 1];
             parts[0] = result.ToString(0, parameters[0].index);
             for (int i = 1; i < parameters.Count; i++) {
@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
             int lastFrom = parameters[parameters.Count - 1].index;
             parts[parts.Length - 1] = result.ToString(lastFrom, result.Length - lastFrom);
-            return new ParametrizedCode(parts, parameters.Select(p => p.parameter).ToArray());
+            return new ParametrizedCode(parts, parameters.Select(p => p.parameter).ToArray(), operatorPrecedence);
         }
 
         protected void VisitChildren(JsNode node)

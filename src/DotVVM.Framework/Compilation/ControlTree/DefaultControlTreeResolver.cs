@@ -40,29 +40,13 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 ResolvedTypeDescriptor.ToSystemType(wrapperType), namespaceImports);
         }
 
-        protected override IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context)
+        protected override IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context, IPropertyDescriptor property)
         {
-            Expression expression = null;
-            Exception parsingError = null;
-            ITypeDescriptor resultType = null;
-
             if (context == null)
             {
-                parsingError = new DotvvmCompilationException("The DataContext couldn't be evaluated because of the errors above.", node.Tokens);
+                node.AddError("The DataContext couldn't be evaluated because of the errors above.");
             }
-            else
-            {
-                try
-                {
-                    expression = bindingExpressionBuilder.Parse(node.Value, (DataContextStack)context, bindingOptions);
-                    resultType = new ResolvedTypeDescriptor(expression.Type);
-                }
-                catch (Exception exception)
-                {
-                    parsingError = exception;
-                }
-            }
-            return treeBuilder.BuildBinding(bindingOptions, context, node, resultType, parsingError, expression);
+            return treeBuilder.BuildBinding(bindingOptions, context, node, property);
         }
 
         protected override object ConvertValue(string value, ITypeDescriptor propertyType)

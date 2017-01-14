@@ -7,6 +7,8 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {
@@ -16,16 +18,17 @@ namespace DotVVM.Framework.Controls
     [ControlMarkupOptions(AllowContent = false)]
     public class DataPager : HtmlGenericControl
     {
+        // t+
         private static CommandBindingExpression GoToNextPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToNextPage(), "__$DataPager_GoToNextPage");
+            new CommandBindingExpression(new BindingCompilationService(), h => ((IGridViewDataSet)h[0]).GoToNextPage(), "__$DataPager_GoToNextPage");
         private static CommandBindingExpression GoToThisPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[1]).GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
+            new CommandBindingExpression(new BindingCompilationService(), h => ((IGridViewDataSet)h[1]).GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
         private static CommandBindingExpression GoToPrevPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
+            new CommandBindingExpression(new BindingCompilationService(), h => ((IGridViewDataSet)h[0]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
         private static CommandBindingExpression GoToFirstPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToFirstPage(), "__$DataPager_GoToFirstPage");
+            new CommandBindingExpression(new BindingCompilationService(), h => ((IGridViewDataSet)h[0]).GoToFirstPage(), "__$DataPager_GoToFirstPage");
         private static CommandBindingExpression GoToLastPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
+            new CommandBindingExpression(new BindingCompilationService(), h => ((IGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
 
 
         /// <summary>
@@ -160,7 +163,12 @@ namespace DotVVM.Framework.Controls
             var dataSet = DataSet;
             if (dataSet != null)
             {
-                object enabledValue = HasValueBinding(EnabledProperty) ? (object)new ValueBindingExpression(h => GetValueBinding(EnabledProperty).Evaluate(this, EnabledProperty), "$pagerEnabled") : Enabled;
+                object enabledValue = HasValueBinding(EnabledProperty) ? 
+                    (object)ValueBindingExpression.CreateBinding<bool>(
+                        context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
+                        h => (bool)GetValueBinding(EnabledProperty).Evaluate(this),
+                        new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
+                    Enabled;
 
                 // first button
                 firstLi = new HtmlGenericControl("li");
@@ -188,7 +196,7 @@ namespace DotVVM.Framework.Controls
                 foreach (var number in dataSet.NearPageIndexes)
                 {
                     var li = new HtmlGenericControl("li");
-                    li.SetBinding(DataContextProperty, GetNearIndexesBinding(i));
+                    li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i));
                     if (number == dataSet.PageIndex)
                     {
                         li.Attributes["class"] = "active";
@@ -234,11 +242,11 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private ValueBindingExpression GetNearIndexesBinding(int i)
+        private ValueBindingExpression GetNearIndexesBinding(IDotvvmRequestContext context, int i)
         {
-            return new ValueBindingExpression(
-                        (h, c) => ((IGridViewDataSet)h[0]).NearPageIndexes[i],
-                        "NearPageIndexes[" + i + "]");
+            return ValueBindingExpression.CreateBinding(
+                context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
+                h => ((IGridViewDataSet)h[0]).NearPageIndexes[i]);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -296,7 +304,9 @@ namespace DotVVM.Framework.Controls
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
-                literal.SetBinding(Literal.TextProperty, new ValueBindingExpression(vm => ((int)vm[0] + 1).ToString(), "$data + 1"));
+
+                literal.SetBinding(Literal.TextProperty, ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
+                    vm => ((int)vm[0] + 1).ToString()));
                 li.Children.Add(literal);
                 numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
@@ -308,9 +318,14 @@ namespace DotVVM.Framework.Controls
             li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
-            link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => ((int)vm[0] + 1).ToString(), "$data + 1"));
+            link.SetBinding(ButtonBase.TextProperty, ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
+                vm => ((int)vm[0] + 1).ToString()));
             link.SetBinding(ButtonBase.ClickProperty, GoToThisPageCommand);
-            object enabledValue = HasValueBinding(EnabledProperty) ? (object)new ValueBindingExpression(h => GetValueBinding(EnabledProperty).Evaluate(this, EnabledProperty), "$pagerEnabled") : Enabled;
+            object enabledValue = HasValueBinding(EnabledProperty) ?
+                (object)ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(), 
+                    h => GetValueBinding(EnabledProperty).Evaluate(this),
+                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
+                Enabled;
             if (!true.Equals(enabledValue)) link.SetValue(LinkButton.EnabledProperty, enabledValue);
             numbersPlaceHolder.Children.Add(li);
             li.Render(writer, context);

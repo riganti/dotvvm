@@ -232,7 +232,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var bindingNode = (DothtmlBindingNode)node;
             var literal = treeBuilder.BuildControl(literalMetadata.Value, node, dataContext);
 
-            var textBinding = ProcessBinding(bindingNode, dataContext);
+            var textBinding = ProcessBinding(bindingNode, dataContext, Literal.TextProperty);
             var textProperty = treeBuilder.BuildPropertyBinding(Literal.TextProperty, textBinding, null);
             string error;
             treeBuilder.AddProperty(literal, textProperty, out error); // this can't fail
@@ -314,7 +314,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Processes the binding node.
         /// </summary>
-        public IAbstractBinding ProcessBinding(DothtmlBindingNode node, IDataContextStack context)
+        public IAbstractBinding ProcessBinding(DothtmlBindingNode node, IDataContextStack context, IPropertyDescriptor property)
         {
             var bindingOptions = controlResolver.ResolveBinding(node.Name);
             if (bindingOptions == null)
@@ -326,7 +326,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (context != null && context.NamespaceImports.Count > 0)
                 bindingOptions = bindingOptions.AddImports(context.NamespaceImports);
 
-            return CompileBinding(node, bindingOptions, context);
+            return CompileBinding(node, bindingOptions, context, property);
         }
 
         protected virtual IAbstractDirective ProcessDirective(DothtmlDirectiveNode directiveNode)
@@ -463,7 +463,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                         if (!property.MarkupOptions.AllowBinding)
                             attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");
                     }
-                    var binding = ProcessBinding(bindingNode, dataContext);
+                    var binding = ProcessBinding(bindingNode, dataContext, property);
                     var bindingProperty = treeBuilder.BuildPropertyBinding(property, binding, attribute);
                     string error;
                     if (!treeBuilder.AddProperty(control, bindingProperty, out error)) attribute.AddError(error);
@@ -794,7 +794,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Compiles the binding.
         /// </summary>
-        protected abstract IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context);
+        protected abstract IAbstractBinding CompileBinding(DothtmlBindingNode node, BindingParserOptions bindingOptions, IDataContextStack context, IPropertyDescriptor property);
 
     }
 }

@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             node.FixParenthesis();
             var visitor = new JsFormattingVisitor(niceMode, indent);
             node.AcceptVisitor(visitor);
-            return visitor.GetResult();
+            return visitor.GetResult(JsParensFixingVisitor.GetOperatorPrecedence(node as JsExpression));
         }
 
         public static JsNode FixParenthesis(this JsNode node)

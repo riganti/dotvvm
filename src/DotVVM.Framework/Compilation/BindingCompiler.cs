@@ -17,24 +17,20 @@ using System.Runtime.CompilerServices;
 using System.Reflection.Emit;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Binding.Properties;
 
 namespace DotVVM.Framework.Compilation
 {
     public class BindingCompiler : IBindingCompiler
     {
-        public static ConcurrentDictionary<int, CompiledBindingExpression> GlobalBindingList = new ConcurrentDictionary<int, CompiledBindingExpression>();
+        public static ConcurrentDictionary<int, IBinding> GlobalBindingList = new ConcurrentDictionary<int, IBinding>();
         private static int globalBindingIndex = 0;
-     
-        protected DotvvmConfiguration configuration;
+
+        protected readonly DotvvmConfiguration configuration;
 
         public BindingCompiler(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
-        }
-
-        public static BindingCompilationAttribute GetCompilationAttribute(Type bindingType)
-        {
-            return bindingType.GetTypeInfo().GetCustomAttributes<BindingCompilationAttribute>().FirstOrDefault();
         }
 
         private static KeyValuePair<string, Expression> GetParameter(int index, string name, Expression vmArray, Type[] parents)
@@ -61,54 +57,37 @@ namespace DotVVM.Framework.Compilation
             }
         }
 
-        public static T TryExecute<T>(DothtmlNode node, string errorMessage, BindingCompilationRequirementType requirement, Func<T> action)
+        public virtual IBinding CreateMinimalClone(ResolvedBinding binding)
         {
-#if !DEBUG
-            if (requirement == BindingCompilationRequirementType.No) return default(T);
-#endif
-            try
-            {
-                return action();
-            }
-            catch (Exception ex)
-            {
-                if (requirement != BindingCompilationRequirementType.StronglyRequire) return default(T);
-                else if (ex is DotvvmCompilationException) throw;
-                else throw new DotvvmCompilationException(errorMessage, ex, node.Tokens);
-            }
+            var requirements = binding.BindingService.GetRequirements(binding.Binding);
+
+            return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
+                binding.BindingService,
+                requirements.Required.Concat(requirements.Optional)
+                    .Concat(new []{ typeof(OriginalStringBindingProperty), typeof(DataContextSpaceIdBindingProperty) })
+                    .Select(p => binding.Binding.GetProperty(p, optional: true))
+                    .Where(p => p != null)
+            });
         }
 
-        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id, Type expectedType)
+        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id)
         {
-            var compilerAttribute = GetCompilationAttribute(binding.BindingType);
-            var requirements = compilerAttribute.GetRequirements(binding.BindingType);
-
-            var expression = new Lazy<Expression>(() => compilerAttribute.GetExpression(binding));
-            var compiled = new CompiledBindingExpression();
-            compiled.Delegate = TryExecute(binding.BindingNode, "Error while compiling binding to delegate.", requirements.Delegate, () => CompileExpression(compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType), binding.DebugInfo));
-            compiled.UpdateDelegate = TryExecute(binding.BindingNode, "Error while compiling update delegate.", requirements.UpdateDelegate, () => compilerAttribute.CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
-            compiled.OriginalString = TryExecute(binding.BindingNode, "hey, no, that should not happen. Really.", requirements.OriginalString, () => binding.Value);
-            compiled.Expression = TryExecute(binding.BindingNode, "Could not get binding expression.", requirements.Expression, () => binding.GetExpression());
-            compiled.Id = id;
-            compiled.ActionFilters = TryExecute(binding.BindingNode, "", requirements.ActionFilters, () => compilerAttribute.GetActionFilters(binding.GetExpression()).ToArray());
-
-            compiled.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJavascript(binding, compiled, configuration));
-
+            var newbinding = CreateMinimalClone(binding);
             var index = Interlocked.Increment(ref globalBindingIndex);
-            if (!GlobalBindingList.TryAdd(index, compiled))
+            if (!GlobalBindingList.TryAdd(index, newbinding))
                 throw new Exception("internal bug");
             return EmitGetCompiledBinding(index);
         }
 
         private T CompileExpression<T>(Expression<T> expression, DebugInfoExpression debugInfo)
         {
-            if(!configuration.Debug || !configuration.AllowBindingDebugging || debugInfo == null)
+            if (!configuration.Debug || !configuration.AllowBindingDebugging || debugInfo == null)
             {
                 return expression.Compile();
             }
             else
             {
-				throw new NotImplementedException();
+                throw new NotImplementedException();
                 //try
                 //{
                 //    var visitor = new DebugInfoExpressionVisitor { DebugInfo = debugInfo };

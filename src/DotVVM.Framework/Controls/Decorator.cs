@@ -26,13 +26,7 @@ namespace DotVVM.Framework.Controls
 
             foreach (var prop in Properties)
             {
-                var value = prop.Value;
-                if (value is BindingExpression)
-                {
-                    value = ((BindingExpression)value).Clone();
-                }
-
-                decorator.Properties[prop.Key] = value;
+                decorator.Properties[prop.Key] = prop.Value;
             }
 
             foreach (var attr in Attributes)

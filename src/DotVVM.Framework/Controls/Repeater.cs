@@ -7,6 +7,8 @@ using DotVVM.Framework.Runtime;
 using System.Collections;
 using System.Diagnostics;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -110,13 +112,13 @@ namespace DotVVM.Framework.Controls
             if (dataSource != null)
             {
                 var items = GetIEnumerableFromDataSource(dataSource).Cast<object>().ToArray();
-                var javascriptDataSourceExpression = dataSourceBinding.GetKnockoutBindingExpression();
+                var javascriptDataSourceExpression = dataSourceBinding.KnockoutExpression;
                 foreach (var item in items)
                 {
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     ItemTemplate.BuildContent(context, placeholder);
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
-                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding(index));
+                    //placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);
                     index++;
@@ -148,7 +150,7 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderOnServer)
             {
-                var javascriptDataSourceExpression = GetForeachDataBindJavascriptExpression();
+                var javascriptDataSourceExpression = JavascriptTranslator.FormatKnockoutScript(GetForeachDataBindJavascriptExpression());
 
                 if (RenderWrapperTag)
                 {
@@ -198,7 +200,8 @@ namespace DotVVM.Framework.Controls
             {
                 // render on client
                 var placeholder = new DataItemContainer() { DataContext = null };
-                placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                //placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                placeholder.SetBinding(DataContextProperty, GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeKoContextIndexer());
                 placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                 ItemTemplate.BuildContent(context, placeholder);
                 Children.Add(placeholder);
@@ -206,6 +209,5 @@ namespace DotVVM.Framework.Controls
                 placeholder.Render(writer, context);
             }
         }
-
     }
 }

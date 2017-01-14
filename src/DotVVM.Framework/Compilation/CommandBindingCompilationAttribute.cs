@@ -13,14 +13,14 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class CommandBindingCompilationAttribute : BindingCompilationAttribute
+    public class CommandBindingCompilationAttribute
     {
-        public override string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression, DotvvmConfiguration config)
+        public string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression expression, DotvvmConfiguration config)
         {
             return new JsIdentifierExpression("dotvvm").Member("postbackScript").Invoke(new JsLiteral(expression.Id)).FormatScript();
         }
 
-        protected override Expression ConvertExpressionToType(Expression expr, Type expectedType)
+        protected Expression ConvertExpressionToType(Expression expr, Type expectedType)
         {
             if (expectedType == typeof(object)) expectedType = typeof(Command);
             if (!typeof(Delegate).IsAssignableFrom(expectedType)) throw new Exception($"Command bindings must be assigned to properties with Delegate type, not { expectedType }");
@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation
                 expr = TaskConversion(expr, invokeMethod.ReturnType);
                 return Expression.Lambda(
                     expectedType,
-                    base.ConvertExpressionToType(expr, invokeMethod.ReturnType),
+                    expr,//base.ConvertExpressionToType(expr, invokeMethod.ReturnType),
                     invokeMethod.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name))
                 );
             }
@@ -73,7 +73,7 @@ namespace DotVVM.Framework.Compilation
                     else if (typeof(Task<>).IsAssignableFrom(expectedType))
                     {
                         var taskType = GetTaskType(expectedType);
-                        var converted = base.ConvertExpressionToType(expr, taskType);
+                        var converted = expr;//base.ConvertExpressionToType(expr, taskType);
                         if (converted != null) return Expression.Call(typeof(Task), "FromResult", new Type[] { taskType }, converted);
                     }
                 }

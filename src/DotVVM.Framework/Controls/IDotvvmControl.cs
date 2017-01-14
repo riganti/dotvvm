@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Controls
         ClientIDMode ClientIDMode { get; set; }
         string ID { get; set; }
         DotvvmControl Parent { get; set; }
-        IEnumerable<DotvvmControl> GetAllAncestors();
+        IEnumerable<DotvvmControl> GetAllAncestors(bool incudingThis = false);
 
         IEnumerable<DotvvmControl> GetAllDescendants(Func<DotvvmControl, bool> enumerateChildrenCondition = null);
 

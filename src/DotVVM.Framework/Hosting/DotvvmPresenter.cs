@@ -5,6 +5,8 @@ using System.Linq;
 using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Controls;
@@ -168,15 +170,15 @@ namespace DotVVM.Framework.Hosting
                     DotvvmControlCollection.InvokePageLifeCycleEventRecursive(page, LifeCycleEventType.Load);
 
                     // invoke the postback command
-                    ActionInfo actionInfo;
-                    ViewModelSerializer.ResolveCommand(context, page, out actionInfo);
+                    var actionInfo = ViewModelSerializer.ResolveCommand(context, page);
 
                     if (actionInfo != null)
                     {
                         // get filters
                         var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                             .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType().GetTypeInfo()));
-                        if (actionInfo.Binding.ActionFilters != null) methodFilters = methodFilters.Concat(actionInfo.Binding.ActionFilters.OfType<ICommandActionFilter>());
+                        if (actionInfo.Binding.GetProperty<ActionFiltersBindingProperty>() is ActionFiltersBindingProperty filters)
+                            methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);
                     }

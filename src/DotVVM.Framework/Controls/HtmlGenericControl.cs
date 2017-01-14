@@ -168,7 +168,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (value is IStaticValueBinding)
             {
-                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this, null));
+                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this));
             }
             else throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
         }

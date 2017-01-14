@@ -25,11 +25,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (startTokenIndex.list != null && startTokenIndex.list.Count > startTokenIndex.from + 1)
             {
                 var nextToken = startTokenIndex.list[startTokenIndex.from + 1];
-                binding.DebugInfo = Expression.DebugInfo(symbolDoc,
-                    startToken.LineNumber,
-                    startToken.ColumnNumber + 1,
-                    nextToken.LineNumber,
-                    nextToken.ColumnNumber + 1);
+                // t+
+                //binding.DebugInfo = Expression.DebugInfo(symbolDoc,
+                //    startToken.LineNumber,
+                //    startToken.ColumnNumber + 1,
+                //    nextToken.LineNumber,
+                //    nextToken.ColumnNumber + 1);
 
             }
             base.VisitPropertyBinding(propertyBinding);

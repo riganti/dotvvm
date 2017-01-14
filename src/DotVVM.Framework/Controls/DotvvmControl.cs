@@ -11,6 +11,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using DotVVM.Framework.Compilation.Javascript;
 
 namespace DotVVM.Framework.Controls
 {
@@ -29,7 +30,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets the unique control ID.
         /// </summary>
-        [MarkupOptions(AllowBinding = false)]
+        [MarkupOptions]
         public string ID
         {
             get { return (string)GetValue(IDProperty); }
@@ -39,6 +40,9 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty IDProperty =
             DotvvmProperty.Register<string, DotvvmControl>(c => c.ID, isValueInherited: false);
 
+        /// <summary>
+        /// Gets id of the control that will be written in 'id' attribute
+        /// </summary>
         [MarkupOptions(MappingMode = MappingMode.Exclude)]
         public string ClientID => (string)GetValue(ClientIDProperty) ?? CreateAndSaveClientId();
         public static readonly DotvvmProperty ClientIDProperty
@@ -114,7 +118,7 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public bool HasOnlyWhiteSpaceContent()
         {
-            return Children.All(c => (c is RawLiteral && ((RawLiteral)c).IsWhitespace));
+            return Children.All(c => (c is RawLiteral lit && lit.IsWhitespace));
         }
 
         /// <summary>
@@ -138,6 +142,9 @@ namespace DotVVM.Framework.Controls
             }
         }
 
+        /// <summary>
+        /// Adds 'data-dotvvm-id' attribute with generated unique id to the control. You can find control by this id using FindControlByUniqueId method.
+        /// </summary>
         protected void AddDotvvmUniqueIdAttribute()
         {
             var htmlAttributes = this as IControlWithHtmlAttributes;
@@ -157,9 +164,9 @@ namespace DotVVM.Framework.Controls
 
             foreach (var item in properties)
             {
-                if (item.Key is ActiveDotvvmProperty)
+                if (item.Key is ActiveDotvvmProperty activeProp)
                 {
-                    ((ActiveDotvvmProperty)item.Key).AddAttributesToRender(writer, context, this);
+                    activeProp.AddAttributesToRender(writer, context, this);
                 }
             }
 
@@ -333,7 +340,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs after the viewmodel tree is complete.
         /// </summary>
-        internal virtual void OnPreInit(Hosting.IDotvvmRequestContext context)
+        internal virtual void OnPreInit(IDotvvmRequestContext context)
         {
             foreach (var property in GetDeclaredProperties())
             {
@@ -344,7 +351,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Called right before the rendering shall occur.
         /// </summary>
-        internal virtual void OnPreRenderComplete(Hosting.IDotvvmRequestContext context)
+        internal virtual void OnPreRenderComplete(IDotvvmRequestContext context)
         {
             // events on properties
             foreach (var property in GetDeclaredProperties())
@@ -356,54 +363,58 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Occurs before the viewmodel is applied to the page.
         /// </summary>
-        protected internal virtual void OnInit(Hosting.IDotvvmRequestContext context)
+        protected internal virtual void OnInit(IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Occurs after the viewmodel is applied to the page IHtmlWriter writerand before the commands are executed.
         /// </summary>
-        protected internal virtual void OnLoad(Hosting.IDotvvmRequestContext context)
+        protected internal virtual void OnLoad(IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
         /// Occurs after the page commands are executed.
         /// </summary>
-        protected internal virtual void OnPreRender(Hosting.IDotvvmRequestContext context)
+        protected internal virtual void OnPreRender(IDotvvmRequestContext context)
         {
         }
 
         /// <summary>
-        /// Gets the client ID of the control. Returns null if the ID cannot be calculated.
+        /// Gets the internal unique ID of the control. Returns either string or IValueBinding.
         /// </summary>
         public object GetDotvvmUniqueId()
         {
             // build the client ID
-            var fragments = GetUniqueIdFragments();
-            if (fragments.Any(f => f.IsExpression))
+            return JoinValuesOrBindings(GetUniqueIdFragments());
+        }
+
+        private object JoinValuesOrBindings(IList<object> fragments)
+        {
+            if (fragments.All(f => f is string))
             {
-                var binding = string.Join("+'_'+", fragments.Reverse().Select(f => f.ToJavascriptExpression()));
-                return new ValueBindingExpression(h => null, binding);
+                return string.Join("_", fragments);
             }
             else
             {
-                return ComposeStaticClientId(fragments);
-            }
-        }
-
-        private static string ComposeStaticClientId(IList<ClientIDFragment> fragments)
-        {
-            var sb = new StringBuilder();
-            for (int i = fragments.Count - 1; i >= 0; i--)
-            {
-                if (sb.Length > 0)
+                BindingCompilationService service = null;
+                var result = new ParametrizedCode.Builder();
+                var first = true;
+                foreach (var f in fragments)
                 {
-                    sb.Append("_");
+                    if (first | (first = false))
+                        result.Add("+'_'+");
+                    if (f is IValueBinding binding)
+                    {
+                        service = service ?? binding.GetProperty<BindingCompilationService>(optional: true);
+                        result.Add(binding.GetParametrizedKnockoutExpression(this), 14);
+                    }
+                    else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
-                sb.Append(fragments[i].Value);
+                if (service == null) throw new NotSupportedException();
+                return ValueBindingExpression.CreateBinding<string>(service, h => null, result.Build(new OperatorPrecedence()));
             }
-            return sb.ToString();
         }
 
         /// <summary>
@@ -414,55 +425,26 @@ namespace DotVVM.Framework.Controls
             if (!string.IsNullOrEmpty(ID))
             {
                 // build the client ID
-                var fragments = GetClientIdFragments();
-                if (!fragments.Any(f => f.IsExpression))
-                {
-                    // generate ID attribute
-                    return ComposeStaticClientId(fragments);
-                }
-                else
-                {
-                    var binding = string.Join("+'_'+", fragments.Reverse().Select(f => f.ToJavascriptExpression()));
-                    return new ValueBindingExpression(h => { throw new NotSupportedException("Can't evaluate dynamic ID."); }, binding);
-                }
+                JoinValuesOrBindings(GetClientIdFragments());
             }
             return null;
         }
 
-        private IList<ClientIDFragment> GetUniqueIdFragments()
+        private IList<object> GetUniqueIdFragments()
         {
-            var fragments = new List<ClientIDFragment> { new ClientIDFragment((string)GetValue(Internal.UniqueIDProperty)) };
-            var dataContextChangesCount = HasBinding(DataContextProperty) ? 1 : 0;
+            var fragments = new List<object> { GetValue(Internal.UniqueIDProperty) };
             foreach (var ancestor in GetAllAncestors())
             {
-                if (ancestor.HasBinding(DataContextProperty))
-                {
-                    dataContextChangesCount++;
-                }
-
                 if (IsNamingContainer(ancestor))
                 {
-                    var clientIdExpression = (string)ancestor.GetValue(Internal.ClientIDFragmentProperty);
-                    if (clientIdExpression != null)
-                    {
-                        //TODO: Implement JavaScript AST, and change the comntent of binding (Javascript) so that it works on datacontext stated by DataContextProperty
-                        if (dataContextChangesCount > 0)
-                        {
-                            //Here proper JS expresion for the binding is to be generated
-                            throw new NotImplementedException();
-                        }
-                        fragments.Add(new ClientIDFragment(clientIdExpression, isExpression: true));
-                    }
-                    else
-                    {
-                        fragments.Add(new ClientIDFragment((string)ancestor.GetValue(Internal.UniqueIDProperty)));
-                    }
+                    fragments.Add(ancestor.GetValueRaw(Internal.ClientIDFragmentProperty));
                 }
             }
+            fragments.Reverse();
             return fragments;
         }
 
-        private IList<ClientIDFragment> GetClientIdFragments()
+        private IList<object> GetClientIdFragments()
         {
             var rawId = GetValue(IDProperty);
             // can't generate ID from nothing
@@ -471,46 +453,31 @@ namespace DotVVM.Framework.Controls
             if (ClientIDMode == ClientIDMode.Static)
             {
                 // just rewrite Static mode ID
-                return new[] { new ClientIDFragment(ID) };
+                return new[] { ID };
             }
 
-            var fragments = new List<ClientIDFragment> { ClientIDFragment.FromProperty(rawId) };
-            var dataContextChangesCount = HasBinding(DataContextProperty) ? 1 : 0;
+            var fragments = new List<object> { rawId };
             DotvvmControl childContainer = null;
             bool searchingForIdElement = false;
             foreach (var ancestor in GetAllAncestors())
             {
-                if (ancestor.HasBinding(DataContextProperty))
-                {
-                    dataContextChangesCount++;
-                }
-
                 if (IsNamingContainer(ancestor))
                 {
                     if (searchingForIdElement)
                     {
-                        fragments.Add(ClientIDFragment.FromProperty(childContainer.GetDotvvmUniqueId()));
+                        fragments.Add(childContainer.GetDotvvmUniqueId());
                     }
                     searchingForIdElement = false;
 
-                    var clientIdExpression = (string)ancestor.GetValue(Internal.ClientIDFragmentProperty);
-                    if (clientIdExpression != null)
+                    var clientIdExpression = ancestor.GetValueRaw(Internal.ClientIDFragmentProperty);
+                    if (clientIdExpression is IValueBinding)
                     {
-                        // generate the expression
-                        var expression = new StringBuilder();
-                        //TODO: Implement JavaScript AST, and change the comntent of binding (Javascript) so that it works on datacontext stated by DataContextProperty
-                        if (dataContextChangesCount > 0)
-                        {
-                            //Here proper JS expresion for the binding is to be generated
-                            throw new NotImplementedException();
-                        }
-                        expression.Append(clientIdExpression);
-                        fragments.Add(new ClientIDFragment(expression.ToString(), isExpression: true));
+                        fragments.Add(clientIdExpression);
                     }
                     else if (!string.IsNullOrEmpty(ancestor.ID))
                     {
                         // add the ID fragment
-                        fragments.Add(new ClientIDFragment(ancestor.ID));
+                        fragments.Add(ancestor.ID);
                     }
                     else
                     {
@@ -521,7 +488,7 @@ namespace DotVVM.Framework.Controls
 
                 if (searchingForIdElement && ancestor.IsPropertySet(ClientIDProperty))
                 {
-                    fragments.Add(ClientIDFragment.FromProperty(ancestor.GetValueRaw(ClientIDProperty)));
+                    fragments.Add(ancestor.GetValueRaw(ClientIDProperty));
                     searchingForIdElement = false;
                 }
 
@@ -532,8 +499,9 @@ namespace DotVVM.Framework.Controls
             }
             if (searchingForIdElement)
             {
-                fragments.Add(ClientIDFragment.FromProperty(childContainer.GetDotvvmUniqueId()));
+                fragments.Add(childContainer.GetDotvvmUniqueId());
             }
+            fragments.Reverse();
             return fragments;
         }
 

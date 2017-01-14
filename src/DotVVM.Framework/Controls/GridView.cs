@@ -192,7 +192,7 @@ namespace DotVVM.Framework.Controls
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding((IList)items, javascriptDataSourceExpression, index));
+                    placeholder.SetBinding(DataContextProperty, GetItemBinding(index));
                     placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
                     placeholder.ID = index.ToString();
                     CreateRowWithCells(context, placeholder);

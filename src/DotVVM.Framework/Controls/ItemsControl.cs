@@ -5,6 +5,8 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Javascript;
+using System.Reflection;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Controls
 {
@@ -53,13 +55,9 @@ namespace DotVVM.Framework.Controls
             return binding;
         }
 
-        protected ValueBindingExpression GetItemBinding(IList items, string dataSourceJs, int index)
+        protected ValueBindingExpression GetItemBinding(int index)
         {
-            return new ValueBindingExpression(new CompiledBindingExpression()
-            {
-                Delegate = (h, c) => items[index],
-                Javascript = JavascriptCompilationHelper.AddIndexerToViewModel(WrapJavascriptDataSourceAccess(dataSourceJs), index, true)
-            });
+            return GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeListIndexer(index);
         }
 
         public static IEnumerable GetIEnumerableFromDataSource(object dataSource)
@@ -79,19 +77,26 @@ namespace DotVVM.Framework.Controls
             throw new NotSupportedException($"The object of type '{dataSource.GetType()}' is not supported in the DataSource property!");
         }
 
-        protected string WrapJavascriptDataSourceAccess(string expression)
+        protected ParametrizedCode WrapJavascriptDataSourceAccess(ParametrizedCode expression)
         {
-            return "dotvvm.evaluator.getDataSourceItems(" + expression + ")";
+            // T+ JsTree compile time processing
+            return new ParametrizedCode.Builder {
+               "dotvvm.evaluator.getDataSourceItems(", expression, ")"
+            }.Build(new OperatorPrecedence(20, true));
+            //return "dotvvm.evaluator.getDataSourceItems(" + expression + ")";
         }
 
-        protected string GetForeachDataBindJavascriptExpression()
+        protected ParametrizedCode GetForeachDataBindJavascriptExpression()
         {
-            return WrapJavascriptDataSourceAccess(GetDataSourceBinding().GetKnockoutBindingExpression());
+            var binding = GetDataSourceBinding();
+            return typeof(IList).IsAssignableFrom(binding.ResultType) ?
+                   binding.KnockoutExpression :
+                   WrapJavascriptDataSourceAccess(binding.KnockoutExpression);
         }
 
-        protected string GetPathFragmentExpression()
+        protected ParametrizedCode GetPathFragmentExpression()
         {
-            return GetDataSourceBinding().GetKnockoutBindingExpression();
+            return GetDataSourceBinding().GetParametrizedKnockoutExpression(this);
         }
     }
 }

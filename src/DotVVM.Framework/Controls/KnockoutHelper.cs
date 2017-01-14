@@ -26,8 +26,8 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                if (nullBindingAction != null) nullBindingAction();
-                if (setValueBack && expression != null) control.SetValue(property, expression.Evaluate(control, property));
+                nullBindingAction?.Invoke();
+                if (setValueBack && expression != null) control.SetValue(property, expression.Evaluate(control));
             }
         }
 
@@ -97,9 +97,9 @@ namespace DotVVM.Framework.Controls
             // return the script
             var condition = options.IsOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
             var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};" : "";
-
+            // T+ parametrized string
             // call the function returned from binding js with runtime arguments
-            var postBackCall = $"{expression.GetCommandJavascript()}({String.Join(", ", arguments)})";
+            var postBackCall = $"{expression.GetCommandJavascript(control)}({String.Join(", ", arguments)})";
             return condition + postBackCall + returnStatement;
         }
 

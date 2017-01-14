@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Runtime
@@ -61,7 +62,7 @@ namespace DotVVM.Framework.Runtime
                 var binding = control.GetValueBinding(DotvvmBindableObject.DataContextProperty, false);
                 if (binding != null)
                 {
-                    CurrentPath.Push(binding.GetKnockoutBindingExpression());
+                    CurrentPath.Push(binding.GetKnockoutBindingExpression(control));
                     RefreshCurrentPathArray();
                     hasDataContext = true;
                 }

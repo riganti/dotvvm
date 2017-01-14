@@ -29,17 +29,22 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static JsExpression RemoveTopObservables(JsExpression expression)
         {
-            foreach (var leaf in expression.GetLeafResultNodes()) {
+            foreach (var leaf in expression.GetLeafResultNodes())
+            {
                 JsExpression replacement = null;
-                if (leaf is JsInvocationExpression invocation && invocation.Annotation<ObservableUnwrapAnnotation>() != null) {
+                if (leaf is JsInvocationExpression invocation && invocation.Annotation<ObservableUnwrapAnnotation>() != null)
+                {
                     replacement = invocation.Target;
-                } else if (leaf is JsMemberAccessExpression member && member.MemberName == "$data" && member.Target is JsSymbolicParameter par && par.Symbol == JavascriptTranslator.KnockoutContextParameter ||
-                      leaf is JsSymbolicParameter param && param.Symbol == JavascriptTranslator.KnockoutViewModelParameter) {
+                }
+                else if (leaf is JsMemberAccessExpression member && member.MemberName == "$data" && member.Target is JsSymbolicParameter par && par.Symbol == JavascriptTranslator.KnockoutContextParameter ||
+                    leaf is JsSymbolicParameter param && param.Symbol == JavascriptTranslator.KnockoutViewModelParameter)
+                {
                     replacement = new JsSymbolicParameter(KnockoutContextParameter).Member("$rawData")
                         .WithAnnotation(leaf.Annotation<ViewModelInfoAnnotation>());
                 }
 
-                if (replacement != null) {
+                if (replacement != null)
+                {
                     if (leaf.Parent == null) expression = replacement;
                     else leaf.ReplaceWith(replacement);
                 }
@@ -47,9 +52,40 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression;
         }
 
-        public static string FormatKnockoutScript(JsExpression expression, bool allowDataGlobal = true)
+        public static (JsExpression context, JsExpression data) GetKnockoutContextParameters(int dataContextLevel)
         {
-            return expression.FormatParametrizedScript()
+            JsExpression currentContext = new JsSymbolicParameter(KnockoutContextParameter);
+            for (int i = 0; i < dataContextLevel; i++) currentContext = currentContext.Member("$parentContext");
+
+            var currentData = dataContextLevel == 0 ? new JsSymbolicParameter(KnockoutContextParameter).Member("$data") :
+                              dataContextLevel == 1 ? new JsSymbolicParameter(KnockoutContextParameter).Member("$parent") :
+                              new JsSymbolicParameter(KnockoutContextParameter).Member("$parents").Indexer(new JsLiteral(dataContextLevel - 1));
+            return (currentContext, currentData);
+        }
+        public static ParametrizedCode AdjustKnockoutScriptContext(ParametrizedCode expression, int dataContextLevel)
+        {
+            if (dataContextLevel == 0) return expression;
+            var (contextExpresion, dataExpression) = GetKnockoutContextParameters(dataContextLevel);
+            var (context, data) = (CodeParameterAssignment.FromExpression(contextExpresion), CodeParameterAssignment.FromExpression(dataExpression));
+            return expression.AssignParameters(o =>
+                o == KnockoutContextParameter ? context :
+                o == KnockoutViewModelParameter ? data :
+                default(CodeParameterAssignment)
+            );
+        }
+
+        /// <summary>
+        /// Get's Javascript code that can be executed inside knockout data-bind attribute.
+        /// </summary>
+        public static string FormatKnockoutScript(JsExpression expression, bool allowDataGlobal = true, int dataContextLevel = 0) =>
+            FormatKnockoutScript(expression.FormatParametrizedScript(), allowDataGlobal, dataContextLevel);
+        /// <summary>
+        /// Get's Javascript code that can be executed inside knockout data-bind attribute.
+        /// </summary>
+        public static string FormatKnockoutScript(ParametrizedCode expression, bool allowDataGlobal = true, int dataContextLevel = 0)
+        {
+            // TODO(exyi): more symbolic parameters
+            return AdjustKnockoutScriptContext(expression, dataContextLevel)
                 .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$context"), true) :
                                o == KnockoutViewModelParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$data"), allowDataGlobal) :
                                throw new Exception());
@@ -71,8 +107,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 .Where(m => m.Name == methodName);
             if (parameters != null)
             {
-                methods = methods.Where(m =>
-                {
+                methods = methods.Where(m => {
                     var mp = m.GetParameters();
                     return mp.Length == parameters.Length && parameters.Zip(mp, (specified, method) => method.ParameterType.IsAssignableFrom(specified)).All(t => t);
                 });

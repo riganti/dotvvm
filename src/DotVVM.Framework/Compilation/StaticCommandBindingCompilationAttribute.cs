@@ -15,7 +15,7 @@ namespace DotVVM.Framework.Compilation
 {
     public class StaticCommandBindingCompilationAttribute : CommandBindingCompilationAttribute
     {
-        public override string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression compiledExpression, DotvvmConfiguration config)
+        public new string CompileToJavascript(ResolvedBinding binding, CompiledBindingExpression compiledExpression, DotvvmConfiguration config)
         {
             var vmMapper = config.ServiceLocator.GetService<IViewModelSerializationMapper>();
             var expression = binding.GetExpression();

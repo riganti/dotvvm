@@ -1,7 +1,13 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -10,50 +16,65 @@ namespace DotVVM.Framework.Binding.Expressions
     /// </summary>
     public delegate Task Command();
 
-    [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
-        Javascript = BindingCompilationRequirementType.StronglyRequire,
-        ActionFilters = BindingCompilationRequirementType.IfPossible)]
-    [CommandBindingCompilation]
+    [BindingCompilationRequirements(
+        required: new[] { typeof(CompiledBindingExpression.BindingDelegate), typeof(CommandJavascriptBindingProperty) }
+        )]
+    [Options]
     public class CommandBindingExpression : BindingExpression, ICommandBinding
     {
-        public CommandBindingExpression() { }
+        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        public CommandBindingExpression(Action<object[]> command, string id)
-            : this((h, o) => (Action)(() => command(h)), id)
-        { }
+        public ImmutableArray<IActionFilter> ActionFilters => this.GetProperty<ActionFiltersBindingProperty>().Filters;
 
-        public CommandBindingExpression(Delegate command, string id)
-            : this((h, o) => command, id)
-        { }
+        public ParametrizedCode CommandJavascript => this.GetProperty<CommandJavascriptBindingProperty>().Code;
 
-        public CommandBindingExpression(CompiledBindingExpression.BindingDelegate command, string id)
-            : base(new CompiledBindingExpression { Delegate = command, Id = id, Javascript = $"dotvvm.postbackScript('{ id }')" })
-        { }
+        public string BindingId => this.GetProperty<IdBindingProperty>().Id;
 
-        public CommandBindingExpression(CompiledBindingExpression expression)
-            : base(expression)
-        { }
+        public CompiledBindingExpression.BindingDelegate BindingDelegate => this.GetProperty<CompiledBindingExpression.BindingDelegate>();
 
-
-        /// <summary>
-        /// Evaluates the binding.
-        /// </summary>
-        public object Evaluate(DotvvmBindableObject control, DotvvmProperty property, params object[] args)
+        public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-            var action = GetCommandDelegate(control, property);
-            if (action is Command) return (action as Command)();
-            if (action is Action) { (action as Action)(); return null; }
-            return action.DynamicInvoke(args);
+            public override IEnumerable<Delegate> GetResolvers() => new Delegate[] {
+
+            };
         }
 
-        public virtual Delegate GetCommandDelegate(DotvvmBindableObject control, DotvvmProperty property)
-        {
-            return (Delegate)ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty);
-        }
+        public static object ViewModelNameParameter = new object();
+        public static object SenderElementParameter = new object();
+        public static object CurrentPathParameter = new object();
+        public static object CommandIdParameter = new object();
+        public static object ControlUniqueIdParameter = new object();
+        public static object UseObjectSetTimeoutParameter = new object();
+        public static object ValidationPathParameter = new object();
+        public static object OptionalKnockoutContextParameter = new object();
+        public static object PostbackHandlersParameters = new object();
+        private static ParametrizedCode javascriptPostbackInvocation =
+            new JsIdentifierExpression("dotvvm").Member("postback").Invoke(
+                new JsSymbolicParameter(ViewModelNameParameter),
+                new JsSymbolicParameter(SenderElementParameter),
+                new JsSymbolicParameter(CurrentPathParameter),
+                new JsSymbolicParameter(CommandIdParameter),
+                new JsSymbolicParameter(ControlUniqueIdParameter),
+                new JsSymbolicParameter(UseObjectSetTimeoutParameter),
+                new JsSymbolicParameter(ValidationPathParameter),
+                new JsSymbolicParameter(OptionalKnockoutContextParameter),
+                new JsSymbolicParameter(PostbackHandlersParameters)
+            ).FormatParametrizedScript();
+        public static ParametrizedCode CreateJsPostbackInvocation(string id) =>
+            javascriptPostbackInvocation.AssignParameters(p =>
+                p == CommandIdParameter ? CodeParameterAssignment.FromExpression(new JsLiteral(id)) :
+                default(CodeParameterAssignment));
 
-        public string GetCommandJavascript()
-        {
-            return Javascript;
-        }
+        public CommandBindingExpression(BindingCompilationService service, Action<object[]> command, string id)
+            : this(service, (h, o) => (Action)(() => command(h)), id)
+        { }
+
+        public CommandBindingExpression(BindingCompilationService service, Delegate command, string id)
+            : this(service, (h, o) => command, id)
+        { }
+
+        public CommandBindingExpression(BindingCompilationService service, CompiledBindingExpression.BindingDelegate command, string id)
+            : base(service, new object[]{ command, new IdBindingProperty(id), new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(id))})
+        { }
     }
 }

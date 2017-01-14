@@ -13,6 +13,12 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
     public class ResolvedTreeBuilder : IAbstractTreeBuilder
     {
+        private readonly BindingCompilationService bindingService;
+
+        public ResolvedTreeBuilder(BindingCompilationService bindingService)
+        {
+            this.bindingService = bindingService;
+        }
 
         public IAbstractTreeRoot BuildTreeRoot(IControlTreeResolver controlTreeResolver, IControlResolverMetadata metadata, DothtmlRootNode node, IDataContextStack dataContext, IReadOnlyDictionary<string, IReadOnlyList<IAbstractDirective>> directives)
         {
@@ -24,17 +30,10 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             return new ResolvedControl((ControlResolverMetadata)metadata, node, (DataContextStack)dataContext);
         }
 
-        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, ITypeDescriptor resultType = null, Exception parsingError = null, object customData = null)
+        public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, IPropertyDescriptor property)
         {
-            return new ResolvedBinding()
-            {
-                BindingType = bindingOptions.BindingType,
-                Value = node.Value,
-                Expression = (Expression)customData,
-                DataContextTypeStack = (DataContextStack)dataContext,
-                ParsingError = parsingError,
+            return new ResolvedBinding(bindingService, bindingOptions.BindingType, (DataContextStack)dataContext, node.Value, property: property as DotvvmProperty) {
                 DothtmlNode = node,
-                ResultType = resultType
             };
         }
 
@@ -135,8 +134,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 registry = TypeRegistry.DirectivesDefault();
             }
 
-            var visitor = new ExpressionBuildingVisitor(registry)
-            {
+            var visitor = new ExpressionBuildingVisitor(registry) {
                 ResolveOnlyTypeName = true,
                 Scope = null
             };
