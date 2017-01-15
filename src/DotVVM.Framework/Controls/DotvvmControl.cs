@@ -407,7 +407,7 @@ namespace DotVVM.Framework.Controls
                         result.Add("+'_'+");
                     if (f is IValueBinding binding)
                     {
-                        service = service ?? binding.GetProperty<BindingCompilationService>(optional: true);
+                        service = service ?? binding.GetProperty<BindingCompilationService>(ErrorHandlingMode.ReturnNull);
                         result.Add(binding.GetParametrizedKnockoutExpression(this), 14);
                     }
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));

@@ -61,12 +61,13 @@ namespace DotVVM.Framework.Compilation
         {
             var requirements = binding.BindingService.GetRequirements(binding.Binding);
 
+            var properties = requirements.Required.Concat(requirements.Optional)
+                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextSpaceIdBindingProperty) })
+                    .Select(p => binding.Binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
+                    .Where(p => p != null).ToArray();
             return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
                 binding.BindingService,
-                requirements.Required.Concat(requirements.Optional)
-                    .Concat(new []{ typeof(OriginalStringBindingProperty), typeof(DataContextSpaceIdBindingProperty) })
-                    .Select(p => binding.Binding.GetProperty(p, optional: true))
-                    .Where(p => p != null)
+                properties
             });
         }
 

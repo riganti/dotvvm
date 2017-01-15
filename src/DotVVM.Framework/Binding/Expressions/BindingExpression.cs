@@ -17,7 +17,11 @@ namespace DotVVM.Framework.Binding.Expressions
             public readonly object Value;
             public readonly Exception Error;
 
-            public object GetValue(bool optional) => Error == null || optional ? Value : throw new AggregateException(Error);
+            public object GetValue(ErrorHandlingMode errorMode) =>
+                Error == null ? Value :
+                errorMode == ErrorHandlingMode.ReturnNull ? null :
+                errorMode == ErrorHandlingMode.ReturnException ? Error :
+                throw new AggregateException(Error);
 
             public PropValue(object value, Exception error = null)
             {
@@ -42,7 +46,8 @@ namespace DotVVM.Framework.Binding.Expressions
         {
             try
             {
-                return new PropValue(bindingService.ComputeProperty(propertyType, this));
+                object value = bindingService.ComputeProperty(propertyType, this);
+                return value is Exception error ? new PropValue(null, error) : new PropValue(value);
             }
             catch (Exception ex)
             {
@@ -50,9 +55,10 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        public object GetProperty(Type type, bool optional = false) => properties.GetOrAdd(type, ComputeProperty).GetValue(optional);
+        public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) =>
+            properties.GetOrAdd(type, ComputeProperty).GetValue(errorMode);
 
-        bool IMutableBinding.IsMutable => this.GetProperty<IsMutableBindingProperty>(optional: true)?.IsMutable ?? false;
+        bool IMutableBinding.IsMutable => this.GetProperty<IsMutableBindingProperty>(ErrorHandlingMode.ReturnNull)?.IsMutable ?? false;
         void IMutableBinding.AddProperty(object property)
         {
             if (!((IMutableBinding)this).IsMutable) throw new InvalidOperationException("Binding is frozen, can add property.");

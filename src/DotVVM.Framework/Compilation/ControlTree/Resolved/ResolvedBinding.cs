@@ -24,13 +24,13 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public string Value => Binding.GetProperty<OriginalStringBindingProperty>().Code;
 
-        public Expression Expression => Binding.GetProperty<ParsedExpressionBindingProperty>(optional: true)?.Expression;
+        public Expression Expression => Binding.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression;
 
         public DataContextStack DataContextTypeStack => Binding.GetProperty<DataContextStack>();
 
         //public Exception ParsingError { get; set; }
 
-        public ITypeDescriptor ResultType => new ResolvedTypeDescriptor(Binding.GetProperty<ResultTypeBindingProperty>(optional: true)?.Type);
+        public ITypeDescriptor ResultType => new ResolvedTypeDescriptor(Binding.GetProperty<ResultTypeBindingProperty>(ErrorHandlingMode.ReturnNull)?.Type);
 
         IDataContextStack IAbstractBinding.DataContextTypeStack => DataContextTypeStack;
 
@@ -38,17 +38,20 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         //public DebugInfoExpression DebugInfo { get; set; }
 
-        public ResolvedBinding(BindingCompilationService bindingService, Type bindingType, DataContextStack dataContext, string code = null, Expression parsedExpression = null, DotvvmProperty property = null)
+        public ResolvedBinding(BindingCompilationService bindingService, BindingParserOptions bindingOptions, DataContextStack dataContext, string code = null, Expression parsedExpression = null, DotvvmProperty property = null)
         {
+            var bindingType = bindingOptions.BindingType;
             var properties = new List<object> {
                 dataContext,
-                this
+                this,
+                bindingOptions
             };
             if (code != null) properties.Add(new OriginalStringBindingProperty(code));
             if (parsedExpression != null) properties.Add(new ParsedExpressionBindingProperty(parsedExpression));
             if (property != null) properties.Add(new AssignedPropertyBindingProperty(property));
             if (property == DotvvmBindableObject.DataContextProperty) properties.Add(IncludesThisDataContextBindingFlag.Instance);
-            this.Binding = (IBinding)Activator.CreateInstance(bindingType, new object[] { bindingService, properties });
+            this.Binding = (IBinding)Activator.CreateInstance(bindingType, new object[] { bindingService, properties }) ??
+                throw new InvalidOperationException($"Binding of type '{bindingType}' does not have a .ctor(BindingCompilationService, IEnumerable<object> properties).");
             this.BindingService = bindingService;
         }
 

@@ -13,7 +13,7 @@ namespace DotVVM.Framework.Binding
 {
     public static class BindingHelper
     {
-        public static T GetProperty<T>(this IBinding binding, bool optional = false) => (T)binding.GetProperty(typeof(T), optional);
+        public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) => (T)binding.GetProperty(typeof(T), errorMode);
 
         public static string GetKnockoutBindingExpression(this IValueBinding binding) =>
             JavascriptTranslator.FormatKnockoutScript(binding.KnockoutExpression);
@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Binding
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
             var controliId = control.GetValue(Internal.DataContextSpaceIdProperty) as int?;
-            var bindingId = binding.GetProperty<DataContextSpaceIdBindingProperty>(optional: true)?.Id;
+            var bindingId = binding.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull)?.Id;
             if (bindingId == null || controliId == bindingId) return (0, control);
 
             var changes = 0;
@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Binding
             return ExecDelegate(
                 binding.BindingDelegate,
                 FindDataContextTarget(binding, control).target,
-                binding.GetProperty<IncludesThisDataContextBindingFlag>(optional: true) == null);
+                binding.GetProperty<IncludesThisDataContextBindingFlag>(ErrorHandlingMode.ReturnNull) == null);
         }
 
         /// <summary>
@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Binding
                 binding.UpdateDelegate,
                 FindDataContextTarget(binding, control).target,
                 value,
-                binding.GetProperty<IncludesThisDataContextBindingFlag>(optional: true) == null);
+                binding.GetProperty<IncludesThisDataContextBindingFlag>(ErrorHandlingMode.ReturnNull) == null);
         }
 
         public static Delegate GetCommandDelegate(this ICommandBinding binding, DotvvmBindableObject control)
@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Binding
             return (Delegate)ExecDelegate(
                 binding.BindingDelegate,
                 FindDataContextTarget(binding, control).target,
-                binding.GetProperty<IncludesThisDataContextBindingFlag>(optional: true) == null);
+                binding.GetProperty<IncludesThisDataContextBindingFlag>(ErrorHandlingMode.ReturnNull) == null);
         }
 
         public static object Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params object[] args)

@@ -32,7 +32,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         public IAbstractBinding BuildBinding(BindingParserOptions bindingOptions, IDataContextStack dataContext, DothtmlBindingNode node, IPropertyDescriptor property)
         {
-            return new ResolvedBinding(bindingService, bindingOptions.BindingType, (DataContextStack)dataContext, node.Value, property: property as DotvvmProperty) {
+            return new ResolvedBinding(bindingService, bindingOptions, (DataContextStack)dataContext, node.Value, property: property as DotvvmProperty) {
                 DothtmlNode = node,
             };
         }

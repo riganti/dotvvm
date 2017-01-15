@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Compilation;
+﻿using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
@@ -40,6 +41,8 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
             services.TryAddSingleton<IBindingIdGenerator, OriginalStringBindingIdGenerator>();
+            services.TryAddSingleton<BindingCompilationService>(s => new BindingCompilationService(
+                new BindingPropertyResolvers(s.GetService<DotvvmConfiguration>())));
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();

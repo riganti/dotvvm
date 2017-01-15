@@ -5,6 +5,7 @@ using System.Text;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using System.Collections.Immutable;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
@@ -64,14 +65,22 @@ namespace DotVVM.Framework.Compilation.Javascript
             builder.Add(stringParts[0]);
             for (int i = 0; i < assignment.Length; i++)
             {
-                var isGlobalContext = assignment[i].IsGlobalContext && parameters[i].IsSafeMemberAccess;
-
-                if (isGlobalContext)
-                    builder.Add(stringParts[1 + i].Substring(1, stringParts[i].Length - 1)); // skip `.`
+                if (assignment[i].Code == null)
+                {
+                    builder.Add(parameters[i]);
+                    builder.Add(stringParts[1 + i]);
+                }
                 else
                 {
-                    builder.Add(assignment[i].Code, parameters[i].OperatorPrecedence);
-                    builder.Add(stringParts[++i]);
+                    var isGlobalContext = assignment[i].IsGlobalContext && parameters[i].IsSafeMemberAccess;
+
+                    if (isGlobalContext)
+                        builder.Add(stringParts[1 + i].Substring(1, stringParts[i].Length - 1)); // skip `.`
+                    else
+                    {
+                        builder.Add(assignment[i].Code, parameters[i].OperatorPrecedence);
+                        builder.Add(stringParts[1 + i]);
+                    }
                 }
             }
 
@@ -80,7 +89,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void CopyTo(Builder builder)
         {
-            for (int i = 0; i < parameters.Length; i++)
+            if (parameters != null) for (int i = 0; i < parameters.Length; i++)
             {
                 builder.Add(stringParts[i]);
                 builder.Add(parameters[i]);

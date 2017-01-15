@@ -43,7 +43,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(delegateType), Target, Expression.Constant(method));
         }
 
-        private static Type GetDelegateType(Type returnType, Type[] args)
+        public static Type GetDelegateType(Type returnType, Type[] args)
         {
             if (returnType == null || returnType == typeof(void))
             {
@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
         }
 
-        private static Type GetDelegateType(MethodInfo methodInfo)
+        public static Type GetDelegateType(MethodInfo methodInfo)
         {
             return GetDelegateType(methodInfo.ReturnType, methodInfo.GetParameters().Select(a => a.ParameterType).ToArray());
         }
