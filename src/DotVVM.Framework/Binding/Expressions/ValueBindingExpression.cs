@@ -143,15 +143,16 @@ namespace DotVVM.Framework.Binding.Expressions
             });
         }
 
-        public ValueBindingExpression MakeKoContextIndexer()
-        {
-            if (!typeof(IList).IsAssignableFrom(ResultType)) throw new NotSupportedException($"ResultType is not assignable to IList.");
-            return new ValueBindingExpression(bindingService, new object[]{
-                new KnockoutExpressionBindingProperty(JavascriptCompilationHelper.AddIndexerToViewModel(KnockoutExpression,
-                    new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$index"))),
-                new ResultTypeBindingProperty(ReflectionUtils.GetEnumerableType(ResultType))
-            });
-        }
+        //public ValueBindingExpression MakeKoContextIndexer()
+        //{
+        //    if (!typeof(IList).IsAssignableFrom(ResultType)) throw new NotSupportedException($"ResultType is not assignable to IList.");
+        //    return new ValueBindingExpression(bindingService, new object[]{
+        //        new KnockoutExpressionBindingProperty(JavascriptCompilationHelper.AddIndexerToViewModel(KnockoutExpression,
+        //            new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$index"))),
+        //        new ResultTypeBindingProperty(ReflectionUtils.GetEnumerableType(ResultType)),
+        //        new CompiledBindingExpression.BindingDelegate((o, c) => null)
+        //    });
+        //}
 
         #endregion
     }

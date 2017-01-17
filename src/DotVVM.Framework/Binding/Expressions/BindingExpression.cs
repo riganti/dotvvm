@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Binding.Expressions
         {
             try
             {
-                object value = bindingService.ComputeProperty(propertyType, this);
+                var value = bindingService.ComputeProperty(propertyType, this);
                 return value is Exception error ? new PropValue(null, error) : new PropValue(value);
             }
             catch (Exception ex)

@@ -11,7 +11,7 @@ namespace DotVVM.Framework.Compilation
     {
         public override void VisitControl(ResolvedControl control)
         {
-            if (control.DataContextTypeStack.DataContextSpaceId != control.Parent?.As<ResolvedContentNode>()?.DataContextTypeStack.DataContextSpaceId)
+            if (control.DataContextTypeStack.DataContextSpaceId != control.Parent?.As<ResolvedControl>()?.DataContextTypeStack.DataContextSpaceId)
             {
                 control.SetProperty(new ResolvedPropertyValue(Internal.DataContextSpaceIdProperty, control.DataContextTypeStack.DataContextSpaceId));
             }

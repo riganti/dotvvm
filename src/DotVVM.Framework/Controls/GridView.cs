@@ -193,7 +193,7 @@ namespace DotVVM.Framework.Controls
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetBinding(DataContextProperty, GetItemBinding(index));
-                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/" + index);
                     placeholder.ID = index.ToString();
                     CreateRowWithCells(context, placeholder);
                     Children.Add(placeholder);
@@ -409,7 +409,7 @@ namespace DotVVM.Framework.Controls
                 if (InlineEditing)
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/$index");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) !== ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholder);
@@ -418,7 +418,7 @@ namespace DotVVM.Framework.Controls
                     writer.WriteKnockoutDataBindEndComment();
 
                     var placeholderEdit = new DataItemContainer { DataContext = null };
-                    placeholderEdit.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                    placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/$index");
                     placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) === ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholderEdit, true);
@@ -429,7 +429,7 @@ namespace DotVVM.Framework.Controls
                 else
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/$index");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                     CreateRowWithCells(context, placeholder);
                     Children.Add(placeholder);

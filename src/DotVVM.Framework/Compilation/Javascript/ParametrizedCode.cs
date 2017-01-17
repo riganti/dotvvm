@@ -196,9 +196,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public static CodeParameterAssignment FromExpression(JsExpression expression, bool isGlobalContext = false)
         {
-            var code = expression.FormatScript();
-            var op = JsParensFixingVisitor.GetOperatorPrecedence(expression);
-            return new CodeParameterAssignment(code, op, isGlobalContext);
+            var code = expression.FormatParametrizedScript();
+            return new CodeParameterAssignment(code, isGlobalContext);
         }
     }
 }

@@ -200,8 +200,8 @@ namespace DotVVM.Framework.Controls
             {
                 // render on client
                 var placeholder = new DataItemContainer() { DataContext = null };
-                //placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), "$index"));
-                placeholder.SetBinding(DataContextProperty, GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeKoContextIndexer());
+                placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/$index");
+                //placeholder.SetBinding(DataContextProperty, GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeKoContextIndexer());
                 placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                 ItemTemplate.BuildContent(context, placeholder);
                 Children.Add(placeholder);

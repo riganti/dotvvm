@@ -94,9 +94,9 @@ namespace DotVVM.Framework.Controls
                    WrapJavascriptDataSourceAccess(binding.KnockoutExpression);
         }
 
-        protected ParametrizedCode GetPathFragmentExpression()
+        protected string GetPathFragmentExpression()
         {
-            return GetDataSourceBinding().GetParametrizedKnockoutExpression(this);
+            return GetDataSourceBinding().GetKnockoutBindingExpression(this);
         }
     }
 }
