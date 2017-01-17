@@ -9,13 +9,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
     public class MethodGroupExpression : Expression
     {
-        public override Type Type
-        {
-            get
-            {
-                return typeof(Delegate);
-            }
-        }
+        public override Type Type => typeof(Delegate);
 
         public override bool CanReduce => GetMethod() != null;
 

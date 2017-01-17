@@ -82,7 +82,7 @@ namespace DotVVM.Framework.Controls
             // T+ JsTree compile time processing
             return new ParametrizedCode.Builder {
                "dotvvm.evaluator.getDataSourceItems(", expression, ")"
-            }.Build(new OperatorPrecedence(20, true));
+            }.Build(OperatorPrecedence.Max);
             //return "dotvvm.evaluator.getDataSourceItems(" + expression + ")";
         }
 

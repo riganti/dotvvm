@@ -20,11 +20,7 @@ namespace DotVVM.Framework.Binding
         {
             resolvers.AddResolver(new Func<BindingAdditionalResolvers, BindingResolverCollection>(
                 rr => new BindingResolverCollection(rr.Resolvers)));
-            foreach (var p in
-                from t in transformers
-                from m in t.GetType().GetMethods()
-                select m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
-            )
+            foreach (var p in GetDelegates(transformers))
                 resolvers.AddDelegate(p);
         }
 
@@ -199,5 +195,11 @@ namespace DotVVM.Framework.Binding
                 binding.GetProperty(req, ErrorHandlingMode.ReturnNull);
             }
         }
+
+        public static Delegate[] GetDelegates(params object[] objects) => (
+            from t in objects
+            from m in t.GetType().GetMethods()
+            select m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
+        ).ToArray();
     }
 }

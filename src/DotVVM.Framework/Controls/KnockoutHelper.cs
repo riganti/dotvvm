@@ -7,6 +7,8 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 
 namespace DotVVM.Framework.Controls
 {
@@ -78,29 +80,28 @@ namespace DotVVM.Framework.Controls
         }
         public static string GenerateClientPostBackScript(string propertyName, ICommandBinding expression, DotvvmControl control, PostbackScriptOptions options)
         {
-            object uniqueControlId = null;
             var target = (DotvvmControl)control.GetClosestControlBindingTarget();
-            uniqueControlId = target?.GetDotvvmUniqueId();
-
-            var arguments = new List<string>()
-            {
-                "'root'",
-                options.ElementAccessor,
-                "[" + String.Join(", ", GetContextPath(control).Reverse().Select(p => '"' + p + '"')) + "]",
-                (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(), '\'', StringEscapeHandling.Default) + "}" : "'" + (string) uniqueControlId + "'"),
-                options.UseWindowSetTimeout ? "true" : "false",
-                JsonConvert.SerializeObject(GetValidationTargetExpression(control)),
-                "null",
-                GetPostBackHandlersScript(control, propertyName)
-            };
+            var uniqueControlId = target?.GetDotvvmUniqueId();
 
             // return the script
             var condition = options.IsOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
             var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};" : "";
-            // T+ parametrized string
-            // call the function returned from binding js with runtime arguments
-            var postBackCall = $"{expression.GetCommandJavascript(control)}({String.Join(", ", arguments)})";
-            return condition + postBackCall + returnStatement;
+
+            var call = expression.GetParametrizedCommandJavascript(control).ToString(p =>
+                p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("'root'", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
+                p == CommandBindingExpression.CurrentPathParameter ? new CodeParameterAssignment(
+                    "[" + String.Join(", ", GetContextPath(control).Reverse().Select(JavascriptCompilationHelper.CompileConstant)) + "]",
+                    OperatorPrecedence.Max) :
+                p == CommandBindingExpression.ControlUniqueIdParameter ? new CodeParameterAssignment(
+                    (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(), '\'', StringEscapeHandling.Default) + "}" : "'" + (string)uniqueControlId + "'"), OperatorPrecedence.Max) :
+                p == CommandBindingExpression.UseObjectSetTimeoutParameter ? new CodeParameterAssignment(options.UseWindowSetTimeout ? "true" : "false", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.ValidationPathParameter ? CodeParameterAssignment.FromExpression(new JsLiteral(GetValidationTargetExpression(control))) :
+                p == CommandBindingExpression.OptionalKnockoutContextParameter ? new CodeParameterAssignment("null", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.PostbackHandlersParameters ? new CodeParameterAssignment(GetPostBackHandlersScript(control, propertyName), OperatorPrecedence.Max) :
+                default(CodeParameterAssignment)
+                );
+            return condition + call + returnStatement;
         }
 
         /// <summary>

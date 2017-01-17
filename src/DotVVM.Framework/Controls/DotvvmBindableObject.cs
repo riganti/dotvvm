@@ -166,7 +166,7 @@ namespace DotVVM.Framework.Controls
 
         public ParametrizedCode GetJavascriptValue(DotvvmProperty property, bool inherit = true) =>
             GetValueBinding(property, inherit)?.KnockoutExpression ??
-            new ParametrizedCode(JavascriptCompilationHelper.CompileConstant(GetValue(property)), new OperatorPrecedence(20, true));
+            new ParametrizedCode(JavascriptCompilationHelper.CompileConstant(GetValue(property)), OperatorPrecedence.Max);
 
         /// <summary>
         /// Gets the command binding set to a specified property.

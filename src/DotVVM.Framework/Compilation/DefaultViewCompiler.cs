@@ -85,8 +85,7 @@ namespace DotVVM.Framework.Compilation
             }
 
             var emitter = new DefaultViewCompilerCodeEmitter();
-            var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className,
-                b => configuration.ServiceLocator.GetService<IBindingIdGenerator>().GetId(b, fileName));
+            var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
 
             resolvedView.Accept(compilingVisitor);
 

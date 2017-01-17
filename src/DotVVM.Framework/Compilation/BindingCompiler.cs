@@ -62,7 +62,7 @@ namespace DotVVM.Framework.Compilation
             var requirements = binding.BindingService.GetRequirements(binding.Binding);
 
             var properties = requirements.Required.Concat(requirements.Optional)
-                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextSpaceIdBindingProperty) })
+                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextSpaceIdBindingProperty), typeof(DataContextStack) })
                     .Select(p => binding.Binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
                     .Where(p => p != null).ToArray();
             return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Compilation
             });
         }
 
-        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id)
+        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
         {
             var newbinding = CreateMinimalClone(binding);
             var index = Interlocked.Increment(ref globalBindingIndex);

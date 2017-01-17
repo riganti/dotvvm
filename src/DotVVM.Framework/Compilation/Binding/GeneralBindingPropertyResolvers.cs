@@ -106,6 +106,8 @@ namespace DotVVM.Framework.Compilation.Binding
         public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
         public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
 
+        public IdBindingProperty GetIdFromOriginalString(OriginalStringBindingProperty binding) => new IdBindingProperty(binding.Code);
+
         //public OriginalStringBindingProperty
     }
 }

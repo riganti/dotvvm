@@ -40,7 +40,6 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
-            services.TryAddSingleton<IBindingIdGenerator, OriginalStringBindingIdGenerator>();
             services.TryAddSingleton<BindingCompilationService>(s => new BindingCompilationService(
                 new BindingPropertyResolvers(s.GetService<DotvvmConfiguration>())));
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();

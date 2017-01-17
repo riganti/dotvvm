@@ -23,6 +23,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             return Precedence < parentPrecedence ||
                 (Precedence == parentPrecedence & !IsPreferedSide);
         }
+
+        public static readonly OperatorPrecedence Max = new OperatorPrecedence(20, true);
     }
 
     public class JsParensFixingVisitor : JsNodeVisitor
@@ -107,7 +109,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static OperatorPrecedence GetOperatorPrecedence(JsExpression expression)
         {
             if (expression.Role == JsTreeRoles.Argument || expression.Parent is JsParenthesizedExpression)
-                return new OperatorPrecedence(20, true); // argument is never parenthised
+                return OperatorPrecedence.Max; // argument is never parenthised
             return new OperatorPrecedence(OperatorLevel(expression), IsPreferedSide(expression));
         }
 

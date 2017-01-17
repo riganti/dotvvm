@@ -122,8 +122,21 @@ namespace DotVVM.Framework.Binding
             return action.DynamicInvoke(args);
         }
 
-        public static string GetCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control) =>
-            JavascriptTranslator.FormatKnockoutScript(binding.CommandJavascript,
+        public static ParametrizedCode GetParametrizedCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control) =>
+            JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
+
+//        public static string GetCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control, 
+//            CodeParameterAssignment viewModelName,
+//			CodeParameterAssignment SenderElementParameter,
+//			CodeParameterAssignment CurrentPathParameter,
+//			CodeParameterAssignment commandId,
+//			CodeParameterAssignment controlUniqueId,
+//			CodeParameterAssignment 
+//            ) =>
+//            binding.GetParametrizedCommandJavascript(control).ToString(o =>
+//                
+//
+//            );
     }
 }
