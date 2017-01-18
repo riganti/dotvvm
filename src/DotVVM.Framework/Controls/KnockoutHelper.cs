@@ -95,12 +95,17 @@ namespace DotVVM.Framework.Controls
             };
 
             // return the script
-            var condition = options.IsOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
             var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};" : "";
 
             // call the function returned from binding js with runtime arguments
             var postBackCall = $"{expression.GetCommandJavascript()}({String.Join(", ", arguments)})";
-            return condition + postBackCall + returnStatement;
+
+            if (options.IsOnChange)
+            {
+                postBackCall = $"if (!dotvvm.isViewModelUpdating) {{ {postBackCall} }}";
+            }
+
+            return postBackCall + returnStatement;
         }
 
         /// <summary>
