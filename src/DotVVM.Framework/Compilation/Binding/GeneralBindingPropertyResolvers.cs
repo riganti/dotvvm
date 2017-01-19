@@ -70,7 +70,7 @@ namespace DotVVM.Framework.Compilation.Binding
         public ParsedExpressionBindingProperty GetExpression(OriginalStringBindingProperty originalString, DataContextStack dataContext, BindingParserOptions options)
         {
             var expr = bindingParser.Parse(originalString.Code, dataContext, options);
-            return new ParsedExpressionBindingProperty(expr);
+            return new ParsedExpressionBindingProperty(expr.Reduce());
         }
 
         public KnockoutJsExpressionBindingProperty CompileToJavascript(ParsedExpressionBindingProperty expression,

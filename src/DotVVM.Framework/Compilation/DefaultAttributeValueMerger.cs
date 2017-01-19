@@ -80,7 +80,7 @@ namespace DotVVM.Framework.Compilation
         {
             if (originalBidning == null) { errror = $"Could not merge constant values to binding '{expression}'."; return null; }
             return new ResolvedPropertyBinding(property,
-                new ResolvedBinding(originalBidning.BindingService, originalBidning.Binding.GetProperty<BindingParserOptions>(), originalBidning.DataContextTypeStack, null));
+                new ResolvedBinding(originalBidning.BindingService, originalBidning.Binding.GetProperty<BindingParserOptions>(), originalBidning.DataContextTypeStack, null, expression, property));
         }
 
         protected virtual Expression GetExpression(ResolvedPropertySetter a, out ResolvedBinding binding)

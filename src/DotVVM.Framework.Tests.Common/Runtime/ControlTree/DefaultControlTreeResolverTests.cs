@@ -308,7 +308,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(Repeater), control.Metadata.Type);
 
             var dataSource = (ResolvedPropertyBinding)control.Properties[ItemsControl.DataSourceProperty];
-            dataSource.Binding.GetExpression();
+            Assert.AreEqual(true, GetParsingError(dataSource.Binding.Binding)?.Contains("resolve identifier"));
 
             var itemTemplate = (ResolvedPropertyTemplate)control.Properties[Repeater.ItemTemplateProperty];
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
