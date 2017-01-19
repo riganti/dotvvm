@@ -8,19 +8,30 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Commands;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Tests.Binding
 {
     [TestClass]
     public class CommandResolverTests
     {
+        private DotvvmConfiguration configuration;
+        private BindingCompilationService bindingService;
+
+        [TestInitialize]
+        public void INIT()
+        {
+            this.configuration = DotvvmConfiguration.CreateDefault();
+            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+        }
 
         [TestMethod]
         public void CommandResolver_Valid_SimpleTest()
         {
-            var path = new[] { new ValueBindingExpression(vm => ((dynamic)vm[0]).A[0], "A()[0]") };
+            var path = new[] { ValueBindingExpression.CreateBinding<object>(bindingService, vm => ((dynamic)vm[0]).A[0], new ParametrizedCode("A()[0]")) };
             var commandId = "someCommand";
-            var command = new CommandBindingExpression(vm => ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass), commandId);
+            var command = new CommandBindingExpression(bindingService, vm => ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass), commandId);
 
             var testObject = new {
                 A = new[]
@@ -30,7 +41,7 @@ namespace DotVVM.Framework.Tests.Binding
                 NumberToPass = 16
             };
             var viewRoot = new DotvvmView() { DataContext = testObject };
-            viewRoot.SetBinding(Controls.Validation.TargetProperty, new ValueBindingExpression(vm => vm.Last(), "$root"));
+            viewRoot.SetBinding(Validation.TargetProperty, ValueBindingExpression.CreateBinding(bindingService, vm => vm.Last(), new ParametrizedCode("$root")));
 
             var placeholder = new HtmlGenericControl("div");
             placeholder.SetBinding(DotvvmBindableObject.DataContextProperty, path[0]);
@@ -44,7 +55,7 @@ namespace DotVVM.Framework.Tests.Binding
             var context = new DotvvmRequestContext() { ViewModel = testObject };
             context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button);
 
-            resolver.GetFunction(viewRoot, context, path.Select(v => v.Javascript).ToArray(), commandId, new object[0]).Action();
+            resolver.GetFunction(viewRoot, context, path.Select(v => v.GetKnockoutBindingExpression()).ToArray(), commandId, new object[0]).Action();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);

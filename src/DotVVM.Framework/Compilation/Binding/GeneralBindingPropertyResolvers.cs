@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
             var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
-            var expr = ExpressionUtils.Replace(expression.Expression, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
+            var expr = ExpressionUtils.Replace(expression.Expression, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType ?? typeof(DotvvmControl))));
             expr = ExpressionUtils.ConvertToObject(expr);
             return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, viewModelsParameter, controlRootParameter);
         }
@@ -57,9 +57,14 @@ namespace DotVVM.Framework.Compilation.Binding
             var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
             var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
             var valueParameter = Expression.Parameter(typeof(object), "value");
-            var expr = ExpressionUtils.Replace(binding.Expression, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType)));
+            var expr = ExpressionUtils.Replace(binding.Expression, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType ?? typeof(DotvvmControl))));
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
             return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter);
+        }
+
+        public BindingParserOptions GetDefaultBindingParserOptions(IBinding binding)
+        {
+            return new BindingParserOptions(binding.GetType());
         }
 
         public ParsedExpressionBindingProperty GetExpression(OriginalStringBindingProperty originalString, DataContextStack dataContext, BindingParserOptions options)

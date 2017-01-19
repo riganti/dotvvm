@@ -29,7 +29,7 @@ namespace DotVVM.Framework.Controls
 
         // Gets unique id of data context type stack
         public static readonly DotvvmProperty DataContextSpaceIdProperty =
-            DotvvmProperty.Register<int, Internal>(() => DataContextSpaceIdProperty);
+            DotvvmProperty.Register<int, Internal>(() => DataContextSpaceIdProperty, -1);
 
         public static readonly DotvvmProperty MarkupFileNameProperty =
             DotvvmProperty.Register<string, Internal>(() => MarkupFileNameProperty, isValueInherited: true);

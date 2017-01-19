@@ -10,12 +10,26 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Binding.Properties;
+using System.Collections.Immutable;
 
 namespace DotVVM.Framework.Tests.Binding
 {
     [TestClass]
     public class BindingCompilationTests
     {
+        private DotvvmConfiguration configuration;
+        private BindingCompilationService bindingService;
+
+        [TestInitialize]
+        public void INIT()
+        {
+            this.configuration = DotvvmConfiguration.CreateDefault();
+            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+        }
+
+
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
         {
             var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object), rootControlType: control?.GetType() ?? typeof(DotvvmControl));
@@ -23,10 +37,14 @@ namespace DotVVM.Framework.Tests.Binding
             {
                 context = new DataContextStack(contexts[i].GetType(), context);
             }
-            var parser = new BindingExpressionBuilder();
-            var expressionTree = parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>(importNs: new[] { new NamespaceImport("DotVVM.Framework.Tests.Binding") }.Concat(imports ?? Enumerable.Empty<NamespaceImport>()).ToArray()));
             Array.Reverse(contexts);
-            return new BindingCompilationAttribute().CompileToDelegate(expressionTree, context, expectedType ?? typeof(object)).Compile()(contexts, control);
+            var binding = new ResourceBindingExpression(bindingService, new object[] {
+                context,
+                new OriginalStringBindingProperty(expression),
+                new BindingParserOptions(typeof(ResourceBindingExpression), importNamespaces: imports?.ToImmutableList()),
+                new ExpectedTypeBindingProperty(expectedType ?? typeof(object))
+            });
+            return binding.BindingDelegate.Invoke(contexts, control);
         }
 
         public object ExecuteBinding(string expression, params object[] contexts)
@@ -185,7 +203,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Invalid_EnumStringComparison()
         {
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.ThrowsException<AggregateException>(() =>
             {
                 var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
                 ExecuteBinding("Enum == 'ghfjdskdjhbvdksdj'", viewModel);
@@ -314,9 +332,9 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
-        public void BindingCompiler_InValid_ToStringConversion()
+        public void BindingCompiler_Invalid_ToStringConversion()
         {
-            Assert.ThrowsException<InvalidOperationException>(() =>
+            Assert.ThrowsException<AggregateException>(() =>
             {
                 var testViewModel = new TestViewModel();
                 var result = ExecuteBinding("_this", new[] { testViewModel }, null, expectedType: typeof(string));

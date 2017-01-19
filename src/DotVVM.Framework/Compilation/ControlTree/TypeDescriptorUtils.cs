@@ -6,7 +6,6 @@ namespace DotVVM.Framework.Compilation.ControlTree
 {
     public static class TypeDescriptorUtils
     {
-
         public static ITypeDescriptor GetCollectionItemType(ITypeDescriptor type)
         {
             // handle IEnumerables
@@ -25,7 +24,5 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
             throw new NotSupportedException($"The type '{type}' is not a collection or a IGridViewDataSet!");
         }
-
-
     }
 }

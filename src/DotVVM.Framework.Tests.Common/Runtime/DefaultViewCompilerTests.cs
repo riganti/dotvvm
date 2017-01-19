@@ -4,6 +4,7 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
@@ -12,6 +13,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Binding.Properties;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -52,7 +54,7 @@ test <dot:Literal Text='test' />";
 
             var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
             Assert.IsNotNull(binding);
-            Assert.AreEqual("FirstName", binding.OriginalString);
+            Assert.AreEqual("FirstName", binding.GetProperty<OriginalStringBindingProperty>().Code);
         }
 
         [TestMethod]
@@ -70,7 +72,7 @@ test <dot:Literal Text='test' />";
 
             var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
             Assert.IsNotNull(binding);
-            Assert.AreEqual("FirstName", binding.OriginalString);
+            Assert.AreEqual("FirstName", binding.GetProperty<OriginalStringBindingProperty>());
         }
 
         [TestMethod]

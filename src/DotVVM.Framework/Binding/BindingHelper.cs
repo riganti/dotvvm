@@ -28,9 +28,9 @@ namespace DotVVM.Framework.Binding
         // PERF: maybe safe last GetValue's target/binding to ThreadLocal variable, so the path does not have to be traversed twice
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
-            var controliId = control.GetValue(Internal.DataContextSpaceIdProperty) as int?;
+            var controliId = (int)control.GetValue(Internal.DataContextSpaceIdProperty);
             var bindingId = binding.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull)?.Id;
-            if (bindingId == null || controliId == bindingId) return (0, control);
+            if (bindingId == null || controliId == -1 || controliId == bindingId) return (0, control);
 
             var changes = 0;
             foreach (var a in control.GetAllAncestors())

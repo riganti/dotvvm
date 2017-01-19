@@ -11,6 +11,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using Microsoft.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding
 {
@@ -44,6 +45,9 @@ namespace DotVVM.Framework.Binding
 
         public object ComputeProperty(Type type, IBinding binding)
         {
+            if (type == typeof(BindingCompilationService)) return this;
+            if (type.IsAssignableFrom(binding.GetType())) return binding;
+
             var typeName = type.ToString();
             var additionalResolvers = GetAdditionalResolvers(binding);
             var bindingResolvers = GetResolversForBinding(binding.GetType());
@@ -177,22 +181,21 @@ namespace DotVVM.Framework.Binding
 
         protected static void InitializeBinding(IBinding binding, BindingCompilationRequirementsAttribute bindingRequirements)
         {
-            var errors = new List<(Type req, Exception error)>();
-            foreach (var item in bindingRequirements.Required)
+            var reporter = binding.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull);
+            var throwException = reporter == null;
+            reporter = reporter ?? new BindingErrorReporterProperty();
+            foreach (var req in bindingRequirements.Required)
             {
-                try
-                {
-                    binding.GetProperty(item);
-                }
-                catch (Exception exception)
-                {
-                    errors.Add((item, exception));
-                }
+                if (binding.GetProperty(req, ErrorHandlingMode.ReturnException) is Exception error)
+                    reporter.Errors.Push((req, error, DiagnosticSeverity.Error));
             }
-            if (errors.Any()) throw new AggregateException($"Could not initialize binding '{binding.GetType()}', requirements {string.Join(", ", errors.Select(e => e.req))} was not met", errors.Select(e => e.error));
+            if (throwException && reporter.Errors.Any())
+                throw new AggregateException($"Could not initialize binding '{binding.GetType()}', requirements {string.Join(", ", reporter.Errors.Select(e => e.req))} was not met",
+                    reporter.Errors.Select(e => e.error));
             foreach (var req in bindingRequirements.Optional)
             {
-                binding.GetProperty(req, ErrorHandlingMode.ReturnNull);
+                if (binding.GetProperty(req, ErrorHandlingMode.ReturnException) is Exception error)
+                    reporter.Errors.Push((req, error, DiagnosticSeverity.Info));
             }
         }
 

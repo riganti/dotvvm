@@ -7,6 +7,8 @@ using System.Collections.Immutable;
 using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using System.Collections.Concurrent;
+using Microsoft.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding.Properties
 {
@@ -164,5 +166,10 @@ namespace DotVVM.Framework.Binding.Properties
     {
         public static readonly IncludesThisDataContextBindingFlag Instance = new IncludesThisDataContextBindingFlag();
         IncludesThisDataContextBindingFlag() { }
+    }
+
+    public sealed class BindingErrorReporterProperty
+    {
+        public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
     }
 }

@@ -769,8 +769,8 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var type = dataContext.DataContextType;
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
-                type = attribute.GetChildDataContextType(type, dataContext, control, property);
                 if (type == null) break;
+                type = attribute.GetChildDataContextType(type, dataContext, control, property);
             }
             return CreateDataContextTypeStack(type, parentDataContextStack: dataContext);
         }

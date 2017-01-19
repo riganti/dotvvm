@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 DataContextStack c = null;
                 foreach (var vm in VmTypes)
                 {
-                    c = new DataContextStack(vm, c);
+                    c = new DataContextStack(vm ?? typeof(object), c);
                 }
                 return c;
             }
@@ -119,10 +119,10 @@ namespace DotVVM.Framework.Binding.Expressions
                     indexer.Left == vmParameter)
                 {
                     int index = (int)indexConstant.Value;
-                    while (VmTypes.Count <= index) VmTypes.Add(typeof(object));
-                    if (!VmTypes[index].IsAssignableFrom(unary.Type))
+                    while (VmTypes.Count <= index) VmTypes.Add(null);
+                    if (VmTypes[index]?.IsAssignableFrom(unary.Type) != true)
                     {
-                        if (unary.Type.IsAssignableFrom(VmTypes[index]))
+                        if (VmTypes[index] == null || unary.Type.IsAssignableFrom(VmTypes[index]))
                             VmTypes[index] = unary.Type;
                         else throw new Exception("Unsatisfiable view model type constraint");
                     }
@@ -133,13 +133,15 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        public ValueBindingExpression MakeListIndexer(int index)
+        public ValueBindingExpression MakeListIndexer(int index, bool isDataContext = false)
         {
             if (!typeof(IList).IsAssignableFrom(ResultType) && !typeof(IGridViewDataSet).IsAssignableFrom(ResultType)) throw new NotSupportedException($"ResultType is not assignable to IList.");
             return new ValueBindingExpression(bindingService, new object[]{
                 new CompiledBindingExpression.BindingDelegate((vm, control) => ((IList)ItemsControl.GetIEnumerableFromDataSource(BindingDelegate(vm, control)))[index]),
                 new KnockoutExpressionBindingProperty(JavascriptCompilationHelper.AddIndexerToViewModel(KnockoutExpression, index)),
-                new ResultTypeBindingProperty(ReflectionUtils.GetEnumerableType(ResultType))
+                new ResultTypeBindingProperty(ReflectionUtils.GetEnumerableType(ResultType)),
+                this.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull),
+                isDataContext ? IncludesThisDataContextBindingFlag.Instance : null
             });
         }
 

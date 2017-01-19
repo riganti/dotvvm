@@ -15,6 +15,9 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Utils;
 using System.Linq.Expressions;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.Tests.Runtime.ControlTree
 {
@@ -74,6 +77,16 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(root, control.Parent);
         }
 
+        private static string GetParsingError(IBinding binding)
+        {
+            var ex = binding.GetProperty(typeof(ParsedExpressionBindingProperty), ErrorHandlingMode.ReturnException) as Exception;
+            if (ex == null) return null;
+            var errors = new List<BindingCompilationException>();
+            ex.ForInnerExceptions<BindingCompilationException>(e => errors.Add(e));
+            if (errors.Any()) return string.Join("; ", errors.Select(e => e.Message));
+            else return ex.ToString();
+        }
+
         [TestMethod]
         public void ResolvedTree_SingleControlWithBinding_BindingError_MissingViewModelDirective()
         {
@@ -81,8 +94,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Could not resolve identifier"));
+            var error = GetParsingError(textBinding.Binding.Binding);
+            Assert.IsNotNull(error);
+            Assert.IsTrue(error.Contains("Could not resolve identifier"));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
@@ -96,8 +110,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Type of '_this' could not be resolved."));
+            var error = GetParsingError(textBinding.Binding.Binding);
+            Assert.IsNotNull(error);
+            Assert.IsTrue(error.Contains("Type of '_this' could not be resolved."));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
@@ -112,8 +127,9 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNotNull(textBinding.Binding.ParsingError);
-            Assert.IsTrue(textBinding.Binding.ParsingError.Message.Contains("Could not resolve identifier"));
+            var error = GetParsingError(textBinding.Binding.Binding);
+            Assert.IsNotNull(error);
+            Assert.IsTrue(error.Contains("Could not resolve identifier"));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, textBinding.Parent);
@@ -128,7 +144,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First().Properties.Values.OfType<ResolvedPropertyTemplate>().First().Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(textBinding.Binding.ParsingError);
+            textBinding.Binding.GetExpression();
         }
 
         [TestMethod]
@@ -139,7 +155,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var textBinding = (ResolvedPropertyBinding)control.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(textBinding.Binding.ParsingError);
+            textBinding.Binding.GetExpression();
             Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(textBinding.Binding.ResultType));
 
             Assert.AreEqual(root, control.Parent);
@@ -168,7 +184,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 
             var control = root.Content.First();
             var attribute = ((ResolvedPropertyBinding) control.GetHtmlAttribute("class"));
-            Assert.IsNull(attribute.Binding.ParsingError);
+            attribute.Binding.GetExpression();
             Assert.AreEqual(typeof(int), ResolvedTypeDescriptor.ToSystemType(attribute.Binding.ResultType));
 
             Assert.AreEqual(root, control.Parent);
@@ -234,13 +250,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(Repeater), control.Metadata.Type);
 
             var dataSource = (ResolvedPropertyBinding)control.Properties[ItemsControl.DataSourceProperty];
-            Assert.IsNull(dataSource.Binding.ParsingError);
+            dataSource.Binding.GetExpression();
 
             var itemTemplate = (ResolvedPropertyTemplate)control.Properties[Repeater.ItemTemplateProperty];
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(text.Binding.ParsingError);
+            text.Binding.GetExpression();
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, dataSource.Parent);
@@ -263,13 +279,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(Repeater), control.Metadata.Type);
 
             var dataSource = (ResolvedPropertyBinding)control.Properties[ItemsControl.DataSourceProperty];
-            Assert.IsNull(dataSource.Binding.ParsingError);
+            dataSource.Binding.GetExpression();
 
             var itemTemplate = (ResolvedPropertyTemplate)control.Properties[Repeater.ItemTemplateProperty];
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
-            Assert.IsNull(text.Binding.ParsingError);
+            text.Binding.GetExpression();
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, dataSource.Parent);
@@ -292,13 +308,13 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(typeof(Repeater), control.Metadata.Type);
 
             var dataSource = (ResolvedPropertyBinding)control.Properties[ItemsControl.DataSourceProperty];
-            Assert.IsNotNull(dataSource.Binding.ParsingError);
+            dataSource.Binding.GetExpression();
 
             var itemTemplate = (ResolvedPropertyTemplate)control.Properties[Repeater.ItemTemplateProperty];
             var button = itemTemplate.Content.FirstOrDefault(c => c.Metadata.Type == typeof(Button));
 
             var text = (ResolvedPropertyBinding)button.Properties[ButtonBase.TextProperty];
-            Assert.IsNotNull(text.Binding.ParsingError);
+            Assert.IsNotNull(GetParsingError(text.Binding.Binding));
 
             Assert.AreEqual(root, control.Parent);
             Assert.AreEqual(control, dataSource.Parent);
@@ -307,7 +323,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
             Assert.AreEqual(itemTemplate, button.Parent);
             Assert.AreEqual(button, text.Parent);
             Assert.AreEqual(text, text.Binding.Parent);
-        }
+}
 
         [TestMethod]
         public void ResolvedTree_AttachedProperty()
@@ -381,7 +397,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
 </div>
 ");
             var div = root.Content.First(r => r.Metadata.Name == nameof(HtmlGenericControl));
-            Assert.IsTrue((div.Properties[DotvvmBindableObject.DataContextProperty] as ResolvedPropertyBinding).Binding.ParsingError != null);
+            Assert.IsTrue((div.Properties[DotvvmBindableObject.DataContextProperty] as ResolvedPropertyBinding).Binding.Errors.Any());
 
         }
 
