@@ -139,10 +139,16 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.Assign:
                     return TranslateAssing((BinaryExpression)expression);
             }
-            if (expression is BinaryExpression) return TranslateBinary((BinaryExpression)expression);
-            else if (expression is UnaryExpression) return TranslateUnary((UnaryExpression)expression);
+            if (expression is BinaryExpression)
+            {
+                return TranslateBinary((BinaryExpression)expression);
+            }
+            else if (expression is UnaryExpression)
+            {
+                return TranslateUnary((UnaryExpression)expression);
+            }
 
-            throw new NotSupportedException($"expression type { expression.NodeType } can not be transaled to Javascript");
+            throw new NotSupportedException($"The expression type {expression.NodeType} can not be translated to Javascript!");
         }
 
         public string TranslateAssing(BinaryExpression expression)
@@ -155,12 +161,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return TryTranslateMethodCall(target, new[] { value }, (property.Member as PropertyInfo)?.SetMethod, property.Expression, new[] { expression.Right }) ??
                     SetProperty(target, property.Member as PropertyInfo, value);
             }
-            throw new NotSupportedException($"can not assign expression of type {expression.Left.NodeType}");
+            throw new NotSupportedException($"Can not assign expression of type {expression.Left.NodeType}!");
         }
 
         private string SetProperty(string target, PropertyInfo property, string value)
         {
-            if (ViewModelJsonConverter.IsPrimitiveType(property.PropertyType))
+            if (!ViewModelJsonConverter.IsComplexType(property.PropertyType))
             {
                 return target + "." + property.Name + "(" + value + ")";
             }

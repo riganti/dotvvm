@@ -141,6 +141,8 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_Serialization_Serialization => "FeatureSamples/Serialization/Serialization";
 			public static string FeatureSamples_ServerComments_ServerComments => "FeatureSamples/ServerComments/ServerComments";
 			public static string FeatureSamples_StaticCommand_StaticCommand => "FeatureSamples/StaticCommand/StaticCommand";
+			public static string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged => "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged";
+			public static string FeatureSamples_StaticCommand_StaticCommand_ComboBoxSelectionChanged_Objects => "FeatureSamples/StaticCommand/StaticCommand_ComboBoxSelectionChanged_Objects";
 			public static string FeatureSamples_Validation_ClientSideValidationDisabling => "FeatureSamples/Validation/ClientSideValidationDisabling";
 			public static string FeatureSamples_Validation_DateTimeValidation => "FeatureSamples/Validation/DateTimeValidation";
 			public static string FeatureSamples_Validation_DateTimeValidation_NullableDateTime => "FeatureSamples/Validation/DateTimeValidation_NullableDateTime";
