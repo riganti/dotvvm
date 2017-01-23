@@ -162,12 +162,6 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
-    public sealed class IncludesThisDataContextBindingFlag
-    {
-        public static readonly IncludesThisDataContextBindingFlag Instance = new IncludesThisDataContextBindingFlag();
-        IncludesThisDataContextBindingFlag() { }
-    }
-
     public sealed class BindingErrorReporterProperty
     {
         public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();

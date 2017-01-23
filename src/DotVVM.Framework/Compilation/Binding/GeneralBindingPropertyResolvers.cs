@@ -58,6 +58,10 @@ namespace DotVVM.Framework.Compilation.Binding
             var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var expr = ExpressionUtils.Replace(binding.Expression, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType ?? typeof(DotvvmControl))));
+            
+            // don't throw exception, it is annoying to debug.
+            if (expr.NodeType != ExpressionType.Parameter && expr.NodeType != ExpressionType.MemberAccess && expr.NodeType != ExpressionType.Index) return null;
+
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
             return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter);
         }

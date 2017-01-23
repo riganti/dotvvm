@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        public ValueBindingExpression MakeListIndexer(int index, bool isDataContext = false)
+        public ValueBindingExpression MakeListIndexer(int index)
         {
             if (!typeof(IList).IsAssignableFrom(ResultType) && !typeof(IGridViewDataSet).IsAssignableFrom(ResultType)) throw new NotSupportedException($"ResultType is not assignable to IList.");
             return new ValueBindingExpression(bindingService, new object[]{
@@ -141,7 +141,6 @@ namespace DotVVM.Framework.Binding.Expressions
                 new KnockoutExpressionBindingProperty(JavascriptCompilationHelper.AddIndexerToViewModel(KnockoutExpression, index)),
                 new ResultTypeBindingProperty(ReflectionUtils.GetEnumerableType(ResultType)),
                 this.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull),
-                isDataContext ? IncludesThisDataContextBindingFlag.Instance : null
             });
         }
 

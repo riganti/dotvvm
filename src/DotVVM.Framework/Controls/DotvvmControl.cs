@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Controls
             // if the DataContext is set, render the "with" binding
             if (HasBinding(DataContextProperty))
             {
-                writer.WriteKnockoutWithComment(GetValueBinding(DataContextProperty).GetKnockoutBindingExpression());
+                writer.WriteKnockoutWithComment(GetValueBinding(DataContextProperty).GetKnockoutBindingExpression(Parent));
             }
         }
 

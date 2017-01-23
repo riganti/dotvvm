@@ -17,7 +17,7 @@ namespace DotVVM.Framework.Controls
 
 
         protected internal Dictionary<DotvvmProperty, object> properties;
-        
+
         /// <summary>
         /// Gets the collection of control property values.
         /// </summary>
@@ -55,7 +55,7 @@ namespace DotVVM.Framework.Controls
         {
             return declaredProperties.GetOrAdd(GetType(), DotvvmProperty.ResolveProperties);
         }
-        
+
         /// <summary>
         /// Determines whether the specified property is set.
         /// </summary>
@@ -76,7 +76,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty DataContextProperty =
             DotvvmProperty.Register<object, DotvvmBindableObject>(c => c.DataContext, isValueInherited: true);
 
-
         public T GetValue<T>(DotvvmProperty property, bool inherit = true)
         {
             return (T)GetValue(property, inherit);
@@ -92,11 +91,8 @@ namespace DotVVM.Framework.Controls
             while (value is IBinding)
             {
                 DotvvmBindableObject control = this;
-                if (inherit && !properties.ContainsKey(property))
-                {
-                    int n;
-                    control = GetClosestWithPropertyValue(out n, d => d.properties != null && d.properties.ContainsKey(property));
-                }
+                // DataContext is always bound to it's parent, setting it right here is a bit faster
+                if (property == DataContextProperty) control = control.Parent;
                 if (value is IStaticValueBinding)
                 {
                     // handle binding

@@ -42,16 +42,16 @@ namespace DotVVM.Framework.Binding
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
         }
 
-        public static void ExecUpdateDelegate(this CompiledBindingExpression.BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value, bool seeThis)
+        public static void ExecUpdateDelegate(this CompiledBindingExpression.BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
         {
-            var dataContexts = GetDataContexts(contextControl, seeThis);
+            var dataContexts = GetDataContexts(contextControl);
             var control = contextControl.GetClosestControlBindingTarget();
             func(dataContexts.ToArray(), control, value);
         }
 
-        public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl, bool seeThis)
+        public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
         {
-            var dataContexts = GetDataContexts(contextControl, seeThis);
+            var dataContexts = GetDataContexts(contextControl);
             var control = contextControl.GetClosestControlBindingTarget();
             try
             {
@@ -66,10 +66,8 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets all data context on the path to root
         /// </summary>
-        public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, bool seeThis, bool crossMarkupControl = false)
+        public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, bool crossMarkupControl = false)
         {
-            if (!seeThis) contextControl = contextControl?.Parent;
-
             var c = contextControl;
             while(c != null)
             {
@@ -90,8 +88,7 @@ namespace DotVVM.Framework.Binding
         {
             return ExecDelegate(
                 binding.BindingDelegate,
-                FindDataContextTarget(binding, control).target,
-                binding.GetProperty<IncludesThisDataContextBindingFlag>(ErrorHandlingMode.ReturnNull) == null);
+                FindDataContextTarget(binding, control).target);
         }
 
         /// <summary>
@@ -102,16 +99,14 @@ namespace DotVVM.Framework.Binding
             ExecUpdateDelegate(
                 binding.UpdateDelegate,
                 FindDataContextTarget(binding, control).target,
-                value,
-                binding.GetProperty<IncludesThisDataContextBindingFlag>(ErrorHandlingMode.ReturnNull) == null);
+                value);
         }
 
         public static Delegate GetCommandDelegate(this ICommandBinding binding, DotvvmBindableObject control)
         {
             return (Delegate)ExecDelegate(
                 binding.BindingDelegate,
-                FindDataContextTarget(binding, control).target,
-                binding.GetProperty<IncludesThisDataContextBindingFlag>(ErrorHandlingMode.ReturnNull) == null);
+                FindDataContextTarget(binding, control).target);
         }
 
         public static object Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params object[] args)

@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Controls
 
         protected ValueBindingExpression GetItemBinding(int index)
         {
-            return GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeListIndexer(index, isDataContext: true);
+            return GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeListIndexer(index);
         }
 
         public static IEnumerable GetIEnumerableFromDataSource(object dataSource)
