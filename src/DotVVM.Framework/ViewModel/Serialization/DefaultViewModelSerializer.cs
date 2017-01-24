@@ -231,7 +231,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view)
         {
             // get properties
-            var data = JObject.Parse(serializedPostData);
+            var data = context.ReceivedViewModelJson;
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();

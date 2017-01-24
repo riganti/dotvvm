@@ -100,7 +100,8 @@ namespace DotVVM.Framework.Controls
                 p == CommandBindingExpression.PostbackHandlersParameters ? new CodeParameterAssignment(GetPostBackHandlersScript(control, propertyName), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
                 );
-            return condition + call + returnStatement;
+            if (options.IsOnChange) call = "if(!dotvvm.isViewModelUpdating){" + call + "}";
+            return call + returnStatement;
         }
 
         /// <summary>
