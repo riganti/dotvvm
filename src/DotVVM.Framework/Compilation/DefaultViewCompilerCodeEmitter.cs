@@ -277,12 +277,19 @@ namespace DotVVM.Framework.Compilation
             if (type.GetTypeInfo().IsEnum)
             {
                 UseType(type);
-                return
-                    SyntaxFactory.MemberAccessExpression(
-                        SyntaxKind.SimpleMemberAccessExpression,
-                        ParseTypeName(type),
-                        SyntaxFactory.IdentifierName(value.ToString())
-                    );
+                var flags =
+                    value.ToString().Split(',').Select(v =>
+                        SyntaxFactory.MemberAccessExpression(
+                            SyntaxKind.SimpleMemberAccessExpression,
+                            ParseTypeName(type),
+                            SyntaxFactory.IdentifierName(v.ToString())
+                        )
+                   ).ToArray();
+                ExpressionSyntax expr = flags[0];
+                foreach (var i in flags.Skip(1)) {
+                    expr = SyntaxFactory.BinaryExpression(SyntaxKind.BitwiseOrExpression, expr, i);
+                }
+                return expr;
             }
             if (type.IsArray || typeof(IEnumerable).IsAssignableFrom(type))
             {

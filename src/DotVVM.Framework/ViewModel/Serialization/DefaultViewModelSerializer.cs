@@ -91,8 +91,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // create result object
             var result = new JObject();
             result["viewModel"] = writer.Token;
-            result["url"] = context.HttpContext?.Request?.Url?.PathAndQuery;
-            result["virtualDirectory"] = context.HttpContext?.Request?.PathBase?.Value?.Trim('/') ?? "";
+            result["url"] = context.HttpContext.Request.Url.PathAndQuery;
+            result["virtualDirectory"] = context.HttpContext.Request.PathBase.Value?.Trim('/') ?? "";
             if (context.ResultIdFragment != null)
             {
                 result["resultIdFragment"] = context.ResultIdFragment;
@@ -210,14 +210,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
             else viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper);
 
             // get validation path
-            context.ModelState.ValidationTargetPath = data["validationTargetPath"]?.Value<string>();
+            context.ModelState.ValidationTargetPath = data["validationTargetPath"].Value<string>();
 
             // populate the ViewModel
             var serializer = CreateJsonSerializer();
             serializer.Converters.Add(viewModelConverter);
             try
             {
-                viewModelConverter.Populate(viewModelToken.CreateReader(), serializer, context.ViewModel);
+                viewModelConverter.Populate(viewModelToken, serializer, context.ViewModel);
             }
             catch (Exception ex)
             {
@@ -231,7 +231,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public ActionInfo ResolveCommand(IDotvvmRequestContext context, DotvvmView view)
         {
             // get properties
-            var data = context.ReceivedViewModelJson ?? throw new NotSupportedException("Could not find ReceivedViewModelJson in request context.");
+            var data = JObject.Parse(serializedPostData);
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();

@@ -359,6 +359,13 @@ namespace DotVVM.Framework.Tests.Binding
                 new TestViewModel { StringProp = "5" }});
             Assert.AreEqual("54554321", result);
         }
+
+        [TestMethod]
+        public void BindingCompiler_ImplicitConstantConversionInsideConditional()
+        {
+            var result = ExecuteBinding("true ? 'Utc' : 'Local'", new object[] { }, null, null, typeof(DateTimeKind));
+            Assert.AreEqual(DateTimeKind.Utc, result);
+        }
     }
     class TestViewModel
     {

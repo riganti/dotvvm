@@ -2,7 +2,7 @@
   <PropertyGroup>
     <Description>ASP.NET MVVM Framework</Description>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-    <VersionPrefix>1.1.0-rc</VersionPrefix>
+    <VersionPrefix>1.1.0-rc3</VersionPrefix>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -10,7 +10,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-    <PackageVersion>1.1.0-rc</PackageVersion>
+    <PackageVersion>1.1.0-rc3</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -27,6 +27,20 @@
     <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
     <PreserveCompilationContext>true</PreserveCompilationContext>
   </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\DotVVM.Compiler\bin\$(Configuration)\DotVVM.Compiler.exe">
+      <Pack>true</Pack>
+      <InProject>false</InProject>
+      <PackagePath>tools\DotVVM.Compiler.exe</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+    <Content Include="..\DotVVM.Compiler.Light\bin\$(Configuration)\netcoreapp1.0\DotVVM.Compiler.Light.dll">
+      <Pack>true</Pack>
+      <InProject>false</InProject>
+      <PackagePath>tools\DotVVM.Compiler.Light.dll</PackagePath>
+      <Visible>false</Visible>
+    </Content>
+  </ItemGroup>
   <ItemGroup>
     <Compile Include="**\*.cs" />
     <EmbeddedResource Include="**\*.resx" />

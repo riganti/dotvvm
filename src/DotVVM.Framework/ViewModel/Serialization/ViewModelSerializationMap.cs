@@ -6,7 +6,6 @@ using DotVVM.Framework.Utils;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using System.Reflection;
-using DotVVM.Framework.Compilation.Binding;
 
 namespace DotVVM.Framework.ViewModel.Serialization
 {
@@ -15,9 +14,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
     /// </summary>
     public class ViewModelSerializationMap
     {
-        public delegate void ReaderDelegate(JsonReader reader, JsonSerializer serializer, object value, EncryptedValuesReader encryptedValuesReader);
-        public delegate void WriterDelegate(JsonWriter writer, object obj, JsonSerializer serializer, EncryptedValuesWriter evWriter, bool isPostback);
-
         private const string CLIENT_EXTENDERS_KEY = "clientExtenders";
 
         /// <summary>
@@ -43,21 +39,33 @@ namespace DotVVM.Framework.ViewModel.Serialization
             writerFactory = null;
         }
 
-        private ReaderDelegate readerFactory;
+        private Action<JObject, JsonSerializer, object, EncryptedValuesReader> readerFactory;
         /// <summary>
         /// Gets the JSON reader factory.
         /// </summary>
-        public ReaderDelegate ReaderFactory => readerFactory ?? (readerFactory = CreateReaderFactory());
-        private WriterDelegate writerFactory;
+        public Action<JObject, JsonSerializer, object, EncryptedValuesReader> ReaderFactory
+        {
+            get { return readerFactory ?? (readerFactory = CreateReaderFactory()); }
+        }
+
+        private Action<JsonWriter, object, JsonSerializer, EncryptedValuesWriter, bool> writerFactory;
         /// <summary>
         /// Gets the JSON writer factory.
         /// </summary>
-        public WriterDelegate WriterFactory => writerFactory ?? (writerFactory = CreateWriterFactory());
+        public Action<JsonWriter, object, JsonSerializer, EncryptedValuesWriter, bool> WriterFactory
+        {
+            get { return writerFactory ?? (writerFactory = CreateWriterFactory()); }
+        }
+
         private Func<object> constructorFactory;
         /// <summary>
         /// Gets the constructor factory.
         /// </summary>
-        public Func<object> ConstructorFactory => constructorFactory ?? (constructorFactory = CreateConstructorFactory());
+        public Func<object> ConstructorFactory
+        {
+            get { return constructorFactory ?? (constructorFactory = CreateConstructorFactory()); }
+        }
+
         /// <summary>
         /// Creates the constructor for this object.
         /// </summary>
@@ -70,15 +78,14 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// <summary>
         /// Creates the reader factory.
         /// </summary>
-        public ReaderDelegate CreateReaderFactory()
+        public Action<JObject, JsonSerializer, object, EncryptedValuesReader> CreateReaderFactory()
         {
             var block = new List<Expression>();
-            var reader = Expression.Parameter(typeof(JsonReader), "reader");
+            var jobj = Expression.Parameter(typeof(JObject), "jobj");
             var serializer = Expression.Parameter(typeof(JsonSerializer), "serializer");
             var valueParam = Expression.Parameter(typeof(object), "valueParam");
             var encryptedValuesReader = Expression.Parameter(typeof(EncryptedValuesReader), "encryptedValuesReader");
             var value = Expression.Variable(Type, "value");
-            var currentProperty = Expression.Variable(typeof(string), "currentProperty");
 
             // add current object to encrypted values, this is needed because one property can potentionaly contain more objects (is a collection)
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
@@ -86,13 +93,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // value = new {Type}();
             block.Add(Expression.Assign(value, Expression.Convert(valueParam, Type)));
 
-            block.Add(ExpressionUtils.Replace((JsonReader rdr) => rdr.TokenType == JsonToken.StartObject ? rdr.Read() : ExpressionUtils.Stub.Throw<bool>(new Exception($"TokenType = StartObject was expected.")), reader));
-
-            var propertiesSwitch = new List<SwitchCase>();
-
             // go through all properties that should be read
-            foreach (var property in Properties.Where(p => p.TransferToServer && p.PropertyInfo.SetMethod != null)) {
-                if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData) {
+            foreach (var property in Properties.Where(p => p.TransferToServer && p.PropertyInfo.SetMethod != null))
+            {
+                if (property.ViewModelProtection == ProtectMode.EncryptData || property.ViewModelProtection == ProtectMode.SignData)
+                {
                     // encryptedValues[(int)jobj["{p.Name}"]]
 
                     block.Add(Expression.Call(
@@ -100,60 +105,45 @@ namespace DotVVM.Framework.ViewModel.Serialization
                         property.PropertyInfo.SetMethod,
                         Expression.Convert(
                             ExpressionUtils.Replace(
-                                (JsonSerializer s, EncryptedValuesReader ev, object existing) => Deserialize(s, ev.ReadValue().CreateReader(), property, existing),
+                                (JsonSerializer s, EncryptedValuesReader ev, object existing) => Deserialize(s, ev.ReadValue(), property, existing),
                                 serializer, encryptedValuesReader,
                                     Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object))),
                             property.Type)
                         ));
-                } else {
-                    var propertyblock = new List<Expression>();
+                }
+                else
+                {
                     var checkEV = property.TransferAfterPostback && property.TransferFirstRequest && ShouldCheckEncrypedValues(property.Type);
-                    if (checkEV) {
+                    if (checkEV)
+                    {
                         // lastEncrypedValuesCount = encrypedValues.Count
-                        propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
+                        block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.Nest), Type.EmptyTypes));
                     }
+
+                    var jsonProp = ExpressionUtils.Replace((JObject j) => j[property.Name], jobj);
 
                     // if ({jsonProp} != null) value.{p.Name} = deserialize();
-                    propertyblock.Add(
-                        Expression.Call(
-                        value,
-                        property.PropertyInfo.SetMethod,
-                        Expression.Convert(
-                            ExpressionUtils.Replace((JsonSerializer s, JsonReader j, object existingValue) =>
-                                Deserialize(s, j, property, existingValue),
-                                serializer, reader,
-                                property.Populate ?
-                                    (Expression)Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object)) :
-                                    Expression.Constant(null, typeof(object))),
-                            property.Type)
-                    ));
+                    block.Add(
+                        Expression.IfThen(Expression.NotEqual(jsonProp, Expression.Constant(null)),
+                            Expression.Call(
+                            value,
+                            property.PropertyInfo.SetMethod,
+                            Expression.Convert(
+                                ExpressionUtils.Replace((JsonSerializer s, JObject j, object existingValue) =>
+                                    Deserialize(s, j[property.Name], property, existingValue),
+                                    serializer, jobj,
+                                    property.Populate ? 
+                                        (Expression)Expression.Convert(Expression.Property(value, property.PropertyInfo), typeof(object)) :
+                                        Expression.Constant(null, typeof(object))),
+                                property.Type)
+                    )));
 
-                    propertyblock.Add(
-                        Expression.Call(reader, "Read", Type.EmptyTypes));
-
-                    if (checkEV) {
-                        propertyblock.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
+                    if (checkEV)
+                    {
+                        block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
                     }
-
-                    propertiesSwitch.Add(Expression.SwitchCase(
-                        Expression.Block(typeof(void), propertyblock),
-                        Expression.Constant(property.Name)
-                    ));
                 }
             }
-
-            block.Add(ExpressionUtils.While(
-                ExpressionUtils.Replace((JsonReader rdr, string val) => rdr.TokenType == JsonToken.PropertyName &&
-                                                                        ExpressionUtils.Stub.Assign(val, rdr.Value as string) != null &&
-                                                                        rdr.Read(), reader, currentProperty),
-                ExpressionUtils.Switch(currentProperty,
-                    Expression.Block(typeof(void),
-                        Expression.IfThen(
-                            ExpressionUtils.Replace((JsonReader rdr) => rdr.TokenType == JsonToken.StartArray || rdr.TokenType == JsonToken.StartConstructor || rdr.TokenType == JsonToken.StartObject, reader),
-                            Expression.Call(reader, "Skip", Type.EmptyTypes)),
-                        Expression.Call(reader, "Read", Type.EmptyTypes)),
-                    propertiesSwitch.ToArray())
-                ));
 
             // close encrypted values
             block.Add(Expression.Call(encryptedValuesReader, nameof(EncryptedValuesReader.AssertEnd), Type.EmptyTypes));
@@ -162,13 +152,12 @@ namespace DotVVM.Framework.ViewModel.Serialization
 
 
             // build the lambda expression
-            var ex = Expression.Lambda<ReaderDelegate>(
+            var ex = Expression.Lambda<Action<JObject, JsonSerializer, object, EncryptedValuesReader>>(
                 Expression.Convert(
-                    Expression.Block(Type, new[] { value, currentProperty }, block),
+                    Expression.Block(Type, new[] { value }, block),
                     typeof(object)).OptimizeConstants(),
-                reader, serializer, valueParam, encryptedValuesReader);
+                jobj, serializer, valueParam, encryptedValuesReader);
             return ex.Compile();
-            //return null;
         }
 
         private static void Serialize(JsonSerializer serializer, JsonWriter writer, ViewModelPropertyMap property, object value)
@@ -183,37 +172,46 @@ namespace DotVVM.Framework.ViewModel.Serialization
             }
         }
 
-        private static object Deserialize(JsonSerializer serializer, JsonReader reader, ViewModelPropertyMap property, object existingValue)
+        private static object Deserialize(JsonSerializer serializer, JToken jtoken, ViewModelPropertyMap property, object existingValue)
         {
             if (property.JsonConverter != null && property.JsonConverter.CanRead && property.JsonConverter.CanConvert(property.Type))
             {
-                return property.JsonConverter.ReadJson(reader, property.Type, existingValue, serializer);
+                return property.JsonConverter.ReadJson(jtoken.CreateReader(), property.Type, existingValue, serializer);
             }
             else if (existingValue != null && property.Populate)
             {
-                if (reader.TokenType == JsonToken.Null)
-                    return null;
-                else if (reader.TokenType == JsonToken.StartObject)
+                if (jtoken.Type == JTokenType.Null)
                 {
-                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate(reader, serializer, existingValue);
+                    return null;
+                }
+                else if (jtoken.Type == JTokenType.Object)
+                {
+                    serializer.Converters.OfType<ViewModelJsonConverter>().First().Populate((JObject) jtoken, serializer, existingValue);
                     return existingValue;
                 }
                 else
                 {
-                    serializer.Populate(reader, existingValue);
+                    serializer.Populate(jtoken.CreateReader(), existingValue);
                     return existingValue;
                 }
             }
             else
             {
-                return serializer.Deserialize(reader, property.Type);
+                if (property.Type.GetTypeInfo().IsValueType && jtoken.Type == JTokenType.Null)
+                {
+                    return Activator.CreateInstance(property.Type);
+                }
+                else
+                {
+                    return serializer.Deserialize(jtoken.CreateReader(), property.Type);
+                }
             }
         }
 
         /// <summary>
         /// Creates the writer factory.
         /// </summary>
-        public WriterDelegate CreateWriterFactory()
+        public Action<JsonWriter, object, JsonSerializer, EncryptedValuesWriter, bool> CreateWriterFactory()
         {
             var block = new List<Expression>();
             var writer = Expression.Parameter(typeof(JsonWriter), "writer");
@@ -337,7 +335,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             block.Add(ExpressionUtils.Replace<JsonWriter>(w => w.WriteEndObject(), writer));
             block.Add(Expression.Call(encryptedValuesWriter, nameof(EncryptedValuesWriter.End), Type.EmptyTypes));
             // compile the expression
-            var ex = Expression.Lambda<WriterDelegate>(
+            var ex = Expression.Lambda<Action<JsonWriter, object, JsonSerializer, EncryptedValuesWriter, bool>>(
                 Expression.Block(new[] { value }, block).OptimizeConstants(), writer, valueParam, serializer, encryptedValuesWriter, isPostback);
             return ex.Compile();
         }

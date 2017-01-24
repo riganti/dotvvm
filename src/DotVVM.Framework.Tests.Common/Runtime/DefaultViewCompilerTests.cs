@@ -14,6 +14,8 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Binding;
+using System.Linq;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -297,7 +299,15 @@ test <dot:Literal><a /></dot:Literal>";
             });
         }
 
-
+        [TestMethod]
+        public void DefaultViewCompiler_FlagsEnum()
+        {
+            var markup = @"
+@viewModel System.Object
+<ff:TestCodeControl Flags='A, B, C' />";
+            var page = CompileMarkup(markup);
+            Assert.AreEqual(FlaggyEnum.A | FlaggyEnum.B | FlaggyEnum.C, page.GetThisAndAllDescendants().OfType<TestCodeControl>().First().Flags);
+        }
 
         private DotvvmControl CompileMarkup(string markup, Dictionary<string, string> markupFiles = null, bool compileTwice = false, [CallerMemberName]string fileName = null)
         {
@@ -318,6 +328,7 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test2", Src = "test2.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test3", Src = "test3.dothtml" });
             context.Configuration.Markup.Controls.Add(new DotvvmControlConfiguration() { TagPrefix = "cc", TagName = "Test4", Src = "test4.dothtml" });
+            context.Configuration.Markup.AddCodeControl("ff", typeof(TestControl));
             context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).GetTypeInfo().Assembly.GetName().Name);
 
             var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
@@ -341,6 +352,21 @@ test <dot:Literal><a /></dot:Literal>";
     public class TestControl : DotvvmMarkupControl
     {
 
+    }
+
+    [Flags]
+    public enum FlaggyEnum { A, B, C, D}
+
+    public class TestCodeControl: DotvvmControl
+    {
+        public FlaggyEnum Flags
+        {
+            get { return (FlaggyEnum)GetValue(FlagsProperty); }
+            set { SetValue(FlagsProperty, value); }
+        }
+
+        public static readonly DotvvmProperty FlagsProperty =
+            DotvvmProperty.Register<FlaggyEnum, TestCodeControl>(nameof(Flags));
     }
 
     public class FakeMarkupFileLoader : IMarkupFileLoader

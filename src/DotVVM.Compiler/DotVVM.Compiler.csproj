@@ -193,6 +193,7 @@
     <Compile Include="OfflineCompilationControlResolver.cs" />
     <Compile Include="OwinInitializer.cs" />
     <Compile Include="Program.cs" />
+    <Compile Include="Program2.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResolvedControlInfoVisitor.cs" />
     <Compile Include="ViewStaticCompilerCompiler.cs" />

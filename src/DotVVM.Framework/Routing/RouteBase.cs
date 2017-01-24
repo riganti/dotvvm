@@ -118,7 +118,7 @@ namespace DotVVM.Framework.Routing
         /// <summary>
         /// Builds the URL.
         /// </summary>
-        public string BuildUrl(object routeValues)
+        public string BuildUrl(object routeValues = null)
         {
             var values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, routeValues);
@@ -132,7 +132,9 @@ namespace DotVVM.Framework.Routing
         public string BuildUrl(IDictionary<string, object> routeValues)
         {
             if (routeValues == null)
-                throw new ArgumentNullException(nameof(routeValues));
+            {
+                routeValues = new Dictionary<string, object>();
+            }
 
             var values = new Dictionary<string, object>(DefaultValues, StringComparer.OrdinalIgnoreCase);
             AddOrUpdateParameterCollection(values, routeValues);

@@ -4,7 +4,6 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
 
 namespace DotVVM.Framework.PerfTests
 {
@@ -12,28 +11,12 @@ namespace DotVVM.Framework.PerfTests
     {
         static void Main(string[] args)
         {
-            //ParserTest();
-            var t = new SerializerTests(false);
-            t.Serialize();
-            Console.WriteLine($"VM size: {t.LastViewModel.Length/1024.0/1024.0}MB");
-
-            //TestForever(() => {
-            //    //var jobj = JObject.Parse(t.LastViewModel);
-            //    //var jobj = JObject.Load(t.request.ViewModelJson.CreateReader());
-            //});
-
-
-            TestForever(t.Deserialize);
-        }
-
-        private static void ParserTest()
-        {
             var t = new ParserTests();
             t.DownloadData("https://news.ycombinator.com/");
             TestForever(t.TokenizeAndParse);
         }
 
-        public static void TestForever(Action testMethod, int repeat = 1)
+        public static void TestForever(Action testMethod, int repeat = 10)
         {
             Console.WriteLine($"testing {testMethod.Method.DeclaringType.Name}.{testMethod.Method.Name}, {repeat} times per measurement");
             Console.WriteLine();

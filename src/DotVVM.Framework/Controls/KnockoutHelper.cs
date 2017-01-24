@@ -84,7 +84,6 @@ namespace DotVVM.Framework.Controls
             var uniqueControlId = target?.GetDotvvmUniqueId();
 
             // return the script
-            var condition = options.IsOnChange ? "if (!dotvvm.isViewModelUpdating) " : null;
             var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};" : "";
 
             var call = expression.GetParametrizedCommandJavascript(control).ToString(p =>

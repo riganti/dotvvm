@@ -14,7 +14,7 @@ namespace DotVVM.Framework.Compilation.Styles
         }
 
         public StyleBuilder<T> Register<T>(Func<StyleMatchContext, bool> matcher = null, bool allowDerived = true)
-            where T: DotvvmControl
+            where T: DotvvmBindableObject
         {
             var styleBuilder = new StyleBuilder<T>(matcher, allowDerived);
             Styles.Add(styleBuilder.GetStyle());

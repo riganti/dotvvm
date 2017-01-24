@@ -233,7 +233,7 @@ class DotvvmSerialization {
         if (nullable) {
             type = type.substr(0, type.length - 1);
         }
-        if (nullable && (typeof(value) === "undefined" || value == null)) {
+        if (nullable && (value == null || value == "")) {
             return true;
         }
 
@@ -253,7 +253,8 @@ class DotvvmSerialization {
             return int >= minValue && int <= maxValue && int === parseFloat(value);
         }
         if (type === "number" || type === "single" || type === "double" || type === "decimal") {
-            return !isNaN(value) || value === NaN;
+            // should check if the value is numeric or number in a string
+            return +value === value || (!isNaN(+value) && typeof value == "string");
         }
         return true;
     }
