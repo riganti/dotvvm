@@ -53,9 +53,8 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
             if (code != null) properties.Add(new OriginalStringBindingProperty(code));
             if (parsedExpression != null) properties.Add(new ParsedExpressionBindingProperty(parsedExpression));
             if (property != null) properties.Add(new AssignedPropertyBindingProperty(property));
-            this.Binding = (IBinding)Activator.CreateInstance(bindingType, new object[] { bindingService, properties }) ??
-                throw new InvalidOperationException($"Binding of type '{bindingType}' does not have a .ctor(BindingCompilationService, IEnumerable<object> properties).");
             this.BindingService = bindingService;
+            this.Binding = bindingService.CreateBinding(bindingType, properties.ToArray());
         }
 
         public Expression GetExpression() => Binding.GetProperty<ParsedExpressionBindingProperty>().Expression;

@@ -8,6 +8,7 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Binding
 {
@@ -28,6 +29,7 @@ namespace DotVVM.Framework.Binding
         // PERF: maybe safe last GetValue's target/binding to ThreadLocal variable, so the path does not have to be traversed twice
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
+            if (control == null) throw new InvalidOperationException($"Can not evaluate binding without any dataContext.");
             var controliId = (int)control.GetValue(Internal.DataContextSpaceIdProperty);
             var bindingId = binding.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull)?.Id;
             if (bindingId == null || controliId == -1 || controliId == bindingId) return (0, control);
@@ -69,7 +71,7 @@ namespace DotVVM.Framework.Binding
         public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, bool crossMarkupControl = false)
         {
             var c = contextControl;
-            while(c != null)
+            while (c != null)
             {
                 // PERF: O(h^2) because GetValue calls another GetDataContexts
                 if (c.IsPropertySet(DotvvmBindableObject.DataContextProperty, inherit: false))
@@ -120,6 +122,20 @@ namespace DotVVM.Framework.Binding
         public static ParametrizedCode GetParametrizedCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control) =>
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
+
+        public static TBinding DeriveBinding<TBinding>(this TBinding binding, params object[] properties)
+            where TBinding : IBinding
+        {
+            object[] getContextProperties(IBinding b) =>
+                new object[] {
+                    (object)b.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull) ?? b.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull),
+                    b.GetProperty<BindingAdditionalResolvers>(ErrorHandlingMode.ReturnNull),
+                    b.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull),
+                    b.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)
+                };
+            var service = binding.GetProperty<BindingCompilationService>();
+            return (TBinding)service.CreateBinding(binding.GetType(), getContextProperties(binding).Concat(properties).ToArray());
+        }
 
 //        public static string GetCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control, 
 //            CodeParameterAssignment viewModelName,

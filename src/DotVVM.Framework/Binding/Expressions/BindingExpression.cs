@@ -25,6 +25,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
             public PropValue(object value, Exception error = null)
             {
+                if (value == null && error == null) throw new ArgumentNullException();
                 this.Value = value;
                 this.Error = error;
             }
@@ -37,7 +38,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public BindingExpression(BindingCompilationService service, IEnumerable<object> properties)
         {
             foreach (var prop in properties)
-                this.properties.TryAdd(prop.GetType(), new PropValue(prop));
+                if (prop != null) this.properties[prop.GetType()] = new PropValue(prop);
             this.bindingService = service;
             service.InitializeBinding(this);
         }

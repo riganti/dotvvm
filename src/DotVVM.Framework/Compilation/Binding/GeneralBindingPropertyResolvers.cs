@@ -16,6 +16,8 @@ using DotVVM.Framework.Runtime.Filters;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Binding;
+using System.Collections;
+using System.Reflection;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -58,9 +60,11 @@ namespace DotVVM.Framework.Compilation.Binding
             var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
             var valueParameter = Expression.Parameter(typeof(object), "value");
             var expr = ExpressionUtils.Replace(binding.Expression, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType ?? typeof(DotvvmControl))));
-            
+
             // don't throw exception, it is annoying to debug.
-            if (expr.NodeType != ExpressionType.Parameter && expr.NodeType != ExpressionType.MemberAccess && expr.NodeType != ExpressionType.Index) return null;
+            if (expr.NodeType != ExpressionType.Parameter &&
+                (expr.NodeType != ExpressionType.MemberAccess || (!expr.CastTo<MemberExpression>().Member.As<PropertyInfo>()?.CanWrite ?? false)) &&
+                expr.NodeType != ExpressionType.Index) return null;
 
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
             return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter);
@@ -117,6 +121,31 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public IdBindingProperty GetIdFromOriginalString(OriginalStringBindingProperty binding) => new IdBindingProperty(binding.Code);
 
+        public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
+        {
+            if (typeof(IGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
+                return new DataSourceAccessBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(
+                    Expression.Property(expression.Expression, nameof(IGridViewDataSet.Items))
+                )));
+            else if (typeof(IEnumerable).IsAssignableFrom(expression.Expression.Type))
+                return new DataSourceAccessBinding(binding);
+            else throw new NotSupportedException($"Can not make datasource from binding '{expression.Expression}'.");
+        }
+
+        public DataSourceLengthBinding GetDataSourceLength(ParsedExpressionBindingProperty expression, IBinding binding)
+        {
+            if (typeof(ICollection).IsAssignableFrom(expression.Expression.Type))
+                return new DataSourceLengthBinding(binding.DeriveBinding(
+                    new ParsedExpressionBindingProperty(
+                        Expression.Property(expression.Expression, typeof(ICollection).GetProperty(nameof(ICollection.Count)))
+                    )));
+            else if (typeof(IGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
+                return new DataSourceLengthBinding(binding.DeriveBinding(
+                    new ParsedExpressionBindingProperty(
+                        Expression.Property(Expression.Property(expression.Expression, nameof(IGridViewDataSet.Items)), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
+                    )));
+            else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
+        }
         //public OriginalStringBindingProperty
     }
 }

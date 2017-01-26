@@ -9,6 +9,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Binding.Properties
 {
@@ -165,5 +166,23 @@ namespace DotVVM.Framework.Binding.Properties
     public sealed class BindingErrorReporterProperty
     {
         public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
+    }
+
+    public sealed class DataSourceAccessBinding
+    {
+        public readonly IBinding Binding;
+        public DataSourceAccessBinding(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
+
+    public sealed class DataSourceLengthBinding
+    {
+        public readonly IBinding Binding;
+        public DataSourceLengthBinding(IBinding binding)
+        {
+            this.Binding = binding;
+        }
     }
 }

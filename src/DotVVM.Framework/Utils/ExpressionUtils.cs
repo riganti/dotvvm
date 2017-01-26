@@ -12,7 +12,7 @@ namespace DotVVM.Framework.Utils
 {
     public static class ExpressionUtils
     {
-        public static Expression ConvertToObject(Expression expr)
+        public static Expression ConvertToObject(this Expression expr)
         {
             if (expr.Type == typeof(object)) return expr;
             else if (expr.Type == typeof(void)) return WrapInReturnNull(expr);

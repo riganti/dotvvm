@@ -315,7 +315,7 @@ namespace DotVVM.Framework.Controls
             }
             writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
             li = new HtmlGenericControl("li");
-            li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
+            li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes()[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
             link.SetBinding(ButtonBase.TextProperty, ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),

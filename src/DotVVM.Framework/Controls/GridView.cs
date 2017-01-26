@@ -151,7 +151,7 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        private void DataBind(Hosting.IDotvvmRequestContext context)
+        private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
             emptyDataContainer = null;
@@ -184,19 +184,15 @@ namespace DotVVM.Framework.Controls
             var index = 0;
             if (dataSource != null)
             {
-                // create header row
-                var items = GetIEnumerableFromDataSource(dataSource);
-                var javascriptDataSourceExpression = dataSourceBinding.GetKnockoutBindingExpression();
-
-                foreach (var item in items)
+                foreach (var item in GetIEnumerableFromDataSource())
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     placeholder.SetBinding(DataContextProperty, GetItemBinding(index));
-                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/" + index);
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
-                    CreateRowWithCells(context, placeholder);
                     Children.Add(placeholder);
+                    CreateRowWithCells(context, placeholder);
 
                     index++;
                 }
@@ -217,7 +213,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void CreateHeaderRow(Hosting.IDotvvmRequestContext context, Action<string> sortCommand)
+        private void CreateHeaderRow(IDotvvmRequestContext context, Action<string> sortCommand)
         {
             head = new HtmlGenericControl("thead");
             Children.Add(head);
@@ -409,7 +405,7 @@ namespace DotVVM.Framework.Controls
                 if (InlineEditing)
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/$index");
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) !== ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholder);
@@ -418,7 +414,7 @@ namespace DotVVM.Framework.Controls
                     writer.WriteKnockoutDataBindEndComment();
 
                     var placeholderEdit = new DataItemContainer { DataContext = null };
-                    placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/$index");
+                    placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) === ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholderEdit, true);
@@ -429,10 +425,10 @@ namespace DotVVM.Framework.Controls
                 else
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
-                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/$index");
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                     placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
-                    CreateRowWithCells(context, placeholder);
                     Children.Add(placeholder);
+                    CreateRowWithCells(context, placeholder);
                     placeholder.Render(writer, context);
 
                 }

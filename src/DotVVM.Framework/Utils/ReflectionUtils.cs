@@ -301,5 +301,10 @@ namespace DotVVM.Framework.Utils
                 return Convert.ToBase64String(hashBytes);
             }
         }
+
+        public static object ExceptionSafeDynamicInvoke(this Delegate d, object[] args) =>
+            Expression.Lambda<Func<object>>(
+                Expression.Invoke(Expression.Constant(d), args.Zip(d.GetMethodInfo().GetParameters(), (a, p) => Expression.Constant(a, p.ParameterType))).ConvertToObject())
+            .Compile().Invoke();
     }
 }

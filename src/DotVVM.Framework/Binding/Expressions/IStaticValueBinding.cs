@@ -7,6 +7,5 @@ namespace DotVVM.Framework.Binding.Expressions
     {
         CompiledBindingExpression.BindingDelegate BindingDelegate { get; }
         Type ResultType { get; }
-        //T+ object Evaluate(DotvvmBindableObject control, DotvvmProperty property);
     }
 }

@@ -85,7 +85,7 @@ namespace DotVVM.Framework.Binding.Expressions
             var expression = visitor.Visit(expr.Body);
             var dataContext = visitor.GetDataContext();
             return new ValueBindingExpression(service, new object[] {
-                new ParsedExpressionBindingProperty(expression),
+                new ParsedExpressionBindingProperty(expression.OptimizeConstants()),
                 new ResultTypeBindingProperty(typeof(T)),
                 dataContext
             });
@@ -135,9 +135,10 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public ValueBindingExpression MakeListIndexer(int index)
         {
-            if (!typeof(IList).IsAssignableFrom(ResultType) && !typeof(IGridViewDataSet).IsAssignableFrom(ResultType)) throw new NotSupportedException($"ResultType is not assignable to IList.");
+            // TODO: use compiled property and _collection.Index instead of this
+            if (!typeof(IEnumerable).IsAssignableFrom(ResultType) && !typeof(IGridViewDataSet).IsAssignableFrom(ResultType)) throw new NotSupportedException($"ResultType is not assignable to IList.");
             return new ValueBindingExpression(bindingService, new object[]{
-                new CompiledBindingExpression.BindingDelegate((vm, control) => ((IList)ItemsControl.GetIEnumerableFromDataSource(BindingDelegate(vm, control)))[index]),
+                new CompiledBindingExpression.BindingDelegate((vm, control) => this.GetProperty<DataSourceAccessBinding>().Binding.GetProperty<CompiledBindingExpression.BindingDelegate>()(vm, control).CastTo<IEnumerable>().Cast<object>().ElementAt(index)),
                 new KnockoutExpressionBindingProperty(JavascriptCompilationHelper.AddIndexerToViewModel(KnockoutExpression, index)),
                 new ResultTypeBindingProperty(ReflectionUtils.GetEnumerableType(ResultType)),
                 this.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull),

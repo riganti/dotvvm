@@ -111,14 +111,12 @@ namespace DotVVM.Framework.Controls
             var dataSource = DataSource;
             if (dataSource != null)
             {
-                var items = GetIEnumerableFromDataSource(dataSource).Cast<object>().ToArray();
-                var javascriptDataSourceExpression = dataSourceBinding.KnockoutExpression;
-                foreach (var item in items)
+                foreach (var item in GetIEnumerableFromDataSource())
                 {
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     ItemTemplate.BuildContent(context, placeholder);
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding(index));
-                    //placeholder.SetValue(Internal.PathFragmentProperty, JavascriptCompilationHelper.AddIndexerToViewModel(GetPathFragmentExpression(), index));
+                    placeholder.DataContext = item;
+                    placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);
                     index++;
@@ -141,7 +139,7 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        protected override bool RendersHtmlTag => RenderWrapperTag;
+    protected override bool RendersHtmlTag => RenderWrapperTag;
 
 
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -150,7 +148,7 @@ namespace DotVVM.Framework.Controls
 
             if (!RenderOnServer)
             {
-                var javascriptDataSourceExpression = JavascriptTranslator.FormatKnockoutScript(GetForeachDataBindJavascriptExpression());
+                var javascriptDataSourceExpression = GetForeachDataBindExpression().GetKnockoutBindingExpression(this);
 
                 if (RenderWrapperTag)
                 {
@@ -200,7 +198,7 @@ namespace DotVVM.Framework.Controls
             {
                 // render on client
                 var placeholder = new DataItemContainer() { DataContext = null };
-                placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/$index");
+                placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                 //placeholder.SetBinding(DataContextProperty, GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeKoContextIndexer());
                 placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
                 ItemTemplate.BuildContent(context, placeholder);

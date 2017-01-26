@@ -3,6 +3,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Binding.Expressions;
@@ -11,6 +12,7 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
 
 namespace DotVVM.Framework.Binding
@@ -67,7 +69,7 @@ namespace DotVVM.Framework.Binding
             {
                 var arguments = resolver.GetMethodInfo().GetParameters().Select(getParameterValue).ToArray();
                 { if (checkArguments(arguments) is Exception exc) return exc; }
-                var value = resolver.DynamicInvoke(arguments);
+                var value = resolver.ExceptionSafeDynamicInvoke(arguments);
                 // post process the value
                 foreach (var postProcessor in this.resolvers.GetPostProcessors(type)
                     .Concat(bindingResolvers.GetPostProcessors(type)
@@ -76,11 +78,11 @@ namespace DotVVM.Framework.Binding
                     var method = postProcessor.GetMethodInfo();
                     arguments = new[] { value }.Concat(method.GetParameters().Skip(1).Select(getParameterValue)).ToArray();
                     if (checkArguments(arguments) is Exception exc) return exc;
-                    value = postProcessor.DynamicInvoke(arguments) ?? value;
+                    value = postProcessor.ExceptionSafeDynamicInvoke(arguments) ?? value;
                 }
-                return value;
+                return value ?? new InvalidOperationException($"Could not resolve binding property '{type}'.");
             }
-            else return new InvalidOperationException($"Could not resolve binding property '{type}'."); // don't throw the exception, since it creates noise for debugger
+            else return new InvalidOperationException($"Could not resolve binding property '{type}', resolver not found."); // don't throw the exception, since it creates noise for debugger
         }
 
         protected Exception GetException(IBinding binding, string message) =>
@@ -110,7 +112,7 @@ namespace DotVVM.Framework.Binding
         //    }
         //}
 
-        class BindingResolverCollection
+        public class BindingResolverCollection
         {
             private readonly ConcurrentDictionary<Type, Delegate> resolvers = new ConcurrentDictionary<Type, Delegate>();
             private readonly ConcurrentDictionary<Type, ConcurrentStack<Delegate>> postProcs = new ConcurrentDictionary<Type, ConcurrentStack<Delegate>>();
@@ -176,10 +178,10 @@ namespace DotVVM.Framework.Binding
         /// </summary>
         public void InitializeBinding(IBinding binding, IEnumerable<BindingCompilationRequirementsAttribute> bindingRequirements = null)
         {
-            InitializeBinding(binding, GetRequirements(binding, bindingRequirements));
+            InitializeBindingCore(binding, GetRequirements(binding, bindingRequirements));
         }
 
-        protected static void InitializeBinding(IBinding binding, BindingCompilationRequirementsAttribute bindingRequirements)
+        protected static void InitializeBindingCore(IBinding binding, BindingCompilationRequirementsAttribute bindingRequirements)
         {
             var reporter = binding.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull);
             var throwException = reporter == null;

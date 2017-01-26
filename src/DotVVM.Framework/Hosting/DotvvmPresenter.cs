@@ -6,6 +6,7 @@ using System.Net;
 using System.Reflection;
 using System.Threading.Tasks;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Configuration;
@@ -177,7 +178,7 @@ namespace DotVVM.Framework.Hosting
                         // get filters
                         var methodFilters = context.Configuration.Runtime.GlobalFilters.OfType<ICommandActionFilter>()
                             .Concat(ActionFilterHelper.GetActionFilters<ICommandActionFilter>(context.ViewModel.GetType().GetTypeInfo()));
-                        if (actionInfo.Binding.GetProperty<ActionFiltersBindingProperty>() is ActionFiltersBindingProperty filters)
+                        if (actionInfo.Binding.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull) is ActionFiltersBindingProperty filters)
                             methodFilters = methodFilters.Concat(filters.Filters.OfType<ICommandActionFilter>());
 
                         await ExecuteCommand(actionInfo, context, methodFilters);

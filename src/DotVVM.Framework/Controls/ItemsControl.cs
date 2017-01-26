@@ -4,6 +4,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using System.Reflection;
 using DotVVM.Framework.Utils;
@@ -19,6 +20,9 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets the source collection or a GridViewDataSet that contains data in the control.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
+        [BindingCompilationRequirements(
+            required: new[] { typeof(DataSourceAccessBinding) },
+            optional: new[] { typeof(DataSourceLengthBinding) })]
         public object DataSource
         {
             get { return GetValue(DataSourceProperty); }
@@ -57,46 +61,16 @@ namespace DotVVM.Framework.Controls
 
         protected ValueBindingExpression GetItemBinding(int index)
         {
-            return GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeListIndexer(index);
+            return GetForeachDataBindExpression().CastTo<ValueBindingExpression>().MakeListIndexer(index);
         }
 
-        public static IEnumerable GetIEnumerableFromDataSource(object dataSource)
-        {
-            if (dataSource == null)
-            {
-                return null;
-            }
-            if (dataSource is IEnumerable)
-            {
-                return (IEnumerable)dataSource;
-            }
-            if (dataSource is IGridViewDataSet)
-            {
-                return ((IGridViewDataSet)dataSource).Items;
-            }
-            throw new NotSupportedException($"The object of type '{dataSource.GetType()}' is not supported in the DataSource property!");
-        }
+        public IEnumerable GetIEnumerableFromDataSource() =>
+            (IEnumerable)GetForeachDataBindExpression().Evaluate(this);
 
-        protected ParametrizedCode WrapJavascriptDataSourceAccess(ParametrizedCode expression)
-        {
-            // T+ JsTree compile time processing
-            return new ParametrizedCode.Builder {
-               "dotvvm.evaluator.getDataSourceItems(", expression, ")"
-            }.Build(OperatorPrecedence.Max);
-            //return "dotvvm.evaluator.getDataSourceItems(" + expression + ")";
-        }
+        protected IValueBinding GetForeachDataBindExpression() =>
+            (IValueBinding)GetDataSourceBinding().GetProperty<DataSourceAccessBinding>().Binding;
 
-        protected ParametrizedCode GetForeachDataBindJavascriptExpression()
-        {
-            var binding = GetDataSourceBinding();
-            return typeof(IList).IsAssignableFrom(binding.ResultType) ?
-                   binding.KnockoutExpression :
-                   WrapJavascriptDataSourceAccess(binding.KnockoutExpression);
-        }
-
-        protected string GetPathFragmentExpression()
-        {
-            return GetDataSourceBinding().GetKnockoutBindingExpression(this);
-        }
+        protected string GetPathFragmentExpression() =>
+            GetDataSourceBinding().GetKnockoutBindingExpression(this);
     }
 }

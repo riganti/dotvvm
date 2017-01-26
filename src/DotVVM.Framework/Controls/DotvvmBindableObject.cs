@@ -93,10 +93,9 @@ namespace DotVVM.Framework.Controls
                 DotvvmBindableObject control = this;
                 // DataContext is always bound to it's parent, setting it right here is a bit faster
                 if (property == DataContextProperty) control = control.Parent;
-                if (value is IStaticValueBinding)
+                // handle binding
+                if (value is IStaticValueBinding binding)
                 {
-                    // handle binding
-                    var binding = (IStaticValueBinding)value;
                     value = binding.Evaluate(control);
                 }
                 else if (value is ICommandBinding command)

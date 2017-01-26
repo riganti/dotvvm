@@ -158,6 +158,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c)), 0);
             AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
                 a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
+            AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(args => args[0].Indexer(args[1])));
+            AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(args => args[0].Indexer(args[1])));
+            AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(args => args[0].Indexer(args[1])));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             BindingPageInfo.RegisterJavascriptTranslations();
@@ -255,7 +258,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 return context.Member(name).WithAnnotation(new ViewModelInfoAnnotation(type, isControl));
             }
 
-            if (expression.Name == "_this")
+            if (expression.Name == "_this" || expression.Name == "_parent0")
                 return new JsSymbolicParameter(KnockoutViewModelParameter).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
             else if (expression.Name == "_parent")
                 return contextParameter("$parent", 0, expression.Type);
