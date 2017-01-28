@@ -42,8 +42,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="**\*.cs" />
-    <EmbeddedResource Include="**\*.resx" />
     <Compile Remove="node_modules\**" />
     <EmbeddedResource Remove="node_modules\**" />
   </ItemGroup>
