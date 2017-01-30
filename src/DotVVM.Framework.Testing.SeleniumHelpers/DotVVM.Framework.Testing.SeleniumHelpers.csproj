@@ -4,9 +4,6 @@
     <RuntimeIdentifiers>win7-x64;win7-x86</RuntimeIdentifiers>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="**\*.resx" />
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="Selenium.WebDriver" Version="2.53.1" />
   </ItemGroup>
   <ItemGroup>

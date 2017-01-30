@@ -13,9 +13,6 @@
     <AssemblyOriginatorKeyFile>dotvvmwizard.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="**\*.resx" />
-  </ItemGroup>
-  <ItemGroup>
     <None Include="app.config" />
     <None Include="dotvvmwizard.snk" />
   </ItemGroup>
