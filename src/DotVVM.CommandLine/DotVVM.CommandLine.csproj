@@ -1,8 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
-    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj">
-      
-    </ProjectReference>
   <PropertyGroup>
     <VersionPrefix>1.1.0-beta</VersionPrefix>
     <TargetFramework>netcoreapp1.0</TargetFramework>
@@ -14,6 +11,7 @@
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework.Tools.SeleniumGenerator\DotVVM.Framework.Tools.SeleniumGenerator.csproj" />
+    <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj"> </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.NETCore.App" Version="1.0.1" />
