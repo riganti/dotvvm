@@ -372,7 +372,9 @@ namespace DotVVM.Framework.Compilation
             }
             else
             {
-                return SyntaxFactory.ParseName($"global::{property.DescriptorFullName}");
+                return SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    ParseTypeName(property.DeclaringType),
+                    SyntaxFactory.IdentifierName(property.Name + "Property"));
             }
         }
 
