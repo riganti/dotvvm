@@ -25,7 +25,7 @@ namespace DotVVM.Framework.Controls
 
         public object EditRowId { get; set; }
 
-        public IList<int> NearPageIndexes
+        public virtual IList<int> NearPageIndexes
         {
             get { return Enumerable.Range(0, PagesCount).Where(n => Math.Abs(n - PageIndex) <= 5).ToList(); }
         }
@@ -95,7 +95,7 @@ namespace DotVVM.Framework.Controls
             PageIndex = 0;
         }
 
-        public void SetSortExpression(string expression)
+        public virtual void SetSortExpression(string expression)
         {
             if (SortExpression == expression)
             {
@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public void LoadFromQueryable(IQueryable<T> queryable)
+        public virtual void LoadFromQueryable(IQueryable<T> queryable)
         {
             TotalItemsCount = queryable.Count();
 
@@ -127,7 +127,7 @@ namespace DotVVM.Framework.Controls
             Items = queryable.ToList();
         }
 
-        public IQueryable<T> ApplySortExpression(IQueryable<T> queryable)
+        public virtual IQueryable<T> ApplySortExpression(IQueryable<T> queryable)
         {
             var type = typeof(T);
             var property = type.GetTypeInfo().GetProperty(SortExpression);
