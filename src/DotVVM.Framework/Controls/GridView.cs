@@ -9,6 +9,7 @@ using DotVVM.Framework.Runtime;
 using System.Collections;
 using System.Reflection;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
 
@@ -174,8 +175,7 @@ namespace DotVVM.Framework.Controls
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
             {
-                sortCommand = s =>
-                {
+                sortCommand = s => {
                     throw new DotvvmControlException(this, "Cannot sort when DataSource is null.");
                 };
             }
@@ -184,11 +184,18 @@ namespace DotVVM.Framework.Controls
             var index = 0;
             if (dataSource != null)
             {
+                var itemBinding = GetItemBinding(Columns.First());
+                var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
                 foreach (var item in GetIEnumerableFromDataSource())
                 {
                     // create row
                     var placeholder = new DataItemContainer { DataItemIndex = index };
-                    placeholder.SetBinding(DataContextProperty, GetItemBinding(index));
+                    placeholder.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
+                        bindingService,
+                        j => item,
+                        itemBinding.KnockoutExpression.AssignParameters(p =>
+                            p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
+                            default(CodeParameterAssignment))));
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);
@@ -358,7 +365,7 @@ namespace DotVVM.Framework.Controls
         private void CreateTemplates(Hosting.IDotvvmRequestContext context, DataItemContainer placeholder, bool isInEditMode = false)
         {
             var row = CreateRow(placeholder, isInEditMode);
-            
+
             // create cells
             foreach (var column in Columns)
             {
@@ -462,7 +469,8 @@ namespace DotVVM.Framework.Controls
 
             if (!ShowHeaderWhenNoData && !IsPropertySet(VisibleProperty))
             {
-                writer.AddKnockoutDataBind("visible", $"dotvvm.evaluator.getDataSourceItems({GetDataSourceBinding().GetKnockoutBindingExpression()}).length");
+                writer.AddKnockoutDataBind("visible",
+                    GetForeachDataBindExpression().GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
             }
 
             base.AddAttributesToRender(writer, context);

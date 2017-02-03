@@ -45,6 +45,5 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmProperty RequestContextProperty =
             DotvvmProperty.Register<IDotvvmRequestContext, Internal>(() => RequestContextProperty, defaultValue: null, isValueInherited: true);
-
     }
 }

@@ -54,7 +54,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Resolves the control tree.
         /// </summary>
-        public IAbstractTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
+        public virtual IAbstractTreeRoot ResolveTree(DothtmlRootNode root, string fileName)
         {
             var directives = ProcessDirectives(root);
             var wrapperType = ResolveWrapperType(directives, fileName);
@@ -66,7 +66,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
             // actually resolved when the control builder is ready and the metadata are complete.
             var viewMetadata = controlResolver.BuildControlMetadata(CreateControlType(wrapperType, fileName));
 
-            var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, wrapperType, null, namespaceImports);
+            var dataContextTypeStack = CreateDataContextTypeStack(viewModelType, null, namespaceImports, new BindingExtensionParameter[] {
+                new CurrentMarkupControlExtensionParameter(wrapperType),
+                new BindingPageInfoExtensionParameter()
+            });
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives);
 
@@ -278,7 +281,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 }
                 else if (dataContext != null)
                 {
-                    dataContext = CreateDataContextTypeStack(null, null, dataContext);
+                    dataContext = CreateDataContextTypeStack(null, dataContext);
                 }
                 else
                 {
@@ -361,8 +364,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(directiveNode.ValueNode.Text);
-            var parser = new BindingParser()
-            {
+            var parser = new BindingParser() {
                 Tokens = tokenizer.Tokens
             };
             var valueSyntaxRoot = parser.ReadDirectiveTypeName();
@@ -377,8 +379,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         {
             var tokenizer = new BindingTokenizer();
             tokenizer.Tokenize(directiveNode.ValueNode.Text);
-            var parser = new BindingParser()
-            {
+            var parser = new BindingParser() {
                 Tokens = tokenizer.Tokens
             };
             var valueSyntaxRoot = parser.ReadDirectiveValue();
@@ -767,12 +768,14 @@ namespace DotVVM.Framework.Compilation.ControlTree
             if (attributes == null || attributes.Length == 0) return dataContext;
 
             var type = dataContext.DataContextType;
+            var extensionParameters = new List<BindingExtensionParameter>();
             foreach (var attribute in attributes.OrderBy(a => a.Order))
             {
                 if (type == null) break;
+                extensionParameters.AddRange(attribute.GetExtensionParameters(type));
                 type = attribute.GetChildDataContextType(type, dataContext, control, property);
             }
-            return CreateDataContextTypeStack(type, parentDataContextStack: dataContext);
+            return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
         }
 
 
@@ -784,7 +787,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// <summary>
         /// Creates the data context type stack object.
         /// </summary>
-        protected abstract IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, ITypeDescriptor wrapperType = null, IDataContextStack parentDataContextStack = null, IReadOnlyList<NamespaceImport> imports = null);
+        protected abstract IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, IDataContextStack parentDataContextStack = null, IReadOnlyList<NamespaceImport> imports = null, IReadOnlyList<BindingExtensionParameter> extensionParameters = null);
 
         /// <summary>
         /// Converts the value to the property type.

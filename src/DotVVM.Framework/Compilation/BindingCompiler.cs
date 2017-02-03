@@ -18,13 +18,17 @@ using System.Reflection.Emit;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation
 {
     public class BindingCompiler : IBindingCompiler
     {
-        public static ConcurrentDictionary<int, IBinding> GlobalBindingList = new ConcurrentDictionary<int, IBinding>();
+        public static readonly ConcurrentDictionary<int, IBinding> GlobalBindingList = new ConcurrentDictionary<int, IBinding>();
         private static int globalBindingIndex = 0;
+
+        public static readonly ParameterExpression CurrentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "currentControl");
+        public static readonly ParameterExpression ViewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
 
         protected readonly DotvvmConfiguration configuration;
 
@@ -33,28 +37,48 @@ namespace DotVVM.Framework.Compilation
             this.configuration = configuration;
         }
 
+        public static Expression ReplaceParameters(Expression expression, DataContextStack dataContext, bool assertAllReplaced = true) =>
+            new ParameterReplacementVisitor(dataContext, assertAllReplaced).Visit(expression);
+
+        class ParameterReplacementVisitor: ExpressionVisitor
+        {
+            private readonly Dictionary<DataContextStack, int> ContextMap;
+            private readonly bool AssertAllReplaced;
+
+            public ParameterReplacementVisitor(DataContextStack dataContext, bool assertAllReplaced = true)
+            {
+                this.ContextMap = dataContext.EnumerableItems().Select((a, i) => (a, i)).ToDictionary(a => a.Item1, a => a.Item2);
+                this.AssertAllReplaced = assertAllReplaced;
+            }
+
+            public override Expression Visit(Expression node)
+            {
+                if (node?.GetParameterAnnotation() is BindingParameterAnnotation ann)
+                {
+                    if (ann.ExtensionParameter != null)
+                    {
+                        // T+ inherited dataContext
+                        return ann.ExtensionParameter.GetServerEquivalent(CurrentControlParameter);
+                    }
+                    else
+                    {
+                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[ann.DataContext])), ann.DataContext.DataContextType);
+                    }
+                }
+                return base.Visit(node);
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                if (AssertAllReplaced && node != CurrentControlParameter && node != ViewModelsParameter)
+                    throw new Exception($"Parameter {node.Name}:{node.Type.Name} could not be translated.");
+                return base.VisitParameter(node);
+            }
+        }
+
         private static KeyValuePair<string, Expression> GetParameter(int index, string name, Expression vmArray, Type[] parents)
         {
             return new KeyValuePair<string, Expression>(name, Expression.Convert(Expression.ArrayIndex(vmArray, Expression.Constant(index)), parents[index]));
-        }
-
-        public static IEnumerable<KeyValuePair<string, Expression>> GetParameters(DataContextStack dataContext, Expression vmArray, Expression controlRoot)
-        {
-            var par = dataContext.Enumerable().ToArray();
-            yield return GetParameter(0, ParserConstants.ThisSpecialBindingProperty, vmArray, par);
-            yield return GetParameter(par.Length - 1, ParserConstants.RootSpecialBindingProperty, vmArray, par);
-            yield return new KeyValuePair<string, Expression>("_control", controlRoot);
-            yield return new KeyValuePair<string, Expression>("_parents", vmArray);
-            yield return new KeyValuePair<string, Expression>("_page", Expression.New(typeof(BindingPageInfo)));
-            if (par.Length > 0)
-            {
-                if (par.Length > 1)
-                    yield return GetParameter(1, ParserConstants.ParentSpecialBindingProperty, vmArray, par);
-                for (int i = 0; i < par.Length; i++)
-                {
-                    yield return GetParameter(i, ParserConstants.ParentSpecialBindingProperty + i, vmArray, par);
-                }
-            }
         }
 
         public virtual IBinding CreateMinimalClone(ResolvedBinding binding)

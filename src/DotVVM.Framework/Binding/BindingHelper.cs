@@ -9,13 +9,17 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.ControlTree;
+using System.Collections.Concurrent;
+using System.Linq.Expressions;
+using System.Runtime.CompilerServices;
 
 namespace DotVVM.Framework.Binding
 {
-    public static class BindingHelper
+    public static partial class BindingHelper
     {
         public static T GetProperty<T>(this IBinding binding, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) => (T)binding.GetProperty(typeof(T), errorMode);
 
+        [Obsolete]
         public static string GetKnockoutBindingExpression(this IValueBinding binding) =>
             JavascriptTranslator.FormatKnockoutScript(binding.KnockoutExpression);
 
@@ -47,17 +51,16 @@ namespace DotVVM.Framework.Binding
         public static void ExecUpdateDelegate(this CompiledBindingExpression.BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
         {
             var dataContexts = GetDataContexts(contextControl);
-            var control = contextControl.GetClosestControlBindingTarget();
-            func(dataContexts.ToArray(), control, value);
+            //var control = contextControl.GetClosestControlBindingTarget();
+            func(dataContexts.ToArray(), contextControl, value);
         }
 
         public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
-            var control = contextControl.GetClosestControlBindingTarget();
             try
             {
-                return func(dataContexts.ToArray(), control);
+                return func(dataContexts.ToArray(), contextControl);
             }
             catch (NullReferenceException)
             {
@@ -123,6 +126,17 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
 
+        public static TBinding DeriveBinding<TBinding>(this TBinding binding, int newDataContext, Expression expression, params object[] properties)
+            where TBinding : IBinding
+        {
+            return binding.DeriveBinding(
+                properties.Concat(new object[]{
+                    DataContextStack.GetById(newDataContext),
+                    new ParsedExpressionBindingProperty(expression)
+                }).ToArray()
+            );
+        }
+
         public static TBinding DeriveBinding<TBinding>(this TBinding binding, params object[] properties)
             where TBinding : IBinding
         {
@@ -137,17 +151,96 @@ namespace DotVVM.Framework.Binding
             return (TBinding)service.CreateBinding(binding.GetType(), getContextProperties(binding).Concat(properties).ToArray());
         }
 
-//        public static string GetCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control, 
-//            CodeParameterAssignment viewModelName,
-//			CodeParameterAssignment SenderElementParameter,
-//			CodeParameterAssignment CurrentPathParameter,
-//			CodeParameterAssignment commandId,
-//			CodeParameterAssignment controlUniqueId,
-//			CodeParameterAssignment 
-//            ) =>
-//            binding.GetParametrizedCommandJavascript(control).ToString(o =>
-//                
-//
-//            );
+        public static Func<TParam, TResult> Cache<TParam, TResult>(this Func<TParam, TResult> func)
+        {
+            var cache = new ConcurrentDictionary<TParam, TResult>();
+            return f => cache.GetOrAdd(f, func);
+        }
+
+        //public static Expression MoveDataContext(Expression expr, int steps) =>
+        //    new MoveContextVisitor(steps).Visit(expr);
+
+        //class MoveContextVisitor : ExpressionVisitor
+        //{
+        //    private readonly int steps;
+        //    public MoveContextVisitor(int steps)
+        //    {
+        //        this.steps = steps;
+        //    }
+
+        //    protected override Expression VisitParameter(ParameterExpression node)
+        //    {
+        //        if (node.Name == "_this") return Expression.Parameter(node.Type, "_parent" + steps);
+        //        else if (node.Name == "_parent") return Expression.Parameter(node.Type, "_parent" + (steps + 1));
+        //        else if (node.Name.StartsWith("_parent") && int.TryParse(node.Name.Substring("_parent".Length), out var ll))
+        //            return Expression.Parameter(node.Type, "_parent" + (ll + steps));
+        //        return base.VisitParameter(node);
+        //    }
+        //}
+
+        private static readonly ConditionalWeakTable<Expression, BindingParameterAnnotation> _expressionAnnotations =
+            new ConditionalWeakTable<Expression, BindingParameterAnnotation>();
+
+        public static TExpression AddParameterAnnotation<TExpression>(this TExpression expr, BindingParameterAnnotation annotation)
+            where TExpression : Expression
+        {
+            _expressionAnnotations.Add(expr, annotation);
+            return expr;
+        }
+
+        public static BindingParameterAnnotation GetParameterAnnotation(this Expression expr) =>
+            _expressionAnnotations.TryGetValue(expr, out var annotation) ? annotation : null;
+
+
+        public static Expression AnnotateStandardContextParams(Expression expr, DataContextStack dataContext) =>
+            new ParameterAnnotatingVisitor(dataContext).Visit(expr);
+
+        class ParameterAnnotatingVisitor: ExpressionVisitor
+        {
+            public readonly DataContextStack DataContext;
+
+            public ParameterAnnotatingVisitor(DataContextStack dataContext)
+            {
+                this.DataContext = dataContext;
+            }
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                if (node.GetParameterAnnotation() != null) return node;
+                if (node.Name == "_this") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext));
+                else if (node.Name == "_parent") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext.Parent));
+                else if (node.Name == "_root") return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext.EnumerableItems().Last()));
+                else if (node.Name.StartsWith("_parent") && int.TryParse(node.Name.Substring("_parent".Length), out int index))
+                    return node.AddParameterAnnotation(new BindingParameterAnnotation(DataContext.EnumerableItems().ElementAt(index)));
+                return base.VisitParameter(node);
+            }
+        }
+
+        //class ParameterAnnotationVisitor
+
+        //        public static string GetCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control, 
+        //            CodeParameterAssignment viewModelName,
+        //			CodeParameterAssignment SenderElementParameter,
+        //			CodeParameterAssignment CurrentPathParameter,
+        //			CodeParameterAssignment commandId,
+        //			CodeParameterAssignment controlUniqueId,
+        //			CodeParameterAssignment 
+        //            ) =>
+        //            binding.GetParametrizedCommandJavascript(control).ToString(o =>
+        //                
+        //
+        //            );
+    }
+
+
+    public class BindingParameterAnnotation
+    {
+        public readonly DataContextStack DataContext;
+        public readonly BindingExtensionParameter ExtensionParameter;
+
+        public BindingParameterAnnotation(DataContextStack context = null, BindingExtensionParameter extensionParameter = null)
+        {
+            this.DataContext = context;
+            this.ExtensionParameter = extensionParameter;
+        }
     }
 }

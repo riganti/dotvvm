@@ -102,7 +102,7 @@ namespace DotVVM.Framework.Controls
             renderAsKnockoutBinding = HasBinding<IValueBinding>(TextProperty) && !RenderOnServer;
             if (renderAsKnockoutBinding)
             {
-                var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression();
+                var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression(this);
                 if (isFormattingRequired)
                 {
                     expression = "dotvvm.globalize.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";

@@ -229,8 +229,16 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         public static T WithAnnotation<T>(this T node, object annotation)
             where T: IAnnotatable
         {
-            node.AddAnnotation(annotation);
+            if (annotation != null) node.AddAnnotation(annotation);
             return node;
         }
+
+        public static bool HasAnnotation<T>(this IAnnotatable node)
+            where T: class
+            => node.Annotation<T>() != null;
+
+        public static bool TryGetAnnotation<T>(this IAnnotatable node, out T annotation)
+            where T : class
+            => (annotation = node.Annotation<T>()) != null;
     }
 }

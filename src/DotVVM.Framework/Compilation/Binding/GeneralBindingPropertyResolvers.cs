@@ -44,11 +44,9 @@ namespace DotVVM.Framework.Compilation.Binding
         public Expression<CompiledBindingExpression.BindingDelegate> CompileToDelegate(
             CastedExpressionBindingProperty expression, DataContextStack dataContext)
         {
-            var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
-            var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
-            var expr = ExpressionUtils.Replace(expression.Expression, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType ?? typeof(DotvvmControl))));
+            var expr = BindingCompiler.ReplaceParameters(expression.Expression, dataContext);
             expr = ExpressionUtils.ConvertToObject(expr);
-            return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, viewModelsParameter, controlRootParameter);
+            return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
         }
 
         public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty expr, ExpectedTypeBindingProperty expectedType = null) =>
@@ -56,10 +54,8 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public Expression<CompiledBindingExpression.BindingUpdateDelegate> CompileToUpdateDelegate(ParsedExpressionBindingProperty binding, DataContextStack dataContext)
         {
-            var viewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
-            var controlRootParameter = Expression.Parameter(typeof(DotvvmBindableObject), "controlRoot");
             var valueParameter = Expression.Parameter(typeof(object), "value");
-            var expr = ExpressionUtils.Replace(binding.Expression, BindingCompiler.GetParameters(dataContext, viewModelsParameter, Expression.Convert(controlRootParameter, dataContext.RootControlType ?? typeof(DotvvmControl))));
+            var expr = BindingCompiler.ReplaceParameters(binding.Expression, dataContext);
 
             // don't throw exception, it is annoying to debug.
             if (expr.NodeType != ExpressionType.Parameter &&
@@ -67,7 +63,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 expr.NodeType != ExpressionType.Index) return null;
 
             var assignment = Expression.Assign(expr, Expression.Convert(valueParameter, expr.Type));
-            return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, viewModelsParameter, controlRootParameter, valueParameter);
+            return Expression.Lambda<CompiledBindingExpression.BindingUpdateDelegate>(assignment, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter, valueParameter);
         }
 
         public BindingParserOptions GetDefaultBindingParserOptions(IBinding binding)
@@ -103,7 +99,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return new ExpectedTypeBindingProperty(prop.IsBindingProperty ? typeof(object) : prop.PropertyType);
         }
 
-        public BindingAdditionalResolvers GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property = null)
+        public BindingAdditionalResolvers GetAdditionalResolversFromProperty(AssignedPropertyBindingProperty property = null, DataContextStack stack = null)
         {
             var prop = property?.DotvvmProperty;
             if (prop == null) return new BindingAdditionalResolvers(Enumerable.Empty<Delegate>());
@@ -134,10 +130,10 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public DataSourceLengthBinding GetDataSourceLength(ParsedExpressionBindingProperty expression, IBinding binding)
         {
-            if (typeof(ICollection).IsAssignableFrom(expression.Expression.Type))
+            if (expression.Expression.Type.GetInterfaces().First(i => i == typeof(ICollection) || i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>)) is Type ifc)
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
-                        Expression.Property(expression.Expression, typeof(ICollection).GetProperty(nameof(ICollection.Count)))
+                        Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
                     )));
             else if (typeof(IGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
@@ -145,6 +141,27 @@ namespace DotVVM.Framework.Compilation.Binding
                         Expression.Property(Expression.Property(expression.Expression, nameof(IGridViewDataSet.Items)), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
                     )));
             else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
+        }
+
+        public DataSourceCurrentElementBinding GetDataSourceCurrentElement(ParsedExpressionBindingProperty expression, IBinding binding)
+        {
+            Expression makeIndexer(Expression expr) =>
+                expr.Type.GetProperty("Item") is PropertyInfo indexer && indexer.GetMethod?.GetParameters()?.Length == 1 ?
+                Expression.MakeIndex(expr, indexer, new[] {
+                    Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
+                        new BindingParameterAnnotation(extensionParameter: new CurrentCollectionIndexExtensionParameter()))
+                }) :
+                null;
+            
+            if (makeIndexer(expression.Expression) is Expression r)
+                return new DataSourceCurrentElementBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(r)));
+
+            else if (typeof(IGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
+                return new DataSourceCurrentElementBinding(binding.DeriveBinding(
+                    new ParsedExpressionBindingProperty(makeIndexer(Expression.Property(expression.Expression, nameof(IGridViewDataSet.Items))))));
+
+            else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}'.");
+
         }
         //public OriginalStringBindingProperty
     }

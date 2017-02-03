@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault() ?? typeof(object), rootControlType: typeof(DotvvmControl));
+            var context = new DataContextStack(contexts.FirstOrDefault() ?? typeof(object));
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = new DataContextStack(contexts[i], context);

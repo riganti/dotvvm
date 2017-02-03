@@ -14,11 +14,12 @@ namespace DotVVM.Framework.Compilation.Javascript
         private static readonly ParametrizedCode indexerCode =
             new JsIdentifierExpression("ko").Member("unwrap").Invoke(new JsSymbolicParameter(indexerTargetParameter)).Indexer(new JsSymbolicParameter(indexerExpressionParameter))
             .FormatParametrizedScript();
+        [Obsolete]
         public static ParametrizedCode AddIndexerToViewModel(ParametrizedCode script, object index, bool unwrap = false) =>
             AddIndexerToViewModel(script, new JsLiteral(index), unwrap);
+        [Obsolete]
         public static ParametrizedCode AddIndexerToViewModel(ParametrizedCode script, JsExpression indexer, bool unwrap = false)
         {
-            // T+ use JsTree for this
             return indexerCode.AssignParameters(o =>
                 o == indexerTargetParameter ? new CodeParameterAssignment(script) :
                 o == indexerExpressionParameter ? CodeParameterAssignment.FromExpression(indexer) :

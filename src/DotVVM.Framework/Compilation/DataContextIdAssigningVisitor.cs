@@ -13,6 +13,7 @@ namespace DotVVM.Framework.Compilation
         {
             if (control.DataContextTypeStack.DataContextSpaceId != control.Parent?.As<ResolvedControl>()?.DataContextTypeStack.DataContextSpaceId)
             {
+                control.DataContextTypeStack.Save();
                 control.SetProperty(new ResolvedPropertyValue(Internal.DataContextSpaceIdProperty, control.DataContextTypeStack.DataContextSpaceId));
             }
             base.VisitControl(control);

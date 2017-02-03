@@ -437,7 +437,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (IsNamingContainer(ancestor))
                 {
-                    fragments.Add(ancestor.GetValueRaw(Internal.ClientIDFragmentProperty));
+                    fragments.Add(ancestor.GetValueRaw(Internal.ClientIDFragmentProperty) ?? GetValue(Internal.UniqueIDProperty));
                 }
             }
             fragments.Reverse();

@@ -17,10 +17,11 @@ namespace DotVVM.Framework.Compilation.Javascript
     {
         public static object KnockoutContextParameter = new object();
         public static object KnockoutViewModelParameter = new object();
+        public static object CurrentIndexParameter = new object();
 
         public static JsExpression CompileToJavascript(Expression binding, DataContextStack dataContext, IViewModelSerializationMapper mapper)
         {
-            var translator = new JavascriptTranslator() { DataContexts = dataContext };
+            var translator = new JavascriptTranslator(dataContext);
             var script = translator.Translate(binding);
             //if (binding.NodeType == ExpressionType.MemberAccess && script.EndsWith("()", StringComparison.Ordinal)) script = script.Remove(script.Length - 2);
             script.AcceptVisitor(new JsViewModelPropertyAdjuster(mapper));
@@ -32,7 +33,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             foreach (var leaf in expression.GetLeafResultNodes())
             {
                 JsExpression replacement = null;
-                if (leaf is JsInvocationExpression invocation && invocation.Annotation<ObservableUnwrapAnnotation>() != null)
+                if (leaf is JsInvocationExpression invocation && invocation.Annotation<ObservableUnwrapInvocationAnnotation>() != null)
                 {
                     replacement = invocation.Target;
                 }
@@ -70,6 +71,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression.AssignParameters(o =>
                 o == KnockoutContextParameter ? context :
                 o == KnockoutViewModelParameter ? data :
+                o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(contextExpresion.Member("$index")) :
                 default(CodeParameterAssignment)
             );
         }
@@ -88,11 +90,13 @@ namespace DotVVM.Framework.Compilation.Javascript
             return AdjustKnockoutScriptContext(expression, dataContextLevel)
                 .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$context"), true) :
                                o == KnockoutViewModelParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$data"), allowDataGlobal) :
+                               o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$index")) :
                                throw new Exception());
         }
 
         public static readonly Dictionary<MethodInfo, IJsMethodTranslator> MethodTranslators = new Dictionary<MethodInfo, IJsMethodTranslator>();
         public static readonly HashSet<Type> Interfaces = new HashSet<Type>();
+        private readonly Dictionary<DataContextStack, int> ContextMap;
 
         public bool WriteUnknownParameters { get; set; } = true;
 
@@ -172,10 +176,19 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expr.Type.GetTypeInfo().IsPrimitive;
         }
 
-        public DataContextStack DataContexts { get; set; }
+        public DataContextStack DataContext { get; }
+
+        public JavascriptTranslator(DataContextStack dataContext)
+        {
+            this.ContextMap = dataContext.EnumerableItems().Select((a, i) => (a, i)).ToDictionary(a => a.Item1, a => a.Item2);
+            this.DataContext = dataContext;
+        }
 
         public JsExpression Translate(Expression expression)
         {
+            if (expression.GetParameterAnnotation() is BindingParameterAnnotation annotation)
+                return TranslateParameter(expression, annotation);
+
             switch (expression.NodeType)
             {
                 case ExpressionType.Constant:
@@ -248,36 +261,42 @@ namespace DotVVM.Framework.Compilation.Javascript
             return new JsIndexerExpression(target, args.Single()).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = expression.Indexer });
         }
 
-        public JsExpression TranslateParameter(ParameterExpression expression)
+        public JsExpression TranslateParameter(Expression expression, BindingParameterAnnotation annotation)
         {
-            JsExpression contextParameter(string name, int parentContexts, Type type, bool isControl = false)
+            JsExpression getDataContext(int parentContexts)
             {
                 JsExpression context = new JsSymbolicParameter(KnockoutContextParameter);
-                for (int i = 0; i < parentContexts; i++)
+                for (var i = 0; i < parentContexts; i++)
                     context = context.Member("$parentContext");
-                return context.Member(name).WithAnnotation(new ViewModelInfoAnnotation(type, isControl));
+                return context;
             }
+            int getContextSteps(DataContextStack item) =>
+                item == null ? 0 : ContextMap[item];
+            JsExpression contextParameter(string name, int parentContexts, Type type) =>
+                getDataContext(parentContexts).Member(name).WithAnnotation(new ViewModelInfoAnnotation(type));
 
-            if (expression.Name == "_this" || expression.Name == "_parent0")
-                return new JsSymbolicParameter(KnockoutViewModelParameter).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
-            else if (expression.Name == "_parent")
-                return contextParameter("$parent", 0, expression.Type);
-            else if (expression.Name == "_root")
-                return contextParameter("$root", 0, expression.Type);
-            else if (expression.Name.StartsWith("_parent", StringComparison.Ordinal))
+            if (annotation.ExtensionParameter != null)
             {
-                var pIndex = int.Parse(expression.Name.Substring("_parent".Length));
-                if (pIndex == 0) return contextParameter("$data", 0, expression.Type);
-                else if (pIndex == 1) return contextParameter("$parent", 0, expression.Type);
+                return annotation.ExtensionParameter.GetJsTranslation(getDataContext(getContextSteps(annotation.DataContext)));
+            }
+            else
+            {
+                var index = getContextSteps(annotation.DataContext);
+                if (index == 0)
+                    return new JsSymbolicParameter(KnockoutViewModelParameter).WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
+                else if (index == 1)
+                    return contextParameter("$parent", 0, expression.Type);
+                else if (ContextMap.Count == index + 1)
+                    return contextParameter("$root", 0, expression.Type);
                 else return new JsSymbolicParameter(KnockoutContextParameter)
-                        .Member("$parents").Indexer(new JsLiteral(pIndex - 1))
+                        .Member("$parents").Indexer(new JsLiteral(index - 1))
                         .WithAnnotation(new ViewModelInfoAnnotation(expression.Type));
             }
-            else if (expression.Name == "_control")
-            {
-                return contextParameter("$control", DataContexts.Parents().Count(), expression.Type, isControl: true);
-            }
-            else if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return new JsIdentifierExpression(expression.Name);
+        }
+
+        public JsExpression TranslateParameter(ParameterExpression expression)
+        {
+            if (WriteUnknownParameters && !string.IsNullOrEmpty(expression.Name)) return new JsIdentifierExpression(expression.Name);
             else throw new NotSupportedException();
         }
 

@@ -177,6 +177,15 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    public sealed class DataSourceCurrentElementBinding
+    {
+        public readonly IBinding Binding;
+        public DataSourceCurrentElementBinding(IBinding binding)
+        {
+            this.Binding = binding;
+        }
+    }
+
     public sealed class DataSourceLengthBinding
     {
         public readonly IBinding Binding;

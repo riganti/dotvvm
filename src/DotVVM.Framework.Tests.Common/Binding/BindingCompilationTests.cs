@@ -13,6 +13,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Binding.Properties;
 using System.Collections.Immutable;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -29,10 +30,11 @@ namespace DotVVM.Framework.Tests.Binding
             this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
         }
 
-
         public object ExecuteBinding(string expression, object[] contexts, DotvvmControl control, NamespaceImport[] imports = null, Type expectedType = null)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object), rootControlType: control?.GetType() ?? typeof(DotvvmControl));
+            var context = new DataContextStack(contexts.FirstOrDefault()?.GetType() ?? typeof(object), extenstionParameters: new[] {
+                new CurrentMarkupControlExtensionParameter(new ResolvedTypeDescriptor(control?.GetType() ?? typeof(DotvvmControl)))
+            });
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = new DataContextStack(contexts[i].GetType(), context);
@@ -152,8 +154,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_PropertyRegisteredTwiceThrowException()
         {
-            Assert.ThrowsException<ArgumentException>(() =>
-            {
+            Assert.ThrowsException<ArgumentException>(() => {
                 MoqComponent.PropertyProperty = DotvvmProperty.Register<object, MoqComponent>(t => t.Property);
                 DotvvmProperty.Register<bool, MoqComponent>(t => t.Property);
             });
@@ -203,8 +204,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Invalid_EnumStringComparison()
         {
-            Assert.ThrowsException<AggregateException>(() =>
-            {
+            Assert.ThrowsException<AggregateException>(() => {
                 var viewModel = new TestViewModel { EnumProperty = TestEnum.A };
                 ExecuteBinding("Enum == 'ghfjdskdjhbvdksdj'", viewModel);
             });
@@ -334,8 +334,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void BindingCompiler_Invalid_ToStringConversion()
         {
-            Assert.ThrowsException<AggregateException>(() =>
-            {
+            Assert.ThrowsException<AggregateException>(() => {
                 var testViewModel = new TestViewModel();
                 var result = ExecuteBinding("_this", new[] { testViewModel }, null, expectedType: typeof(string));
             });
