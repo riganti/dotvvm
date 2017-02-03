@@ -111,11 +111,18 @@ namespace DotVVM.Framework.Controls
             var dataSource = DataSource;
             if (dataSource != null)
             {
+                var itemBinding = GetItemBinding();
+                var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
                 foreach (var item in GetIEnumerableFromDataSource())
                 {
                     var placeholder = new DataItemContainer { DataItemIndex = index };
                     ItemTemplate.BuildContent(context, placeholder);
-                    placeholder.DataContext = item;
+                    placeholder.SetBinding(DataContextProperty, ValueBindingExpression.CreateBinding(
+                        bindingService,
+                        j => item,
+                        itemBinding.KnockoutExpression.AssignParameters(p =>
+                            p == JavascriptTranslator.CurrentIndexParameter ? new CodeParameterAssignment(index.ToString(), OperatorPrecedence.Max) :
+                            default(CodeParameterAssignment))));
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[" + index + "]");
                     placeholder.ID = index.ToString();
                     Children.Add(placeholder);

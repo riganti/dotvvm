@@ -133,7 +133,7 @@ namespace DotVVM.Framework.Binding.Expressions
             }
         }
 
-        public IValueBinding GetListIndexer(DotvvmBindableObject contentControl)
+        public IValueBinding GetListIndexer()
         {
             return (IValueBinding)this.GetProperty<DataSourceCurrentElementBinding>().Binding;
         }

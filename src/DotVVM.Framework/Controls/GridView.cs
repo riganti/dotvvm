@@ -184,7 +184,7 @@ namespace DotVVM.Framework.Controls
             var index = 0;
             if (dataSource != null)
             {
-                var itemBinding = GetItemBinding(Columns.First());
+                var itemBinding = GetItemBinding();
                 var bindingService = context.Configuration.ServiceLocator.GetService<BindingCompilationService>();
                 foreach (var item in GetIEnumerableFromDataSource())
                 {

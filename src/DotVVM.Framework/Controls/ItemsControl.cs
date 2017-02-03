@@ -59,9 +59,9 @@ namespace DotVVM.Framework.Controls
             return binding;
         }
 
-        protected IValueBinding GetItemBinding(DotvvmBindableObject contentControl)
+        protected IValueBinding GetItemBinding()
         {
-            return GetForeachDataBindExpression().CastTo<ValueBindingExpression>().GetListIndexer(contentControl);
+            return GetForeachDataBindExpression().CastTo<ValueBindingExpression>().GetListIndexer();
         }
 
         public IEnumerable GetIEnumerableFromDataSource() =>
