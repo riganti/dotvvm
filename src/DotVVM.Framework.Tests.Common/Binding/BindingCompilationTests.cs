@@ -422,6 +422,7 @@ namespace DotVVM.Framework.Tests.Binding
     class Something
     {
         public bool Value { get; set; }
+        public string StringValue { get; set; }
     }
     enum TestEnum
     {

@@ -40,7 +40,7 @@ namespace DotVVM.Framework.Tests.Binding
             var js = CompileBinding($"_this == 'Local'", typeof(DateTimeKind));
             Assert.AreEqual("$data==\"Local\"", js);
         }
-        
+
         [TestMethod]
         public void JavascriptCompilation_ConstantToString()
         {
@@ -58,10 +58,16 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_ToString_Invalid()
         {
-            Assert.ThrowsException<NotSupportedException>(() =>
-            {
+            Assert.ThrowsException<NotSupportedException>(() => {
                 var js = CompileBinding("TestViewModel2", new[] { typeof(TestViewModel) }, typeof(string));
             });
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_UnwrapedObservables()
+        {
+            var js = CompileBinding("TestViewModel2.Collection[0].StringValue.Length + TestViewModel2.Collection[8].StringValue", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("TestViewModel2().Collection()[0]().StringValue().length+TestViewModel2().Collection()[8]().StringValue()", js);
         }
 
         [TestMethod]

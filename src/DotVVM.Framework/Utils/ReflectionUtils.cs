@@ -265,8 +265,7 @@ namespace DotVVM.Framework.Utils
 
         public static bool Implements(this Type T, Type interfaceType)
         {
-            return T.GetInterfaces().Any(x =>
-            {
+            return T.GetInterfaces().Any(x => {
                 return x.Name == interfaceType.Name;
             });
         }
@@ -286,7 +285,7 @@ namespace DotVVM.Framework.Utils
             return Nullable.GetUnderlyingType(type) != null;
         }
 
-        public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) => 
+        public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
 
         public static IEnumerable<T> GetCustomAttributes<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
@@ -306,5 +305,11 @@ namespace DotVVM.Framework.Utils
             Expression.Lambda<Func<object>>(
                 Expression.Invoke(Expression.Constant(d), args.Zip(d.GetMethodInfo().GetParameters(), (a, p) => Expression.Constant(a, p.ParameterType))).ConvertToObject())
             .Compile().Invoke();
+
+        public static Type GetResultType(this MemberInfo member) =>
+            member is PropertyInfo property ? property.PropertyType :
+            member is FieldInfo field ? field.FieldType :
+            member is MethodInfo method ? method.ReturnType :
+            throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
     }
 }

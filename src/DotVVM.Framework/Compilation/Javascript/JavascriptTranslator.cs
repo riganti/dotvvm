@@ -162,9 +162,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                 a => new JsIdentifierExpression("String").Invoke(a[0]), (m, c, a) => ToStringCheck(c)), 0);
             AddMethodTranslator(typeof(Convert), "ToString", new GenericMethodCompiler(
                 a => new JsIdentifierExpression("String").Invoke(a[1]), (m, c, a) => ToStringCheck(a[0])), 1, true);
-            AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(args => args[0].Indexer(args[1])));
-            AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(args => args[0].Indexer(args[1])));
-            AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(args => args[0].Indexer(args[1])));
+
+            JsExpression indexer(JsExpression[] args, MethodInfo method) =>
+                BuildIndexer(args[0], args[1], method.DeclaringType.GetProperty("Item"));
+            AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(indexer));
+            AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(indexer));
+            AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(indexer));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             BindingPageInfo.RegisterJavascriptTranslations();
@@ -258,8 +261,11 @@ namespace DotVVM.Framework.Compilation.Javascript
 
             var result = TryTranslateMethodCall(target, args, method, expression.Object, expression.Arguments.ToArray());
             if (result != null) return result;
-            return new JsIndexerExpression(target, args.Single()).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = expression.Indexer });
+            return BuildIndexer(target, args.Single(), expression.Indexer);
         }
+
+        public static JsExpression BuildIndexer(JsExpression target, JsExpression index, MemberInfo member) =>
+            target.Indexer(index).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = member });
 
         public JsExpression TranslateParameter(Expression expression, BindingParameterAnnotation annotation)
         {
