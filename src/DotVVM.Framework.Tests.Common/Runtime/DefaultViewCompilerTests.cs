@@ -74,7 +74,7 @@ test <dot:Literal Text='test' />";
 
             var binding = ((Literal)page.Children[1]).GetBinding(Literal.TextProperty) as ValueBindingExpression;
             Assert.IsNotNull(binding);
-            Assert.AreEqual("FirstName", binding.GetProperty<OriginalStringBindingProperty>());
+            Assert.AreEqual("FirstName", binding.GetProperty<OriginalStringBindingProperty>().Code);
         }
 
         [TestMethod]

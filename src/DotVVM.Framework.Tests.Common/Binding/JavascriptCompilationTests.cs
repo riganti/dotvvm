@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void JavascriptCompilation_Parent()
         {
-            var js = CompileBinding("_parent + _parent2 + _parent0 + _parent1 + _parent3", typeof(string), typeof(string), typeof(string), typeof(string))
+            var js = CompileBinding("_parent + _parent2 + _parent0 + _parent1 + _parent3", typeof(string), typeof(string), typeof(string), typeof(string), typeof(string))
                 .Replace("(", "").Replace(")", "");
             Assert.AreEqual("$parent+$parents[1]+$data+$parent+$parents[2]", js);
         }

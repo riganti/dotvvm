@@ -14,6 +14,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Binding.Properties;
 using System.Collections.Immutable;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -101,7 +102,7 @@ namespace DotVVM.Framework.Tests.Binding
             }
             catch (Exception x)
             {
-                Assert.AreEqual("Could not find static member NotExist on type DotVVM.Framework.Tests.Resource1.", x.Message);
+                Assert.IsTrue(x.AllInnerExceptions().Any(e => e.Message.Contains("Could not find static member NotExist on type DotVVM.Framework.Tests.Resource1.")));
             }
         }
 
