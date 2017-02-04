@@ -1,9 +1,10 @@
-﻿using DotVVM.Framework.Controls.DynamicData.Annotations;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.ComponentModel.DataAnnotations;
 using System.Globalization;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
+using DotVVM.Framework.Controls.DynamicData.Annotations;
 
 namespace DotVVM.Framework.Controls.DynamicData.Metadata
 {
@@ -28,8 +29,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
             var displayAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayAttribute>();
             var displayFormatAttribute = pair.PropertyInfo.GetCustomAttribute<DisplayFormatAttribute>();
             var dataTypeAttribute = pair.PropertyInfo.GetCustomAttribute<DataTypeAttribute>();
-            var viewFilterAttribute = pair.PropertyInfo.GetCustomAttribute<ViewFilterAttribute>();
             var styleAttribute = pair.PropertyInfo.GetCustomAttribute<StyleAttribute>();
+            var visibilityFilters = pair.PropertyInfo.GetCustomAttributes().OfType<IVisibilityFilter>().ToArray();
 
             return new PropertyDisplayMetadata()
             {
@@ -41,7 +42,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
                 NullDisplayText = displayFormatAttribute?.NullDisplayText,
                 AutoGenerateField = displayAttribute?.GetAutoGenerateField() ?? true,
                 DataType = dataTypeAttribute?.DataType,
-                ViewNames = viewFilterAttribute?.ViewNames,
+                VisibilityFilters = visibilityFilters,
                 Styles = styleAttribute
             };
         }

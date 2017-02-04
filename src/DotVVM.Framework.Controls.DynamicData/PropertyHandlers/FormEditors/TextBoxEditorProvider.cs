@@ -6,9 +6,11 @@ using DotVVM.Framework.Controls.DynamicData.Metadata;
 
 namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
 {
+    /// <summary>
+    /// Renders a TextBox control for properties of string, numeric or date type.
+    /// </summary>
     public class TextBoxEditorProvider : FormEditorProviderBase
     {
-
 
         public override bool CanValidate => true;
 

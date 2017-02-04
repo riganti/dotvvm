@@ -23,7 +23,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
 
         public DataType? DataType { get; set; }
 
-        public string[] ViewNames { get; set; }
+        public IVisibilityFilter[] VisibilityFilters { get; set; }
 
         public StyleAttribute Styles { get; set; }
     }

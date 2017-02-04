@@ -93,7 +93,8 @@ function GitPush() {
 ### Configuration
 
 $packages = @(
-	[pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DotVVM.Framework.Controls.DynamicData" }
+	[pscustomobject]@{ Package = "DotVVM.DynamicData"; Directory = "DotVVM.Framework.Controls.DynamicData" },
+	[pscustomobject]@{ Package = "DotVVM.DynamicData.Annotations"; Directory = "DotVVM.Framework.Controls.DynamicData.Annotations" }
 )
 
 

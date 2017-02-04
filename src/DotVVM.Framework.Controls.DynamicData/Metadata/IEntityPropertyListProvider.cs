@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using DotVVM.Framework.Controls.DynamicData.Annotations;
 
 namespace DotVVM.Framework.Controls.DynamicData.Metadata
 {
@@ -13,7 +14,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Metadata
         /// <summary>
         /// Gets a list of properties for the specified entity and view name.
         /// </summary>
-        IList<PropertyDisplayMetadata> GetProperties(Type entityType, string viewName = null);
+        IList<PropertyDisplayMetadata> GetProperties(Type entityType, IViewContext viewContext);
 
     }
 }

@@ -1,10 +1,12 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Controls.DynamicData.Annotations;
 using DotVVM.Framework.Controls.DynamicData.Configuration;
 using DotVVM.Framework.Controls.DynamicData.Metadata;
 using DotVVM.Framework.Hosting;
@@ -12,7 +14,7 @@ using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
-    public class DynamicDataContext
+    public class DynamicDataContext : IViewContext
     {
         public DataContextStack DataContextStack { get; }
 
@@ -29,6 +31,9 @@ namespace DotVVM.Framework.Controls.DynamicData
         public string ViewName { get; set; }
 
         public string GroupName { get; set; }
+
+
+        public Dictionary<StateBagKey, object> StateBag { get; } = new Dictionary<StateBagKey, object>();
 
 
         public DynamicDataContext(DataContextStack dataContextStack, IDotvvmRequestContext requestContext)

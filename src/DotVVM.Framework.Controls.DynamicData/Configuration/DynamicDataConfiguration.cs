@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls.DynamicData.Builders;
@@ -69,6 +70,44 @@ namespace DotVVM.Framework.Controls.DynamicData.Configuration
                 throw new ArgumentException($"The {nameof(IFormBuilder)} with name '{formBuilderName}' was not found! Make sure it is registered in the {nameof(DynamicDataExtensions.AddDynamicData)} method.");
             }
             return builder;
+        }
+
+
+        /// <summary>
+        /// Browses the specified assembly and auto-registers all form editor providers.
+        /// </summary>
+        public void AutoDiscoverFormEditorProviders(Assembly assembly)
+        {
+            AutoDiscoverProviders(assembly, FormEditorProviders);
+        }
+
+        /// <summary>
+        /// Browses the specified assembly and auto-registers all grid column providers.
+        /// </summary>
+        public void AutoDiscoverGridColumnProviders(Assembly assembly)
+        {
+            AutoDiscoverProviders(assembly, GridColumnProviders);
+        }
+
+        private void AutoDiscoverProviders<T>(Assembly assembly, IList<T> targetCollection)
+        {
+            var types = assembly.GetTypes()
+                .Where(t => typeof(T).IsAssignableFrom(t))
+                .Where(t => !t.GetTypeInfo().IsAbstract)
+                .Where(t => t.GetTypeInfo().DeclaredConstructors.Any(c => c.GetParameters().Length == 0));
+
+            foreach (var type in types)
+            {
+                try
+                {
+                    var instance = Activator.CreateInstance(type);
+                    targetCollection.Insert(0, (T)instance);
+                }
+                catch (TargetInvocationException ex)
+                {
+                    throw new Exception($"Could not invoke the default constructor of {type.FullName}!", ex);
+                }
+            }
         }
     }
 }
