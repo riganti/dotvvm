@@ -23,12 +23,12 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return new JsIndexerExpression(target, argument);
         }
 
-        public static string FormatScript(this JsNode node, bool niceMode = false, string indent = "\t")
+        public static string FormatScript(this JsNode node, bool niceMode = false, string indent = "\t", bool isDebugString = false)
         {
             node.FixParenthesis();
             var visitor = new JsFormattingVisitor(niceMode, indent);
             node.AcceptVisitor(visitor);
-            return visitor.GetParameterlessResult();
+            return isDebugString ? visitor.ToString() : visitor.GetParameterlessResult();
         }
 
         public static ParametrizedCode FormatParametrizedScript(this JsNode node, bool niceMode = false, string indent = "\t")

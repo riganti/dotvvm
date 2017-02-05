@@ -93,6 +93,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                     return "||";
                 case BinaryOperatorType.Assignment:
                     return "=";
+                case BinaryOperatorType.Sequence:
+                    return ",";
                 default:
                     throw new NotSupportedException($"Operator {op} not supported.");
             }
@@ -149,5 +151,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         ConditionalOr,
         [EnumMember(Value = "=")]
         Assignment,
+        [EnumMember(Value = ",")]
+        Sequence
     }
 }

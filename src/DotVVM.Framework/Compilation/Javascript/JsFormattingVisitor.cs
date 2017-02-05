@@ -28,8 +28,11 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         protected void CommitLine()
         {
-            if (NiceMode) {
-                for (int i = 0; i < indentLevel; i++) {
+            if (NiceMode)
+            {
+                result.Append("\n");
+                for (int i = 0; i < indentLevel; i++)
+                {
                     result.Append(IndentString);
                 }
             }
@@ -53,6 +56,12 @@ namespace DotVVM.Framework.Compilation.Javascript
             SpaceForOperator(op);
         }
 
+        protected void EndStatement()
+        {
+            Emit(";");
+            CommitLine();
+        }
+
         List<(int position, float priority)> possibleLineBreaks;
         int indentLevel = 0;
         protected void Indent()
@@ -61,14 +70,31 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
         protected void Dedent()
         {
+            // remove last space
+            var expectedIndentLength = IndentString.Length * indentLevel;
+            if (NiceMode && result.Length > expectedIndentLength)
+            {
+                var indent = result.ToString(result.Length - expectedIndentLength - 1, expectedIndentLength + 1);
+                var removeOne = indent[0] == '\n';
+                for (int i = 0; i < expectedIndentLength; i++)
+                {
+                    removeOne |= indent[i + 1] == IndentString[i % IndentString.Length];
+                }
+                if (removeOne)
+                {
+                    result.Remove(result.Length - IndentString.Length, IndentString.Length);
+                }
+            }
+
             indentLevel--;
         }
 
         public override string ToString()
         {
             var s = result.ToString();
-            if (parameters != null) foreach (var p in parameters) {
-                s = s.Insert(p.Item1, "~ [parameter: " + p.Item2.Parameter + "] ~");
+            if (parameters != null) foreach (var p in Enumerable.Reverse(parameters))
+            {
+                s = s.Insert(p.index, "$" + Math.Abs(p.parameter.Parameter.GetHashCode()));
             }
             return s;
         }
@@ -84,7 +110,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             if (parameters == null || parameters.Count == 0) return new ParametrizedCode(new[] { result.ToString() }, null, operatorPrecedence);
             var parts = new string[parameters.Count + 1];
             parts[0] = result.ToString(0, parameters[0].index);
-            for (int i = 1; i < parameters.Count; i++) {
+            for (int i = 1; i < parameters.Count; i++)
+            {
                 var from = parameters[i - 1].index;
                 parts[i] = result.ToString(from, parameters[i].index - from);
             }
@@ -95,7 +122,8 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         protected void VisitChildren(JsNode node)
         {
-            foreach (var c in node.Children) {
+            foreach (var c in node.Children)
+            {
                 c.AcceptVisitor(this);
             }
         }
@@ -139,7 +167,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             invocationExpression.Target.AcceptVisitor(this);
             Emit("(");
             int i = 0;
-            foreach (var arg in invocationExpression.Arguments) {
+            foreach (var arg in invocationExpression.Arguments)
+            {
                 if (i++ > 0) { Emit(","); OptionalSpace(); }
                 arg.AcceptVisitor(this);
             }
@@ -182,6 +211,111 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (parameters == null) parameters = new List<(int, CodeParameterInfo)>();
             parameters.Add((result.Length, CodeParameterInfo.FromExpression(symbolicParameter)));
+        }
+
+        public void VisitObjectExpression(JsObjectExpression objectExpression)
+        {
+            if (objectExpression.Parent is JsExpressionStatement) Emit("(");
+            Emit("{");
+            Indent();
+            var first = true;
+            foreach (var item in objectExpression.Properties)
+            {
+                if (objectExpression.Properties.Count > 1) CommitLine();
+                if (!first) { Emit(","); OptionalSpace(); }
+                else first = false;
+
+                item.AcceptVisitor(this);
+            }
+            Dedent();
+            if (objectExpression.Properties.Count > 1) CommitLine();
+            Emit("}");
+            if (objectExpression.Parent is JsExpressionStatement) Emit(")");
+        }
+
+        public void VisitExpressionStatement(JsExpressionStatement jsExpressionStatement)
+        {
+            jsExpressionStatement.Expression.AcceptVisitor(this);
+            EndStatement();
+        }
+
+        public void VisitReturnStatement(JsReturnStatement jsReturnStatement)
+        {
+            Emit("return ");
+            jsReturnStatement.Expression.AcceptVisitor(this);
+            EndStatement();
+        }
+
+        public void VisitArrayExpression(JsArrayExpression jsArrayExpression)
+        {
+            Emit("[");
+            Indent();
+            var first = true;
+            foreach (var item in jsArrayExpression.Arguments)
+            {
+                if (jsArrayExpression.Arguments.Count > 1) CommitLine();
+                if (!first) { Emit(","); OptionalSpace(); }
+                else first = false;
+
+                item.AcceptVisitor(this);
+            }
+            Dedent();
+            if (jsArrayExpression.Arguments.Count > 1) CommitLine();
+            Emit("]");
+        }
+
+        public void VisitBlockStatement(JsBlockStatement blockStatement)
+        {
+            Emit("{");
+            Indent();
+            CommitLine();
+            foreach(var ss in blockStatement.Body)
+            {
+                ss.AcceptVisitor(this);
+            }
+            Dedent();
+            Emit("}");
+
+        }
+
+        public void VisitIfStatement(JsIfStatement ifStatement)
+        {
+            Emit("if(");
+            ifStatement.Condition.AcceptVisitor(this);
+            Emit(")");
+            OptionalSpace();
+            ifStatement.TrueBranch.AcceptVisitor(this);
+            CommitLine();
+            if (ifStatement.FalseBranch != null)
+            {
+                Emit("else ");
+                ifStatement.FalseBranch.AcceptVisitor(this);
+                CommitLine();
+            }
+        }
+
+        public void VisitFunctionExpression(JsFunctionExpression functionExpression)
+        {
+            Emit("function(");
+            var first = true;
+            foreach (var item in functionExpression.Parameters)
+            {
+                if (!first) { Emit(","); OptionalSpace(); }
+                else first = false;
+
+                item.AcceptVisitor(this);
+            }
+            Emit(")");
+            OptionalSpace();
+            functionExpression.Block.AcceptVisitor(this);
+        }
+
+        public void VisitObjectProperty(JsObjectProperty objectProperty)
+        {
+            objectProperty.Identifier.AcceptVisitor(this);
+            Emit(":");
+            OptionalSpace();
+            objectProperty.Expression.AcceptVisitor(this);
         }
     }
 }

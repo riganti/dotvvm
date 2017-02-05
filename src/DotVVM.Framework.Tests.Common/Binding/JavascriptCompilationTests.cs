@@ -31,7 +31,10 @@ namespace DotVVM.Framework.Tests.Binding
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
-            return JavascriptTranslator.FormatKnockoutScript(JavascriptTranslator.CompileToJavascript(expressionTree, context, new ViewModelSerializationMapper(DotvvmConfiguration.CreateDefault())));
+            var jsExpression = new JsParenthesizedExpression(JavascriptTranslator.CompileToJavascript(expressionTree, context, new ViewModelSerializationMapper(DotvvmConfiguration.CreateDefault())));
+            jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor());
+            JsTemporaryVariableResolver.ResolveVariables(jsExpression);
+            return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);
         }
 
         [TestMethod]

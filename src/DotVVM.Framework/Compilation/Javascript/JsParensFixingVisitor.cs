@@ -39,6 +39,9 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case JsIdentifierExpression _:
                 case JsLiteral _:
                 case JsSymbolicParameter _:
+                case JsFunctionExpression _:
+                case JsObjectExpression _:
+                case JsArrayExpression _:
                     return 20;
                 case JsBinaryExpression be:
                     switch (be.Operator) {
@@ -75,6 +78,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                             return 6;
                         case BinaryOperatorType.ConditionalOr:
                             return 5;
+                        case BinaryOperatorType.Sequence:
+                            return 0;
                         default: throw new NotSupportedException();
                     }
                 case JsUnaryExpression ue:
@@ -93,7 +98,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public static bool IsPreferedSide(JsExpression expression)
         {
             if (expression is JsBinaryExpression) {
-                // asociativity..., it is important to avoid common string concat patterns (((a+b)+c)+d)+e). And JS + is not asociative - (""+3+5)==="35" vs (""+(3+5))==="8"
+                // asociativity, it is important to avoid common string concat patterns (((a+b)+c)+d)+e). Be aware JS + is not asociative - (""+3+5)==="35" vs (""+(3+5))==="8"
                 // all binary operators are currently left-to-right - a+b+c === (a+b)+c
                 // include parens when the expression is on the right side
                 return expression.Role == JsBinaryExpression.LeftRole;

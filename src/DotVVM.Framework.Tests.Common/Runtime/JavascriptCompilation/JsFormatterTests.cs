@@ -50,5 +50,21 @@ namespace DotVVM.Framework.Tests.Common.Runtime.JavascriptCompilation
                 .FormatParametrizedScript().ToString(o => o == symbol ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("global"), isGlobalContext: true) :
                                                           throw new Exception()));
         }
+
+        [TestMethod]
+        public void JsFormatter_FunctionExpression()
+        {
+            var expr = new JsFunctionExpression(new[] { new JsIdentifier("a") }, new JsBlockStatement(new JsReturnStatement(new JsBinaryExpression(new JsIdentifierExpression("a"), BinaryOperatorType.Plus, new JsLiteral(2)))));
+            Assert.AreEqual("function(a){return a+2;}", expr.FormatScript());
+            Assert.AreEqual("function(a) {\n\treturn a + 2;\n}", expr.FormatScript(niceMode: true));
+        }
+
+        [TestMethod]
+        public void JsFormatter_AssignmentExpression()
+        {
+            var expr = new JsBinaryExpression(new JsAssignmentExpression(new JsIdentifierExpression("a"), new JsIdentifierExpression("c")), BinaryOperatorType.Equal, new JsIdentifierExpression("b"));
+            Assert.AreEqual("(a=c)==b", expr.FormatScript());
+            Assert.AreEqual("(a = c) == b", expr.FormatScript(niceMode: true));
+        }
     }
 }

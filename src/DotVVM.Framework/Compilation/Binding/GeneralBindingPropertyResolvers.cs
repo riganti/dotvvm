@@ -80,13 +80,17 @@ namespace DotVVM.Framework.Compilation.Binding
         public KnockoutJsExpressionBindingProperty CompileToJavascript(ParsedExpressionBindingProperty expression,
             DataContextStack dataContext)
         {
-            return new KnockoutJsExpressionBindingProperty(JavascriptTranslator.RemoveTopObservables(
-                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, configuration.ServiceLocator.GetService<IViewModelSerializationMapper>())));
+            return new KnockoutJsExpressionBindingProperty(
+                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, configuration.ServiceLocator.GetService<IViewModelSerializationMapper>()));
         }
 
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
-            return new KnockoutExpressionBindingProperty(expression.Expression.FormatParametrizedScript(niceMode: configuration.Debug));
+            var expr = new JsParenthesizedExpression(expression.Expression.Clone());
+            expr.AcceptVisitor(new KnockoutObservableHandlingVisitor());
+            JavascriptNullCheckAdder.AddNullChecks(expr);
+            JsTemporaryVariableResolver.ResolveVariables(expr);
+            return new KnockoutExpressionBindingProperty(expr.Expression.FormatParametrizedScript(niceMode: configuration.Debug));
         }
 
         public ResultTypeBindingProperty GetResultType(ParsedExpressionBindingProperty expression) => new ResultTypeBindingProperty(expression.Expression.Type);

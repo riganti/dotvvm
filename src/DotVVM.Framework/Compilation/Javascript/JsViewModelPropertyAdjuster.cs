@@ -45,19 +45,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
                 node.AddAnnotation(ResultIsObservableAnnotation.Instance);
                 node.AddAnnotation(new ViewModelInfoAnnotation(propertyType));
-
-                // handle observable
-                if (node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression parentAssignment)
-                {
-                    if (ViewModelJsonConverter.IsComplexType(propertyType))
-                        parentAssignment.ReplaceWith(_ => new JsIdentifierExpression("dotvvm").Member("serialization").Member("deserialize").Invoke(parentAssignment.Right, parentAssignment.Left));
-                    else parentAssignment.ReplaceWith(_ => new JsInvocationExpression(parentAssignment.Left, parentAssignment.Right)
-                        .WithAnnotation(ObservableSetterInvocationAnnotation.Instance));
-                }
-                else if (node.Parent is JsExpression parent)
-                {
-                    node.ReplaceWith(_ => ((JsExpression)node).Invoke().WithAnnotation(ObservableUnwrapInvocationAnnotation.Instance));
-                }
+                node.AddAnnotation(MayBeNullAnnotation.Instance);
             }
 
             if (node.Annotation<ViewModelInfoAnnotation>() is var vmAnnotation && vmAnnotation?.Type != null && vmAnnotation.SerializationMap == null)

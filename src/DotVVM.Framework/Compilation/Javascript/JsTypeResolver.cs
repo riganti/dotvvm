@@ -156,6 +156,46 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public void VisitSymbolicParameter(JsSymbolicParameter symbolicParameter) { }
+
+        public void VisitObjectExpression(JsObjectExpression jsObjectExpression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitExpressionStatement(JsExpressionStatement jsExpressionStatement)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitReturnStatement(JsReturnStatement jsReturnStatement)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitArrayExpression(JsArrayExpression jsArrayExpression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitBlockStatement(JsBlockStatement jsBlockStatement)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitIfStatement(JsIfStatement jsIfStatement)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitFunctionExpression(JsFunctionExpression jsFunctionExpression)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void VisitObjectProperty(JsObjectProperty jsObjectProperty)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public static class JsTypeHelpers

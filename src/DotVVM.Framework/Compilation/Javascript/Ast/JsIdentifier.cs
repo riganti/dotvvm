@@ -4,7 +4,7 @@ using System.Text;
 
 namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
-    public class JsIdentifier : JsNode
+    public sealed class JsIdentifier : JsNode
     {
         string name;
         public string Name

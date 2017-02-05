@@ -9,6 +9,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 {
     public abstract class JsNode: AbstractAnnotatable
     {
+        public override string ToString() => this.Clone().FormatScript(isDebugString: true);
+
         private bool isFrozen;
         public bool IsFrozen => isFrozen;
         protected void ThrowIfFrozen()
