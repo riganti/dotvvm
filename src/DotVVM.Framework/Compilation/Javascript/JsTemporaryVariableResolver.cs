@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 {
                     if (allVariables.TryGetValue(parameter, out var currentInterval))
                         allVariables[parameter] = (Math.Min(currentInterval.Item1, eulerPath.IndexOf((symExpr, true))), Math.Max(currentInterval.Item2, eulerPath.IndexOf((symExpr, false))));
-                    else allVariables.Add(parameter, (eulerPath.IndexOf((symExpr, true)), eulerPath.IndexOf((symExpr, false))));
+                    else allVariables.Add(parameter, (parameter.Initializer == null ? eulerPath.IndexOf((symExpr, true)) : 0, eulerPath.IndexOf((symExpr, false))));
                 }
                 if (n is JsIdentifierExpression identifierExpression)
                 {
@@ -65,11 +65,11 @@ namespace DotVVM.Framework.Compilation.Javascript
                 foreach (var symbolNode in node.DescendantNodesAndSelf().OfType<JsSymbolicParameter>().Where(s => s.Symbol is JsTemporaryVariableParameter p && group.vars.Contains(p)))
                     symbolNode.ReplaceWith(new JsIdentifierExpression(group.name));
             }
-            JsNode iife = new JsFunctionExpression(namedGroups.Select(g => new JsIdentifier(g.name)),
+            JsNode iife = new JsFunctionExpression(namedGroups.OrderBy(g => g.vars.Any(v => v.Initializer != null)).Select(g => new JsIdentifier(g.name)),
                 node is JsBlockStatement block ? block :
                 node is JsStatement statement ? new JsBlockStatement(statement) :
                 node is JsExpression expression ? new JsBlockStatement(new JsReturnStatement(expression)) :
-                throw new Exception()).Invoke();
+                throw new Exception()).Invoke(namedGroups.Select(g => g.vars.SingleOrDefault(v => v.Initializer != null)?.Initializer).Where(v => v != null));
             if (node is JsStatement) iife = new JsExpressionStatement((JsExpression)iife);
             return iife;
         }
@@ -96,5 +96,13 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
     }
-    public sealed class JsTemporaryVariableParameter { }
+    public sealed class JsTemporaryVariableParameter
+    {
+        public JsExpression Initializer { get; }
+
+        public JsTemporaryVariableParameter(JsExpression initializer = null)
+        {
+            this.Initializer = initializer;
+        }
+    }
 }

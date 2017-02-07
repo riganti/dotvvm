@@ -246,7 +246,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         /// <summary>
         /// Removes this node from its parent.
         /// </summary>
-        public void Remove()
+        public JsNode Remove()
         {
             if (parent != null) {
                 ThrowIfFrozen();
@@ -268,6 +268,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 prevSibling = null;
                 nextSibling = null;
             }
+            return this;
         }
 
         /// <summary>

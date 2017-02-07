@@ -21,6 +21,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         void VisitUnaryExpression(JsUnaryExpression unaryExpression);
         void VisitLiteral(JsLiteral jsLiteral);
         void VisitIndexerExpression(JsIndexerExpression indexerExpression);
+        void VisitNewExpression(JsNewExpression newExpression);
         void VisitConditionalExpression(JsConditionalExpression conditionalExpression);
         void VisitAssignmentExpression(JsAssignmentExpression assignmentExpression);
         void VisitIfStatement(JsIfStatement jsIfStatement);
@@ -58,6 +59,8 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
 
         public virtual void VisitMemberAccessExpression(JsMemberAccessExpression memberAccessExpression) => DefaultVisit(memberAccessExpression);
 
+        public virtual void VisitNewExpression(JsNewExpression newExpression) => DefaultVisit(newExpression);
+
         public virtual void VisitObjectExpression(JsObjectExpression jsObjectExpression) => DefaultVisit(jsObjectExpression);
 
         public virtual void VisitObjectProperty(JsObjectProperty jsObjectProperty) => DefaultVisit(jsObjectProperty);
@@ -73,9 +76,7 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
         protected virtual void DefaultVisit(JsNode node)
         {
             foreach (var c in node.Children)
-            {
                 c.AcceptVisitor(this);
-            }
         }
     }
 }

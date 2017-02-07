@@ -196,6 +196,11 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             throw new NotImplementedException();
         }
+
+        public void VisitNewExpression(JsNewExpression newExpression)
+        {
+            throw new NotImplementedException();
+        }
     }
 
     public static class JsTypeHelpers

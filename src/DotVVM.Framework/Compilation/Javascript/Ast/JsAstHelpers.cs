@@ -13,10 +13,11 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             else return new JsMemberAccessExpression(target, memberName);
         }
 
-        public static JsExpression Invoke(this JsExpression target, params JsExpression[] arguments)
-        {
-            return new JsInvocationExpression(target, arguments);
-        }
+        public static JsExpression Invoke(this JsExpression target, IEnumerable<JsExpression> arguments) =>
+            new JsInvocationExpression(target, arguments);
+
+        public static JsExpression Invoke(this JsExpression target, params JsExpression[] arguments) =>
+            new JsInvocationExpression(target, arguments);
 
         public static JsExpression Indexer(this JsExpression target, JsExpression argument)
         {
@@ -67,6 +68,12 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
                 default:
                     return new[] { expr };
             }
+        }
+
+        public static T Detach<T>(this T node) where T : JsNode
+        {
+            node.Remove();
+            return node;
         }
     }
 }

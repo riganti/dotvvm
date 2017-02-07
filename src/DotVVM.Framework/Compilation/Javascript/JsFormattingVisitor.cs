@@ -317,5 +317,19 @@ namespace DotVVM.Framework.Compilation.Javascript
             OptionalSpace();
             objectProperty.Expression.AcceptVisitor(this);
         }
+
+        public void VisitNewExpression(JsNewExpression newExpression)
+        {
+            Emit("new ");
+            newExpression.Target.AcceptVisitor(this);
+            Emit("(");
+            int i = 0;
+            foreach (var arg in newExpression.Arguments)
+            {
+                if (i++ > 0) { Emit(","); OptionalSpace(); }
+                arg.AcceptVisitor(this);
+            }
+            Emit(")");
+        }
     }
 }

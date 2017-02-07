@@ -41,7 +41,7 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
             services.TryAddSingleton<BindingCompilationService>(s => new BindingCompilationService(
-                new BindingPropertyResolvers(s.GetService<DotvvmConfiguration>())));
+                ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(s)));
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();

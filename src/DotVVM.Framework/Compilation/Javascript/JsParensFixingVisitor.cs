@@ -42,6 +42,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case JsFunctionExpression _:
                 case JsObjectExpression _:
                 case JsArrayExpression _:
+                case JsNewExpression _:
                     return 20;
                 case JsBinaryExpression be:
                     switch (be.Operator) {

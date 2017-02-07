@@ -10,7 +10,7 @@ using DotVVM.Framework.Runtime.Filters;
 namespace DotVVM.Framework.Binding.Expressions
 {
     [BindingCompilationRequirements(
-        required: new[] { typeof(StaticCommandJavascriptProperty), typeof(CompiledBindingExpression.BindingDelegate) }
+        required: new[] { typeof(StaticCommandJavascriptProperty), /*typeof(CompiledBindingExpression.BindingDelegate)*/ }
     )]
     [Options]
     public class StaticCommandBindingExpression : BindingExpression, ICommandBinding

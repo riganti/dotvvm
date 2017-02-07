@@ -25,11 +25,13 @@ namespace DotVVM.Framework.Compilation.Binding
     {
         private readonly DotvvmConfiguration configuration;
         private readonly IBindingExpressionBuilder bindingParser;
+        private readonly IViewModelSerializationMapper vmMapper;
 
-        public BindingPropertyResolvers(DotvvmConfiguration configuration)
+        public BindingPropertyResolvers(IBindingExpressionBuilder bindingParser, IViewModelSerializationMapper vmMapper, DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
-            this.bindingParser = configuration.ServiceLocator.GetService<IBindingExpressionBuilder>();
+            this.bindingParser = bindingParser;
+            this.vmMapper = vmMapper;
         }
 
         public ActionFiltersBindingProperty GetActionFilters(ParsedExpressionBindingProperty parsedExpression)
@@ -81,16 +83,32 @@ namespace DotVVM.Framework.Compilation.Binding
             DataContextStack dataContext)
         {
             return new KnockoutJsExpressionBindingProperty(
-                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, configuration.ServiceLocator.GetService<IViewModelSerializationMapper>()));
+                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, vmMapper));
         }
 
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
-            var expr = new JsParenthesizedExpression(expression.Expression.Clone());
+            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression));
+        }
+
+        private ParametrizedCode FormatJavascript(JsExpression node)
+        {
+            var expr = new JsParenthesizedExpression(node.Clone());
             expr.AcceptVisitor(new KnockoutObservableHandlingVisitor());
             JavascriptNullCheckAdder.AddNullChecks(expr);
-            JsTemporaryVariableResolver.ResolveVariables(expr);
-            return new KnockoutExpressionBindingProperty(expr.Expression.FormatParametrizedScript(niceMode: configuration.Debug));
+            expr = new JsParenthesizedExpression((JsExpression)JsTemporaryVariableResolver.ResolveVariables(expr.Expression.Detach()));
+            return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode: configuration.Debug);
+        }
+
+        private bool StartsWithStatementLikeExpression(JsExpression expression)
+        {
+            if (expression is JsFunctionExpression || expression is JsObjectExpression) return true;
+            if (expression == null || !expression.HasChildren ||
+                expression is JsParenthesizedExpression ||
+                expression is JsUnaryExpression unary && unary.IsPrefix ||
+                expression is JsNewExpression ||
+                expression is JsArrayExpression) return false;
+            return StartsWithStatementLikeExpression(expression.FirstChild as JsExpression);
         }
 
         public ResultTypeBindingProperty GetResultType(ParsedExpressionBindingProperty expression) => new ResultTypeBindingProperty(expression.Expression.Type);
@@ -166,6 +184,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
             else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}'.");
 
+        }
+
+        public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
+        {
+            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression)));
         }
         //public OriginalStringBindingProperty
     }
