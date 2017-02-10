@@ -84,7 +84,11 @@ namespace DotVVM.Framework.ResourceManagement
         protected void AddIntegrityAttribute(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             var hash = ComputeIntegrityHash(context);
-            if (hash != null) writer.AddAttribute("integrity", hash);
+            if (hash != null)
+            {
+                writer.AddAttribute("integrity", hash);
+                writer.AddAttribute("crossorigin", "anonymous");
+            }
         }
 
         protected void AddSrcAndIntegrity(IHtmlWriter writer, IDotvvmRequestContext context, string url, string srcAttributeName)
