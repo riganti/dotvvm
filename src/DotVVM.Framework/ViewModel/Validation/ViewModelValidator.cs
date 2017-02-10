@@ -45,11 +45,14 @@ namespace DotVVM.Framework.ViewModel.Validation
 
             if (ViewModelJsonConverter.IsEnumerable(viewModelType))
             {
+                if (pathPrefix.Length == 0) pathPrefix = "$data";
+                else pathPrefix += "()";
+
                 // collections
                 var index = 0;
                 foreach (var item in (IEnumerable)viewModel)
                 {
-                    foreach (var error in ValidateViewModel(item, pathPrefix + "()[" + index + "]()", alreadyValidated))
+                    foreach (var error in ValidateViewModel(item, pathPrefix + "[" + index + "]()", alreadyValidated))
                     {
                         yield return error;
                     }

@@ -155,7 +155,7 @@ var DotvvmEvaluator = (function () {
             result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
         }
         else {
-            result = eval("(function ($context) { with($context) { return " + expression + "; } })")(context);
+            result = eval("(function ($context) { var $data=$context; with($context) { return " + expression + "; } })")(context);
         }
         if (result && result.$data) {
             result = result.$data;
