@@ -6,13 +6,14 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Hosting;
 using System.Reflection;
 using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.ResourceManagement
 {
     public abstract class LocalResourceLocation : ILocalResourceLocation
     {
         public string GetUrl(IDotvvmRequestContext context, string name) =>
-            context.Configuration.ServiceLocator.GetService<ILocalResourceUrlManager>().GetResourceUrl(this, context, name);
+            context.Services.GetService<ILocalResourceUrlManager>().GetResourceUrl(this, context, name);
 
         public abstract Stream LoadResource(IDotvvmRequestContext context);
     }

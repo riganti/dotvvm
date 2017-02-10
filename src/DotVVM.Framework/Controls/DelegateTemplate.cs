@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Compilation;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -15,7 +16,7 @@ namespace DotVVM.Framework.Controls
 
         public void BuildContent(IDotvvmRequestContext context, DotvvmControl container)
         {
-            var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
+            var controlBuilderFactory = context.Services.GetService<IControlBuilderFactory>();
             BuildContentBody.Invoke(controlBuilderFactory, container);
         }
     }

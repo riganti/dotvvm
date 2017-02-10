@@ -8,6 +8,7 @@ using DotVVM.Framework.Hosting;
 using System.Text;
 using System.IO;
 using Newtonsoft.Json;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -75,7 +76,7 @@ namespace DotVVM.Framework.ResourceManagement
 
         protected string ComputeIntegrityHash(IDotvvmRequestContext context)
         {
-            var hasher = context.Configuration.ServiceLocator.GetService<IResourceHashService>();
+            var hasher = context.Services.GetService<IResourceHashService>();
             var localLocation = GetLocations().OfType<ILocalResourceLocation>().First();
             if (localLocation != null) return hasher.GetIntegrityHash(localLocation, context);
             else return null;

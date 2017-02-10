@@ -2,6 +2,7 @@ using System;
 using System.Linq;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Controls
 {
@@ -70,7 +71,7 @@ namespace DotVVM.Framework.Controls
 
         private bool IsRunningInEnvironment(IDotvvmRequestContext context)
         {
-            var provider = context.Configuration.ServiceLocator.GetService<IEnvironmentNameProvider>();
+            var provider = context.Services.GetService<IEnvironmentNameProvider>();
             var currentEnvironmentName = provider?.GetEnvironmentName(context);
 
             if (Environments != null && currentEnvironmentName != null)
