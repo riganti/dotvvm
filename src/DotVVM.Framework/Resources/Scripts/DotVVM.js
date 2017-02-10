@@ -1304,25 +1304,28 @@ var DotVVM = (function () {
                 }
                 if (!resultObject.viewModel && resultObject.viewModelDiff) {
                     // TODO: patch (~deserialize) it to ko.observable viewModel
-                    _this.isViewModelUpdating = true;
                     resultObject.viewModel = _this.patch(data.viewModel, resultObject.viewModelDiff);
                 }
                 _this.loadResourceList(resultObject.resources, function () {
                     var isSuccess = false;
                     if (resultObject.action === "successfulCommand") {
-                        _this.isViewModelUpdating = true;
-                        // remove updated controls
-                        var updatedControls = _this.cleanUpdatedControls(resultObject);
-                        // update the viewmodel
-                        if (resultObject.viewModel) {
-                            _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
+                        try {
+                            _this.isViewModelUpdating = true;
+                            // remove updated controls
+                            var updatedControls = _this.cleanUpdatedControls(resultObject);
+                            // update the viewmodel
+                            if (resultObject.viewModel) {
+                                _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
+                            }
+                            isSuccess = true;
+                            // remove updated controls which were previously hidden
+                            _this.cleanUpdatedControls(resultObject, updatedControls);
+                            // add updated controls
+                            _this.restoreUpdatedControls(resultObject, updatedControls, true);
                         }
-                        isSuccess = true;
-                        // remove updated controls which were previously hidden
-                        _this.cleanUpdatedControls(resultObject, updatedControls);
-                        // add updated controls
-                        _this.restoreUpdatedControls(resultObject, updatedControls, true);
-                        _this.isViewModelUpdating = false;
+                        finally {
+                            _this.isViewModelUpdating = false;
+                        }
                     }
                     else if (resultObject.action === "redirect") {
                         // redirect
@@ -1477,23 +1480,27 @@ var DotVVM = (function () {
             _this.loadResourceList(resultObject.resources, function () {
                 var isSuccess = false;
                 if (resultObject.action === "successfulCommand" || !resultObject.action) {
-                    _this.isViewModelUpdating = true;
-                    // remove updated controls
-                    var updatedControls = _this.cleanUpdatedControls(resultObject);
-                    // update the viewmodel
-                    _this.viewModels[viewModelName] = {};
-                    for (var p in resultObject) {
-                        if (resultObject.hasOwnProperty(p)) {
-                            _this.viewModels[viewModelName][p] = resultObject[p];
+                    try {
+                        _this.isViewModelUpdating = true;
+                        // remove updated controls
+                        var updatedControls = _this.cleanUpdatedControls(resultObject);
+                        // update the viewmodel
+                        _this.viewModels[viewModelName] = {};
+                        for (var p in resultObject) {
+                            if (resultObject.hasOwnProperty(p)) {
+                                _this.viewModels[viewModelName][p] = resultObject[p];
+                            }
                         }
+                        _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
+                        isSuccess = true;
+                        // add updated controls
+                        _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);
+                        _this.restoreUpdatedControls(resultObject, updatedControls, true);
+                        _this.isSpaReady(true);
                     }
-                    _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
-                    isSuccess = true;
-                    // add updated controls
-                    _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);
-                    _this.restoreUpdatedControls(resultObject, updatedControls, true);
-                    _this.isSpaReady(true);
-                    _this.isViewModelUpdating = false;
+                    finally {
+                        _this.isViewModelUpdating = false;
+                    }
                 }
                 else if (resultObject.action === "redirect") {
                     _this.handleRedirect(resultObject, viewModelName, true);
@@ -1708,14 +1715,18 @@ var DotVVM = (function () {
         }
         if (applyBindingsOnEachControl) {
             window.setTimeout(function () {
-                _this.isViewModelUpdating = true;
-                for (var id in resultObject.updatedControls) {
-                    var updatedControl = document.getElementByDotvvmId(id);
-                    if (updatedControl) {
-                        ko.applyBindings(updatedControls[id].dataContext, updatedControl);
+                try {
+                    _this.isViewModelUpdating = true;
+                    for (var id in resultObject.updatedControls) {
+                        var updatedControl = document.getElementByDotvvmId(id);
+                        if (updatedControl) {
+                            ko.applyBindings(updatedControls[id].dataContext, updatedControl);
+                        }
                     }
                 }
-                _this.isViewModelUpdating = false;
+                finally {
+                    _this.isViewModelUpdating = false;
+                }
             }, 0);
         }
     };
