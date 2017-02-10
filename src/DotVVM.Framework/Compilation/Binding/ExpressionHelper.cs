@@ -11,6 +11,51 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public static class ExpressionHelper
     {
+        class NullPropagationVisitor : ExpressionVisitor
+        {
+            public Func<Expression, bool> CanBeNull { get; set; }
+
+            protected override Expression VisitMember(MemberExpression node)
+            {
+                var left = Visit(node.Expression);
+                var nullableType = Nullable.GetUnderlyingType(left.Type);
+                if ((!left.Type.IsValueType || nullableType != null) && (CanBeNull == null || CanBeNull(left)))
+                {
+                    var wrapNullable = node.Type.IsValueType;
+                    var restype = wrapNullable ? typeof(Nullable<>).MakeGenericType(node.Type) : node.Type;
+                    var variable = Expression.Parameter(left.Type);
+                    Expression body;
+                    Expression condition;
+                    if (nullableType != null)
+                    {
+                        condition = Expression.Property(variable, "HasValue");
+                        body = node.Update(Expression.Convert(variable, node.Expression.Type));
+                    }
+                    else
+                    {
+                        condition = Expression.NotEqual(variable, Expression.Constant(null, variable.Type));
+                        body = node.Update(variable);
+                    }
+                    if (wrapNullable)
+                    {
+                        body = Expression.Convert(body, restype);
+                    }
+                    return Expression.Block(new[] { variable },
+                        Expression.Assign(variable, left),
+                        Expression.IfThenElse(condition, body, Expression.Default(restype))
+                    );
+                }
+                else return base.VisitMember(node);
+            }
+        }
+
+        public static Expression PropagateNulls(Expression expr, Func<Expression, bool> canBeNull)
+        {
+            var v = new NullPropagationVisitor();
+            v.CanBeNull = canBeNull;
+            return v.Visit(expr);
+        }
+
         public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
         {
             Contract.Requires(target != null);
