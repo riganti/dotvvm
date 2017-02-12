@@ -285,6 +285,12 @@ namespace DotVVM.Framework.Utils
             return Nullable.GetUnderlyingType(type) != null;
         }
 
+        public static Type MakeNullableType(this Type type)
+        {
+            return type.GetTypeInfo().IsValueType && Nullable.GetUnderlyingType(type) == null && type != typeof(void) ? typeof(Nullable<>).MakeGenericType(type) : type;
+        }
+
+
         public static T GetCustomAttribute<T>(this ICustomAttributeProvider attributeProvider, bool inherit = true) =>
             (T)attributeProvider.GetCustomAttributes(typeof(T), inherit).FirstOrDefault();
 

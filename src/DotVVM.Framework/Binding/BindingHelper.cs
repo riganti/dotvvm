@@ -58,14 +58,7 @@ namespace DotVVM.Framework.Binding
         public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
-            try
-            {
-                return func(dataContexts.ToArray(), contextControl);
-            }
-            catch (NullReferenceException)
-            {
-                return null;
-            }
+            return func(dataContexts.ToArray(), contextControl);
         }
 
         /// <summary>
@@ -195,7 +188,7 @@ namespace DotVVM.Framework.Binding
         public static Expression AnnotateStandardContextParams(Expression expr, DataContextStack dataContext) =>
             new ParameterAnnotatingVisitor(dataContext).Visit(expr);
 
-        class ParameterAnnotatingVisitor: ExpressionVisitor
+        class ParameterAnnotatingVisitor : ExpressionVisitor
         {
             public readonly DataContextStack DataContext;
 

@@ -47,6 +47,7 @@ namespace DotVVM.Framework.Compilation.Binding
             CastedExpressionBindingProperty expression, DataContextStack dataContext)
         {
             var expr = BindingCompiler.ReplaceParameters(expression.Expression, dataContext);
+            expr = new ExpressionNullPropagationVisitor(e => true).Visit(expr);
             expr = ExpressionUtils.ConvertToObject(expr);
             return Expression.Lambda<CompiledBindingExpression.BindingDelegate>(expr, BindingCompiler.ViewModelsParameter, BindingCompiler.CurrentControlParameter);
         }
