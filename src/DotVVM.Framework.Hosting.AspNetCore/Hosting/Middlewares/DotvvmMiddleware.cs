@@ -52,10 +52,14 @@ namespace DotVVM.Framework.Hosting
                 dotvvmContext.ChangeCurrentCulture(Configuration.DefaultCulture);
             }
 
-            foreach (var middleware in middlewares)
+            try
             {
-                if (await middleware.Handle(dotvvmContext)) return;
+                foreach (var middleware in middlewares)
+                {
+                    if (await middleware.Handle(dotvvmContext)) return;
+                }
             }
+            catch (DotvvmInterruptRequestExecutionException) { }
 
             await next(context);
         }
