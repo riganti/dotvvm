@@ -50,7 +50,7 @@ namespace DotVVM.Framework.Hosting
                     if (await middleware.Handle(dotvvmContext)) return;
                 }
             }
-            catch (DotvvmInterruptRequestExecutionException) { }
+            catch (DotvvmInterruptRequestExecutionException) { return; }
 
             // we cannot handle the request, pass it to another component
             await Next.Invoke(context);

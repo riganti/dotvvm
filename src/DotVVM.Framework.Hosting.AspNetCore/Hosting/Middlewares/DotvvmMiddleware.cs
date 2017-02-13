@@ -59,7 +59,7 @@ namespace DotVVM.Framework.Hosting
                     if (await middleware.Handle(dotvvmContext)) return;
                 }
             }
-            catch (DotvvmInterruptRequestExecutionException) { }
+            catch (DotvvmInterruptRequestExecutionException) { return; }
 
             await next(context);
         }
