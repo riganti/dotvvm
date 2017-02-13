@@ -101,6 +101,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string Errors_WrongPropertyValue => "Errors/WrongPropertyValue";
 			public static string FeatureSamples_ActionFilterErrorHandling_ActionFilterErrorHandling => "FeatureSamples/ActionFilterErrorHandling/ActionFilterErrorHandling";
 			public static string FeatureSamples_ActionFilterErrorHandling_ActionFilterPageErrorHandling => "FeatureSamples/ActionFilterErrorHandling/ActionFilterPageErrorHandling";
+			public static string FeatureSamples_ActionFilterErrorHandling_ActionFilterRedirect => "FeatureSamples/ActionFilterErrorHandling/ActionFilterRedirect";
 			public static string FeatureSamples_BindingContexts_BindingContext => "FeatureSamples/BindingContexts/BindingContext";
 			public static string FeatureSamples_BindingNamespaces_BindingUsingNamespace => "FeatureSamples/BindingNamespaces/BindingUsingNamespace";
 			public static string FeatureSamples_BindingPageInfo_BindingPageInfo => "FeatureSamples/BindingPageInfo/BindingPageInfo";
