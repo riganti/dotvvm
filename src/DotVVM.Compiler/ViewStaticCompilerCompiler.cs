@@ -201,7 +201,7 @@ namespace DotVVM.Compiler
                 var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 fullClassName = namespaceName + "." + className;
                 emitter = new DefaultViewCompilerCodeEmitter();
-                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className, b => configuration.ServiceLocator.GetService<IBindingIdGenerator>().GetId(b, fileName));
+                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
 
                 resolvedView.Accept(compilingVisitor);
 

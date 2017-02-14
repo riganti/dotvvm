@@ -49,106 +49,107 @@ namespace DotVVM.Compiler
             }
         }
 
-        public BindingExpressionCompilationInfo PrecompileBinding(ResolvedBinding binding, string id, Type expectedType)
-        {
-            var compilerAttribute = GetCompilationAttribute(binding.BindingType);
-            var requirements = compilerAttribute.GetRequirements(binding.BindingType);
+        //public BindingExpressionCompilationInfo PrecompileBinding(ResolvedBinding binding, string id, Type expectedType)
+        //{
+        //    var compilerAttribute = GetCompilationAttribute(binding.BindingType);
+        //    var requirements = compilerAttribute.GetRequirements(binding.BindingType);
 
-            var result = new BindingExpressionCompilationInfo();
-            result.MethodName = TryExecute(binding.BindingNode, "Error while compiling binding to delegate.", requirements.Delegate, () => CompileMethod(compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType)));
-            result.UpdateMethodName = TryExecute(binding.BindingNode, "Error while compiling update delegate.", requirements.UpdateDelegate, () => CompileMethod(compilerAttribute.CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack)));
-            result.OriginalString = TryExecute(binding.BindingNode, "hey, no, that should not happen. Really.", requirements.OriginalString, () => binding.Value);
-            result.Expression = TryExecute(binding.BindingNode, "Could not get binding expression.", requirements.Expression, () => binding.GetExpression());
-            result.ActionFilters = TryExecute(binding.BindingNode, "", requirements.ActionFilters, () => GetActionAttributeData(binding.GetExpression()));
-            result.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJavascript(binding, new CompiledBindingExpression()
-            {
-                Expression = result.Expression,
-                Id = id,
-                OriginalString = result.OriginalString
-            }, configuration));
-            return result;
+        //    var result = new BindingExpressionCompilationInfo();
+        //    result.MethodName = TryExecute(binding.BindingNode, "Error while compiling binding to delegate.", requirements.Delegate, () => CompileMethod(compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType)));
+        //    result.UpdateMethodName = TryExecute(binding.BindingNode, "Error while compiling update delegate.", requirements.UpdateDelegate, () => CompileMethod(compilerAttribute.CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack)));
+        //    result.OriginalString = TryExecute(binding.BindingNode, "hey, no, that should not happen. Really.", requirements.OriginalString, () => binding.Value);
+        //    result.Expression = TryExecute(binding.BindingNode, "Could not get binding expression.", requirements.Expression, () => binding.GetExpression());
+        //    result.ActionFilters = TryExecute(binding.BindingNode, "", requirements.ActionFilters, () => GetActionAttributeData(binding.GetExpression()));
+        //    result.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJavascript(binding, new CompiledBindingExpression()
+        //    {
+        //        Expression = result.Expression,
+        //        Id = id,
+        //        OriginalString = result.OriginalString
+        //    }, configuration));
+        //    return result;
+        //}
+
+        public override ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
+        {
+            throw new NotImplementedException();
+            //var info = PrecompileBinding(binding, id, expectedType);
+            //if (emitter != null)
+            //{
+            //    return GetCachedInitializer(emitter, GetCompiledBindingCreation(emitter, info.MethodName, info.UpdateMethodName, info.OriginalString, this.GetAttributeInitializers(info.ActionFilters, emitter)?.ToArray(), info.Javascript, id));
+            //}
+            //else return null;
         }
 
-        public override ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id, Type expectedType)
-        {
-            var info = PrecompileBinding(binding, id, expectedType);
-            if (emitter != null)
-            {
-                return GetCachedInitializer(emitter, GetCompiledBindingCreation(emitter, info.MethodName, info.UpdateMethodName, info.OriginalString, this.GetAttributeInitializers(info.ActionFilters, emitter)?.ToArray(), info.Javascript, id));
-            }
-            else return null;
-        }
+        //protected ExpressionSyntax GetCompiledBindingCreation(DefaultViewCompilerCodeEmitter emitter, string methodName, string updateMethodName, string originalString, ExpressionSyntax[] actionFilters, string javascript, string id)
+        //{
+        //    var dict = new Dictionary<string, ExpressionSyntax>();
+        //    if (methodName != null) dict.Add(nameof(CompiledBindingExpression.Delegate), SyntaxFactory.ParseName(methodName));
+        //    if (updateMethodName != null) dict.Add(nameof(CompiledBindingExpression.UpdateDelegate), SyntaxFactory.ParseName(updateMethodName));
+        //    if (originalString != null) dict.Add(nameof(CompiledBindingExpression.OriginalString), emitter.EmitValue(originalString));
+        //    if (javascript != null) dict.Add(nameof(CompiledBindingExpression.Javascript), emitter.EmitValue(javascript));
+        //    if (id != null) dict.Add(nameof(CompiledBindingExpression.Id), emitter.EmitValue(id));
+        //    if (actionFilters != null)
+        //        dict.Add(nameof(CompiledBindingExpression.ActionFilters),
+        //            SyntaxFactory.ArrayCreationExpression(
+        //                SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(typeof(ActionFilterAttribute).FullName))
+        //                    .WithRankSpecifiers(
+        //                        SyntaxFactory.SingletonList<ArrayRankSpecifierSyntax>(
+        //                            SyntaxFactory.ArrayRankSpecifier(
+        //                                SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
+        //                                    SyntaxFactory.OmittedArraySizeExpression())))),
+        //                SyntaxFactory.InitializerExpression(SyntaxKind.CollectionInitializerExpression,
+        //                    SyntaxFactory.SeparatedList(actionFilters))));
 
-        protected ExpressionSyntax GetCompiledBindingCreation(DefaultViewCompilerCodeEmitter emitter, string methodName, string updateMethodName, string originalString, ExpressionSyntax[] actionFilters, string javascript, string id)
-        {
-            var dict = new Dictionary<string, ExpressionSyntax>();
-            if (methodName != null) dict.Add(nameof(CompiledBindingExpression.Delegate), SyntaxFactory.ParseName(methodName));
-            if (updateMethodName != null) dict.Add(nameof(CompiledBindingExpression.UpdateDelegate), SyntaxFactory.ParseName(updateMethodName));
-            if (originalString != null) dict.Add(nameof(CompiledBindingExpression.OriginalString), emitter.EmitValue(originalString));
-            if (javascript != null) dict.Add(nameof(CompiledBindingExpression.Javascript), emitter.EmitValue(javascript));
-            if (id != null) dict.Add(nameof(CompiledBindingExpression.Id), emitter.EmitValue(id));
-            if (actionFilters != null)
-                dict.Add(nameof(CompiledBindingExpression.ActionFilters),
-                    SyntaxFactory.ArrayCreationExpression(
-                        SyntaxFactory.ArrayType(SyntaxFactory.ParseTypeName(typeof(ActionFilterAttribute).FullName))
-                            .WithRankSpecifiers(
-                                SyntaxFactory.SingletonList<ArrayRankSpecifierSyntax>(
-                                    SyntaxFactory.ArrayRankSpecifier(
-                                        SyntaxFactory.SingletonSeparatedList<ExpressionSyntax>(
-                                            SyntaxFactory.OmittedArraySizeExpression())))),
-                        SyntaxFactory.InitializerExpression(SyntaxKind.CollectionInitializerExpression,
-                            SyntaxFactory.SeparatedList(actionFilters))));
+        //    return SyntaxFactory.ObjectCreationExpression(
+        //        SyntaxFactory.ParseTypeName(typeof(CompiledBindingExpression).FullName),
+        //        SyntaxFactory.ArgumentList(),
+        //        SyntaxFactory.InitializerExpression(SyntaxKind.ObjectInitializerExpression,
+        //            SyntaxFactory.SeparatedList(
+        //                dict.Select(p =>
+        //                     (ExpressionSyntax)SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+        //                        SyntaxFactory.IdentifierName(p.Key),
+        //                        p.Value
+        //                    )
+        //                )
+        //            )
+        //        )
+        //    );
+        //}
 
-            return SyntaxFactory.ObjectCreationExpression(
-                SyntaxFactory.ParseTypeName(typeof(CompiledBindingExpression).FullName),
-                SyntaxFactory.ArgumentList(),
-                SyntaxFactory.InitializerExpression(SyntaxKind.ObjectInitializerExpression,
-                    SyntaxFactory.SeparatedList(
-                        dict.Select(p =>
-                             (ExpressionSyntax)SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                                SyntaxFactory.IdentifierName(p.Key),
-                                p.Value
-                            )
-                        )
-                    )
-                )
-            );
-        }
+        //protected NameSyntax GetCacheName(Type type)
+        //{
+        //    lock (locker)
+        //    {
+        //        var name = "cache_" + methodCounter++;
+        //        bindingsClass.DefineField(name, type, FieldAttributes.Public | FieldAttributes.Static);
+        //        return SyntaxFactory.ParseName(bindingsClass.FullName + "." + name);
+        //    }
+        //}
 
-        protected NameSyntax GetCacheName(Type type)
-        {
-            lock (locker)
-            {
-                var name = "cache_" + methodCounter++;
-                bindingsClass.DefineField(name, type, FieldAttributes.Public | FieldAttributes.Static);
-                return SyntaxFactory.ParseName(bindingsClass.FullName + "." + name);
-            }
-        }
+        //protected ExpressionSyntax GetCachedInitializer(DefaultViewCompilerCodeEmitter emitter, ExpressionSyntax constructor)
+        //{
+        //    // emit (cache ?? (cache = ctor()))
+        //    var cacheId = GetCacheName(typeof(CompiledBindingExpression));
+        //    return SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, cacheId,
+        //        SyntaxFactory.ParenthesizedExpression(
+        //            SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
+        //                cacheId, constructor)));
+        //}
 
-        protected ExpressionSyntax GetCachedInitializer(DefaultViewCompilerCodeEmitter emitter, ExpressionSyntax constructor)
-        {
-            // emit (cache ?? (cache = ctor()))
-            var cacheId = GetCacheName(typeof(CompiledBindingExpression));
-            return SyntaxFactory.BinaryExpression(SyntaxKind.CoalesceExpression, cacheId,
-                SyntaxFactory.ParenthesizedExpression(
-                    SyntaxFactory.AssignmentExpression(SyntaxKind.SimpleAssignmentExpression,
-                        cacheId, constructor)));
-        }
+        //protected List<CustomAttributeData> GetActionAttributeData(Expression expression)
+        //{
+        //    var attributes = new List<CustomAttributeData>();
+        //    expression.ForEachMember(m =>
+        //    {
+        //        attributes.AddRange(m.CustomAttributes.Where(a => typeof(ActionFilterAttribute).IsAssignableFrom(a.AttributeType)));
+        //    });
+        //    return attributes;
+        //}
 
-        protected List<CustomAttributeData> GetActionAttributeData(Expression expression)
-        {
-            var attributes = new List<CustomAttributeData>();
-            expression.ForEachMember(m =>
-            {
-                attributes.AddRange(m.CustomAttributes.Where(a => typeof(ActionFilterAttribute).IsAssignableFrom(a.AttributeType)));
-            });
-            return attributes;
-        }
-
-        protected IEnumerable<ExpressionSyntax> GetAttributeInitializers(IEnumerable<CustomAttributeData> attributes, DefaultViewCompilerCodeEmitter emitter)
-        {
-            return attributes?.Select(a => emitter?.EmitAttributeInitializer(a)).ToArray();
-        }
+        //protected IEnumerable<ExpressionSyntax> GetAttributeInitializers(IEnumerable<CustomAttributeData> attributes, DefaultViewCompilerCodeEmitter emitter)
+        //{
+        //    return attributes?.Select(a => emitter?.EmitAttributeInitializer(a)).ToArray();
+        //}
 
         public void SaveAssembly()
         {
