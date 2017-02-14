@@ -271,7 +271,7 @@ class DotvvmValidation {
 
             var options = viewModel[property + "$options"];
             if (options && options.type && ValidationError.isValid(viewModelProperty) && !dotvvm.serialization.validateType(value, options.type)) {
-                var error = new ValidationError(viewModelProperty, `${value} is invalid value for type ${options.type}`);
+                var error = new ValidationError(viewModelProperty, `The value of property ${property} (${value}) is invalid value for type ${options.type}.`);
                 ValidationError.getOrCreate(viewModelProperty).push(error);
                 this.addValidationError(viewModel, error);
             }

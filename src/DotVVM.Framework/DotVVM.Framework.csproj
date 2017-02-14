@@ -46,10 +46,12 @@
     <EmbeddedResource Remove="node_modules\**" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Resources\Scripts\DotVVM.d.ts" />
+  </ItemGroup>
+  <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Scripts\DotVVM.d.ts" />
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
     <None Include="Resources\Scripts\DotVVM.DomUtils.ts" />
     <None Include="Resources\Scripts\DotVVM.Evaluator.ts" />
