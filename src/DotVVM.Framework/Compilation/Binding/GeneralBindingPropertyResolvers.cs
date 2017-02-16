@@ -191,6 +191,16 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression)));
         }
+
+        public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)
+        {
+            if (resolvedBinding.Parent == null) throw new Exception();
+            return new LocationInfoBindingProperty(
+                resolvedBinding.TreeRoot.FileName,
+                resolvedBinding.DothtmlNode.Tokens.Select(t => (t.StartPosition, t.EndPosition)).ToArray(),
+                resolvedBinding.DothtmlNode.Tokens.FirstOrDefault()?.LineNumber ?? -1,
+                resolvedBinding.TreeRoot.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata.Type);
+        }
         //public OriginalStringBindingProperty
     }
 }

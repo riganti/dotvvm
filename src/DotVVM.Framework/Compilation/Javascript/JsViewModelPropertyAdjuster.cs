@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Utils;
@@ -42,6 +43,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                         memberAccess.MemberName = propertyMap.Name;
                     }
                 }
+                else if (propAnnotation.MemberInfo is FieldInfo)
+                    throw new NotSupportedException($"Can not translate field {propAnnotation.MemberInfo} to Javascript");
 
                 node.AddAnnotation(ResultIsObservableAnnotation.Instance);
                 node.AddAnnotation(new ViewModelInfoAnnotation(propertyType));

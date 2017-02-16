@@ -72,6 +72,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
             });
 
             var view = treeBuilder.BuildTreeRoot(this, viewMetadata, root, dataContextTypeStack, directives);
+            view.FileName = fileName;
 
             ResolveRootContent(root, view, viewMetadata);
 
