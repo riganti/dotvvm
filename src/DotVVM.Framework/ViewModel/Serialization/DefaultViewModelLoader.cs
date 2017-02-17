@@ -13,11 +13,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return ActivatorUtilities.CreateFactory(viewModelType, Type.EmptyTypes);
         }
 
-        protected static ConcurrentDictionary<Type, ObjectFactory> facotryCache = new ConcurrentDictionary<Type, ObjectFactory>();
-
-        public DefaultViewModelLoader()
-        {
-        }
+        protected static ConcurrentDictionary<Type, ObjectFactory> factoryCache = new ConcurrentDictionary<Type, ObjectFactory>();
 
         /// <summary>
         /// Initializes the view model for the specified view.
@@ -38,7 +34,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// </summary>
         protected virtual object CreateViewModelInstance(Type viewModelType, IDotvvmRequestContext context)
         {
-            return facotryCache.GetOrAdd(viewModelType, CreateObjectFactory).Invoke(context.Services, new object[0]);
+            return factoryCache.GetOrAdd(viewModelType, CreateObjectFactory).Invoke(context.Services, new object[0]);
         }
 
         /// <summary>
