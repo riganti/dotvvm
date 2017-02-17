@@ -36,5 +36,23 @@ namespace DotVVM.Samples.Tests.Control
                 browser.First("span").CheckIfInnerTextEquals("4");
             });
         }
+
+        [TestMethod]
+        public void Control_ComboBoxDelaySync()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_ComboBox_ComboBoxDelaySync);
+
+                // check that the second item is selected in both ComboBoxes on the page start
+                browser.ElementAt("select", 0).ElementAt("option", 1).CheckIfIsSelected();
+                browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
+
+                // change the DataSource collection on the server and verify that the second item is selected in both ComboBoxes
+                browser.First("input").Click().Wait();
+                browser.ElementAt("select", 0).ElementAt("option", 1).CheckIfIsSelected();
+                browser.ElementAt("select", 1).ElementAt("option", 1).CheckIfIsSelected();
+            });
+        }
     }
 }

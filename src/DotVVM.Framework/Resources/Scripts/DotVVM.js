@@ -904,7 +904,7 @@ var DotvvmValidation = (function () {
             }
             var options = viewModel[property + "$options"];
             if (options && options.type && ValidationError.isValid(viewModelProperty) && !dotvvm.serialization.validateType(value, options.type)) {
-                var error = new ValidationError(viewModelProperty, "The value of property {0} (" + value + ") is invalid value for type " + options.type + ".");
+                var error = new ValidationError(viewModelProperty, "The value of property " + property + " (" + value + ") is invalid value for type " + options.type + ".");
                 ValidationError.getOrCreate(viewModelProperty).push(error);
                 this.addValidationError(viewModel, error);
             }
@@ -1066,6 +1066,7 @@ var DotvvmValidation = (function () {
 })();
 ;
 /// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 /// <reference path="dotvvm.domutils.ts" />
@@ -1315,7 +1316,9 @@ var DotVVM = (function () {
                             var updatedControls = _this.cleanUpdatedControls(resultObject);
                             // update the viewmodel
                             if (resultObject.viewModel) {
+                                ko.delaySync.pause();
                                 _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
+                                ko.delaySync.resume();
                             }
                             isSuccess = true;
                             // remove updated controls which were previously hidden
@@ -1491,7 +1494,9 @@ var DotVVM = (function () {
                                 _this.viewModels[viewModelName][p] = resultObject[p];
                             }
                         }
+                        ko.delaySync.pause();
                         _this.serialization.deserialize(resultObject.viewModel, _this.viewModels[viewModelName].viewModel);
+                        ko.delaySync.resume();
                         isSuccess = true;
                         // add updated controls
                         _this.viewModelObservables[viewModelName](_this.viewModels[viewModelName].viewModel);

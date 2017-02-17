@@ -1,4 +1,5 @@
 /// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
 /// <reference path="dotvvm.domutils.ts" />
@@ -298,7 +299,9 @@ class DotVVM {
 
                             // update the viewmodel
                             if (resultObject.viewModel) {
+                                ko.delaySync.pause();
                                 this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                                ko.delaySync.resume();
                             }
                             isSuccess = true;
 
@@ -483,7 +486,9 @@ class DotVVM {
                             }
                         }
 
+                        ko.delaySync.pause();
                         this.serialization.deserialize(resultObject.viewModel, this.viewModels[viewModelName].viewModel);
+                        ko.delaySync.resume();
                         isSuccess = true;
 
                         // add updated controls

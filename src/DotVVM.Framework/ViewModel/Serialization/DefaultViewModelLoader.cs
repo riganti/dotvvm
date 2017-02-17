@@ -28,11 +28,11 @@ namespace DotVVM.Framework.ViewModel.Serialization
         /// If you are using IoC/DI container, this is the method you want to override.
         /// </summary>
         protected virtual object CreateViewModelInstance(Type viewModelType) { return null; }
+        
         /// <summary>
         /// Creates the new instance of a viewmodel of specified type. 
-        /// If you are using IoC/DI container, this is the method you want to override.
         /// </summary>
-        protected virtual object CreateViewModelInstance(Type viewModelType, IDotvvmRequestContext context)
+        protected object CreateViewModelInstance(Type viewModelType, IDotvvmRequestContext context)
         {
             return factoryCache.GetOrAdd(viewModelType, CreateObjectFactory).Invoke(context.Services, new object[0]);
         }
