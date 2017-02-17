@@ -32,6 +32,12 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             comboBox.SetBinding(Selector.SelectedValueProperty, context.CreateValueBinding(property.PropertyInfo.Name));
             comboBox.SetBinding(ItemsControl.DataSourceProperty, GetDataSourceBinding(property, context, comboBox));
 
+            var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
+            if (!string.IsNullOrEmpty(cssClass))
+            {
+                comboBox.Attributes["class"] = cssClass;
+            }
+
             if (container.IsPropertySet(DynamicEntity.EnabledProperty))
             {
                 ControlHelpers.CopyProperty(container, DynamicEntity.EnabledProperty, comboBox, SelectorBase.EnabledProperty);

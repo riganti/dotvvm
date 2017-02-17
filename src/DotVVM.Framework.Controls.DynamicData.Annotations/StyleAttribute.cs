@@ -20,6 +20,11 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations
         public string FormRowCssClass { get; set; }
 
         /// <summary>
+        /// Gets or sets the CSS class applied to the control in the form.
+        /// </summary>
+        public string FormControlCssClass { get; set; }
+
+        /// <summary>
         /// Gets or sets the CSS class applied to the GridView table cell for this field.
         /// </summary>
         public string GridCellCssClass { get; set; }
@@ -28,6 +33,6 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations
         /// Gets or sets the CSS class applied to the GridView table header cell for this field.
         /// </summary>
         public string GridHeaderCellCssClass { get; set; }
-
+        
     }
 }

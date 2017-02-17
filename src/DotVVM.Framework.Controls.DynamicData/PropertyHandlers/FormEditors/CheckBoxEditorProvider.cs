@@ -23,9 +23,10 @@ namespace DotVVM.Framework.Controls.DynamicData.PropertyHandlers.FormEditors
             var checkBox = new CheckBox();
             container.Children.Add(checkBox);
 
-            if (!string.IsNullOrEmpty(ControlCssClass))
+            var cssClass = ControlHelpers.ConcatCssClasses(ControlCssClass, property.Styles?.FormControlCssClass);
+            if (!string.IsNullOrEmpty(cssClass))
             {
-                checkBox.Attributes["class"] = ControlCssClass;
+                checkBox.Attributes["class"] = cssClass;
             }
 
             checkBox.Text = property.DisplayName;
