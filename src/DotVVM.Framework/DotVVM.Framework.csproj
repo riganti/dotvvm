@@ -1,6 +1,5 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Description>ASP.NET MVVM Framework</Description>
     <AssemblyTitle>DotVVM</AssemblyTitle>
     <VersionPrefix>1.1.0-rc5</VersionPrefix>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
