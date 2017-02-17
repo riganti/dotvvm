@@ -84,16 +84,14 @@ namespace DotVVM.Framework.Controls
         private static string GetUrlSuffixExpression(HtmlGenericControl control, DotvvmProperty urlSuffixProperty)
         {
             var urlSuffixBinding = control.GetValueBinding(urlSuffixProperty);
-            string urlSuffix;
             if (urlSuffixBinding != null)
             {
-                urlSuffix = urlSuffixBinding.GetKnockoutBindingExpression();
+                return "(" + urlSuffixBinding.GetKnockoutBindingExpression() + ")";
             }
             else
             {
-                urlSuffix = JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
+                return JsonConvert.SerializeObject(control.GetValue(urlSuffixProperty) as string ?? "");
             }
-            return urlSuffix;
         }
 
         private static string GenerateRouteLinkCore(string routeName, HtmlGenericControl control, IDotvvmRequestContext context)
