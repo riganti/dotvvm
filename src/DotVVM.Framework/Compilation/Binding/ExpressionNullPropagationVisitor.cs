@@ -18,7 +18,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (node.Expression.Type.IsNullable()) return base.VisitMember(node);
+            if (node.Expression?.Type?.IsNullable() == true) return base.VisitMember(node);
             else return CheckForNull(Visit(node.Expression), expr =>
                 Expression.MakeMemberAccess(expr, node.Member));
 
@@ -81,9 +81,22 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             else
             {
-                return CheckForNull(base.Visit(node.Left), left =>
-                    createExpr(left),
-                checkReferenceTypes: false);
+                if (node.NodeType == ExpressionType.AndAlso || node.NodeType == ExpressionType.OrElse)
+                {
+                    var left = Visit(node.Left);
+                    var right = Visit(node.Right);
+                    var nullable = left.Type.IsNullable() ? left.Type : right.Type;
+                    left = TypeConversion.ImplicitConversion(left, nullable);
+                    right = TypeConversion.ImplicitConversion(right, nullable);
+
+                    return Expression.MakeBinary(node.NodeType, left, right, left.Type.IsNullable(), node.Method);
+                }
+                else
+                {
+                    return CheckForNull(base.Visit(node.Left), left =>
+                        createExpr(left),
+                    checkReferenceTypes: false);
+                }
             }
         }
 
@@ -145,7 +158,9 @@ namespace DotVVM.Framework.Compilation.Binding
             Func<Expression, Expression> cc = e => { list.Add(e); return callback(list.ToArray()); };
             for (var i = parameters.Length - 1; i >= 1; i--)
             {
-                cc = e => { list.Add(e); return CheckForNull(parameters[i], cc, suppress: suppressThisOne?.Invoke(parameters[i], i) ?? false); };
+                var iCopy = i;
+                var ccc = cc;
+                cc = e => { list.Add(e); return CheckForNull(parameters[iCopy], ccc, suppress: suppressThisOne?.Invoke(parameters[iCopy], iCopy) ?? false); };
             }
             return CheckForNull(parameters[0], cc, suppress: suppressThisOne?.Invoke(parameters[0], 0) ?? false);
         }
@@ -153,7 +168,7 @@ namespace DotVVM.Framework.Compilation.Binding
         private int tmpCounter;
         protected Expression CheckForNull(Expression parameter, Func<Expression, Expression> callback, bool checkReferenceTypes = true, bool suppress = false)
         {
-            if (suppress || (parameter.Type.GetTypeInfo().IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.GetTypeInfo().IsValueType)
+            if (suppress || parameter == null || (parameter.Type.GetTypeInfo().IsValueType && !parameter.Type.IsNullable()) || !checkReferenceTypes && !parameter.Type.GetTypeInfo().IsValueType)
                 return callback(parameter);
             var p2 = Expression.Parameter(parameter.Type, "tmp" + tmpCounter++);
             var eresult = callback(p2.Type.IsNullable() ? (Expression)Expression.Property(p2, "Value") : p2);

@@ -103,7 +103,7 @@ namespace DotVVM.Framework.Tests.Common.Binding
 
             // spawn few more
 
-            foreach (var ff in ExpressionFragments.Shuffle(random, infinite: true).Take(500))
+            foreach (var ff in ExpressionFragments.Shuffle(random, infinite: true).Take(5))
             {
                 AddFragment(ff, 8);
             }

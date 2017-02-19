@@ -24,7 +24,9 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault() ?? typeof(object));
+            var context = new DataContextStack(contexts.FirstOrDefault() ?? typeof(object), extenstionParameters: new BindingExtensionParameter[]{
+                new BindingPageInfoExtensionParameter()
+                });
             for (int i = 1; i < contexts.Length; i++)
             {
                 context = new DataContextStack(contexts[i], context);
@@ -79,6 +81,27 @@ namespace DotVVM.Framework.Tests.Binding
             var js = CompileBinding("_parent + _parent2 + _parent0 + _parent1 + _parent3", typeof(string), typeof(string), typeof(string), typeof(string), typeof(string))
                 .Replace("(", "").Replace(")", "");
             Assert.AreEqual("$parent+$parents[1]+$data+$parent+$parents[2]", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_IsPostbackRunning()
+        {
+            var js = CompileBinding("_page.IsPostbackRunning");
+            Assert.AreEqual("dotvvm.isPostbackRunning()", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_EvaluatingOnClient()
+        {
+            var js = CompileBinding("_page.EvaluatingOnClient");
+            Assert.AreEqual("true", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_EvaluatingOnServer()
+        {
+            var js = CompileBinding("_page.EvaluatingOnServer");
+            Assert.AreEqual("false", js);
         }
     }
 }
