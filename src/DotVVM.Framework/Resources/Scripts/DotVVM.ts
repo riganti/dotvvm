@@ -741,7 +741,7 @@ class DotVVM {
     }
 
     private isPostBackProhibited(element: HTMLElement) {
-        if (element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+        if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
             return true;
         }
         return false;
