@@ -88,7 +88,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
             return url.StartsWith("~/", StringComparison.Ordinal) ?
                    new LocalFileResourceLocation(url.Substring(2)) :
-                   (IResourceLocation)new RemoteResourceLocation(url);
+                   (IResourceLocation)new UrlResourceLocation(url);
         }
 
         /// <summary>

@@ -34,7 +34,7 @@ namespace DotVVM.Framework.Tests.ViewModel
             var config = ApplyPatches(
                 CreateDiff(c => c.Resources.Register("resource-1", new InlineScriptResource { Code = "alert()" })),
                 CreateDiff(c => c.Resources.Register("resource-2", new InlineScriptResource { Code = "console.log()" })),
-                CreateDiff(c => c.Resources.Register("resource-3", new ScriptResource(new RemoteResourceLocation("http://i.dont.know/which.js")) { Dependencies = new[] { "dotvvm" } }))
+                CreateDiff(c => c.Resources.Register("resource-3", new ScriptResource(new UrlResourceLocation("http://i.dont.know/which.js")) { Dependencies = new[] { "dotvvm" } }))
                 );
             Assert.IsInstanceOfType(config.Resources.FindResource("resource-1"), typeof(InlineScriptResource));
             Assert.IsInstanceOfType(config.Resources.FindResource("resource-2"), typeof(InlineScriptResource));

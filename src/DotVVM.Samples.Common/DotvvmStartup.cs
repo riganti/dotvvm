@@ -44,7 +44,7 @@ namespace DotVVM.Samples.BasicSamples
 
             config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource()
             {
-                Location = new RemoteResourceLocation("http://unavailable.local/testResource.js"),
+                Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new LocalFileResourceLocation("~/Scripts/testResource.js"))
             });
 
