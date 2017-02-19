@@ -13,6 +13,11 @@ namespace DotVVM.Framework.Controls
 
         public Action<IControlBuilderFactory, DotvvmControl> BuildContentBody { get; set; }
 
+        public DelegateTemplate(Action<IControlBuilderFactory, DotvvmControl> buildContentBody)
+        {
+            this.BuildContentBody = buildContentBody;
+        }
+
 
         public void BuildContent(IDotvvmRequestContext context, DotvvmControl container)
         {
