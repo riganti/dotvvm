@@ -13,6 +13,11 @@ namespace DotVVM.Framework.Controls
 
         public Action<IControlBuilderFactory, DotvvmControl> BuildContentBody { get; set; }
 
+        public DelegateTemplate()
+        {
+            // this constructor must be here otherwise the user controls won't compile
+        }
+
         public DelegateTemplate(Action<IControlBuilderFactory, DotvvmControl> buildContentBody)
         {
             this.BuildContentBody = buildContentBody;

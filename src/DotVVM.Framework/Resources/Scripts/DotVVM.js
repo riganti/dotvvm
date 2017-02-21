@@ -331,7 +331,7 @@ var DotvvmPromise = (function () {
     DotvvmPromise.prototype.chainFrom = function (promise) {
         var _this = this;
         promise.done(function (a) { return _this.resolve(a); });
-        promise.fail(function (e) { return _this.fail(e); });
+        promise.fail(function (e) { return _this.reject(e); });
         return this;
     };
     return DotvvmPromise;
@@ -1746,7 +1746,7 @@ var DotVVM = (function () {
         });
     };
     DotVVM.prototype.isPostBackProhibited = function (element) {
-        if (element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
+        if (element && element.tagName && element.tagName.toLowerCase() === "a" && element.getAttribute("disabled")) {
             return true;
         }
         return false;
