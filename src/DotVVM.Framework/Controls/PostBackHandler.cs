@@ -10,7 +10,6 @@ namespace DotVVM.Framework.Controls
     /// </summary>
     public abstract class PostBackHandler : DotvvmBindableObject
     {
-
         /// <summary>
         /// Gets or sets the name of the event which the handler applies to. If this property is not set, it applies to all events.
         /// </summary>
@@ -34,8 +33,6 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty EnabledProperty
             = DotvvmProperty.Register<bool, PostBackHandler>(c => c.Enabled, true);
 
-
-
         /// <summary>
         /// Gets the key of the handler registered in the dotvvm.extensions.postBackHandlers javascript object.
         /// </summary>
@@ -45,8 +42,6 @@ namespace DotVVM.Framework.Controls
         /// Gets an array of javascript expressions which will be passes to the handler as parameters.
         /// </summary>
         protected internal abstract Dictionary<string, string> GetHandlerOptionClientExpressions();
-
-
 
         protected internal string TranslateValueOrBinding(DotvvmProperty property)
         {
