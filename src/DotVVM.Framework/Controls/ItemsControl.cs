@@ -72,9 +72,9 @@ namespace DotVVM.Framework.Controls
             {
                 return (IEnumerable)dataSource;
             }
-            if (dataSource is IGridViewDataSet)
+            if (dataSource is IBaseGridViewDataSet)
             {
-                return ((IGridViewDataSet)dataSource).Items;
+                return ((IBaseGridViewDataSet)dataSource).Items;
             }
             throw new NotSupportedException($"The object of type '{dataSource.GetType()}' is not supported in the DataSource property!");
         }

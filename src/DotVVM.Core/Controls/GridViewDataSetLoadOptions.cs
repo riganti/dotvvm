@@ -40,22 +40,5 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-
-        public virtual GridViewDataSetLoadedData LoadFromQueryable<T>(IQueryable<T> queryable)
-        {
-            var count = queryable.Count();
-
-            if (DataSet is ISortableGridViewDataSet sortableDataSet)
-            {
-                queryable = sortableDataSet.ApplySortExpression(queryable);
-            }
-            if (DataSet is IPageableGridViewDataSet pageableDataSet)
-            {
-                queryable = pageableDataSet.ApplyPaging(queryable);
-            }
-            var items = queryable.ToList();
-
-            return new GridViewDataSetLoadedData<T>(items, count);
-        }
     }
 }

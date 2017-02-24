@@ -56,5 +56,24 @@ namespace DotVVM.Core.Controls
             return queryable.Skip(pagingOptions.PageSize * pagingOptions.PageIndex).Take(pagingOptions.PageSize);
         }
 
+
+
+        public static GridViewDataSetLoadedData LoadFromQueryable<T>(this IGridViewDataSetOptions options, IQueryable<T> queryable)
+        {
+            var count = queryable.Count();
+
+            if (options.DataSet is ISortableGridViewDataSet sortableDataSet)
+            {
+                queryable = sortableDataSet.ApplySortExpression(queryable);
+            }
+            if (options.DataSet is IPageableGridViewDataSet pageableDataSet)
+            {
+                queryable = pageableDataSet.ApplyPaging(queryable);
+            }
+            var items = queryable.ToList();
+
+            return new GridViewDataSetLoadedData<T>(items, count);
+        }
+
     }
 }
