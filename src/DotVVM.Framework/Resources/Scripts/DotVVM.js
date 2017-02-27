@@ -1218,10 +1218,14 @@ var DotVVM = (function () {
             if (!_this.isPostBackStillActive(currentPostBackCounter))
                 return;
             try {
+                _this.isViewModelUpdating = true;
                 callback(JSON.parse(response.responseText));
             }
             catch (error) {
                 errorCallback(response, error);
+            }
+            finally {
+                _this.isViewModelUpdating = false;
             }
         }, errorCallback, function (xhr) {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");

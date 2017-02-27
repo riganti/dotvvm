@@ -192,15 +192,17 @@ class DotVVM {
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
             try {
+                this.isViewModelUpdating = true;
                 callback(JSON.parse(response.responseText));
-            }
-            catch (error) {
+            } catch (error) {
                 errorCallback(response, error);
+            } finally {
+                this.isViewModelUpdating = false;
             }
         }, errorCallback,
-            xhr => {
-                xhr.setRequestHeader("X-PostbackType", "StaticCommand");
-            });
+        xhr => {
+            xhr.setRequestHeader("X-PostbackType", "StaticCommand");
+        });
     }
 
     private processPassedId(id: any, context: any): string {
