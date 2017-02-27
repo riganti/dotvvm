@@ -284,7 +284,8 @@ namespace DotVVM.Framework.Hosting
 
             using (var writer = new StreamWriter(context.HttpContext.Response.Body))
             {
-                writer.WriteLine(JsonConvert.SerializeObject(result));
+                var json = ViewModelSerializer.BuildStaticCommandResponse(context, result);
+                writer.WriteLine(json);
             }
         }
 

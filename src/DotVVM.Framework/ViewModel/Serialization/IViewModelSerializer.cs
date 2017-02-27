@@ -8,6 +8,8 @@ namespace DotVVM.Framework.ViewModel.Serialization
     {
         void BuildViewModel(IDotvvmRequestContext context);
 
+        string BuildStaticCommandResponse(IDotvvmRequestContext context, object result);
+
         string SerializeViewModel(IDotvvmRequestContext context);
         
         string SerializeModelState(IDotvvmRequestContext context);
