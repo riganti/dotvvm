@@ -2062,10 +2062,18 @@ var DotvvmFileUploadData = (function () {
     function DotvvmFileUploadData() {
         this.FileId = ko.observable();
         this.FileName = ko.observable();
-        this.FileTypeAllowed = ko.observable();
-        this.MaxSizeExceeded = ko.observable();
-        this.Allowed = ko.observable();
+        this.FileSize = ko.observable();
+        this.IsFileTypeAllowed = ko.observable();
+        this.IsMaxSizeExceeded = ko.observable();
+        this.IsAllowed = ko.observable();
     }
     return DotvvmFileUploadData;
+})();
+var DotvvmFileSize = (function () {
+    function DotvvmFileSize() {
+        this.Bytes = ko.observable();
+        this.FormattedText = ko.observable();
+    }
+    return DotvvmFileSize;
 })();
 //# sourceMappingURL=DotVVM.js.map

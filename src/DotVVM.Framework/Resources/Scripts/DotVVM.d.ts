@@ -322,7 +322,12 @@ declare class DotvvmFileUploadCollection {
 declare class DotvvmFileUploadData {
     FileId: KnockoutObservable<string>;
     FileName: KnockoutObservable<string>;
-    FileTypeAllowed: KnockoutObservable<boolean>;
-    MaxSizeExceeded: KnockoutObservable<boolean>;
-    Allowed: KnockoutObservable<boolean>;
+    FileSize: KnockoutObservable<DotvvmFileSize>;
+    IsFileTypeAllowed: KnockoutObservable<boolean>;
+    IsMaxSizeExceeded: KnockoutObservable<boolean>;
+    IsAllowed: KnockoutObservable<boolean>;
+}
+declare class DotvvmFileSize {
+    Bytes: KnockoutObservable<number>;
+    FormattedText: KnockoutObservable<string>;
 }

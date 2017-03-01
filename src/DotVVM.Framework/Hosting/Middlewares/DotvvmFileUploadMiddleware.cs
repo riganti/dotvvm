@@ -157,26 +157,27 @@ namespace DotVVM.Framework.Hosting.Middlewares
             var fileNameGroup = Regex.Match(section.ContentDisposition, @"filename=""?(?<fileName>[^\""]*)", RegexOptions.IgnoreCase).Groups["fileName"];
             var fileName = fileNameGroup.Success ? fileNameGroup.Value : string.Empty;
             var mimeType = section.ContentType ?? string.Empty;
+            var fileSize = section.Body.Length;
             
             return new UploadedFile {
                 FileId = fileId,
                 FileName = fileName,
-                FileTypeAllowed = IsFileTypeAllowed(context, fileName, mimeType),
-                MaxSizeExceeded = IsMaxSizeExceeded(context, section.Body)
+                FileSize = new FileSize{ Bytes = fileSize },
+                IsFileTypeAllowed = IsFileTypeAllowed(context, fileName, mimeType),
+                IsMaxSizeExceeded = IsMaxSizeExceeded(context, fileSize)
             };
         }
 
         private bool IsFileTypeAllowed(IHttpContext context, string fileName, string mimeType)
         {
-            var fileTypes = context.Request.Query["fileTypes"] 
-                ?? context.Request.Query["accept"]; // for older BP versions
+            var allowedFileTypes = context.Request.Query["fileTypes"];
 
-            if (string.IsNullOrEmpty(fileTypes))
+            if (string.IsNullOrEmpty(allowedFileTypes))
             {
                 return true;
             }
 
-            return fileTypes.Split(',').Any(type =>
+            return allowedFileTypes.Split(',').Any(type =>
             {
                 type = type.Trim();
 
@@ -200,13 +201,12 @@ namespace DotVVM.Framework.Hosting.Middlewares
             });
         }
 
-        private bool IsMaxSizeExceeded(IHttpContext context, Stream body)
+        private bool IsMaxSizeExceeded(IHttpContext context, long fileSize)
         {
-            int maxSize;
-            if (int.TryParse(context.Request.Query["maxSize"], out maxSize))
+            if (int.TryParse(context.Request.Query["maxSize"], out int maxFileSize))
             {
-                var maxSizeInBytes = maxSize * 1024 * 1024;
-                return body.Length > maxSizeInBytes;
+                var maxFileSizeInBytes = maxFileSize * 1024 * 1024;
+                return fileSize > maxFileSizeInBytes;
             }
 
             return false;
