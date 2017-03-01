@@ -60,20 +60,20 @@ function BuildPackages() {
 		cd .\$($package.Directory)
 		
 		if ($nugetRestoreAltSource -eq "") {
-			& dotnet restore
+			& dotnet restore | Out-Host
 		}
 		else {
-			& dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/
+			& dotnet restore --source $nugetRestoreAltSource --source https://nuget.org/api/v2/ | Out-Host
 		}
 		
-		& dotnet pack
+		& dotnet pack | Out-Host
 		cd ..
 	}
 }
 
 function PushPackages() {
 	foreach ($package in $packages) {
-		& .\Tools\nuget.exe push .\$($package.Directory)\bin\debug\$($package.Package).$version.nupkg -source $server -apiKey $apiKey
+		& .\Tools\nuget.exe push .\$($package.Directory)\bin\debug\$($package.Package).$version.nupkg -source $server -apiKey $apiKey | Out-Host
 	}
 }
 
@@ -96,9 +96,21 @@ $packages = @(
 	[pscustomobject]@{ Package = "DotVVM.Core"; Directory = "DotVVM.Core" },
 	[pscustomobject]@{ Package = "DotVVM"; Directory = "DotVVM.Framework" },
 	[pscustomobject]@{ Package = "DotVVM.Owin"; Directory = "DotVVM.Framework.Hosting.Owin" },
-	[pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" }
+	[pscustomobject]@{ Package = "DotVVM.AspNetCore"; Directory = "DotVVM.Framework.Hosting.AspNetCore" },
+	[pscustomobject]@{ Package = "DotVVM.CommandLine"; Directory = "DotVVM.CommandLine" }
 )
 
+function PublishTemplates() {
+	del .\Templates\*.nupkg  -ErrorAction SilentlyContinue
+	
+	$filePath = ".\Templates\DotVVM.Templates.nuspec"
+	$file = [System.IO.File]::ReadAllText($filePath, [System.Text.Encoding]::UTF8)
+	$file = [System.Text.RegularExpressions.Regex]::Replace($file, "\<version\>([^<]+)\</version\>", "<version>" + $version + "</version>")
+	[System.IO.File]::WriteAllText($filePath, $file, [System.Text.Encoding]::UTF8)
+	
+	& .\Tools\nuget.exe pack .\Templates\DotVVM.Templates.nuspec -outputdirectory .\Templates | Out-Host 
+	& .\Tools\nuget.exe push .\Templates\DotVVM.Templates.$version.nupkg -source $server -apiKey $apiKey | Out-Host 
+}
 
 
 ### Publish Workflow
@@ -113,4 +125,5 @@ GitCheckout;
 SetVersion;
 BuildPackages;
 PushPackages;
+PublishTemplates;
 GitPush;

@@ -206,7 +206,7 @@ namespace DotVVM.Framework.Configuration
         private static void RegisterResources(DotvvmConfiguration configuration)
         {
             configuration.Resources.Register(ResourceConstants.JQueryResourceName,
-                new ScriptResource(new RemoteResourceLocation("https://code.jquery.com/jquery-2.1.1.min.js"))
+                new ScriptResource(new UrlResourceLocation("https://code.jquery.com/jquery-2.1.1.min.js"))
                 {
                     LocationFallback = new ResourceLocationFallback(
                         "window.jQuery",

@@ -13,6 +13,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ValidationSummar
 
         public RecursiveValidationSummaryViewModelChild Child2 { get; set; }
 
+        public List<RecursiveValidationSummaryViewModelChild> Children { get; set; } = new List<RecursiveValidationSummaryViewModelChild> {
+            new RecursiveValidationSummaryViewModelChild {
+                Child = new RecursiveValidationSummaryViewModelChild(),
+            },
+            new RecursiveValidationSummaryViewModelChild(),
+        };
 
         [Bind(Direction.ServerToClient)]
         public bool Validated { get; set; }
@@ -20,12 +26,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.ValidationSummar
 
         public RecursiveValidationSummaryViewModel()
         {
-            Child1 = new RecursiveValidationSummaryViewModelChild()
-            {
+            Child1 = new RecursiveValidationSummaryViewModelChild() {
                 Child = new RecursiveValidationSummaryViewModelChild()
             };
-            Child2 = new RecursiveValidationSummaryViewModelChild()
-            {
+            Child2 = new RecursiveValidationSummaryViewModelChild() {
                 Child = new RecursiveValidationSummaryViewModelChild()
             };
         }

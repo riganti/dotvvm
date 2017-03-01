@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.CommandLine.Commands.Logic;
+using DotVVM.CommandLine.Commands.Templates;
 using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine.Commands.Implementation
@@ -10,7 +12,7 @@ namespace DotVVM.CommandLine.Commands.Implementation
     {
         public override string Name => "Add Master Page";
 
-        public override string Usage => "dotvvm add master <NAME>\ndotvvm am <NAME>";
+        public override string Usage => "dotvvm add master <NAME> [-m|--master|--masterpage <MASTERPAGE>]\ndotvvm am <NAME> [-m|--master|--masterpage <MASTERPAGE>]";
 
         public override bool CanHandle(Arguments args, DotvvmProjectMetadata dotvvmProjectMetadata)
         {
@@ -38,9 +40,56 @@ namespace DotVVM.CommandLine.Commands.Implementation
                 throw new InvalidCommandUsageException("You have to specify the NAME.");
             }
 
-            var masterPage = args.GetOptionValue("-m", "-master", "-masterPage");
+            if (PathHelpers.IsCurrentDirectory(dotvvmProjectMetadata.ProjectDirectory) && !name.Contains("/") && !name.Contains("\\"))
+            {
+                name = "Views/" + name;
+            }
+            name = PathHelpers.EnsureFileExtension(name, "dotmaster");
 
-            // TODO: create a new master page (with the master page)
+            var masterPage = args.GetOptionValue("-m", "--master", "--masterpage");
+            if (!string.IsNullOrEmpty(masterPage))
+            {
+                masterPage = PathHelpers.EnsureFileExtension(masterPage, "dotmaster");
+
+                if (PathHelpers.IsCurrentDirectory(dotvvmProjectMetadata.ProjectDirectory) && !masterPage.Contains("/") && !masterPage.Contains("\\"))
+                {
+                    masterPage = "Views/" + masterPage;
+                }
+            }
+
+            CreatePage(name, masterPage, dotvvmProjectMetadata);
+        }
+
+        private void CreatePage(string viewPath, string masterPagePath, DotvvmProjectMetadata dotvvmProjectMetadata)
+        {
+            var viewModelPath = NamingHelpers.GenerateViewModelPath(viewPath);
+            var viewModelName = NamingHelpers.GetClassNameFromPath(viewModelPath);
+            var viewModelNamespace = NamingHelpers.GetNamespaceFromPath(viewModelPath, dotvvmProjectMetadata.ProjectDirectory, dotvvmProjectMetadata.RootNamespace);
+
+            // create page
+            var pageTemplate = new PageTemplate()
+            {
+                ViewModelRootNamespace = dotvvmProjectMetadata.RootNamespace,
+                ViewModelName = viewModelName,
+                ViewModelNamespace = viewModelNamespace,
+                IsMasterPage = true
+            };
+            if (!string.IsNullOrEmpty(masterPagePath))
+            {
+                pageTemplate.EmbedInMasterPage = true;
+                pageTemplate.MasterPageLocation = masterPagePath;
+                pageTemplate.ContentPlaceHolderIds = new MasterPageBuilder().ExtractPlaceHolderIds(masterPagePath);
+            }
+            FileSystemHelpers.WriteFile(viewPath, pageTemplate.TransformText());
+
+            // create viewmodel
+            var viewModelTemplate = new ViewModelTemplate()
+            {
+                ViewModelName = viewModelName,
+                ViewModelNamespace = viewModelNamespace
+                // TODO: BaseViewModel
+            };
+            FileSystemHelpers.WriteFile(viewModelPath, viewModelTemplate.TransformText());
         }
     }
 }

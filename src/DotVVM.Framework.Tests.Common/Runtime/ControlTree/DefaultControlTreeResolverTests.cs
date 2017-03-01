@@ -31,7 +31,7 @@ namespace DotVVM.Framework.Tests.Runtime.ControlTree
         public void TestInit()
         {
             configuration = DotvvmConfiguration.CreateDefault();
-            configuration.Markup.AddCodeControl("cc", typeof(ClassWithInnerElementProperty));
+            configuration.Markup.AddCodeControls("cc", typeof(ClassWithInnerElementProperty));
             controlTreeResolver = configuration.ServiceLocator.GetService<IControlTreeResolver>();
         }
 

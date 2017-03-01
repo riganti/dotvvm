@@ -40,9 +40,15 @@ namespace DotVVM.Framework.Testing
         public bool IsInPartialRenderingMode { get; set; }
         public string ApplicationHostPath { get; set; }
         public string ResultIdFragment { get; set; }
-
         public Dictionary<string, string> PostBackUpdatedControls { get; }
         public DotvvmView View { get; set; }
+
+        private IServiceProvider _services;
+        public IServiceProvider Services
+        {
+            get => _services ?? Configuration?.ServiceLocator?.GetServiceProvider() ?? throw new NotSupportedException();
+            set => _services = value;
+        }
 
         public void ChangeCurrentCulture(string cultureName)
             => ChangeCurrentCulture(cultureName, cultureName);

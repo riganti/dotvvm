@@ -15,6 +15,8 @@
     <None Include="**\*.dotmaster" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
+    <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
@@ -27,6 +29,9 @@
     <Content Include="Scripts\GridViewSizable.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
+    <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
+    <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />

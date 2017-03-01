@@ -32,8 +32,7 @@ namespace DotVVM.Framework.Tests.Runtime
         private static TestDotvvmRequestContext CreateContext(object viewModel, DotvvmConfiguration configuration = null)
         {
             configuration = configuration ?? DotvvmConfiguration.CreateDefault();
-            return new TestDotvvmRequestContext()
-            {
+            return new TestDotvvmRequestContext() {
                 Configuration = configuration,
                 ResourceManager = new ResourceManagement.ResourceManager(configuration),
                 ViewModel = viewModel
@@ -59,8 +58,7 @@ namespace DotVVM.Framework.Tests.Runtime
         [TestMethod]
         public void GridViewTextColumn_RenderedHtmlTest_ServerRendering()
         {
-            var gridView = new GridView()
-            {
+            var gridView = new GridView() {
                 Columns = new List<GridViewColumn>
                 {
                     new GridViewTextColumn() { HeaderCssClass = "lol", HeaderText="Header Text", ValueBinding = ValueBindingExpression.CreateBinding(bindingService, h => (object)h[0]) }
@@ -73,6 +71,33 @@ namespace DotVVM.Framework.Tests.Runtime
 
             Assert.IsTrue(html.Contains("ROW 2"));
             Assert.IsTrue(html.Contains("class=\"lol\""));
+        }
+
+        [TestMethod]
+        public void RepeaterEmptyData_RenderedHtmlTest_ServerRendering()
+        {
+            Repeater createRepeater(RenderMode renderMode)
+            {
+                var repeater = new Repeater() {
+                    ItemTemplate = new DelegateTemplate((f, c) => c.Children.Add(new HtmlGenericControl("ITEM_TAG"))),
+                    EmptyDataTemplate = new DelegateTemplate((f, c) => c.Children.Add(new HtmlGenericControl("EMPTY_DATA"))),
+                    DataSource = new ValueBindingExpression(h => h[0], "$this"),
+                    RenderWrapperTag = false
+                };
+                repeater.SetValue(RenderSettings.ModeProperty, renderMode);
+                return repeater;
+            }
+            var viewModel = new string[] { };
+            var clientHtml = InvokeLifecycleAndRender(createRepeater(RenderMode.Client), CreateContext(viewModel));
+
+            Assert.IsTrue(clientHtml.Contains("<ITEM_TAG"));
+            Assert.IsTrue(clientHtml.Contains("<EMPTY_DATA"));
+            Assert.IsTrue(!clientHtml.Contains("<div"));
+            Assert.IsTrue(clientHtml.Contains("<!-- ko "));
+
+            var serverHtml = InvokeLifecycleAndRender(createRepeater(RenderMode.Server), CreateContext(viewModel));
+            Assert.IsTrue(serverHtml.Contains("<EMPTY_DATA"));
+            Assert.IsTrue(!serverHtml.Contains("<div"));
         }
     }
 }

@@ -3,6 +3,7 @@ using System.Globalization;
 using System.IO;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
+using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -25,6 +26,8 @@ namespace DotVVM.Samples.BasicSamples
             {
                 options.AddDefaultTempStorages("Temp");
             });
+
+            services.AddScoped<ViewModelScopedDependency>();
         }
 
         public void Configure(IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory)

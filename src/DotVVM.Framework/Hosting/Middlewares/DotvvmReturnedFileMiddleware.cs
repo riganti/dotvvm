@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Storage;
 using System.Collections.Generic;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace DotVVM.Framework.Hosting.Middlewares
 { 
@@ -17,7 +18,7 @@ namespace DotVVM.Framework.Hosting.Middlewares
 
             if (url.StartsWith("dotvvmReturnedFile", StringComparison.Ordinal))
             {
-                await RenderReturnedFile(request.HttpContext, request.Configuration.ServiceLocator.GetService<IReturnedFileStorage>());
+                await RenderReturnedFile(request.HttpContext, request.Services.GetService<IReturnedFileStorage>());
                 return true;
             }
             else return false;

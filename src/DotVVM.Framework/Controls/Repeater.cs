@@ -101,7 +101,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Performs the data-binding and builds the controls inside the <see cref="Repeater"/>.
         /// </summary>
-        private void DataBind(Hosting.IDotvvmRequestContext context)
+        private void DataBind(IDotvvmRequestContext context)
         {
             Children.Clear();
             emptyDataContainer = null;
@@ -139,6 +139,8 @@ namespace DotVVM.Framework.Controls
             if (EmptyDataTemplate != null)
             {
                 emptyDataContainer = new EmptyData();
+                emptyDataContainer.SetValue(EmptyData.RenderWrapperTagProperty, GetValueRaw(RenderWrapperTagProperty));
+                emptyDataContainer.SetValue(EmptyData.WrapperTagNameProperty, GetValueRaw(WrapperTagNameProperty));
                 emptyDataContainer.SetBinding(DataSourceProperty, dataSourceBinding);
                 EmptyDataTemplate.BuildContent(context, emptyDataContainer);
                 Children.Add(emptyDataContainer);

@@ -142,9 +142,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
         {
-            if (typeof(IGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
+            if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceAccessBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(
-                    Expression.Property(expression.Expression, nameof(IGridViewDataSet.Items))
+                    Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))
                 )));
             else if (typeof(IEnumerable).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceAccessBinding(binding);
@@ -158,10 +158,10 @@ namespace DotVVM.Framework.Compilation.Binding
                     new ParsedExpressionBindingProperty(
                         Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
                     )));
-            else if (typeof(IGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
+            else if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
-                        Expression.Property(Expression.Property(expression.Expression, nameof(IGridViewDataSet.Items)), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
+                        Expression.Property(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items)), typeof(ICollection).GetProperty(nameof(ICollection.Count)))
                     )));
             else throw new NotSupportedException($"Can not find collection length from binding '{expression.Expression}'.");
         }
@@ -179,9 +179,9 @@ namespace DotVVM.Framework.Compilation.Binding
             if (makeIndexer(expression.Expression) is Expression r)
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(r)));
 
-            else if (typeof(IGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
+            else if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(
-                    new ParsedExpressionBindingProperty(makeIndexer(Expression.Property(expression.Expression, nameof(IGridViewDataSet.Items))))));
+                    new ParsedExpressionBindingProperty(makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))))));
 
             else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}'.");
 

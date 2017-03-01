@@ -5,6 +5,7 @@ using Newtonsoft.Json;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation;
 using System.Reflection;
+using System.ComponentModel;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -28,7 +29,7 @@ namespace DotVVM.Framework.Configuration
         //[JsonProperty("htmlAttributeTransforms")]
         [JsonIgnore]
         public Dictionary<HtmlTagAttributePair, HtmlAttributeTransformConfiguration> HtmlAttributeTransforms { get; private set; }
-     
+
         /// <summary>
         /// Gets a list of HTML attribute transforms.
         /// </summary>
@@ -96,7 +97,7 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Registers code controls in the specified namespace from the specified assembly
         /// </summary>
-        public void AddCodeControl(string tagPrefix, string namespaceName, string assembly)
+        public void AddCodeControls(string tagPrefix, string namespaceName, string assembly)
         {
             Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = namespaceName, Assembly = assembly });
             AddAssembly(assembly);
@@ -105,10 +106,18 @@ namespace DotVVM.Framework.Configuration
         /// <summary>
         /// Registers code controls from the same namespace and assembly as exampleControl
         /// </summary>
-        public void AddCodeControl(string tagPrefix, Type exampleControl)
+        public void AddCodeControls(string tagPrefix, Type exampleControl)
         {
             Controls.Add(new DotvvmControlConfiguration { TagPrefix = tagPrefix, Namespace = exampleControl.Namespace, Assembly = exampleControl.GetTypeInfo().Assembly.FullName });
             AddAssembly(exampleControl.GetTypeInfo().Assembly.FullName);
         }
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use AddCodeControls instead.")]
+        public void AddCodeControl(string tagPrefix, string namespaceName, string assembly) => AddCodeControls(tagPrefix, namespaceName, assembly);
+
+        [EditorBrowsable(EditorBrowsableState.Never)]
+        [Obsolete("Use AddCodeControls instead.")]
+        public void AddCodeControl(string tagPrefix, Type exampleControl) => AddCodeControls(tagPrefix, exampleControl);
     }
 }

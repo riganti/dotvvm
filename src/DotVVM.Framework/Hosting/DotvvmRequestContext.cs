@@ -18,6 +18,7 @@ using DotVVM.Framework.Controls.Infrastructure;
 using DotVVM.Framework.Hosting.Middlewares;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
+using Microsoft.Extensions.DependencyInjection;
 
 
 namespace DotVVM.Framework.Hosting
@@ -134,7 +135,12 @@ namespace DotVVM.Framework.Hosting
 
         public IViewModelSerializer ViewModelSerializer { get; set; }
 
-
+        private IServiceProvider _services;
+        public IServiceProvider Services
+        {
+            get => _services ?? (_services = Configuration?.ServiceLocator?.GetServiceProvider() ?? throw new NotSupportedException());
+            set => _services = value;
+        }
 
         /// <summary>
         /// Gets the unique id of the SpaContentPlaceHolder that should be loaded.
@@ -330,7 +336,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void ReturnFile(byte[] bytes, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
         {
-            var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
+            var returnedFileStorage = Services.GetService<IReturnedFileStorage>();
             var metadata = new ReturnedFileMetadata()
             {
                 FileName = fileName,
@@ -347,7 +353,7 @@ namespace DotVVM.Framework.Hosting
         /// </summary>
         public void ReturnFile(Stream stream, string fileName, string mimeType, IEnumerable<KeyValuePair<string, string>> additionalHeaders = null)
         {
-            var returnedFileStorage = Configuration.ServiceLocator.GetService<IReturnedFileStorage>();
+            var returnedFileStorage = Services.GetService<IReturnedFileStorage>();
             var metadata = new ReturnedFileMetadata()
             {
                 FileName = fileName,

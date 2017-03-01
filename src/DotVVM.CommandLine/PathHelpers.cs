@@ -3,19 +3,14 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
+using System.Text;
 using DotVVM.CommandLine.Metadata;
 
 namespace DotVVM.CommandLine
 {
-    public class Helpers
+    public static class PathHelpers
     {
-
-        public static string AskForValue(string question)
-        {
-            Console.WriteLine(question);
-            return Console.ReadLine();
-        }
-
         public static string GetRelativePathFrom(string basePath, string fullPath)
         {
             basePath = Path.GetFullPath(basePath);
@@ -31,7 +26,7 @@ namespace DotVVM.CommandLine
 
         public static string GetDothtmlFileRelativePath(DotvvmProjectMetadata dotvvmProjectMetadata, string file)
         {
-            var relativePath = Helpers.GetRelativePathFrom(dotvvmProjectMetadata.ProjectDirectory, file);
+            var relativePath = PathHelpers.GetRelativePathFrom(dotvvmProjectMetadata.ProjectDirectory, file);
             if (relativePath.StartsWith("views/", StringComparison.CurrentCultureIgnoreCase)
                 || relativePath.StartsWith("views\\", StringComparison.CurrentCultureIgnoreCase))
             {
@@ -76,5 +71,39 @@ namespace DotVVM.CommandLine
             }
         }
 
+        public static bool IsCurrentDirectory(string directory)
+        {
+            return ComparePaths(directory, Directory.GetCurrentDirectory());
+        }
+
+        private static string NormalizePath(string directory)
+        {
+            return Path.GetFullPath(directory.TrimEnd('/', '\\'));
+        }
+
+        private static bool ComparePaths(string path1, string path2)
+        {
+            var comparison = PathComparison;
+            return String.Equals(NormalizePath(path1), NormalizePath(path2), comparison);
+        }
+
+        public static string EnsureFileExtension(string path, string extension)
+        {
+            if (!path.EndsWith("." + extension, PathComparison))
+            {
+                path += "." + extension;
+            }
+            return path;
+        }
+
+        public static string ChangeExtension(string path, string extension)
+        {
+            return TrimFileExtension(path) + "." + extension;
+        }
+
+        private static StringComparison PathComparison
+        {
+            get { return RuntimeInformation.IsOSPlatform(OSPlatform.Windows) ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal; }
+        }
     }
 }

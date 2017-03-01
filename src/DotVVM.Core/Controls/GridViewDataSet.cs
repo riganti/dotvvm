@@ -4,14 +4,108 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Core.Controls;
+using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
     public class GridViewDataSet<T> : IGridViewDataSet
     {
+        
+        public GridViewDataSet()
+        {
+            Items = new List<T>();
+        }
+
+
+
+        #region IBaseGridViewDataSet
+
+        public IList<T> Items { get; set; }
+
+        IList IBaseGridViewDataSet.Items => (IList)Items;
+
+        public bool IsRefreshRequired { get; set; }
+
+        public Func<IGridViewDataSetOptions, GridViewDataSetLoadedData> OnLoadingData { get; set; }
+        
+
+        public void Reset()
+        {
+            PageIndex = 0;
+        }
+
+        public void LoadFromQueryable(IQueryable<T> queryable)
+        {
+            var data = CreateGridViewDataSetLoadOptions();
+            FillDataSet(data.LoadFromQueryable(queryable));
+        }
+
+        protected virtual void NotifyRefreshRequired()
+        {
+            if (OnLoadingData != null)
+            {
+                var data = OnLoadingData(CreateGridViewDataSetLoadOptions());
+                FillDataSet(data);
+            }
+            else
+            {
+                IsRefreshRequired = true;
+            }
+        }
+
+        protected virtual GridViewDataSetLoadOptions CreateGridViewDataSetLoadOptions()
+        {
+            return new GridViewDataSetLoadOptions(this);
+        }
+
+        protected virtual void FillDataSet(GridViewDataSetLoadedData data)
+        {
+            Items = data.Items.OfType<T>().ToList();
+            TotalItemsCount = data.TotalItemsCount;
+            IsRefreshRequired = false;
+        }
+
+        #endregion
+
+
+
+        #region ISortableGridViewDataSet
+
         public string SortExpression { get; set; }
 
         public bool SortDescending { get; set; }
+
+        public virtual void SetSortExpression(string expression)
+        {
+            if (SortExpression == expression)
+            {
+                SortDescending = !SortDescending;
+                GoToFirstPage();
+            }
+            else
+            {
+                SortExpression = expression;
+                SortDescending = false;
+                GoToFirstPage();
+            }
+        }
+        
+        #endregion
+
+
+
+        #region IRowEditGridViewDataSet 
+
+        public string PrimaryKeyPropertyName { get; set; }
+
+        public object EditRowId { get; set; }
+
+        #endregion
+
+
+
+        #region IPageableGridViewDataSet
 
         public int PageIndex { get; set; }
 
@@ -19,15 +113,12 @@ namespace DotVVM.Framework.Controls
 
         public int TotalItemsCount { get; set; }
 
-        public IList<T> Items { get; set; }
+        [Bind(Direction.None)]
+        public INearPageIndexesProvider NearPageIndexesProvider { get; set; } = new DistanceNearPageIndexesProvider(5);
 
-        public string PrimaryKeyPropertyName { get; set; }
-
-        public object EditRowId { get; set; }
-
-        public virtual IList<int> NearPageIndexes
+        public IList<int> NearPageIndexes
         {
-            get { return Enumerable.Range(0, PagesCount).Where(n => Math.Abs(n - PageIndex) <= 5).ToList(); }
+            get { return NearPageIndexesProvider.GetIndexes(this); }
         }
 
         public int PagesCount
@@ -49,19 +140,10 @@ namespace DotVVM.Framework.Controls
             get { return PageIndex == PagesCount - 1; }
         }
 
-        IList IGridViewDataSet.Items
-        {
-            get { return (IList)Items; }
-        }
-
-        public GridViewDataSet()
-        {
-            Items = new List<T>();
-        }
-
         public void GoToFirstPage()
         {
             PageIndex = 0;
+            NotifyRefreshRequired();
         }
 
         public void GoToPreviousPage()
@@ -69,12 +151,14 @@ namespace DotVVM.Framework.Controls
             if (!IsFirstPage)
             {
                 PageIndex--;
+                NotifyRefreshRequired();
             }
         }
 
         public void GoToLastPage()
         {
             PageIndex = PagesCount - 1;
+            NotifyRefreshRequired();
         }
 
         public void GoToNextPage()
@@ -82,77 +166,17 @@ namespace DotVVM.Framework.Controls
             if (!IsLastPage)
             {
                 PageIndex++;
+                NotifyRefreshRequired();
             }
         }
 
         public void GoToPage(int index)
         {
             PageIndex = index;
+            NotifyRefreshRequired();
         }
 
-        public void Reset()
-        {
-            PageIndex = 0;
-        }
+        #endregion
 
-        public virtual void SetSortExpression(string expression)
-        {
-            if (SortExpression == expression)
-            {
-                SortDescending = !SortDescending;
-                GoToFirstPage();
-            }
-            else
-            {
-                SortExpression = expression;
-                SortDescending = false;
-                GoToFirstPage();
-            }
-        }
-
-        public virtual void LoadFromQueryable(IQueryable<T> queryable)
-        {
-            TotalItemsCount = queryable.Count();
-
-            if (!string.IsNullOrEmpty(SortExpression))
-            {
-                queryable = ApplySortExpression(queryable);
-            }
-
-            if (PageSize > 0)
-            {
-                queryable = queryable.Skip(PageSize * PageIndex).Take(PageSize);
-            }
-
-            Items = queryable.ToList();
-        }
-
-        public virtual IQueryable<T> ApplySortExpression(IQueryable<T> queryable)
-        {
-            var type = typeof(T);
-            var property = type.GetTypeInfo().GetProperty(SortExpression);
-
-            if (property == null)
-            {
-                throw new Exception($"Could not sort by property '{SortExpression}', since it does not exists.");
-            }
-
-            var parameter = Expression.Parameter(type, "p");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            var orderBy = Expression.Lambda(propertyAccess, parameter);
-
-            var result = Expression.Call(typeof(Queryable),
-                GetSortingMethodName(),
-                new[] { type, property.PropertyType },
-                queryable.Expression,
-                Expression.Quote(orderBy));
-
-            return queryable.Provider.CreateQuery<T>(result);
-        }
-
-        private string GetSortingMethodName()
-        {
-            return SortDescending ? "OrderByDescending" : "OrderBy";
-        }
     }
 }

@@ -38,20 +38,20 @@ namespace DotVVM.Samples.BasicSamples
 
         private static void RegisterResources(DotvvmConfiguration config)
         {
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource(new LocalFileResourceLocation("Content/testResource.css")));
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new LocalFileResourceLocation("Scripts/testResource.js")));
-            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new LocalFileResourceLocation("Scripts/testResource2.js")));
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource(new FileResourceLocation("Content/testResource.css")));
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new FileResourceLocation("Scripts/testResource.js")));
+            config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
 
             config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource()
             {
-                Location = new RemoteResourceLocation("http://unavailable.local/testResource.js"),
-                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new LocalFileResourceLocation("~/Scripts/testResource.js"))
+                Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
             });
 
             config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource
             {
-                Location = new LocalFileResourceLocation("~/Scripts/testResource.js"),
-                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new LocalFileResourceLocation("~/Scripts/testResource2.js"))
+                Location = new FileResourceLocation("~/Scripts/testResource.js"),
+                LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
 
             // dev files
@@ -76,7 +76,7 @@ namespace DotVVM.Samples.BasicSamples
 
         private static void AddControls(DotvvmConfiguration config)
         {
-            config.Markup.AddCodeControl("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
+            config.Markup.AddCodeControls("PropertyUpdate", typeof(Controls.ServerRenderedLabel));
             config.Markup.AddMarkupControl("IdGeneration", "Control", "Views/FeatureSamples/IdGeneration/IdGeneration_control.dotcontrol");
             config.Markup.AddMarkupControl("FileUploadInRepeater", "FileUploadWrapper", "Views/ComplexSamples/FileUploadInRepeater/FileUploadWrapper.dotcontrol");
             config.Markup.AddMarkupControl("sample", "PasswordStrengthControl", "Views/FeatureSamples/ClientExtenders/PasswordStrengthControl.dotcontrol");

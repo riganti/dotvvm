@@ -2,8 +2,8 @@
   "profiles": {
     "DotVVM.CommandLine": {
       "commandName": "Project",
-      "commandLineArgs": "gut Views/Home.dothtml",
-      "workingDirectory": "d:\\Work\\DotvvmSamples\\Checkbook\\src\\CheckBook.App"
+      "commandLineArgs": "ap NewPage4",
+      "workingDirectory": "d:\\Temp\\dotnetnew"
     }
   }
 }

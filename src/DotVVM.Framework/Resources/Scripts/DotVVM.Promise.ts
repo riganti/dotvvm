@@ -66,7 +66,7 @@ class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
 
     chainFrom(promise: IDotvvmPromise<TArg>) {
         promise.done(a => this.resolve(a));
-        promise.fail(e => this.fail(e));
+        promise.fail(e => this.reject(e));
         return this;
     } 
 }

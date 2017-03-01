@@ -23,6 +23,8 @@
 			<dot:Button Validation.Target="{value: Child2}" Text="Test 2" Click="{command: Validate()}" />
 		</div>
 
+        <dot:Button Text="Validate Collection" Validation.Target="{value: Children}" Click="{command: Validate()}" />
+
 		<div ID="result"><span>{{value: Validated}}</span></div>
 
     </div>

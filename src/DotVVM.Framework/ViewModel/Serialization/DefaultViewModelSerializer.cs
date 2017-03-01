@@ -113,6 +113,26 @@ namespace DotVVM.Framework.ViewModel.Serialization
             context.ViewModelJson = result;
         }
 
+        public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
+        {
+            var serializer = CreateJsonSerializer();
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper)
+            {
+                UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
+            };
+            serializer.Converters.Add(viewModelConverter);
+            var writer = new JTokenWriter();
+            try
+            {
+                serializer.Serialize(writer, result);
+            }
+            catch (Exception ex)
+            {
+                throw new Exception($"Could not serialize viewModel of type { context.ViewModel.GetType().Name }. Serialization failed at property { writer.Path }. {GeneralViewModelRecomendations}", ex);
+            }
+            return writer.Token.ToString(JsonFormatting);
+        }
+
         protected virtual JsonSerializer CreateJsonSerializer()
         {
             var s = new JsonSerializer() {

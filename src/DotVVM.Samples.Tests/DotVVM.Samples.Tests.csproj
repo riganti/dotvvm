@@ -31,7 +31,7 @@
       <DependentUpon>App.config</DependentUpon>
     </None>
     <None Include="SamplesRouteUrls.tt">
-      <Generator>TextTemplatingFileGenerator</Generator>
+      <Generator>TextTemplatingFilePreprocessor</Generator>
       <LastGenOutput>SamplesRouteUrls.cs</LastGenOutput>
     </None>
   </ItemGroup>

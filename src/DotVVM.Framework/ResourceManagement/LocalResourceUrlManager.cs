@@ -78,7 +78,7 @@ namespace DotVVM.Framework.ResourceManagement
                 if (directory != null)
                 {
                     var sourceFile = Path.Combine(directory, name);
-                    if (File.Exists(sourceFile)) return new LocalFileResourceLocation(sourceFile);
+                    if (File.Exists(sourceFile)) return new FileResourceLocation(sourceFile);
                 }
             }
             return null;

@@ -17,10 +17,10 @@ namespace DotVVM.Framework.ViewModel.Serialization
         private readonly IValidationRuleTranslator validationRuleTranslator;
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
 
-        public ViewModelSerializationMapper(DotvvmConfiguration configuration)
+        public ViewModelSerializationMapper(IValidationRuleTranslator validationRuleTranslator, IViewModelValidationMetadataProvider validationMetadataProvider)
         {
-            validationRuleTranslator = configuration.ServiceLocator.GetService<IValidationRuleTranslator>();
-            validationMetadataProvider = configuration.ServiceLocator.GetService<IViewModelValidationMetadataProvider>();
+            this.validationRuleTranslator = validationRuleTranslator;
+            this.validationMetadataProvider = validationMetadataProvider;
         }
 
         private readonly ConcurrentDictionary<Type, ViewModelSerializationMap> serializationMapCache = new ConcurrentDictionary<Type, ViewModelSerializationMap>();
