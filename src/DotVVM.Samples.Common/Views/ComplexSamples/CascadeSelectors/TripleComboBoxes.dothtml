@@ -1,0 +1,34 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.ComplexSamples.CascadeSelectors.TripleComboBoxesViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+
+    <dot:GridView DataSource="{value: GridItems}">
+        <dot:GridViewTextColumn ValueBinding="{value: Region}" />
+        <dot:GridViewTextColumn ValueBinding="{value: Country}" />
+        <dot:GridViewTextColumn ValueBinding="{value: City}" />
+        <dot:GridViewTemplateColumn>
+            <dot:Button Text="Show Details" Click="{command: _parent.Select(_this)}" />
+        </dot:GridViewTemplateColumn>
+    </dot:GridView>
+
+    <fieldset>
+        <legend>Detail</legend>
+
+        <p>
+            <dot:ComboBox DataSource="{value: Regions}" DisplayMember="Name" ValueMember="Id" SelectedValue="{value: Selected.RegionId}" SelectionChanged="{command: OnRegionChanged()}" />
+            <dot:ComboBox DataSource="{value: Countries}" DisplayMember="Name" ValueMember="Id" SelectedValue="{value: Selected.CountryId}" SelectionChanged="{command: OnCountryChanged()}" />
+            <dot:ComboBox DataSource="{value: Cities}" DisplayMember="Name" ValueMember="Id" SelectedValue="{value: Selected.CityId}" />
+        </p>
+    </fieldset>
+
+</body>
+</html>
+
+

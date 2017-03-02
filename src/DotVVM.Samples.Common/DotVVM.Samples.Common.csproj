@@ -15,6 +15,7 @@
     <None Include="**\*.dotmaster" />
   </ItemGroup>
   <ItemGroup>
+    <None Remove="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
@@ -29,6 +30,7 @@
     <Content Include="Scripts\GridViewSizable.js" />
     <Content Include="Scripts\testResource.js" />
     <Content Include="Scripts\testResource2.js" />
+    <Content Include="Views\ComplexSamples\CascadeSelectors\TripleComboBoxes.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
