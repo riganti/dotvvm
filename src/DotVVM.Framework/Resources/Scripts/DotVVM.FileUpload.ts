@@ -57,7 +57,12 @@ class DotvvmFileUploadCollection {
 class DotvvmFileUploadData {
     public FileId = ko.observable<string>();
     public FileName = ko.observable<string>();
-    public FileTypeAllowed = ko.observable<boolean>();
-    public MaxSizeExceeded = ko.observable<boolean>();
-    public Allowed = ko.observable<boolean>();
+    public FileSize = ko.observable<DotvvmFileSize>();
+    public IsFileTypeAllowed = ko.observable<boolean>();
+    public IsMaxSizeExceeded = ko.observable<boolean>();
+    public IsAllowed = ko.observable<boolean>();
+}
+class DotvvmFileSize {
+    public Bytes = ko.observable<number>();
+    public FormattedText = ko.observable<string>();
 }

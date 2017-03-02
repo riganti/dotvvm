@@ -39,6 +39,7 @@ namespace DotVVM.Compiler
                     }
                 });
             registerServices(config, serviceCollection);
+            config.ApplicationPhysicalPath = webSitePath;
             startup.Configure(config, webSitePath);
             config.CompiledViewsAssemblies = null;
             return config;
