@@ -78,12 +78,6 @@ namespace DotVVM.Framework.Compilation
                 throw new DotvvmCompilationException(controlUsageError.ErrorMessage, controlUsageError.Nodes.SelectMany(n => n.Tokens));
             }
 
-            if (configuration.Debug && configuration.ApplicationPhysicalPath != null)
-            {
-                var addExpressionDebugvisitor = new ExpressionDebugInfoAddingVisitor(Path.Combine(configuration.ApplicationPhysicalPath, fileName));
-                addExpressionDebugvisitor.VisitView(resolvedView);
-            }
-
             var emitter = new DefaultViewCompilerCodeEmitter();
             var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
 
