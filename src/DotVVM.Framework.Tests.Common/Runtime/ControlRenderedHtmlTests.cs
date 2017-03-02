@@ -81,7 +81,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 var repeater = new Repeater() {
                     ItemTemplate = new DelegateTemplate((f, c) => c.Children.Add(new HtmlGenericControl("ITEM_TAG"))),
                     EmptyDataTemplate = new DelegateTemplate((f, c) => c.Children.Add(new HtmlGenericControl("EMPTY_DATA"))),
-                    DataSource = new ValueBindingExpression(h => h[0], "$this"),
+                    DataSource = ValueBindingExpression.CreateThisBinding<string[]>(configuration.ServiceLocator.GetService<BindingCompilationService>()),
                     RenderWrapperTag = false
                 };
                 repeater.SetValue(RenderSettings.ModeProperty, renderMode);

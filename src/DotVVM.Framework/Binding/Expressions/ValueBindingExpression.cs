@@ -63,7 +63,7 @@ namespace DotVVM.Framework.Binding.Expressions
         #region Helpers
 
         public static ValueBindingExpression CreateThisBinding<T>(BindingCompilationService service) =>
-            CreateBinding<T>(service, o => (T)o[0], new JsSymbolicParameter(JavascriptTranslator.KnockoutViewModelParameter));
+            CreateBinding<T>(service, o => (T)o[0]);
 
         public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression) =>
             new ValueBindingExpression(service, new object[] {

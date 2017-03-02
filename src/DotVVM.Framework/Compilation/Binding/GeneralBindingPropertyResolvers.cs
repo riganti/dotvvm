@@ -168,12 +168,12 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public DataSourceCurrentElementBinding GetDataSourceCurrentElement(ParsedExpressionBindingProperty expression, IBinding binding)
         {
+            Expression indexParameter() => Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
+                new BindingParameterAnnotation(extensionParameter: new CurrentCollectionIndexExtensionParameter()));
             Expression makeIndexer(Expression expr) =>
                 expr.Type.GetProperty("Item") is PropertyInfo indexer && indexer.GetMethod?.GetParameters()?.Length == 1 ?
-                Expression.MakeIndex(expr, indexer, new[] {
-                    Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
-                        new BindingParameterAnnotation(extensionParameter: new CurrentCollectionIndexExtensionParameter()))
-                }) :
+                    (Expression)Expression.MakeIndex(expr, indexer, new[] { indexParameter() }) :
+                expr.Type.IsArray ? Expression.ArrayIndex(expr, indexParameter()) :
                 null;
             
             if (makeIndexer(expression.Expression) is Expression r)
@@ -183,7 +183,7 @@ namespace DotVVM.Framework.Compilation.Binding
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))))));
 
-            else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}'.");
+            else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
 
         }
 
