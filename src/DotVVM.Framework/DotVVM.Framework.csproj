@@ -67,7 +67,6 @@
     <None Include="Resources\Scripts\DotVVM.Validation.ts" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
-    <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
     <None Include="Resources\Scripts\typings\jquery\jquery.d.ts" />
