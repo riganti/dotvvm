@@ -8,6 +8,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_Auth_SecuredPage => "ComplexSamples/Auth/SecuredPage";
 			public static string ComplexSamples_CascadeSelectors_CascadeSelectors => "ComplexSamples/CascadeSelectors/CascadeSelectors";
 			public static string ComplexSamples_CascadeSelectors_CascadeSelectorsServerRender => "ComplexSamples/CascadeSelectors/CascadeSelectorsServerRender";
+			public static string ComplexSamples_CascadeSelectors_TripleComboBoxes => "ComplexSamples/CascadeSelectors/TripleComboBoxes";
 			public static string ComplexSamples_ChangedEvent_ChangedEvent => "ComplexSamples/ChangedEvent/ChangedEvent";
 			public static string ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView => "ComplexSamples/DataTemplate/EmptyDataTemplateRepeaterGridView";
 			public static string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater => "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
