@@ -39,9 +39,6 @@ namespace DotVVM.Samples.BasicSamples
 
         private static void RegisterResources(DotvvmConfiguration config)
         {
-            config.Resources.Register(ResourceConstants.KnockoutJSResourceName,
-                new ScriptResource(new FileResourceLocation("../DotVVM.Framework/Resources/Scripts/knockout-latest.debug.js")));
-
             config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testCss", new StylesheetResource(new FileResourceLocation("Content/testResource.css")));
             config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new FileResourceLocation("Scripts/testResource.js")));
             config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
