@@ -153,11 +153,12 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public DataSourceLengthBinding GetDataSourceLength(ParsedExpressionBindingProperty expression, IBinding binding)
         {
-            if (expression.Expression.Type.GetInterfaces().First(i => i == typeof(ICollection) || i.IsConstructedGenericType && i.GetGenericTypeDefinition() == typeof(ICollection<>)) is Type ifc)
+            if (expression.Expression.Type.Implements(typeof(ICollection), out var ifc) || expression.Expression.Type.Implements(typeof(ICollection<>), out ifc))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
                         Expression.Property(expression.Expression, ifc.GetProperty(nameof(ICollection.Count)))
                     )));
+            
             else if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceLengthBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(
@@ -172,17 +173,19 @@ namespace DotVVM.Framework.Compilation.Binding
                 new BindingParameterAnnotation(extensionParameter: new CurrentCollectionIndexExtensionParameter()));
             Expression makeIndexer(Expression expr) =>
                 expr.Type.GetProperty("Item") is PropertyInfo indexer && indexer.GetMethod?.GetParameters()?.Length == 1 ?
-                    (Expression)Expression.MakeIndex(expr, indexer, new[] { indexParameter() }) :
-                expr.Type.IsArray ? Expression.ArrayIndex(expr, indexParameter()) :
+                    Expression.MakeIndex(expr, indexer, new[] { indexParameter() }) :
+                expr.Type.IsArray ?
+                    Expression.ArrayIndex(expr, indexParameter()) :
+                expression.Expression.Type.Implements(typeof(IEnumerable<>), out var ienumerable) ?
+                    (Expression)Expression.Call(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Public | BindingFlags.Static).MakeGenericMethod(ienumerable.GetGenericArguments()), expression.Expression, indexParameter()) :
                 null;
-            
+
             if (makeIndexer(expression.Expression) is Expression r)
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(new ParsedExpressionBindingProperty(r)));
 
             else if (typeof(IBaseGridViewDataSet).IsAssignableFrom(expression.Expression.Type))
                 return new DataSourceCurrentElementBinding(binding.DeriveBinding(
                     new ParsedExpressionBindingProperty(makeIndexer(Expression.Property(expression.Expression, nameof(IBaseGridViewDataSet.Items))))));
-
             else throw new NotSupportedException($"Can not access current element on binding '{expression.Expression}' of type '{expression.Expression.Type}'.");
         }
 

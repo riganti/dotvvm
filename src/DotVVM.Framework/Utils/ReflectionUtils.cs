@@ -263,11 +263,17 @@ namespace DotVVM.Framework.Utils
             return superClass.IsAssignableFrom(T);
         }
 
-        public static bool Implements(this Type T, Type interfaceType)
+
+        public static bool Implements(this Type type, Type ifc) => Implements(type, ifc, out var _);
+        public static bool Implements(this Type type, Type ifc, out Type concreteInterface)
         {
-            return T.GetInterfaces().Any(x => {
-                return x.Name == interfaceType.Name;
-            });
+            bool isInterface(Type a, Type b) => a == b || a.GetTypeInfo().IsGenericType && a.GetGenericTypeDefinition() == b;
+            if (isInterface(type, ifc))
+            {
+                concreteInterface = type;
+                return true;
+            }
+            return (concreteInterface = type.GetInterfaces().FirstOrDefault(i => isInterface(i, ifc))) != null;
         }
 
         public static bool IsDynamic(this Type type)
@@ -317,5 +323,6 @@ namespace DotVVM.Framework.Utils
             member is FieldInfo field ? field.FieldType :
             member is MethodInfo method ? method.ReturnType :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
+
     }
 }

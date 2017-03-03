@@ -168,6 +168,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddMethodTranslator(typeof(IList), "get_Item", new GenericMethodCompiler(indexer));
             AddMethodTranslator(typeof(IList<>), "get_Item", new GenericMethodCompiler(indexer));
             AddMethodTranslator(typeof(List<>), "get_Item", new GenericMethodCompiler(indexer));
+            AddMethodTranslator(typeof(Enumerable).GetMethod("ElementAt", BindingFlags.Static | BindingFlags.Public), new GenericMethodCompiler((args, method) =>
+                BuildIndexer(args[1], args[2], method)));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             BindingPageInfo.RegisterJavascriptTranslations();
