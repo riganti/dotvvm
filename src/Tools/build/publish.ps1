@@ -1,4 +1,4 @@
-param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "")
+param([String]$version, [String]$apiKey, [String]$server, [String]$branchName, [String]$repoUrl, [String]$nugetRestoreAltSource = "", [bool]$pushTag)
 
 
 ### Helper Functions
@@ -83,9 +83,12 @@ function GitCheckout() {
 }
 
 function GitPush() {
+        if ($pushTag) {
+                invoke-git tag "v$($version)" HEAD
+        }
 	invoke-git commit -am "NuGet package version $version"
 	invoke-git rebase HEAD $branchName
-	invoke-git -c http.sslVerify=false push $repoUrl $branchName
+	invoke-git --follow-tags push $repoUrl $branchName
 }
 
 
