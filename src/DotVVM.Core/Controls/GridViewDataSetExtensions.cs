@@ -1,49 +1,73 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Controls;
 
-namespace DotVVM.Core.Controls
+namespace DotVVM.Framework.Controls
 {
     public static class GridViewDataSetExtensions
     {
-
-        public static IQueryable<T> ApplySortExpression<T>(this ISortOptions options, IQueryable<T> queryable)
+        public static IQueryable<T> ApplyGridViewDataSetOptions<T>(this IQueryable<T> query,
+            IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
         {
-            if (string.IsNullOrEmpty(options.SortExpression))
+            return
+                query.ApplySortOptions(gridViewDataSetLoadOptions.SortOptions)
+                    .ApplyPagingOptions(gridViewDataSetLoadOptions.PagingOptions);
+        }
+
+        public static IQueryable<T> ApplySortOptions<T>(this IQueryable<T> query,
+            IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
+        {
+            return query.ApplySortOptions(gridViewDataSetLoadOptions.SortOptions);
+        }
+
+        public static IQueryable<T> ApplyPagingOptions<T>(this IQueryable<T> query,
+            IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
+        {
+            return query.ApplyPagingOptions(gridViewDataSetLoadOptions.PagingOptions);
+        }
+
+        public static IQueryable<T> ApplyPagingOptions<T>(this IQueryable<T> query, IPagingOptions pagingOptions)
+        {
+            return query.Skip(pagingOptions.PageIndex * pagingOptions.PageSize)
+                .Take(pagingOptions.PageSize);
+        }
+
+
+        public static IQueryable<T> ApplySortOptions<T>(this IQueryable<T> query, ISortOptions sortOptions)
+        {
+            if (!string.IsNullOrEmpty(sortOptions.SortExpression))
             {
-                return queryable;
+                var type = typeof(T);
+                var property = type.GetTypeInfo().GetProperty(sortOptions.SortExpression);
+                if (property == null)
+                {
+                    throw new Exception(
+                        $"Could not sort by property '{sortOptions.SortExpression}', since it does not exists.");
+                }
+                var parameterExpression = Expression.Parameter(type, "p");
+                var lambdaExpression = Expression.Lambda(Expression.MakeMemberAccess(parameterExpression, property),
+                    parameterExpression);
+                var methodCallExpression = Expression.Call(typeof(Queryable),
+                    GetSortingMethodName(sortOptions),
+                    new Type[2]
+                    {
+                        type,
+                        property.PropertyType
+                    },
+                    query.Expression,
+                    Expression.Quote(lambdaExpression));
+
+                return query.Provider.CreateQuery<T>(methodCallExpression);
             }
-
-            var type = typeof(T);
-            var property = type.GetTypeInfo().GetProperty(options.SortExpression);
-
-            if (property == null)
-            {
-                throw new Exception($"Could not sort by property '{options.SortExpression}', since it does not exists.");
-            }
-
-            var parameter = Expression.Parameter(type, "p");
-            var propertyAccess = Expression.MakeMemberAccess(parameter, property);
-            var orderBy = Expression.Lambda(propertyAccess, parameter);
-
-            var result = Expression.Call(typeof(Queryable),
-                GetSortingMethodName(options),
-                new[] { type, property.PropertyType },
-                queryable.Expression,
-                Expression.Quote(orderBy));
-
-            return queryable.Provider.CreateQuery<T>(result);
+            return query;
         }
 
         private static string GetSortingMethodName(ISortOptions options)
         {
             return options.SortDescending ? "OrderByDescending" : "OrderBy";
         }
-
-
 
 
         public static IQueryable<T> ApplyPaging<T>(this IPagingOptions pagingOptions, IQueryable<T> queryable)
@@ -57,23 +81,22 @@ namespace DotVVM.Core.Controls
         }
 
 
-
-        public static GridViewDataSetLoadedData LoadFromQueryable<T>(this IGridViewDataSetOptions options, IQueryable<T> queryable)
+        public static GridViewDataSetLoadedData LoadFromQueryable<T>(this IBaseGridViewDataSet baseGridViewDataSet,
+            IQueryable<T> queryable)
         {
             var count = queryable.Count();
 
-            if (options.DataSet is ISortableGridViewDataSet sortableDataSet)
+            if (baseGridViewDataSet is ISortableGridViewDataSet sortableDataSet)
             {
-                queryable = sortableDataSet.ApplySortExpression(queryable);
+                queryable = queryable.ApplySortOptions(sortableDataSet.SortOptions);
             }
-            if (options.DataSet is IPageableGridViewDataSet pageableDataSet)
+            if (baseGridViewDataSet is IPageableGridViewDataSet pageableDataSet)
             {
-                queryable = pageableDataSet.ApplyPaging(queryable);
+                queryable = queryable.ApplyPagingOptions(pageableDataSet.PagingOptions);
             }
             var items = queryable.ToList();
 
             return new GridViewDataSetLoadedData<T>(items, count);
         }
-
     }
 }

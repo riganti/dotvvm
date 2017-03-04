@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Controls
 
         public int TotalItemsCount { get; protected set; }
 
-        public GridViewDataSetLoadedData(IEnumerable items, int totalItemsCount)
+        protected GridViewDataSetLoadedData(IEnumerable items, int totalItemsCount)
         {
             Items = items;
             TotalItemsCount = totalItemsCount;

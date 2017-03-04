@@ -1,67 +1,63 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Samples.BasicSamples.ViewModels.FeatureSamples.BindingContexts
 {
-	public class BindingContextViewModel : DotvvmViewModelBase
-	{
+    public class BindingContextViewModel : DotvvmViewModelBase
+    {
+        public string Result { get; set; }
 
-	    public string Result { get; set; }
+        public List<BindingContextChildViewModel> Children { get; set; }
 
-	    public List<BindingContextChildViewModel> Children { get; set; }
+        public GridViewDataSet<string> ChildrenDataSet { get; set; }
 
-	    public GridViewDataSet<string> ChildrenDataSet { get; set; }
+        public void Test(string value)
+        {
+            Result = value;
+        }
 
-	    public void Test(string value)
-	    {
-	        Result = value;
-	    }
+        public override Task PreRender()
+        {
+            if (!Context.IsPostBack)
+            {
+                Children = new List<BindingContextChildViewModel>
+                {
+                    new BindingContextChildViewModel
+                    {
+                        Children = new List<BindingContextChildViewModel>
+                        {
+                            new BindingContextChildViewModel
+                            {
+                                Children = new List<BindingContextChildViewModel>
+                                {
+                                    new BindingContextChildViewModel
+                                    {
+                                        Children = new List<BindingContextChildViewModel>()
+                                    }
+                                }
+                            }
+                        }
+                    }
+                };
 
-	    public override Task PreRender()
-	    {
-	        if (!Context.IsPostBack)
-	        {
-	            Children = new List<BindingContextChildViewModel>()
-	            {
-	                new BindingContextChildViewModel()
-	                {
-	                    Children = new List<BindingContextChildViewModel>()
-	                    {
-	                        new BindingContextChildViewModel()
-	                        {
-	                            Children = new List<BindingContextChildViewModel>()
-	                            {
-	                                new BindingContextChildViewModel()
-	                                {
-	                                    Children = new List<BindingContextChildViewModel>()
-	                                }
-	                            }
-	                        }
-	                    }
-	                }
-	            };
+                ChildrenDataSet = new GridViewDataSet<string>
+                {
+                    Items = new List<string> {"test"},
+                    PagingOptions = new PagingOptions
+                    {
+                        TotalItemsCount = 1
+                    }
+                };
+            }
 
-	            ChildrenDataSet = new GridViewDataSet<string>
-	            {
-	                Items = new List<string>() { "test" },
-	                TotalItemsCount = 1
-	            };
-	        }
-
-	        return base.PreRender();
-	    }
-	}
+            return base.PreRender();
+        }
+    }
 
     public class BindingContextChildViewModel
     {
-
         public List<BindingContextChildViewModel> Children { get; set; }
-        
     }
 }
-

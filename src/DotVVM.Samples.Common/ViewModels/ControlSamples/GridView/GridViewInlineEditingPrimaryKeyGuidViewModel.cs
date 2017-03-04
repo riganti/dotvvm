@@ -39,7 +39,12 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public GridViewInlineEditingPrimaryKeyGuidViewModel()
         {
-            CustomersDataSet = new GridViewDataSet<CustomerDataGuid>() { PageSize = 10 };
+            CustomersDataSet = new GridViewDataSet<CustomerDataGuid>() {
+                PagingOptions = new PagingOptions()
+                {
+                    PageSize = 10
+                }
+            };
             CustomersDataSet.PrimaryKeyPropertyName = "CustomerId";
             CustomersDataSet.EditRowId = EditRowId;
         }

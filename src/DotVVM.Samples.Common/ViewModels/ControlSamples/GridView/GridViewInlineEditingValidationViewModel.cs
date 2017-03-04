@@ -37,7 +37,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 
         public GridViewInlineEditingValidationViewModel()
         {
-            CustomersDataSet = new GridViewDataSet<CustomerDataValidation>() { PageSize = 10 };
+            CustomersDataSet = new GridViewDataSet<CustomerDataValidation>()
+            {
+                PagingOptions = new PagingOptions()
+                {
+                    PageSize = 10
+                }
+            };
             CustomersDataSet.PrimaryKeyPropertyName = "CustomerId";
             CustomersDataSet.EditRowId = EditRowId;
         }

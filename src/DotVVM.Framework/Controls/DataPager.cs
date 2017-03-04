@@ -1,12 +1,6 @@
 ﻿using DotVVM.Framework.Binding;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Runtime;
 
 namespace DotVVM.Framework.Controls
 {
@@ -17,28 +11,28 @@ namespace DotVVM.Framework.Controls
     public class DataPager : HtmlGenericControl
     {
         private static CommandBindingExpression GoToNextPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToNextPage(), "__$DataPager_GoToNextPage");
+            new CommandBindingExpression(h => ((IPageableGridViewDataSet)h[0]).GoToNextPage(), "__$DataPager_GoToNextPage");
         private static CommandBindingExpression GoToThisPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[1]).GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
+            new CommandBindingExpression(h => ((IPageableGridViewDataSet)h[1]).GoToPage((int)h[0]), "__$DataPager_GoToThisPage");
         private static CommandBindingExpression GoToPrevPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
+            new CommandBindingExpression(h => ((IPageableGridViewDataSet)h[0]).GoToPreviousPage(), "__$DataPager_GoToPrevPage");
         private static CommandBindingExpression GoToFirstPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToFirstPage(), "__$DataPager_GoToFirstPage");
+            new CommandBindingExpression(h => ((IPageableGridViewDataSet)h[0]).GoToFirstPage(), "__$DataPager_GoToFirstPage");
         private static CommandBindingExpression GoToLastPageCommand =
-            new CommandBindingExpression(h => ((IGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
+            new CommandBindingExpression(h => ((IPageableGridViewDataSet)h[0]).GoToLastPage(), "__$DataPager_GoToLastPage");
 
 
         /// <summary>
         /// Gets or sets the GridViewDataSet object in the viewmodel.
         /// </summary>
         [MarkupOptions(AllowHardCodedValue = false)]
-        public IGridViewDataSet DataSet
+        public IPageableGridViewDataSet DataSet
         {
-            get { return (IGridViewDataSet)GetValue(DataSetProperty); }
+            get { return (IPageableGridViewDataSet)GetValue(DataSetProperty); }
             set { SetValue(DataSetProperty, value); }
         }
         public static readonly DotvvmProperty DataSetProperty =
-            DotvvmProperty.Register<IGridViewDataSet, DataPager>(c => c.DataSet);
+            DotvvmProperty.Register<IPageableGridViewDataSet, DataPager>(c => c.DataSet);
 
 
         /// <summary>
@@ -185,11 +179,11 @@ namespace DotVVM.Framework.Controls
                 content.Children.Add(numbersPlaceHolder);
 
                 var i = 0;
-                foreach (var number in dataSet.NearPageIndexes)
+                foreach (var number in dataSet.PagingOptions.NearPageIndexes)
                 {
                     var li = new HtmlGenericControl("li");
                     li.SetBinding(DataContextProperty, GetNearIndexesBinding(i));
-                    if (number == dataSet.PageIndex)
+                    if (number == dataSet.PagingOptions.PageIndex)
                     {
                         li.Attributes["class"] = "active";
                     }
@@ -237,8 +231,8 @@ namespace DotVVM.Framework.Controls
         private ValueBindingExpression GetNearIndexesBinding(int i)
         {
             return new ValueBindingExpression(
-                        (h, c) => ((IGridViewDataSet)h[0]).NearPageIndexes[i],
-                        "NearPageIndexes[" + i + "]");
+                        (h, c) => ((IPageableGridViewDataSet)h[0]).PagingOptions.NearPageIndexes[i],
+                        "PagingOptions().NearPageIndexes[" + i + "]");
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -247,7 +241,7 @@ namespace DotVVM.Framework.Controls
             {
                 throw new DotvvmControlException(this, "The DataPager control cannot be rendered in the RenderSettings.Mode='Server'.");
             }
-
+            
             base.AddAttributesToRender(writer, context);
         }
 
@@ -257,7 +251,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (HideWhenOnlyOnePage)
                 {
-                    writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression()}).PagesCount() > 1");
+                    writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression()}).PagingOptions().PagesCount() > 1");
                 }
                 else
                 {
@@ -277,22 +271,22 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddKnockoutDataBind("css", "{ 'disabled': IsFirstPage() }");
+            writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsFirstPage() }");
             firstLi.Render(writer, context);
 
-            writer.AddKnockoutDataBind("css", "{ 'disabled': IsFirstPage() }");
+            writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsFirstPage() }");
             previousLi.Render(writer, context);
 
             // render template
-            writer.WriteKnockoutForeachComment("NearPageIndexes");
+            writer.WriteKnockoutForeachComment("PagingOptions().NearPageIndexes");
 
             // render page number
             numbersPlaceHolder.Children.Clear();
             HtmlGenericControl li;
             if (!RenderLinkForCurrentPage)
             {
-                writer.AddKnockoutDataBind("visible", "$data == $parent.PageIndex()");
-                writer.AddKnockoutDataBind("css", "{'active': $data == $parent.PageIndex()}");
+                writer.AddKnockoutDataBind("visible", "$data == $parent.PagingOptions().PageIndex()");
+                writer.AddKnockoutDataBind("css", "{'active': $data == $parent.PagingOptions().PageIndex()}");
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
@@ -301,11 +295,11 @@ namespace DotVVM.Framework.Controls
                 numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
 
-                writer.AddKnockoutDataBind("visible", "$data != $parent.PageIndex()");
+                writer.AddKnockoutDataBind("visible", "$data != $parent.PagingOptions().PageIndex()");
             }
-            writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PageIndex()}");
+            writer.AddKnockoutDataBind("css", "{ 'active': $data == $parent.PagingOptions().PageIndex()}");
             li = new HtmlGenericControl("li");
-            li.SetValue(Internal.PathFragmentProperty, "NearPageIndexes[$index]");
+            li.SetValue(Internal.PathFragmentProperty, "PagingOptions().NearPageIndexes[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
             link.SetBinding(ButtonBase.TextProperty, new ValueBindingExpression(vm => ((int)vm[0] + 1).ToString(), "$data + 1"));
@@ -317,10 +311,10 @@ namespace DotVVM.Framework.Controls
 
             writer.WriteKnockoutDataBindEndComment();
 
-            writer.AddKnockoutDataBind("css", "{ 'disabled': IsLastPage() }");
+            writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsLastPage() }");
             nextLi.Render(writer, context);
 
-            writer.AddKnockoutDataBind("css", "{ 'disabled': IsLastPage() }");
+            writer.AddKnockoutDataBind("css", "{ 'disabled': PagingOptions().IsLastPage() }");
             lastLi.Render(writer, context);
         }
 
