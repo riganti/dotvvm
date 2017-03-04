@@ -1,4 +1,3 @@
-using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +5,8 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
-    public delegate GridViewDataSetLoadedData<T> RequestRefresh<T>(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
+    public delegate GridViewDataSetLoadedData<T> RequestRefresh<T>(
+        GridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
     public class GridViewDataSet<T> : IGridViewDataSet
     {
@@ -26,17 +26,6 @@ namespace DotVVM.Framework.Controls
 
 
         public ISortOptions SortOptions { get; set; } = new SortOptions();
-
-
-
-        protected virtual GridViewDataSetLoadOptions CreateGridViewDataSetLoadOptions()
-        {
-            return new GridViewDataSetLoadOptions()
-            {
-                PagingOptions = PagingOptions,
-                SortOptions = SortOptions
-            };
-        }
 
         public string PrimaryKeyPropertyName { get; set; }
         public object EditRowId { get; set; }
@@ -97,6 +86,16 @@ namespace DotVVM.Framework.Controls
             NotifyRefreshRequired();
         }
 
+
+        protected virtual GridViewDataSetLoadOptions CreateGridViewDataSetLoadOptions()
+        {
+            return new GridViewDataSetLoadOptions
+            {
+                PagingOptions = PagingOptions,
+                SortOptions = SortOptions
+            };
+        }
+
         protected virtual void NotifyRefreshRequired()
         {
             if (RequestRefresh != null)
@@ -109,7 +108,7 @@ namespace DotVVM.Framework.Controls
                 IsRefreshRequired = true;
             }
         }
-      
+
         protected virtual void FillDataSet(GridViewDataSetLoadedData data)
         {
             Items = data.Items.OfType<T>().ToList();

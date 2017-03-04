@@ -1,6 +1,6 @@
 namespace DotVVM.Framework.Controls
 {
-    public interface IPageableGridViewDataSet
+    public interface IPageableGridViewDataSet : IBaseGridViewDataSet
     {
         IPagingOptions PagingOptions { get; set; }
         void GoToFirstPage();

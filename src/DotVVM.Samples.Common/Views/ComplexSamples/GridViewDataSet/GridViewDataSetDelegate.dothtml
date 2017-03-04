@@ -1,0 +1,31 @@
+﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet.GridViewDataSetDelegateViewModel, DotVVM.Samples.Common
+
+html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <title>Hello from DotVVM!</title>
+    <style type="text/css">
+        .alternate {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+    
+
+    <h1>GridView with IGridViewDataSet</h1>
+    <dot:GridView DataSource="{value: GridViewDataSet}" RenderSettings.Mode="Server" PostBack.Update="true">
+        <Columns>
+            <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" />
+            <dot:GridViewTextColumn HeaderText="Text" ValueBinding="{value: Text}"/>
+
+        </Columns>
+    </dot:GridView>
+
+
+    <dot:DataPager DataSet="{value: GridViewDataSet}"
+                  HideWhenOnlyOnePage="false"
+                  PageSize="3" />
+
+
+</body>
+</html>

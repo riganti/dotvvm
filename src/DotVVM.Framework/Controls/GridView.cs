@@ -162,9 +162,11 @@ namespace DotVVM.Framework.Controls
 
             Action<string> sortCommand = null;
             var set = dataSource as IGridViewDataSet;
+           
             if (set != null)
             {
                 sortCommand = set.SetSortExpression;
+                set.ReloadData();
             }
             else
             {
