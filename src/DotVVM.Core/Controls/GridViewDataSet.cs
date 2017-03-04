@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
@@ -100,8 +101,8 @@ namespace DotVVM.Framework.Controls
         {
             if (RequestRefresh != null)
             {
-                var data = RequestRefresh(CreateGridViewDataSetLoadOptions());
-                FillDataSet(data);
+                var gridViewDataSetLoadedData = RequestRefresh(CreateGridViewDataSetLoadOptions());
+                FillDataSet(gridViewDataSetLoadedData);
             }
             else
             {
@@ -114,6 +115,12 @@ namespace DotVVM.Framework.Controls
             Items = data.Items.OfType<T>().ToList();
             PagingOptions.TotalItemsCount = data.TotalItemsCount;
             IsRefreshRequired = false;
+        }
+
+        public void LoadFromQueryable(IQueryable<T> queryable)
+        {
+            var gridViewDataSetLoadedData = this.GetDataFromQueryable(queryable);
+            FillDataSet(gridViewDataSetLoadedData);
         }
     }
 }

@@ -30,6 +30,10 @@ namespace DotVVM.Framework.Controls
 
         public static IQueryable<T> ApplyPagingOptions<T>(this IQueryable<T> query, IPagingOptions pagingOptions)
         {
+            if (pagingOptions.PageSize <= 0)
+            {
+                return query;
+            }
             return query.Skip(pagingOptions.PageIndex * pagingOptions.PageSize)
                 .Take(pagingOptions.PageSize);
         }
@@ -81,11 +85,11 @@ namespace DotVVM.Framework.Controls
         }
 
 
-        public static GridViewDataSetLoadedData LoadFromQueryable<T>(this IBaseGridViewDataSet baseGridViewDataSet,
+        public static GridViewDataSetLoadedData<T> GetDataFromQueryable<T>(this IBaseGridViewDataSet baseGridViewDataSet,
             IQueryable<T> queryable)
         {
-            var count = queryable.Count();
-
+            var totalItemsCount = queryable.Count();
+           
             if (baseGridViewDataSet is ISortableGridViewDataSet sortableDataSet)
             {
                 queryable = queryable.ApplySortOptions(sortableDataSet.SortOptions);
@@ -95,8 +99,8 @@ namespace DotVVM.Framework.Controls
                 queryable = queryable.ApplyPagingOptions(pageableDataSet.PagingOptions);
             }
             var items = queryable.ToList();
-
-            return new GridViewDataSetLoadedData<T>(items, count);
+            return new GridViewDataSetLoadedData<T>(items, totalItemsCount);
+           
         }
     }
 }

@@ -10,6 +10,6 @@ namespace DotVVM.Framework.Controls
         [Bind(Direction.None)]
         RequestRefresh RequestRefresh { get; }
         void ReloadData();
-        IList Items { get; }
+        IList Items { get;}
     }
 }
