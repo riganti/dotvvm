@@ -25,7 +25,7 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_Auth_Login);
 
                 browser.SendKeys("input[type=text]", "user");
-                browser.First("input[type=button]").Click();
+                browser.First("input[type=button]").Click().Wait(500);
                 browser.Refresh();
                 browser.Wait(2000);
                 browser.Last("a").Click();
@@ -46,11 +46,11 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.ClearElementsContent("input[type=text]");
                 browser.SendKeys("input[type=text]", "user");
                 browser.First("input[type=checkbox]").Click();
-                browser.First("input[type=button]").Click();
+                browser.First("input[type=button]").Click().Wait(500);
                 browser.Last("a").Click();
 
                 browser.SendKeys("input[type=text]", "message");
-                browser.First("input[type=button]").Click();
+                browser.First("input[type=button]").Click().Wait(500);
                 browser.First("span").CheckIfInnerText(s => s.Contains("user: message"), "User cant send message");
 
             });
