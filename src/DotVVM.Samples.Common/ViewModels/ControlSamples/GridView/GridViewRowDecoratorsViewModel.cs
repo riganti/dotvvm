@@ -12,19 +12,22 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         {
             CustomersDataSet = new GridViewDataSet<CustomerData>
             {
-                PagingOptions = new PagingOptions
+                PagingOptions = 
                 {
                     PageSize = 10
                 }
             };
             CustomersDataSet2 = new GridViewDataSet<CustomerData>
             {
-                PagingOptions = new PagingOptions
+                PagingOptions = 
                 {
                     PageSize = 10
                 },
-                EditRowId = 2,
-                PrimaryKeyPropertyName = "CustomerId"
+                RowEditOptions =
+                {
+                    EditRowId = 2,
+                    PrimaryKeyPropertyName = "CustomerId"
+                }
             };
         }
 

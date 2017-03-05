@@ -55,10 +55,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
                 PagingOptions = new PagingOptions()
                 {
                     PageSize = 10
+                },
+                RowEditOptions =
+                {
+                    PrimaryKeyPropertyName = "CustomerId",
+                    EditRowId = EditRowId 
                 }
             };
-            CustomersDataSet.PrimaryKeyPropertyName = "CustomerId";
-            CustomersDataSet.EditRowId = EditRowId;
         }
 
         public override Task PreRender()
@@ -86,7 +89,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         public void EditItem(CustomerData item)
         {
             EditRowId = item.CustomerId;
-            CustomersDataSet.EditRowId = item.CustomerId;
+            CustomersDataSet.RowEditOptions.EditRowId = item.CustomerId;
             EditMode = !EditMode;
         }
 
@@ -94,14 +97,14 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
         {
             //save item
             EditRowId = -1;
-            CustomersDataSet.EditRowId = -1;
+            CustomersDataSet.RowEditOptions.EditRowId = -1;
             EditMode = !EditMode;
         }
 
         public void CancelEditItem()
         {
             EditRowId = -1;
-            CustomersDataSet.EditRowId = -1;
+            CustomersDataSet.RowEditOptions.EditRowId = -1;
             EditMode = !EditMode;
         }
 
