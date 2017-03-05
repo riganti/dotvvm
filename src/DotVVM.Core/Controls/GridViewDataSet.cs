@@ -6,7 +6,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
-    public delegate GridViewDataSetLoadedData<T> GridViewDataSetLoadDelegate<T>(GridViewDataSetLoadOptions gridViewDataSetLoadOptions);
+    public delegate GridViewDataSetLoadedData<T> GridViewDataSetLoadDelegate<T>(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
     /// <summary>
     /// Represents a collection of items with paging, sorting and row edit capabilities.

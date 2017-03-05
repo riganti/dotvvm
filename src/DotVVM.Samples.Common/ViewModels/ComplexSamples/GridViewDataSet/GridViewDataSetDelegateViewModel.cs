@@ -31,7 +31,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 
      
 
-        private GridViewDataSetLoadedData<Data> GetData(GridViewDataSetLoadOptions gridViewDataSetLoadOptions)
+        private GridViewDataSetLoadedData<Data> GetData(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
         {
             var data = TestDB(ItemsCount);
             CallDelegateCounter++;
