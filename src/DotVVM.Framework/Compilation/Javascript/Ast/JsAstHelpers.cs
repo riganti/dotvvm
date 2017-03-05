@@ -24,6 +24,9 @@ namespace DotVVM.Framework.Compilation.Javascript.Ast
             return new JsIndexerExpression(target, argument);
         }
 
+        public static JsExpression Unary(this JsExpression target, UnaryOperatorType type, bool isPrefix = true) =>
+            new JsUnaryExpression(type, target, isPrefix);
+
         public static string FormatScript(this JsNode node, bool niceMode = false, string indent = "\t", bool isDebugString = false)
         {
             node.FixParenthesis();

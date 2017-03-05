@@ -40,20 +40,24 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         protected void OptionalSpace()
         {
-            if (NiceMode) Emit(" ");
+            if (NiceMode && result.Length > 0 && !char.IsWhiteSpace(result[result.Length - 1])) Emit(" ");
         }
 
-        protected void SpaceForOperator(string op)
+        bool IsOperatorChar(char ch) => ch == '+' || ch == '-' || ch == '&' || ch == '|' || ch == '?' || ch == '=' || ch == '*' || ch == '/';
+        bool IsIdentifierChar(char ch) => char.IsLetterOrDigit(ch) || ch == '_' || ch == '$';
+        bool IsDangerousTuple(char a, char b) => IsOperatorChar(a) && (a == b || b == '=') || IsIdentifierChar(a) && IsIdentifierChar(b);
+        protected void SpaceBeforeOp(string op, bool allowCosmeticSpace = true)
         {
-            if (op.Any(char.IsLetter)) Emit(" ");
-            else OptionalSpace();
+            if (result.Length > 0 && op.Length > 0 && parameters?.LastOrDefault().index != result.Length && IsDangerousTuple(result[result.Length - 1], op.First()))
+                Emit(" ");
+            else if(allowCosmeticSpace) OptionalSpace();
         }
 
-        protected void EmitOperator(string op)
+        protected void EmitOperator(string op, bool allowCosmeticSpace = true)
         {
-            SpaceForOperator(op);
+            SpaceBeforeOp(op, allowCosmeticSpace);
             Emit(op);
-            SpaceForOperator(op);
+            if (allowCosmeticSpace) OptionalSpace();
         }
 
         protected void EndStatement()
@@ -62,7 +66,6 @@ namespace DotVVM.Framework.Compilation.Javascript
             CommitLine();
         }
 
-        List<(int position, float priority)> possibleLineBreaks;
         int indentLevel = 0;
         protected void Indent()
         {
@@ -76,7 +79,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             {
                 var indent = result.ToString(result.Length - expectedIndentLength - 1, expectedIndentLength + 1);
                 var removeOne = indent[0] == '\n';
-                for (int i = 0; i < expectedIndentLength; i++)
+                for (var i = 0; i < expectedIndentLength; i++)
                 {
                     removeOne |= indent[i + 1] == IndentString[i % IndentString.Length];
                 }
@@ -147,7 +150,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitIdentifier(JsIdentifier identifier)
         {
-            Emit(identifier.Name);
+            EmitOperator(identifier.Name, allowCosmeticSpace: false);
         }
 
         public void VisitMemberAccessExpression(JsMemberAccessExpression memberAccessExpression)
@@ -184,7 +187,18 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitUnaryExpression(JsUnaryExpression unaryExpression)
         {
-            EmitOperator(unaryExpression.OperatorString);
+            if (unaryExpression.IsPrefix)
+            {
+                SpaceBeforeOp(unaryExpression.OperatorString, allowCosmeticSpace: false);
+                Emit(unaryExpression.OperatorString);
+                unaryExpression.Expression.AcceptVisitor(this);
+            }
+            else
+            {
+                unaryExpression.Expression.AcceptVisitor(this);
+                SpaceBeforeOp(unaryExpression.OperatorString, allowCosmeticSpace: false);
+                Emit(unaryExpression.OperatorString);
+            }
         }
 
         public void VisitIndexerExpression(JsIndexerExpression indexerExpression)
@@ -197,7 +211,9 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitLiteral(JsLiteral jsLiteral)
         {
-            Emit(jsLiteral.LiteralValue);
+            var literalValue = jsLiteral.LiteralValue;
+            if (char.IsLetterOrDigit(literalValue.FirstOrDefault())) SpaceBeforeOp(literalValue);
+            Emit(literalValue);
         }
 
         public void VisitAssignmentExpression(JsAssignmentExpression assignmentExpression)
@@ -296,7 +312,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitFunctionExpression(JsFunctionExpression functionExpression)
         {
-            Emit("function(");
+            EmitOperator("function(", allowCosmeticSpace: false);
             var first = true;
             foreach (var item in functionExpression.Parameters)
             {
@@ -320,7 +336,7 @@ namespace DotVVM.Framework.Compilation.Javascript
 
         public void VisitNewExpression(JsNewExpression newExpression)
         {
-            Emit("new ");
+            EmitOperator("new ", allowCosmeticSpace: false);
             newExpression.Target.AcceptVisitor(this);
             Emit("(");
             int i = 0;

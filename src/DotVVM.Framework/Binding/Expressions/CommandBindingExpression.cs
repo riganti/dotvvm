@@ -12,6 +12,7 @@ using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -51,16 +52,19 @@ namespace DotVVM.Framework.Binding.Expressions
                     var expr = exprP.Expression;
                     var expectedType = expectedTypeP?.Type ?? typeof(object);
                     if (expectedType == typeof(object)) expectedType = typeof(Command);
-                    if (!typeof(Delegate).IsAssignableFrom(expectedType)) throw new Exception($"Command bindings must be assigned to properties with Delegate type, not { expectedType }");
+                    if (!typeof(Delegate).IsAssignableFrom(expectedType)) throw new Exception($"Command bindings must be assigned to properties of Delegate type, not { expectedType }");
+
                     var normalConvert = TypeConversion.ImplicitConversion(expr, expectedType);
                     if (normalConvert != null && expr.Type != typeof(object)) return new CastedExpressionBindingProperty(normalConvert);
+
+                    // wrap expression into a lambda
                     if (typeof(Delegate).IsAssignableFrom(expectedType) && !typeof(Delegate).IsAssignableFrom(expr.Type))
                     {
                         var invokeMethod = expectedType.GetMethod("Invoke");
                         expr = TaskConversion(expr, invokeMethod.ReturnType);
                         return new CastedExpressionBindingProperty(Expression.Lambda(
                             expectedType,
-                            expr,//base.ConvertExpressionToType(expr, invokeMethod.ReturnType),
+                            expr,
                             invokeMethod.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name))
                         ));
                     }
@@ -96,7 +100,7 @@ namespace DotVVM.Framework.Binding.Expressions
                             // return dummy completed task
                             if (expectedType == typeof(Task))
                             {
-                                return Expression.Block(expr, Expression.Call(typeof(Task), "FromResult", new[] { typeof(int) }, Expression.Constant(0)));
+                                return Expression.Block(expr, Expression.Call(typeof(TaskUtils), "GetCompletedTask", Type.EmptyTypes));
                             }
                             else if (typeof(Task<>).IsAssignableFrom(expectedType))
                             {

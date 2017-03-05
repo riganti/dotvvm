@@ -66,5 +66,7 @@ namespace DotVVM.Framework.Tests.Common.Runtime.JavascriptCompilation
             Assert.AreEqual("(a=c)==b", expr.FormatScript());
             Assert.AreEqual("(a = c) == b", expr.FormatScript(niceMode: true));
         }
+
+        
     }
 }
