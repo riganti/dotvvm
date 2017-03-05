@@ -20,7 +20,12 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
         /// </summary>
-        void RequestRefresh();
+        void RequestRefresh(bool forceRefresh = false);
+
+        /// <summary>
+        /// Gets or sets whether the GridViewDataSet should be refreshed. This property is set to true automatically when paging or sort options change.
+        /// </summary>
+        bool IsRefreshRequired { get; }
 
         /// <summary>
         /// Gets or sets the items for the current page.

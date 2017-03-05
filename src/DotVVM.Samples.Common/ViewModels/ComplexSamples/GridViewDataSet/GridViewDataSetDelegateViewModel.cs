@@ -10,7 +10,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
     public class GridViewDataSetDelegateViewModel : DotvvmViewModelBase
     {
 
-
+        public int CallDelegateCounter { get; set; } = 0;
 
         public GridViewDataSetDelegateViewModel()
         {
@@ -27,7 +27,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 
         public GridViewDataSet<Data> GridViewDataSet { get; set; } 
 
-
         public int ItemsCount { get; set; } = 20;
 
      
@@ -35,7 +34,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
         private GridViewDataSetLoadedData<Data> GetData(GridViewDataSetLoadOptions gridViewDataSetLoadOptions)
         {
             var data = TestDB(ItemsCount);
-
+            CallDelegateCounter++;
             var itemsCount = data.Count();
 
             var result = data
@@ -47,7 +46,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 
             return gridViewDataSetSource;
         }
-
+      
         private IQueryable<Data> TestDB(int itemsCreatorCounter)
         {
             var dbdata = new List<Data>();
