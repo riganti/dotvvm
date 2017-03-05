@@ -132,20 +132,23 @@ namespace DotVVM.Framework.Controls
 
         protected internal override void OnLoad(Hosting.IDotvvmRequestContext context)
         {
-            DataSet.RequestRefresh();
             DataBind(context);
             base.OnLoad(context);
         }
 
         protected internal override void OnPreRender(Hosting.IDotvvmRequestContext context)
         {
-            DataSet.RequestRefresh();
             DataBind(context);
             base.OnPreRender(context);
         }
-
+        private void CallGridViewDataSetRefreshRequest(IPageableGridViewDataSet gridViewDataSet)
+        {
+            gridViewDataSet.RequestRefresh();
+        }
         private void DataBind(Hosting.IDotvvmRequestContext context)
         {
+            CallGridViewDataSetRefreshRequest(DataSet);
+           
             Children.Clear();
 
             content = new HtmlGenericControl("ul");

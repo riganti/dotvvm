@@ -13,6 +13,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string ComplexSamples_DataTemplate_EmptyDataTemplateRepeaterGridView => "ComplexSamples/DataTemplate/EmptyDataTemplateRepeaterGridView";
 			public static string ComplexSamples_FileUploadInRepeater_FileUploadInRepeater => "ComplexSamples/FileUploadInRepeater/FileUploadInRepeater";
 			public static string ComplexSamples_GridViewDataSet_GridViewDataSet => "ComplexSamples/GridViewDataSet/GridViewDataSet";
+			public static string ComplexSamples_GridViewDataSet_GridViewDataSetDelegate => "ComplexSamples/GridViewDataSet/GridViewDataSetDelegate";
 			public static string ComplexSamples_InvoiceCalculator_InvoiceCalculator => "ComplexSamples/InvoiceCalculator/InvoiceCalculator";
 			public static string ComplexSamples_NamespaceCollision_NamespaceCollision => "ComplexSamples/NamespaceCollision/NamespaceCollision";
 			public static string ComplexSamples_RedirectAndUrl_ScrollingPage => "ComplexSamples/RedirectAndUrl/ScrollingPage";

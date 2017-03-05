@@ -148,7 +148,10 @@ namespace DotVVM.Framework.Controls
             base.OnPreRender(context);
         }
 
-
+        private void CallGridViewDataSetRefreshRequest(IGridViewDataSet gridViewDataSet)
+        {
+            gridViewDataSet.RequestRefresh();
+        }
         private void DataBind(Hosting.IDotvvmRequestContext context)
         {
             Children.Clear();
@@ -159,18 +162,17 @@ namespace DotVVM.Framework.Controls
             var dataSource = DataSource;
 
             Action<string> sortCommand = null;
-            var set = dataSource as IGridViewDataSet;
-           
-            if (set != null)
+
+            if (dataSource is IGridViewDataSet gridViewDataSet)
             {
-                sortCommand = set.SetSortExpression;
-                set.RequestRefresh();
+                sortCommand = gridViewDataSet.SetSortExpression;
+                CallGridViewDataSetRefreshRequest(gridViewDataSet);
             }
             else
             {
                 sortCommand = SortChanged;
             }
-
+           
             // WORKAROUND: DataSource is null => don't throw exception
             if (sortCommand == null && dataSource == null)
             {

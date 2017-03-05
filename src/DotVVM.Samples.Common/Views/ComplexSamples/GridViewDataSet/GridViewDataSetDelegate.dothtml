@@ -10,7 +10,19 @@ html xmlns="http://www.w3.org/1999/xhtml">
     </style>
 </head>
 <body>
-    
+    <br>
+    <br> CallDelegateCounter:
+    <dot:Literal Text="{value: CallDelegateCounter}" data-ui="CallDelegateCounter"></dot:Literal>
+    <dot:Repeater DataSource="{value: GridViewDataSet}" WrapperTagName="ul">
+        <ItemTemplate>
+            <li>{{value: Text}}</li>
+        </ItemTemplate>
+    </dot:Repeater>
+
+    <dot:DataPager DataSet="{value: GridViewDataSet}" data-ui="DataPager1"
+                   HideWhenOnlyOnePage="false"/>
+
+
 
     <h1>GridView with IGridViewDataSet</h1>
     <dot:GridView DataSource="{value: GridViewDataSet}" RenderSettings.Mode="Server" PostBack.Update="true">
@@ -21,10 +33,10 @@ html xmlns="http://www.w3.org/1999/xhtml">
         </Columns>
     </dot:GridView>
 
-
     <dot:DataPager DataSet="{value: GridViewDataSet}"
-                  HideWhenOnlyOnePage="false"
-                  PageSize="3" />
+                   HideWhenOnlyOnePage="false"
+                   data-ui="DataPager2"/>
+
 
 
 </body>

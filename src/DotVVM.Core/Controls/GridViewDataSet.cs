@@ -6,7 +6,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
-    public delegate GridViewDataSetLoadedData<T> GridViewDataSetLoadDelegate<T>(GridViewDataSetLoadOptions gridViewDataSetLoadOptions);
+    public delegate GridViewDataSetLoadedData<T> GridViewDataSetLoadDelegate<T>(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
     /// <summary>
     /// Represents a collection of items with paging, sorting and row edit capabilities.
@@ -14,6 +14,11 @@ namespace DotVVM.Framework.Controls
     /// <typeparam name="T">Type of the collection element.</typeparam>
     public class GridViewDataSet<T> : IGridViewDataSet
     {
+
+        public GridViewDataSet()
+        {
+            IsRefreshRequired = true;
+        }
 
         /// <summary>
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
@@ -61,9 +66,12 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
         /// </summary>
-        public virtual void RequestRefresh()
+        public virtual void RequestRefresh(bool forceRefresh = false)
         {
-            NotifyRefreshRequired();
+            if (forceRefresh || IsRefreshRequired)
+            {
+                NotifyRefreshRequired();
+            }
         }
         
         /// <summary>
@@ -158,6 +166,7 @@ namespace DotVVM.Framework.Controls
             {
                 var gridViewDataSetLoadedData = OnLoadingData(CreateGridViewDataSetLoadOptions());
                 FillDataSet(gridViewDataSetLoadedData);
+                IsRefreshRequired = false;
             }
             else
             {
