@@ -164,7 +164,7 @@ namespace DotVVM.Framework.Controls
             if (set != null)
             {
                 sortCommand = set.SetSortExpression;
-                set.ReloadData();
+                set.RequestRefresh();
             }
             else
             {

@@ -16,7 +16,7 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
         {
             GridViewDataSet = new GridViewDataSet<Data>()
             {
-                RequestRefresh = GetData,
+                OnLoadingData = GetData,
                 PagingOptions = new PagingOptions()
                 {
                     PageSize = 5

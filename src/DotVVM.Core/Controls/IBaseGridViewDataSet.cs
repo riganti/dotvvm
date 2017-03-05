@@ -4,7 +4,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
-    public delegate GridViewDataSetLoadedData RequestRefresh(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
+    public delegate GridViewDataSetLoadedData GridViewDataSetLoadDelegate(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
     /// <summary>
     /// Represents a common core functionality for GridViewDataSets.
@@ -15,12 +15,12 @@ namespace DotVVM.Framework.Controls
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
         /// </summary>
         [Bind(Direction.None)]
-        RequestRefresh RequestRefresh { get; }
+        GridViewDataSetLoadDelegate OnLoadingData { get; }
 
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
         /// </summary>
-        void ReloadData();
+        void RequestRefresh();
 
         /// <summary>
         /// Gets or sets the items for the current page.

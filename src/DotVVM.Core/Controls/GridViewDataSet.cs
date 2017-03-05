@@ -6,7 +6,7 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
-    public delegate GridViewDataSetLoadedData<T> RequestRefresh<T>(GridViewDataSetLoadOptions gridViewDataSetLoadOptions);
+    public delegate GridViewDataSetLoadedData<T> GridViewDataSetLoadDelegate<T>(GridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
     /// <summary>
     /// Represents a collection of items with paging, sorting and row edit capabilities.
@@ -19,12 +19,12 @@ namespace DotVVM.Framework.Controls
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
         /// </summary>
         [Bind(Direction.None)]
-        public RequestRefresh<T> RequestRefresh { get; set; }
+        public GridViewDataSetLoadDelegate<T> OnLoadingData { get; set; }
 
         /// <summary>
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
         /// </summary>
-        RequestRefresh IBaseGridViewDataSet.RequestRefresh => RequestRefresh as RequestRefresh;
+        GridViewDataSetLoadDelegate IBaseGridViewDataSet.OnLoadingData => OnLoadingData as GridViewDataSetLoadDelegate;
         
         /// <summary>
         /// Gets or sets the items for the current page.
@@ -61,7 +61,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Requests to refresh the GridViewDataSet.
         /// </summary>
-        public virtual void ReloadData()
+        public virtual void RequestRefresh()
         {
             NotifyRefreshRequired();
         }
@@ -154,9 +154,9 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         protected virtual void NotifyRefreshRequired()
         {
-            if (RequestRefresh != null)
+            if (OnLoadingData != null)
             {
-                var gridViewDataSetLoadedData = RequestRefresh(CreateGridViewDataSetLoadOptions());
+                var gridViewDataSetLoadedData = OnLoadingData(CreateGridViewDataSetLoadOptions());
                 FillDataSet(gridViewDataSetLoadedData);
             }
             else
