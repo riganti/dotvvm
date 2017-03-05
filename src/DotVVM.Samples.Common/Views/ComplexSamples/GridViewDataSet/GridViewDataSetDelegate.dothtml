@@ -1,6 +1,6 @@
 ﻿@viewModel DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet.GridViewDataSetDelegateViewModel, DotVVM.Samples.Common
 
-html xmlns="http://www.w3.org/1999/xhtml">
+<html xmlns="http://www.w3.org/1999/xhtml">
 <head>
     <title>Hello from DotVVM!</title>
     <style type="text/css">
@@ -27,9 +27,8 @@ html xmlns="http://www.w3.org/1999/xhtml">
     <h1>GridView with IGridViewDataSet</h1>
     <dot:GridView DataSource="{value: GridViewDataSet}" RenderSettings.Mode="Server" PostBack.Update="true">
         <Columns>
-            <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" />
-            <dot:GridViewTextColumn HeaderText="Text" ValueBinding="{value: Text}"/>
-
+            <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" AllowSorting="true" />
+            <dot:GridViewTextColumn HeaderText="Text" ValueBinding="{value: Text}" AllowSorting="true"/>
         </Columns>
     </dot:GridView>
 
@@ -38,6 +37,8 @@ html xmlns="http://www.w3.org/1999/xhtml">
                    data-ui="DataPager2"/>
 
 
+
+    <dot:Button Text="Postback that should not reload data" Click="{command: null}" />
 
 </body>
 </html>

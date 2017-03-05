@@ -33,18 +33,10 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 
         private GridViewDataSetLoadedData<Data> GetData(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
         {
-            var data = TestDB(ItemsCount);
             CallDelegateCounter++;
-            var itemsCount = data.Count();
 
-            var result = data
-                .ApplySortOptions(gridViewDataSetLoadOptions)
-                .ApplyPagingOptions(gridViewDataSetLoadOptions.PagingOptions);
-
-
-            var gridViewDataSetSource = new GridViewDataSetLoadedData<Data>(result.ToList(), itemsCount);
-
-            return gridViewDataSetSource;
+            var queryable = TestDB(ItemsCount);
+            return queryable.GetDataFromQueryable(gridViewDataSetLoadOptions);
         }
       
         private IQueryable<Data> TestDB(int itemsCreatorCounter)

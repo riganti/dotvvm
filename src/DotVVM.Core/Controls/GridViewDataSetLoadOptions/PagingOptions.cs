@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
@@ -59,5 +60,19 @@ namespace DotVVM.Framework.Controls
         /// Calculates a list of page indexes for the pager controls.
         /// </summary>
         public IList<int> NearPageIndexes => NearPageIndexesProvider.GetIndexes(this);
+
+
+        /// <summary>
+        /// Applies the paging settings to the IQueryable object.
+        /// </summary>
+        public virtual IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable)
+        {
+            if (PageSize <= 0)
+            {
+                return queryable;
+            }
+
+            return queryable.Skip(PageSize * PageIndex).Take(PageSize);
+        }
     }
 }

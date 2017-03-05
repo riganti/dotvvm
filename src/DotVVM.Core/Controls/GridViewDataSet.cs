@@ -29,8 +29,18 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
         /// </summary>
-        GridViewDataSetLoadDelegate IBaseGridViewDataSet.OnLoadingData => OnLoadingData as GridViewDataSetLoadDelegate;
-        
+        GridViewDataSetLoadDelegate IBaseGridViewDataSet.OnLoadingData
+        {
+            get
+            {
+                if (OnLoadingData == null)
+                {
+                    return null;
+                }
+                return options => OnLoadingData(options);
+            }
+        }
+
         /// <summary>
         /// Gets or sets the items for the current page.
         /// </summary>
@@ -55,7 +65,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets an object that represents the settings for sorting.
         /// </summary>
-        public ISortOptions SortOptions { get; set; } = new SortOptions();
+        public ISortingOptions SortingOptions { get; set; } = new SortingOptions();
 
         /// <summary>
         /// Gets or sets an object that represents the settings for row edits.
@@ -130,15 +140,15 @@ namespace DotVVM.Framework.Controls
         /// </summary>
         public virtual void SetSortExpression(string expression)
         {
-            if (SortOptions.SortExpression == expression)
+            if (SortingOptions.SortExpression == expression)
             {
-                SortOptions.SortDescending = !SortOptions.SortDescending;
+                SortingOptions.SortDescending = !SortingOptions.SortDescending;
                 GoToFirstPage();
             }
             else
             {
-                SortOptions.SortExpression = expression;
-                SortOptions.SortDescending = false;
+                SortingOptions.SortExpression = expression;
+                SortingOptions.SortDescending = false;
                 GoToFirstPage();
             }
         }
@@ -148,12 +158,12 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Creates a GridViewDataSetLoadOptions object which provides information for loading the data.
         /// </summary>
-        protected virtual GridViewDataSetLoadOptions CreateGridViewDataSetLoadOptions()
+        protected virtual GridViewDataSetLoadOptions<T> CreateGridViewDataSetLoadOptions()
         {
-            return new GridViewDataSetLoadOptions
+            return new GridViewDataSetLoadOptions<T>
             {
                 PagingOptions = PagingOptions,
-                SortOptions = SortOptions
+                SortingOptions = SortingOptions
             };
         }
 
@@ -190,7 +200,8 @@ namespace DotVVM.Framework.Controls
         /// <param name="queryable"></param>
         public void LoadFromQueryable(IQueryable<T> queryable)
         {
-            var gridViewDataSetLoadedData = this.GetDataFromQueryable(queryable);
+            var options = CreateGridViewDataSetLoadOptions();
+            var gridViewDataSetLoadedData = queryable.GetDataFromQueryable(options);
             FillDataSet(gridViewDataSetLoadedData);
         }
 
@@ -247,15 +258,15 @@ namespace DotVVM.Framework.Controls
         /// Gets or sets whether the sort order should be descending.
         /// </summary>
         [Bind(Direction.None)]
-        [Obsolete("Use SortOptions.SortDescending instead. This property will be removed in future versions.")]
-        public bool SortDescending { get => SortOptions.SortDescending; set => SortOptions.SortDescending = value; }
+        [Obsolete("Use SortingOptions.SortDescending instead. This property will be removed in future versions.")]
+        public bool SortDescending { get => SortingOptions.SortDescending; set => SortingOptions.SortDescending = value; }
 
         /// <summary>
         /// Gets or sets the name of the property that is used for sorting.
         /// </summary>
         [Bind(Direction.None)]
-        [Obsolete("Use SortOptions.SortExpression instead. This property will be removed in future versions.")]
-        public string SortExpression { get => SortOptions.SortExpression; set => SortOptions.SortExpression = value; }
+        [Obsolete("Use SortingOptions.SortExpression instead. This property will be removed in future versions.")]
+        public string SortExpression { get => SortingOptions.SortExpression; set => SortingOptions.SortExpression = value; }
 
 
         /// <summary>

@@ -1,18 +1,26 @@
+using System.Linq;
+
 namespace DotVVM.Framework.Controls
 {
     /// <summary>
     /// Represents a settings for sorting.
     /// </summary>
-    public class SortOptions : ISortOptions
+    public interface ISortingOptions
     {
         /// <summary>
         /// Gets or sets whether the sort order should be descending.
         /// </summary>
-        public bool SortDescending { get; set; }
+        bool SortDescending { get; set; }
 
         /// <summary>
         /// Gets or sets the name of the property that is used for sorting.
         /// </summary>
-        public string SortExpression { get; set; }
+        string SortExpression { get; set; }
+
+
+        /// <summary>
+        /// Applies the paging settings to the IQueryable object.
+        /// </summary>
+        IQueryable<T> ApplyToQueryable<T>(IQueryable<T> queryable);
     }
 }

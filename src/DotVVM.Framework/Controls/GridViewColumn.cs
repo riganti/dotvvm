@@ -180,9 +180,9 @@ namespace DotVVM.Framework.Controls
             {
                 if (gridViewDataSet != null)
                 {
-                    if (gridViewDataSet.SortOptions.SortExpression == GetSortExpression())
+                    if (gridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
                     {
-                        if (gridViewDataSet.SortOptions.SortDescending)
+                        if (gridViewDataSet.SortingOptions.SortDescending)
                         {
                             cell.Attributes["class"] = SortDescendingHeaderCssClass;
                         }
@@ -195,7 +195,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortOptions().SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortOptions().SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortOptions().SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortOptions().SortDescending)}}";
+                cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending)}}";
             }
         }
 

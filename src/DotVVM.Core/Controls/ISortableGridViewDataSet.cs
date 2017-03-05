@@ -8,7 +8,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets an object that represents the settings for sorting.
         /// </summary>
-        ISortOptions SortOptions { get; set; }
+        ISortingOptions SortingOptions { get; set; }
 
         /// <summary>
         /// Sets the sort expression. If the specified expression is already active, switches the sort direction.
