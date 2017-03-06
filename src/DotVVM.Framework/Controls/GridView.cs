@@ -163,10 +163,14 @@ namespace DotVVM.Framework.Controls
 
             Action<string> sortCommand = null;
 
-            if (dataSource is IGridViewDataSet gridViewDataSet)
+            if (dataSource is IRefreshableGridViewDataSet refreshableDataSet)
             {
-                sortCommand = gridViewDataSet.SetSortExpression;
-                CallGridViewDataSetRefreshRequest(gridViewDataSet);
+                CallGridViewDataSetRefreshRequest(refreshableDataSet);
+            }
+
+            if (dataSource is ISortableGridViewDataSet sortableGridViewDataSet)
+            {
+                sortCommand = sortableGridViewDataSet.SetSortExpression;
             }
             else
             {
