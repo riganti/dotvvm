@@ -1,3 +1,5 @@
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
@@ -6,37 +8,43 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
 {
     public class DataPagerViewModel : DotvvmViewModelBase
     {
-        public GridViewDataSet<Data> Data { get; set; } = new GridViewDataSet<Data>
+        public GridViewDataSet<Data> DataSet { get; set; }
+        public override Task Init()
         {
-            PagingOptions = new PagingOptions
-            {
-                PageSize = 3,
-                TotalItemsCount = 2
-            }
-        };
+            DataSet = GridViewDataSet.Create(GetData, pageSize: 3);
+            return base.Init();
+        }
+
 
         public bool Enabled { get; set; } = true;
 
+        public int ItemsInDatabaseCount { get; set; } = 2;
 
         public void Populate()
         {
-            Data.PagingOptions.TotalItemsCount = 20;
+            ItemsInDatabaseCount = 20;
+            DataSet.RequestRefresh(forceRefresh: true);
         }
 
-        public override Task PreRender()
+        private GridViewDataSetLoadedData<Data> GetData(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
         {
-            Data.Items.Clear();
-            for (var i = 0; i < Data.PagingOptions.PageSize; i++)
-            {
-                var number = Data.PagingOptions.PageSize * Data.PagingOptions.PageIndex + i;
-                if (number < Data.PagingOptions.TotalItemsCount)
-                {
-                    Data.Items.Add(new Data {Text = "Item " + number});
-                }
-            }
-
-            return base.PreRender();
+            var queryable = FakeDB(ItemsInDatabaseCount);
+            return queryable.GetDataFromQueryable(gridViewDataSetLoadOptions);
         }
+
+        private IQueryable<Data> FakeDB(int itemsCreatorCounter)
+        {
+            var dbdata = new List<Data>();
+            for (var i = 0; i < itemsCreatorCounter; i++)
+            {
+                dbdata.Add(new Data
+                {
+                    Text = $"Item {i}"
+                });
+            }
+            return dbdata.AsQueryable();
+        }
+
     }
 
     public class Data

@@ -164,7 +164,7 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
+        public virtual void CreateFilterControls(IDotvvmRequestContext context, GridView gridView, HtmlGenericControl cell, ISortableGridViewDataSet sortableGridViewDataSet)
         {
             if (FilterTemplate != null)
             {
@@ -174,15 +174,15 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private void SetSortedCssClass(HtmlGenericControl cell, IGridViewDataSet gridViewDataSet)
+        private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet sortableGridViewDataSet)
         {
             if (RenderOnServer)
             {
-                if (gridViewDataSet != null)
+                if (sortableGridViewDataSet != null)
                 {
-                    if (gridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
+                    if (sortableGridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
                     {
-                        if (gridViewDataSet.SortingOptions.SortDescending)
+                        if (sortableGridViewDataSet.SortingOptions.SortDescending)
                         {
                             cell.Attributes["class"] = SortDescendingHeaderCssClass;
                         }

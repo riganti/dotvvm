@@ -282,4 +282,19 @@ namespace DotVVM.Framework.Controls
         [Obsolete("Use RowEditOptions.EditRowId instead. This property will be removed in future versions.")]
         public object EditRowId { get => RowEditOptions.EditRowId; set => RowEditOptions.EditRowId = value; }
     }
+    public class GridViewDataSet
+    {
+        public static GridViewDataSet<T> Create<T>(GridViewDataSetLoadDelegate<T> gridViewDataSetLoadDelegate,
+            int pageSize)
+        {
+            return new GridViewDataSet<T>
+            {
+                OnLoadingData = gridViewDataSetLoadDelegate,
+                PagingOptions = new PagingOptions
+                {
+                    PageSize = pageSize
+                }
+            };
+        }
+    }
 }

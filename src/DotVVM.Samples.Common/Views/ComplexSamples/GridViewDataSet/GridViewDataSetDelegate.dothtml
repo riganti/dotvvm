@@ -13,26 +13,26 @@
     <br>
     <br> CallDelegateCounter:
     <dot:Literal Text="{value: CallDelegateCounter}" data-ui="CallDelegateCounter"></dot:Literal>
-    <dot:Repeater DataSource="{value: GridViewDataSet}" WrapperTagName="ul">
+    <dot:Repeater DataSource="{value: DataSet}" WrapperTagName="ul">
         <ItemTemplate>
             <li>{{value: Text}}</li>
         </ItemTemplate>
     </dot:Repeater>
 
-    <dot:DataPager DataSet="{value: GridViewDataSet}" data-ui="DataPager1"
+    <dot:DataPager DataSet="{value: DataSet}" data-ui="DataPager1"
                    HideWhenOnlyOnePage="false"/>
 
 
 
     <h1>GridView with IGridViewDataSet</h1>
-    <dot:GridView DataSource="{value: GridViewDataSet}" RenderSettings.Mode="Server" PostBack.Update="true">
+    <dot:GridView DataSource="{value: DataSet}" RenderSettings.Mode="Server" PostBack.Update="true">
         <Columns>
             <dot:GridViewTextColumn HeaderText="Id" ValueBinding="{value: Id}" AllowSorting="true" />
             <dot:GridViewTextColumn HeaderText="Text" ValueBinding="{value: Text}" AllowSorting="true"/>
         </Columns>
     </dot:GridView>
 
-    <dot:DataPager DataSet="{value: GridViewDataSet}"
+    <dot:DataPager DataSet="{value: DataSet}"
                    HideWhenOnlyOnePage="false"
                    data-ui="DataPager2"/>
 

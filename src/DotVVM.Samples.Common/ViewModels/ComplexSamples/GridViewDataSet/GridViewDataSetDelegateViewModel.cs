@@ -1,6 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
+using System.Runtime.InteropServices;
+using System.Threading;
+using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 
@@ -12,27 +16,19 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 
         public int CallDelegateCounter { get; set; } = 0;
 
-        public GridViewDataSetDelegateViewModel()
+        public override Task Init()
         {
-            GridViewDataSet = new GridViewDataSet<Data>()
-            {
-                OnLoadingData = GetData,
-                PagingOptions = new PagingOptions()
-                {
-                    PageSize = 5
-                }
-            };
+            DataSet = Framework.Controls.GridViewDataSet.Create(GetData, pageSize: 3);
+            return base.Init();
         }
 
-
-        public GridViewDataSet<Data> GridViewDataSet { get; set; } 
+        public GridViewDataSet<Data> DataSet { get; set; } 
 
         public int ItemsCount { get; set; } = 20;
 
-     
-
         private GridViewDataSetLoadedData<Data> GetData(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
         {
+            //Debug.WriteLine($"GetData id {Thread.CurrentThread.ManagedThreadId}");
             CallDelegateCounter++;
 
             var queryable = TestDB(ItemsCount);
@@ -58,4 +54,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
         public int Id { get; set; }
         public string Text { get; set; }
     }
+
+
 }
