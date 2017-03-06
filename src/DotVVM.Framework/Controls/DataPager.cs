@@ -141,13 +141,16 @@ namespace DotVVM.Framework.Controls
             DataBind(context);
             base.OnPreRender(context);
         }
-        private void CallGridViewDataSetRefreshRequest(IPageableGridViewDataSet gridViewDataSet)
+        private void CallGridViewDataSetRefreshRequest(IRefreshableGridViewDataSet gridViewDataSet)
         {
             gridViewDataSet.RequestRefresh();
         }
         private void DataBind(Hosting.IDotvvmRequestContext context)
         {
-            CallGridViewDataSetRefreshRequest(DataSet);
+            if (DataSet is IRefreshableGridViewDataSet refreshableDataSet)
+            {
+                CallGridViewDataSetRefreshRequest(refreshableDataSet);
+            }
            
             Children.Clear();
 

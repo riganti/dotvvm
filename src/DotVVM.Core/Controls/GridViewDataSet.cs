@@ -6,7 +6,6 @@ using DotVVM.Framework.ViewModel;
 
 namespace DotVVM.Framework.Controls
 {
-    public delegate GridViewDataSetLoadedData<T> GridViewDataSetLoadDelegate<T>(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions);
 
     /// <summary>
     /// Represents a collection of items with paging, sorting and row edit capabilities.
@@ -29,7 +28,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Called when the GridViewDataSet should be refreshed (on initial page load and when paging or sort options change).
         /// </summary>
-        GridViewDataSetLoadDelegate IBaseGridViewDataSet.OnLoadingData
+        GridViewDataSetLoadDelegate IRefreshableGridViewDataSet.OnLoadingData
         {
             get
             {
