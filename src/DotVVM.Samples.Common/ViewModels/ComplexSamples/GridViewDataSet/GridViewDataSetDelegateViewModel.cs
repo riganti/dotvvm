@@ -1,9 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
+﻿using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
@@ -28,7 +24,6 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 
         private GridViewDataSetLoadedData<Data> GetData(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
         {
-            //Debug.WriteLine($"GetData id {Thread.CurrentThread.ManagedThreadId}");
             CallDelegateCounter++;
 
             var queryable = TestDB(ItemsCount);
