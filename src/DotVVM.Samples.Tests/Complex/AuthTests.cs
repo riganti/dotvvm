@@ -44,14 +44,14 @@ namespace DotVVM.Samples.Tests.Complex
                 browser.NavigateToUrl(SamplesRouteUrls.ComplexSamples_Auth_Login);
                 
                 browser.ClearElementsContent("input[type=text]");
-                browser.SendKeys("input[type=text]", "user");
+                browser.SendKeys("input[type=text]", "ADMIN");
                 browser.First("input[type=checkbox]").Click();
                 browser.First("input[type=button]").Click().Wait(500);
                 browser.Last("a").Click();
 
                 browser.SendKeys("input[type=text]", "message");
                 browser.First("input[type=button]").Click().Wait(500);
-                browser.First("span").CheckIfInnerText(s => s.Contains("user: message"), "User cant send message");
+                browser.First("span").CheckIfInnerText(s => s.Contains("ADMIN: message"), "User can't send message");
 
             });
         }
