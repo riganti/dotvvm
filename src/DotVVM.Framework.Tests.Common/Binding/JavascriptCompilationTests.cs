@@ -24,18 +24,18 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault() ?? typeof(object), extenstionParameters: new BindingExtensionParameter[]{
+            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extenstionParameters: new BindingExtensionParameter[]{
                 new BindingPageInfoExtensionParameter()
                 });
             for (int i = 1; i < contexts.Length; i++)
             {
-                context = new DataContextStack(contexts[i], context);
+                context = DataContextStack.Create(contexts[i], context);
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
             var jsExpression = new JsParenthesizedExpression(JavascriptTranslator.CompileToJavascript(expressionTree, context,
                  DotvvmConfiguration.CreateDefault().ServiceLocator.GetService<IViewModelSerializationMapper>()));
-            jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor());
+            jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
             JsTemporaryVariableResolver.ResolveVariables(jsExpression);
             return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);
         }

@@ -84,18 +84,18 @@ namespace DotVVM.Framework.Compilation.Binding
             DataContextStack dataContext)
         {
             return new KnockoutJsExpressionBindingProperty(
-                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, vmMapper));
+                   JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, vmMapper).ApplyAction(a => a.Freeze()));
         }
 
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
-            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression));
+            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression, true), FormatJavascript(expression.Expression, false));
         }
 
-        private ParametrizedCode FormatJavascript(JsExpression node)
+        private ParametrizedCode FormatJavascript(JsExpression node, bool allowObservableResult = true)
         {
             var expr = new JsParenthesizedExpression(node.Clone());
-            expr.AcceptVisitor(new KnockoutObservableHandlingVisitor());
+            expr.AcceptVisitor(new KnockoutObservableHandlingVisitor(allowObservableResult));
             JavascriptNullCheckAdder.AddNullChecks(expr);
             expr = new JsParenthesizedExpression((JsExpression)JsTemporaryVariableResolver.ResolveVariables(expr.Expression.Detach()));
             return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode: configuration.Debug);
@@ -132,8 +132,6 @@ namespace DotVVM.Framework.Compilation.Binding
                 .SelectMany(o => o.GetResolvers())
                 .ToImmutableArray());
         }
-
-        public DataContextSpaceIdBindingProperty GetSpaceId(DataContextStack context) => new DataContextSpaceIdBindingProperty(context.DataContextSpaceId);
 
         public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
         public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
@@ -199,9 +197,9 @@ namespace DotVVM.Framework.Compilation.Binding
             if (resolvedBinding.Parent == null) throw new Exception();
             return new LocationInfoBindingProperty(
                 resolvedBinding.TreeRoot.FileName,
-                resolvedBinding.DothtmlNode.Tokens.Select(t => (t.StartPosition, t.EndPosition)).ToArray(),
-                resolvedBinding.DothtmlNode.Tokens.FirstOrDefault()?.LineNumber ?? -1,
-                resolvedBinding.TreeRoot.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata.Type);
+                resolvedBinding.DothtmlNode?.Tokens?.Select(t => (t.StartPosition, t.EndPosition)).ToArray(),
+                resolvedBinding.DothtmlNode?.Tokens?.FirstOrDefault()?.LineNumber ?? -1,
+                resolvedBinding.TreeRoot.GetAncestors().OfType<ResolvedControl>().FirstOrDefault()?.Metadata?.Type);
         }
         //public OriginalStringBindingProperty
     }

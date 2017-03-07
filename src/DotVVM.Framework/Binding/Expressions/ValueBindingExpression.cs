@@ -30,6 +30,7 @@ namespace DotVVM.Framework.Binding.Expressions
         public CompiledBindingExpression.BindingUpdateDelegate UpdateDelegate => this.GetProperty<CompiledBindingExpression.BindingUpdateDelegate>();
 
         public ParametrizedCode KnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().Code;
+        public ParametrizedCode UnwrapedKnockoutExpression => this.GetProperty<KnockoutExpressionBindingProperty>().UnwrapedCode;
 
         public Type ResultType => this.GetProperty<ResultTypeBindingProperty>().Type;
 
@@ -76,7 +77,7 @@ namespace DotVVM.Framework.Binding.Expressions
             new ValueBindingExpression(service, new object[] {
                 new CompiledBindingExpression.BindingDelegate((o, c) => func(o)),
                 new ResultTypeBindingProperty(typeof(T)),
-                new KnockoutExpressionBindingProperty(expression)
+                new KnockoutExpressionBindingProperty(expression, expression)
             });
 
         public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Expression<Func<object[], T>> expr)
@@ -106,7 +107,7 @@ namespace DotVVM.Framework.Binding.Expressions
                 DataContextStack c = null;
                 foreach (var vm in VmTypes)
                 {
-                    c = new DataContextStack(vm ?? typeof(object), c);
+                    c = DataContextStack.Create(vm ?? typeof(object), c);
                 }
                 return c;
             }

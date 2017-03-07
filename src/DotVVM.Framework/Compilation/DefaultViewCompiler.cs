@@ -67,7 +67,7 @@ namespace DotVVM.Framework.Compilation
             var contextSpaceVisitor = new DataContextIdAssigningVisitor();
             resolvedView.Accept(contextSpaceVisitor);
 
-            var styleVisitor = new StylingVisitor(configuration.Styles);
+            var styleVisitor = new StylingVisitor(configuration);
             resolvedView.Accept(styleVisitor);
 
             var validationVisitor = new Validation.ControlUsageValidationVisitor(configuration);

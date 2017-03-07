@@ -93,28 +93,5 @@ namespace DotVVM.Framework.Tests.Common.Runtime.JavascriptCompilation
             var node = JsTemporaryVariableResolver.ResolveVariables(expr);
             Assert.AreEqual("(a&&a(G)||eval)()", node.FormatScript(), node.FormatScript(niceMode: true));
         }
-
-        [TestMethod]
-        public void JsFormatter_UnaryExpression()
-        {
-            var expr = new JsBinaryExpression(
-                new JsIdentifierExpression("a").Unary(UnaryOperatorType.Increment, isPrefix: false),
-                BinaryOperatorType.Plus,
-                new JsIdentifierExpression("a").Unary(UnaryOperatorType.Increment, isPrefix: true))
-                .Unary(UnaryOperatorType.LogicalNot);
-            Assert.AreEqual("!(a++ + ++a)", expr.FormatScript());
-            Assert.AreEqual("!(a++ + ++a)", expr.FormatScript(niceMode: true));
-        }
-
-        [TestMethod]
-        public void JsFormatter_KeywordUnaryExpression()
-        {
-            var expr = new JsBinaryExpression(
-                new JsIdentifierExpression("a").Unary(UnaryOperatorType.TypeOf),
-                BinaryOperatorType.Plus,
-                new JsLiteral(0).Unary(UnaryOperatorType.Void).Unary(UnaryOperatorType.Minus));
-            Assert.AreEqual("typeof a+-void 0", expr.FormatScript());
-            Assert.AreEqual("typeof a + -void 0", expr.FormatScript(niceMode: true));
-        }
     }
 }

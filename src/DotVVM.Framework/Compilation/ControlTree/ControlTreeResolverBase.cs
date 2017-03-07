@@ -15,6 +15,7 @@ using DotVVM.Framework.Compilation.Parser.Binding.Parser;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Utils;
 using System.Collections.ObjectModel;
+using DotVVM.Framework.Binding;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
@@ -768,6 +769,12 @@ namespace DotVVM.Framework.Compilation.ControlTree
             var attributes = property != null ? property.DataContextChangeAttributes : control.Metadata.DataContextChangeAttributes;
             if (attributes == null || attributes.Length == 0) return dataContext;
 
+            var (type, extensionParameters) = ApplyContextChange(dataContext, attributes, control, property);
+            return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
+        }
+
+        public static (ITypeDescriptor type, List<BindingExtensionParameter> extensionParameters) ApplyContextChange(IDataContextStack dataContext, DataContextChangeAttribute[] attributes, IAbstractControl control, IPropertyDescriptor property)
+        {
             var type = dataContext.DataContextType;
             var extensionParameters = new List<BindingExtensionParameter>();
             foreach (var attribute in attributes.OrderBy(a => a.Order))
@@ -776,7 +783,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                 extensionParameters.AddRange(attribute.GetExtensionParameters(type));
                 type = attribute.GetChildDataContextType(type, dataContext, control, property);
             }
-            return CreateDataContextTypeStack(type, parentDataContextStack: dataContext, extensionParameters: extensionParameters.ToArray());
+            return (type, extensionParameters);
         }
 
 

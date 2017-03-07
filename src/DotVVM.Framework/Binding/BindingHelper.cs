@@ -23,26 +23,26 @@ namespace DotVVM.Framework.Binding
         public static string GetKnockoutBindingExpression(this IValueBinding binding) =>
             JavascriptTranslator.FormatKnockoutScript(binding.KnockoutExpression);
 
-        public static string GetKnockoutBindingExpression(this IValueBinding binding, DotvvmBindableObject currentControl) =>
-            JavascriptTranslator.FormatKnockoutScript(binding.KnockoutExpression,
+        public static string GetKnockoutBindingExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwrapped = false) =>
+            JavascriptTranslator.FormatKnockoutScript(unwrapped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression,
                 dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
 
-        public static ParametrizedCode GetParametrizedKnockoutExpression(this IValueBinding binding, DotvvmBindableObject currentControl) =>
-            JavascriptTranslator.AdjustKnockoutScriptContext(binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
+        public static ParametrizedCode GetParametrizedKnockoutExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwraped = false) =>
+            JavascriptTranslator.AdjustKnockoutScriptContext(unwraped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
 
         // PERF: maybe safe last GetValue's target/binding to ThreadLocal variable, so the path does not have to be traversed twice
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
             if (control == null) throw new InvalidOperationException($"Can not evaluate binding without any dataContext.");
-            var controliId = (int)control.GetValue(Internal.DataContextSpaceIdProperty);
-            var bindingId = binding.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull)?.Id;
-            if (bindingId == null || controliId == -1 || controliId == bindingId) return (0, control);
+            var controlContext = (DataContextStack)control.GetValue(Internal.DataContextTypeProperty);
+            var bindingContext = binding.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull);
+            if (bindingContext == null || controlContext == null || controlContext.Equals(bindingContext)) return (0, control);
 
             var changes = 0;
             foreach (var a in control.GetAllAncestors())
             {
                 if (a.properties.ContainsKey(DotvvmBindableObject.DataContextProperty)) changes++;
-                if (a.GetValue(Internal.DataContextSpaceIdProperty, inherit: false) as int? == bindingId)
+                if (bindingContext.Equals(a.GetValue(Internal.DataContextTypeProperty, inherit: false)))
                     return (changes, a);
             }
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
@@ -119,12 +119,12 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
 
-        public static TBinding DeriveBinding<TBinding>(this TBinding binding, int newDataContext, Expression expression, params object[] properties)
+        public static TBinding DeriveBinding<TBinding>(this TBinding binding, DataContextStack newDataContext, Expression expression, params object[] properties)
             where TBinding : IBinding
         {
             return binding.DeriveBinding(
                 properties.Concat(new object[]{
-                    DataContextStack.GetById(newDataContext),
+                    newDataContext,
                     new ParsedExpressionBindingProperty(expression)
                 }).ToArray()
             );
@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Binding
         {
             object[] getContextProperties(IBinding b) =>
                 new object[] {
-                    (object)b.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull) ?? b.GetProperty<DataContextSpaceIdBindingProperty>(ErrorHandlingMode.ReturnNull),
+                    b.GetProperty<DataContextStack>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingAdditionalResolvers>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<BindingErrorReporterProperty>(ErrorHandlingMode.ReturnNull),
                     b.GetProperty<LocationInfoBindingProperty>(ErrorHandlingMode.ReturnNull)

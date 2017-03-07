@@ -119,7 +119,7 @@ namespace DotVVM.Framework.Configuration
             Resources = new DotvvmResourceRepository();
             Security = new DotvvmSecurityConfiguration();
             Runtime = new DotvvmRuntimeConfiguration();
-            Styles = new StyleRepository();
+            Styles = new StyleRepository(this);
         }
 
         /// <summary>

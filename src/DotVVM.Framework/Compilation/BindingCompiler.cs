@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Compilation
             var requirements = binding.BindingService.GetRequirements(binding.Binding);
 
             var properties = requirements.Required.Concat(requirements.Optional)
-                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextSpaceIdBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty) })
+                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty) })
                     .Select(p => binding.Binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
                     .Where(p => p != null).ToArray();
             return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
@@ -98,10 +98,7 @@ namespace DotVVM.Framework.Compilation
         public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
         {
             var newbinding = CreateMinimalClone(binding);
-            var index = Interlocked.Increment(ref globalBindingIndex);
-            if (!GlobalBindingList.TryAdd(index, newbinding))
-                throw new Exception("internal bug");
-            return EmitGetCompiledBinding(index);
+            return emitter.EmitValue(newbinding);
         }
 
         private T CompileExpression<T>(Expression<T> expression, DebugInfoExpression debugInfo)
@@ -141,27 +138,6 @@ namespace DotVVM.Framework.Compilation
                 node = node.Update(Expression.Block(DebugInfo, node.Body), node.Parameters);
                 return base.VisitLambda<T>(node);
             }
-        }
-
-
-        protected virtual ExpressionSyntax EmitGetCompiledBinding(int index)
-        {
-            return SyntaxFactory.ElementAccessExpression(
-                SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.ParseTypeName($"global::{typeof(BindingCompiler).FullName}"),
-                    SyntaxFactory.IdentifierName(nameof(GlobalBindingList))
-                ),
-                SyntaxFactory.BracketedArgumentList(
-                    SyntaxFactory.SeparatedList(
-                        new[]
-                        {
-                            SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
-                                SyntaxFactory.Literal(index)))
-                        }
-                    )
-                )
-            );
         }
     }
 }

@@ -9,6 +9,10 @@ using System.Diagnostics;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Utils;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using System.Linq.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Controls
 {
@@ -209,7 +213,7 @@ namespace DotVVM.Framework.Controls
                 var placeholder = new DataItemContainer() { DataContext = null };
                 placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
                 //placeholder.SetBinding(DataContextProperty, GetValueBinding(DataSourceProperty).CastTo<ValueBindingExpression>().MakeKoContextIndexer());
-                placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
+                placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
                 ItemTemplate.BuildContent(context, placeholder);
                 Children.Add(placeholder);
 

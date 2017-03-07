@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
@@ -27,9 +29,11 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty PathFragmentProperty =
             DotvvmProperty.Register<string, Internal>(() => PathFragmentProperty);
 
-        // Gets unique id of data context type stack
-        public static readonly DotvvmProperty DataContextSpaceIdProperty =
-            DotvvmProperty.Register<int, Internal>(() => DataContextSpaceIdProperty, -1);
+        /// <summary>
+        /// Gets compile-time DataContextStack
+        /// </summary>
+        public static readonly DotvvmProperty DataContextTypeProperty =
+            DotvvmProperty.Register<DataContextStack, Internal>(() => DataContextTypeProperty, null, isValueInherited: true);
 
         public static readonly DotvvmProperty MarkupFileNameProperty =
             DotvvmProperty.Register<string, Internal>(() => MarkupFileNameProperty, isValueInherited: true);
@@ -45,5 +49,8 @@ namespace DotVVM.Framework.Controls
 
         public static DotvvmProperty RequestContextProperty =
             DotvvmProperty.Register<IDotvvmRequestContext, Internal>(() => RequestContextProperty, defaultValue: null, isValueInherited: true);
+
+        public static DotvvmProperty CurrentIndexBindingProperty =
+            DotvvmProperty.Register<IValueBinding, Internal>(() => CurrentIndexBindingProperty);
     }
 }

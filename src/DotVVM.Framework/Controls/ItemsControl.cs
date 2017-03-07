@@ -8,6 +8,10 @@ using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation.Javascript;
 using System.Reflection;
 using DotVVM.Framework.Utils;
+using DotVVM.Framework.Compilation.ControlTree.Resolved;
+using DotVVM.Framework.Compilation.Styles;
+using DotVVM.Framework.Compilation.ControlTree;
+using System.Linq.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -72,5 +76,18 @@ namespace DotVVM.Framework.Controls
 
         protected string GetPathFragmentExpression() =>
             GetDataSourceBinding().GetKnockoutBindingExpression(this);
+
+        [ApplyControlStyle]
+        public static void OnCompilation(ResolvedControl control, BindingCompilationService bindingService)
+        {
+            var dcChange = ControlTreeResolverBase.ApplyContextChange(control.DataContextTypeStack,
+                new DataContextChangeAttribute[] { new ControlPropertyBindingDataContextChangeAttribute(nameof(DataSource)), new CollectionElementDataContextChangeAttribute(0) },
+                control, null);
+            var dataContext = DataContextStack.Create(ResolvedTypeDescriptor.ToSystemType(dcChange.type), control.DataContextTypeStack, extenstionParameters: dcChange.extensionParameters);
+            control.SetProperty(new ResolvedPropertyBinding(Internal.CurrentIndexBindingProperty,
+                new ResolvedBinding(bindingService, new Compilation.BindingParserOptions(typeof(ValueBindingExpression)), dataContext,
+                parsedExpression: Expression.Parameter(typeof(int), "_index").AddParameterAnnotation(
+                    new BindingParameterAnnotation(dataContext, new CurrentCollectionIndexExtensionParameter())))));
+        }
     }
 }

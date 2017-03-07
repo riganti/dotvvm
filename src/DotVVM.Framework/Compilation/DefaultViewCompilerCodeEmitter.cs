@@ -10,6 +10,9 @@ using Microsoft.CodeAnalysis;
 using Microsoft.CodeAnalysis.CSharp;
 using Microsoft.CodeAnalysis.CSharp.Syntax;
 using DotVVM.Framework.Compilation.ControlTree;
+using System.Threading;
+using System.Collections.Concurrent;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Compilation
 {
@@ -295,6 +298,8 @@ namespace DotVVM.Framework.Compilation
             {
                 return EmitCreateArray(ReflectionUtils.GetEnumerableType(type), (IEnumerable)value);
             }
+            if (IsImmutableObject(type))
+                return EmitValueReference(value);
             throw new NotSupportedException($"Emiting value of type '{value.GetType().FullName}' is not supported.");
         }
 
@@ -319,6 +324,15 @@ namespace DotVVM.Framework.Compilation
         private ExpressionSyntax EmitBooleanLiteral(bool value)
         {
             return SyntaxFactory.LiteralExpression(value ? SyntaxKind.TrueLiteralExpression : SyntaxKind.FalseLiteralExpression);
+        }
+
+        public ExpressionSyntax EmitValueReference(object value)
+        {
+            var id = AddObject(value);
+            return SyntaxFactory.ElementAccessExpression(SyntaxFactory.MemberAccessExpression(SyntaxKind.SimpleMemberAccessExpression,
+                    ParseTypeName(typeof(DefaultViewCompilerCodeEmitter)),
+                    SyntaxFactory.IdentifierName(nameof(_ViewImmutableObjects))),
+                    SyntaxFactory.BracketedArgumentList(SyntaxFactory.SingletonSeparatedList(SyntaxFactory.Argument(EmitValue(id)))));
         }
 
         /// <summary>
@@ -358,7 +372,7 @@ namespace DotVVM.Framework.Compilation
                                 .WithInitializer(SyntaxFactory.EqualsValueClause(
                                     SyntaxFactory.InvocationExpression(
                                         SyntaxFactory.ParseName(gprop.PropertyGroup.DeclaringType.FullName + "." + gprop.PropertyGroup.DescriptorField.Name
-                                            + "." + nameof(DotvvmPropertyGroup .GetDotvvmProperty)),
+                                            + "." + nameof(DotvvmPropertyGroup.GetDotvvmProperty)),
                                         SyntaxFactory.ArgumentList(SyntaxFactory.SingletonSeparatedList(
                                             SyntaxFactory.Argument(this.EmitStringLiteral(gprop.GroupMemberName))
                                         ))
@@ -698,7 +712,7 @@ namespace DotVVM.Framework.Compilation
 
         private TypeSyntax ParseTypeName(Type type)
         {
-            if(type == typeof(void))
+            if (type == typeof(void))
             {
                 return SyntaxFactory.PredefinedType(SyntaxFactory.Token(SyntaxKind.VoidKeyword));
             }
@@ -749,7 +763,7 @@ namespace DotVVM.Framework.Compilation
             UseType(BuilderDataContextType);
 
             var controlType = ReflectionUtils.IsFullName(ResultControlType)
-                ? "global::" + ResultControlType 
+                ? "global::" + ResultControlType
                 : ResultControlType;
 
             var root = SyntaxFactory.CompilationUnit().WithMembers(
@@ -856,5 +870,27 @@ namespace DotVVM.Framework.Compilation
             );
         }
 
+        public static object[] _ViewImmutableObjects = new object[16];
+        private static Func<Type, bool> IsImmutableObject = t => typeof(IBinding).IsAssignableFrom(t) || t == typeof(DataContextStack);
+        private static int _viewObjectsCount = 0;
+        public static int AddObject(object obj)
+        {
+            // Is there any ConcurrentList implementation? feel free to replace this 
+            void resize(int minSize)
+            {
+                lock (_ViewImmutableObjects)
+                {
+                    if (minSize < _ViewImmutableObjects.Length) return;
+                    var newArray = new object[_ViewImmutableObjects.Length * 2];
+                    Array.Copy(_ViewImmutableObjects, 0, newArray, 0, _ViewImmutableObjects.Length);
+                    // read/writes of references are atomic
+                    _ViewImmutableObjects = newArray;
+                }
+            }
+            var id = Interlocked.Increment(ref _viewObjectsCount);
+            if (id >= _ViewImmutableObjects.Length) resize(id);
+            _ViewImmutableObjects[id] = obj;
+            return id;
+        }
     }
 }

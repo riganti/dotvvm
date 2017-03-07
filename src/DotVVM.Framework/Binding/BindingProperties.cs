@@ -16,9 +16,11 @@ namespace DotVVM.Framework.Binding.Properties
     public sealed class KnockoutExpressionBindingProperty
     {
         public readonly ParametrizedCode Code;
-        public KnockoutExpressionBindingProperty(ParametrizedCode code)
+        public readonly ParametrizedCode UnwrapedCode;
+        public KnockoutExpressionBindingProperty(ParametrizedCode code, ParametrizedCode unwrapedCode)
         {
             this.Code = code;
+            this.UnwrapedCode = unwrapedCode;
         }
     }
 
@@ -151,15 +153,6 @@ namespace DotVVM.Framework.Binding.Properties
         public AssignedPropertyBindingProperty(DotvvmProperty property)
         {
             this.DotvvmProperty = property;
-        }
-    }
-
-    public sealed class DataContextSpaceIdBindingProperty
-    {
-        public readonly int Id;
-        public DataContextSpaceIdBindingProperty(int id)
-        {
-            this.Id = id;
         }
     }
 

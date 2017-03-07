@@ -403,12 +403,12 @@ namespace DotVVM.Framework.Controls
                 var first = true;
                 foreach (var f in fragments)
                 {
-                    if (first | (first = false))
+                    if (!first | (first = false))
                         result.Add("+'_'+");
                     if (f is IValueBinding binding)
                     {
                         service = service ?? binding.GetProperty<BindingCompilationService>(ErrorHandlingMode.ReturnNull);
-                        result.Add(binding.GetParametrizedKnockoutExpression(this), 14);
+                        result.Add(binding.GetParametrizedKnockoutExpression(this, unwraped: true), 14);
                     }
                     else result.Add(JavascriptCompilationHelper.CompileConstant(f));
                 }
@@ -437,7 +437,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (IsNamingContainer(ancestor))
                 {
-                    fragments.Add(ancestor.GetValueRaw(Internal.ClientIDFragmentProperty) ?? GetValue(Internal.UniqueIDProperty));
+                    fragments.Add(ancestor.GetValueRaw(Internal.ClientIDFragmentProperty) ?? ancestor.GetValueRaw(Internal.UniqueIDProperty));
                 }
             }
             fragments.Reverse();

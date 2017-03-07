@@ -2,6 +2,7 @@
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Compilation.ControlTree
@@ -12,20 +13,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public Type DataContextType { get; }
         public IReadOnlyList<NamespaceImport> NamespaceImports { get; }
         public IReadOnlyList<BindingExtensionParameter> ExtensionParameters { get; }
-        public int DataContextSpaceId { get; }
+
+        private readonly int hashCode;
 
 
-        public DataContextStack(Type type,
+        private DataContextStack(Type type,
             DataContextStack parent = null,
             IReadOnlyList<NamespaceImport> imports = null,
-            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null,
-            int contextId = -1)
+            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null)
         {
             Parent = parent;
             DataContextType = type;
             NamespaceImports = imports ?? parent?.NamespaceImports;
             ExtensionParameters = extenstionParameters ?? new BindingExtensionParameter[0];
-            DataContextSpaceId = contextId > 0 ? contextId : AssignId();
+
+            hashCode = ComputeHashCode();
         }
 
         public IEnumerable<(int dataContextLevel, BindingExtensionParameter parameter)> GetCurrentExtensionParameters()
@@ -75,15 +77,50 @@ namespace DotVVM.Framework.Compilation.ControlTree
         ITypeDescriptor IDataContextStack.DataContextType => new ResolvedTypeDescriptor(DataContextType);
         IDataContextStack IDataContextStack.Parent => Parent;
 
-        private static int _idCounter;
-        public static int AssignId() => System.Threading.Interlocked.Add(ref _idCounter, 1);
+        public override bool Equals(object obj) =>
+            obj is DataContextStack other && Equals(other);
 
-        private static readonly ConcurrentDictionary<int, DataContextStack> _store = new ConcurrentDictionary<int, DataContextStack>();
-        public void Save()
+        public bool Equals(DataContextStack stack)
         {
-            _store.TryAdd(this.DataContextSpaceId, this);
+            return this == stack || hashCode == stack.hashCode
+                && DataContextType == stack.DataContextType
+                && NamespaceImports.SequenceEqual(stack.NamespaceImports)
+                && Parent.Equals(stack.Parent);
         }
 
-        public static DataContextStack GetById(int id) => _store[id];
+        public override int GetHashCode()
+        {
+            return hashCode;
+        }
+
+        int ComputeHashCode()
+        {
+            unchecked
+            {
+                var hashCode = 0;
+                if (NamespaceImports != null)
+                {
+                    foreach (var import in NamespaceImports)
+                    {
+                        hashCode += (hashCode * 47) ^ import.GetHashCode();
+                    }
+                }
+
+                hashCode = (hashCode * 397) ^ (Parent?.GetHashCode() ?? 0);
+                hashCode = (hashCode * 13) ^ (DataContextType?.GetHashCode() ?? 0);
+                return hashCode;
+            }
+        }
+
+
+        //private static ConditionalWeakTable<DataContextStack, DataContextStack> internCache = new ConditionalWeakTable<DataContextStack, DataContextStack>();
+        public static DataContextStack Create(Type type,
+            DataContextStack parent = null,
+            IReadOnlyList<NamespaceImport> imports = null,
+            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null)
+        {
+            var dcs = new DataContextStack(type, parent, imports, extenstionParameters);
+            return dcs;// internCache.GetValue(dcs, _ => dcs);
+        }
     }
 }

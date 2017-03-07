@@ -413,7 +413,7 @@ namespace DotVVM.Framework.Controls
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) !== ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholder);
                     Children.Add(placeholder);
@@ -422,7 +422,7 @@ namespace DotVVM.Framework.Controls
 
                     var placeholderEdit = new DataItemContainer { DataContext = null };
                     placeholderEdit.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, "$index()");
+                    placeholderEdit.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
                     writer.WriteKnockoutDataBindComment("if", "ko.unwrap(ko.unwrap($gridViewDataSet).EditRowId) === ko.unwrap($data[ko.unwrap(ko.unwrap($gridViewDataSet).PrimaryKeyPropertyName)])");
                     CreateTemplates(context, placeholderEdit, true);
                     Children.Add(placeholderEdit);
@@ -433,7 +433,7 @@ namespace DotVVM.Framework.Controls
                 {
                     var placeholder = new DataItemContainer { DataContext = null };
                     placeholder.SetValue(Internal.PathFragmentProperty, GetPathFragmentExpression() + "/[$index]");
-                    placeholder.SetValue(Internal.ClientIDFragmentProperty, "$index()");
+                    placeholder.SetValue(Internal.ClientIDFragmentProperty, GetValueRaw(Internal.CurrentIndexBindingProperty));
                     Children.Add(placeholder);
                     CreateRowWithCells(context, placeholder);
                     placeholder.Render(writer, context);

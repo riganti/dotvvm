@@ -36,7 +36,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
         protected override IDataContextStack CreateDataContextTypeStack(ITypeDescriptor viewModelType, IDataContextStack parentDataContextStack = null,  IReadOnlyList<NamespaceImport> namespaceImports = null, IReadOnlyList<BindingExtensionParameter> extensionParameters = null)
         {
 
-            return new DataContextStack(
+            return DataContextStack.Create(
                 ResolvedTypeDescriptor.ToSystemType(viewModelType),
                 parentDataContextStack as DataContextStack,
                 namespaceImports, extensionParameters);

@@ -7,11 +7,18 @@ namespace DotVVM.Framework.Compilation.Javascript
 {
     public class KnockoutObservableHandlingVisitor : JsNodeVisitor
     {
+        private readonly bool AllowObservableResult;
+
+        public KnockoutObservableHandlingVisitor(bool allowObservableResult)
+        {
+            this.AllowObservableResult = allowObservableResult;
+        }
+
         protected override void DefaultVisit(JsNode node)
         {
             if (node is JsExpression expression && node.HasAnnotation<ResultIsObservableAnnotation>() && !node.Parent.HasAnnotation<ObservableUnwrapInvocationAnnotation>() && !(node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression) && node.Parent != null)
             {
-                if (!node.IsRootResultExpression())
+                if (!AllowObservableResult || !node.IsRootResultExpression())
                 {
                     // may be null is copied to the observable result
                     node.RemoveAnnotations<MayBeNullAnnotation>();
