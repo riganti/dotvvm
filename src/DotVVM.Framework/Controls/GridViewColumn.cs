@@ -193,10 +193,12 @@ namespace DotVVM.Framework.Controls
                     }
                 }
             }
-            else
+
+            if (sortableGridViewDataSet != null)
             {
                 cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending)}}";
             }
+           
         }
 
         protected virtual string GetSortExpression()
