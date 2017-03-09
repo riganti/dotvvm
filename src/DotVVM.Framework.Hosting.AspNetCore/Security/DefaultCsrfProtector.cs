@@ -26,10 +26,12 @@ namespace DotVVM.Framework.Security
         private const string PURPOSE_TOKEN = "DotVVM.Framework.Security.DefaultCsrfProtector.Token"; // Key derivation label for protecting token
 
         private IDataProtectionProvider protectionProvider;
+        private readonly ICookieManager cookieManager;
 
-        public DefaultCsrfProtector(IDataProtectionProvider protectionProvider)
+        public DefaultCsrfProtector(IDataProtectionProvider protectionProvider, ICookieManager cookieManager)
         {
             this.protectionProvider = protectionProvider;
+            this.cookieManager = cookieManager;
         }
 
         public string GenerateToken(IDotvvmRequestContext context)
@@ -85,17 +87,14 @@ namespace DotVVM.Framework.Security
 			var originalHttpContext = context.GetAspNetCoreContext();
 			var sessionIdCookieName = GetSessionIdCookieName(context);
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
-
-            // Get cookie manager
-            var mgr = new ChunkingCookieManager(); // TODO: Make this configurable
-
+            
             // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
             var protector = this.protectionProvider.CreateProtector(PURPOSE_SID);
 
             // Get cookie value
-            var sidCookieValue = mgr.GetRequestCookie(originalHttpContext, sessionIdCookieName);
+            var sidCookieValue = cookieManager.GetRequestCookie(originalHttpContext, sessionIdCookieName);
 
             if (!string.IsNullOrWhiteSpace(sidCookieValue))
             {
@@ -127,7 +126,7 @@ namespace DotVVM.Framework.Security
 
                 // Save to cookie
                 sidCookieValue = Convert.ToBase64String(protectedSid);
-                mgr.AppendResponseCookie(
+                cookieManager.AppendResponseCookie(
 					originalHttpContext,
                     sessionIdCookieName,                                // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value
