@@ -64,16 +64,19 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Gets all data context on the path to root
         /// </summary>
-        public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, bool crossMarkupControl = false)
+        public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, int count = -1)
         {
             var c = contextControl;
             while (c != null)
             {
                 // PERF: O(h^2) because GetValue calls another GetDataContexts
                 if (c.IsPropertySet(DotvvmBindableObject.DataContextProperty, inherit: false))
+                {
                     yield return c.GetValue(DotvvmBindableObject.DataContextProperty);
+                    count--;
+                }
 
-                if (c is DotvvmMarkupControl && !crossMarkupControl) yield break;
+                if (count == 0) yield break;
 
                 c = c.Parent;
             }
