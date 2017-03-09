@@ -60,7 +60,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)
         {
-            return new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter).WithAnnotation(ResultIsObservableAnnotation.Instance);
+            return new JsSymbolicParameter(JavascriptTranslator.CurrentIndexParameter);
         }
     }
 

@@ -384,11 +384,9 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the internal unique ID of the control. Returns either string or IValueBinding.
         /// </summary>
-        public object GetDotvvmUniqueId()
-        {
+        public object GetDotvvmUniqueId() =>
             // build the client ID
-            return JoinValuesOrBindings(GetUniqueIdFragments());
-        }
+            JoinValuesOrBindings(GetUniqueIdFragments());
 
         private object JoinValuesOrBindings(IList<object> fragments)
         {
@@ -420,15 +418,10 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Adds the corresponding attribute for the Id property.
         /// </summary>
-        protected virtual object CreateClientId()
-        {
-            if (!string.IsNullOrEmpty(ID))
-            {
+        protected virtual object CreateClientId() => 
+            string.IsNullOrEmpty(ID) ? null :
                 // build the client ID
                 JoinValuesOrBindings(GetClientIdFragments());
-            }
-            return null;
-        }
 
         private IList<object> GetUniqueIdFragments()
         {

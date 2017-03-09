@@ -71,7 +71,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return expression.AssignParameters(o =>
                 o == KnockoutContextParameter ? context :
                 o == KnockoutViewModelParameter ? data :
-                o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(contextExpresion.Member("$index")) :
+                o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(contextExpresion.Member("$index").Invoke()) :
                 default(CodeParameterAssignment)
             );
         }
@@ -90,7 +90,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             return AdjustKnockoutScriptContext(expression, dataContextLevel)
                 .ToString(o => o == KnockoutContextParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$context"), true) :
                                o == KnockoutViewModelParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$data"), allowDataGlobal) :
-                               o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$index")) :
+                               o == CurrentIndexParameter ? CodeParameterAssignment.FromExpression(new JsIdentifierExpression("$index").Invoke()) :
                                throw new Exception());
         }
 
