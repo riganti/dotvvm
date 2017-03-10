@@ -43,6 +43,7 @@ namespace DotVVM.Framework.Controls
 
         public override string ToString()
         {
+            if (entries.Count == 0) return "{}";
             return "{ " + string.Join(", ", entries) + " }";
         }
 
