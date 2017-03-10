@@ -1,6 +1,7 @@
 ﻿using System;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Security;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace Microsoft.Extensions.DependencyInjection
@@ -21,6 +22,7 @@ namespace Microsoft.Extensions.DependencyInjection
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services);
 
             services.TryAddSingleton<ICsrfProtector, DefaultCsrfProtector>();
+            services.TryAddSingleton<ICookieManager, ChunkingCookieManager>();
             services.TryAddSingleton<IViewModelProtector, DefaultViewModelProtector>();
             services.TryAddSingleton<IEnvironmentNameProvider, DotvvmEnvironmentNameProvider>();
 

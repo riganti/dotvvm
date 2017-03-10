@@ -132,11 +132,6 @@ namespace DotVVM.Framework.Controls
                 throw new InvalidOperationException($"The value of binding handler '{name}' cannot be combined with a KnockoutBindingGroup!");
             }
 
-            if (bindingGroup.IsEmpty)
-            {
-                return;
-            }
-
             if (dataBindAttributes.Contains(name))
             {
                 var currentGroup = (KnockoutBindingGroup)dataBindAttributes[name];

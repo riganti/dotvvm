@@ -14,9 +14,9 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore" Version="1.0.3" />
     <PackageReference Include="Microsoft.AspNetCore.StaticFiles" Version="1.1.0" />
-    <PackageReference Include="DotVVM.AspNetCore" Version="1.1.0-rc5" />
+    <PackageReference Include="DotVVM.AspNetCore" Version="1.1.0" />
   </ItemGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="DotVVM.CommandLine" Version="1.1.0-rc5" />
+    <DotNetCliToolReference Include="DotVVM.CommandLine" Version="1.1.0" />
   </ItemGroup>
 </Project>

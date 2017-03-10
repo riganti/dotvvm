@@ -4,6 +4,6 @@ namespace DotVVM.Framework.Controls
 {
     public interface INearPageIndexesProvider
     {
-        IList<int> GetIndexes(IPageableGridViewDataSet dataSet);
+        IList<int> GetIndexes(IPagingOptions dataSet);
     }
 }

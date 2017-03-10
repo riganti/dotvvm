@@ -1,54 +1,54 @@
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 
-namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.DataPager
+
+namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 {
-    public class DataPagerViewModel : DotvvmViewModelBase
+    public class GridViewDataSetDelegateViewModel : DotvvmViewModelBase
     {
-        public GridViewDataSet<Data> DataSet { get; set; }
+
+        public int CallDelegateCounter { get; set; } = 0;
+
         public override Task Init()
         {
-            DataSet = GridViewDataSet.Create(GetData, pageSize: 3);
+            DataSet = Framework.Controls.GridViewDataSet.Create(GetData, pageSize: 3);
             return base.Init();
         }
 
+        public GridViewDataSet<Data> DataSet { get; set; } 
 
-        public bool Enabled { get; set; } = true;
-
-        public int ItemsInDatabaseCount { get; set; } = 2;
-
-        public void Populate()
-        {
-            ItemsInDatabaseCount = 20;
-            DataSet.RequestRefresh(forceRefresh: true);
-        }
+        public int ItemsCount { get; set; } = 20;
 
         private GridViewDataSetLoadedData<Data> GetData(IGridViewDataSetLoadOptions gridViewDataSetLoadOptions)
         {
-            var queryable = FakeDB(ItemsInDatabaseCount);
+            CallDelegateCounter++;
+
+            var queryable = TestDB(ItemsCount);
             return queryable.GetDataFromQueryable(gridViewDataSetLoadOptions);
         }
-
-        private IQueryable<Data> FakeDB(int itemsCreatorCounter)
+      
+        private IQueryable<Data> TestDB(int itemsCreatorCounter)
         {
             var dbdata = new List<Data>();
             for (var i = 0; i < itemsCreatorCounter; i++)
             {
                 dbdata.Add(new Data
                 {
+                    Id = i,
                     Text = $"Item {i}"
                 });
             }
             return dbdata.AsQueryable();
         }
-
     }
-
     public class Data
     {
+        public int Id { get; set; }
         public string Text { get; set; }
     }
+
+
 }

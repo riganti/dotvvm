@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
+
 namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
 {
     public class GridViewPagingSortingViewModel : DotvvmViewModelBase
@@ -33,8 +34,20 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.GridView
             }.AsQueryable();
         }
 
-        public GridViewDataSet<CustomerData> CustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>() { PageSize = 10 };
-        public GridViewDataSet<CustomerData> EmptyCustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>() { PageSize = 10 };
+        public GridViewDataSet<CustomerData> CustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>()
+        {
+            PagingOptions = new PagingOptions()
+            {
+                PageSize = 10
+            }
+        };
+        public GridViewDataSet<CustomerData> EmptyCustomersDataSet { get; set; } = new GridViewDataSet<CustomerData>()
+        {
+            PagingOptions = new PagingOptions()
+            {
+                PageSize = 10
+            }
+        };
 
         public string SelectedSortColumn { get; set; }
 

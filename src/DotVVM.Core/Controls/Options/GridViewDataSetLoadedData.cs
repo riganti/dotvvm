@@ -7,13 +7,13 @@ namespace DotVVM.Framework.Controls
     public class GridViewDataSetLoadedData<T> : GridViewDataSetLoadedData
     {
 
-        public new List<T> Items
+        public new IEnumerable<T> Items
         {
-            get { return base.Items as List<T> ?? new List<T>(base.Items.OfType<T>()); }
+            get { return base.Items.OfType<T>(); }
             set { base.Items = value; }
         }
 
-        public GridViewDataSetLoadedData(IEnumerable<T> items, int totalItemsCount) : base(items.ToList(), totalItemsCount)
+        public GridViewDataSetLoadedData(IEnumerable<T> items, int totalItemsCount) : base(items, totalItemsCount)
         {
         }
     }
@@ -24,7 +24,7 @@ namespace DotVVM.Framework.Controls
 
         public int TotalItemsCount { get; protected set; }
 
-        public GridViewDataSetLoadedData(IEnumerable items, int totalItemsCount)
+        protected GridViewDataSetLoadedData(IEnumerable items, int totalItemsCount)
         {
             Items = items;
             TotalItemsCount = totalItemsCount;

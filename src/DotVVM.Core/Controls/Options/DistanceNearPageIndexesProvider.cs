@@ -13,9 +13,12 @@ namespace DotVVM.Framework.Controls
             this.distance = distance;
         }
 
-        public IList<int> GetIndexes(IPageableGridViewDataSet dataSet)
+        public IList<int> GetIndexes(IPagingOptions pagingOptions)
         {
-            return Enumerable.Range(0, dataSet.PagesCount).Where(n => Math.Abs(n - dataSet.PageIndex) <= distance).ToList();
+            return
+                Enumerable.Range(0, pagingOptions.PagesCount)
+                    .Where(n => Math.Abs(n - pagingOptions.PageIndex) <= distance)
+                    .ToList();
         }
     }
 }

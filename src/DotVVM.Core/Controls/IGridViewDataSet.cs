@@ -1,7 +1,12 @@
+using DotVVM.Framework.ViewModel;
+
 namespace DotVVM.Framework.Controls
 {
-    public interface IGridViewDataSet : IBaseGridViewDataSet, IPageableGridViewDataSet, ISortableGridViewDataSet, IRowEditGridViewDataSet
+
+    /// <summary>
+    /// Represents a collection of items with paging, sorting and row edit capabilities.
+    /// </summary>
+    public interface IGridViewDataSet : IPageableGridViewDataSet, ISortableGridViewDataSet, IRowEditGridViewDataSet, IRefreshableGridViewDataSet, IBaseGridViewDataSet
     {
-        void Reset();
     }
 }
