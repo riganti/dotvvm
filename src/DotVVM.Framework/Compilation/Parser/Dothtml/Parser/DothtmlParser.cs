@@ -190,17 +190,25 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                     // automatic immediate close of the tag (for <img src="">)
                     ElementHierarchy.Peek().Content.AddRange(startElement.Content);
                     startElement.Content.Clear();
+                    startElement.AddWarning("End tag is missing, the element is implicitly self-closed.");
                 }
                 else if (AutomaticClosingTags.Contains(startElement.FullTagName))
                 {
                     // elements than can contain itself like <p> are closed on the first occurance of element with the same name
                     var sameElementIndex = startElement.Content.FindIndex(a => (a as DothtmlElementNode)?.FullTagName == startElement.FullTagName);
+                    startElement.AddWarning($"End tag is missing, the element is implicitly closed by following <{startElement.Content[sameElementIndex].As<DothtmlElementNode>()?.FullTagName}> tag.");
+                    startElement.Content[sameElementIndex].AddWarning($"Previous <{startElement.FullTagName}> is implicitly closed here.");
                     if (sameElementIndex >= 0)
                     {
                         var count = startElement.Content.Count - sameElementIndex;
                         ElementHierarchy.Peek().Content.AddRange(startElement.Content.Skip(sameElementIndex));
                         startElement.Content.RemoveRange(sameElementIndex, count);
                     }
+                }
+                else
+                {
+                    startElement.AddWarning($"End tag is missing, the element is implicitly closed by </{element.FullTagName}>.");
+                    element.AddWarning($"Element <{startElement.FullTagName}> is implicitly closed here.");
                 }
 
                 // otherwise just pop the element
