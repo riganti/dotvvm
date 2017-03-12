@@ -10,31 +10,37 @@ namespace DotVVM.Framework.Compilation.Parser
         Part firstPart;
         List<Part> parts;
 
-        public void Add(IReadOnlyList<T> list, int len = -1, int from = 0) => Add(new Part(list, from, len < 0 ? list.Count : len ));
+        public void Add(IReadOnlyList<T> list, int len = -1, int from = 0) => Add(new Part(list, from, len < 0 ? list.Count : len));
 
         public void Add(Part p)
         {
             if (p.len == 0) return;
             var last = (parts == null ? firstPart : parts[parts.Count - 1]);
             if (firstPart.len == 0) firstPart = p;
-            else if (last.list == p.list && last.from + last.len == p.from) {
+            else if (last.list == p.list && last.from + last.len == p.from)
+            {
                 if (parts == null) firstPart = firstPart.AddLen(p.len);
-                else {
+                else
+                {
                     parts[parts.Count - 1] = last.AddLen(p.len);
                 }
             }
-            else {
+            else
+            {
                 if (parts == null) parts = new List<Part>();
                 parts.Add(p);
             }
         }
 
-        public T this[int index] {
-            get {
+        public T this[int index]
+        {
+            get
+            {
                 if (index < firstPart.len) return firstPart.list[firstPart.from + index];
                 if (parts == null) throw new IndexOutOfRangeException();
                 index -= firstPart.len;
-                for (int i = 0; i < parts.Count; i++) {
+                for (int i = 0; i < parts.Count; i++)
+                {
                     if (parts[i].len > index) return parts[i].list[parts[i].from + index];
                     index -= parts[i].len;
                 }
@@ -42,11 +48,15 @@ namespace DotVVM.Framework.Compilation.Parser
             }
         }
 
-        public int Count {
-            get {
+        public int Count
+        {
+            get
+            {
                 var r = firstPart.len;
-                if(parts != null) {
-                    for (int i = 0; i < parts.Count; i++) {
+                if (parts != null)
+                {
+                    for (int i = 0; i < parts.Count; i++)
+                    {
                         r += parts[i].len;
                     }
                 }
@@ -72,7 +82,7 @@ namespace DotVVM.Framework.Compilation.Parser
         {
             for (int i = 0; i < list.len; i++)
             {
-                if(predicate(list.list[i + list.from]))
+                if (predicate(list.list[i + list.from]))
                 {
                     return i + list.from;
                 }
@@ -80,12 +90,6 @@ namespace DotVVM.Framework.Compilation.Parser
             return -1;
         }
 
-        public T First()
-        {
-			if (firstPart.len == 0) throw new InvalidOperationException("AggregateList does not contain any element.");
-            return firstPart.list[firstPart.from];
-        }
-        
         public Enumerator GetEnumerator()
         {
             return new Enumerator(firstPart, parts);
@@ -100,6 +104,18 @@ namespace DotVVM.Framework.Compilation.Parser
         {
             return GetEnumerator();
         }
+
+        public T FirstOrDefault() => firstPart.len > 0 ? firstPart.list[0] : default(T);
+        public T First() => firstPart.len > 0 ? firstPart.list[0] : throw new InvalidOperationException("AggregateList does not contain any element");
+        public T Last() => parts != null ? parts[parts.Count].Last() : firstPart.Last();
+        public T LastOrDefault() => parts != null ? parts[parts.Count].Last() : firstPart.LastOrDefault();
+
+        public bool TryGetSinglePart(out Part part)
+        {
+            part = firstPart;
+            return parts == null || parts.Count == 0;
+        }
+        public bool Any() => firstPart.len > 0;
 
         public struct Enumerator : IEnumerator<T>
         {
@@ -128,7 +144,8 @@ namespace DotVVM.Framework.Compilation.Parser
             {
                 var p = CurrentPart;
                 if (p.len + p.from > ++index) return true;
-                if(parts != null && parts.Count > ++pindex) {
+                if (parts != null && parts.Count > ++pindex)
+                {
                     index = CurrentPart.from;
                     return true;
                 }
@@ -141,7 +158,7 @@ namespace DotVVM.Framework.Compilation.Parser
                 index = firstPart.from - 1;
             }
         }
-        public struct Part: IEnumerable<T>
+        public struct Part : IEnumerable<T>
         {
             public readonly IReadOnlyList<T> list;
             public readonly int from;
@@ -162,6 +179,9 @@ namespace DotVVM.Framework.Compilation.Parser
             public IEnumerator<T> GetEnumerator() => new AggregateList<T>.Enumerator(this, null);
 
             IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
+
+            public T Last() => len > 0 ? list[from + len - 1] : throw new InvalidOperationException("AggregateList does not contain any element.");
+            public T LastOrDefault() => len > 0 ? list[from + len - 1] : default(T);
         }
     }
 }
