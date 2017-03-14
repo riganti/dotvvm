@@ -1,8 +1,13 @@
 namespace DotVVM.Framework.Controls
 {
-    public interface IRowEditGridViewDataSet
+    /// <summary>
+    /// Extends the base GridViewDataSet with row edit functionality.
+    /// </summary>
+    public interface IRowEditGridViewDataSet : IBaseGridViewDataSet
     {
-        string PrimaryKeyPropertyName { get; set; }
-        object EditRowId { get; set; }
+        /// <summary>
+        /// Gets or sets an object that represents the settings for row edits.
+        /// </summary>
+        IRowEditOptions RowEditOptions { get; set; }
     }
 }

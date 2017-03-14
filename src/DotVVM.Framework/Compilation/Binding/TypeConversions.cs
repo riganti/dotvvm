@@ -93,7 +93,7 @@ namespace DotVVM.Framework.Compilation.Binding
         }
 
         //6.1.4 Nullable Type conversions
-        public static Expression NullableConverion(Expression src, Type destType)
+        public static Expression NullableConversion(Expression src, Type destType)
         {
             if (Nullable.GetUnderlyingType(src.Type) == destType)
             {
@@ -109,7 +109,7 @@ namespace DotVVM.Framework.Compilation.Binding
         // 6.1.5 Null literal conversions
         // An implicit conversion exists from the null literal to any nullable type.
         // This conversion produces the null value (§4.1.10) of the given nullable type.
-        public static Expression NullLiteralConverion(Expression src, Type destType)
+        public static Expression NullLiteralConversion(Expression src, Type destType)
         {
             if (src.NodeType == ExpressionType.Constant && src.Type == typeof(object) && ((ConstantExpression)src).Value == null)
             {
@@ -144,8 +144,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (src.Type == destType) return src;
             var result = ImplicitConstantConversion(src, destType) ??
                   ImplicitNumericConversion(src, destType) ??
-                  NullableConverion(src, destType) ??
-                  NullLiteralConverion(src, destType) ??
+                  NullableConversion(src, destType) ??
+                  NullLiteralConversion(src, destType) ??
                   BoxingConversion(src, destType) ??
                   ReferenceConversion(src, destType);
             if (allowToString && destType == typeof(string) && result == null)

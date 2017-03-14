@@ -298,7 +298,7 @@ test";
 
             Assert.IsFalse(((DothtmlElementNode)nodes[0]).IsClosingTag);
             Assert.AreEqual("a", ((DothtmlElementNode)nodes[0]).FullTagName);
-            Assert.IsFalse(((DothtmlElementNode)nodes[0]).NodeWarnings.Any());
+            Assert.IsTrue(((DothtmlElementNode)nodes[0]).NodeWarnings.Any());
 
             Assert.IsTrue(((DothtmlElementNode)nodes[1]).IsClosingTag);
             Assert.AreEqual("b", ((DothtmlElementNode)nodes[1]).FullTagName);

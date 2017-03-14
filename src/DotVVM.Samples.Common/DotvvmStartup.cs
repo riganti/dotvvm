@@ -1,3 +1,4 @@
+using System.Reflection;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Configuration;
 using DotVVM.Framework.ResourceManagement;

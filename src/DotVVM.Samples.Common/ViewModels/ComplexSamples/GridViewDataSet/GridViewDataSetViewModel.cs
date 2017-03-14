@@ -12,7 +12,13 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.GridViewDataSet
 
         public GridViewDataSetViewModel()
         {
-            GridData = new GridViewDataSet<GridViewData>() { PageSize = 20 };
+            GridData = new GridViewDataSet<GridViewData>()
+            {
+                PagingOptions = new PagingOptions()
+                {
+                    PageSize = 10
+                }
+            };
         }
 
         public override Task PreRender()

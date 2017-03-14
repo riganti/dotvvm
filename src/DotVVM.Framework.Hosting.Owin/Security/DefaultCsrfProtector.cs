@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Hosting.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
 
 namespace DotVVM.Framework.Security
@@ -25,10 +26,12 @@ namespace DotVVM.Framework.Security
         private const string PURPOSE_TOKEN = "DotVVM.Framework.Security.DefaultCsrfProtector.Token"; // Key derivation label for protecting token
 
         private IDataProtectionProvider protectionProvider;
+        private readonly ICookieManager cookieManager;
 
-        public DefaultCsrfProtector(IDataProtectionProvider protectionProvider)
+        public DefaultCsrfProtector(IDataProtectionProvider protectionProvider, ICookieManager cookieManager)
         {
             this.protectionProvider = protectionProvider;
+            this.cookieManager = cookieManager;
         }
 
         public string GenerateToken(IDotvvmRequestContext context)
@@ -84,16 +87,13 @@ namespace DotVVM.Framework.Security
             var sessionIdCookieName = GetSessionIdCookieName(context);
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
 
-            // Get cookie manager
-            var mgr = new ChunkingCookieManager(); // TODO: Make this configurable
-
             // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.Create(PURPOSE_SID);
+            var protector = this.protectionProvider.Create(PURPOSE_SID, requestIdentity, userIdentity);
 
             // Get cookie value
-            var sidCookieValue = mgr.GetRequestCookie(context.GetOwinContext(), sessionIdCookieName);
+            var sidCookieValue = cookieManager.GetRequestCookie(context.GetOwinContext(), sessionIdCookieName);
 
             if (!string.IsNullOrWhiteSpace(sidCookieValue))
             {
@@ -125,7 +125,7 @@ namespace DotVVM.Framework.Security
 
                 // Save to cookie
                 sidCookieValue = Convert.ToBase64String(protectedSid);
-                mgr.AppendResponseCookie(
+                cookieManager.AppendResponseCookie(
                     context.GetOwinContext(),
                     sessionIdCookieName,                                // Configured cookie name
                     sidCookieValue,                                     // Base64-encoded SID value

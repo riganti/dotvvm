@@ -1,7 +1,7 @@
 ﻿<Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <AssemblyTitle>DotVVM</AssemblyTitle>
-    <VersionPrefix>1.1.0-rc7</VersionPrefix>
+    <VersionPrefix>1.1.0</VersionPrefix>
     <TargetFrameworks>netstandard1.6;net451</TargetFrameworks>
     <NoWarn>$(NoWarn);CS1591</NoWarn>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
@@ -9,7 +9,7 @@
     <SignAssembly>true</SignAssembly>
     <PublicSign Condition=" '$(OS)' != 'Windows_NT' ">true</PublicSign>
     <PackageId>DotVVM</PackageId>
-    <PackageVersion>1.1.0-rc7</PackageVersion>
+    <PackageVersion>1.1.0</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>DotVVM is an open source ASP.NET-based framework which allows to build modern web apps without writing any JavaScript code.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
@@ -67,7 +67,6 @@
     <None Include="Resources\Scripts\DotVVM.Validation.ts" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
-    <EmbeddedResource Include="Resources\Scripts\knockout-latest.debug.js" />
     <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
     <None Include="Resources\Scripts\typings\jquery\jquery.d.ts" />

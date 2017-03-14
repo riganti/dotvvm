@@ -18,9 +18,11 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload
             get { return Directory.GetFiles(GetUploadPath()).Select(Path.GetFileName).ToList(); }
         }
 
-        public bool FileTypeAllowed { get; set; }
+        public bool IsFileTypeAllowed { get; set; }
 
-        public bool MaxSizeExceeded { get; set; }
+        public bool IsMaxSizeExceeded { get; set; }
+
+        public FileSize FileSize { get; set; } = new FileSize();
 
         public override Task Init()
         {
@@ -35,8 +37,9 @@ namespace DotVVM.Samples.BasicSamples.ViewModels.ControlSamples.FileUpload
         public void CheckFile()
         {
             var file = Files.Files.Last();
-            FileTypeAllowed = file.FileTypeAllowed;
-            MaxSizeExceeded = file.MaxSizeExceeded;
+            IsFileTypeAllowed = file.IsFileTypeAllowed;
+            IsMaxSizeExceeded = file.IsMaxSizeExceeded;
+            FileSize = file.FileSize;
         }
 
         public void Process()
