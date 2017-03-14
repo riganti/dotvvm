@@ -8,7 +8,6 @@ using System.Threading.Tasks;
 using DotVVM.Framework.Configuration;
 using Microsoft.Owin.Infrastructure;
 using DotVVM.Framework.Hosting;
-using DotVVM.Framework.Hosting.Owin.Security;
 using Microsoft.Owin.Security.DataProtection;
 
 namespace DotVVM.Framework.Security
