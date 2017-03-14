@@ -63,8 +63,8 @@ namespace DotVVM.Framework.Binding.Expressions
 
         #region Helpers
 
-        public static ValueBindingExpression CreateThisBinding<T>(BindingCompilationService service) =>
-            CreateBinding<T>(service, o => (T)o[0]);
+        public static ValueBindingExpression CreateThisBinding<T>(BindingCompilationService service, DataContextStack dataContext = null) =>
+            CreateBinding<T>(service, o => (T)o[0], dataContext);
 
         public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Func<object[], T> func, JsExpression expression) =>
             new ValueBindingExpression(service, new object[] {
@@ -80,11 +80,11 @@ namespace DotVVM.Framework.Binding.Expressions
                 new KnockoutExpressionBindingProperty(expression, expression)
             });
 
-        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Expression<Func<object[], T>> expr)
+        public static ValueBindingExpression CreateBinding<T>(BindingCompilationService service, Expression<Func<object[], T>> expr, DataContextStack dataContext = null)
         {
             var visitor = new ViewModelAccessReplacer(expr.Parameters.Single());
             var expression = visitor.Visit(expr.Body);
-            var dataContext = visitor.GetDataContext();
+            dataContext = dataContext ?? visitor.GetDataContext();
             return new ValueBindingExpression(service, new object[] {
                 new ParsedExpressionBindingProperty(BindingHelper.AnnotateStandardContextParams(expression, dataContext).OptimizeConstants()),
                 new ResultTypeBindingProperty(typeof(T)),

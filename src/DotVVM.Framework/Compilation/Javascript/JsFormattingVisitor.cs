@@ -212,7 +212,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         public void VisitLiteral(JsLiteral jsLiteral)
         {
             var literalValue = jsLiteral.LiteralValue;
-            if (char.IsLetterOrDigit(literalValue.FirstOrDefault())) SpaceBeforeOp(literalValue);
+            if (char.IsLetterOrDigit(literalValue.FirstOrDefault())) SpaceBeforeOp(literalValue, allowCosmeticSpace: false);
             Emit(literalValue);
         }
 

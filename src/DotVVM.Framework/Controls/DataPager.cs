@@ -10,6 +10,7 @@ using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Compilation.Javascript;
 using Microsoft.Extensions.DependencyInjection;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Controls
 {
@@ -169,6 +170,8 @@ namespace DotVVM.Framework.Controls
             Children.Clear();
 
             content = new HtmlGenericControl("ul");
+            var dataContextType = DataContextStack.Create(typeof(IPageableGridViewDataSet), this.GetDataContextType());
+            content.SetDataContextType(dataContextType);
             content.SetBinding(DataContextProperty, GetDataSetBinding());
             Children.Add(content);
 
@@ -210,7 +213,7 @@ namespace DotVVM.Framework.Controls
                 foreach (var number in dataSet.PagingOptions.NearPageIndexes)
                 {
                     var li = new HtmlGenericControl("li");
-                    li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i));
+                    li.SetBinding(DataContextProperty, GetNearIndexesBinding(context, i, dataContextType));
                     if (number == dataSet.PagingOptions.PageIndex)
                     {
                         li.Attributes["class"] = "active";
@@ -256,11 +259,11 @@ namespace DotVVM.Framework.Controls
             }
         }
 
-        private ValueBindingExpression GetNearIndexesBinding(IDotvvmRequestContext context, int i)
+        private ValueBindingExpression GetNearIndexesBinding(IDotvvmRequestContext context, int i, DataContextStack dataContext = null)
         {
             return ValueBindingExpression.CreateBinding(
                 context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
-                h => ((IPageableGridViewDataSet)h[0]).PagingOptions.NearPageIndexes[i]);
+                h => ((IPageableGridViewDataSet)h[0]).PagingOptions.NearPageIndexes[i], dataContext);
         }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
@@ -319,8 +322,10 @@ namespace DotVVM.Framework.Controls
                 var literal = new Literal();
                 literal.DataContext = 0;
 
-                literal.SetBinding(Literal.TextProperty, ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
-                    vm => ((int)vm[0] + 1).ToString()));
+                var textBinding = ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
+                    vm => ((int)vm[0] + 1).ToString());
+                literal.SetBinding(Literal.TextProperty, textBinding);
+                literal.SetValue(Internal.DataContextTypeProperty, textBinding.GetProperty<DataContextStack>());
                 li.Children.Add(literal);
                 numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);

@@ -53,4 +53,10 @@ namespace DotVVM.Framework.Controls
         public static DotvvmProperty CurrentIndexBindingProperty =
             DotvvmProperty.Register<IValueBinding, Internal>(() => CurrentIndexBindingProperty);
     }
+
+    public static class InternalPropertyExceptions
+    {
+        public static DataContextStack GetDataContextType(this DotvvmBindableObject obj) => (DataContextStack)obj.GetValue(Internal.DataContextTypeProperty);
+        public static void SetDataContextType(this DotvvmBindableObject obj, DataContextStack stack) => obj.SetValue(Internal.DataContextTypeProperty, stack);
+    }
 }
