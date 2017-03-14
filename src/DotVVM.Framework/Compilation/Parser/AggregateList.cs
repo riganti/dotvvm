@@ -105,8 +105,8 @@ namespace DotVVM.Framework.Compilation.Parser
             return GetEnumerator();
         }
 
-        public T FirstOrDefault() => firstPart.len > 0 ? firstPart.list[0] : default(T);
-        public T First() => firstPart.len > 0 ? firstPart.list[0] : throw new InvalidOperationException("AggregateList does not contain any element");
+        public T FirstOrDefault() => firstPart.len > 0 ? firstPart.list[firstPart.from] : default(T);
+        public T First() => firstPart.len > 0 ? firstPart.list[firstPart.from] : throw new InvalidOperationException("AggregateList does not contain any element");
         public T Last() => parts != null ? parts[parts.Count].Last() : firstPart.Last();
         public T LastOrDefault() => parts != null ? parts[parts.Count].Last() : firstPart.LastOrDefault();
 
