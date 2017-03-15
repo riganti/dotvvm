@@ -91,7 +91,7 @@ namespace DotVVM.Framework.Security
             // Construct protector with purposes
             var userIdentity = ProtectionHelpers.GetUserIdentity(context);
             var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.CreateProtector(PURPOSE_SID);
+            var protector = this.protectionProvider.CreateProtector(PURPOSE_SID, userIdentity, requestIdentity);
 
             // Get cookie value
             var sidCookieValue = cookieManager.GetRequestCookie(originalHttpContext, sessionIdCookieName);
