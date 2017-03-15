@@ -89,6 +89,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(string), nameof(string.Length), lengthMethod);
             AddMethodTranslator(typeof(object), "ToString", new StringJsMethodCompiler("String({0})", (m, c, a) => ToStringCheck(c)), 0);
             AddMethodTranslator(typeof(Convert), "ToString", new StringJsMethodCompiler("String({1})", (m, c, a) => ToStringCheck(a[0])), 1, true);
+            AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new StringJsMethodCompiler("{0}"));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
             BindingPageInfo.RegisterJavascriptTranslations();
