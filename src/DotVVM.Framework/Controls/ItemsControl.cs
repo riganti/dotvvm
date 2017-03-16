@@ -80,6 +80,8 @@ namespace DotVVM.Framework.Controls
         [ApplyControlStyle]
         public static void OnCompilation(ResolvedControl control, BindingCompilationService bindingService)
         {
+            if (!control.HasProperty(DataContextProperty)) return;
+
             var dcChange = ControlTreeResolverBase.ApplyContextChange(control.DataContextTypeStack,
                 new DataContextChangeAttribute[] { new ControlPropertyBindingDataContextChangeAttribute(nameof(DataSource)), new CollectionElementDataContextChangeAttribute(0) },
                 control, null);
