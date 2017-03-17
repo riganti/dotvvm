@@ -104,5 +104,14 @@ namespace DotVVM.Framework.Tests.Binding
             var js = CompileBinding("_page.EvaluatingOnServer");
             Assert.AreEqual("false", js);
         }
+
+        [TestMethod]
+        public void JavascriptCompilation_NullableDateExpression()
+        {
+            var result = CompileBinding("DateFrom == null || DateTo == null || DateFrom.Value <= DateTo.Value", typeof(TestViewModel));
+            Assert.AreEqual("((($data.DateFrom()==null)||($data.DateTo()==null))||($data.DateFrom()<=$data.DateTo()))", result);
+            var result2 = CompileBinding("DateFrom == null || DateTo == null || DateFrom <= DateTo", typeof(TestViewModel));
+            Assert.AreEqual("((($data.DateFrom()==null)||($data.DateTo()==null))||($data.DateFrom()<=$data.DateTo()))", result2);
+        }
     }
 }

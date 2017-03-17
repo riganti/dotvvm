@@ -5,6 +5,7 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Utils;
 using Microsoft.CSharp.RuntimeBinder;
 
 namespace DotVVM.Framework.Compilation.Binding
@@ -257,6 +258,9 @@ namespace DotVVM.Framework.Compilation.Binding
             throw new NotSupportedException("IComparable is not implemented on any of specified types");
         }
 
+        public static Expression UnwrapNullable(this Expression expression) =>
+            expression.Type.IsNullable() ? Expression.Property(expression, "Value") : expression;
+
         public static Expression GetBinaryOperator(Expression left, Expression right, ExpressionType operation)
         {
             if (operation == ExpressionType.Coalesce) return Expression.Coalesce(left, right);
@@ -272,6 +276,11 @@ namespace DotVVM.Framework.Compilation.Binding
             if (result != null) return result;
             if (operation == ExpressionType.Equal) return EqualsMethod(left, right);
             if (operation == ExpressionType.NotEqual) return Expression.Not(EqualsMethod(left, right));
+
+            // lift the operator
+            if (left.Type.IsNullable() || right.Type.IsNullable())
+                return GetBinaryOperator(left.UnwrapNullable(), right.UnwrapNullable(), operation);
+
             throw new Exception($"could not apply { operation } binary operator to { left } and { right }");
             // TODO: comparison operators
         }

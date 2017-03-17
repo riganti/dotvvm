@@ -18,7 +18,11 @@ namespace DotVVM.Framework.Compilation.Binding
 
         protected override Expression VisitMember(MemberExpression node)
         {
-            if (node.Expression?.Type?.IsNullable() == true) return base.VisitMember(node);
+            if (node.Expression?.Type?.IsNullable() == true)
+            {
+                if (node.Member.Name == "Value") return node.Expression;
+                else return base.VisitMember(node);
+            }
             else return CheckForNull(Visit(node.Expression), expr =>
                 Expression.MakeMemberAccess(expr, node.Member));
 
@@ -81,7 +85,7 @@ namespace DotVVM.Framework.Compilation.Binding
             }
             else
             {
-                if (node.NodeType == ExpressionType.AndAlso || node.NodeType == ExpressionType.OrElse)
+                if (true)
                 {
                     var left = Visit(node.Left);
                     var right = Visit(node.Right);
@@ -89,13 +93,15 @@ namespace DotVVM.Framework.Compilation.Binding
                     left = TypeConversion.ImplicitConversion(left, nullable);
                     right = TypeConversion.ImplicitConversion(right, nullable);
 
-                    return Expression.MakeBinary(node.NodeType, left, right, left.Type.IsNullable(), node.Method);
+                    if (right != null && left != null)
+                        return Expression.MakeBinary(node.NodeType, left, right, left.Type.IsNullable() && node.NodeType != ExpressionType.Equal && node.NodeType != ExpressionType.NotEqual, node.Method);
+                    else return CheckForNull(base.Visit(node.Left), left2 =>
+                        createExpr(left2),
+                    checkReferenceTypes: false);
                 }
                 else
                 {
-                    return CheckForNull(base.Visit(node.Left), left =>
-                        createExpr(left),
-                    checkReferenceTypes: false);
+                    
                 }
             }
         }
