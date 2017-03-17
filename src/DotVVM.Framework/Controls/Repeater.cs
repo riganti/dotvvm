@@ -109,6 +109,7 @@ namespace DotVVM.Framework.Controls
             var dataSource = DataSource;
             if (dataSource != null)
             {
+                (dataSource as IRefreshableGridViewDataSet)?.RequestRefresh();
                 var items = GetIEnumerableFromDataSource(dataSource).Cast<object>().ToArray();
                 var javascriptDataSourceExpression = dataSourceBinding.GetKnockoutBindingExpression();
                 foreach (var item in items)

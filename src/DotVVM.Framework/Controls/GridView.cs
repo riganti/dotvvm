@@ -161,13 +161,12 @@ namespace DotVVM.Framework.Controls
             var dataSourceBinding = GetDataSourceBinding();
             var dataSource = DataSource;
 
-            Action<string> sortCommand = null;
-
             if (dataSource is IRefreshableGridViewDataSet refreshableDataSet)
             {
                 CallGridViewDataSetRefreshRequest(refreshableDataSet);
             }
 
+            Action<string> sortCommand;
             if (dataSource is ISortableGridViewDataSet sortableGridViewDataSet)
             {
                 sortCommand = sortableGridViewDataSet.SetSortExpression;
