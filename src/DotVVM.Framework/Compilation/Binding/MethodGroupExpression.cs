@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -34,7 +35,8 @@ namespace DotVVM.Framework.Compilation.Binding
             if (IsStatic)
                 return Expression.Constant(method.CreateDelegate(delegateType));
             else
-                return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(delegateType), Target, Expression.Constant(method));
+                return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(delegateType), Target, Expression.Constant(method))
+                    .Apply(e => Expression.Convert(e, delegateType));
         }
 
         public static Type GetDelegateType(Type returnType, Type[] args)
@@ -62,10 +64,12 @@ namespace DotVVM.Framework.Compilation.Binding
             var methodInfo = GetMethod();
             if (methodInfo == null) throw new Exception($"can not create delegate from method '{ MethodName }' on type '{ Target.Type.FullName }'");
 
+            var delegateType = GetDelegateType(methodInfo);
             if (IsStatic)
-                return Expression.Constant(methodInfo.CreateDelegate(GetDelegateType(methodInfo)));
+                return Expression.Constant(methodInfo.CreateDelegate(delegateType));
             else
-                return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(GetDelegateType(methodInfo)), Target, Expression.Constant(methodInfo));
+                return Expression.Call(CreateDelegateMethodInfo, Expression.Constant(delegateType), Target, Expression.Constant(methodInfo))
+                    .Apply(e => Expression.Convert(e, delegateType));
         }
         public Expression CreateMethodCall(IEnumerable<Expression> args)
         {
