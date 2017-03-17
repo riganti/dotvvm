@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Controls
             base.AddAttributesToRender(writer, context);
 
             // render Knockout data-bind
-            renderAsKnockoutBinding = HasBinding<IValueBinding>(TextProperty) && !RenderOnServer;
+            renderAsKnockoutBinding = HasBinding<IValueBinding>(TextProperty);
             if (renderAsKnockoutBinding)
             {
                 var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression();
@@ -137,9 +137,9 @@ namespace DotVVM.Framework.Controls
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            if (!renderAsKnockoutBinding)
+            if (RenderOnServer)
             {
-                var textToDisplay = "";
+                string textToDisplay;
                 if (IsFormattingRequired)
                 {
                     var formatString = FormatString;
