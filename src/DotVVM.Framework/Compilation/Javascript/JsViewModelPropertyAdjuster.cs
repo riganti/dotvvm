@@ -44,7 +44,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     }
                 }
                 else if (propAnnotation.MemberInfo is FieldInfo)
-                    throw new NotSupportedException($"Can not translate field {propAnnotation.MemberInfo} to Javascript");
+                    throw new NotSupportedException($"Can not translate field '{propAnnotation.MemberInfo}' to Javascript");
 
                 node.AddAnnotation(ResultIsObservableAnnotation.Instance);
                 node.AddAnnotation(new ViewModelInfoAnnotation(propertyType));
