@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Controls
                 return new PropertySerializeInfo
                 {
                     Property = property,
-                    Js = (binding as IValueBinding).GetKnockoutBindingExpression(),
+                    Js = (binding as IValueBinding).GetKnockoutBindingExpression(this),
                     IsSerializable = true
 
                 };

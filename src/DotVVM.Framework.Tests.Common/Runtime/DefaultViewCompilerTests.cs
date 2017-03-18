@@ -14,7 +14,6 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 using Microsoft.Extensions.DependencyInjection;
 using DotVVM.Framework.Binding.Properties;
-using DotVVM.Framework.Binding;
 using System.Linq;
 
 namespace DotVVM.Framework.Tests.Runtime

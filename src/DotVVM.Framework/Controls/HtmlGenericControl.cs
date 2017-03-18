@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Controls
                     if (attribute.Value is IValueBinding)
                     {
                         var binding = attribute.Value as IValueBinding;
-                        attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression());
+                        attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
                         if (!RenderOnServer)
                             continue;
                     }

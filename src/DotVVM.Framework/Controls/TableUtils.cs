@@ -19,7 +19,7 @@ namespace DotVVM.Framework.Controls
             {
                 var binding = control.GetValueBinding(property);
                 if (binding != null)
-                    writer.AddKnockoutDataBind("dotvvm-table-columnvisible", binding);
+                    writer.AddKnockoutDataBind("dotvvm-table-columnvisible", binding.GetKnockoutBindingExpression(control));
             }, defaultValue: true);
 
     }

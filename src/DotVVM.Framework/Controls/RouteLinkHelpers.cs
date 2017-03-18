@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Controls
             var urlSuffixBinding = control.GetValueBinding(urlSuffixProperty);
             if (urlSuffixBinding != null)
             {
-                return "(" + urlSuffixBinding.GetKnockoutBindingExpression() + ")";
+                return "(" + urlSuffixBinding.GetKnockoutBindingExpression(control) + ")";
             }
             else
             {
@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Controls
             {
                 EnsureValidBindingType(param.Value as IBinding);
 
-                expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression()
+                expression = (param.Value as IValueBinding)?.GetKnockoutBindingExpression(control)
                     ?? JsonConvert.SerializeObject((param.Value as IStaticValueBinding)?.Evaluate(control));
             }
             else

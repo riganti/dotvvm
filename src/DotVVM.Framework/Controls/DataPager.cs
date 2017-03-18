@@ -282,7 +282,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (HideWhenOnlyOnePage)
                 {
-                    writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression()}).PagingOptions().PagesCount() > 1");
+                    writer.AddKnockoutDataBind("visible", $"ko.unwrap({GetDataSetBinding().GetKnockoutBindingExpression(this)}).PagingOptions().PagesCount() > 1");
                 }
                 else
                 {
@@ -294,7 +294,7 @@ namespace DotVVM.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (HasValueBinding(EnabledProperty))
-                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression() }}}");
+                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }}}");
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
             writer.RenderBeginTag("ul");

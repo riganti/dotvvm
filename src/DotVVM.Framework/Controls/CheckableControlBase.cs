@@ -116,7 +116,7 @@ namespace DotVVM.Framework.Controls
             {
                 if (HasValueBinding(TextProperty))
                 {
-                    writer.AddKnockoutDataBind("text", GetValueBinding(TextProperty));
+                    writer.AddKnockoutDataBind("text", GetValueBinding(TextProperty).GetKnockoutBindingExpression(this));
                     writer.RenderBeginTag(TagName);
                     writer.RenderEndTag();
                 }

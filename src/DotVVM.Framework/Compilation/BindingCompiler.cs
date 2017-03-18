@@ -24,9 +24,6 @@ namespace DotVVM.Framework.Compilation
 {
     public class BindingCompiler : IBindingCompiler
     {
-        public static readonly ConcurrentDictionary<int, IBinding> GlobalBindingList = new ConcurrentDictionary<int, IBinding>();
-        private static int globalBindingIndex = 0;
-
         public static readonly ParameterExpression CurrentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "currentControl");
         public static readonly ParameterExpression ViewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
 

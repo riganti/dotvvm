@@ -474,7 +474,7 @@ namespace DotVVM.Framework.Controls
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
-            writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding());
+            writer.AddKnockoutDataBind("withGridViewDataSet", GetDataSourceBinding().GetKnockoutBindingExpression(this));
 
             if (!ShowHeaderWhenNoData && !IsPropertySet(VisibleProperty))
             {
