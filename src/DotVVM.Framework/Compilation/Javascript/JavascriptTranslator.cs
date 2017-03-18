@@ -395,7 +395,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 case ExpressionType.GreaterThan: op = BinaryOperatorType.Greater; break;
                 case ExpressionType.LessThan: op = BinaryOperatorType.Less; break;
                 case ExpressionType.GreaterThanOrEqual: op = BinaryOperatorType.GreaterOrEqual; break;
-                case ExpressionType.LessThanOrEqual: op = BinaryOperatorType.Less; break;
+                case ExpressionType.LessThanOrEqual: op = BinaryOperatorType.LessOrEqual; break;
                 case ExpressionType.AddChecked:
                 case ExpressionType.Add: op = BinaryOperatorType.Plus; break;
                 case ExpressionType.SubtractChecked:

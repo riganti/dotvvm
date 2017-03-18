@@ -89,5 +89,16 @@ namespace DotVVM.Framework.Tests.Common.Runtime.JavascriptCompilation
             Assert.AreEqual("typeof a+-void 0", expr.FormatScript());
             Assert.AreEqual("typeof a + -void 0", expr.FormatScript(niceMode: true));
         }
+
+        [TestMethod]
+        public void JsFormatter_LessThanOperator()
+        {
+            var expr = new JsBinaryExpression(
+                new JsIdentifierExpression("a"),
+                BinaryOperatorType.LessOrEqual,
+                new JsIdentifierExpression("b"));
+            Assert.AreEqual("a<=b", expr.FormatScript());
+            Assert.AreEqual("a <= b", expr.FormatScript(niceMode: true));
+        }
     }
 }
