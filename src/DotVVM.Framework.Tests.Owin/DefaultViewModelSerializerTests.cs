@@ -113,6 +113,26 @@ namespace DotVVM.Framework.Tests.Runtime
 			Assert.AreEqual(123, viewModel.Property.GetPrivateField());
 		}
 
+        [TestMethod]
+        public void Serializer_Tuples()
+        {
+            var json = SerializeViewModel(new TestViewModelWithTuple {
+                TupleProperty = Tuple.Create(
+                    new TestViewModel2 {
+                        PropertyA = "abc"
+                    },
+                    new TestViewModel3 {
+                        Property1 = "def"
+                    }
+                )
+            });
+
+            var result = new TestViewModelWithTuple();
+            PopulateViewModel(result, json);
+            Assert.AreEqual("abc", result.TupleProperty.Item1.PropertyA);
+            Assert.AreEqual("def", result.TupleProperty.Item2.Property1);
+        }
+
        
 
         private string SerializeViewModel(object viewModel)
@@ -129,6 +149,11 @@ namespace DotVVM.Framework.Tests.Runtime
 			serializer.PopulateViewModel(context,
 				"{'validationTargetPath': null,'viewModel':" + json + "}");
 		}
+
+        public class TestViewModelWithTuple
+        {
+            public Tuple<TestViewModel2, TestViewModel3> TupleProperty { get; set; }
+        }
 
 		class TestViewModel12
 		{
