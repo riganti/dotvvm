@@ -16,6 +16,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Owin;
 using Microsoft.Owin.Security.DataProtection;
 using Newtonsoft.Json.Linq;
+using Microsoft.Owin.Infrastructure;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
@@ -34,6 +35,7 @@ namespace DotVVM.Framework.Tests.Runtime
 				services.AddSingleton<IDataProtectionProvider>(new DpapiDataProtectionProvider("DotVVM Tests"));
                 services.AddTransient<IViewModelProtector, DefaultViewModelProtector>();
                 services.AddTransient<ICsrfProtector, DefaultCsrfProtector>();
+                services.AddSingleton<ICookieManager, ChunkingCookieManager>();
             });
 			configuration.Security.SigningKey = Convert.FromBase64String("Uiq1FXs016lC6QaWIREB7H2P/sn4WrxkvFkqaIKpB27E7RPuMipsORgSgnT+zJmUu8zXNSJ4BdL73JEMRDiF6A1ScRNwGyDxDAVL3nkpNlGrSoLNM1xHnVzSbocLFDrdEiZD2e3uKujguycvWSNxYzjgMjXNsaqvCtMu/qRaEGc=");
 			configuration.Security.EncryptionKey = Convert.FromBase64String("jNS9I3ZcxzsUSPYJSwzCOm/DEyKFNlBmDGo9wQ6nxKg=");

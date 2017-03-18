@@ -453,12 +453,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
                     {
                         attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain bindings because it's not DotvvmProperty.");
                     }
-                    else if (treatBindingAsHardCodedValue.Contains(bindingNode.Name))
-                    {
-                        if (!property.MarkupOptions.AllowHardCodedValue)
-                            attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding, it can contain only hard-coded value or resource binding.");
-                    }
-                    else
+                    else if (!treatBindingAsHardCodedValue.Contains(bindingNode.Name))
                     {
                         if (!property.MarkupOptions.AllowBinding)
                             attribute.ValueNode.AddError($"The property '{ property.FullName }' cannot contain {bindingNode.Name} binding.");

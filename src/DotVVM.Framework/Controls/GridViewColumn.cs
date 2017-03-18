@@ -176,26 +176,23 @@ namespace DotVVM.Framework.Controls
 
         private void SetSortedCssClass(HtmlGenericControl cell, ISortableGridViewDataSet sortableGridViewDataSet)
         {
-            if (RenderOnServer)
+            if (sortableGridViewDataSet != null)
             {
-                if (sortableGridViewDataSet != null)
+                if (!RenderOnServer)
                 {
-                    if (sortableGridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
+                    cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending)}}";
+                }
+                else if (sortableGridViewDataSet.SortingOptions.SortExpression == GetSortExpression())
+                {
+                    if (sortableGridViewDataSet.SortingOptions.SortDescending)
                     {
-                        if (sortableGridViewDataSet.SortingOptions.SortDescending)
-                        {
-                            cell.Attributes["class"] = SortDescendingHeaderCssClass;
-                        }
-                        else
-                        {
-                            cell.Attributes["class"] = SortAscendingHeaderCssClass;
-                        }
+                        cell.Attributes["class"] = SortDescendingHeaderCssClass;
+                    }
+                    else
+                    {
+                        cell.Attributes["class"] = SortAscendingHeaderCssClass;
                     }
                 }
-            }
-            else
-            {
-                cell.Attributes["data-bind"] = $"css: {{ '{SortDescendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending), '{SortAscendingHeaderCssClass}': ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortExpression) == '{GetSortExpression()}' && !ko.unwrap(ko.unwrap($gridViewDataSet).SortingOptions().SortDescending)}}";
             }
         }
 

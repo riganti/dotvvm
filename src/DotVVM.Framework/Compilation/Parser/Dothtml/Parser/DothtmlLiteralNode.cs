@@ -7,7 +7,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
     [DebuggerDisplay("{Value}")]
     public class DothtmlLiteralNode : DothtmlNode
     {
-        public string Value => string.Join(string.Empty, Tokens.Select(token => token.Text));
+        public string Value => Tokens.ConcatTokenText();
         public bool Escape { get; set; } = false;
 
         public override IEnumerable<DothtmlNode> EnumerateChildNodes()

@@ -343,6 +343,25 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void BindingCompiler_NullableDateExpression()
+        {
+            bool execute(TestViewModel viewModel)
+            {
+                var result = ExecuteBinding("DateFrom == null || DateTo == null || DateFrom.Value <= DateTo.Value", viewModel);
+                var result2 = ExecuteBinding("DateFrom == null || DateTo == null || DateFrom <= DateTo", viewModel);
+                Assert.IsInstanceOfType(result, typeof(bool));
+                Assert.AreEqual(result, result2);
+                return (bool)result;
+            }
+
+            Assert.AreEqual(true, execute(new TestViewModel { DateFrom = null, DateTo = new DateTime(5) }));
+            Assert.AreEqual(true, execute(new TestViewModel { DateTo = new DateTime(5), DateFrom = null }));
+            Assert.AreEqual(true, execute(new TestViewModel { DateFrom = new DateTime(0), DateTo = new DateTime(5) }));
+            Assert.AreEqual(false, execute(new TestViewModel { DateFrom = new DateTime(5), DateTo = new DateTime(0) }));
+        }
+
+
+        [TestMethod]
         public void BindingCompiler_ImplicitConstantConversionInsideConditional()
         {
             var result = ExecuteBinding("true ? 'Utc' : 'Local'", new object[] { }, null, null, typeof(DateTimeKind));
@@ -356,6 +375,8 @@ namespace DotVVM.Framework.Tests.Binding
         public TestViewModel2 TestViewModel2 { get; set; }
         public TestEnum EnumProperty { get; set; }
         public string StringProp2 { get; set; }
+        public DateTime? DateFrom { get; set; }
+        public DateTime? DateTo { get; set; }
 
         public string SetStringProp(string a, int b)
         {
