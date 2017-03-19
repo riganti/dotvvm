@@ -10,6 +10,8 @@ using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime.Commands;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Compilation.ControlTree;
+using DotVVM.Framework.Binding.Properties;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -29,11 +31,11 @@ namespace DotVVM.Framework.Tests.Binding
         [TestMethod]
         public void CommandResolver_Valid_SimpleTest()
         {
-            var path = new[] { ValueBindingExpression.CreateBinding<object>(bindingService, vm => ((dynamic)vm[0]).A[0], new ParametrizedCode("A()[0]")) };
+            var path = new[] { ValueBindingExpression.CreateBinding<object>(bindingService, vm => ((Test1)vm[0]).A[0], (DataContextStack)null) };
             var commandId = "someCommand";
             var command = new CommandBindingExpression(bindingService, vm => ((TestA)vm[0]).Test(((TestA)vm[0]).StringToPass, ((dynamic)vm[1]).NumberToPass), commandId);
 
-            var testObject = new {
+            var testObject = new Test1 {
                 A = new[]
                 {
                     new TestA() { StringToPass = "test" }
@@ -55,12 +57,16 @@ namespace DotVVM.Framework.Tests.Binding
             var context = new DotvvmRequestContext() { ViewModel = testObject };
             context.ModelState.ValidationTargetPath = KnockoutHelper.GetValidationTargetExpression(button);
 
-            resolver.GetFunction(viewRoot, context, path.Select(v => v.GetKnockoutBindingExpression()).ToArray(), commandId, new object[0]).Action();
+            resolver.GetFunction(viewRoot, context, path.Select(v => v.GetProperty<SimplePathExpressionBindingProperty>().Code.FormatKnockoutScript(button, v)).ToArray(), commandId, new object[0]).Action();
 
             Assert.AreEqual(testObject.NumberToPass, testObject.A[0].ResultInt);
             Assert.AreEqual(testObject.A[0].ResultString, testObject.A[0].ResultString);
         }
-
+        public class Test1
+        {
+            public TestA[] A { get; set; }
+            public int NumberToPass { get; set; }
+        }
         public class TestA
         {
             public string StringToPass { get; set; }
