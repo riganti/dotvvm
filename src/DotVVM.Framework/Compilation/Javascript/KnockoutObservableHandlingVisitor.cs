@@ -21,8 +21,8 @@ namespace DotVVM.Framework.Compilation.Javascript
                 if (!AllowObservableResult || !node.IsRootResultExpression())
                 {
                     // may be null is copied to the observable result
-                    node.RemoveAnnotations<MayBeNullAnnotation>();
                     node.ReplaceWith(_ => KoUnwrap(expression, expression, false));
+                    node.RemoveAnnotations<MayBeNullAnnotation>();
                 }
             }
             base.DefaultVisit(node);
