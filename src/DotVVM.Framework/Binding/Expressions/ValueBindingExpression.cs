@@ -45,26 +45,6 @@ namespace DotVVM.Framework.Binding.Expressions
             };
         }
 
-        ///// <summary>
-        ///// Evaluates the binding.
-        ///// </summary>
-        //public virtual object Evaluate(DotvvmBindableObject control, DotvvmProperty property)
-        //{
-        //    return ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty);
-        //}
-
-        ///// <summary>
-        ///// Updates the viewModel with the new value.
-        ///// </summary>
-        //public virtual void UpdateSource(object value, DotvvmBindableObject control, DotvvmProperty property)
-        //{
-        //    ExecUpdateDelegate(control, value, property != DotvvmBindableObject.DataContextProperty);
-        //}
-        //public string GetKnockoutBindingExpression()
-        //{
-        //    return Javascript;
-        //}
-
         #region Helpers
 
         public static ValueBindingExpression CreateThisBinding<T>(BindingCompilationService service, DataContextStack dataContext) =>
@@ -142,17 +122,6 @@ namespace DotVVM.Framework.Binding.Expressions
         {
             return (IValueBinding)this.GetProperty<DataSourceCurrentElementBinding>().Binding;
         }
-
-        //public ValueBindingExpression MakeKoContextIndexer()
-        //{
-        //    if (!typeof(IList).IsAssignableFrom(ResultType)) throw new NotSupportedException($"ResultType is not assignable to IList.");
-        //    return new ValueBindingExpression(bindingService, new object[]{
-        //        new KnockoutExpressionBindingProperty(JavascriptCompilationHelper.AddIndexerToViewModel(KnockoutExpression,
-        //            new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$index"))),
-        //        new ResultTypeBindingProperty(ReflectionUtils.GetEnumerableType(ResultType)),
-        //        new CompiledBindingExpression.BindingDelegate((o, c) => null)
-        //    });
-        //}
 
         #endregion
     }

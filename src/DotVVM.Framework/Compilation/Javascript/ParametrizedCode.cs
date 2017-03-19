@@ -9,6 +9,9 @@ using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Compilation.Javascript
 {
+    /// <summary>
+    /// Represens a piece of Javascript code that may contain unresolved symbolic parameters.
+    /// </summary>
     public class ParametrizedCode
     {
         private readonly string[] stringParts;
@@ -28,6 +31,9 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         // TODO(exyi): add WriteTo(StringBuilder)
+        /// <summary>
+        /// Converts this to string and assigns all parameters using `parameterAsssignment`. If there is any missing, exception is thrown.
+        /// </summary>
         public string ToString(Func<object, CodeParameterAssignment> parameterAssignment)
         {
             if (stringParts.Length == 1) return stringParts[0];
@@ -54,6 +60,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             return sb.ToString();
         }
 
+        /// <summary>
+        /// Assigns parameters and return new ParametrizedCode. If parameter is not assigned, it is copied to the resulting parameter. Assigner can also replace parameter by script that contains another parameters.
+        /// </summary>
         public ParametrizedCode AssignParameters(Func<object, CodeParameterAssignment> parameterAssignement)
         {
             if (stringParts.Length == 1) return this;
@@ -87,6 +96,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             return builder.Build(OperatorPrecedence);
         }
 
+        /// <summary>
+        /// Writes this code incusing parameters to the ParametrizedCode.Builder
+        /// </summary>
         public void CopyTo(Builder builder)
         {
             if (parameters != null) for (int i = 0; i < parameters.Length; i++)
@@ -119,6 +131,9 @@ namespace DotVVM.Framework.Compilation.Javascript
             return pp;
         }
 
+        /// <summary>
+        /// Builder class with reasonably fast Add operation. Use Build method to convert it to immutable ParametrizedCode
+        /// </summary>
         public class Builder : System.Collections.IEnumerable
         {
             private readonly List<string> stringParts = new List<string>();
@@ -159,6 +174,9 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
     }
 
+    /// <summary>
+    /// Represents an symbolic parameter in the ParametrizedCode.
+    /// </summary>
     public struct CodeParameterInfo
     {
         public readonly object Parameter;
@@ -166,6 +184,9 @@ namespace DotVVM.Framework.Compilation.Javascript
         /// Operator precedence of the top expression to make sure that the parameter is correctly parenthised.
         /// </summary>
         public readonly byte OperatorPrecedence;
+        /// <summary>
+        /// If the parameter would be available as global, can it be ommited?
+        /// </summary>
         public readonly bool IsSafeMemberAccess;
 
         public CodeParameterInfo(object parameter, byte operatorPrecence = 20, bool isMemberAccess = false)

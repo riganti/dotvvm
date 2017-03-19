@@ -25,23 +25,6 @@ namespace DotVVM.Framework.Compilation.Javascript
                 o == indexerTargetParameter ? new CodeParameterAssignment(script) :
                 o == indexerExpressionParameter ? CodeParameterAssignment.FromExpression(indexer) :
                 default(CodeParameterAssignment));
-            //if (!script.EndsWith("()", StringComparison.Ordinal))
-            //{
-            //    if (unwrap)
-            //    {
-            //        script = "ko.unwrap(" + script + ")";
-            //    }
-            //    else
-            //    {
-            //        script += "()";
-            //    }
-            //}
-            //else
-            //{
-            //    script = "(" + script + ")";
-            //}
-
-            //return script + "[" + index + "]";
         }
 
         public static bool IsComplexType(this JsExpression expr)

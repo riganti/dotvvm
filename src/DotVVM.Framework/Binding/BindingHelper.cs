@@ -22,14 +22,28 @@ namespace DotVVM.Framework.Binding
         [Obsolete]
         public static string GetKnockoutBindingExpression(this IValueBinding binding) =>
             JavascriptTranslator.FormatKnockoutScript(binding.KnockoutExpression);
-
+        /// <summary>
+        /// Gets the javascript translation of the binding adjusted to the `currentControl`s DataContext
+        /// </summary>
         public static string GetKnockoutBindingExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwrapped = false) =>
             (unwrapped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression)
             .FormatKnockoutScript(currentControl, binding);
 
+        /// <summary>
+        /// Gets the javascript translation of the binding adjusted to the `currentControl`s DataContext, returned value is ParametrizedCode, so it can be further adjusted
+        /// </summary>
+        public static ParametrizedCode GetParametrizedKnockoutExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwraped = false) =>
+            JavascriptTranslator.AdjustKnockoutScriptContext(unwraped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
+
+        /// <summary>
+        /// Adjusts the knockout expression to `currentControl`s DataContext like it was translated in `currentBinding`s context
+        /// </summary>
         public static string FormatKnockoutScript(this ParametrizedCode code, DotvvmBindableObject currentControl, IBinding currentBinding) =>
             JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: FindDataContextTarget(currentBinding, currentControl).stepsUp);
 
+        /// <summary>
+        /// Gets Internal.PathFragmentProperty or DataContext.KnockoutExpression
+        /// </summary>
         public static string GetDataContextPathFragment(this DotvvmBindableObject currentControl) =>
             (string)currentControl.GetValue(Internal.PathFragmentProperty, inherit: false) ??
             (currentControl.GetBinding(DotvvmBindableObject.DataContextProperty, inherit: false) is IValueBinding binding ?
@@ -38,10 +52,10 @@ namespace DotVVM.Framework.Binding
             null);
 
 
-        public static ParametrizedCode GetParametrizedKnockoutExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwraped = false) =>
-            JavascriptTranslator.AdjustKnockoutScriptContext(unwraped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
-
         // PERF: maybe safe last GetValue's target/binding to ThreadLocal variable, so the path does not have to be traversed twice
+        /// <summary>
+        /// Finds expected context control of the `binding` and returns (parent index of the correct DataContext, control in the corrent context)
+        /// </summary>
         public static (int stepsUp, DotvvmBindableObject target) FindDataContextTarget(this IBinding binding, DotvvmBindableObject control)
         {
             if (control == null) throw new InvalidOperationException($"Can not evaluate binding without any dataContext.");
@@ -59,6 +73,9 @@ namespace DotVVM.Framework.Binding
             throw new NotSupportedException($"Could not find DataContextSpace of binding '{binding}'.");
         }
 
+        /// <summary>
+        /// Prepares DataContext hierarchy argument and executes update delegate.
+        /// </summary>
         public static void ExecUpdateDelegate(this CompiledBindingExpression.BindingUpdateDelegate func, DotvvmBindableObject contextControl, object value)
         {
             var dataContexts = GetDataContexts(contextControl);
@@ -66,6 +83,8 @@ namespace DotVVM.Framework.Binding
             func(dataContexts.ToArray(), contextControl, value);
         }
 
+        /// <summary>
+        /// Prepares DataContext hierarchy argument and executes update delegate.
         public static object ExecDelegate(this CompiledBindingExpression.BindingDelegate func, DotvvmBindableObject contextControl)
         {
             var dataContexts = GetDataContexts(contextControl);
@@ -73,7 +92,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Gets all data context on the path to root
+        /// Gets all data context on the path to root. Maximum count can be specified by `count`
         /// </summary>
         public static IEnumerable<object> GetDataContexts(this DotvvmBindableObject contextControl, int count = -1)
         {
@@ -94,7 +113,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Evaluates the binding.
+        /// Finds expected DataContext target in control.Ancestors() and evaluates the `binding.BindingDelegate`.
         /// </summary>
         public static object Evaluate(this IStaticValueBinding binding, DotvvmBindableObject control)
         {
@@ -104,7 +123,7 @@ namespace DotVVM.Framework.Binding
         }
 
         /// <summary>
-        /// Updates the viewModel with the new value.
+        /// Writes the value to binding - binded viewModel property is updated. May throw an exception when binding does not support assignment.
         /// </summary>
         public static void UpdateSource(this IUpdatableValueBinding binding, object value, DotvvmBindableObject control)
         {
@@ -114,6 +133,9 @@ namespace DotVVM.Framework.Binding
                 value);
         }
 
+        /// <summary>
+        /// Finds expected DataContext and gets the delegate from command binding.
+        /// </summary>
         public static Delegate GetCommandDelegate(this ICommandBinding binding, DotvvmBindableObject control)
         {
             return (Delegate)ExecDelegate(
@@ -121,6 +143,9 @@ namespace DotVVM.Framework.Binding
                 FindDataContextTarget(binding, control).target);
         }
 
+        /// <summary>
+        /// Finds expected DataContext, gets the delegate from command binding and evaluates it with `args`
+        /// </summary>
         public static object Evaluate(this ICommandBinding binding, DotvvmBindableObject control, params object[] args)
         {
             var action = binding.GetCommandDelegate(control);
@@ -129,10 +154,16 @@ namespace DotVVM.Framework.Binding
             return action.DynamicInvoke(args);
         }
 
+        /// <summary>
+        /// Gets DataContext-adjusted javascript that can be used for command invocation.
+        /// </summary>
         public static ParametrizedCode GetParametrizedCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control) =>
             JavascriptTranslator.AdjustKnockoutScriptContext(binding.CommandJavascript,
                 dataContextLevel: FindDataContextTarget(binding, control).stepsUp);
-
+        
+        /// <summary>
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
+        /// </summary>
         public static TBinding DeriveBinding<TBinding>(this TBinding binding, DataContextStack newDataContext, Expression expression, params object[] properties)
             where TBinding : IBinding
         {
@@ -144,6 +175,9 @@ namespace DotVVM.Framework.Binding
             );
         }
 
+        /// <summary>
+        /// Creates new `TBinding` with the original DataContextStack, LocationInfo, AdditionalResolvers and BindingCompilationService. 
+        /// </summary>
         public static TBinding DeriveBinding<TBinding>(this TBinding binding, params object[] properties)
             where TBinding : IBinding
         {
@@ -158,36 +192,18 @@ namespace DotVVM.Framework.Binding
             return (TBinding)service.CreateBinding(binding.GetType(), getContextProperties(binding).Concat(properties).ToArray());
         }
 
+        /// <summary>
+        /// Caches all function evaluations in the closure based on parameter. TParam should be immutable, as it is used as Dictionary key.
+        /// It thread-safe.
+        /// </summary>
         public static Func<TParam, TResult> Cache<TParam, TResult>(this Func<TParam, TResult> func)
         {
             var cache = new ConcurrentDictionary<TParam, TResult>();
             return f => cache.GetOrAdd(f, func);
         }
 
-        //public static Expression MoveDataContext(Expression expr, int steps) =>
-        //    new MoveContextVisitor(steps).Visit(expr);
-
-        //class MoveContextVisitor : ExpressionVisitor
-        //{
-        //    private readonly int steps;
-        //    public MoveContextVisitor(int steps)
-        //    {
-        //        this.steps = steps;
-        //    }
-
-        //    protected override Expression VisitParameter(ParameterExpression node)
-        //    {
-        //        if (node.Name == "_this") return Expression.Parameter(node.Type, "_parent" + steps);
-        //        else if (node.Name == "_parent") return Expression.Parameter(node.Type, "_parent" + (steps + 1));
-        //        else if (node.Name.StartsWith("_parent") && int.TryParse(node.Name.Substring("_parent".Length), out var ll))
-        //            return Expression.Parameter(node.Type, "_parent" + (ll + steps));
-        //        return base.VisitParameter(node);
-        //    }
-        //}
-
         private static readonly ConditionalWeakTable<Expression, BindingParameterAnnotation> _expressionAnnotations =
             new ConditionalWeakTable<Expression, BindingParameterAnnotation>();
-
         public static TExpression AddParameterAnnotation<TExpression>(this TExpression expr, BindingParameterAnnotation annotation)
             where TExpression : Expression
         {
@@ -198,7 +214,9 @@ namespace DotVVM.Framework.Binding
         public static BindingParameterAnnotation GetParameterAnnotation(this Expression expr) =>
             _expressionAnnotations.TryGetValue(expr, out var annotation) ? annotation : null;
 
-
+        /// <summary>
+        /// Annotates `_this`, `_parent`, `_root` parameters with BindingParameterAnnotation indicating their DataContext
+        /// </summary>
         public static Expression AnnotateStandardContextParams(Expression expr, DataContextStack dataContext) =>
             new ParameterAnnotatingVisitor(dataContext).Visit(expr);
 
@@ -221,21 +239,6 @@ namespace DotVVM.Framework.Binding
                 return base.VisitParameter(node);
             }
         }
-
-        //class ParameterAnnotationVisitor
-
-        //        public static string GetCommandJavascript(this ICommandBinding binding, DotvvmBindableObject control, 
-        //            CodeParameterAssignment viewModelName,
-        //			CodeParameterAssignment SenderElementParameter,
-        //			CodeParameterAssignment CurrentPathParameter,
-        //			CodeParameterAssignment commandId,
-        //			CodeParameterAssignment controlUniqueId,
-        //			CodeParameterAssignment 
-        //            ) =>
-        //            binding.GetParametrizedCommandJavascript(control).ToString(o =>
-        //                
-        //
-        //            );
     }
 
 

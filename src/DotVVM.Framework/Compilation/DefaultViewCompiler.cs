@@ -64,7 +64,7 @@ namespace DotVVM.Framework.Compilation
                 }
             }
 
-            var contextSpaceVisitor = new DataContextIdAssigningVisitor();
+            var contextSpaceVisitor = new DataContextPropertyAssigningVisitor();
             resolvedView.Accept(contextSpaceVisitor);
 
             var styleVisitor = new StylingVisitor(configuration);

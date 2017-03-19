@@ -7,7 +7,7 @@ using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Compilation
 {
-    public class DataContextIdAssigningVisitor: ResolvedControlTreeVisitor
+    public class DataContextPropertyAssigningVisitor: ResolvedControlTreeVisitor
     {
         public override void VisitControl(ResolvedControl control)
         {

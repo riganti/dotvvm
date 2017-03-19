@@ -10,12 +10,22 @@ using DotVVM.Framework.Compilation.Javascript.Ast;
 using System.Collections.Concurrent;
 using Microsoft.CodeAnalysis;
 using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Binding.Properties
 {
+    /// <summary>
+    /// Contains evaluatable Javascript in knockout binding, knockout context parameters are represented as symbolic parameters in the ParametrizedCode
+    /// </summary>
     public sealed class KnockoutExpressionBindingProperty
     {
+        /// <summary>
+        /// Knockout binding expression. May return observable.
+        /// </summary>
         public readonly ParametrizedCode Code;
+        /// <summary>
+        /// Knockout binding expression. Always unwraps the observable.
+        /// </summary>
         public readonly ParametrizedCode UnwrapedCode;
         public KnockoutExpressionBindingProperty(ParametrizedCode code, ParametrizedCode unwrapedCode)
         {
@@ -23,7 +33,10 @@ namespace DotVVM.Framework.Binding.Properties
             this.UnwrapedCode = unwrapedCode;
         }
     }
-
+    
+    /// <summary>
+    /// Contains string that identifies the translated binding.
+    /// </summary>
     public sealed class SimplePathExpressionBindingProperty
     {
         public readonly ParametrizedCode Code;
@@ -33,6 +46,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains original binding string, as it was typed in dothtml file. (it is trimmed)
+    /// </summary>
     public sealed class OriginalStringBindingProperty
     {
         public readonly string Code;
@@ -42,6 +58,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains binding's result type.
+    /// </summary>
     public sealed class ResultTypeBindingProperty
     {
         public readonly Type Type;
@@ -51,6 +70,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains unique id of binding in its DataContext and the page
+    /// </summary>
     public sealed class IdBindingProperty
     {
         public readonly string Id;
@@ -60,6 +82,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains JS code, that will invoke the command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
+    /// </summary>
     public sealed class CommandJavascriptBindingProperty
     {
         public readonly ParametrizedCode Code;
@@ -69,6 +94,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains JS code, that will invoke the static command. May contain symbolic parameters from `JavascriptTranslator` and `CommandBindingExpression`
+    /// </summary>
     public sealed class StaticCommandJavascriptProperty
     {
         public readonly ParametrizedCode Code;
@@ -78,6 +106,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code as it was written in markup with minimal processing.
+    /// </summary>
     public sealed class ParsedExpressionBindingProperty
     {
         public readonly Expression Expression;
@@ -87,6 +118,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains <see cref="System.Linq.Expressions.Expression"/> instance that represents code converted to be evaluated as binding (type conversions applied, ...). 
+    /// </summary>
     public sealed class CastedExpressionBindingProperty
     {
         public readonly Expression Expression;
@@ -96,6 +130,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains raw translated JS AST that came from JavascriptTranslator. Specifically it has type annotations on it and does not include observable unwraps and null-checks.
+    /// </summary>
     public sealed class KnockoutJsExpressionBindingProperty
     {
         public readonly JsExpression Expression;
@@ -105,6 +142,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains action filters that should be invoked before the binding invocation.
+    /// </summary>
     public sealed class ActionFiltersBindingProperty
     {
         public readonly ImmutableArray<IActionFilter> Filters;
@@ -113,6 +153,11 @@ namespace DotVVM.Framework.Binding.Properties
             this.Filters = filters;
         }
     }
+
+
+    /// <summary>
+    /// Contains array of Delegates that are to find resolvers for another computed properties. These have precedence before global ones.
+    /// </summary>
     public sealed class BindingAdditionalResolvers
     {
         public ImmutableArray<Delegate> Resolvers { get; }
@@ -122,6 +167,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains expected type of the binding - typically type of the bound property.
+    /// </summary>
     public sealed class ExpectedTypeBindingProperty
     {
         public readonly Type Type;
@@ -131,6 +179,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains debug information about original binding location.
+    /// </summary>
     public sealed class LocationInfoBindingProperty
     {
         public readonly string FileName;
@@ -147,6 +198,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Determines whether binding properties can be assigned after initialization. Runtime-used binding should never be mutable.
+    /// </summary>
     public sealed class IsMutableBindingProperty
     {
         public readonly bool IsMutable;
@@ -156,6 +210,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains the property where the binding is assigned.
+    /// </summary>
     public sealed class AssignedPropertyBindingProperty
     {
         public readonly DotvvmProperty DotvvmProperty;
@@ -165,11 +222,17 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains (mutable) list of error that are produced during the binding lifetime.
+    /// </summary>
     public sealed class BindingErrorReporterProperty
     {
         public ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)> Errors = new ConcurrentStack<(Type req, Exception error, DiagnosticSeverity)>();
     }
 
+    /// <summary>
+    /// Contains a binding that unwraps <see cref="Controls.IBaseGridViewDataSet.Items"/>
+    /// </summary>
     public sealed class DataSourceAccessBinding
     {
         public readonly IBinding Binding;
@@ -179,6 +242,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains a binding that accesses $index-th element in the collection. Uses the <see cref="CurrentCollectionIndexExtensionParameter"/>.
+    /// </summary>
     public sealed class DataSourceCurrentElementBinding
     {
         public readonly IBinding Binding;
@@ -188,6 +254,9 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    /// <summary>
+    /// Contains a binding that gets the collection's Length or Count
+    /// </summary>
     public sealed class DataSourceLengthBinding
     {
         public readonly IBinding Binding;

@@ -7,6 +7,9 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 
 namespace DotVVM.Framework.Compilation.ControlTree
 {
+    /// <summary>
+    /// Represents compile-time DataContext info - Type of current DataContext, it's parent and other available parameters
+    /// </summary>
     public class DataContextStack : IDataContextStack
     {
         public DataContextStack Parent { get; }
@@ -30,6 +33,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
             hashCode = ComputeHashCode();
         }
 
+        /// <summary>
+        /// Gets all extension parameter available in current context and their definition offset
+        /// </summary>
         public IEnumerable<(int dataContextLevel, BindingExtensionParameter parameter)> GetCurrentExtensionParameters()
         {
             var blackList = new HashSet<string>();
