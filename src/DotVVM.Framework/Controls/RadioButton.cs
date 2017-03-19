@@ -89,7 +89,7 @@ namespace DotVVM.Framework.Controls
             else
             {
                 // selected item mode
-                writer.AddKnockoutDataBind("checked", checkedItemBinding);
+                writer.AddKnockoutDataBind("checked", checkedItemBinding.GetKnockoutBindingExpression(this));
             }
         }
     }

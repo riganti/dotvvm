@@ -9,12 +9,27 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Compilation.Javascript;
+using System.Collections;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Tests.Runtime
 {
     [TestClass]
     public class ControlRenderedHtmlTests
     {
+        private DotvvmConfiguration configuration;
+        private BindingCompilationService bindingService;
+
+        [TestInitialize]
+        public void INIT()
+        {
+            this.configuration = DotvvmConfiguration.CreateDefault();
+            this.bindingService = configuration.ServiceLocator.GetService<BindingCompilationService>();
+        }
+
+
         private static TestDotvvmRequestContext CreateContext(object viewModel, DotvvmConfiguration configuration = null)
         {
             configuration = configuration ?? DotvvmConfiguration.CreateDefault();
@@ -47,9 +62,9 @@ namespace DotVVM.Framework.Tests.Runtime
             var gridView = new GridView() {
                 Columns = new List<GridViewColumn>
                 {
-                    new GridViewTextColumn() { HeaderCssClass = "lol", HeaderText="Header Text", ValueBinding = new ValueBindingExpression(h => h[0], "$this") }
+                    new GridViewTextColumn() { HeaderCssClass = "lol", HeaderText="Header Text", ValueBinding = ValueBindingExpression.CreateBinding(bindingService, h => (object)h[0], (DataContextStack)null) }
                 },
-                DataSource = new ValueBindingExpression(h => h[0], "$this"),
+                DataSource = ValueBindingExpression.CreateBinding(bindingService, h => (IList)h[0], (DataContextStack)null),
             };
             gridView.SetValue(RenderSettings.ModeProperty, RenderMode.Server);
             var viewModel = new[] { "ROW 1", "ROW 2", "ROW 3" };
@@ -67,7 +82,7 @@ namespace DotVVM.Framework.Tests.Runtime
                 var repeater = new Repeater() {
                     ItemTemplate = new DelegateTemplate((f, c) => c.Children.Add(new HtmlGenericControl("ITEM_TAG"))),
                     EmptyDataTemplate = new DelegateTemplate((f, c) => c.Children.Add(new HtmlGenericControl("EMPTY_DATA"))),
-                    DataSource = new ValueBindingExpression(h => h[0], "$this"),
+                    DataSource = ValueBindingExpression.CreateThisBinding<string[]>(configuration.ServiceLocator.GetService<BindingCompilationService>(), null),
                     RenderWrapperTag = false
                 };
                 repeater.SetValue(RenderSettings.ModeProperty, renderMode);

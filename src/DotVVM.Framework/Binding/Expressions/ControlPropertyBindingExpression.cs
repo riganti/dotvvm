@@ -1,25 +1,20 @@
+using System;
+using System.Collections.Generic;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
-    [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
-        Javascript = BindingCompilationRequirementType.IfPossible)]
-    [BindingCompilation]
+    [Options]
     public class ControlPropertyBindingExpression : ValueBindingExpression
     {
-        public ControlPropertyBindingExpression() { }
+        public ControlPropertyBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        public ControlPropertyBindingExpression(CompiledBindingExpression expression)
-            : base(expression)
+        public new class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-        }
+            public override IEnumerable<Delegate> GetResolvers() => new Delegate[] {
 
-
-
-        public override object Evaluate(DotvvmBindableObject control, DotvvmProperty property)
-        {
-            return ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty);
+            };
         }
     }
 }

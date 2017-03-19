@@ -12,6 +12,9 @@ using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.ViewModel.Serialization;
+using DotVVM.Framework.Configuration;
 
 namespace DotVVM.Framework.Tests.Binding
 {
@@ -21,21 +24,27 @@ namespace DotVVM.Framework.Tests.Binding
         public string CompileBinding(string expression, params Type[] contexts) => CompileBinding(expression, contexts, expectedType: typeof(object));
         public string CompileBinding(string expression, Type[] contexts, Type expectedType)
         {
-            var context = new DataContextStack(contexts.FirstOrDefault() ?? typeof(object), rootControlType: typeof(DotvvmControl));
+            var context = DataContextStack.Create(contexts.FirstOrDefault() ?? typeof(object), extenstionParameters: new BindingExtensionParameter[]{
+                new BindingPageInfoExtensionParameter()
+                });
             for (int i = 1; i < contexts.Length; i++)
             {
-                context = new DataContextStack(contexts[i], context);
+                context = DataContextStack.Create(contexts[i], context);
             }
             var parser = new BindingExpressionBuilder();
             var expressionTree = TypeConversion.ImplicitConversion(parser.Parse(expression, context, BindingParserOptions.Create<ValueBindingExpression>()), expectedType, true, true);
-            return JavascriptTranslator.CompileToJavascript(expressionTree, context);
+            var jsExpression = new JsParenthesizedExpression(JavascriptTranslator.CompileToJavascript(expressionTree, context,
+                 DotvvmConfiguration.CreateDefault().ServiceLocator.GetService<IViewModelSerializationMapper>()));
+            jsExpression.AcceptVisitor(new KnockoutObservableHandlingVisitor(true));
+            JsTemporaryVariableResolver.ResolveVariables(jsExpression);
+            return JavascriptTranslator.FormatKnockoutScript(jsExpression.Expression);
         }
 
         [TestMethod]
         public void JavascriptCompilation_EnumComparison()
         {
             var js = CompileBinding($"_this == 'Local'", typeof(DateTimeKind));
-            Assert.AreEqual("($data==\"Local\")", js);
+            Assert.AreEqual("$data==\"Local\"", js);
         }
 
         [TestMethod]
@@ -49,7 +58,7 @@ namespace DotVVM.Framework.Tests.Binding
         public void JavascriptCompilation_ToString()
         {
             var js = CompileBinding("MyProperty", new[] { typeof(TestViewModel2) }, typeof(string));
-            Assert.AreEqual("String($data.MyProperty())", js);
+            Assert.AreEqual("String(MyProperty())", js);
         }
 
         [TestMethod]
@@ -61,20 +70,48 @@ namespace DotVVM.Framework.Tests.Binding
         }
 
         [TestMethod]
+        public void JavascriptCompilation_UnwrapedObservables()
+        {
+            var js = CompileBinding("TestViewModel2.Collection[0].StringValue.Length + TestViewModel2.Collection[8].StringValue", new[] { typeof(TestViewModel) });
+            Assert.AreEqual("TestViewModel2().Collection()[0]().StringValue().length+TestViewModel2().Collection()[8]().StringValue()", js);
+        }
+
+        [TestMethod]
         public void JavascriptCompilation_Parent()
         {
-            var js = CompileBinding("_parent + _parent2 + _parent0 + _parent1 + _parent3", typeof(string), typeof(string), typeof(string), typeof(string))
+            var js = CompileBinding("_parent + _parent2 + _parent0 + _parent1 + _parent3", typeof(string), typeof(string), typeof(string), typeof(string), typeof(string))
                 .Replace("(", "").Replace(")", "");
             Assert.AreEqual("$parent+$parents[1]+$data+$parent+$parents[2]", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_IsPostbackRunning()
+        {
+            var js = CompileBinding("_page.IsPostbackRunning");
+            Assert.AreEqual("dotvvm.isPostbackRunning()", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_EvaluatingOnClient()
+        {
+            var js = CompileBinding("_page.EvaluatingOnClient");
+            Assert.AreEqual("true", js);
+        }
+
+        [TestMethod]
+        public void JavascriptCompilation_BindingPageInfo_EvaluatingOnServer()
+        {
+            var js = CompileBinding("_page.EvaluatingOnServer");
+            Assert.AreEqual("false", js);
         }
 
         [TestMethod]
         public void JavascriptCompilation_NullableDateExpression()
         {
             var result = CompileBinding("DateFrom == null || DateTo == null || DateFrom.Value <= DateTo.Value", typeof(TestViewModel));
-            Assert.AreEqual("((($data.DateFrom()==null)||($data.DateTo()==null))||($data.DateFrom()<=$data.DateTo()))", result);
+            Assert.AreEqual("DateFrom()==null||DateTo()==null||DateFrom()<=DateTo()", result);
             var result2 = CompileBinding("DateFrom == null || DateTo == null || DateFrom <= DateTo", typeof(TestViewModel));
-            Assert.AreEqual("((($data.DateFrom()==null)||($data.DateTo()==null))||($data.DateFrom()<=$data.DateTo()))", result2);
+            Assert.AreEqual("DateFrom()==null||DateTo()==null||DateFrom()<=DateTo()", result2);
         }
     }
 }

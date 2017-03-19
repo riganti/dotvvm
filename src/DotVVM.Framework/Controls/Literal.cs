@@ -64,11 +64,8 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty RenderSpanElementProperty =
             DotvvmProperty.Register<bool, Literal>(t => t.RenderSpanElement, true);
 
-
         private bool renderAsKnockoutBinding;
         private string knockoutBindingExpression;
-        private bool isFormattingRequired;
-
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Literal"/> class.
@@ -109,7 +106,7 @@ namespace DotVVM.Framework.Controls
             renderAsKnockoutBinding = HasBinding<IValueBinding>(TextProperty) && !RenderOnServer;
             if (renderAsKnockoutBinding)
             {
-                var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression();
+                var expression = GetValueBinding(TextProperty).GetKnockoutBindingExpression(this);
                 if (IsFormattingRequired)
                 {
                     expression = "dotvvm.globalize.formatString(" + JsonConvert.SerializeObject(FormatString) + ", " + expression + ")";

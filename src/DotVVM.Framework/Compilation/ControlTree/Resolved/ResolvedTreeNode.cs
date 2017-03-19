@@ -1,4 +1,5 @@
-﻿using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
+﻿using System.Collections.Generic;
+using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 
 namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 {
@@ -10,6 +11,16 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
 
         private ResolvedTreeRoot treeRoot;
         public ResolvedTreeRoot TreeRoot => treeRoot ?? (treeRoot = Parent?.TreeRoot ?? this as ResolvedTreeRoot);
+
+        public IEnumerable<ResolvedTreeNode> GetAncestors(bool includeThis = true)
+        {
+            var p = includeThis ? this : Parent;
+            while (p != null)
+            {
+                yield return p;
+                p = p.Parent;
+            }
+        }
 
         IAbstractTreeNode IAbstractTreeNode.Parent => Parent;
         IAbstractTreeRoot IAbstractTreeNode.TreeRoot => TreeRoot;

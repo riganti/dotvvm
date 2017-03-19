@@ -182,7 +182,7 @@ namespace DotVVM.Compiler
                 }
             }
 
-            var styleVisitor = new StylingVisitor(configuration.Styles);
+            var styleVisitor = new StylingVisitor(configuration);
             resolvedView.Accept(styleVisitor);
 
             var validationVisitor = new ControlUsageValidationVisitor(configuration);
@@ -201,7 +201,7 @@ namespace DotVVM.Compiler
                 var className = DefaultControlBuilderFactory.GetClassFromFileName(file.FileName) + "ControlBuilder";
                 fullClassName = namespaceName + "." + className;
                 emitter = new DefaultViewCompilerCodeEmitter();
-                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className, b => configuration.ServiceLocator.GetService<IBindingIdGenerator>().GetId(b, fileName));
+                var compilingVisitor = new ViewCompilingVisitor(emitter, configuration.ServiceLocator.GetService<IBindingCompiler>(), className);
 
                 resolvedView.Accept(compilingVisitor);
 

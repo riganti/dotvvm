@@ -16,24 +16,61 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using System.Runtime.CompilerServices;
 using System.Reflection.Emit;
 using DotVVM.Framework.Configuration;
+using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Binding.Properties;
+using DotVVM.Framework.Controls;
 
 namespace DotVVM.Framework.Compilation
 {
     public class BindingCompiler : IBindingCompiler
     {
-        public static ConcurrentDictionary<int, CompiledBindingExpression> GlobalBindingList = new ConcurrentDictionary<int, CompiledBindingExpression>();
-        private static int globalBindingIndex = 0;
-     
-        private DotvvmConfiguration configuration;
+        public static readonly ParameterExpression CurrentControlParameter = Expression.Parameter(typeof(DotvvmBindableObject), "currentControl");
+        public static readonly ParameterExpression ViewModelsParameter = Expression.Parameter(typeof(object[]), "vm");
+
+        protected readonly DotvvmConfiguration configuration;
 
         public BindingCompiler(DotvvmConfiguration configuration)
         {
             this.configuration = configuration;
         }
 
-        public static BindingCompilationAttribute GetCompilationAttribute(Type bindingType)
+        public static Expression ReplaceParameters(Expression expression, DataContextStack dataContext, bool assertAllReplaced = true) =>
+            new ParameterReplacementVisitor(dataContext, assertAllReplaced).Visit(expression);
+
+        class ParameterReplacementVisitor: ExpressionVisitor
         {
-            return bindingType.GetTypeInfo().GetCustomAttributes<BindingCompilationAttribute>().FirstOrDefault();
+            private readonly Dictionary<DataContextStack, int> ContextMap;
+            private readonly bool AssertAllReplaced;
+
+            public ParameterReplacementVisitor(DataContextStack dataContext, bool assertAllReplaced = true)
+            {
+                this.ContextMap = dataContext.EnumerableItems().Select((a, i) => (a, i)).ToDictionary(a => a.Item1, a => a.Item2);
+                this.AssertAllReplaced = assertAllReplaced;
+            }
+
+            public override Expression Visit(Expression node)
+            {
+                if (node?.GetParameterAnnotation() is BindingParameterAnnotation ann)
+                {
+                    if (ann.ExtensionParameter != null)
+                    {
+                        // T+ inherited dataContext
+                        return ann.ExtensionParameter.GetServerEquivalent(CurrentControlParameter);
+                    }
+                    else
+                    {
+                        return Expression.Convert(Expression.ArrayIndex(ViewModelsParameter, Expression.Constant(ContextMap[ann.DataContext])), ann.DataContext.DataContextType);
+                    }
+                }
+                return base.Visit(node);
+            }
+
+            protected override Expression VisitParameter(ParameterExpression node)
+            {
+                if (AssertAllReplaced && node != CurrentControlParameter && node != ViewModelsParameter)
+                    throw new Exception($"Parameter {node.Name}:{node.Type.Name} could not be translated.");
+                return base.VisitParameter(node);
+            }
         }
 
         private static KeyValuePair<string, Expression> GetParameter(int index, string name, Expression vmArray, Type[] parents)
@@ -41,73 +78,35 @@ namespace DotVVM.Framework.Compilation
             return new KeyValuePair<string, Expression>(name, Expression.Convert(Expression.ArrayIndex(vmArray, Expression.Constant(index)), parents[index]));
         }
 
-        public static IEnumerable<KeyValuePair<string, Expression>> GetParameters(DataContextStack dataContext, Expression vmArray, Expression controlRoot)
+        public virtual IBinding CreateMinimalClone(ResolvedBinding binding)
         {
-            var par = dataContext.Enumerable().ToArray();
-            yield return GetParameter(0, ParserConstants.ThisSpecialBindingProperty, vmArray, par);
-            yield return GetParameter(par.Length - 1, ParserConstants.RootSpecialBindingProperty, vmArray, par);
-            yield return new KeyValuePair<string, Expression>("_control", controlRoot);
-            yield return new KeyValuePair<string, Expression>("_parents", vmArray);
-            yield return new KeyValuePair<string, Expression>("_page", Expression.New(typeof(BindingPageInfo)));
-            if (par.Length > 0)
-            {
-                if (par.Length > 1)
-                    yield return GetParameter(1, ParserConstants.ParentSpecialBindingProperty, vmArray, par);
-                for (int i = 0; i < par.Length; i++)
-                {
-                    yield return GetParameter(i, ParserConstants.ParentSpecialBindingProperty + i, vmArray, par);
-                }
-            }
+            var requirements = binding.BindingService.GetRequirements(binding.Binding);
+
+            var properties = requirements.Required.Concat(requirements.Optional)
+                    .Concat(new[] { typeof(OriginalStringBindingProperty), typeof(DataContextStack), typeof(LocationInfoBindingProperty) })
+                    .Select(p => binding.Binding.GetProperty(p, ErrorHandlingMode.ReturnNull))
+                    .Where(p => p != null).ToArray();
+            return (IBinding)Activator.CreateInstance(binding.BindingType, new object[] {
+                binding.BindingService,
+                properties
+            });
         }
 
-        public static T TryExecute<T>(DothtmlNode node, string errorMessage, BindingCompilationRequirementType requirement, Func<T> action)
+        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding)
         {
-#if !DEBUG
-            if (requirement == BindingCompilationRequirementType.No) return default(T);
-#endif
-            try
-            {
-                return action();
-            }
-            catch (Exception ex)
-            {
-                if (requirement != BindingCompilationRequirementType.StronglyRequire) return default(T);
-                else if (ex is DotvvmCompilationException) throw;
-                else throw new DotvvmCompilationException(errorMessage, ex, node.Tokens);
-            }
-        }
-
-        public virtual ExpressionSyntax EmitCreateBinding(DefaultViewCompilerCodeEmitter emitter, ResolvedBinding binding, string id, Type expectedType)
-        {
-            var compilerAttribute = GetCompilationAttribute(binding.BindingType);
-            var requirements = compilerAttribute.GetRequirements(binding.BindingType);
-
-            var expression = new Lazy<Expression>(() => compilerAttribute.GetExpression(binding));
-            var compiled = new CompiledBindingExpression();
-            compiled.Delegate = TryExecute(binding.BindingNode, "Error while compiling binding to delegate.", requirements.Delegate, () => CompileExpression(compilerAttribute.CompileToDelegate(binding.GetExpression(), binding.DataContextTypeStack, expectedType), binding.DebugInfo));
-            compiled.UpdateDelegate = TryExecute(binding.BindingNode, "Error while compiling update delegate.", requirements.UpdateDelegate, () => compilerAttribute.CompileToUpdateDelegate(binding.GetExpression(), binding.DataContextTypeStack).Compile());
-            compiled.OriginalString = TryExecute(binding.BindingNode, "hey, no, that should not happen. Really.", requirements.OriginalString, () => binding.Value);
-            compiled.Expression = TryExecute(binding.BindingNode, "Could not get binding expression.", requirements.Expression, () => binding.GetExpression());
-            compiled.Id = id;
-            compiled.ActionFilters = TryExecute(binding.BindingNode, "", requirements.ActionFilters, () => compilerAttribute.GetActionFilters(binding.GetExpression()).ToArray());
-
-            compiled.Javascript = TryExecute(binding.BindingNode, "Could not compile binding to Javascript.", requirements.Javascript, () => compilerAttribute.CompileToJavascript(binding, compiled));
-
-            var index = Interlocked.Increment(ref globalBindingIndex);
-            if (!GlobalBindingList.TryAdd(index, compiled))
-                throw new Exception("internal bug");
-            return EmitGetCompiledBinding(index);
+            var newbinding = CreateMinimalClone(binding);
+            return emitter.EmitValue(newbinding);
         }
 
         private T CompileExpression<T>(Expression<T> expression, DebugInfoExpression debugInfo)
         {
-            if(!configuration.Debug || !configuration.AllowBindingDebugging || debugInfo == null)
+            if (!configuration.Debug || !configuration.AllowBindingDebugging || debugInfo == null)
             {
                 return expression.Compile();
             }
             else
             {
-				throw new NotImplementedException();
+                throw new NotImplementedException();
                 //try
                 //{
                 //    var visitor = new DebugInfoExpressionVisitor { DebugInfo = debugInfo };
@@ -136,27 +135,6 @@ namespace DotVVM.Framework.Compilation
                 node = node.Update(Expression.Block(DebugInfo, node.Body), node.Parameters);
                 return base.VisitLambda<T>(node);
             }
-        }
-
-
-        protected virtual ExpressionSyntax EmitGetCompiledBinding(int index)
-        {
-            return SyntaxFactory.ElementAccessExpression(
-                SyntaxFactory.MemberAccessExpression(
-                    SyntaxKind.SimpleMemberAccessExpression,
-                    SyntaxFactory.ParseTypeName($"global::{typeof(BindingCompiler).FullName}"),
-                    SyntaxFactory.IdentifierName(nameof(GlobalBindingList))
-                ),
-                SyntaxFactory.BracketedArgumentList(
-                    SyntaxFactory.SeparatedList(
-                        new[]
-                        {
-                            SyntaxFactory.Argument(SyntaxFactory.LiteralExpression(SyntaxKind.NumericLiteralExpression,
-                                SyntaxFactory.Literal(index)))
-                        }
-                    )
-                )
-            );
         }
     }
 }

@@ -5,6 +5,8 @@ using System.Dynamic;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
+using DotVVM.Framework.Binding;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using Microsoft.CSharp.RuntimeBinder;
 
@@ -12,6 +14,7 @@ namespace DotVVM.Framework.Compilation.Binding
 {
     public static class ExpressionHelper
     {
+
         public static Expression GetMember(Expression target, string name, Type[] typeArguments = null, bool throwExceptions = true, bool onlyMemberTypes = false)
         {
             Contract.Requires(target != null);
@@ -26,6 +29,9 @@ namespace DotVVM.Framework.Compilation.Binding
 
             var isGeneric = typeArguments != null && typeArguments.Length != 0;
             var genericName = isGeneric ? $"{name}`{typeArguments.Length}" : name;
+
+            if (!isGeneric && !onlyMemberTypes && typeof(DotvvmBindableObject).IsAssignableFrom(target.Type) &&
+                GetDotvvmPropertyMember(target, name) is Expression result) return result;
 
             var members = type.GetMembers(BindingFlags.Public | (isStatic ? BindingFlags.Static : BindingFlags.Instance))
                 .Where(m => ((isGeneric && m is TypeInfo) ? genericName : name) == m.Name )
@@ -59,6 +65,23 @@ namespace DotVVM.Framework.Compilation.Binding
                 }
             }
             return new MethodGroupExpression() { MethodName = name, Target = target, TypeArgs = typeArguments };
+        }
+
+        static Expression GetDotvvmPropertyMember(Expression target, string name)
+        {
+            var property = DotvvmProperty.ResolveProperty(target.Type, name);
+            if (property == null) return null;
+
+            var field = property.DeclaringType.GetField(property.Name + "Property", BindingFlags.Static | BindingFlags.Public);
+            if (field == null) return null;
+
+            return Expression.Convert(
+                Expression.Call(target, "GetValue", Type.EmptyTypes,
+                    Expression.Field(null, field),
+                    Expression.Constant(true)
+                ),
+                property.PropertyType
+            );
         }
 
         public static Expression Call(Expression target, Expression[] arguments)

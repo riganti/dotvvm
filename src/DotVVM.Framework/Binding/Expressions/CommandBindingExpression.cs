@@ -1,7 +1,18 @@
 using System;
+using System.Collections.Generic;
+using System.Collections.Immutable;
+using System.Linq;
+using System.Linq.Expressions;
+using System.Reflection;
 using System.Threading.Tasks;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Compilation;
+using DotVVM.Framework.Compilation.Binding;
+using DotVVM.Framework.Compilation.Javascript;
+using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Runtime.Filters;
+using DotVVM.Framework.Utils;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
@@ -10,50 +21,137 @@ namespace DotVVM.Framework.Binding.Expressions
     /// </summary>
     public delegate Task Command();
 
-    [BindingCompilationRequirements(Delegate = BindingCompilationRequirementType.StronglyRequire,
-        Javascript = BindingCompilationRequirementType.StronglyRequire,
-        ActionFilters = BindingCompilationRequirementType.IfPossible)]
-    [CommandBindingCompilation]
+    [BindingCompilationRequirements(
+        required: new[] { typeof(CompiledBindingExpression.BindingDelegate), typeof(CommandJavascriptBindingProperty) },
+        optional: new[] { typeof(ActionFiltersBindingProperty) }
+        )]
+    [Options]
     public class CommandBindingExpression : BindingExpression, ICommandBinding
     {
-        public CommandBindingExpression() { }
+        public CommandBindingExpression(BindingCompilationService service, IEnumerable<object> properties) : base(service, properties) { }
 
-        public CommandBindingExpression(Action<object[]> command, string id)
-            : this((h, o) => (Action)(() => command(h)), id)
-        { }
+        public ImmutableArray<IActionFilter> ActionFilters =>
+            this.GetProperty<ActionFiltersBindingProperty>(ErrorHandlingMode.ReturnNull)?.Filters ?? ImmutableArray<IActionFilter>.Empty;
 
-        public CommandBindingExpression(Delegate command, string id)
-            : this((h, o) => command, id)
-        { }
+        public ParametrizedCode CommandJavascript => this.GetProperty<CommandJavascriptBindingProperty>().Code;
 
-        public CommandBindingExpression(CompiledBindingExpression.BindingDelegate command, string id)
-            : base(new CompiledBindingExpression { Delegate = command, Id = id, Javascript = $"dotvvm.postbackScript('{ id }')" })
-        { }
+        public string BindingId => this.GetProperty<IdBindingProperty>().Id;
 
-        public CommandBindingExpression(CompiledBindingExpression expression)
-            : base(expression)
-        { }
+        public CompiledBindingExpression.BindingDelegate BindingDelegate => this.GetProperty<CompiledBindingExpression.BindingDelegate>();
 
-
-        /// <summary>
-        /// Evaluates the binding.
-        /// </summary>
-        public object Evaluate(DotvvmBindableObject control, DotvvmProperty property, params object[] args)
+        public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-            var action = GetCommandDelegate(control, property);
-            if (action is Command) return (action as Command)();
-            if (action is Action) { (action as Action)(); return null; }
-            return action.DynamicInvoke(args);
+            public override IEnumerable<Delegate> GetResolvers() => BindingCompilationService.GetDelegates(new Methods());
+
+            public class Methods
+            {
+                public CommandJavascriptBindingProperty CreateJs(IdBindingProperty id) =>
+                    new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(id.Id));
+                public CastedExpressionBindingProperty ConvertExpressionToType(ParsedExpressionBindingProperty exprP, ExpectedTypeBindingProperty expectedTypeP = null)
+                {
+                    var expr = exprP.Expression;
+                    var expectedType = expectedTypeP?.Type ?? typeof(object);
+                    if (expectedType == typeof(object)) expectedType = typeof(Command);
+                    if (!typeof(Delegate).IsAssignableFrom(expectedType)) throw new Exception($"Command bindings must be assigned to properties of Delegate type, not { expectedType }");
+
+                    var normalConvert = TypeConversion.ImplicitConversion(expr, expectedType);
+                    if (normalConvert != null && expr.Type != typeof(object)) return new CastedExpressionBindingProperty(normalConvert);
+
+                    // wrap expression into a lambda
+                    if (typeof(Delegate).IsAssignableFrom(expectedType) && !typeof(Delegate).IsAssignableFrom(expr.Type))
+                    {
+                        var invokeMethod = expectedType.GetMethod("Invoke");
+                        expr = TaskConversion(expr, invokeMethod.ReturnType);
+                        return new CastedExpressionBindingProperty(Expression.Lambda(
+                            expectedType,
+                            expr,
+                            invokeMethod.GetParameters().Select(p => Expression.Parameter(p.ParameterType, p.Name))
+                        ));
+                    }
+                    // TODO: convert delegates to another delegates
+                    throw new Exception($"Can not convert expression '{ expr }' to '{expectedType}'.");
+                }
+
+                private static Type GetTaskType(Type taskType)
+                    => taskType.GetProperty("Result")?.PropertyType ?? typeof(void);
+
+                private Expression TaskConversion(Expression expr, Type expectedType)
+                {
+                    if (typeof(Task).IsAssignableFrom(expr.Type) && !typeof(Task).IsAssignableFrom(expectedType))
+                    {
+                        // wait for task
+                        if (expectedType == typeof(void))
+                        {
+                            return Expression.Call(expr, "Wait", Type.EmptyTypes);
+                        }
+                        else
+                        {
+                            var taskResult = GetTaskType(expectedType);
+                            if (taskResult != typeof(void) && expectedType.IsAssignableFrom(taskResult))
+                            {
+                                return Expression.Property(expr, "Result");
+                            }
+                        }
+                    }
+                    else if (typeof(Task).IsAssignableFrom(expectedType))
+                    {
+                        if (!typeof(Task).IsAssignableFrom(expr.Type))
+                        {
+                            // return dummy completed task
+                            if (expectedType == typeof(Task))
+                            {
+                                return Expression.Block(expr, Expression.Call(typeof(TaskUtils), "GetCompletedTask", Type.EmptyTypes));
+                            }
+                            else if (typeof(Task<>).IsAssignableFrom(expectedType))
+                            {
+                                var taskType = GetTaskType(expectedType);
+                                var converted = expr;//base.ConvertExpressionToType(expr, taskType);
+                                if (converted != null) return Expression.Call(typeof(Task), "FromResult", new Type[] { taskType }, converted);
+                            }
+                        }
+                        // TODO: convert Task<> to another Task<>
+                    }
+                    return expr;
+                }
+            }
         }
 
-        public virtual Delegate GetCommandDelegate(DotvvmBindableObject control, DotvvmProperty property)
-        {
-            return (Delegate)ExecDelegate(control, property != DotvvmBindableObject.DataContextProperty);
-        }
+        public static object ViewModelNameParameter = new object();
+        public static object SenderElementParameter = new object();
+        public static object CurrentPathParameter = new object();
+        public static object CommandIdParameter = new object();
+        public static object ControlUniqueIdParameter = new object();
+        public static object UseObjectSetTimeoutParameter = new object();
+        public static object ValidationPathParameter = new object();
+        public static object OptionalKnockoutContextParameter = new object();
+        public static object PostbackHandlersParameters = new object();
+        private static ParametrizedCode javascriptPostbackInvocation =
+            new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
+                new JsSymbolicParameter(ViewModelNameParameter),
+                new JsSymbolicParameter(SenderElementParameter),
+                new JsSymbolicParameter(CurrentPathParameter),
+                new JsSymbolicParameter(CommandIdParameter),
+                new JsSymbolicParameter(ControlUniqueIdParameter),
+                new JsSymbolicParameter(UseObjectSetTimeoutParameter),
+                new JsSymbolicParameter(ValidationPathParameter),
+                new JsSymbolicParameter(OptionalKnockoutContextParameter),
+                new JsSymbolicParameter(PostbackHandlersParameters)
+            ).FormatParametrizedScript();
+        public static ParametrizedCode CreateJsPostbackInvocation(string id) =>
+            javascriptPostbackInvocation.AssignParameters(p =>
+                p == CommandIdParameter ? CodeParameterAssignment.FromExpression(new JsLiteral(id)) :
+                default(CodeParameterAssignment));
 
-        public string GetCommandJavascript()
-        {
-            return Javascript;
-        }
+        public CommandBindingExpression(BindingCompilationService service, Action<object[]> command, string id)
+            : this(service, (h, o) => (Action)(() => command(h)), id)
+        { }
+
+        public CommandBindingExpression(BindingCompilationService service, Delegate command, string id)
+            : this(service, (h, o) => command, id)
+        { }
+
+        public CommandBindingExpression(BindingCompilationService service, CompiledBindingExpression.BindingDelegate command, string id)
+            : base(service, new object[] { command, new IdBindingProperty(id), new CommandJavascriptBindingProperty(CreateJsPostbackInvocation(id)) })
+        { }
     }
 }

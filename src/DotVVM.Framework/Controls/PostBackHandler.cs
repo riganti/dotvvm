@@ -52,7 +52,7 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                return "ko.unwrap(" + binding.GetKnockoutBindingExpression() + ")";
+                return "ko.unwrap(" + binding.GetKnockoutBindingExpression(this) + ")";
             }
         }
     }

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Runtime;
 
@@ -33,7 +34,7 @@ namespace DotVVM.Framework.Controls
                 writer.AddAttribute("onclick", KnockoutHelper.GenerateClientPostBackScript(nameof(Click), clickBinding, this));
             }
 			var textbinding = GetValueBinding(TextProperty);
-			if (textbinding != null) writer.AddKnockoutDataBind("text", textbinding);
+			if (textbinding != null) writer.AddKnockoutDataBind("text", textbinding.GetKnockoutBindingExpression(this));
             
             base.AddAttributesToRender(writer, context);
         }

@@ -79,14 +79,8 @@ namespace DotVVM.Framework.Compilation
         protected virtual ResolvedPropertySetter EmitBinding(Expression expression, DotvvmProperty property, ResolvedBinding originalBidning, ref string errror)
         {
             if (originalBidning == null) { errror = $"Could not merge constant values to binding '{expression}'."; return null; }
-            return new ResolvedPropertyBinding(property, new ResolvedBinding
-            {
-                BindingType = originalBidning.BindingType,
-                DataContextTypeStack = originalBidning.DataContextTypeStack,
-                Expression = expression,
-                Parent = originalBidning.Parent,
-                ResultType = new ResolvedTypeDescriptor(expression.Type)
-            });
+            return new ResolvedPropertyBinding(property,
+                new ResolvedBinding(originalBidning.BindingService, originalBidning.Binding.GetProperty<BindingParserOptions>(), originalBidning.DataContextTypeStack, null, expression, property));
         }
 
         protected virtual Expression GetExpression(ResolvedPropertySetter a, out ResolvedBinding binding)

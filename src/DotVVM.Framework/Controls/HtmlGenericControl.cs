@@ -114,7 +114,7 @@ namespace DotVVM.Framework.Controls
                     if (attribute.Value is IValueBinding)
                     {
                         var binding = attribute.Value as IValueBinding;
-                        attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression());
+                        attrBindingGroup.Add(attribute.Key, binding.GetKnockoutBindingExpression(this));
                         if (!RenderOnServer)
                             continue;
                     }
@@ -168,7 +168,7 @@ namespace DotVVM.Framework.Controls
             }
             else if (value is IStaticValueBinding)
             {
-                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this, null));
+                AddHtmlAttribute(writer, name, ((IStaticValueBinding)value).Evaluate(this));
             }
             else throw new NotSupportedException($"Attribute value of type '{value.GetType().FullName}' is not supported.");
         }

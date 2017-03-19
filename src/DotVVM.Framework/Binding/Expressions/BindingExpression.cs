@@ -1,104 +1,84 @@
 using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Linq.Expressions;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Runtime.Filters;
 
 namespace DotVVM.Framework.Binding.Expressions
 {
-    public abstract class BindingExpression: IBinding
+    public abstract class BindingExpression : IBinding, IMutableBinding
     {
-
-        public string OriginalString { get; set; }
-        public string Javascript { get; set; }
-        public Expression ExpressionTree { get; set; }
-        public CompiledBindingExpression.BindingDelegate Delegate { get; set; }
-        public CompiledBindingExpression.BindingUpdateDelegate UpdateDelegate { get; set; }
-        public string BindingId { get; set; }
-        public IActionFilter[] ActionFilters { get; set; }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BindingExpression"/> class.
-        /// </summary>
-        public BindingExpression(CompiledBindingExpression compiledBinding) : this()
+        protected struct PropValue
         {
-            OriginalString = compiledBinding.OriginalString;
-            Javascript = compiledBinding.Javascript;
-            ExpressionTree = compiledBinding.Expression;
-            Delegate = compiledBinding.Delegate;
-            UpdateDelegate = compiledBinding.UpdateDelegate;
-            BindingId = compiledBinding.Id;
-            ActionFilters = compiledBinding.ActionFilters;
+            public readonly object Value;
+            public readonly Exception Error;
+
+            public object GetValue(ErrorHandlingMode errorMode) =>
+                Error == null ? Value :
+                errorMode == ErrorHandlingMode.ReturnNull ? null :
+                errorMode == ErrorHandlingMode.ReturnException ? Error :
+                throw new AggregateException(Error);
+
+            public PropValue(object value, Exception error = null)
+            {
+                if (value == null && error == null) throw new ArgumentNullException();
+                this.Value = value;
+                this.Error = error;
+            }
         }
 
-        /// <summary>
-        /// Initializes a new instance of the <see cref="BindingExpression"/> class.
-        /// </summary>
-        public BindingExpression()
+        private readonly ConcurrentDictionary<Type, PropValue> properties = new ConcurrentDictionary<Type, PropValue>();
+        protected readonly BindingCompilationService bindingService;
+
+
+        public BindingExpression(BindingCompilationService service, IEnumerable<object> properties)
         {
+            foreach (var prop in properties)
+                if (prop != null) this.properties[prop.GetType()] = new PropValue(prop);
+            this.bindingService = service;
+            service.InitializeBinding(this);
         }
 
-        protected void ExecUpdateDelegate(DotvvmBindableObject contextControl, object value, bool seeThis, bool setRootControl = false)
+        PropValue ComputeProperty(Type propertyType)
         {
-            var dataContexts = GetDataContexts(contextControl, seeThis);
-            var control = setRootControl ? GetRootControl(contextControl) : null;
-            UpdateDelegate(dataContexts, control, value);
-        }
-
-        protected object ExecDelegate(DotvvmBindableObject contextControl, bool seeThis)
-        {
-            var dataContexts = GetDataContexts(contextControl, seeThis);
-            var control = GetRootControl(contextControl);
             try
             {
-                return Delegate(dataContexts, control);
+                var value = bindingService.ComputeProperty(propertyType, this);
+                return value is Exception error ? new PropValue(null, error) : new PropValue(value);
             }
-            catch (NullReferenceException)
+            catch (Exception ex)
             {
-                return null;
+                return new PropValue(null, ex);
             }
         }
 
-        private DotvvmBindableObject GetRootControl(DotvvmBindableObject control)
-        {
-            return control.GetClosestControlBindingTarget();
-        }
+        public object GetProperty(Type type, ErrorHandlingMode errorMode = ErrorHandlingMode.ThrowException) =>
+            properties.GetOrAdd(type, ComputeProperty).GetValue(errorMode);
 
-        /// <summary>
-        /// Gets all data context on the path to root
-        /// </summary>
-        public static object[] GetDataContexts(DotvvmBindableObject contextControl, bool seeThis)
+        bool IMutableBinding.IsMutable => this.GetProperty<IsMutableBindingProperty>(ErrorHandlingMode.ReturnNull)?.IsMutable ?? false;
+        void IMutableBinding.AddProperty(object property)
         {
-            if (!seeThis)
+            if (!((IMutableBinding)this).IsMutable) throw new InvalidOperationException("Binding is frozen, can add property.");
+            if (this.properties.TryAdd(property.GetType(), new PropValue(property)))
+                throw new InvalidOperationException("Property already exists.");
+            foreach (var prop in properties)
             {
-                contextControl = contextControl.Parent;
-                if (contextControl == null)
-                {
-                    return new object[0];
-                }
+                // remove all error properties
+                if (prop.Value.Error != null) properties.TryRemove(prop.Key, out var _);
             }
-
-            // PERF: 
-            return new [] { contextControl }.Concat(contextControl.GetAllAncestors())
-                .Where(c => c.IsPropertySet(DotvvmBindableObject.DataContextProperty, false))
-                .Select(c => c.GetValue(DotvvmBindableObject.DataContextProperty, false))
-                .ToArray();
         }
 
-
-
-        public virtual BindingExpression Clone()
+        public override string ToString()
         {
-            return (BindingExpression)Activator.CreateInstance(GetType(), new CompiledBindingExpression()
-            {
-                OriginalString = OriginalString,
-                Javascript = Javascript,
-                Expression = ExpressionTree,
-                Delegate = Delegate,
-                ActionFilters = ActionFilters,
-                Id = BindingId,
-                UpdateDelegate = UpdateDelegate
-            });
+            var value = this.GetProperty<ParsedExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
+                this.GetProperty<OriginalStringBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code ??
+                this.GetProperty<KnockoutJsExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Expression?.ToString() ??
+                this.GetProperty<KnockoutExpressionBindingProperty>(ErrorHandlingMode.ReturnNull)?.Code?.ToString(o => new Compilation.Javascript.CodeParameterAssignment($"${o.GetHashCode()}", Compilation.Javascript.OperatorPrecedence.Max));
+            return $"{{{GetType().Name}: {value}}}";
         }
     }
 }

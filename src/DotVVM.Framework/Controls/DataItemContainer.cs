@@ -30,7 +30,7 @@ namespace DotVVM.Framework.Controls
             get
             {
                 var value = GetValue(Internal.UniqueIDProperty);
-                return value == null ? (int?)null : int.Parse(value as string);
+                return value is string id && int.TryParse(id, out var index) ? index : (int?)null;
             }
             set { SetValue(Internal.UniqueIDProperty, value != null ? value.ToString() : null); }
         }

@@ -14,7 +14,6 @@ namespace DotVVM.Framework.ViewModel.Serialization
     /// </summary>
     public class ViewModelSerializationMapper : IViewModelSerializationMapper
     {
-
         private readonly IValidationRuleTranslator validationRuleTranslator;
         private readonly IViewModelValidationMetadataProvider validationMetadataProvider;
 

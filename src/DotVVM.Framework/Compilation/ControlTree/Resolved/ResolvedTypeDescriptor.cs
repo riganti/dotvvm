@@ -98,5 +98,7 @@ namespace DotVVM.Framework.Compilation.ControlTree.Resolved
                 return Type.GetType(typeDescriptor.FullName + ", " + typeDescriptor.Assembly);
             }
         }
+
+        public static ITypeDescriptor Create(Type t) => t == null ? null : new ResolvedTypeDescriptor(t);
     }
 }

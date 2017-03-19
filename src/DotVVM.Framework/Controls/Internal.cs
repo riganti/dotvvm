@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.Expressions;
+using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Hosting;
 
 namespace DotVVM.Framework.Controls
@@ -27,6 +29,12 @@ namespace DotVVM.Framework.Controls
         public static readonly DotvvmProperty PathFragmentProperty =
             DotvvmProperty.Register<string, Internal>(() => PathFragmentProperty);
 
+        /// <summary>
+        /// Gets compile-time DataContextStack
+        /// </summary>
+        public static readonly DotvvmProperty DataContextTypeProperty =
+            DotvvmProperty.Register<DataContextStack, Internal>(() => DataContextTypeProperty, null, isValueInherited: true);
+
         public static readonly DotvvmProperty MarkupFileNameProperty =
             DotvvmProperty.Register<string, Internal>(() => MarkupFileNameProperty, isValueInherited: true);
 
@@ -35,12 +43,20 @@ namespace DotVVM.Framework.Controls
 
         public static readonly DotvvmProperty ClientIDFragmentProperty =
             DotvvmProperty.Register<string, Internal>(() => ClientIDFragmentProperty, defaultValue: null, isValueInherited: false);
-        
+
         public static DotvvmProperty IsMasterPageCompositionFinishedProperty =
             DotvvmProperty.Register<bool, Internal>(() => IsMasterPageCompositionFinishedProperty, defaultValue: false, isValueInherited: false);
 
         public static DotvvmProperty RequestContextProperty =
             DotvvmProperty.Register<IDotvvmRequestContext, Internal>(() => RequestContextProperty, defaultValue: null, isValueInherited: true);
 
+        public static DotvvmProperty CurrentIndexBindingProperty =
+            DotvvmProperty.Register<IValueBinding, Internal>(() => CurrentIndexBindingProperty);
+    }
+
+    public static class InternalPropertyExceptions
+    {
+        public static DataContextStack GetDataContextType(this DotvvmBindableObject obj) => (DataContextStack)obj.GetValue(Internal.DataContextTypeProperty);
+        public static void SetDataContextType(this DotvvmBindableObject obj, DataContextStack stack) => obj.SetValue(Internal.DataContextTypeProperty, stack);
     }
 }

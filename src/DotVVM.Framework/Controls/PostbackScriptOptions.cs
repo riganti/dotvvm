@@ -1,3 +1,5 @@
+using DotVVM.Framework.Compilation.Javascript;
+
 namespace DotVVM.Framework.Controls
 {
     public class PostbackScriptOptions
@@ -5,7 +7,7 @@ namespace DotVVM.Framework.Controls
         public bool UseWindowSetTimeout { get; set; }
         public bool? ReturnValue { get; set; }
         public bool IsOnChange { get; set; }
-        public string ElementAccessor { get; set; }
+        public CodeParameterAssignment ElementAccessor { get; set; }
 
         public PostbackScriptOptions(bool useWindowSetTimeout = false,
             bool? returnValue = false, bool isOnChange = false, string elementAccessor = "this")
@@ -13,7 +15,7 @@ namespace DotVVM.Framework.Controls
             UseWindowSetTimeout = useWindowSetTimeout;
             ReturnValue = returnValue;
             IsOnChange = isOnChange;
-            ElementAccessor = elementAccessor;
+            ElementAccessor = new CodeParameterAssignment(elementAccessor, OperatorPrecedence.Max);
         }
     }
 }

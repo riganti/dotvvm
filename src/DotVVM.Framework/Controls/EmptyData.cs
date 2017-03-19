@@ -5,7 +5,10 @@ using System.Text;
 using System.Threading.Tasks;
 using DotVVM.Framework.Runtime;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.Binding.Properties;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Utils;
+using DotVVM.Framework.Binding.Expressions;
 
 namespace DotVVM.Framework.Controls
 {
@@ -40,20 +43,18 @@ namespace DotVVM.Framework.Controls
 
         protected override bool RendersHtmlTag => RenderWrapperTag;
 
-        public EmptyData()
-        {
-        }
+        public EmptyData() { }
 
         protected override void AddAttributesToRender(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (!RenderOnServer)
             {
                 if (RenderWrapperTag)
-                    writer.AddKnockoutDataBind("visible", $"!({ GetForeachDataBindJavascriptExpression() }).length");
+                    writer.AddKnockoutDataBind("visible", "!" + GetBinding(DataSourceProperty).GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
                 else
-                    writer.WriteKnockoutDataBindComment("visible", $"!({ GetForeachDataBindJavascriptExpression() }).length");
+                    writer.WriteKnockoutDataBindComment("visible", "!" + GetBinding(DataSourceProperty).GetProperty<DataSourceLengthBinding>().Binding.CastTo<IValueBinding>().GetKnockoutBindingExpression(this));
 
-                if (DataSource != null && RenderWrapperTag && GetIEnumerableFromDataSource(DataSource).OfType<object>().Any())
+                if (DataSource != null && RenderWrapperTag && GetIEnumerableFromDataSource().OfType<object>().Any())
                 {
                     writer.AddStyleAttribute("display", "none");
                 }
@@ -74,7 +75,7 @@ namespace DotVVM.Framework.Controls
         {
             TagName = WrapperTagName;
             // if RenderOnServer && DataSource is not empty then don't render anything
-            if (!RenderOnServer || GetIEnumerableFromDataSource(DataSource)?.GetEnumerator()?.MoveNext() != true)
+            if (!RenderOnServer || GetIEnumerableFromDataSource()?.GetEnumerator()?.MoveNext() != true)
             {
                 base.RenderControl(writer, context);
             }
