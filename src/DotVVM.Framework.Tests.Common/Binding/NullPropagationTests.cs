@@ -30,7 +30,9 @@ namespace DotVVM.Framework.Tests.Common.Binding
             Create((int a, int b) => a+b),
             Create((int a) => a+ 1.0),
             Create((int a, double b) => a * b),
+            Create((TimeSpan span) => span.TotalMilliseconds),
             Create((double a) => TimeSpan.FromSeconds(a)),
+            Create((TestViewModel vm) => (TimeSpan)vm.Time),
             Create((TestViewModel vm, TimeSpan time, int integer, double number) => new TestViewModel{ EnumProperty = TestEnum.B, BoolMethodExecuted = vm.BoolMethodExecuted, StringProp = time + ": " + vm.StringProp, StringProp2 = integer + vm.StringProp2 + number, TestViewModel2 = vm.TestViewModel2}),
         };
 

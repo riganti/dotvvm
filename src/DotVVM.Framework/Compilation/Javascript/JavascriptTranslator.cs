@@ -8,6 +8,7 @@ using System.Reflection;
 using DotVVM.Framework.Binding;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.Controls;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 
@@ -105,10 +106,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddDefaultMethodTranslators();
         }
 
-        public static void AddMethodTranslator(Type declaringType, string methodName, IJsMethodTranslator translator, Type[] parameters = null)
+        public static void AddMethodTranslator(Type declaringType, string methodName, IJsMethodTranslator translator, Type[] parameters = null, bool allowGeneric = true)
         {
             var methods = declaringType.GetMethods()
-                .Where(m => m.Name == methodName);
+                .Where(m => m.Name == methodName && (allowGeneric || !m.IsGenericMethod));
             if (parameters != null)
             {
                 methods = methods.Where(m => {
@@ -318,6 +319,13 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var thisExpression = expression.Object == null ? null : Translate(expression.Object);
             var args = expression.Arguments.Select(Translate).ToArray();
+
+            if (expression.Method.Name == "GetValue" && expression.Method.DeclaringType == typeof(DotvvmBindableObject))
+            {
+                var dotvvmproperty = ((DotvvmProperty)((JsLiteral)args[0]).Value);
+                return TranslateViewModelProperty(thisExpression, (MemberInfo)dotvvmproperty.PropertyInfo ?? dotvvmproperty.PropertyType.GetTypeInfo(), name: dotvvmproperty.Name);
+            }
+
             var result = TryTranslateMethodCall(thisExpression, args, expression.Method, expression.Object, expression.Arguments.ToArray());
             if (result == null)
                 throw new NotSupportedException($"Method { expression.Method.DeclaringType.Name }.{ expression.Method.Name } can not be translated to Javascript");
@@ -480,14 +488,14 @@ namespace DotVVM.Framework.Compilation.Javascript
             }
         }
 
-        public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo)
+        public JsExpression TranslateViewModelProperty(JsExpression context, MemberInfo propInfo, string name = null)
         {
             //if (propInfo is FieldInfo) throw new NotSupportedException($"Field '{propInfo.Name}' cannot be translated to knockout binding. Use property with public getter and setter.");
             //var protection = propInfo.GetCustomAttribute<ProtectAttribute>();
             //if (protection != null && protection.Settings == ProtectMode.EncryptData)
             //    throw new NotSupportedException($"Encrypted property '{propInfo.Name}' cannot be used in binding.");
             //// Bind(None) can make sense to translate, since it can be used as client-only property
-            return new JsMemberAccessExpression(context, propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo });
+            return new JsMemberAccessExpression(context, name ?? propInfo.Name).WithAnnotation(new VMPropertyInfoAnnotation { MemberInfo = propInfo });
         }
     }
 

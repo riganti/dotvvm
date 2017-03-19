@@ -330,6 +330,7 @@ namespace DotVVM.Framework.Utils
             member is PropertyInfo property ? property.PropertyType :
             member is FieldInfo field ? field.FieldType :
             member is MethodInfo method ? method.ReturnType :
+            member is TypeInfo type ? type.AsType() :
             throw new NotImplementedException($"Could not get return type of member {member.GetType().FullName}");
 
     }

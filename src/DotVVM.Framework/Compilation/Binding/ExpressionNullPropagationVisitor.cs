@@ -110,7 +110,7 @@ namespace DotVVM.Framework.Compilation.Binding
         {
             return CheckForNull(Visit(node.Operand), operand =>
                 Expression.MakeUnary(node.NodeType, operand, node.Type, node.Method),
-                checkReferenceTypes: false);
+                checkReferenceTypes: node.Method == null);
         }
 
         protected override Expression VisitInvocation(InvocationExpression node)

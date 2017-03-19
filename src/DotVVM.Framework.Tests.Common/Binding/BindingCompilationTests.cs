@@ -395,6 +395,7 @@ namespace DotVVM.Framework.Tests.Binding
         public string StringProp2 { get; set; }
         public DateTime? DateFrom { get; set; }
         public DateTime? DateTo { get; set; }
+        public object Time { get; set; } = TimeSpan.FromSeconds(5);
 
         public string SetStringProp(string a, int b)
         {
