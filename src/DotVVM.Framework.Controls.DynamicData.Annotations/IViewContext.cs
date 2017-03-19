@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Security.Principal;
 using System.Text;
 
 namespace DotVVM.Framework.Controls.DynamicData.Annotations
@@ -19,6 +20,11 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations
         /// Gets the name of the current field group.
         /// </summary>
         string GroupName { get; }
+        
+        /// <summary>
+        /// Gets the current principal.
+        /// </summary>
+        IPrincipal CurrentUser { get; }
 
     }
 }

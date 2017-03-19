@@ -10,7 +10,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations
     /// Show or hides the field based on current user role memebership.
     /// </summary>
     [AttributeUsage(AttributeTargets.Property)]
-    public class RoleFilterAttribute : Attribute
+    public class RoleFilterAttribute : Attribute, IVisibilityFilter
     {
         /// <summary>
         /// Gets or sets the names of the roles that this attribute applies to.
@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations
         /// </summary>
         public VisibilityMode? CanShow(IViewContext viewContext)
         {
-            if (RoleNames.Any(ClaimsPrincipal.Current.IsInRole))
+            if (viewContext.CurrentUser != null && RoleNames.Any(viewContext.CurrentUser.IsInRole))
             {
                 return Mode;
             }

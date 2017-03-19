@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
@@ -14,7 +15,7 @@ using DotVVM.Framework.ViewModel.Validation;
 
 namespace DotVVM.Framework.Controls.DynamicData
 {
-    public class DynamicDataContext : IViewContext
+    public class DynamicDataContext
     {
         public DataContextStack DataContextStack { get; }
 
@@ -31,6 +32,7 @@ namespace DotVVM.Framework.Controls.DynamicData
         public string ViewName { get; set; }
 
         public string GroupName { get; set; }
+                
 
 
         public Dictionary<StateBagKey, object> StateBag { get; } = new Dictionary<StateBagKey, object>();
@@ -70,6 +72,16 @@ namespace DotVVM.Framework.Controls.DynamicData
             return new ValueBindingExpression(compiledExpression.Compile(), javascript)
             {
                 OriginalString = expression
+            };
+        }
+
+        public IViewContext CreateViewContext(IDotvvmRequestContext context)
+        {
+            return new ViewContext()
+            {
+                ViewName = ViewName,
+                GroupName = GroupName,
+                CurrentUser = context.HttpContext.User
             };
         }
     }

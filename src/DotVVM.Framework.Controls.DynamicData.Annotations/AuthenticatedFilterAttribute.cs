@@ -28,7 +28,7 @@ namespace DotVVM.Framework.Controls.DynamicData.Annotations
         /// </summary>
         public VisibilityMode? CanShow(IViewContext viewContext)
         {
-            if (ClaimsPrincipal.Current.Identity.IsAuthenticated)
+            if (viewContext.CurrentUser?.Identity?.IsAuthenticated == true)
             {
                 return Mode;
             }

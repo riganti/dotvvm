@@ -15,7 +15,8 @@ namespace DotVVM.Framework.Controls.DynamicData.Builders
         /// </summary>
         protected virtual IEnumerable<PropertyDisplayMetadata> GetPropertiesToDisplay(DynamicDataContext dynamicDataContext, IEntityPropertyListProvider entityPropertyListProvider)
         {
-            var properties = entityPropertyListProvider.GetProperties(dynamicDataContext.EntityType, dynamicDataContext);
+            var viewContext = dynamicDataContext.CreateViewContext(dynamicDataContext.RequestContext);
+            var properties = entityPropertyListProvider.GetProperties(dynamicDataContext.EntityType, viewContext);
             if (!string.IsNullOrEmpty(dynamicDataContext.GroupName))
             {
                 return properties.Where(p => p.GroupName == dynamicDataContext.GroupName);
