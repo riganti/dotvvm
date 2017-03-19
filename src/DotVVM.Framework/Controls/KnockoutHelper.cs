@@ -156,18 +156,10 @@ namespace DotVVM.Framework.Controls
         {
             while (control != null)
             {
-                var pathFragment = control.GetValue(Internal.PathFragmentProperty, false) as string;
+                var pathFragment = control.GetDataContextPathFragment();
                 if (pathFragment != null)
                 {
                     yield return pathFragment;
-                }
-                else
-                {
-                    var dataContextBinding = control.GetBinding(DotvvmBindableObject.DataContextProperty, false) as IValueBinding;
-                    if (dataContextBinding != null)
-                    {
-                        yield return dataContextBinding.GetKnockoutBindingExpression(control);
-                    }
                 }
                 control = control.Parent;
             }

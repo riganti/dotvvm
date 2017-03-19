@@ -24,8 +24,19 @@ namespace DotVVM.Framework.Binding
             JavascriptTranslator.FormatKnockoutScript(binding.KnockoutExpression);
 
         public static string GetKnockoutBindingExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwrapped = false) =>
-            JavascriptTranslator.FormatKnockoutScript(unwrapped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression,
-                dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);
+            (unwrapped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression)
+            .FormatKnockoutScript(currentControl, binding);
+
+        public static string FormatKnockoutScript(this ParametrizedCode code, DotvvmBindableObject currentControl, IBinding currentBinding) =>
+            JavascriptTranslator.FormatKnockoutScript(code, dataContextLevel: FindDataContextTarget(currentBinding, currentControl).stepsUp);
+
+        public static string GetDataContextPathFragment(this DotvvmBindableObject currentControl) =>
+            (string)currentControl.GetValue(Internal.PathFragmentProperty, inherit: false) ??
+            (currentControl.GetBinding(DotvvmBindableObject.DataContextProperty, inherit: false) is IValueBinding binding ?
+                binding.GetProperty<SimplePathExpressionBindingProperty>(ErrorHandlingMode.ThrowException)
+                .Code.FormatKnockoutScript(currentControl, binding) :
+            null);
+
 
         public static ParametrizedCode GetParametrizedKnockoutExpression(this IValueBinding binding, DotvvmBindableObject currentControl, bool unwraped = false) =>
             JavascriptTranslator.AdjustKnockoutScriptContext(unwraped ? binding.UnwrapedKnockoutExpression : binding.KnockoutExpression, dataContextLevel: FindDataContextTarget(binding, currentControl).stepsUp);

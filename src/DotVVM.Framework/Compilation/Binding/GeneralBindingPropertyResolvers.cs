@@ -87,6 +87,11 @@ namespace DotVVM.Framework.Compilation.Binding
                    JavascriptTranslator.CompileToJavascript(expression.Expression, dataContext, vmMapper).ApplyAction(a => a.Freeze()));
         }
 
+        public SimplePathExpressionBindingProperty FormatSimplePath(KnockoutJsExpressionBindingProperty expression)
+        {
+            return new SimplePathExpressionBindingProperty(expression.Expression.FormatParametrizedScript());
+        }
+
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
             return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression, true), FormatJavascript(expression.Expression, false));

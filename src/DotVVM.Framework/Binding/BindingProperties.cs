@@ -24,6 +24,15 @@ namespace DotVVM.Framework.Binding.Properties
         }
     }
 
+    public sealed class SimplePathExpressionBindingProperty
+    {
+        public readonly ParametrizedCode Code;
+        public SimplePathExpressionBindingProperty(ParametrizedCode code)
+        {
+            this.Code = code;
+        }
+    }
+
     public sealed class OriginalStringBindingProperty
     {
         public readonly string Code;

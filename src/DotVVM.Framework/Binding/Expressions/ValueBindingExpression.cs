@@ -18,7 +18,11 @@ namespace DotVVM.Framework.Binding.Expressions
     /// A binding that gets the value from a viewmodel property.
     /// </summary>
     [BindingCompilationRequirements(
-        required: new[] { typeof(CompiledBindingExpression.BindingDelegate), typeof(ResultTypeBindingProperty), typeof(KnockoutExpressionBindingProperty) },
+        required: new[] {
+            typeof(CompiledBindingExpression.BindingDelegate),
+            typeof(ResultTypeBindingProperty),
+            typeof(KnockoutExpressionBindingProperty)
+        },
         optional: new[] { typeof(CompiledBindingExpression.BindingUpdateDelegate) })]
     [Options]
     public class ValueBindingExpression : BindingExpression, IUpdatableValueBinding, IValueBinding
