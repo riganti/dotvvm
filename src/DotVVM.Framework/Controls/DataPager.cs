@@ -321,11 +321,13 @@ namespace DotVVM.Framework.Controls
                 li = new HtmlGenericControl("li");
                 var literal = new Literal();
                 literal.DataContext = 0;
+                literal.SetDataContextType(DataContextStack.Create(typeof(int), numbersPlaceHolder.GetDataContextType()));
 
                 var textBinding = ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
-                    vm => ((int)vm[0] + 1).ToString());
+                    vm => ((int)vm[0] + 1).ToString(),
+                    literal.GetDataContextType()
+                );
                 literal.SetBinding(Literal.TextProperty, textBinding);
-                literal.SetValue(Internal.DataContextTypeProperty, textBinding.GetProperty<DataContextStack>());
                 li.Children.Add(literal);
                 numbersPlaceHolder.Children.Add(li);
                 li.Render(writer, context);
@@ -337,11 +339,13 @@ namespace DotVVM.Framework.Controls
             li.SetValue(Internal.PathFragmentProperty, "PagingOptions().NearPageIndexes()[$index]");
             var link = new LinkButton();
             li.Children.Add(link);
+            link.SetDataContextType(DataContextStack.Create(typeof(int), numbersPlaceHolder.GetDataContextType()));
             link.SetBinding(ButtonBase.TextProperty, ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
-                vm => ((int)vm[0] + 1).ToString()));
+                vm => ((int)vm[0] + 1).ToString(),
+                link.GetDataContextType()));
             link.SetBinding(ButtonBase.ClickProperty, context.Services.GetService<CommonBindings>().GoToThisPageCommand);
             object enabledValue = HasValueBinding(EnabledProperty) ?
-                (object)ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(), 
+                (object)ValueBindingExpression.CreateBinding(context.Configuration.ServiceLocator.GetService<BindingCompilationService>(),
                     h => GetValueBinding(EnabledProperty).Evaluate(this),
                     new JsSymbolicParameter(JavascriptTranslator.KnockoutContextParameter).Member("$pagerEnabled")) :
                 Enabled;
