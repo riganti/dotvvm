@@ -184,19 +184,14 @@ namespace DotVVM.Framework.Controls
             }
 
             // find the closest control
-            int dataSourceChanges;
-            var validationTargetControl = control.GetClosestControlValidationTarget(out dataSourceChanges);
+            var validationTargetControl = control.GetClosestControlValidationTarget(out var _);
             if (validationTargetControl == null)
             {
                 return "$root";
             }
 
             // reparent the expression to work in current DataContext
-            var validationBindingExpression = validationTargetControl.GetValueBinding(Validation.TargetProperty);
-            string validationExpression = validationBindingExpression.GetKnockoutBindingExpression(control);
-            validationExpression = string.Join("", Enumerable.Range(0, dataSourceChanges).Select(i => "$parentContext.")) + validationExpression;
-
-            return validationExpression;
+            return validationTargetControl.GetValueBinding(Validation.TargetProperty).GetKnockoutBindingExpression(control);
         }
 
         /// <summary>
