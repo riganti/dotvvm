@@ -11,6 +11,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Security.Cryptography;
 using System.Text;
+using System.Collections.Concurrent;
 
 #if DotNetCore
 using Microsoft.Extensions.DependencyModel;
@@ -313,10 +314,17 @@ namespace DotVVM.Framework.Utils
             }
         }
 
+        private static ConcurrentDictionary<Type, Func<Delegate, object[], object>> delegateInvokeCache = new ConcurrentDictionary<Type, Func<Delegate, object[], object>>();
+        private static ParameterExpression delegateParameter = Expression.Parameter(typeof(Delegate), "delegate");
+        private static ParameterExpression argsParameter = Expression.Parameter(typeof(object[]), "args");
         public static object ExceptionSafeDynamicInvoke(this Delegate d, object[] args) =>
-            Expression.Lambda<Func<object>>(
-                Expression.Invoke(Expression.Constant(d), args.Zip(d.GetMethodInfo().GetParameters(), (a, p) => Expression.Constant(a, p.ParameterType))).ConvertToObject())
-            .Compile().Invoke();
+            delegateInvokeCache.GetOrAdd(d.GetType(), type =>
+                Expression.Lambda<Func<Delegate, object[], object>>(
+                    Expression.Invoke(Expression.Convert(delegateParameter, type), d.GetMethodInfo().GetParameters().Select((p, i) =>
+                        Expression.Convert(Expression.ArrayIndex(argsParameter, Expression.Constant(i)), p.ParameterType))).ConvertToObject(),
+                delegateParameter, argsParameter)
+                .Compile())
+            .Invoke(d, args);
 
         public static Type GetResultType(this MemberInfo member) =>
             member is PropertyInfo property ? property.PropertyType :
