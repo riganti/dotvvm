@@ -37,5 +37,15 @@ namespace DotVVM.Framework.Utils
         public static TOut As<TOut>(this object original)
             where TOut : class
             => original as TOut;     
+
+        public static IEnumerable<T> SelectRecursively<T>(this IEnumerable<T> enumerable, Func<T, IEnumerable<T>> children)
+        {
+            foreach (var e in enumerable)
+            {
+                yield return e;
+                foreach (var ce in children(e).SelectRecursively(children))
+                    yield return ce;
+            }
+        }
     }
 }

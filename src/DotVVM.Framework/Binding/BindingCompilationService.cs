@@ -135,7 +135,7 @@ namespace DotVVM.Framework.Binding
             {
                 var method = processor.GetMethodInfo();
                 var type = method.GetParameters().First().ParameterType;
-                if (method.ReturnType != typeof(void) || method.ReturnType != type)
+                if (method.ReturnType != typeof(void) && method.ReturnType != type)
                     throw new Exception("Binding property post-processing function must return void or first parameter's type.");
                 var list = postProcs.GetOrAdd(type, _ => new ConcurrentStack<Delegate>());
                 list.Push(processor);

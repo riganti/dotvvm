@@ -16,19 +16,21 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public Type DataContextType { get; }
         public IReadOnlyList<NamespaceImport> NamespaceImports { get; }
         public IReadOnlyList<BindingExtensionParameter> ExtensionParameters { get; }
+        public IReadOnlyList<Delegate> BindingPropertyResolvers { get; }
 
         private readonly int hashCode;
-
 
         private DataContextStack(Type type,
             DataContextStack parent = null,
             IReadOnlyList<NamespaceImport> imports = null,
-            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null)
+            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null,
+            IReadOnlyList<Delegate> bindingPropertyResolvers = null)
         {
             Parent = parent;
             DataContextType = type;
-            NamespaceImports = imports ?? parent?.NamespaceImports;
+            NamespaceImports = imports ?? parent?.NamespaceImports ?? new NamespaceImport[0];
             ExtensionParameters = extenstionParameters ?? new BindingExtensionParameter[0];
+            BindingPropertyResolvers = bindingPropertyResolvers ?? new Delegate[0];
 
             hashCode = ComputeHashCode();
         }
@@ -123,9 +125,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         public static DataContextStack Create(Type type,
             DataContextStack parent = null,
             IReadOnlyList<NamespaceImport> imports = null,
-            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null)
+            IReadOnlyList<BindingExtensionParameter> extenstionParameters = null,
+            IReadOnlyList<Delegate> bindingPropertyResolvers = null)
         {
-            var dcs = new DataContextStack(type, parent, imports, extenstionParameters);
+            var dcs = new DataContextStack(type, parent, imports, extenstionParameters, bindingPropertyResolvers);
             return dcs;// internCache.GetValue(dcs, _ => dcs);
         }
     }

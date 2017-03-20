@@ -135,6 +135,7 @@ namespace DotVVM.Framework.Compilation.Binding
             return new BindingAdditionalResolvers(
                 (prop.PropertyInfo?.GetCustomAttributes<BindingCompilationOptionsAttribute>() ?? Enumerable.Empty<BindingCompilationOptionsAttribute>())
                 .SelectMany(o => o.GetResolvers())
+                .Concat(stack.EnumerableItems().Reverse().SelectMany(s => s.BindingPropertyResolvers))
                 .ToImmutableArray());
         }
 
