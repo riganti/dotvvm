@@ -48,7 +48,7 @@ namespace DotVVM.Framework.Binding.Expressions
         protected object ExecDelegate(DotvvmBindableObject contextControl, bool seeThis)
         {
             var dataContexts = GetDataContexts(contextControl, seeThis);
-            var control = GetRootControl(contextControl);
+            var control = GetRootControl(contextControl.Parent);
             try
             {
                 return Delegate(dataContexts, control);

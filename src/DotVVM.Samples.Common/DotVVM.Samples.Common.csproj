@@ -20,8 +20,10 @@
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
+    <None Remove="Views\FeatureSamples\MarkupControl\control2.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
+    <None Remove="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <None Remove="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
   </ItemGroup>
@@ -36,9 +38,12 @@
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\Control1.dotcontrol" />
+    <Content Include="Views\FeatureSamples\MarkupControl\Control2.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlValueBindingWithCommand.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
+    <Content Include="Views\FeatureSamples\MarkupControl\MultiControlHierarchy.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged.dothtml" />
     <Content Include="Views\FeatureSamples\StaticCommand\StaticCommand_ComboBoxSelectionChanged_Objects.dothtml" />
   </ItemGroup>
