@@ -15,8 +15,8 @@ namespace DotVVM.Framework.Security
 {
     /// <summary>
     /// Implements synchronizer token pattern for CSRF protection.
-    /// <para>The token is generated based on Session ID (random 256-bit value persisted in cookie), 
-    /// Request identity (full URI) and User identity (user name, if authenticated).</para>
+    /// <para>The token is generated based on Session ID (random 256-bit value persisted in cookie). 
+    /// In contrast to ViewModelProtector, the request identity (full URI) and User identity (user name, if authenticated) cannot be used here, because of Back button which doesn't refresh the token in the cookie.</para>
     /// <para>Value of stored Session ID and the token itself is encrypted and signed.</para>
     /// </summary>
     public class DefaultCsrfProtector : ICsrfProtector
@@ -42,9 +42,7 @@ namespace DotVVM.Framework.Security
             var sid = this.GetOrCreateSessionId(context);
 
             // Construct protector with purposes
-            var userIdentity = ProtectionHelpers.GetUserIdentity(context);
-            var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN);
 
             // Get token
             var tokenData = protector.Protect(sid);
@@ -59,9 +57,7 @@ namespace DotVVM.Framework.Security
             if (string.IsNullOrWhiteSpace(token)) throw new SecurityException("CSRF protection token is missing.");
 
             // Construct protector with purposes
-            var userIdentity = ProtectionHelpers.GetUserIdentity(context);
-            var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.CreateProtector(PURPOSE_TOKEN);
 
             // Get token
             byte[] tokenSid;
@@ -89,9 +85,7 @@ namespace DotVVM.Framework.Security
             if (string.IsNullOrWhiteSpace(sessionIdCookieName)) throw new FormatException("Configured SessionIdCookieName is missing or empty.");
             
             // Construct protector with purposes
-            var userIdentity = ProtectionHelpers.GetUserIdentity(context);
-            var requestIdentity = ProtectionHelpers.GetRequestIdentity(context);
-            var protector = this.protectionProvider.CreateProtector(PURPOSE_SID, userIdentity, requestIdentity);
+            var protector = this.protectionProvider.CreateProtector(PURPOSE_SID);
 
             // Get cookie value
             var sidCookieValue = cookieManager.GetRequestCookie(originalHttpContext, sessionIdCookieName);
