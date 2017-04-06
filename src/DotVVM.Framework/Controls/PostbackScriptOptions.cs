@@ -8,14 +8,22 @@ namespace DotVVM.Framework.Controls
         public bool? ReturnValue { get; set; }
         public bool IsOnChange { get; set; }
         public CodeParameterAssignment ElementAccessor { get; set; }
+        public CodeParameterAssignment? KoContext { get; set; }
+        public CodeParameterAssignment? CommandArgs { get; set; }
 
         public PostbackScriptOptions(bool useWindowSetTimeout = false,
-            bool? returnValue = false, bool isOnChange = false, string elementAccessor = "this")
+            bool? returnValue = false,
+            bool isOnChange = false,
+            string elementAccessor = "this",
+            CodeParameterAssignment? koContext = null,
+            CodeParameterAssignment? commandArgs = null)
         {
-            UseWindowSetTimeout = useWindowSetTimeout;
-            ReturnValue = returnValue;
-            IsOnChange = isOnChange;
-            ElementAccessor = new CodeParameterAssignment(elementAccessor, OperatorPrecedence.Max);
+            this.UseWindowSetTimeout = useWindowSetTimeout;
+            this.ReturnValue = returnValue;
+            this.IsOnChange = isOnChange;
+            this.ElementAccessor = new CodeParameterAssignment(elementAccessor, OperatorPrecedence.Max);
+            this.KoContext = koContext;
+            this.CommandArgs = commandArgs;
         }
     }
 }

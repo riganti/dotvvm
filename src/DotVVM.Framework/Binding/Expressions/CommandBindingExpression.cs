@@ -124,7 +124,8 @@ namespace DotVVM.Framework.Binding.Expressions
         public static object UseObjectSetTimeoutParameter = new object();
         public static object ValidationPathParameter = new object();
         public static object OptionalKnockoutContextParameter = new object();
-        public static object PostbackHandlersParameters = new object();
+        public static object PostbackHandlersParameter = new object();
+        public static object CommandArgumentsParameter = new object();
         private static ParametrizedCode javascriptPostbackInvocation =
             new JsIdentifierExpression("dotvvm").Member("postBack").Invoke(
                 new JsSymbolicParameter(ViewModelNameParameter),
@@ -135,7 +136,8 @@ namespace DotVVM.Framework.Binding.Expressions
                 new JsSymbolicParameter(UseObjectSetTimeoutParameter),
                 new JsSymbolicParameter(ValidationPathParameter),
                 new JsSymbolicParameter(OptionalKnockoutContextParameter),
-                new JsSymbolicParameter(PostbackHandlersParameters)
+                new JsSymbolicParameter(PostbackHandlersParameter),
+                new JsSymbolicParameter(CommandArgumentsParameter)
             ).FormatParametrizedScript();
         public static ParametrizedCode CreateJsPostbackInvocation(string id) =>
             javascriptPostbackInvocation.AssignParameters(p =>

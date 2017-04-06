@@ -104,10 +104,11 @@ namespace DotVVM.Framework.Controls
                     (uniqueControlId is IValueBinding ? "{ expr: " + JsonConvert.ToString(((IValueBinding)uniqueControlId).GetKnockoutBindingExpression(control), '\'', StringEscapeHandling.Default) + "}" : "'" + (string)uniqueControlId + "'"), OperatorPrecedence.Max) :
                 p == CommandBindingExpression.UseObjectSetTimeoutParameter ? new CodeParameterAssignment(options.UseWindowSetTimeout ? "true" : "false", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.ValidationPathParameter ? CodeParameterAssignment.FromExpression(new JsLiteral(GetValidationTargetExpression(control))) :
-                p == CommandBindingExpression.OptionalKnockoutContextParameter ? new CodeParameterAssignment("null", OperatorPrecedence.Max) :
-                p == CommandBindingExpression.PostbackHandlersParameters ? new CodeParameterAssignment(generatedPostbackHanlders ?? (generatedPostbackHanlders = GetPostBackHandlersScript(control, propertyName)), OperatorPrecedence.Max) :
+                p == CommandBindingExpression.OptionalKnockoutContextParameter ? options.KoContext ?? new CodeParameterAssignment("null", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.CommandArgumentsParameter ? options.CommandArgs ?? new CodeParameterAssignment("undefined", OperatorPrecedence.Max) :
+                p == CommandBindingExpression.PostbackHandlersParameter ? new CodeParameterAssignment(generatedPostbackHanlders ?? (generatedPostbackHanlders = GetPostBackHandlersScript(control, propertyName)), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
-                );
+            );
             if (generatedPostbackHanlders == null)
                 call = $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{GetPostBackHandlersScript(control, propertyName)})";
             if (options.IsOnChange)

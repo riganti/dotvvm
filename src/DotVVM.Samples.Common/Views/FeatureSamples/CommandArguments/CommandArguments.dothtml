@@ -1,0 +1,17 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.CommandArguments.CommandArgumentsViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <!-- TODO: UI test - it should ask for a value using js prompt() on click, then the value should be shown in the Value field -->
+    <p>Value: {{value: Value}}</p>
+    <cc:PromptButton Click="{command: Command}">
+        Button
+    </cc:PromptButton>
+</body>
+</html>

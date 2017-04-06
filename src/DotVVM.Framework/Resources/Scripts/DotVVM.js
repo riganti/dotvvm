@@ -1260,7 +1260,7 @@ var DotVVM = (function () {
             return promise;
         }
     };
-    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers) {
+    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers, commandArgs) {
         var _this = this;
         if (this.isPostBackProhibited(sender))
             return new DotvvmPromise().reject("rejected");
@@ -1298,7 +1298,8 @@ var DotVVM = (function () {
             command: command,
             controlUniqueId: this.processPassedId(controlUniqueId, context),
             validationTargetPath: validationTargetPath || null,
-            renderedResources: this.viewModels[viewModelName].renderedResources
+            renderedResources: this.viewModels[viewModelName].renderedResources,
+            commandArgs: commandArgs
         };
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
             // if another postback has already been passed, don't do anything
