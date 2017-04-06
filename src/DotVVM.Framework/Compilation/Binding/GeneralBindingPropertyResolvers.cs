@@ -18,6 +18,8 @@ using DotVVM.Framework.ViewModel.Serialization;
 using DotVVM.Framework.Binding;
 using System.Collections;
 using System.Reflection;
+using System.Runtime.CompilerServices;
+using System.Collections.Concurrent;
 
 namespace DotVVM.Framework.Compilation.Binding
 {
@@ -142,7 +144,42 @@ namespace DotVVM.Framework.Compilation.Binding
         public CompiledBindingExpression.BindingDelegate Compile(Expression<CompiledBindingExpression.BindingDelegate> expr) => expr.Compile();
         public CompiledBindingExpression.BindingUpdateDelegate Compile(Expression<CompiledBindingExpression.BindingUpdateDelegate> expr) => expr.Compile();
 
-        public IdBindingProperty GetIdFromOriginalString(OriginalStringBindingProperty binding) => new IdBindingProperty(binding.Code);
+
+        private ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>> bindingCounts = new ConditionalWeakTable<ResolvedTreeRoot, ConcurrentDictionary<DataContextStack, int>>();
+        public IdBindingProperty CreateBindingId(
+            OriginalStringBindingProperty originalString = null,
+            ParsedExpressionBindingProperty expression = null,
+            DataContextStack dataContext = null,
+            ResolvedBinding resolvedBinding = null,
+            AssignedPropertyBindingProperty assignedProperty = null)
+        {
+            var sb = new StringBuilder();
+
+            // don't append expression when original string is present, so it does not have to be always exactly same
+            if (originalString != null)
+                sb.Append(originalString.Code);
+            else sb.Append(expression.ToString());
+
+            sb.Append("|||");
+            sb.Append(dataContext?.GetHashCode());
+            sb.Append("|||");
+            sb.Append(assignedProperty?.DotvvmProperty?.FullName);
+            sb.Append(assignedProperty?.DotvvmProperty?.GetHashCode());
+
+            if (resolvedBinding?.TreeRoot != null)
+            {
+                var bindingIndex = bindingCounts.GetOrCreateValue(resolvedBinding.TreeRoot).AddOrUpdate(dataContext, 0, (_, i) => i + 1);
+                sb.Append("|||");
+                sb.Append(bindingIndex);
+            }
+
+            using (var sha = System.Security.Cryptography.SHA256.Create())
+            {
+                var hash = sha.ComputeHash(Encoding.Unicode.GetBytes(sb.ToString()));
+                // use just 12 bytes = 96 bits
+                return new IdBindingProperty(Convert.ToBase64String(hash, 0, 12));
+            }
+        }
 
         public DataSourceAccessBinding GetDataSourceAccess(ParsedExpressionBindingProperty expression, IBinding binding)
         {
