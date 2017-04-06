@@ -211,6 +211,29 @@ class DotVVM {
         throw new Error("invalid argument");
     }
 
+    public applyPostbackHandlers<T>(callback: () => IDotvvmPromise<T>, sender: HTMLElement, handlers?: IDotvvmPostBackHandlerConfiguration[], context = ko.contextFor(sender)) {
+        if (handlers == null || handlers.length === 0) {
+            callback();
+        } else {
+            const promise = new DotvvmPromise<T>();
+            handlers
+                .map(h => <[string, any]>[h.name, this.evaluator.evaluateOnViewModel(context, "(" + h.options.toString() + ")()")])
+                .filter(h => h[1].enabled)
+                .reduceRight((prev, val, index) => (() => {
+                    this.postBackHandlers[val[0]](val[1]).execute(prev, sender);
+                    // TODO: process promise from handler?
+                    // return promise chained from the real postBack's so that postback handler can react to the postback
+                    return promise;
+                }),
+                () => {
+                    promise.chainFrom(callback());
+                }
+                )
+                ();
+            return promise;
+        }
+    }
+
     public postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs> {
         if (this.isPostBackProhibited(sender)) return new DotvvmPromise<DotvvmAfterPostBackEventArgs>().reject("rejected");
 
@@ -223,20 +246,17 @@ class DotVVM {
             return promise;
         }
 
+        context = context || ko.contextFor(sender);
+
         // apply postback handlers
         if (handlers && handlers.length > 0) {
-            var handler = this.postBackHandlers[handlers[0].name];
-            var options = this.evaluator.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
-            var handlerInstance = handler(options);
-            var nextHandler = () => promise.chainFrom(this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1)));
-            if (options.enabled) {
-                handlerInstance.execute(nextHandler, sender);
-            } else {
-                nextHandler();
-            }
-            return promise;
+            return this.applyPostbackHandlers(
+                () => this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context),
+                sender,
+                handlers,
+                context
+            )
         }
-
 
         var viewModel = this.viewModels[viewModelName].viewModel;
 
@@ -255,9 +275,6 @@ class DotVVM {
         }
 
         // perform the postback
-        if (!context) {
-            context = ko.contextFor(sender);
-        }
         this.updateDynamicPathFragments(context, path);
         var data = {
             viewModel: this.serialization.serialize(viewModel, { pathMatcher(val) { return context && val == context.$data } }),

@@ -92,6 +92,8 @@ namespace DotVVM.Framework.Controls
             // return the script
             var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};" : "";
 
+            string generatedPostbackHanlders = null;
+
             var call = expression.GetParametrizedCommandJavascript(control).ToString(p =>
                 p == CommandBindingExpression.ViewModelNameParameter ? new CodeParameterAssignment("'root'", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.SenderElementParameter ? options.ElementAccessor :
@@ -103,10 +105,13 @@ namespace DotVVM.Framework.Controls
                 p == CommandBindingExpression.UseObjectSetTimeoutParameter ? new CodeParameterAssignment(options.UseWindowSetTimeout ? "true" : "false", OperatorPrecedence.Max) :
                 p == CommandBindingExpression.ValidationPathParameter ? CodeParameterAssignment.FromExpression(new JsLiteral(GetValidationTargetExpression(control))) :
                 p == CommandBindingExpression.OptionalKnockoutContextParameter ? new CodeParameterAssignment("null", OperatorPrecedence.Max) :
-                p == CommandBindingExpression.PostbackHandlersParameters ? new CodeParameterAssignment(GetPostBackHandlersScript(control, propertyName), OperatorPrecedence.Max) :
+                p == CommandBindingExpression.PostbackHandlersParameters ? new CodeParameterAssignment(generatedPostbackHanlders ?? (generatedPostbackHanlders = GetPostBackHandlersScript(control, propertyName)), OperatorPrecedence.Max) :
                 default(CodeParameterAssignment)
                 );
-            if (options.IsOnChange) call = "if(!dotvvm.isViewModelUpdating){" + call + "}";
+            if (generatedPostbackHanlders == null)
+                call = $"dotvvm.applyPostbackHandlers(function(){{return {call}}}.bind(this),{options.ElementAccessor.Code.ToString(e => default(CodeParameterAssignment))},{GetPostBackHandlersScript(control, propertyName)})";
+            if (options.IsOnChange)
+                call = "if(!dotvvm.isViewModelUpdating){" + call + "}";
             return call + returnStatement;
         }
 

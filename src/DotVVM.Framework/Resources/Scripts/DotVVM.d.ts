@@ -282,6 +282,7 @@ declare class DotVVM {
     private isPostBackStillActive(currentPostBackCounter);
     staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
     private processPassedId(id, context);
+    applyPostbackHandlers<T>(callback: () => IDotvvmPromise<T>, sender: HTMLElement, handlers?: IDotvvmPostBackHandlerConfiguration[], context?: any): DotvvmPromise<T>;
     postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs>;
     private error(viewModel, xhr, promise?);
     private loadResourceList(resources, callback);
