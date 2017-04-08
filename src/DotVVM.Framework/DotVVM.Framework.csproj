@@ -33,12 +33,6 @@
       <PackagePath>tools\DotVVM.Compiler.exe</PackagePath>
       <Visible>false</Visible>
     </Content>
-    <Content Include="..\DotVVM.Compiler.Light\bin\$(Configuration)\netcoreapp1.0\DotVVM.Compiler.Light.dll">
-      <Pack>true</Pack>
-      <InProject>false</InProject>
-      <PackagePath>tools\DotVVM.Compiler.Light.dll</PackagePath>
-      <Visible>false</Visible>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="node_modules\**" />
