@@ -1,7 +1,7 @@
 using System.Collections.Generic;
 using DotVVM.Framework.Configuration;
 
-namespace Comp
+namespace DotVVM.Compiler.Light
 {
     public class CompilationResult
     {

@@ -5,7 +5,7 @@ using DotVVM.Framework.Configuration;
 using DotVVM.Framework.Utils;
 using Microsoft.Extensions.DependencyInjection;
 
-namespace Comp
+namespace DotVVM.Compiler.Light
 {
     class AspNetCoreInitializer
     {

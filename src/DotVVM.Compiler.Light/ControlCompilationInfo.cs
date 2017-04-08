@@ -1,4 +1,4 @@
-namespace Comp
+namespace DotVVM.Compiler.Light
 {
     public class ControlCompilationInfo
     {

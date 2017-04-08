@@ -7,7 +7,7 @@ using Newtonsoft.Json;
 using System.Diagnostics;
 using System.Threading;
 
-namespace Comp
+namespace DotVVM.Compiler.Light
 {
     public static class Program
     {
