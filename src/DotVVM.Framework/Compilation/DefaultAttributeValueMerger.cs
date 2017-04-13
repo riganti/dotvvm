@@ -85,7 +85,8 @@ namespace DotVVM.Framework.Compilation
                 DataContextTypeStack = originalBidning.DataContextTypeStack,
                 Expression = expression,
                 Parent = originalBidning.Parent,
-                ResultType = new ResolvedTypeDescriptor(expression.Type)
+                ResultType = new ResolvedTypeDescriptor(expression.Type),
+                DothtmlNode = originalBidning.DothtmlNode
             });
         }
 
