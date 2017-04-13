@@ -30,9 +30,16 @@
     <None Include="App.Release.config">
       <DependentUpon>App.config</DependentUpon>
     </None>
-    <None Include="SamplesRouteUrls.tt">
-      <Generator>TextTemplatingFilePreprocessor</Generator>
+  </ItemGroup>
+    <ItemGroup>
+    <None Update="SamplesRouteUrls.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
       <LastGenOutput>SamplesRouteUrls.cs</LastGenOutput>
+    </None>
+    <None Update="SamplesRouteUrls.cs">
+      <DesignTime>True</DesignTime>
+      <AutoGen>True</AutoGen>
+      <DependentUpon>SamplesRouteUrls.tt</DependentUpon>
     </None>
   </ItemGroup>
   <ItemGroup>

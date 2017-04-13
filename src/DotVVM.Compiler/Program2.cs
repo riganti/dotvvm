@@ -21,9 +21,7 @@ namespace DotVVM.Compiler
         {
             GetEnvironmentAssemblySearchPaths();
             AppDomain.CurrentDomain.AssemblyResolve += CurrentDomain_AssemblyResolve;
-
-            //WaitForDbg();
-
+            
             if (args.Length == 0)
             {
                 while (true)
@@ -31,6 +29,12 @@ namespace DotVVM.Compiler
                     var optionsJson = ReadJsonFromStdin();
                     DoCompile(GetCompilerOptions(optionsJson));
                 }
+            }
+
+            if (args[0] == "--debugger")
+            {
+                WaitForDbg();
+                args = args.Skip(1).ToArray();
             }
 
             if (args[0] == "--json")

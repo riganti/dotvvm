@@ -1,20 +1,32 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>1.1.0-beta</VersionPrefix>
+    <VersionPrefix>1.1.0.1</VersionPrefix>
     <TargetFramework>netcoreapp1.0</TargetFramework>
-    <AssemblyName>DotVVM.Compiler.Light</AssemblyName>
-    <OutputType>Exe</OutputType>
-    <PackageTargetFallback Condition=" '$(TargetFramework)' == 'netcoreapp1.0' ">$(PackageTargetFallback);dnxcore50</PackageTargetFallback>
+    <AssemblyName>dotnet-dotvvm-compiler</AssemblyName>
+    <PackageId>DotVVM.Compiler.Light</PackageId>
+    <PackageVersion>1.1.0.1</PackageVersion>
+    <Authors>RIGANTI</Authors>
+    <Description>Command-line compiler for DotVVM.</Description>
+    <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
+    <PackageTags>dotvvm;asp.net;mvvm;owin;dotnetcore;dnx;cli</PackageTags>
+    <PackageIconUrl>https://dotvvm.com/Content/images/icons/icon-blue-64x64.png</PackageIconUrl>
+    <PackageLicenseUrl>https://github.com/riganti/dotvvm/blob/master/LICENSE</PackageLicenseUrl>
+    <GenerateAssemblyTitleAttribute>false</GenerateAssemblyTitleAttribute>
+    <GenerateAssemblyDescriptionAttribute>false</GenerateAssemblyDescriptionAttribute>
     <GenerateAssemblyConfigurationAttribute>false</GenerateAssemblyConfigurationAttribute>
     <GenerateAssemblyCompanyAttribute>false</GenerateAssemblyCompanyAttribute>
     <GenerateAssemblyProductAttribute>false</GenerateAssemblyProductAttribute>
+    <GenerateAssemblyCopyrightAttribute>false</GenerateAssemblyCopyrightAttribute>
+    <GenerateAssemblyVersionAttribute>false</GenerateAssemblyVersionAttribute>
+    <GenerateAssemblyFileVersionAttribute>false</GenerateAssemblyFileVersionAttribute>
+    <PreserveCompilationContext>true</PreserveCompilationContext>
+    <OutputType>Exe</OutputType>
   </PropertyGroup>
   <ItemGroup>
     <ProjectReference Include="..\DotVVM.Framework\DotVVM.Framework.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.NETCore.App" Version="1.0.1" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
   </ItemGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
