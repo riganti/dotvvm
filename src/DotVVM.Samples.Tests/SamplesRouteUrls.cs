@@ -45,9 +45,9 @@ namespace Dotvvm.Samples.Tests{
 			public static string ControlSamples_DataPager_DataPager => "ControlSamples/DataPager/DataPager";
 			public static string ControlSamples_EnabledProperty_EnabledProperty => "ControlSamples/EnabledProperty/EnabledProperty";
 			public static string ControlSamples_EnvironmentView_EnvironmentViewTest => "ControlSamples/EnvironmentView/EnvironmentViewTest";
-			public static string ControlSamples_FileUpload_IsAllowedOrNot => "ControlSamples/FileUpload/IsAllowedOrNot";
-			public static string ControlSamples_FileUpload_FileUpload => "ControlSamples/FileUpload/FileUpload";
 			public static string ControlSamples_FileUpload_FileSize => "ControlSamples/FileUpload/FileSize";
+			public static string ControlSamples_FileUpload_FileUpload => "ControlSamples/FileUpload/FileUpload";
+			public static string ControlSamples_FileUpload_IsAllowedOrNot => "ControlSamples/FileUpload/IsAllowedOrNot";
 			public static string ControlSamples_GridView_ColumnVisible => "ControlSamples/GridView/ColumnVisible";
 			public static string ControlSamples_GridView_GridViewInlineEditing => "ControlSamples/GridView/GridViewInlineEditing";
 			public static string ControlSamples_GridView_GridViewInlineEditingPrimaryKeyGuid => "ControlSamples/GridView/GridViewInlineEditingPrimaryKeyGuid";
@@ -113,6 +113,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_ClientExtenders_PasswordStrength => "FeatureSamples/ClientExtenders/PasswordStrength";
 			public static string FeatureSamples_ConditionalCssClasses_ConditionalCssClasses => "FeatureSamples/ConditionalCssClasses/ConditionalCssClasses";
 			public static string FeatureSamples_DateTimeSerialization_DateTimeSerialization => "FeatureSamples/DateTimeSerialization/DateTimeSerialization";
+			public static string FeatureSamples_DependencyInjection_ViewModelScopedService => "FeatureSamples/DependencyInjection/ViewModelScopedService";
 			public static string FeatureSamples_Directives_ImportDirective => "FeatureSamples/Directives/ImportDirective";
 			public static string FeatureSamples_Directives_ImportDirectiveInvalid => "FeatureSamples/Directives/ImportDirectiveInvalid";
 			public static string FeatureSamples_Directives_ViewModelMissingAssembly => "FeatureSamples/Directives/ViewModelMissingAssembly";
@@ -132,6 +133,7 @@ namespace Dotvvm.Samples.Tests{
 			public static string FeatureSamples_MarkupControl_ControlPropertyUpdating => "FeatureSamples/MarkupControl/ControlPropertyUpdating";
 			public static string FeatureSamples_MarkupControl_ControlPropertyValidationPage => "FeatureSamples/MarkupControl/ControlPropertyValidationPage";
 			public static string FeatureSamples_MarkupControl_MarkupControlRegistration => "FeatureSamples/MarkupControl/MarkupControlRegistration";
+			public static string FeatureSamples_MarkupControl_MultiControlHierarchy => "FeatureSamples/MarkupControl/MultiControlHierarchy";
 			public static string FeatureSamples_NestedMasterPages_Content => "FeatureSamples/NestedMasterPages/Content";
 			public static string FeatureSamples_PostBack_PostBackHandlers => "FeatureSamples/PostBack/PostBackHandlers";
 			public static string FeatureSamples_PostBack_PostbackUpdate => "FeatureSamples/PostBack/PostbackUpdate";

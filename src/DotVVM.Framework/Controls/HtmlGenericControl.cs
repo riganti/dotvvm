@@ -147,7 +147,7 @@ namespace DotVVM.Framework.Controls
                         Children.Clear();
                         Children.Add(new Literal(InnerText));
                     }
-                });
+                }, renderEvenInServerRenderingMode: true);
             }
 
             base.AddAttributesToRender(writer, context);

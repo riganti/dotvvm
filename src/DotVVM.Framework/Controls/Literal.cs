@@ -80,6 +80,7 @@ namespace DotVVM.Framework.Controls
         public Literal(string text) : base("span")
         {
             Text = text;
+            RenderSpanElement = false;
         }
 
 
