@@ -49,30 +49,41 @@ namespace DotVVM.Framework.Controls.DynamicData
         }
         
 
-        public ValueBindingExpression CreateValueBinding(string expression)
+        public ValueBindingExpression CreateValueBinding(string expression, params Type[] nestedDataContextTypes)
         {
-            return CompileValueBindingExpression(expression);
+            return CompileValueBindingExpression(expression, nestedDataContextTypes);
         }
         
 
-        private ValueBindingExpression CompileValueBindingExpression(string expression)
+        private ValueBindingExpression CompileValueBindingExpression(string expression, params Type[] nestedDataContextTypes)
         {
+            var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
+
             var parser = new BindingExpressionBuilder();
             var bindingOptions = BindingParserOptions.Create<ValueBindingExpression>();
-            var parserResult = parser.Parse(expression, DataContextStack, bindingOptions);
+            var parserResult = parser.Parse(expression, dataContextStack, bindingOptions);
 
-            var compiledExpression = new BindingCompilationAttribute().CompileToDelegate(parserResult, DataContextStack, typeof(object));
+            var compiledExpression = new BindingCompilationAttribute().CompileToDelegate(parserResult, dataContextStack, typeof(object));
             var javascript = new BindingCompilationAttribute().CompileToJavascript(new ResolvedBinding()
             {
                 Value = expression,
                 Expression = parserResult,
                 BindingType = typeof(ValueBindingExpression),
-                DataContextTypeStack = DataContextStack
+                DataContextTypeStack = dataContextStack
             }, null);
             return new ValueBindingExpression(compiledExpression.Compile(), javascript)
             {
                 OriginalString = expression
             };
+        }
+
+        private DataContextStack CreateDataContextStack(DataContextStack dataContextStack, Type[] nestedDataContextTypes)
+        {
+            foreach (var type in nestedDataContextTypes)
+            {
+                dataContextStack = new DataContextStack(type, dataContextStack, dataContextStack.RootControlType, dataContextStack.NamespaceImports);
+            }
+            return dataContextStack;
         }
 
         public IViewContext CreateViewContext(IDotvvmRequestContext context)
