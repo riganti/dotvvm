@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
+using System.Text;
 using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Compilation;
 using DotVVM.Framework.Compilation.Binding;
@@ -72,6 +73,27 @@ namespace DotVVM.Framework.Controls.DynamicData
                 DataContextTypeStack = dataContextStack
             }, null);
             return new ValueBindingExpression(compiledExpression.Compile(), javascript)
+            {
+                OriginalString = expression
+            };
+        }
+
+        public CommandBindingExpression CreateCommandBinding(string expression, params Type[] nestedDataContextTypes)
+        {
+            return CompileCommandBindingExpression(expression, nestedDataContextTypes);
+        }
+
+        private CommandBindingExpression CompileCommandBindingExpression(string expression, params Type[] nestedDataContextTypes)
+        {
+            var dataContextStack = CreateDataContextStack(DataContextStack, nestedDataContextTypes);
+
+            var parser = new BindingExpressionBuilder();
+            var bindingOptions = BindingParserOptions.Create<CommandBindingExpression>();
+            var parserResult = parser.Parse(expression, dataContextStack, bindingOptions);
+            var compiledExpression = new CommandBindingCompilationAttribute().CompileToDelegate(parserResult, dataContextStack, typeof(Command)).Compile();
+
+            var bindingId = Convert.ToBase64String(Encoding.ASCII.GetBytes(dataContextStack.DataContextType.Name + "." + expression));
+            return new CommandBindingExpression(compiledExpression, bindingId)
             {
                 OriginalString = expression
             };
