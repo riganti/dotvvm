@@ -1,0 +1,38 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.DataSource.SimpleSqlDataSourceViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <style>
+        .highlight {
+            background-color: yellow;
+        }
+    </style>
+</head>
+<body>
+
+    <dot:SqlDataSource ConnectionString="Data Source=(localdb)\ProjectsV13;Initial Catalog=test;" 
+                       SelectCommand="select Table1.[Activity] as [Activity], 
+                                             Table2.[FromEmail] as [From],
+                                             Table2.[ToEmail] as [To],
+                                             Table2.[Subject] as [Subject] from Table1, Table2 
+                                      where Table1.[Email] = Table2.[FromEmail] 
+                                      and Table2.[ToEmail] is not null" ID="Source1" />
+    <p>Messages:</p>
+    <dot:GridView DataSource="{value: _dataSource["Source1"]}">
+        <dot:GridViewTextColumn ValueBinding="{value: _this["From"]}" CssClass="{value: _parent.SelectedAuthor == _this["From"] ? "highlight" : ""}" HeaderText="Author" />
+        <dot:GridViewTextColumn ValueBinding="{value: _this["Activity"]}" HeaderText="Author's Activity" />
+        <dot:GridViewTextColumn ValueBinding="{value: _this["To"]}" CssClass="{value: _parent.SelectedAuthor == _this["To"] ? "highlight" : ""}" HeaderText="Recipient" />
+        <dot:GridViewTextColumn ValueBinding="{value: _this["Subject"]}" HeaderText="Subject" />
+
+        <dot:GridViewTemplateColumn HeaderText="Even supports commands">
+            <dot:Button Click="{command: _parent.SelectAuthor(_this["From"])}" Text="Select author" />
+        </dot:GridViewTemplateColumn>
+    </dot:GridView>
+</body>
+</html>
+
+

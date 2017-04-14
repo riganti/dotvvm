@@ -19,6 +19,7 @@
     <None Remove="Views\ComplexSamples\GridViewDataSet\GridViewDataSetDelegate.dothtml" />
     <None Remove="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <None Remove="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
+    <None Remove="Views\FeatureSamples\DataSource\SimpleSqlDataSource.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\CommandBindingInDataContextWithControlProperty.dothtml" />
     <None Remove="Views\FeatureSamples\MarkupControl\control2.dotcontrol" />
     <None Remove="Views\FeatureSamples\MarkupControl\ControlCommandBinding.dotcontrol" />
@@ -37,6 +38,7 @@
     <Content Include="Views\ComplexSamples\GridViewDataSet\GridViewDataSetDelegate.dothtml" />
     <Content Include="Views\ControlSamples\ComboBox\ComboBoxDelaySync.dothtml" />
     <Content Include="Views\FeatureSamples\ActionFilterErrorHandling\ActionFilterRedirect.dothtml" />
+    <Content Include="Views\FeatureSamples\DataSource\SimpleSqlDataSource.dothtml" />
     <Content Include="Views\FeatureSamples\DependencyInjection\ViewModelScopedService.dothtml" />
     <Content Include="Views\FeatureSamples\MarkupControl\Control1.dotcontrol" />
     <Content Include="Views\FeatureSamples\MarkupControl\Control2.dotcontrol" />

@@ -71,6 +71,7 @@
     <ProjectReference Include="..\DotVVM.Core\DotVVM.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Dapper" Version="1.50.2" />
     <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
     <PackageReference Include="System.ValueTuple" Version="4.3.0" />
   </ItemGroup>

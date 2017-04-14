@@ -85,4 +85,19 @@ namespace DotVVM.Framework.Compilation.ControlTree
             );
         }
     }
+
+    public class DataSourceExtensionParameter: BindingExtensionParameter
+    {
+        public DataSourceExtensionParameter(): base("_dataSource", new ResolvedTypeDescriptor(typeof(DataSource.IndexableDS)), true) { }
+
+        public override Expression GetServerEquivalent(Expression controlParameter)
+        {
+            return ExpressionUtils.Replace((DotvvmBindableObject c) => new DataSource.IndexableDS(c), controlParameter);
+        }
+
+        public override JsExpression GetJsTranslation(JsExpression dataContext)
+        {
+            return new JsIdentifierExpression("dotvvm").Member("dataSources");
+        }
+    }
 }
