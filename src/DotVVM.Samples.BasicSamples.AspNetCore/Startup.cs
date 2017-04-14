@@ -1,6 +1,7 @@
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using DotVVM.Framework.Binding;
 using DotVVM.Framework.Hosting;
 using DotVVM.Samples.BasicSamples.ViewModels.ComplexSamples.Auth;
 using DotVVM.Samples.Common.ViewModels.FeatureSamples.DependencyInjection;
@@ -16,6 +17,11 @@ namespace DotVVM.Samples.BasicSamples
 {
     public class Startup
     {
+        public class BindingTestResolvers
+        {
+            
+        }
+
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddLocalization(o => o.ResourcesPath = "Resources");
@@ -25,6 +31,10 @@ namespace DotVVM.Samples.BasicSamples
             services.AddDotVVM(options =>
             {
                 options.AddDefaultTempStorages("Temp");
+            });
+
+            services.Configure<BindingCompilationOptions>(o => {
+                o.TransformerClasses.Add(new BindingTestResolvers());
             });
 
             services.AddScoped<ViewModelScopedDependency>();

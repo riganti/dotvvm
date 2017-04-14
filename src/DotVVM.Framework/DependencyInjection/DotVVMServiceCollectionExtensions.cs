@@ -41,14 +41,17 @@ namespace Microsoft.Extensions.DependencyInjection
             services.TryAddSingleton<IViewCompiler, DefaultViewCompiler>();
             services.TryAddSingleton<IBindingCompiler, BindingCompiler>();
             services.TryAddSingleton<IBindingExpressionBuilder, BindingExpressionBuilder>();
-            services.TryAddSingleton<BindingCompilationService>(s => new BindingCompilationService(
-                ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(s)));
+            services.TryAddSingleton<BindingCompilationService, BindingCompilationService>();
             services.TryAddSingleton<DataPager.CommonBindings>();
             services.TryAddSingleton<IControlUsageValidator, DefaultControlUsageValidator>();
             services.TryAddSingleton<ILocalResourceUrlManager, LocalResourceUrlManager>();
             services.TryAddSingleton<IResourceHashService, DefaultResourceHashService>();
             
             services.AddSingleton(s => configuration ?? (configuration = DotvvmConfiguration.CreateDefault(s)));
+
+            services.Configure<BindingCompilationOptions>(o => {
+                 o.TransformerClasses.Add(ActivatorUtilities.CreateInstance<BindingPropertyResolvers>(configuration.ServiceLocator.GetServiceProvider()));
+            });
 
             return services;
         }

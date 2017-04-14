@@ -41,7 +41,7 @@ namespace DotVVM.Framework.Binding.Expressions
 
         public class OptionsAttribute : BindingCompilationOptionsAttribute
         {
-            public override IEnumerable<Delegate> GetResolvers() => BindingCompilationService.GetDelegates(new Methods());
+            public override IEnumerable<Delegate> GetResolvers() => BindingCompilationService.GetDelegates(new[] { new Methods() });
 
             public class Methods
             {

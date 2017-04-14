@@ -14,16 +14,22 @@ using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Utils;
 using Microsoft.CodeAnalysis;
+using Microsoft.Extensions.Options;
 
 namespace DotVVM.Framework.Binding
 {
+    public class BindingCompilationOptions
+    {
+        public List<object> TransformerClasses { get; set; } = new List<object>();
+    }
+
     public class BindingCompilationService
     {
-        public BindingCompilationService(params object[] transformers)
+        public BindingCompilationService(IOptions<BindingCompilationOptions> options)
         {
             resolvers.AddResolver(new Func<BindingAdditionalResolvers, BindingResolverCollection>(
                 rr => new BindingResolverCollection(rr.Resolvers)));
-            foreach (var p in GetDelegates(transformers))
+            foreach (var p in GetDelegates(options.Value.TransformerClasses))
                 resolvers.AddDelegate(p);
         }
 
@@ -201,10 +207,11 @@ namespace DotVVM.Framework.Binding
             }
         }
 
-        public static Delegate[] GetDelegates(params object[] objects) => (
+        public static Delegate[] GetDelegates(IEnumerable<object> objects) => (
             from t in objects
             from m in t.GetType().GetMethods()
-            select m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
+            where m.DeclaringType != typeof(object)
+            select t is Delegate ? (Delegate)t : m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
         ).ToArray();
     }
 }
