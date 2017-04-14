@@ -116,8 +116,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
         public string BuildStaticCommandResponse(IDotvvmRequestContext context, object result)
         {
             var serializer = CreateJsonSerializer();
-            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper)
-            {
+            var viewModelConverter = new ViewModelJsonConverter(context.IsPostBack, viewModelMapper) {
                 UsedSerializationMaps = new HashSet<ViewModelSerializationMap>()
             };
             serializer.Converters.Add(viewModelConverter);
@@ -255,7 +254,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             var path = data["currentPath"].Values<string>().ToArray();
             var command = data["command"].Value<string>();
             var controlUniqueId = data["controlUniqueId"]?.Value<string>();
-            var args = data["commandArgs"]?.Values<object>().ToArray() ?? new object[0];
+            var args = data["commandArgs"]?.ToObject<object[]>() ?? new object[0];
 
             // empty command
             if (string.IsNullOrEmpty(command)) return null;

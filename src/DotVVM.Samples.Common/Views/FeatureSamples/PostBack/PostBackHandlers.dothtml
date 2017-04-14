@@ -52,6 +52,51 @@
     </dot:Button>
     <dot:CheckBox Checked="{value: IsEnabled}" Text="Allow 6th handler" />
 
+    <h3>StaticCommand version</h3>
+
+    <!-- TODO UI test for staticCommand part -->
 	<p><span>{{value: LastCommandValue}}</span></p>
+
+    	<p>
+		<dot:Button Text="1 confirmation" Click="{staticCommand: LastCommandValue = 1}">
+			<PostBack.Handlers>
+				<dot:ConfirmPostBackHandler Message="Confirmation 1" />
+			</PostBack.Handlers>
+		</dot:Button>
+	</p>
+	<p>
+		<dot:Button Text="2 confirmations" Click="{staticCommand: LastCommandValue = 2}">
+			<PostBack.Handlers>
+				<dot:ConfirmPostBackHandler Message="Confirmation 1" />
+				<dot:ConfirmPostBackHandler Message="Confirmation 2" />
+			</PostBack.Handlers>
+		</dot:Button>
+	</p>
+	<p>
+		<dot:Button Text="other event confirmation" Click="{staticCommand: LastCommandValue = 3}">
+			<PostBack.Handlers>
+				<dot:ConfirmPostBackHandler Message="Confirmation 3" EventName="UnknownEvent" />
+			</PostBack.Handlers>
+		</dot:Button>
+	</p>
+
+	<dot:Repeater DataSource="{value: Generated}">
+		<ItemTemplate>
+			<p>
+				<dot:Button Text="{value: Message}" Click="{staticCommand: _parent.LastCommandValue = Value}">
+					<PostBack.Handlers>
+						<dot:ConfirmPostBackHandler Message="{value: Message}" EventName="Click" />
+					</PostBack.Handlers>
+				</dot:Button>
+			</p>
+		</ItemTemplate>
+	</dot:Repeater>
+
+    <dot:Button Text="conditional handler" Click="{staticCommand: LastCommandValue = 6}">
+        <PostBack.Handlers>
+            <dot:ConfirmPostBackHandler Message="Conditional 1" EventName="Click" Enabled="{value: IsEnabled}" />
+        </PostBack.Handlers>
+    </dot:Button>
+    <dot:CheckBox Checked="{value: IsEnabled}" Text="Allow 6th handler" />
 </body>
 </html>

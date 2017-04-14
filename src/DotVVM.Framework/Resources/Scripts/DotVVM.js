@@ -1238,7 +1238,29 @@ var DotVVM = (function () {
             return this.evaluator.evaluateOnViewModel(context, id.expr);
         throw new Error("invalid argument");
     };
-    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers) {
+    DotVVM.prototype.applyPostbackHandlers = function (callback, sender, handlers, context) {
+        var _this = this;
+        if (context === void 0) { context = ko.contextFor(sender); }
+        if (handlers == null || handlers.length === 0) {
+            callback();
+        }
+        else {
+            var promise = new DotvvmPromise();
+            handlers
+                .map(function (h) { return [h.name, _this.evaluator.evaluateOnViewModel(context, "(" + h.options.toString() + ")()")]; })
+                .filter(function (h) { return h[1].enabled; })
+                .reduceRight(function (prev, val, index) { return (function () {
+                _this.postBackHandlers[val[0]](val[1]).execute(prev, sender);
+                // TODO: process promise from handler?
+                // return promise chained from the real postBack's so that postback handler can react to the postback
+                return promise;
+            }); }, function () {
+                promise.chainFrom(callback());
+            })();
+            return promise;
+        }
+    };
+    DotVVM.prototype.postBack = function (viewModelName, sender, path, command, controlUniqueId, useWindowSetTimeout, validationTargetPath, context, handlers, commandArgs) {
         var _this = this;
         if (this.isPostBackProhibited(sender))
             return new DotvvmPromise().reject("rejected");
@@ -1250,19 +1272,10 @@ var DotVVM = (function () {
             window.setTimeout(function () { return promise.chainFrom(_this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers)); }, 0);
             return promise;
         }
+        context = context || ko.contextFor(sender);
         // apply postback handlers
         if (handlers && handlers.length > 0) {
-            var handler = this.postBackHandlers[handlers[0].name];
-            var options = this.evaluator.evaluateOnViewModel(ko.contextFor(sender), "(" + handlers[0].options.toString() + ")()");
-            var handlerInstance = handler(options);
-            var nextHandler = function () { return promise.chainFrom(_this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context, handlers.slice(1))); };
-            if (options.enabled) {
-                handlerInstance.execute(nextHandler, sender);
-            }
-            else {
-                nextHandler();
-            }
-            return promise;
+            return this.applyPostbackHandlers(function () { return _this.postBack(viewModelName, sender, path, command, controlUniqueId, false, validationTargetPath, context); }, sender, handlers, context);
         }
         var viewModel = this.viewModels[viewModelName].viewModel;
         // prevent double postbacks
@@ -1278,9 +1291,6 @@ var DotVVM = (function () {
             return promise.reject("canceled");
         }
         // perform the postback
-        if (!context) {
-            context = ko.contextFor(sender);
-        }
         this.updateDynamicPathFragments(context, path);
         var data = {
             viewModel: this.serialization.serialize(viewModel, { pathMatcher: function (val) { return context && val == context.$data; } }),
@@ -1288,7 +1298,8 @@ var DotVVM = (function () {
             command: command,
             controlUniqueId: this.processPassedId(controlUniqueId, context),
             validationTargetPath: validationTargetPath || null,
-            renderedResources: this.viewModels[viewModelName].renderedResources
+            renderedResources: this.viewModels[viewModelName].renderedResources,
+            commandArgs: commandArgs
         };
         this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), function (result) {
             // if another postback has already been passed, don't do anything

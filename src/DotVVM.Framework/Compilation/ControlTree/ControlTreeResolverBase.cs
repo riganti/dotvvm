@@ -560,9 +560,10 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         protected virtual void ResolveControlContentImmediately(IAbstractControl control, List<DothtmlNode> content)
         {
+            var dataContext = GetDataContextChange(control.DataContextTypeStack, control, null);
             foreach (var node in content)
             {
-                var child = ProcessNode(control, node, control.Metadata, control.DataContextTypeStack);
+                var child = ProcessNode(control, node, control.Metadata, dataContext);
                 if (child != null) treeBuilder.AddChildControl(control, child);
             }
         }
