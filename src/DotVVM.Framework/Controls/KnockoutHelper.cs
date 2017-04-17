@@ -95,7 +95,15 @@ namespace DotVVM.Framework.Controls
             };
 
             // return the script
-            var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};" : "";
+            string returnStatement;
+            if (options.ReturnValue == false)
+            {
+                returnStatement = ";event.stopPropagation();return false;";
+            }
+            else
+            {
+                returnStatement = "";
+            }
 
             if (expression is StaticCommandBindingExpression)
             {
