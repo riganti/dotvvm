@@ -205,8 +205,7 @@ namespace DotVVM.Framework.Binding
             var propertyInfo = property.DeclaringType.GetProperty(property.Name);
             var markupOptions = propertyInfo?.GetCustomAttribute<MarkupOptionsAttribute>()
                 ?? attributeProvider.GetCustomAttribute<MarkupOptionsAttribute>()
-                ?? new MarkupOptionsAttribute()
-                {
+                ?? new MarkupOptionsAttribute() {
                     AllowBinding = true,
                     AllowHardCodedValue = true,
                     MappingMode = MappingMode.Attribute,
@@ -233,8 +232,7 @@ namespace DotVVM.Framework.Binding
                let markupOptions = GetVirtualPropertyMarkupOptions(p)
                where markupOptions != null
                where markupOptions.MappingMode != MappingMode.Exclude
-               select new DotvvmProperty
-               {
+               select new DotvvmProperty {
                    DeclaringType = controlType,
                    IsValueInherited = false,
                    MarkupOptions = markupOptions,
@@ -297,6 +295,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Called when a control of the property type is created and initialized.
         /// </summary>
+        [Obsolete("Does not work as you would expect and will be changed/removed")]
         protected internal virtual void OnControlInitialized(DotvvmBindableObject dotvvmControl)
         {
         }
