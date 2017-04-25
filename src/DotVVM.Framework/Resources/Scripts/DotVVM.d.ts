@@ -6,6 +6,12 @@ declare class DotvvmDomUtils {
     onDocumentReady(callback: () => void): void;
     attachEvent(target: any, name: string, callback: (ev: PointerEvent) => any, useCapture?: boolean): void;
 }
+declare class DotvvmEvaluator {
+    evaluateOnViewModel(context: any, expression: any): any;
+    evaluateOnContext(context: any, expression: string): any;
+    getDataSourceItems(viewModel: any): any;
+    tryEval(func: () => any): any;
+}
 declare class DotvvmEvents {
     init: DotvvmEvent<DotvvmEventArgs>;
     beforePostback: DotvvmEvent<DotvvmBeforePostBackEventArgs>;
@@ -77,12 +83,6 @@ declare class DotvvmRedirectEventArgs extends DotvvmEventArgs {
     isHandled: boolean;
     constructor(viewModel: any, viewModelName: string, url: string, replace: boolean);
 }
-declare class DotvvmEvaluator {
-    evaluateOnViewModel(context: any, expression: any): any;
-    evaluateOnContext(context: any, expression: string): any;
-    getDataSourceItems(viewModel: any): any;
-    tryEval(func: () => any): any;
-}
 declare class DotvvmGlobalize {
     format(format: string, ...values: string[]): string;
     formatString(format: string, value: any): string;
@@ -122,10 +122,10 @@ declare class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
     private argument;
     private error;
     done(callback: (arg: TArg) => void, forceAsync?: boolean): void;
-    fail(callback: (error) => void, forceAsync?: boolean): DotvvmPromise<TArg>;
-    resolve(arg: TArg): DotvvmPromise<TArg>;
-    reject(error: any): DotvvmPromise<TArg>;
-    chainFrom(promise: IDotvvmPromise<TArg>): DotvvmPromise<TArg>;
+    fail(callback: (error) => void, forceAsync?: boolean): this;
+    resolve(arg: TArg): this;
+    reject(error: any): this;
+    chainFrom(promise: IDotvvmPromise<TArg>): this;
 }
 interface ISerializationOptions {
     serializeAll?: boolean;
@@ -142,7 +142,7 @@ declare class DotvvmSerialization {
     validateType(value: any, type: string): boolean;
     private findObject(obj, matcher);
     flatSerialize(viewModel: any): any;
-    getPureObject(viewModel: any): any;
+    getPureObject(viewModel: any): {};
     private pad(value, digits);
     serializeDate(date: Date, convertToUtc?: boolean): string;
 }
@@ -282,7 +282,7 @@ declare class DotVVM {
     private isPostBackStillActive(currentPostBackCounter);
     staticCommandPostback(viewModelName: string, sender: HTMLElement, command: string, args: any[], callback?: (_: any) => void, errorCallback?: (xhr: XMLHttpRequest, error?: any) => void): void;
     private processPassedId(id, context);
-    applyPostbackHandlers<T>(callback: () => IDotvvmPromise<T>, sender: HTMLElement, handlers?: IDotvvmPostBackHandlerConfiguration[], context?: any): DotvvmPromise<T>;
+    applyPostbackHandlers<T>(callback: () => IDotvvmPromise<T>, sender: HTMLElement, handlers?: IDotvvmPostBackHandlerConfiguration[], context?: any): IDotvvmPromise<T>;
     postBack(viewModelName: string, sender: HTMLElement, path: string[], command: string, controlUniqueId: string, useWindowSetTimeout: boolean, validationTargetPath?: any, context?: any, handlers?: IDotvvmPostBackHandlerConfiguration[], commandArgs?: any[]): IDotvvmPromise<DotvvmAfterPostBackEventArgs>;
     private error(viewModel, xhr, promise?);
     private loadResourceList(resources, callback);

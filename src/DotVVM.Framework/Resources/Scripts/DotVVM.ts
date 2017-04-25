@@ -1,4 +1,4 @@
-/// <reference path="typings/knockout/knockout.d.ts" />
+﻿/// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
@@ -94,8 +94,8 @@ class DotVVM {
         this.events.init.trigger(new DotvvmEventArgs(viewModel));
 
         // handle SPA requests
-        var spaPlaceHolder = this.getSpaPlaceHolder();
-        if (spaPlaceHolder) {
+        const spaPlaceHolder = this.getSpaPlaceHolder();
+        if (spaPlaceHolder != null) {
             this.domUtils.attachEvent(window, "hashchange", () => this.handleHashChange(viewModelName, spaPlaceHolder, false));
             this.handleHashChange(viewModelName, spaPlaceHolder, true);
         }
@@ -189,7 +189,7 @@ class DotVVM {
             "$csrfToken": this.viewModels[viewModelName].viewModel.$csrfToken
         });
 
-        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
+        this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), response => {
             if (!this.isPostBackStillActive(currentPostBackCounter)) return;
             try {
                 this.isViewModelUpdating = true;
@@ -213,7 +213,7 @@ class DotVVM {
 
     public applyPostbackHandlers<T>(callback: () => IDotvvmPromise<T>, sender: HTMLElement, handlers?: IDotvvmPostBackHandlerConfiguration[], context = ko.contextFor(sender)) {
         if (handlers == null || handlers.length === 0) {
-            callback();
+            return callback();
         } else {
             const promise = new DotvvmPromise<T>();
             handlers
@@ -285,7 +285,7 @@ class DotVVM {
             renderedResources: this.viewModels[viewModelName].renderedResources,
             commandArgs: commandArgs
         };
-        this.postJSON(this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
+        this.postJSON(<string>this.viewModels[viewModelName].url, "POST", ko.toJSON(data), result => {
             // if another postback has already been passed, don't do anything
             if (!this.isPostBackStillActive(currentPostBackCounter)) {
                 var afterPostBackArgsCanceled = new DotvvmAfterPostBackEventArgs(sender, viewModel, viewModelName, validationTargetPath, null);
@@ -369,10 +369,10 @@ class DotVVM {
         return promise;
     }
 
-    private error(viewModel, xhr: XMLHttpRequest, promise: DotvvmPromise<any> = null) {
+    private error(viewModel, xhr: XMLHttpRequest, promise?: DotvvmPromise<any>) {
         // execute error handlers
         var errArgs = new DotvvmErrorEventArgs(viewModel, xhr);
-        if (promise != null) promise.reject(errArgs);
+        if (promise) promise.reject(errArgs);
         this.events.error.trigger(errArgs);
         if (!errArgs.handled) {
             alert("unhandled error during postback");
@@ -450,7 +450,7 @@ class DotVVM {
         }
     }
 
-    private getSpaPlaceHolder(): HTMLElement {
+    private getSpaPlaceHolder() {
         var elements = document.getElementsByName("__dot_SpaContentPlaceHolder");
         if (elements.length == 1) {
             return <HTMLElement>elements[0];
@@ -545,7 +545,7 @@ class DotVVM {
         });
     }
 
-    private handleRedirect(resultObject: any, viewModelName: string, replace?: boolean) {
+    private handleRedirect(resultObject: any, viewModelName: string, replace: boolean = false) {
         if (resultObject.replace != null) replace = resultObject.replace;
         var url;
         // redirect
@@ -590,7 +590,7 @@ class DotVVM {
     }
 
     private fixSpaUrlPrefix(url: string): string {
-        var attr = this.getSpaPlaceHolder().attributes["data-dotvvm-spacontentplaceholder-urlprefix"];
+        var attr = this.getSpaPlaceHolder()!.attributes["data-dotvvm-spacontentplaceholder-urlprefix"];
         if (!attr) {
             return url;
         }
@@ -768,7 +768,7 @@ class DotVVM {
     }
 
     private addKnockoutBindingHandlers() {
-        function createWrapperComputed(accessor: () => any, propertyDebugInfo: string = null) {
+        function createWrapperComputed(accessor: () => any, propertyDebugInfo: string | null = null) {
             var computed = ko.pureComputed({
                 read() {
                     var property = accessor();
@@ -792,6 +792,7 @@ class DotVVM {
         ko.virtualElements.allowedBindings["dotvvm_withControlProperties"] = true;
         ko.bindingHandlers["dotvvm_withControlProperties"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
+                if (!bindingContext) throw new Error();
                 var value = valueAccessor();
                 for (var prop in value) {
                     value[prop] = createWrapperComputed(function () { return valueAccessor()[this.prop]; }.bind({ prop: prop }), `'${prop}' at '${valueAccessor.toString()}'`);
@@ -808,6 +809,7 @@ class DotVVM {
         ko.virtualElements.allowedBindings["dotvvm_introduceAlias"] = true;
         ko.bindingHandlers["dotvvm_introduceAlias"] = {
             init(element, valueAccessor, allBindings, viewModel, bindingContext) {
+                if (!bindingContext) throw new Error();
                 var value = valueAccessor();
                 var extendBy = {};
                 for (var prop in value) {
@@ -828,6 +830,7 @@ class DotVVM {
         ko.virtualElements.allowedBindings["withGridViewDataSet"] = true;
         ko.bindingHandlers["withGridViewDataSet"] = {
             init: (element, valueAccessor, allBindings, viewModel, bindingContext) => {
+                if (!bindingContext) throw new Error();
                 var value = valueAccessor();
                 var innerBindingContext = bindingContext.extend({ $gridViewDataSet: value });
                 element.innerBindingContext = innerBindingContext;
@@ -857,10 +860,10 @@ class DotVVM {
                  if (bindings["dotvvm-checked-pointer"]) {
                      var checked = bindings[bindings["dotvvm-checked-pointer"]];
                      if (ko.isObservable(checked)) {
-                         if ((<KnockoutObservable<any>>checked).valueHasMutated) {
-                             (<KnockoutObservable<any>>checked).valueHasMutated();
+                         if (checked.valueHasMutated) {
+                             checked.valueHasMutated();
                          } else {
-                             (<KnockoutObservable<any>>checked).notifySubscribers();
+                             checked.notifySubscribers();
                          }
                      }
                  }
@@ -909,7 +912,7 @@ class DotVVM {
                             style.display = lastDisplay;
                         }
                         else {
-                            lastDisplay = style.display;
+                            lastDisplay = style.display || "";
                             style.display = "none";
                         }
                     }
@@ -960,7 +963,7 @@ class DotVVM {
 
 
                 dotvvm.domUtils.attachEvent(element, "blur", () => {
-
+                    if (!ko.isObservable(obs)) return;
                     // parse the value
                     var result, isEmpty, newValue;
                     if (elmMetadata.dataType === "datetime") {
@@ -989,8 +992,8 @@ class DotVVM {
                     }
 
                     if (obs() === newValue) {
-                        if ((<KnockoutObservable<number>>obs).valueHasMutated) {
-                            (<KnockoutObservable<number>>obs).valueHasMutated();
+                        if (obs.valueHasMutated) {
+                            obs.valueHasMutated();
                         } else {
                             (<KnockoutObservable<number>>obs).notifySubscribers();
                         }
