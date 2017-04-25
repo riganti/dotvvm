@@ -7,12 +7,13 @@ using DotVVM.Framework.Binding.Expressions;
 using DotVVM.Framework.Runtime;
 using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
     public static class KnockoutHelper
     {
-        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmControl control, DotvvmProperty property, Action nullBindingAction = null,
+        public static void AddKnockoutDataBind(this IHtmlWriter writer, string name, DotvvmBindableObject control, DotvvmProperty property, Action nullBindingAction = null,
             string valueUpdate = null, bool renderEvenInServerRenderingMode = false, bool setValueBack = false)
         {
             var expression = control.GetValueBinding(property);
@@ -26,8 +27,8 @@ namespace DotVVM.Framework.Controls
             }
             else
             {
-                if (nullBindingAction != null) nullBindingAction();
-                if (setValueBack && expression != null) control.SetValue(property, expression.Evaluate(control, property));
+                nullBindingAction?.Invoke();
+                if (setValueBack && expression != null) control.SetValue(property, expression.Evaluate(control, null));
             }
         }
 
@@ -264,7 +265,7 @@ namespace DotVVM.Framework.Controls
         {
             var binding = obj.GetValueBinding(property);
             if (binding != null) return binding.GetKnockoutBindingExpression();
-            return JsonConvert.SerializeObject(obj.GetValue(property));
+            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings());
         }
 
         /// <summary>

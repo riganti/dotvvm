@@ -82,7 +82,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
             // persist encrypted values
             if (viewModelConverter.EncryptedValues.Count > 0)
                 writer.Token["$encryptedValues"] = viewModelProtector.Protect(viewModelConverter.EncryptedValues.ToString(Formatting.None), context);
-            
+
             // serialize validation rules
             bool useClientSideValidation = context.Configuration.ClientSideValidation;
             var validationRules = useClientSideValidation ?
@@ -134,16 +134,17 @@ namespace DotVVM.Framework.ViewModel.Serialization
             return writer.Token.ToString(JsonFormatting);
         }
 
-        protected virtual JsonSerializer CreateJsonSerializer()
+        public static JsonSerializerSettings CreateDefaultSettings()
         {
-            var s = new JsonSerializer()
-            {
+            var s = new JsonSerializerSettings() {
                 DateTimeZoneHandling = DateTimeZoneHandling.Unspecified
             };
             s.Converters.Add(new DotvvmDateTimeConverter());
             s.Converters.Add(new StringEnumConverter());
             return s;
         }
+
+        protected virtual JsonSerializer CreateJsonSerializer() => CreateDefaultSettings().Apply(JsonSerializer.Create);
 
         public JObject BuildResourcesJson(IDotvvmRequestContext context, Func<string, bool> predicate)
         {

@@ -85,5 +85,17 @@ namespace DotVVM.Framework.Tests.Runtime
             Assert.IsTrue(serverHtml.Contains("<EMPTY_DATA"));
             Assert.IsTrue(!serverHtml.Contains("<div"));
         }
+
+        [TestMethod]
+        public void BindingGroup_EnumProperty()
+        {
+            var writer = new StringWriter();
+            var html = new HtmlWriter(writer, CreateContext(new object()));
+            html.AddKnockoutDataBind("tt", new KnockoutBindingGroup() {
+                { "test", new TextBox(){ Type = TextBoxType.Date }, TextBox.TypeProperty }
+            });
+            html.RenderSelfClosingTag("span");
+            Assert.AreEqual("<spandata-bind=\"tt:{&#39;test&#39;:&quot;Date&quot;}\"/>", writer.ToString().Replace(" ", ""));
+        }
     }
 }
