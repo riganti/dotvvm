@@ -21,50 +21,6 @@ var DotvvmDomUtils = (function () {
     };
     return DotvvmDomUtils;
 }());
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
-    }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
-        }
-        else {
-            result = eval("(function ($context) { var $data=$context; with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
-            }
-        }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
-    };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
-}());
 var DotvvmEvents = (function () {
     function DotvvmEvents() {
         this.init = new DotvvmEvent("dotvvm.events.init", true);
@@ -196,6 +152,50 @@ var DotvvmRedirectEventArgs = (function (_super) {
     }
     return DotvvmRedirectEventArgs;
 }(DotvvmEventArgs));
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
+    }
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+        }
+        else {
+            result = eval("(function ($context) { var $data=$context; with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
+            }
+        }
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
+    };
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
+}());
 var DotvvmGlobalize = (function () {
     function DotvvmGlobalize() {
     }
@@ -318,8 +318,8 @@ var DotvvmPromise = (function () {
             var c = _a[_i];
             c(arg);
         }
-        this.callbacks = null;
-        this.errorCallbacks = null;
+        this.callbacks = [];
+        this.errorCallbacks = [];
         return this;
     };
     DotvvmPromise.prototype.reject = function (error) {
@@ -331,8 +331,8 @@ var DotvvmPromise = (function () {
             var c = _a[_i];
             c(error);
         }
-        this.callbacks = null;
-        this.errorCallbacks = null;
+        this.callbacks = [];
+        this.errorCallbacks = [];
         return this;
     };
     DotvvmPromise.prototype.chainFrom = function (promise) {
@@ -766,8 +766,8 @@ var ValidationError = (function () {
         this.errorMessage = errorMessage;
     }
     ValidationError.getOrCreate = function (targetObservable) {
-        if (targetObservable["wrappedProperty"]) {
-            var newOne = targetObservable["wrappedProperty"]();
+        if (ko.isObservable(targetObservable.wrappedProperty)) {
+            var newOne = targetObservable.wrappedProperty();
             if (ko.isObservable(newOne))
                 targetObservable = newOne;
         }
@@ -2102,4 +2102,24 @@ var DotvvmFileSize = (function () {
     }
     return DotvvmFileSize;
 }());
+/// <reference path="typings/knockout/knockout.d.ts" />
+/// <reference path="DotVVM.ts" />
+DotVVM.prototype.invokeApiFn = function (callback) {
+    var cachedValue = ko.observable(null);
+    var load = function () {
+        var result = window["Promise"].resolve(callback());
+        result.then(function (val) {
+            if (val) {
+                cachedValue(val);
+            }
+        }, console.warn);
+    };
+    var cmp = ko.pureComputed(function () { return cachedValue(); });
+    cmp["refreshValue"] = function () {
+        load();
+    };
+    load();
+    return cmp;
+};
+DotVVM.prototype.api = {};
 //# sourceMappingURL=DotVVM.js.map

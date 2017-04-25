@@ -99,9 +99,9 @@ class ValidationError {
     constructor(public targetObservable: KnockoutObservable<any>, public errorMessage: string) {
     }
 
-    public static getOrCreate(targetObservable: KnockoutObservable<any> & { validationErrors?: KnockoutObservableArray<ValidationError> }): KnockoutObservableArray<ValidationError> {
-        if (targetObservable["wrappedProperty"]) {
-            var newOne = targetObservable["wrappedProperty"]();
+    public static getOrCreate(targetObservable: KnockoutObservable<any> & { validationErrors?: KnockoutObservableArray<ValidationError>, wrappedProperty?: any }): KnockoutObservableArray<ValidationError> {
+        if (ko.isObservable(targetObservable.wrappedProperty)) {
+            var newOne = targetObservable.wrappedProperty();
             if (ko.isObservable(newOne)) targetObservable = newOne;
         }
         if (!targetObservable.validationErrors) {
@@ -254,7 +254,7 @@ class DotvvmValidation {
         // find validation rules
         var type = ko.unwrap(viewModel.$type);
         if (!type) return;
-        var rulesForType = dotvvm.viewModels['root'].validationRules[type] || {};
+        var rulesForType = dotvvm.viewModels['root'].validationRules![type] || {};
 
         // validate all properties
         for (var property in viewModel) {
@@ -318,7 +318,7 @@ class DotvvmValidation {
             }
             for (var type in args.serverResponseObject) {
                 if (!args.serverResponseObject.hasOwnProperty(type)) continue;
-                existingRules[type] = args.serverResponseObject[type];
+                existingRules![type] = args.serverResponseObject[type];
             }
         }
     }

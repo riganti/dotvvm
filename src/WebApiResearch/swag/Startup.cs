@@ -30,7 +30,11 @@ namespace swag
         public void ConfigureServices(IServiceCollection services)
         {
             // Add framework services.
-            services.AddMvc();
+            services.AddMvc(opt => {
+
+            }).AddJsonOptions(opt => {
+                opt.SerializerSettings.ContractResolver = new Newtonsoft.Json.Serialization.DefaultContractResolver();
+            });
 
             services.AddDotVVM(options =>
             {
@@ -43,8 +47,15 @@ namespace swag
         {
             loggerFactory.AddConsole(Configuration.GetSection("Logging"));
             loggerFactory.AddDebug();
+            app.UseCors(p => {
+                p.AllowAnyOrigin();
+                p.AllowAnyMethod();
+                p.AllowAnyHeader();
+            });
 
-            app.UseMvc();
+            app.UseMvc(opt => {
+            });
+            
 
             app.UseDotVVM<DotvvmStartup>(env.ContentRootPath);
 
@@ -59,7 +70,8 @@ namespace swag
             database.Companies = generator.GetCollection(7, i => new Company()
                 {
                     Id = i,
-                    Name = generator.GetWords(3, 30, Casing.FirstUpper)
+                    Name = Faker.Company.Name(),
+                    Owner = Faker.Name.FullName(Faker.NameFormats.WithPrefix)
                 })
                 .ToList();
 

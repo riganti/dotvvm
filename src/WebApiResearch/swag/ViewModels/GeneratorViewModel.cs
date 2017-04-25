@@ -32,7 +32,8 @@ namespace swag.ViewModels
             };
 
 	        var generator = new SwaggerToCSharpClientGenerator(document, settings);
-	        File.WriteAllText(CSharpPath, generator.GenerateFile());
+            Context.ReturnFile(Encoding.UTF8.GetBytes(generator.GenerateFile()), "ApiClient.cs", "text/plain");
+	        //File.WriteAllText(CSharpPath, generator.GenerateFile());
 	    }
 
 	    public async Task GenerateTS()
@@ -45,7 +46,8 @@ namespace swag.ViewModels
 	        };
 
 	        var generator = new SwaggerToTypeScriptClientGenerator(document, settings);
-	        File.WriteAllText(TSPath, generator.GenerateFile());
+            Context.ReturnFile(Encoding.UTF8.GetBytes(generator.GenerateFile()), "ApiClient.ts", "text/plain");
+            //File.WriteAllText(TSPath, generator.GenerateFile());
         }
 
 

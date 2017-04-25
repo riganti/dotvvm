@@ -41,14 +41,14 @@ class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
     }
 
     resolve(arg: TArg) {
-        if (this.state !== DotvvmPromiseState.Pending) throw new Error(`Can not resolve ${ this.state } promise.`)
+        if (this.state !== DotvvmPromiseState.Pending) throw new Error(`Can not resolve ${this.state} promise.`)
         this.state = DotvvmPromiseState.Done;
         this.argument = arg;
         for (var c of this.callbacks) {
             c(arg);
         }
-        this.callbacks = null;
-        this.errorCallbacks = null;
+        this.callbacks = [];
+        this.errorCallbacks = [];
         return this;
     }
 
@@ -59,8 +59,8 @@ class DotvvmPromise<TArg> implements IDotvvmPromise<TArg> {
         for (var c of this.errorCallbacks) {
             c(error);
         }
-        this.callbacks = null;
-        this.errorCallbacks = null;
+        this.callbacks = [];
+        this.errorCallbacks = [];
         return this;
     }
 

@@ -27,7 +27,7 @@
         return dotvvm_Globalize.format(value, format, dotvvm.culture);
     }
 
-    public parseDotvvmDate(value: string): Date {
+    public parseDotvvmDate(value: string): Date | null {
         var match = value.match("^([0-9]{4})-([0-9]{2})-([0-9]{2})T([0-9]{2}):([0-9]{2}):([0-9]{2})(\\.[0-9]{3,7})$");
         if (match) {
             return new Date(parseInt(match[1]), parseInt(match[2]) - 1, parseInt(match[3]),

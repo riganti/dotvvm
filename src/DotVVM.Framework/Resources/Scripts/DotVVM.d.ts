@@ -6,12 +6,6 @@ declare class DotvvmDomUtils {
     onDocumentReady(callback: () => void): void;
     attachEvent(target: any, name: string, callback: (ev: PointerEvent) => any, useCapture?: boolean): void;
 }
-declare class DotvvmEvaluator {
-    evaluateOnViewModel(context: any, expression: any): any;
-    evaluateOnContext(context: any, expression: string): any;
-    getDataSourceItems(viewModel: any): any;
-    tryEval(func: () => any): any;
-}
 declare class DotvvmEvents {
     init: DotvvmEvent<DotvvmEventArgs>;
     beforePostback: DotvvmEvent<DotvvmBeforePostBackEventArgs>;
@@ -83,10 +77,16 @@ declare class DotvvmRedirectEventArgs extends DotvvmEventArgs {
     isHandled: boolean;
     constructor(viewModel: any, viewModelName: string, url: string, replace: boolean);
 }
+declare class DotvvmEvaluator {
+    evaluateOnViewModel(context: any, expression: any): any;
+    evaluateOnContext(context: any, expression: string): any;
+    getDataSourceItems(viewModel: any): any;
+    tryEval(func: () => any): any;
+}
 declare class DotvvmGlobalize {
     format(format: string, ...values: string[]): string;
     formatString(format: string, value: any): string;
-    parseDotvvmDate(value: string): Date;
+    parseDotvvmDate(value: string): Date | null;
     parseNumber(value: string): number;
     parseDate(value: string, format: string, previousValue?: Date): Date;
 }
@@ -191,6 +191,7 @@ declare class ValidationError {
     constructor(targetObservable: KnockoutObservable<any>, errorMessage: string);
     static getOrCreate(targetObservable: KnockoutObservable<any> & {
         validationErrors?: KnockoutObservableArray<ValidationError>;
+        wrappedProperty?: any;
     }): KnockoutObservableArray<ValidationError>;
     static isValid(observable: KnockoutObservable<any> & {
         validationErrors?: KnockoutObservableArray<ValidationError>;
@@ -331,4 +332,10 @@ declare class DotvvmFileUploadData {
 declare class DotvvmFileSize {
     Bytes: KnockoutObservable<number>;
     FormattedText: KnockoutObservable<string>;
+}
+interface DotVVM {
+    invokeApiFn<T>(callback: () => T): T;
+    api: {
+        [name: string]: any;
+    };
 }

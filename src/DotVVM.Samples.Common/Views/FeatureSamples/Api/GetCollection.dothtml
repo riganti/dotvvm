@@ -1,0 +1,24 @@
+﻿@viewModel DotVVM.Samples.Common.ViewModels.FeatureSamples.Api.GetCollectionViewModel, DotVVM.Samples.Common
+
+<!DOCTYPE html>
+
+<html lang="en" xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+    <dot:InlineScript Dependencies="dotvvm,ApiClient">
+        dotvvm.api.companies = new CompaniesClient("http://localhost:5000")
+    </dot:InlineScript>
+</head>
+<body>
+    <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.companies.get(); })" >
+        <p>
+            <span data-bind="text: id" />: 
+            <span data-bind="text: name" />
+        </p>
+    </div>
+
+</body>
+</html>
+
+

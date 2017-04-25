@@ -29,8 +29,7 @@ namespace DotVVM.Samples.BasicSamples
 
             // configure serializer
             config.GetSerializationMapper()
-                .Map(typeof(SerializationViewModel), map =>
-                {
+                .Map(typeof(SerializationViewModel), map => {
                     map.Property(nameof(SerializationViewModel.Value)).Bind(Direction.ServerToClient);
                     map.Property(nameof(SerializationViewModel.Value2)).Bind(Direction.ClientToServer);
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
@@ -43,17 +42,17 @@ namespace DotVVM.Samples.BasicSamples
             config.Resources.Register("ControlSamples_SpaContentPlaceHolder_testJs", new ScriptResource(new FileResourceLocation("Scripts/testResource.js")));
             config.Resources.Register("ControlSamples_SpaContentPlaceHolder_MasterPageResource", new ScriptResource(new FileResourceLocation("Scripts/testResource2.js")));
 
-            config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource()
-            {
+            config.Resources.Register("FeatureSamples_Resources_CdnUnavailableResourceLoad", new ScriptResource() {
                 Location = new UrlResourceLocation("http://unavailable.local/testResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource.js"))
             });
 
-            config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource
-            {
+            config.Resources.Register("FeatureSamples_Resources_CdnScriptPriority", new ScriptResource {
                 Location = new FileResourceLocation("~/Scripts/testResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
+
+            config.Resources.Register("ApiClient", new ScriptResource(new FileResourceLocation("Scripts/ApiClient.js")));
 
             // dev files
             config.Resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");
@@ -85,7 +84,7 @@ namespace DotVVM.Samples.BasicSamples
             config.Markup.AddMarkupControl("sample", "Localization_Control", "Views/FeatureSamples/Localization/Localization_Control.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlCommandBinding", "Views/FeatureSamples/MarkupControl/ControlCommandBinding.dotcontrol");
             config.Markup.AddMarkupControl("sample", "ControlValueBindingWithCommand", "Views/FeatureSamples/MarkupControl/ControlValueBindingWithCommand.dotcontrol");
-            
+
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/ComplexSamples/ServerRendering/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/FeatureSamples/MarkupControl/"));
             config.Markup.AutoDiscoverControls(new DefaultControlRegistrationStrategy(config, "sample", "Views/Errors/"));
