@@ -303,7 +303,12 @@ namespace DotVVM.Framework.Hosting
             try
             {
                 result = action.Action();
+
                 resultTask = result as Task;
+                if (resultTask != null)
+                {
+                    await resultTask;
+                }
             }
             catch (Exception ex)
             {
@@ -331,7 +336,6 @@ namespace DotVVM.Framework.Hosting
 
             if (resultTask != null)
             {
-                await resultTask;
                 return TaskUtils.GetResult(resultTask);
             }
 
