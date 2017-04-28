@@ -41,12 +41,14 @@
   </ItemGroup>
   <ItemGroup>
     <None Remove="Resources\Scripts\DotVVM.d.ts" />
+    <None Remove="Resources\Scripts\knockout-latest.js" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.FileUpload.css" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\Scripts\DotVVM.Debug.js" />
+    <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <None Include="Resources\Scripts\DotVVM.DomUtils.ts" />
     <None Include="Resources\Scripts\DotVVM.Evaluator.ts" />
     <None Include="Resources\Scripts\DotVVM.Events.ts" />
@@ -61,7 +63,6 @@
     <None Include="Resources\Scripts\DotVVM.Validation.ts" />
     <EmbeddedResource Include="Resources\Scripts\Globalize\globalize.js" />
     <EmbeddedResource Include="Resources\Scripts\jquery-2.1.1.min.js" />
-    <EmbeddedResource Include="Resources\Scripts\knockout-latest.js" />
     <None Include="Resources\Scripts\typings\globalize\globalize.d.ts" />
     <None Include="Resources\Scripts\typings\jquery\jquery.d.ts" />
     <None Include="Resources\Scripts\typings\knockout.mapper\knockout.mapper.d.ts" />
