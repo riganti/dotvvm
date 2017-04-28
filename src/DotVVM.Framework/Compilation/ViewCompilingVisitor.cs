@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Compilation
             emitter.BuilderDataContextType = view.DataContextTypeStack?.DataContextType;
             emitter.ResultControlType = wrapperClassName;
             // build the statements
-            emitter.PushNewMethod(DefaultViewCompilerCodeEmitter.BuildControlFunctionName, typeof(DotvvmControl), emitter.EmitControlBuilderParameter());
+            emitter.PushNewMethod(nameof(IControlBuilder.BuildControl), typeof(DotvvmControl), emitter.EmitControlBuilderParameter());
             var pageName = emitter.EmitCreateObject(wrapperClassName);
             emitter.EmitSetDotvvmProperty(pageName, Internal.UniqueIDProperty, pageName);
             emitter.EmitSetDotvvmProperty(pageName, Internal.MarkupFileNameProperty, view.Metadata.VirtualPath);
@@ -163,7 +163,7 @@ namespace DotVVM.Framework.Compilation
         {
             string name;
 
-            if (control.Metadata.ControlBuilderType == null)
+            if (control.Metadata.VirtualPath == null)
             {
                 // compiled control
                 name = emitter.EmitCreateObject(control.Metadata.Type, control.ConstructorParameters);

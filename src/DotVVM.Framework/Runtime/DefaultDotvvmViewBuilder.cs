@@ -35,8 +35,8 @@ namespace DotVVM.Framework.Runtime
 
 
             // build the page
-            var pageBuilder = controlBuilderFactory.GetControlBuilder(markup);
-            var contentPage = pageBuilder.BuildControl(controlBuilderFactory) as DotvvmView;
+            var (_, pageBuilder) = controlBuilderFactory.GetControlBuilder(markup);
+            var contentPage = pageBuilder.Value.BuildControl(controlBuilderFactory) as DotvvmView;
 
             FillsDefaultDirectives(contentPage, context.Configuration);
 
@@ -45,7 +45,7 @@ namespace DotVVM.Framework.Runtime
             {
                 // load master page
                 var masterPageFile = contentPage.Directives[ParserConstants.MasterPageDirective];
-                var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).BuildControl(controlBuilderFactory);
+                var masterPage = (DotvvmView)controlBuilderFactory.GetControlBuilder(masterPageFile).builder.Value.BuildControl(controlBuilderFactory);
 
                 FillsDefaultDirectives(masterPage, context.Configuration);
                 PerformMasterPageComposition(contentPage, masterPage);

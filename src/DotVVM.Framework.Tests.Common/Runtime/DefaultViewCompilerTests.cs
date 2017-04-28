@@ -331,12 +331,12 @@ test <dot:Literal><a /></dot:Literal>";
             context.Configuration.Markup.AddAssembly(typeof(DefaultViewCompilerTests).GetTypeInfo().Assembly.GetName().Name);
 
             var controlBuilderFactory = context.Configuration.ServiceLocator.GetService<IControlBuilderFactory>();
-            var controlBuilder = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
+            var (_, controlBuilder) = controlBuilderFactory.GetControlBuilder(fileName + ".dothtml");
 
-            var result = controlBuilder.BuildControl(controlBuilderFactory);
+            var result = controlBuilder.Value.BuildControl(controlBuilderFactory);
             if (compileTwice)
             {
-                result = controlBuilder.BuildControl(controlBuilderFactory);
+                result = controlBuilder.Value.BuildControl(controlBuilderFactory);
             }
             return result;
         }

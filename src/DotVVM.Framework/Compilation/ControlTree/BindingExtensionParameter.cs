@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Compilation.ControlTree
 
         public override Expression GetServerEquivalent(Expression controlParameter)
         {
-            return Expression.Convert(ExpressionUtils.Replace((DotvvmBindableObject c) => c.GetClosestControlBindingTarget(), controlParameter), ResolvedTypeDescriptor.ToSystemType(ParameterType));
+            return Expression.Convert(ExpressionUtils.Replace((DotvvmBindableObject c) => (c.Parent ?? c).GetClosestControlBindingTarget(), controlParameter), ResolvedTypeDescriptor.ToSystemType(ParameterType));
         }
 
         public override JsExpression GetJsTranslation(JsExpression dataContext)

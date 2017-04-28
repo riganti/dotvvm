@@ -20,7 +20,7 @@ namespace DotVVM.Framework.Compilation
 
         public Func<IViewCompiler> ViewCompilerFactory { get; private set; }
 
-        private ConcurrentDictionary<MarkupFile, IControlBuilder> controlBuilders = new ConcurrentDictionary<MarkupFile, IControlBuilder>();
+        private ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)> controlBuilders = new ConcurrentDictionary<MarkupFile, (ControlBuilderDescriptor, Lazy<IControlBuilder>)>();
 
 
         public DefaultControlBuilderFactory(DotvvmConfiguration configuration)
@@ -46,7 +46,7 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Gets the control builder.
         /// </summary>
-        public IControlBuilder GetControlBuilder(string virtualPath)
+        public (ControlBuilderDescriptor descriptor, Lazy<IControlBuilder> builder) GetControlBuilder(string virtualPath)
         {
             var markupFile = markupFileLoader.GetMarkup(configuration, virtualPath);
             return controlBuilders.GetOrAdd(markupFile, CreateControlBuilder);
@@ -57,7 +57,7 @@ namespace DotVVM.Framework.Compilation
         /// <summary>
         /// Creates the control builder.
         /// </summary>
-        private IControlBuilder CreateControlBuilder(MarkupFile file)
+        private (ControlBuilderDescriptor, Lazy<IControlBuilder>) CreateControlBuilder(MarkupFile file)
         {
             var lockId = (file.GetHashCode() & 0x7fffffff) % compilationLocks.Length;
             // do not compile the same view multiple times
@@ -68,11 +68,7 @@ namespace DotVVM.Framework.Compilation
                 var namespaceName = GetNamespaceFromFileName(file.FileName, file.LastWriteDateTimeUtc);
                 var assemblyName = namespaceName;
                 var className = GetClassFromFileName(file.FileName) + "ControlBuilder";
-                try
-                {
-                    return ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
-                }
-                catch (DotvvmCompilationException ex)
+                void editCompilationException(DotvvmCompilationException ex)
                 {
                     if (ex.FileName == null)
                         ex.FileName = file.FullPath;
@@ -80,6 +76,22 @@ namespace DotVVM.Framework.Compilation
                         ex.FileName = Path.Combine(
                             file.FullPath.Remove(file.FullPath.Length - file.FileName.Length),
                             ex.FileName);
+                }
+                try
+                {
+                    var (descriptor, factory) = ViewCompilerFactory().CompileView(file.ContentsReaderFactory(), file.FileName, assemblyName, namespaceName, className);
+                    return (descriptor, new Lazy<IControlBuilder>(() => {
+                        try { return factory(); }
+                        catch (DotvvmCompilationException ex)
+                        {
+                            editCompilationException(ex);
+                            throw;
+                        }
+                    }));
+                }
+                catch (DotvvmCompilationException ex)
+                {
+                    editCompilationException(ex);
                     throw;
                 }
             }
@@ -176,7 +188,7 @@ namespace DotVVM.Framework.Compilation
 
         public void RegisterControlBuilder(string file, IControlBuilder builder)
         {
-            controlBuilders.TryAdd(markupFileLoader.GetMarkup(configuration, file), builder);
+            controlBuilders.TryAdd(markupFileLoader.GetMarkup(configuration, file), (new ControlBuilderDescriptor(builder.DataContextType, builder.ControlType), new Lazy<IControlBuilder>(() => builder)));
         }
 
         private static readonly HashSet<string> csharpKeywords = new HashSet<string>(new[]
