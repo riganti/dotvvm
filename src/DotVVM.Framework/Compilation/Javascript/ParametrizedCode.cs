@@ -220,5 +220,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             var code = expression.FormatParametrizedScript();
             return new CodeParameterAssignment(code, isGlobalContext);
         }
+
+        public static implicit operator CodeParameterAssignment(ParametrizedCode val) => new CodeParameterAssignment(val);
     }
 }
