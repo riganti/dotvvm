@@ -299,8 +299,7 @@ namespace DotVVM.Framework.Controls
 
             if (HasBinding(EnabledProperty))
             {
-                writer.AddKnockoutDataBind("css",
-                    $"{{ 'disabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }() == false }}");
+                writer.AddKnockoutDataBind("css", "{disabled:$pagerEnabled()}");
             }
             else
             {
