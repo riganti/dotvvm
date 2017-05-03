@@ -294,10 +294,22 @@ namespace DotVVM.Framework.Controls
         protected override void RenderBeginTag(IHtmlWriter writer, IDotvvmRequestContext context)
         {
             if (HasValueBinding(EnabledProperty))
-                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias", $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }}}");
+                writer.WriteKnockoutDataBindComment("dotvvm_introduceAlias",
+                    $"{{ '$pagerEnabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }}}");
+
+            if (HasBinding(EnabledProperty))
+            {
+                writer.AddKnockoutDataBind("css",
+                    $"{{ 'disabled': { GetValueBinding(EnabledProperty).GetKnockoutBindingExpression(this) }() == false }}");
+            }
+            else
+            {
+                writer.AddKnockoutDataBind("css", $"{{ 'disabled': { (!Enabled).ToString().ToLower() } }}");
+            }
 
             writer.AddKnockoutDataBind("with", this, DataSetProperty, renderEvenInServerRenderingMode: true);
             writer.RenderBeginTag("ul");
+
         }
 
         protected override void RenderContents(IHtmlWriter writer, IDotvvmRequestContext context)
