@@ -24,6 +24,7 @@
     <PackageReference Include="NSwag.CodeGeneration.CSharp" Version="10.0.6306.29917" />
     <PackageReference Include="NSwag.CodeGeneration.TypeScript" Version="10.0.6306.29918" />
     <PackageReference Include="NSwag.SwaggerGeneration.WebApi" Version="10.0.6306.29918" />
+    <PackageReference Include="Faker.NETCore" Version="1.0.0" />
   </ItemGroup>
 
 </Project>

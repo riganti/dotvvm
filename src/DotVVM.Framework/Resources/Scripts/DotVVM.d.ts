@@ -333,8 +333,11 @@ declare class DotvvmFileSize {
     Bytes: KnockoutObservable<number>;
     FormattedText: KnockoutObservable<string>;
 }
+declare type ApiComputed<T> = KnockoutObservable<T | null> & {
+    refreshValue: () => void;
+};
 interface DotVVM {
-    invokeApiFn<T>(callback: () => T): T;
+    invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
     api: {
         [name: string]: any;
     };

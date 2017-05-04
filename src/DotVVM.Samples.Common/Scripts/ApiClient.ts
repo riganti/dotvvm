@@ -257,6 +257,7 @@ class OrdersClient {
 class Company implements ICompany {
     id: number;
     name?: string;
+    owner?: string;
 
     constructor(data?: ICompany) {
         if (data) {
@@ -271,6 +272,7 @@ class Company implements ICompany {
         if (data) {
             this.id = data["Id"];
             this.name = data["Name"];
+            this.owner = data["Owner"];
         }
     }
 
@@ -284,6 +286,7 @@ class Company implements ICompany {
         data = data ? data : {};
         data["Id"] = this.id;
         data["Name"] = this.name;
+        data["Owner"] = this.owner;
         return data; 
     }
 }
@@ -291,6 +294,7 @@ class Company implements ICompany {
 interface ICompany {
     id: number;
     name?: string;
+    owner?: string;
 }
 
 class Order implements IOrder {

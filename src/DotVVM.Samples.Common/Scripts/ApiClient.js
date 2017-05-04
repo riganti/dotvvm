@@ -261,6 +261,7 @@ var Company = (function () {
         if (data) {
             this.id = data["Id"];
             this.name = data["Name"];
+            this.owner = data["Owner"];
         }
     };
     Company.fromJS = function (data) {
@@ -272,6 +273,7 @@ var Company = (function () {
         data = data ? data : {};
         data["Id"] = this.id;
         data["Name"] = this.name;
+        data["Owner"] = this.owner;
         return data;
     };
     return Company;

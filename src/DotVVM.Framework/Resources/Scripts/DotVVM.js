@@ -2104,10 +2104,11 @@ var DotvvmFileSize = (function () {
 }());
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="DotVVM.ts" />
-DotVVM.prototype.invokeApiFn = function (callback) {
+DotVVM.prototype.invokeApiFn = function (callback, refreshTriggers) {
+    if (refreshTriggers === void 0) { refreshTriggers = []; }
     var cachedValue = ko.observable(null);
     var load = function () {
-        var result = window["Promise"].resolve(callback());
+        var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
         result.then(function (val) {
             if (val) {
                 cachedValue(val);
@@ -2115,10 +2116,18 @@ DotVVM.prototype.invokeApiFn = function (callback) {
         }, console.warn);
     };
     var cmp = ko.pureComputed(function () { return cachedValue(); });
-    cmp["refreshValue"] = function () {
-        load();
+    var isLoading = false;
+    cmp.refreshValue = function () {
+        if (isLoading)
+            return;
+        isLoading = true;
+        setTimeout(function () {
+            isLoading = false;
+            load();
+        }, 10);
     };
     load();
+    ko.computed(function () { return refreshTriggers.map(ko.unwrap); }).subscribe(function (p) { return cmp.refreshValue(); });
     return cmp;
 };
 DotVVM.prototype.api = {};

@@ -42,11 +42,11 @@ namespace swag.ViewModels
 
 	        var settings = new SwaggerToTypeScriptClientGeneratorSettings()
 	        {
-                Template = TypeScriptTemplate.Fetch
+                Template = TypeScriptTemplate.Fetch,
 	        };
 
 	        var generator = new SwaggerToTypeScriptClientGenerator(document, settings);
-            Context.ReturnFile(Encoding.UTF8.GetBytes(generator.GenerateFile()), "ApiClient.ts", "text/plain");
+            Context.ReturnFile(Encoding.UTF8.GetBytes(generator.GenerateFile().Replace("\nexport ", "\n")), "ApiClient.ts", "text/plain");
             //File.WriteAllText(TSPath, generator.GenerateFile());
         }
 

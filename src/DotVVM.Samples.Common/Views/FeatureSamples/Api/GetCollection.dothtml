@@ -7,7 +7,8 @@
     <meta charset="utf-8" />
     <title></title>
     <dot:InlineScript Dependencies="dotvvm,ApiClient">
-        dotvvm.api.companies = new CompaniesClient("http://localhost:5000")
+        dotvvm.api.companies = new CompaniesClient("http://localhost:5000");
+        dotvvm.api.orders = new OrdersClient("http://localhost:5000");
     </dot:InlineScript>
 </head>
 <body>
@@ -15,8 +16,19 @@
         <p>
             <span data-bind="text: id" />: 
             <span data-bind="text: name" />
+            <div style="margin-left: 30px">
+                <button data-bind="click: function () { $parent.SelectedCompanyId(id); }" >select company</button>
+            </div>
         </p>
     </div>
+    <hr />
+    <p>
+        <div style="margin-left: 30px">
+            <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.orders.get(SelectedCompanyId(), 0, 20) }, [SelectedCompanyId])" >
+                <p>OrderId: <span data-bind="text: id" />, Date: <span data-bind="text: date" /></p>
+            </div>
+        </div>
+    </p>
 
 </body>
 </html>
