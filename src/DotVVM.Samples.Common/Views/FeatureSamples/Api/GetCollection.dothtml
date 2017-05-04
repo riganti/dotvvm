@@ -12,7 +12,7 @@
     </dot:InlineScript>
 </head>
 <body>
-    <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.companies.get(); })" >
+    <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.companies.get(); }, [dotvvm.eventHub.get('api.companies')])" >
         <p>
             <span data-bind="text: id" />: 
             <span data-bind="text: name" />
@@ -22,13 +22,14 @@
         </p>
     </div>
     <hr />
-    <p>
-        <div style="margin-left: 30px">
-            <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.orders.get(SelectedCompanyId(), 0, 20) }, [SelectedCompanyId])" >
-                <p>OrderId: <span data-bind="text: id" />, Date: <span data-bind="text: date" /></p>
-            </div>
+    <div style="margin-left: 30px">
+        <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.orders.get(SelectedCompanyId(), 0, 20) }, [SelectedCompanyId, dotvvm.eventHub.get('api.orders')])" >
+            <p>
+                OrderId: <span data-bind="text: id" />, Date: <span data-bind="text: date" />, 
+                <button data-bind="click: function () { dotvvm.api.orders.delete(id); dotvvm.eventHub.notify('api.orders') }">Delete</button>
+            </p>
         </div>
-    </p>
+    </div>
 
 </body>
 </html>

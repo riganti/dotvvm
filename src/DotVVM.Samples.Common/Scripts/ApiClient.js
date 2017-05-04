@@ -184,9 +184,37 @@ var OrdersClient = (function () {
         }
         return Promise.resolve(null);
     };
+    OrdersClient.prototype.post = function (order) {
+        var _this = this;
+        var url_ = this.baseUrl + "/api/Orders";
+        url_ = url_.replace(/[?&]$/, "");
+        var content_ = JSON.stringify(order ? order.toJSON() : null);
+        var options_ = {
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=UTF-8"
+            }
+        };
+        return this.http.fetch(url_, options_).then(function (_response) {
+            return _this.processPost(_response);
+        });
+    };
+    OrdersClient.prototype.processPost = function (_response) {
+        var _status = _response.status;
+        if (_status === 200) {
+            return _response.blob();
+        }
+        else if (_status !== 200 && _status !== 204) {
+            return _response.text().then(function (_responseText) {
+                return throwException("An unexpected server error occurred.", _status, _responseText);
+            });
+        }
+        return Promise.resolve(null);
+    };
     OrdersClient.prototype["delete"] = function (orderId) {
         var _this = this;
-        var url_ = this.baseUrl + "/api/Orders/{orderId}";
+        var url_ = this.baseUrl + "/api/Orders/delete-{orderId}";
         if (orderId === undefined || orderId === null)
             throw new Error("The parameter 'orderId' must be defined.");
         url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId));
@@ -210,34 +238,6 @@ var OrdersClient = (function () {
             return _response.text().then(function (_responseText) {
                 return null;
             });
-        }
-        else if (_status !== 200 && _status !== 204) {
-            return _response.text().then(function (_responseText) {
-                return throwException("An unexpected server error occurred.", _status, _responseText);
-            });
-        }
-        return Promise.resolve(null);
-    };
-    OrdersClient.prototype.post = function (order) {
-        var _this = this;
-        var url_ = this.baseUrl + "/api/Orders";
-        url_ = url_.replace(/[?&]$/, "");
-        var content_ = JSON.stringify(order ? order.toJSON() : null);
-        var options_ = {
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=UTF-8"
-            }
-        };
-        return this.http.fetch(url_, options_).then(function (_response) {
-            return _this.processPost(_response);
-        });
-    };
-    OrdersClient.prototype.processPost = function (_response) {
-        var _status = _response.status;
-        if (_status === 200) {
-            return _response.blob();
         }
         else if (_status !== 200 && _status !== 204) {
             return _response.text().then(function (_responseText) {

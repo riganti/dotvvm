@@ -185,8 +185,39 @@ class OrdersClient {
         return Promise.resolve(null);
     }
 
+    post(order: Order): Promise<Blob> {
+        let url_ = this.baseUrl + "/api/Orders";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(order ? order.toJSON() : null);
+
+        let options_ = <RequestInit>{
+            body: content_,
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json; charset=UTF-8", 
+            }
+        };
+
+        return this.http.fetch(url_, options_).then((_response: Response) => {
+            return this.processPost(_response);
+        });
+    }
+
+    protected processPost(_response: Response): Promise<Blob> {
+        const _status = _response.status;
+        if (_status === 200) {
+            return _response.blob();
+        } else if (_status !== 200 && _status !== 204) {
+            return _response.text().then((_responseText) => {
+            return throwException("An unexpected server error occurred.", _status, _responseText);
+            });
+        }
+        return Promise.resolve(null);
+    }
+
     delete(orderId: number): Promise<void> {
-        let url_ = this.baseUrl + "/api/Orders/{orderId}";
+        let url_ = this.baseUrl + "/api/Orders/delete-{orderId}";
         if (orderId === undefined || orderId === null)
             throw new Error("The parameter 'orderId' must be defined.");
         url_ = url_.replace("{orderId}", encodeURIComponent("" + orderId)); 
@@ -214,37 +245,6 @@ class OrdersClient {
             return _response.text().then((_responseText) => {
             return null;
             });
-        } else if (_status !== 200 && _status !== 204) {
-            return _response.text().then((_responseText) => {
-            return throwException("An unexpected server error occurred.", _status, _responseText);
-            });
-        }
-        return Promise.resolve(null);
-    }
-
-    post(order: Order): Promise<Blob> {
-        let url_ = this.baseUrl + "/api/Orders";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(order ? order.toJSON() : null);
-
-        let options_ = <RequestInit>{
-            body: content_,
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json; charset=UTF-8", 
-            }
-        };
-
-        return this.http.fetch(url_, options_).then((_response: Response) => {
-            return this.processPost(_response);
-        });
-    }
-
-    protected processPost(_response: Response): Promise<Blob> {
-        const _status = _response.status;
-        if (_status === 200) {
-            return _response.blob();
         } else if (_status !== 200 && _status !== 204) {
             return _response.text().then((_responseText) => {
             return throwException("An unexpected server error occurred.", _status, _responseText);

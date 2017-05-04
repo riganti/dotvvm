@@ -2104,31 +2104,51 @@ var DotvvmFileSize = (function () {
 }());
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="DotVVM.ts" />
-DotVVM.prototype.invokeApiFn = function (callback, refreshTriggers) {
-    if (refreshTriggers === void 0) { refreshTriggers = []; }
-    var cachedValue = ko.observable(null);
-    var load = function () {
-        var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
-        result.then(function (val) {
-            if (val) {
-                cachedValue(val);
-            }
-        }, console.warn);
+var DotvvmEventHub = (function () {
+    function DotvvmEventHub() {
+        this.map = {};
+    }
+    DotvvmEventHub.prototype.notify = function (id) {
+        if (id in this.map)
+            this.map[id].notifySubscribers();
+        else
+            this.map[id] = ko.observable(0);
     };
-    var cmp = ko.pureComputed(function () { return cachedValue(); });
-    var isLoading = false;
-    cmp.refreshValue = function () {
-        if (isLoading)
-            return;
-        isLoading = true;
-        setTimeout(function () {
-            isLoading = false;
+    DotvvmEventHub.prototype.get = function (id) {
+        return this.map[id] || (this.map[id] = ko.observable(0));
+    };
+    return DotvvmEventHub;
+}());
+(function () {
+    var cachedValues = {};
+    DotVVM.prototype.invokeApiFn = function (callback, refreshTriggers, commandId) {
+        if (refreshTriggers === void 0) { refreshTriggers = []; }
+        if (commandId === void 0) { commandId = callback.toString(); }
+        var cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable(null));
+        var load = function () {
+            var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
+            result.then(function (val) {
+                if (val) {
+                    cachedValue(val);
+                }
+            }, console.warn);
+        };
+        var cmp = ko.pureComputed(function () { return cachedValue(); });
+        cmp.refreshValue = function () {
+            if (cachedValue["isLoading"])
+                return;
+            cachedValue["isLoading"] = true;
+            setTimeout(function () {
+                cachedValue["isLoading"] = false;
+                load();
+            }, 10);
+        };
+        if (!cachedValue.peek())
             load();
-        }, 10);
+        ko.computed(function () { return refreshTriggers.map(ko.unwrap); }).subscribe(function (p) { return cmp.refreshValue(); });
+        return cmp;
     };
-    load();
-    ko.computed(function () { return refreshTriggers.map(ko.unwrap); }).subscribe(function (p) { return cmp.refreshValue(); });
-    return cmp;
-};
-DotVVM.prototype.api = {};
+    DotVVM.prototype.api = {};
+    DotVVM.prototype.eventHub = new DotvvmEventHub();
+}());
 //# sourceMappingURL=DotVVM.js.map

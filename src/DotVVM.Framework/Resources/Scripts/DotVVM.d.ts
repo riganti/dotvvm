@@ -341,4 +341,10 @@ interface DotVVM {
     api: {
         [name: string]: any;
     };
+    eventHub: DotvvmEventHub;
+}
+declare class DotvvmEventHub {
+    private map;
+    notify(id: string): void;
+    get(id: string): KnockoutObservable<number>;
 }
