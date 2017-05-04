@@ -2129,7 +2129,8 @@ var DotvvmEventHub = (function () {
             var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
             result.then(function (val) {
                 if (val) {
-                    cachedValue(val);
+                    dotvvm.serialization.deserialize(val, cachedValue);
+                    cachedValue.notifySubscribers();
                 }
             }, console.warn);
         };

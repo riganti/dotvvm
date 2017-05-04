@@ -30,6 +30,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (NiceMode)
             {
+                while (result.Length > 0 && result[result.Length - 1] == ' ') result.Remove(result.Length - 1, 1);
+
                 result.Append("\n");
                 for (int i = 0; i < indentLevel; i++)
                 {
@@ -50,7 +52,7 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (result.Length > 0 && op.Length > 0 && parameters?.LastOrDefault().index != result.Length && IsDangerousTuple(result[result.Length - 1], op.First()))
                 Emit(" ");
-            else if(allowCosmeticSpace) OptionalSpace();
+            else if (allowCosmeticSpace) OptionalSpace();
         }
 
         protected void EmitOperator(string op, bool allowCosmeticSpace = true)
@@ -96,9 +98,9 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             var s = result.ToString();
             if (parameters != null) foreach (var p in Enumerable.Reverse(parameters))
-            {
-                s = s.Insert(p.index, "$" + Math.Abs(p.parameter.Parameter.GetHashCode()));
-            }
+                {
+                    s = s.Insert(p.index, "$" + Math.Abs(p.parameter.Parameter.GetHashCode()));
+                }
             return s;
         }
 
@@ -237,9 +239,10 @@ namespace DotVVM.Framework.Compilation.Javascript
             var first = true;
             foreach (var item in objectExpression.Properties)
             {
-                if (objectExpression.Properties.Count > 1) CommitLine();
                 if (!first) { Emit(","); OptionalSpace(); }
                 else first = false;
+
+                if (objectExpression.Properties.Count > 1) CommitLine();
 
                 item.AcceptVisitor(this);
             }
@@ -285,7 +288,7 @@ namespace DotVVM.Framework.Compilation.Javascript
             Emit("{");
             Indent();
             CommitLine();
-            foreach(var ss in blockStatement.Body)
+            foreach (var ss in blockStatement.Body)
             {
                 ss.AcceptVisitor(this);
             }

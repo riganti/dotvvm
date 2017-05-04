@@ -30,7 +30,8 @@ class DotvvmEventHub {
             var result = window["Promise"].resolve(ko.ignoreDependencies(callback));
             result.then((val) => {
                 if (val) {
-                    cachedValue(val);
+                    dotvvm.serialization.deserialize(val, cachedValue);
+                    cachedValue.notifySubscribers();
                 }
             }, console.warn);
         };

@@ -6,27 +6,25 @@
 <head>
     <meta charset="utf-8" />
     <title></title>
-    <dot:InlineScript Dependencies="dotvvm,ApiClient">
-        dotvvm.api.companies = new CompaniesClient("http://localhost:5000");
-        dotvvm.api.orders = new OrdersClient("http://localhost:5000");
-    </dot:InlineScript>
+    <dot:RequiredResource Name="apiInit_api" />
 </head>
 <body>
-    <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.companies.get(); }, [dotvvm.eventHub.get('api.companies')])" >
+    <dot:Repeater DataSource="{value: _api.Companies.Get()}" >
         <p>
-            <span data-bind="text: id" />: 
-            <span data-bind="text: name" />
+        {{value: Id}}: 
+            {{value: Name}}
+        
             <div style="margin-left: 30px">
-                <button data-bind="click: function () { $parent.SelectedCompanyId(id); }" >select company</button>
+                <dot:Button Text="select company" Click="{staticCommand: _parent.SelectedCompanyId = Id}" />
             </div>
         </p>
-    </div>
+    </dot:Repeater>
     <hr />
     <div style="margin-left: 30px">
-        <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api.orders.get(SelectedCompanyId(), 0, 20) }, [SelectedCompanyId, dotvvm.eventHub.get('api.orders')])" >
+        <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api._api.orders.get(SelectedCompanyId(), 0, 20) }, [SelectedCompanyId, dotvvm.eventHub.get('api.orders')])" >
             <p>
                 OrderId: <span data-bind="text: id" />, Date: <span data-bind="text: date" />, 
-                <button data-bind="click: function () { dotvvm.api.orders.delete(id); dotvvm.eventHub.notify('api.orders') }">Delete</button>
+                <button data-bind="click: function () { dotvvm.api._api.orders.delete(id); dotvvm.eventHub.notify('api.orders') }">Delete</button>
             </p>
         </div>
     </div>

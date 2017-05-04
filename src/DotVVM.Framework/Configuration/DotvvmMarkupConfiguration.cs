@@ -6,6 +6,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation;
 using System.Reflection;
 using System.ComponentModel;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -41,6 +42,9 @@ namespace DotVVM.Framework.Configuration
         /// </summary>
         [JsonProperty("importedNamespaces")]
         public List<NamespaceImport> ImportedNamespaces { get; set; } = new List<NamespaceImport>();
+
+
+        public List<BindingExtensionParameter> DefaultExtensionParameters { get; set; } = new List<BindingExtensionParameter>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.

@@ -11,8 +11,14 @@ namespace DotVVM.Framework.ResourceManagement
     /// </summary>
     public class InlineScriptResource : ResourceBase
     {
+        [Obsolete("Code parameter is required, please provide it in the constructor.")]
         public InlineScriptResource(ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)
         {
+        }
+
+        public InlineScriptResource(string code, ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)
+        {
+            this.Code = code;
         }
 
         /// <summary>
