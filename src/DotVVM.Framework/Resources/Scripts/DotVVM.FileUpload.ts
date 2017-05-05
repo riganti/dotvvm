@@ -1,4 +1,3 @@
-/// <reference path="dotvvm.ts" />
 class DotvvmFileUpload {
     public showUploadDialog(sender: HTMLElement) {
         // trigger the file upload dialog

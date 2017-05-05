@@ -4,6 +4,7 @@
 type ApiComputed<T> = KnockoutObservable<T | null> & { refreshValue: () => void; }
 interface DotVVM {
     invokeApiFn<T>(callback: () => PromiseLike<T>): ApiComputed<T>;
+    apiRefreshOn<T>(value: KnockoutObservable<T>, refreshOn: KnockoutObservable<any>) : KnockoutObservable<T>;
     api: { [name: string]: any };
     eventHub: DotvvmEventHub;
 }
@@ -49,6 +50,10 @@ class DotvvmEventHub {
         if (!cachedValue.peek()) load();
         ko.computed(() => refreshTriggers.map(ko.unwrap)).subscribe(p => cmp.refreshValue());
         return cmp;
+    }
+    DotVVM.prototype.apiRefreshOn = function <T>(value: KnockoutObservable<T> & { refreshValue? : () => void }, refreshOn: KnockoutObservable<any>) {
+        refreshOn.subscribe(() => value.refreshValue && value.refreshValue())
+        return value;
     }
     DotVVM.prototype.api = {}
     

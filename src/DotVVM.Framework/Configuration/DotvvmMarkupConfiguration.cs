@@ -41,7 +41,9 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets list of namespaces imported in bindings
         /// </summary>
         [JsonProperty("importedNamespaces")]
-        public List<NamespaceImport> ImportedNamespaces { get; set; } = new List<NamespaceImport>();
+        public List<NamespaceImport> ImportedNamespaces { get; set; } = new List<NamespaceImport>{
+            new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace")
+        };
 
 
         public List<BindingExtensionParameter> DefaultExtensionParameters { get; set; } = new List<BindingExtensionParameter>();

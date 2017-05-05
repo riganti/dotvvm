@@ -11,8 +11,8 @@
 // DotvvmEvent is used because CustomEvent is not browser compatible and does not support 
 // calling missed events for handler that subscribed too late.
 class DotvvmEvent<T extends DotvvmEventArgs> {
-    private handlers = [];
-    private history = [];
+    private handlers : ((f:T) => void)[] = [];
+    private history : T[] = [];
 
     constructor(public name: string, private triggerMissedEventsOnSubscribe: boolean = false) {
     }

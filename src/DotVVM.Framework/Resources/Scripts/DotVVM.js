@@ -1,8 +1,13 @@
-var __extends = (this && this.__extends) || function (d, b) {
-    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
-    function __() { this.constructor = d; }
-    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-};
+var __extends = (this && this.__extends) || (function () {
+    var extendStatics = Object.setPrototypeOf ||
+        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
+        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
+    return function (d, b) {
+        extendStatics(d, b);
+        function __() { this.constructor = d; }
+        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+    };
+})();
 var DotvvmDomUtils = (function () {
     function DotvvmDomUtils() {
     }
@@ -152,49 +157,79 @@ var DotvvmRedirectEventArgs = (function (_super) {
     }
     return DotvvmRedirectEventArgs;
 }(DotvvmEventArgs));
-var DotvvmEvaluator = (function () {
-    function DotvvmEvaluator() {
+var DotvvmFileUpload = (function () {
+    function DotvvmFileUpload() {
     }
-    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
-        var result;
-        if (context && context.$data) {
-            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
+    DotvvmFileUpload.prototype.showUploadDialog = function (sender) {
+        // trigger the file upload dialog
+        var iframe = this.getIframe(sender);
+        this.createUploadId(sender, iframe);
+        this.openUploadDialog(iframe);
+    };
+    DotvvmFileUpload.prototype.getIframe = function (sender) {
+        return sender.parentElement.previousSibling;
+    };
+    DotvvmFileUpload.prototype.openUploadDialog = function (iframe) {
+        var fileUpload = iframe.contentWindow.document.getElementById('upload');
+        fileUpload.click();
+    };
+    DotvvmFileUpload.prototype.createUploadId = function (sender, iframe) {
+        iframe = iframe || this.getIframe(sender);
+        var uploadId = "DotVVM_upl" + new Date().getTime().toString();
+        sender.parentElement.parentElement.setAttribute("data-dotvvm-upload-id", uploadId);
+        iframe.setAttribute("data-dotvvm-upload-id", uploadId);
+    };
+    DotvvmFileUpload.prototype.reportProgress = function (targetControlId, isBusy, progress, result) {
+        // find target control viewmodel
+        var targetControl = document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
+        var viewModel = ko.dataFor(targetControl.firstChild);
+        // determine the status
+        if (typeof result === "string") {
+            // error during upload
+            viewModel.Error(result);
         }
         else {
-            result = eval("(function ($context) { var $data=$context; with($context) { return " + expression + "; } })")(context);
-        }
-        if (result && result.$data) {
-            result = result.$data;
-        }
-        return result;
-    };
-    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
-        var startsWithProperty = false;
-        for (var prop in context) {
-            if (expression.indexOf(prop) === 0) {
-                startsWithProperty = true;
-                break;
+            // files were uploaded successfully
+            viewModel.Error("");
+            for (var i = 0; i < result.length; i++) {
+                viewModel.Files.push(dotvvm.serialization.wrapObservable(dotvvm.serialization.deserialize(result[i])));
+            }
+            // call the handler
+            if ((targetControl.attributes["data-dotvvm-upload-completed"] || { value: null }).value) {
+                new Function(targetControl.attributes["data-dotvvm-upload-completed"].value).call(targetControl);
             }
         }
-        if (!startsWithProperty)
-            expression = "$data." + expression;
-        return this.evaluateOnViewModel(context, expression);
+        viewModel.Progress(progress);
+        viewModel.IsBusy(isBusy);
     };
-    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
-        var value = ko.unwrap(viewModel);
-        if (typeof value === "undefined" || value == null)
-            return [];
-        return ko.unwrap(value.Items || value);
-    };
-    DotvvmEvaluator.prototype.tryEval = function (func) {
-        try {
-            return func();
-        }
-        catch (error) {
-            return null;
-        }
-    };
-    return DotvvmEvaluator;
+    return DotvvmFileUpload;
+}());
+var DotvvmFileUploadCollection = (function () {
+    function DotvvmFileUploadCollection() {
+        this.Files = ko.observableArray();
+        this.Progress = ko.observable(0);
+        this.Error = ko.observable();
+        this.IsBusy = ko.observable();
+    }
+    return DotvvmFileUploadCollection;
+}());
+var DotvvmFileUploadData = (function () {
+    function DotvvmFileUploadData() {
+        this.FileId = ko.observable();
+        this.FileName = ko.observable();
+        this.FileSize = ko.observable();
+        this.IsFileTypeAllowed = ko.observable();
+        this.IsMaxSizeExceeded = ko.observable();
+        this.IsAllowed = ko.observable();
+    }
+    return DotvvmFileUploadData;
+}());
+var DotvvmFileSize = (function () {
+    function DotvvmFileSize() {
+        this.Bytes = ko.observable();
+        this.FormattedText = ko.observable();
+    }
+    return DotvvmFileSize;
 }());
 var DotvvmGlobalize = (function () {
     function DotvvmGlobalize() {
@@ -518,6 +553,7 @@ var DotvvmSerialization = (function () {
                 }
                 var options = viewModel[prop + "$options"];
                 if (!opt.serializeAll && options && options.doNotPost) {
+                    // continue
                 }
                 else if (opt.oneLevel) {
                     result[prop] = ko.unwrap(value);
@@ -1076,15 +1112,6 @@ var DotvvmValidation = (function () {
 /// <reference path="typings/knockout/knockout.dotvvm.d.ts" />
 /// <reference path="typings/knockout.mapper/knockout.mapper.d.ts" />
 /// <reference path="typings/globalize/globalize.d.ts" />
-/// <reference path="dotvvm.domutils.ts" />
-/// <reference path="dotvvm.evaluator.ts" />
-/// <reference path="dotvvm.events.ts" />
-/// <reference path="dotvvm.fileupload.ts" />
-/// <reference path="dotvvm.globalize.ts" />
-/// <reference path="dotvvm.postbackhandlers.ts" />
-/// <reference path="dotvvm.promise.ts" />
-/// <reference path="dotvvm.serialization.ts" />
-/// <reference path="dotvvm.validation.ts" />
 document.getElementByDotvvmId = function (id) {
     return document.querySelector("[data-dotvvm-id='" + id + "']");
 };
@@ -2027,80 +2054,49 @@ var DotVVM = (function () {
     };
     return DotVVM;
 }());
-/// <reference path="dotvvm.ts" />
-var DotvvmFileUpload = (function () {
-    function DotvvmFileUpload() {
+var DotvvmEvaluator = (function () {
+    function DotvvmEvaluator() {
     }
-    DotvvmFileUpload.prototype.showUploadDialog = function (sender) {
-        // trigger the file upload dialog
-        var iframe = this.getIframe(sender);
-        this.createUploadId(sender, iframe);
-        this.openUploadDialog(iframe);
-    };
-    DotvvmFileUpload.prototype.getIframe = function (sender) {
-        return sender.parentElement.previousSibling;
-    };
-    DotvvmFileUpload.prototype.openUploadDialog = function (iframe) {
-        var fileUpload = iframe.contentWindow.document.getElementById('upload');
-        fileUpload.click();
-    };
-    DotvvmFileUpload.prototype.createUploadId = function (sender, iframe) {
-        iframe = iframe || this.getIframe(sender);
-        var uploadId = "DotVVM_upl" + new Date().getTime().toString();
-        sender.parentElement.parentElement.setAttribute("data-dotvvm-upload-id", uploadId);
-        iframe.setAttribute("data-dotvvm-upload-id", uploadId);
-    };
-    DotvvmFileUpload.prototype.reportProgress = function (targetControlId, isBusy, progress, result) {
-        // find target control viewmodel
-        var targetControl = document.querySelector("div[data-dotvvm-upload-id='" + targetControlId.value + "']");
-        var viewModel = ko.dataFor(targetControl.firstChild);
-        // determine the status
-        if (typeof result === "string") {
-            // error during upload
-            viewModel.Error(result);
+    DotvvmEvaluator.prototype.evaluateOnViewModel = function (context, expression) {
+        var result;
+        if (context && context.$data) {
+            result = eval("(function ($context) { with($context) { with ($data) { return " + expression + "; } } })")(context);
         }
         else {
-            // files were uploaded successfully
-            viewModel.Error("");
-            for (var i = 0; i < result.length; i++) {
-                viewModel.Files.push(dotvvm.serialization.wrapObservable(dotvvm.serialization.deserialize(result[i])));
-            }
-            // call the handler
-            if ((targetControl.attributes["data-dotvvm-upload-completed"] || { value: null }).value) {
-                new Function(targetControl.attributes["data-dotvvm-upload-completed"].value).call(targetControl);
+            result = eval("(function ($context) { var $data=$context; with($context) { return " + expression + "; } })")(context);
+        }
+        if (result && result.$data) {
+            result = result.$data;
+        }
+        return result;
+    };
+    DotvvmEvaluator.prototype.evaluateOnContext = function (context, expression) {
+        var startsWithProperty = false;
+        for (var prop in context) {
+            if (expression.indexOf(prop) === 0) {
+                startsWithProperty = true;
+                break;
             }
         }
-        viewModel.Progress(progress);
-        viewModel.IsBusy(isBusy);
+        if (!startsWithProperty)
+            expression = "$data." + expression;
+        return this.evaluateOnViewModel(context, expression);
     };
-    return DotvvmFileUpload;
-}());
-var DotvvmFileUploadCollection = (function () {
-    function DotvvmFileUploadCollection() {
-        this.Files = ko.observableArray();
-        this.Progress = ko.observable(0);
-        this.Error = ko.observable();
-        this.IsBusy = ko.observable();
-    }
-    return DotvvmFileUploadCollection;
-}());
-var DotvvmFileUploadData = (function () {
-    function DotvvmFileUploadData() {
-        this.FileId = ko.observable();
-        this.FileName = ko.observable();
-        this.FileSize = ko.observable();
-        this.IsFileTypeAllowed = ko.observable();
-        this.IsMaxSizeExceeded = ko.observable();
-        this.IsAllowed = ko.observable();
-    }
-    return DotvvmFileUploadData;
-}());
-var DotvvmFileSize = (function () {
-    function DotvvmFileSize() {
-        this.Bytes = ko.observable();
-        this.FormattedText = ko.observable();
-    }
-    return DotvvmFileSize;
+    DotvvmEvaluator.prototype.getDataSourceItems = function (viewModel) {
+        var value = ko.unwrap(viewModel);
+        if (typeof value === "undefined" || value == null)
+            return [];
+        return ko.unwrap(value.Items || value);
+    };
+    DotvvmEvaluator.prototype.tryEval = function (func) {
+        try {
+            return func();
+        }
+        catch (error) {
+            return null;
+        }
+    };
+    return DotvvmEvaluator;
 }());
 /// <reference path="typings/knockout/knockout.d.ts" />
 /// <reference path="DotVVM.ts" />
@@ -2148,6 +2144,10 @@ var DotvvmEventHub = (function () {
             load();
         ko.computed(function () { return refreshTriggers.map(ko.unwrap); }).subscribe(function (p) { return cmp.refreshValue(); });
         return cmp;
+    };
+    DotVVM.prototype.apiRefreshOn = function (value, refreshOn) {
+        refreshOn.subscribe(function () { return value.refreshValue && value.refreshValue(); });
+        return value;
     };
     DotVVM.prototype.api = {};
     DotVVM.prototype.eventHub = new DotvvmEventHub();

@@ -16,6 +16,7 @@ namespace DotVVM.Samples.BasicSamples
                 .UseContentRoot(Directory.GetCurrentDirectory())
                 .UseIISIntegration()
                 .UseStartup<Startup>()
+                .UseUrls("http://localhost:5042")
                 .Build();
 
             host.Run();

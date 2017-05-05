@@ -21,12 +21,18 @@
     </dot:Repeater>
     <hr />
     <div style="margin-left: 30px">
-        <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api._api.orders.get(SelectedCompanyId(), 0, 20) }, [SelectedCompanyId, dotvvm.eventHub.get('api.orders')])" >
+        <dot:Repeater DataSource="{value: _api.Orders.Get(SelectedCompanyId, 0, 20)}">
+            <p>
+                OrderId: {{value: Id}}, Date: {{value: Date}}, 
+                <button data-bind="click: function () { dotvvm.api._api.orders.delete(id()); dotvvm.eventHub.notify('dotvvm.api._api.orders') }">Delete</button>
+            </p>
+        </dot:Repeater>
+        <%-- <div data-bind="foreach: dotvvm.invokeApiFn(function () { return dotvvm.api._api.orders.get(SelectedCompanyId(), 0, 20) }, [SelectedCompanyId, dotvvm.eventHub.get('api.orders')])" >
             <p>
                 OrderId: <span data-bind="text: id" />, Date: <span data-bind="text: date" />, 
-                <button data-bind="click: function () { dotvvm.api._api.orders.delete(id); dotvvm.eventHub.notify('api.orders') }">Delete</button>
+                <button data-bind="click: function () { dotvvm.api._api.orders.delete(id); dotvvm.eventHub.notify('dotvvm.api._api.orders') }">Delete</button>
             </p>
-        </div>
+        </div> --%>
     </div>
 
 </body>
