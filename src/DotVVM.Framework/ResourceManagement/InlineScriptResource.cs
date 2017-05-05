@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using DotVVM.Framework.Controls;
 using DotVVM.Framework.Hosting;
+using Newtonsoft.Json;
 
 namespace DotVVM.Framework.ResourceManagement
 {
@@ -16,6 +17,7 @@ namespace DotVVM.Framework.ResourceManagement
         {
         }
 
+        [JsonConstructor]
         public InlineScriptResource(string code, ResourceRenderPosition renderPosition = ResourceRenderPosition.Body) : base(renderPosition)
         {
             this.Code = code;

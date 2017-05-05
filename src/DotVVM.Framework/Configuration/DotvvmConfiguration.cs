@@ -129,6 +129,7 @@ namespace DotVVM.Framework.Configuration
         public static DotvvmConfiguration CreateDefault(Action<IServiceCollection> registerServices = null)
         {
             var services = new ServiceCollection();
+            services.AddOptions();
             var config = CreateDefault(new ServiceLocator(services));
             
             DotvvmServiceCollectionExtensions.RegisterDotVVMServices(services, config);
