@@ -11,6 +11,25 @@ namespace DotVVM.Framework.Tests.Parser.Binding
             return parser.ReadExpression();
         }
 
+        public BindingParserNode ParseDirectiveTypeName(string expression)
+        {
+            BindingParser parser = SetupParser(expression);
+            return parser.ReadDirectiveTypeName();
+        }
+
+        public BindingParserNode ParseImportDirective(string expression)
+        {
+            BindingParser parser = SetupParser(expression);
+            return parser.ReadDirectiveValue();
+        }
+
+        public BindingParserNode ParseMultiExpression(string expression)
+        {
+            BindingParser parser = SetupParser(expression);
+            return parser.ReadMultiExpression();
+        }
+
+
         public BindingParser SetupParser(string expression)
         {
             var tokenizer = new BindingTokenizer();
