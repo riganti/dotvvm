@@ -39,6 +39,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
                 var symbols = InitSymbols(dataContexts);
                 symbols = options.AddTypes(symbols);
+                symbols = symbols.AddSymbols(options.ExtensionParameters.Select(p => CreateParameter(dataContexts, p.Identifier, p)));
 
                 var visitor = new ExpressionBuildingVisitor(symbols);
                 visitor.Scope = symbols.Resolve(options.ScopeParameter);

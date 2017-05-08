@@ -34,6 +34,8 @@ namespace DotVVM.Samples.BasicSamples
                     map.Property(nameof(SerializationViewModel.Value2)).Bind(Direction.ClientToServer);
                     map.Property(nameof(SerializationViewModel.IgnoredProperty)).Ignore();
                 });
+
+            config.RegisterApiGroup(typeof(ApiClientWrapper), "http://localhost:5000/", "Scripts/ApiClient.js");
         }
 
         private static void RegisterResources(DotvvmConfiguration config)
@@ -51,8 +53,6 @@ namespace DotVVM.Samples.BasicSamples
                 Location = new FileResourceLocation("~/Scripts/testResource.js"),
                 LocationFallback = new ResourceLocationFallback("window.dotvvmTestResource", new FileResourceLocation("~/Scripts/testResource2.js"))
             });
-
-            config.Resources.Register("ApiClient", new ScriptResource(new FileResourceLocation("Scripts/ApiClient.js")));
 
             // dev files
             config.Resources.SetEmbeddedResourceDebugFile("dotvvm.internal", "../DotVVM.Framework/Resources/Scripts/DotVVM.js");

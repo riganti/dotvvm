@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Reflection;
 using DotVVM.Framework.Binding;
+using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
@@ -174,6 +175,8 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((args, method) => args[0]));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
+            JavascriptTranslator.AddMethodTranslator(typeof(Api), nameof(Api.RefreshOn), 
+                new GenericMethodCompiler(a => new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(a)));
             BindingPageInfo.RegisterJavascriptTranslations();
         }
 

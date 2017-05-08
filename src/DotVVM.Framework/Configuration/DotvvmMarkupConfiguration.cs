@@ -6,6 +6,7 @@ using DotVVM.Framework.Controls;
 using DotVVM.Framework.Compilation;
 using System.Reflection;
 using System.ComponentModel;
+using DotVVM.Framework.Compilation.ControlTree;
 
 namespace DotVVM.Framework.Configuration
 {
@@ -40,7 +41,12 @@ namespace DotVVM.Framework.Configuration
         /// Gets or sets list of namespaces imported in bindings
         /// </summary>
         [JsonProperty("importedNamespaces")]
-        public List<NamespaceImport> ImportedNamespaces { get; set; } = new List<NamespaceImport>();
+        public List<NamespaceImport> ImportedNamespaces { get; set; } = new List<NamespaceImport>{
+            new NamespaceImport("DotVVM.Framework.Binding.HelperNamespace")
+        };
+
+
+        public List<BindingExtensionParameter> DefaultExtensionParameters { get; set; } = new List<BindingExtensionParameter>();
 
         /// <summary>
         /// Initializes a new instance of the <see cref="DotvvmMarkupConfiguration"/> class.

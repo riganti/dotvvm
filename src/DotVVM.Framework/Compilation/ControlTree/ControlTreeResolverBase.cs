@@ -253,10 +253,9 @@ namespace DotVVM.Framework.Compilation.ControlTree
         /// </summary>
         private IAbstractControl ProcessObjectElement(DothtmlElementNode element, IDataContextStack dataContext)
         {
-            object[] constructorParameters;
 
             // build control
-            var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out constructorParameters);
+            var controlMetadata = controlResolver.ResolveControl(element.TagPrefix, element.TagName, out var constructorParameters);
             if (controlMetadata == null)
             {
                 controlMetadata = controlResolver.ResolveControl("", element.TagName, out constructorParameters);
