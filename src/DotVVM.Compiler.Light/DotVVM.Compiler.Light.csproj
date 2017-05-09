@@ -1,11 +1,11 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <VersionPrefix>1.1.0.1</VersionPrefix>
+    <VersionPrefix>1.1.0.6-test</VersionPrefix>
     <TargetFramework>netcoreapp1.0</TargetFramework>
     <AssemblyName>dotnet-dotvvm-compiler</AssemblyName>
     <PackageId>DotVVM.Compiler.Light</PackageId>
-    <PackageVersion>1.1.0.1</PackageVersion>
+    <PackageVersion>1.1.0.6-test</PackageVersion>
     <Authors>RIGANTI</Authors>
     <Description>Command-line compiler for DotVVM.</Description>
     <PackageRequireLicenseAcceptance>false</PackageRequireLicenseAcceptance>
