@@ -330,7 +330,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
             else
             {
-                CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CommentBody);
                 CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
                 return ReadElementType.Error;
             }
@@ -346,7 +346,7 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer
             }
             else
             {
-                CreateToken(DothtmlTokenType.CommentBody, errorProvider: t => CreateTokenError());
+                CreateToken(DothtmlTokenType.CommentBody);
                 CreateToken(DothtmlTokenType.CloseComment, errorProvider: t => CreateTokenError(t, DothtmlTokenType.OpenComment, DothtmlTokenizerErrors.CommentNotClosed));
                 return ReadElementType.Error;
             }
