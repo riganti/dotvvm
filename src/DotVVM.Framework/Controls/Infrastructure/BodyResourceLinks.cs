@@ -39,7 +39,7 @@ namespace DotVVM.Framework.Controls.Infrastructure
             writer.RenderBeginTag("script");
             writer.WriteUnencodedText($@"
 window.dotvvm.domUtils.onDocumentReady(function () {{ 
-    window.dotvvm.init('root', '{CultureInfo.CurrentUICulture.Name}'); 
+    window.dotvvm.init('root', '{CultureInfo.CurrentCulture.Name}'); 
 }});");
             writer.RenderEndTag();
         }

@@ -196,10 +196,16 @@ namespace DotVVM.Framework.Compilation.Parser.Dothtml.Parser
                 {
                     // elements than can contain itself like <p> are closed on the first occurance of element with the same name
                     var sameElementIndex = startElement.Content.FindIndex(a => (a as DothtmlElementNode)?.FullTagName == startElement.FullTagName);
-                    startElement.AddWarning($"End tag is missing, the element is implicitly closed by following <{startElement.Content[sameElementIndex].As<DothtmlElementNode>()?.FullTagName}> tag.");
-                    startElement.Content[sameElementIndex].AddWarning($"Previous <{startElement.FullTagName}> is implicitly closed here.");
-                    if (sameElementIndex >= 0)
+                    
+                    if(sameElementIndex < 0)
                     {
+                        startElement.AddWarning($"End tag is missing, the element is implicitly closed with its parent tag or by the end of file.");
+                    }
+                    else if (sameElementIndex >= 0)
+                    {
+                        startElement.AddWarning($"End tag is missing, the element is implicitly closed by following <{startElement.Content[sameElementIndex].As<DothtmlElementNode>()?.FullTagName}> tag.");
+                        startElement.Content[sameElementIndex].AddWarning($"Previous <{startElement.FullTagName}> is implicitly closed here.");
+
                         var count = startElement.Content.Count - sameElementIndex;
                         ElementHierarchy.Peek().Content.AddRange(startElement.Content.Skip(sameElementIndex));
                         startElement.Content.RemoveRange(sameElementIndex, count);

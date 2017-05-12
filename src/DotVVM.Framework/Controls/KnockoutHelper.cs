@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using DotVVM.Framework.Hosting;
 using DotVVM.Framework.Compilation.Javascript;
 using DotVVM.Framework.Compilation.Javascript.Ast;
+using DotVVM.Framework.ViewModel.Serialization;
 
 namespace DotVVM.Framework.Controls
 {
@@ -90,7 +91,15 @@ namespace DotVVM.Framework.Controls
             var uniqueControlId = target?.GetDotvvmUniqueId();
 
             // return the script
-            var returnStatement = options.ReturnValue != null ? $";return {options.ReturnValue.ToString().ToLower()};" : "";
+            string returnStatement;
+            if (options.ReturnValue == false)
+            {
+                returnStatement = ";event.stopPropagation();return false;";
+            }
+            else
+            {
+                returnStatement = "";
+            }
 
             string generatedPostbackHanlders = null;
 
@@ -240,7 +249,7 @@ namespace DotVVM.Framework.Controls
         {
             var binding = obj.GetValueBinding(property);
             if (binding != null) return binding.GetKnockoutBindingExpression(obj);
-            return JsonConvert.SerializeObject(obj.GetValue(property));
+            return JsonConvert.SerializeObject(obj.GetValue(property), DefaultViewModelSerializer.CreateDefaultSettings());
         }
 
         /// <summary>

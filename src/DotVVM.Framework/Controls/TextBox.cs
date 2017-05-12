@@ -182,7 +182,7 @@ namespace DotVVM.Framework.Controls
             var changedBinding = GetCommandBinding(ChangedProperty);
             if (changedBinding != null)
             {
-                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, true, isOnChange: true));
+                writer.AddAttribute("onchange", KnockoutHelper.GenerateClientPostBackScript(nameof(Changed), changedBinding, this, useWindowSetTimeout: true, isOnChange: true));
             }
 
             base.AddAttributesToRender(writer, context);

@@ -458,6 +458,27 @@ namespace DotVVM.Samples.Tests.Control
         }
 
         [TestMethod]
+        public void Control_GridViewRowDecorators_ClickPropagation()
+        {
+            RunInAllBrowsers(browser =>
+            {
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+                browser.Wait();
+
+                browser.ElementAt("table", 0).ElementAt("tr", 4).First("input[type=button]").Click().Wait();
+                browser.ElementAt("table", 0).ElementAt("tr", 4).CheckIfHasNotClass("selected");
+                browser.ElementAt("table", 0).ElementAt("tr", 4).ElementAt("td", 1).CheckIfInnerText(t => t == "xxx");
+
+                browser.NavigateToUrl(SamplesRouteUrls.ControlSamples_GridView_GridViewRowDecorators);
+                browser.Wait();
+
+                browser.ElementAt("table", 0).ElementAt("tr", 4).First("a").Click().Wait();
+                browser.ElementAt("table", 0).ElementAt("tr", 4).CheckIfHasNotClass("selected");
+                browser.ElementAt("table", 0).ElementAt("tr", 4).ElementAt("td", 1).CheckIfInnerText(t => t == "xxx");
+            });
+        }
+
+        [TestMethod]
         public void Control_GridViewColumnVisible()
         {
             RunInAllBrowsers(browser =>

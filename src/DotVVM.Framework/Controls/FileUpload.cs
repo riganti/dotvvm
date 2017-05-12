@@ -158,7 +158,7 @@ namespace DotVVM.Framework.Controls
             var uploadCompletedBinding = GetCommandBinding(UploadCompletedProperty);
             if (uploadCompletedBinding != null)
             {
-                writer.AddAttribute("data-dotvvm-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, this, true, null));
+                writer.AddAttribute("data-dotvvm-upload-completed", KnockoutHelper.GenerateClientPostBackScript(nameof(UploadCompleted), uploadCompletedBinding, this, useWindowSetTimeout: true, returnValue: null));
             }
 
             base.AddAttributesToRender(writer, context);

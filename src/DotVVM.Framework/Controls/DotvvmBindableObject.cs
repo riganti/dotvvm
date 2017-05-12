@@ -21,7 +21,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the collection of control property values.
         /// </summary>
-        protected internal Dictionary<DotvvmProperty, object> Properties
+        public Dictionary<DotvvmProperty, object> Properties
         {
             get
             {
@@ -37,7 +37,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets or sets whether this control should be rendered on the server.
         /// </summary>
-        protected internal virtual bool RenderOnServer
+        public virtual bool RenderOnServer
         {
             get { return (RenderMode)GetValue(RenderSettings.ModeProperty) == RenderMode.Server; }
         }
@@ -111,7 +111,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Gets the value or a binding object for a specified property.
         /// </summary>
-        protected internal virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
+        public virtual object GetValueRaw(DotvvmProperty property, bool inherit = true)
         {
             return property.GetValue(this, inherit);
         }
@@ -137,7 +137,7 @@ namespace DotVVM.Framework.Controls
         /// <summary>
         /// Sets the value or a binding to the specified property.
         /// </summary>
-        protected virtual void SetValueRaw(DotvvmProperty property, object value)
+        public void SetValueRaw(DotvvmProperty property, object value)
         {
             property.SetValue(this, value);
         }
@@ -264,16 +264,16 @@ namespace DotVVM.Framework.Controls
             return current;
         }
 
-        protected internal bool HasBinding(DotvvmProperty property)
+        public bool HasBinding(DotvvmProperty property)
         {
             return Properties.TryGetValue(property, out object value) && value is IBinding;
         }
-        protected internal bool HasValueBinding(DotvvmProperty property)
+        public bool HasValueBinding(DotvvmProperty property)
         {
             return Properties.TryGetValue(property, out object value) && value is IValueBinding;
         }
 
-        protected internal bool HasBinding<TBinding>(DotvvmProperty property)
+        public bool HasBinding<TBinding>(DotvvmProperty property)
             where TBinding : IBinding
         {
             return Properties.TryGetValue(property, out object value) && value is TBinding;

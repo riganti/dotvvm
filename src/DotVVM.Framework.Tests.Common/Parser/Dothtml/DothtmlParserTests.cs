@@ -4,6 +4,7 @@ using System.Linq;
 using DotVVM.Framework.Compilation.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Parser;
 using DotVVM.Framework.Compilation.Parser.Dothtml.Tokenizer;
+using DotVVM.Framework.Utils;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace DotVVM.Framework.Tests.Parser.Dothtml
@@ -627,6 +628,51 @@ test";
             Assert.IsTrue(root.Content.Count == 0);
             Assert.IsTrue(root.Directives.Count == 0);
             Assert.IsTrue(root.Content.Count == 0);
+        }
+
+        [TestMethod]
+        public void DothtmlParser_CompletelyUnclosedTag_WarningOnNode()
+        {
+            var markup = "<div><p>Something</div>";
+            var root = ParseMarkup(markup);
+
+            var pNode = root
+                .Content[0].CastTo<DothtmlNodeWithContent>()
+                .Content[0].CastTo<DothtmlElementNode>();
+
+            Assert.AreEqual("p", pNode.TagName, "Tree is differen as expected, second tier should be p.");
+            Assert.AreEqual(1, pNode.NodeWarnings.Count(), "There should have been a warning about unclosed element.");
+            Assert.AreEqual(true, pNode.NodeWarnings.Any(w => w.Contains("implicitly closed")));
+        }
+
+        [TestMethod]
+        public void DothtmlParser_UnclosedTagImlicitlyClosedEndOfFile_WarningOnNode()
+        {
+            var markup = "<div><p>";
+            var root = ParseMarkup(markup);
+
+            var pNode = root
+                .Content[0].CastTo<DothtmlNodeWithContent>()
+                .Content[0].CastTo<DothtmlElementNode>();
+
+            Assert.AreEqual("p", pNode.TagName, "Tree is differen as expected, second tier should be p.");
+            Assert.AreEqual(1, pNode.NodeErrors.Count(), "There should have been an error about file ending");
+            Assert.AreEqual(true, pNode.NodeErrors.Any(w => w.Contains("not closed")));
+        }
+
+        [TestMethod]
+        public void DothtmlParser_UnclosedTagImlicitlyClosed_WarningOnNode()
+        {
+            var markup = "<div><p>Something<p>Something else</p></div>";
+            var root = ParseMarkup(markup);
+
+            var pNode = root
+                .Content[0].CastTo<DothtmlNodeWithContent>()
+                .Content[0].CastTo<DothtmlElementNode>();
+
+            Assert.AreEqual("p", pNode.TagName, "Tree is differen as expected, second tier should be p.");
+            Assert.AreEqual(1, pNode.NodeWarnings.Count(), "There should have been a warning about implicitly closing p element.");
+            Assert.AreEqual(true, pNode.NodeWarnings.Any(w=> w.Contains("implicitly closed")));
         }
 
         public static DothtmlRootNode ParseMarkup(string markup)

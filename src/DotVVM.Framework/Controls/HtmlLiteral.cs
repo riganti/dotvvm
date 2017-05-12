@@ -86,7 +86,7 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderBeginTag(writer, context);
             }
-            else if (HasValueBinding(HtmlProperty))
+            else if (!RenderOnServer && HasValueBinding(HtmlProperty))
             {
                 writer.WriteKnockoutDataBindComment("html", this, HtmlProperty);
             }
@@ -106,7 +106,7 @@ namespace DotVVM.Framework.Controls
             {
                 base.RenderEndTag(writer, context);
             }
-            else if (HasValueBinding(HtmlProperty))
+            else if (!RenderOnServer && HasValueBinding(HtmlProperty))
             {
                 writer.WriteKnockoutDataBindEndComment();
             }
