@@ -199,7 +199,7 @@ class DotvvmValidation {
                 this.clearValidationErrors(args.viewModel);
                 this.validateViewModel(validationTarget);
                 if (this.errors().length > 0) {
-                    console.warn("Validation failed: postback aborted; errors: ", this.errors());
+                    console.log("Validation failed: postback aborted; errors: ", this.errors());
                     args.cancel = true;
                     args.clientValidationFailed = true;
                 }
