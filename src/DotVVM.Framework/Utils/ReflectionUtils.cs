@@ -11,6 +11,7 @@ using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.ControlTree.Resolved;
 using System.Security.Cryptography;
 using System.Text;
+using System.Globalization;
 
 #if DotNetCore
 using Microsoft.Extensions.DependencyModel;
@@ -188,7 +189,7 @@ namespace DotVVM.Framework.Utils
             }
 
             // convert
-            return Convert.ChangeType(value, type);
+            return Convert.ChangeType(value, type, CultureInfo.InvariantCulture);
         }
 
         public static Type FindType(string name, bool ignoreCase = false)
