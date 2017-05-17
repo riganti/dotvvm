@@ -209,7 +209,7 @@ namespace DotVVM.Framework.Binding
 
         public static Delegate[] GetDelegates(IEnumerable<object> objects) => (
             from t in objects
-            from m in t.GetType().GetMethods()
+            from m in t.GetType().GetMethods(BindingFlags.Public | BindingFlags.Instance)
             where m.DeclaringType != typeof(object)
             select t is Delegate ? (Delegate)t : m.CreateDelegate(MethodGroupExpression.GetDelegateType(m), t)
         ).ToArray();

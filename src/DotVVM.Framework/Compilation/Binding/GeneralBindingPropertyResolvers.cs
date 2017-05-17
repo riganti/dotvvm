@@ -96,19 +96,19 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public KnockoutExpressionBindingProperty FormatJavascript(KnockoutJsExpressionBindingProperty expression)
         {
-            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression, true), FormatJavascript(expression.Expression, false));
+            return new KnockoutExpressionBindingProperty(FormatJavascript(expression.Expression, true, niceMode: configuration.Debug), FormatJavascript(expression.Expression, false, niceMode: configuration.Debug));
         }
 
-        private ParametrizedCode FormatJavascript(JsExpression node, bool allowObservableResult = true)
+        public static ParametrizedCode FormatJavascript(JsExpression node, bool allowObservableResult = true, bool niceMode = false, bool nullChecks = true)
         {
             var expr = new JsParenthesizedExpression(node.Clone());
             expr.AcceptVisitor(new KnockoutObservableHandlingVisitor(allowObservableResult));
-            JavascriptNullCheckAdder.AddNullChecks(expr);
+            if (nullChecks) JavascriptNullCheckAdder.AddNullChecks(expr);
             expr = new JsParenthesizedExpression((JsExpression)JsTemporaryVariableResolver.ResolveVariables(expr.Expression.Detach()));
-            return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode: configuration.Debug);
+            return (StartsWithStatementLikeExpression(expr.Expression) ? expr : expr.Expression).FormatParametrizedScript(niceMode);
         }
 
-        private bool StartsWithStatementLikeExpression(JsExpression expression)
+        private static bool StartsWithStatementLikeExpression(JsExpression expression)
         {
             if (expression is JsFunctionExpression || expression is JsObjectExpression) return true;
             if (expression == null || !expression.HasChildren ||
@@ -232,7 +232,7 @@ namespace DotVVM.Framework.Compilation.Binding
 
         public StaticCommandJavascriptProperty CompileStaticCommand(DataContextStack dataContext, ParsedExpressionBindingProperty expression)
         {
-            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression)));
+            return new StaticCommandJavascriptProperty(FormatJavascript(new StaticCommandBindingCompiler(vmMapper).CompileToJavascript(dataContext, expression.Expression), niceMode: configuration.Debug));
         }
 
         public LocationInfoBindingProperty GetLocationInfo(ResolvedBinding resolvedBinding)
