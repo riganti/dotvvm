@@ -16,6 +16,11 @@ namespace DotVVM.Framework.ViewModel
         /// </summary>
         public Direction Direction { get; private set; }
 
+        /// <summary>
+        /// Name of the property in JSON and JS viewModel
+        /// </summary>
+        public string Name { get; set; }
+
 
         /// <summary>
         /// Initializes a new instance of the <see cref="BindAttribute"/> class.

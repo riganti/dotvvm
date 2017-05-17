@@ -60,6 +60,7 @@ namespace DotVVM.Framework.ViewModel.Serialization
                 if (bindAttribute != null)
                 {
                     propertyMap.Bind(bindAttribute.Direction);
+                    if (bindAttribute.Name != null) propertyMap.Name = bindAttribute.Name;
                 }
 
                 var viewModelProtectionAttribute = property.GetCustomAttribute<ProtectAttribute>();
