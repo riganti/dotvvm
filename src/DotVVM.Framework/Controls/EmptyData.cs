@@ -49,9 +49,9 @@ namespace DotVVM.Framework.Controls
             if (!RenderOnServer)
             {
                 if (RenderWrapperTag)
-                    writer.AddKnockoutDataBind("visible", $"!({ GetForeachDataBindJavascriptExpression() }).length");
+                    writer.AddKnockoutDataBind("if", $"!({ GetForeachDataBindJavascriptExpression() }).length");
                 else
-                    writer.WriteKnockoutDataBindComment("visible", $"!({ GetForeachDataBindJavascriptExpression() }).length");
+                    writer.WriteKnockoutDataBindComment("if", $"!({ GetForeachDataBindJavascriptExpression() }).length");
 
                 if (DataSource != null && RenderWrapperTag && GetIEnumerableFromDataSource(DataSource).OfType<object>().Any())
                 {
