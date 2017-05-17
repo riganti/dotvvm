@@ -190,7 +190,10 @@ class DotVVM {
             } finally {
                 this.isViewModelUpdating = false;
             }
-        }, errorCallback,
+        }, (xhr) => {
+            console.warn(`StaticCommand postback failed: ${xhr.status} - ${xhr.statusText}`, xhr);
+            errorCallback(xhr);
+        },
         xhr => {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
