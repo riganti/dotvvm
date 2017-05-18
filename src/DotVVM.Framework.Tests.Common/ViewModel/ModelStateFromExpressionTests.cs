@@ -31,25 +31,25 @@ namespace DotVVM.Framework.Tests.Common.ViewModel
         [TestMethod]
         public void ModelState_SinglePropertyExpression()
         {
-            Assert.AreEqual("MyProperty", viewModel.CreateVmError(v => v.MyProperty, "").PropertyPath);
+            Assert.AreEqual("MyProperty", viewModel.CreateModelError(v => v.MyProperty, "").PropertyPath);
         }
 
         [TestMethod]
         public void ModelState_SingleRenamedProperty()
         {
-            Assert.AreEqual("rp", viewModel.CreateVmError(v => v.RenamedProperty, "").PropertyPath);
+            Assert.AreEqual("rp", viewModel.CreateModelError(v => v.RenamedProperty, "").PropertyPath);
         }
 
         [TestMethod]
         public void ModelState_NestedViewModelExpression()
         {
-            Assert.AreEqual("AnotherProperty().StringProp", viewModel.CreateVmError(v => v.AnotherProperty.StringProp, "").PropertyPath);
+            Assert.AreEqual("AnotherProperty().StringProp", viewModel.CreateModelError(v => v.AnotherProperty.StringProp, "").PropertyPath);
         }
 
         [TestMethod]
         public void ModelState_ArrayAccessExpression()
         {
-            Assert.AreEqual("AnotherProperty().TestViewModel2().Collection()[0]().StringValue", viewModel.CreateVmError(v => v.AnotherProperty.TestViewModel2.Collection[0].StringValue, "").PropertyPath);
+            Assert.AreEqual("AnotherProperty().TestViewModel2().Collection()[0]().StringValue", viewModel.CreateModelError(v => v.AnotherProperty.TestViewModel2.Collection[0].StringValue, "").PropertyPath);
         }
 
         class ViewModel: DotvvmViewModelBase

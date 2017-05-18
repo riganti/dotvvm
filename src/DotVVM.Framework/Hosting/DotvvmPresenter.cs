@@ -123,10 +123,11 @@ namespace DotVVM.Framework.Hosting
                 }
 
                 // init the view model lifecycle
-                if (context.ViewModel is IDotvvmViewModel)
+                if (context.ViewModel is IDotvvmViewModel viewModel)
                 {
-                    ((IDotvvmViewModel)context.ViewModel).Context = context;
-                    await ((IDotvvmViewModel)context.ViewModel).Init();
+                    viewModel.Context = context;
+                    ChildViewModelsCache.SetViewModelClientPath(viewModel, ChildViewModelsCache.RootViewModelPath);
+                    await viewModel.Init();
                 }
 
                 // run the init phase in the page

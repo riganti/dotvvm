@@ -16,17 +16,28 @@ namespace DotVVM.Framework.ViewModel.Validation
 {
     public static class ValidationErrorFactory
     {
-        public static ViewModelValidationError CreateVmError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string error)
+        public static void AddModelError<T, TProp>(this T vm, Expression<Func<T, TProp>> expr, string message)
+            where T : class, IDotvvmViewModel
+        {
+            AddModelError(vm, expr, message, vm.Context);
+        }
+
+        public static void AddModelError<T, TProp>(T vm, Expression<Func<T, TProp>> expr, string message, IDotvvmRequestContext context)
+            where T: class
+        {
+            if (context.ModelState.ValidationTarget != vm) throw new NotSupportedException($"ValidationTarget ({context.ModelState.ValidationTarget?.GetType().Name ?? "null"}) must be equal to specified view model ({vm.GetType().Name}).");
+            var error = CreateModelError(context.Configuration, expr, message);
+            context.ModelState.Errors.Add(error);
+        }
+
+        public static ViewModelValidationError CreateModelError<T, TProp>(T vm, Expression<Func<T, TProp>> expr, string error)
             where T : IDotvvmViewModel =>
-            CreateVmError(vm.Context.Configuration, expr, error);
+            CreateModelError(vm.Context.Configuration, expr, error);
 
-        public static ViewModelValidationError CreateVmError<T, TProp>(this IDotvvmRequestContext context, Expression<Func<T, TProp>> expr, string error) =>
-            CreateVmError(context.Configuration, expr, error);
+        public static ViewModelValidationError CreateModelError<T, TProp>(DotvvmConfiguration config, Expression<Func<T, TProp>> expr, string error) =>
+            CreateModelError(config, (LambdaExpression)expr, error);
 
-        public static ViewModelValidationError CreateVmError<T, TProp>(DotvvmConfiguration config, Expression<Func<T, TProp>> expr, string error) =>
-            CreateVmError(config, (LambdaExpression)expr, error);
-
-        public static ViewModelValidationError CreateVmError(DotvvmConfiguration config, LambdaExpression expr, string error) =>
+        public static ViewModelValidationError CreateModelError(DotvvmConfiguration config, LambdaExpression expr, string error) =>
             new ViewModelValidationError {
                 ErrorMessage = error,
                 PropertyPath = GetPathFromExpression(config, expr)
