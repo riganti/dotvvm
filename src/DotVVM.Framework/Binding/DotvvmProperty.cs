@@ -280,7 +280,7 @@ namespace DotVVM.Framework.Binding
         /// <summary>
         /// Resolves all properties of specified type.
         /// </summary>
-        public static IReadOnlyList<DotvvmProperty> ResolveProperties(Type type)
+        public static DotvvmProperty[] ResolveProperties(Type type)
         {
             var types = new HashSet<Type>();
             while (type.GetTypeInfo().BaseType != null)
@@ -289,7 +289,7 @@ namespace DotVVM.Framework.Binding
                 type = type.GetTypeInfo().BaseType;
             }
 
-            return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToList();
+            return registeredProperties.Values.Where(p => types.Contains(p.DeclaringType)).ToArray();
         }
 
         /// <summary>
