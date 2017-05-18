@@ -64,14 +64,24 @@ namespace DotVVM.Framework.Configuration
                     foreach (var p in method.GetParameters())
                         RegisterApiDtoProperties(p.ParameterType, config);
 
-                    if (registerJS) JavascriptTranslator.AddMethodTranslator(method, new GenericMethodCompiler(
+                    if (registerJS)
+                    {
+                        var isRead = method.Name.Equals("get", StringComparison.OrdinalIgnoreCase);
+
+                        JavascriptTranslator.AddMethodTranslator(method, new GenericMethodCompiler(
                             a => new JsIdentifierExpression("dotvvm").Member("invokeApiFn").Invoke(
                                 new JsFunctionExpression(new JsIdentifier[0], new JsBlockStatement(
                                     new JsReturnStatement(identifier.Clone().Member(KnockoutHelper.ConvertToCamelCase(method.Name)).Invoke(a.Skip(1).ToArray()))
                                 )),
-                                new JsArrayExpression(new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(new JsLiteral(identifier.FormatScript())))
+                                new JsArrayExpression(isRead ?
+                                    new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(new JsLiteral(identifier.FormatScript())) :
+                                    null),
+                                new JsArrayExpression(!isRead ?
+                                    new JsLiteral(identifier.FormatScript()) :
+                                    null)
                             )
                         ));
+                    }
                 }
             }
         }

@@ -345,19 +345,22 @@ namespace DotVVM.Framework.Compilation.Javascript
             return result;
         }
 
-        protected JsExpression TryTranslateMethodCall(JsExpression context, JsExpression[] args, MethodInfo method, Expression contextExpression, Expression[] argsExpressions)
+        protected static JsExpression TryTranslateMethodCall(JsExpression context, JsExpression[] args, MethodInfo method, Expression contextExpression, Expression[] argsExpressions) =>
+            FindMethodTranslator(method, contextExpression, argsExpressions)?.TranslateCall(context, args, method);
+
+        public static IJsMethodTranslator FindMethodTranslator(MethodInfo method, Expression contextExpression, Expression[] argsExpressions)
         {
             if (method == null) return null;
             if (MethodTranslators.TryGetValue(method, out var translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
             {
-                return translator.TranslateCall(context, args, method);
+                return translator;
             }
             if (method.IsGenericMethod)
             {
                 var genericMethod = method.GetGenericMethodDefinition();
                 if (MethodTranslators.TryGetValue(genericMethod, out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
                 {
-                    return translator.TranslateCall(context, args, method);
+                    return translator;
                 }
             }
 
@@ -368,7 +371,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                     var map = method.DeclaringType.GetTypeInfo().GetRuntimeInterfaceMap(iface);
                     var imIndex = Array.IndexOf(map.TargetMethods, method);
                     if (imIndex >= 0 && MethodTranslators.TryGetValue(map.InterfaceMethods[imIndex], out translator) && translator.CanTranslateCall(method, contextExpression, argsExpressions))
-                        return translator.TranslateCall(context, args, method);
+                        return translator;
                 }
             }
             if (method.DeclaringType.GetTypeInfo().IsGenericType && !method.DeclaringType.GetTypeInfo().IsGenericTypeDefinition)
@@ -377,7 +380,7 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var m2 = genericType.GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 if (m2 != null)
                 {
-                    var r2 = TryTranslateMethodCall(context, args, m2, contextExpression, argsExpressions);
+                    var r2 = FindMethodTranslator(m2, contextExpression, argsExpressions);
                     if (r2 != null) return r2;
                 }
             }
@@ -386,12 +389,12 @@ namespace DotVVM.Framework.Compilation.Javascript
                 var m2 = typeof(Array).GetMethod(method.Name, BindingFlags.Instance | BindingFlags.Static | BindingFlags.NonPublic | BindingFlags.Public);
                 if (m2 != null)
                 {
-                    var r2 = TryTranslateMethodCall(context, args, m2, contextExpression, argsExpressions);
+                    var r2 = FindMethodTranslator(m2, contextExpression, argsExpressions);
                     if (r2 != null) return r2;
                 }
             }
             var baseMethod = method.GetBaseDefinition();
-            if (baseMethod != null && baseMethod != method) return TryTranslateMethodCall(context, args, baseMethod, contextExpression, argsExpressions);
+            if (baseMethod != null && baseMethod != method) return FindMethodTranslator(baseMethod, contextExpression, argsExpressions);
             else return null;
         }
 

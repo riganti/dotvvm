@@ -24,7 +24,7 @@ class DotvvmEventHub {
 (function () {
 
     let cachedValues: { [key: string]: KnockoutObservable<any> } = {};
-    DotVVM.prototype.invokeApiFn = function <T>(callback: () => PromiseLike<T>, refreshTriggers: KnockoutObservable<any>[] = [], commandId = callback.toString()) {
+    DotVVM.prototype.invokeApiFn = function <T>(callback: () => PromiseLike<T>, refreshTriggers: (KnockoutObservable<any> | string)[] = [], notifyTriggers: string[] = [], commandId = callback.toString()) {
         let cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable<any>(null));
 
         const load = () => {
@@ -34,6 +34,8 @@ class DotvvmEventHub {
                     dotvvm.serialization.deserialize(val, cachedValue);
                     cachedValue.notifySubscribers();
                 }
+                for (var t of notifyTriggers)
+                    dotvvm.eventHub.notify(t);
             }, console.warn);
         };
 
@@ -48,7 +50,7 @@ class DotvvmEventHub {
             }, 10);
         };
         if (!cachedValue.peek()) load();
-        ko.computed(() => refreshTriggers.map(ko.unwrap)).subscribe(p => cmp.refreshValue());
+        ko.computed(() => refreshTriggers.map(f => typeof f == "string" ? dotvvm.eventHub.get(f)() : f())).subscribe(p => cmp.refreshValue());
         return cmp;
     }
     DotVVM.prototype.apiRefreshOn = function <T>(value: KnockoutObservable<T> & { refreshValue? : () => void }, refreshOn: KnockoutObservable<any>) {

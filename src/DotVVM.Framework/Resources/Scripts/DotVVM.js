@@ -2114,8 +2114,9 @@ var DotvvmEventHub = (function () {
 }());
 (function () {
     var cachedValues = {};
-    DotVVM.prototype.invokeApiFn = function (callback, refreshTriggers, commandId) {
+    DotVVM.prototype.invokeApiFn = function (callback, refreshTriggers, notifyTriggers, commandId) {
         if (refreshTriggers === void 0) { refreshTriggers = []; }
+        if (notifyTriggers === void 0) { notifyTriggers = []; }
         if (commandId === void 0) { commandId = callback.toString(); }
         var cachedValue = cachedValues[commandId] || (cachedValues[commandId] = ko.observable(null));
         var load = function () {
@@ -2124,6 +2125,10 @@ var DotvvmEventHub = (function () {
                 if (val) {
                     dotvvm.serialization.deserialize(val, cachedValue);
                     cachedValue.notifySubscribers();
+                }
+                for (var _i = 0, notifyTriggers_1 = notifyTriggers; _i < notifyTriggers_1.length; _i++) {
+                    var t = notifyTriggers_1[_i];
+                    dotvvm.eventHub.notify(t);
                 }
             }, console.warn);
         };
@@ -2139,7 +2144,7 @@ var DotvvmEventHub = (function () {
         };
         if (!cachedValue.peek())
             load();
-        ko.computed(function () { return refreshTriggers.map(ko.unwrap); }).subscribe(function (p) { return cmp.refreshValue(); });
+        ko.computed(function () { return refreshTriggers.map(function (f) { return typeof f == "string" ? dotvvm.eventHub.get(f)() : f(); }); }).subscribe(function (p) { return cmp.refreshValue(); });
         return cmp;
     };
     DotVVM.prototype.apiRefreshOn = function (value, refreshOn) {

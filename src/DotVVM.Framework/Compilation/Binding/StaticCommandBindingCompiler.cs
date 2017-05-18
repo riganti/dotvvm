@@ -26,7 +26,7 @@ namespace DotVVM.Framework.Compilation.Binding
             var currentContextVariable = new JsTemporaryVariableParameter(new JsIdentifierExpression("ko").Member("contextFor").Invoke(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter)));
             var resultPromiseVariable = new JsTemporaryVariableParameter(new JsNewExpression("DotvvmPromise"));
             var senderVariable = new JsTemporaryVariableParameter(new JsSymbolicParameter(CommandBindingExpression.SenderElementParameter));
-            var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call);
+            var visitor = new ExtractExpressionVisitor(ex => ex.NodeType == ExpressionType.Call && ex is MethodCallExpression methodCall && JavascriptTranslator.FindMethodTranslator(methodCall.Method, methodCall.Object, methodCall.Arguments.ToArray()) == null);
             var rootCallback = visitor.Visit(expression);
             var js = SouldCompileCallback(rootCallback) ? new JsSymbolicParameter(resultPromiseVariable).Member("resolve").Invoke(JavascriptTranslator.CompileToJavascript(rootCallback, dataContext, vmMapper)) : null;
             foreach (var param in visitor.ParameterOrder.Reverse<ParameterExpression>())
