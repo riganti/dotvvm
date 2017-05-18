@@ -9,7 +9,7 @@
     <dot:RequiredResource Name="apiInit_api" />
 </head>
 <body>
-    <dot:Repeater DataSource="{value: _api.Companies.Get()}" >
+    <dot:Repeater DataSource="{value: _api.Companies.Get()}" RenderSettings.Mode="Server">
         <p>
             {{value: Id}}: 
             {{value: Name}}

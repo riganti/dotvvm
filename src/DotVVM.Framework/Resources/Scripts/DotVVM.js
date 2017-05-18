@@ -2143,7 +2143,7 @@ var DotvvmEventHub = (function () {
             }, 10);
         };
         if (!cachedValue.peek())
-            load();
+            cmp.refreshValue();
         ko.computed(function () { return refreshTriggers.map(function (f) { return typeof f == "string" ? dotvvm.eventHub.get(f)() : f(); }); }).subscribe(function (p) { return cmp.refreshValue(); });
         return cmp;
     };

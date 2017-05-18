@@ -49,7 +49,7 @@ class DotvvmEventHub {
                 load();
             }, 10);
         };
-        if (!cachedValue.peek()) load();
+        if (!cachedValue.peek()) cmp.refreshValue();
         ko.computed(() => refreshTriggers.map(f => typeof f == "string" ? dotvvm.eventHub.get(f)() : f())).subscribe(p => cmp.refreshValue());
         return cmp;
     }

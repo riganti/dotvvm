@@ -79,7 +79,7 @@ namespace DotVVM.Framework.Configuration
                                 new JsArrayExpression(!isRead ?
                                     new JsLiteral(identifier.FormatScript()) :
                                     null)
-                            )
+                            ).WithAnnotation(ResultIsObservableAnnotation.Instance).WithAnnotation(MayBeNullAnnotation.Instance)
                         ));
                     }
                 }
