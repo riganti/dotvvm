@@ -18,7 +18,8 @@ namespace DotVVM.Framework.Compilation.Javascript
         {
             if (node is JsExpression expression && node.HasAnnotation<ResultIsObservableAnnotation>() && !node.Parent.HasAnnotation<ObservableUnwrapInvocationAnnotation>() && !(node.Role == JsAssignmentExpression.LeftRole && node.Parent is JsAssignmentExpression) && node.Parent != null)
             {
-                if (!AllowObservableResult || !node.IsRootResultExpression())
+                if (!(AllowObservableResult && node.IsRootResultExpression()) &&
+                    !node.SatisfyResultCondition(n => n.HasAnnotation<ShouldBeObservableAnnotation>()))
                 {
                     // may be null is copied to the observable result
                     node.ReplaceWith(_ => KoUnwrap(expression, expression, false));

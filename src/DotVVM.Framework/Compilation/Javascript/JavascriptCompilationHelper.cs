@@ -39,10 +39,12 @@ namespace DotVVM.Framework.Compilation.Javascript
         }
 
         public static bool IsRootResultExpression(this JsNode node) =>
-            !(node.Parent is JsExpression) ||
+            SatisfyResultCondition(node, n => !(n.Parent is JsExpression));
+        public static bool SatisfyResultCondition(this JsNode node, Func<JsNode, bool> predicate) =>
+            predicate(node) ||
             (node.Parent is JsParenthesizedExpression ||
                 node.Role == JsConditionalExpression.FalseRole ||
                 node.Role == JsConditionalExpression.TrueRole
-            ) && node.Parent.IsRootResultExpression();
+            ) && node.Parent.SatisfyResultCondition(predicate);
     }
 }

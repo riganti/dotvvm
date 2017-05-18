@@ -11,10 +11,8 @@ namespace DotVVM.Framework.Binding.HelperNamespace
 {
     public static class Api
     {
-        static Api()
-        {
-        }
+        public static T RefreshOnChange<T>(T obj, object refreshOn) => obj;
 
-        public static T RefreshOn<T>(T obj, object refreshOn) => obj;
+        public static T RefreshOnEvent<T>(T obj, string eventName) => obj;
     }
 }

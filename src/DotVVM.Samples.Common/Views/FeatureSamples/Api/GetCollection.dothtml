@@ -21,7 +21,8 @@
     </dot:Repeater>
     <hr />
     <div style="margin-left: 30px">
-        <dot:Repeater DataSource="{value: _api.Orders.Get(SelectedCompanyId, 0, 20)}">
+
+        <dot:Repeater DataSource="{value: Api.RefreshOnChange(_api.Orders.Get(SelectedCompanyId, 0, 20), SelectedCompanyId)}">
             <p>
                 OrderId: {{value: Id}}, Date: {{value: Date}}, 
                 <button data-bind="click: function () { dotvvm.api._api.orders.delete(id()); dotvvm.eventHub.notify('dotvvm.api._api.orders') }">Delete</button>

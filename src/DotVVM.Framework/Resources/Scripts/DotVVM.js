@@ -1,13 +1,8 @@
-var __extends = (this && this.__extends) || (function () {
-    var extendStatics = Object.setPrototypeOf ||
-        ({ __proto__: [] } instanceof Array && function (d, b) { d.__proto__ = b; }) ||
-        function (d, b) { for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p]; };
-    return function (d, b) {
-        extendStatics(d, b);
-        function __() { this.constructor = d; }
-        d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
-    };
-})();
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var DotvvmDomUtils = (function () {
     function DotvvmDomUtils() {
     }
@@ -553,7 +548,6 @@ var DotvvmSerialization = (function () {
                 }
                 var options = viewModel[prop + "$options"];
                 if (!opt.serializeAll && options && options.doNotPost) {
-                    // continue
                 }
                 else if (opt.oneLevel) {
                     result[prop] = ko.unwrap(value);
@@ -880,7 +874,7 @@ var DotvvmValidation = (function () {
                 _this.clearValidationErrors(args.viewModel);
                 _this.validateViewModel(validationTarget);
                 if (_this.errors().length > 0) {
-                    console.warn("Validation failed: postback aborted; errors: ", _this.errors());
+                    console.log("Validation failed: postback aborted; errors: ", _this.errors());
                     args.cancel = true;
                     args.clientValidationFailed = true;
                 }
@@ -1261,7 +1255,10 @@ var DotVVM = (function () {
             finally {
                 _this.isViewModelUpdating = false;
             }
-        }, errorCallback, function (xhr) {
+        }, function (xhr) {
+            console.warn("StaticCommand postback failed: " + xhr.status + " - " + xhr.statusText, xhr);
+            errorCallback(xhr);
+        }, function (xhr) {
             xhr.setRequestHeader("X-PostbackType", "StaticCommand");
         });
     };

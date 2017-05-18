@@ -10,6 +10,7 @@ using DotVVM.Framework.Binding.HelperNamespace;
 using DotVVM.Framework.Compilation.ControlTree;
 using DotVVM.Framework.Compilation.Javascript.Ast;
 using DotVVM.Framework.Controls;
+using DotVVM.Framework.Utils;
 using DotVVM.Framework.ViewModel;
 using DotVVM.Framework.ViewModel.Serialization;
 
@@ -175,8 +176,17 @@ namespace DotVVM.Framework.Compilation.Javascript
             AddPropertyGetterTranslator(typeof(Nullable<>), "Value", new GenericMethodCompiler((args, method) => args[0]));
             //AddMethodTranslator(typeof(Enumerable), nameof(Enumerable.Count), lengthMethod, new[] { typeof(IEnumerable) });
 
-            JavascriptTranslator.AddMethodTranslator(typeof(Api), nameof(Api.RefreshOn), 
-                new GenericMethodCompiler(a => new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(a)));
+            JavascriptTranslator.AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnChange),
+                new GenericMethodCompiler(a => a[2] is JsIdentifierExpression || a[2] is JsMemberAccessExpression member && member.Target is JsSymbolicParameter && !member.Target.HasAnnotation<ResultIsObservableAnnotation>() ?
+                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(a[1], a[2].WithAnnotation(ShouldBeObservableAnnotation.Instance)) :
+                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(a[1],
+                        new JsIdentifierExpression("ko").Member("pureComputed").Invoke(new JsFunctionExpression(
+                            parameters: Enumerable.Empty<JsIdentifier>(),
+                            bodyBlock: new JsBlockStatement(new JsReturnStatement(a[2])))))
+                ));
+            JavascriptTranslator.AddMethodTranslator(typeof(Api), nameof(Api.RefreshOnEvent),
+                new GenericMethodCompiler(a =>
+                    new JsIdentifierExpression("dotvvm").Member("apiRefreshOn").Invoke(a[1], new JsIdentifierExpression("dotvvm").Member("eventHub").Member("get").Invoke(a[2]))));
             BindingPageInfo.RegisterJavascriptTranslations();
         }
 
