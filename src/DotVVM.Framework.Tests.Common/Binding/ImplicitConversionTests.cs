@@ -31,12 +31,12 @@ namespace DotVVM.Framework.Tests.Common.Binding
         [TestMethod]
         public void Conversion_ValidToString()
         {
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(DateTime)), typeof(string), throwException: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(int)), typeof(string), throwException: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(string)), typeof(string), throwException: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(double)), typeof(string), throwException: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(TimeSpan)), typeof(string), throwException: true);
-            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(Tuple<int, int>)), typeof(string), throwException: true);
+            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(DateTime)), typeof(string), throwException: true, allowToString: true);
+            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(int)), typeof(string), throwException: true, allowToString: true);
+            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(string)), typeof(string), throwException: true, allowToString: true);
+            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(double)), typeof(string), throwException: true, allowToString: true);
+            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(TimeSpan)), typeof(string), throwException: true, allowToString: true);
+            TypeConversion.ImplicitConversion(Expression.Parameter(typeof(Tuple<int, int>)), typeof(string), throwException: true, allowToString: true);
         }
 
         [TestMethod]
