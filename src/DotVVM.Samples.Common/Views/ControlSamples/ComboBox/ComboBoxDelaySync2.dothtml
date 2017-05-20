@@ -17,7 +17,7 @@
                           DataSource="{value: _parent.SecondList}">
             </dot:ComboBox>
 
-            Selected: {{value: SelectedValue}}
+            Selected: <span class="result">{{value: SelectedValue}}</span>
         </ItemTemplate>
     </dot:Repeater>
 </body>
