@@ -11,12 +11,14 @@
     <dot:Button Text="Postback" Click="{command: DoPostback()}" />
     <dot:Repeater DataSource="{value: FirstList}">
         <ItemTemplate>
-            <dot:ComboBox SelectedValue="{value: SelectedValue}" DisplayMember="Text" ValueMember="Value" DataSource="{value: _parent.SecondList}">
+            <dot:ComboBox SelectedValue="{value: SelectedValue}" 
+                          DisplayMember="Text" 
+                          ValueMember="Value" 
+                          DataSource="{value: _parent.SecondList}">
             </dot:ComboBox>
 
             Selected: {{value: SelectedValue}}
         </ItemTemplate>
     </dot:Repeater>
-
 </body>
 </html>

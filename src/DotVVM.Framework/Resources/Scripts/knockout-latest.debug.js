@@ -4994,13 +4994,11 @@ ko.bindingHandlers['value'] = {
         }
 
         var valueUpdateHandler = function() {
-			ko.delaySync.run(function () {
-				elementValueBeforeEvent = null;
-				propertyChangedFired = false;
-				var modelValue = valueAccessor();
-				var elementValue = ko.selectExtensions.readValue(element);
-				ko.expressionRewriting.writeValueToProperty(modelValue, allBindings, 'value', elementValue);
-			});
+            elementValueBeforeEvent = null;
+            propertyChangedFired = false;
+            var modelValue = valueAccessor();
+            var elementValue = ko.selectExtensions.readValue(element);
+            ko.expressionRewriting.writeValueToProperty(modelValue, allBindings, 'value', elementValue);
         }
 
         // Workaround for https://github.com/SteveSanderson/knockout/issues/122
@@ -5068,6 +5066,7 @@ ko.bindingHandlers['value'] = {
                         var allowUnset = allBindings.get('valueAllowUnset');
                         var applyValueAction = function () {
                             ko.selectExtensions.writeValue(element, newValue, allowUnset);
+                            ko.expressionRewriting.writeValueToProperty(valueAccessor(), allBindings, 'value', newValue);
                         };
 						ko.delaySync.run(function () {
                             applyValueAction();
